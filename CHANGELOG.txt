@@ -1,0 +1,8 @@
+v3.9.0 - November 11, 2018
+
+[+] Rebranded the fork to WordOps
+[+] Codebase cleanup
+[+] Included support for newer OS releases
+[+] Reworked the HTTPS configuration
+[-] Dropped mail services
+[-] Dropped w3tc support
