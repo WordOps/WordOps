@@ -1,28 +1,24 @@
 #!/bin/bash
 
-# WordOps update script.
-# This script is designed to install latest WordOps or
-# to update current WordOps from the v3 branch of EasyEngine.
+# WordOps install and update script
 
-# Define echo function
-
-# Blue color
+# Blue
 function wo_lib_echo()
 {
     echo $(tput setaf 4)$@$(tput sgr0)
 }
-# White color
+# White
 function wo_lib_echo_info()
 {
     echo $(tput setaf 7)$@$(tput sgr0)
 }
-# Red color
+# Red
 function wo_lib_echo_fail()
 {
     echo $(tput setaf 1)$@$(tput sgr0)
 }
 
-# Checking permissions
+# Check whether the installation is called with elevated rights
 if [[ $EUID -ne 0 ]]; then
     wo_lib_echo_fail "Sudo privilege required..."
     wo_lib_echo_fail "Uses: wget -qO wo wordops.se/tup && sudo bash wo"
@@ -36,11 +32,11 @@ function wo_lib_error()
     exit $2
 }
 
-# Execute: apt-get update
+# Update the apt sewers with fresh info
 wo_lib_echo "Executing apt-get update, please wait..."
 apt-get update &>> /dev/null
 
-# Checking lsb_release package
+# Check whether lsb_release is installed, and if not, install it
 if [ ! -x /usr/bin/lsb_release ]; then
     wo_lib_echo "Installing lsb-release, please wait..."
     apt-get -y install lsb-release &>> /dev/null
@@ -49,7 +45,7 @@ fi
 # Define variables for later use
 wo_branch=$1
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.8.1"
+readonly wo_version_new="3.9.0"
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -440,13 +436,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
 
         elif [ "$wo_distro_version" == "wheezy" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
-            #grep -Hr "deb http://packages.dotdeb.org wheezy all" /etc/apt/sources.list.d/wo-repo.list &>> /dev/null
             if [[ $? -ne 0 ]]; then
-                # if [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
-                #     rm -rf /etc/apt/sources.list.d/dotdeb-wheezy.list
-                # else
-                #     sed -i "/deb http:\/\/packages.dotdeb.org wheezy all/d" /etc/apt/sources.list.d/wo-repo.list &>> /dev/null
-                # fi
                 echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
                 gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
                 gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -

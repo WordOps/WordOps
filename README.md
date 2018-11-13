@@ -29,7 +29,7 @@ WordOps made some fundamental changes:
 
 * We've deprecated the mail stack. Less is more. As an alternative, take a look at [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). And an alternative for Roundcube is [Rainloop](https://www.rainloop.net/).
 * Support for w3tc is dropped as a security precaution.
-* We are currently migrating the PHP 5.x series to PHP 7.1 and PHP 7.2. We'll offer an easy to use migration script once we are confident enough to unleash this daemon.
+* We are currently migrating the PHP 5.x series to PHP 7.1 and PHP 7.2. We'll offer an easy to use migration script once we are confident enough to unleash this daemon. For now, new sites get installed with PHP 7.2 as the default.
 
 ## Update WordOps
 
