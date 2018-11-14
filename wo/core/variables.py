@@ -169,13 +169,12 @@ class WOVariables():
     wo_mysql = ["mariadb-server", "percona-toolkit"]
 
     # HHVM repo details
-    # 12.04 requires boot repository
     if wo_platform_distro == 'ubuntu':
         if wo_platform_codename == "precise":
             wo_boost_repo = ("ppa:mapnik/boost")
             wo_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
                         .format(codename=wo_platform_codename))
-        elif wo_platform_codename == "trusty":
+        elif wo_platform_codename == "trusty" or wo_platform_codename == "xenial" or wo_platform_codename == "bionic":
             wo_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
                         .format(codename=wo_platform_codename))
     else:

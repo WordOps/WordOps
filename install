@@ -86,9 +86,9 @@ fi
 function wo_install_dep()
 {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common || wo_lib_error "There was an error during dependency installation, exit status " 1
+        apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common sendmail || wo_lib_error "There was an error during dependency installation, exit status " 1
     elif [ "$wo_linux_distro" == "Debian" ]; then
-        apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties || wo_lib_error "There was an error during dependency installation, exit status " 1
+        apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties sendmail || wo_lib_error "There was an error during dependency installation, exit status " 1
     fi
 
     # Generate the locale, output to the blackhole rather than STDOUT
