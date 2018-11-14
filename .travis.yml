@@ -1,3 +1,6 @@
+ notifications:
+    slack: wordops:MyZBNbI7JfhbAi3YyFckMdaa
+    
 language: bash
 
 dist: xenial
