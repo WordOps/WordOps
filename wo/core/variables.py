@@ -45,7 +45,7 @@ class WOVariables():
     # WordOps default webroot path
     wo_webroot = '/var/www/'
 
-    # PHP5 user
+    # PHP user
     wo_php_user = 'www-data'
 
     # Get git user name and EMail

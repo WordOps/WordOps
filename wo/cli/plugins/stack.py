@@ -158,7 +158,7 @@ class WOStackController(CementBaseController):
             WORepo.add_key(self, WOVariables.wo_nginx_key)
 
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            if set(WOVariables.wo_php7_0).issubset(set(apt_packages)) \
+            if set(WOVariables.wo_php7_2).issubset(set(apt_packages)) \
                     or set(WOVariables.wo_php5_6).issubset(set(apt_packages)):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')

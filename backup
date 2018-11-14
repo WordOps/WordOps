@@ -1,0 +1,85 @@
+#!/bin/bash
+#############################
+### WordOps backup script ###
+#############################
+
+# Blue
+function wo_lib_echo()
+{
+    echo $(tput setaf 4)$@$(tput sgr0)
+}
+# White
+function wo_lib_echo_info()
+{
+    echo $(tput setaf 7)$@$(tput sgr0)
+}
+# Red
+function wo_lib_echo_fail()
+{
+    echo $(tput setaf 1)$@$(tput sgr0)
+}
+
+# Check whether we are running as UID 0
+if [[ $EUID -ne 0 ]]; then
+    wo_lib_echo_fail "WordOps backup requires elevated privileges"
+    wo_lib_echo_fail "Call it as root: wget -qO backup wordops.se/curedata && sudo bash backup"
+    exit 100
+fi
+
+# Capture errors
+function wo_lib_error()
+{
+    echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)"
+    exit $2
+}
+
+# Define variables for later use
+wo_branch=$1
+readonly wo_log_dir=/var/log/wo/
+readonly wo_backup_log=/var/log/wo/backup.log
+readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
+readonly wo_distro_version=$(lsb_release -sc)
+
+# Checking linux distro
+if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ]; then
+    wo_lib_echo_fail "WordOps (wo) only supports Ubuntu and Debian at the moment."
+    wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
+    wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
+    wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
+    exit 100
+fi
+
+# WordOps (wo) only supports Ubuntu/Debian versions that are eligible for support
+lsb_release -d | egrep -e "14.04|16.04|18.04|jessie|stretch" &>> /dev/null
+if [ "$?" -ne "0" ]; then
+    wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
+    exit 100
+fi
+
+# Check whether the log file is in place and otherwise create it
+if [ ! -f $wo_backup_log ]; then
+
+    wo_lib_echo "Creating the WordOps (wo) backup log, just a second..."
+
+    # Touch/create two empty log files within the wo_log_dir
+    touch /var/log/wo/backup.log
+
+    # Set the ACL to only allow access by the root user and block others
+    chmod 700 /var/log/wo/backup.log || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps (wo) backup log file, exit status " $?
+fi
+
+function wo_install_duplicity()
+{
+	if [ ! -f $wo_duplicity_bin ]; then
+    	if [ "$wo_linux_distro" == "Ubuntu" ]; then
+        	apt-get -y install duplicity python-pip || wo_lib_error "There was an error during dependency installation, exit status " 1
+    	elif [ "$wo_linux_distro" == "Debian" ]; then
+        	apt-get -y install duplicity python-pip || wo_lib_error "There was an error during dependency installation, exit status " 1
+    	fi
+    fi
+}
+
+function wo_backup_databases()
+{
+    #
+}
