@@ -1,5 +1,7 @@
 language: bash
 
+dist: xenial
+
 before_install:
   - rm -rf ~/.gnupg
 
