@@ -289,59 +289,46 @@ function wo_upgrade_php(){
             add-apt-repository -y 'ppa:ondrej/php'
             wo_lib_echo "Updating the PHP repository for some neat PHP 7 support"
             apt-get update &>> /dev/null
-            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php5.6-soap php-memcache || wo_lib_error "Unable to install PHP 5.6 packages, exit status " 1
-            if [ -e /etc/php5/fpm/pool.d/www.conf -a -e /etc/php5/fpm/pool.d/debug.conf -a -e /etc/php5/fpm/php.ini -a -e /etc/php5/fpm/php-fpm.conf ]; then
-                cp -f /etc/php5/fpm/pool.d/www.conf /etc/php/5.6/fpm/pool.d/www.conf &>> /dev/null
-                cp -f /etc/php5/fpm/pool.d/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null
-                cp -f /etc/php5/fpm/php.ini /etc/php/5.6/fpm/php.ini &>> /dev/null
-                cp -f /etc/php5/fpm/php-fpm.conf /etc/php/5.6/fpm/php-fpm.conf &>> /dev/null
-            else
-                echo "Some expected files are missing." || wo_lib_error "Unable to configure PHP 5.6 packages, exit status " 1
-            fi
+            apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-mysql php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-recode php7.2-mysql php7.2-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php7.2-zip php7.2-xml php7.2-soap php-memcache || wo_lib_error "Unable to install PHP 5.6 packages, exit status " 1
             sed -i "s/pid.*/pid = \/run\/php\/php5.6-fpm.pid/" /etc/php/5.6/fpm/php-fpm.conf && \
             sed -i "s/error_log.*/error_log = \/var\/log\/php\/5.6\/fpm.log/" /etc/php/5.6/fpm/php-fpm.conf && \
             sed -i "s/log_level.*/log_level = notice/" /etc/php/5.6/fpm/php-fpm.conf && \
             sed -i "s/include.*/include = \/etc\/php\/5.6\/fpm\/pool.d\/*.conf/" /etc/php/5.6/fpm/php-fpm.conf && \
             sed -i "s/slowlog =.*/slowlog = \/var\/log\/php\/5.6\/slow.log/" /etc/php/5.6/fpm/pool.d/debug.conf || wo_lib_error "An error was encountered during the configuration update, exit status " $?
-            mkdir -p /var/log/php/5.6/
-            touch /var/log/php/5.6/slow.log /var/log/php/5.6/fpm.log
+            mkdir -p /var/log/php/7.2/
+            touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
             service php5-fpm stop &>> /dev/null
-            service php5.6-fpm restart &>> /dev/null
+            service php7.2-fpm restart &>> /dev/null
             rm -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list &>> /dev/null
             apt-get remove -y php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
 
-          # Fix for PHP 5.6 + 7.0 missed packages
+          # Fix for PHP 7.2 missed packages
         elif [ -f /etc/php/mods-available/readline.ini ]; then
-              mkdir -p /tmp/php-conf/5.6
-              mkdir -p /tmp/php-conf/7.0
-              cp -f /etc/php/5.6/fpm/pool.d/www.conf /tmp/php-conf/5.6 &>> /dev/null
-              cp -f /etc/php/5.6/fpm/pool.d/debug.conf /tmp/php-conf/5.6 &>> /dev/null
-              cp -f /etc/php/5.6/fpm/php.ini /tmp/php-conf/5.6 &>> /dev/null
-              cp -f /etc/php/5.6/fpm/php-fpm.conf /tmp/php-conf/5.6 &>> /dev/null
+              mkdir -p /tmp/php-conf/7.2
 
-              cp -f /etc/php/7.0/fpm/pool.d/www.conf /tmp/php-conf/7.0 &>> /dev/null
-              cp -f /etc/php/7.0/fpm/pool.d/debug.conf /tmp/php-conf/7.0 &>> /dev/null
-              cp -f /etc/php/7.0/fpm/php.ini /tmp/php-conf/7.0 &>> /dev/null
-              cp -f /etc/php/7.0/fpm/php-fpm.conf /tmp/php-conf/7.0 &>> /dev/null
+              cp -f /etc/php/7.2/fpm/pool.d/www.conf /tmp/php-conf/7.2 &>> /dev/null
+              cp -f /etc/php/7.2/fpm/pool.d/debug.conf /tmp/php-conf/7.2 &>> /dev/null
+              cp -f /etc/php/7.2/fpm/php.ini /tmp/php-conf/7.2 &>> /dev/null
+              cp -f /etc/php/7.2/fpm/php-fpm.conf /tmp/php-conf/7.2 &>> /dev/null
 
 
-            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php-memcache || wo_lib_error "Unable to install PHP 5.6 packages, exit status " 1
-            dpkg-query -W -f='${Status} ${Version}\n' php7.0-fpm 2>/dev/null | grep installed
+            apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-mysql php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-recode php7.2-mysql php7.2-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php7.2-zip php7.2-xml php-memcache || wo_lib_error "Unable to install PHP 7.2 packages, exit status " 1
+            dpkg-query -W -f='${Status} ${Version}\n' php7.2-fpm 2>/dev/null | grep installed
             if [ "$?" -eq "0" ]; then
-                apt-get -y install php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt php7.0-readline php7.0-common php7.0-recode php7.0-mysql php7.0-cli php7.0-curl php7.0-mbstring php7.0-bcmath php7.0-mysql php7.0-opcache php7.0-zip php7.0-xml php-memcached php-imagick php-memcache memcached php-pear php-xdebug php-msgpack  php7.0-soap || wo_lib_error "Unable to install PHP 7.0 packages, exit status " 1
-                mv -f /tmp/php-conf/7.0/www.conf /etc/php/7.0/fpm/pool.d/www.conf  &>> /dev/null
-                mv -f /tmp/php-conf/7.0/debug.conf /etc/php/7.0/fpm/pool.d/debug.conf &>> /dev/null
-                mv -f /tmp/php-conf/7.0/php.ini /etc/php/7.0/fpm/php.ini  &>> /dev/null
-                mv -f /tmp/php-conf/7.0/php-fpm.conf /etc/php/7.0/fpm/php-fpm.conf  &>> /dev/null
-                service php7.0-fpm restart &>> /dev/null
+                apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-common php7.2-recode php7.2-mysql php7.2-cli php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-mysql php7.2-opcache php7.2-zip php7.2-xml php-memcached php-imagick php-memcache memcached php-pear php-xdebug php-msgpack php7.2-soap || wo_lib_error "Unable to install PHP 7.2 packages, exit status " 1
+                mv -f /tmp/php-conf/7.2/www.conf /etc/php/7.2/fpm/pool.d/www.conf  &>> /dev/null
+                mv -f /tmp/php-conf/7.2/debug.conf /etc/php/7.2/fpm/pool.d/debug.conf &>> /dev/null
+                mv -f /tmp/php-conf/7.2/php.ini /etc/php/7.2/fpm/php.ini  &>> /dev/null
+                mv -f /tmp/php-conf/7.2/php-fpm.conf /etc/php/7.2/fpm/php-fpm.conf  &>> /dev/null
+                service php7.2-fpm restart &>> /dev/null
             fi
 
-            mv -f /tmp/php-conf/5.6/www.conf /etc/php/5.6/fpm/pool.d/www.conf  &>> /dev/null
-            mv -f /tmp/php-conf/5.6/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null
-            mv -f /tmp/php-conf/5.6/php.ini /etc/php/5.6/fpm/php.ini  &>> /dev/null
-            mv -f /tmp/php-conf/5.6/php-fpm.conf /etc/php/5.6/fpm/php-fpm.conf  &>> /dev/null
+            mv -f /tmp/php-conf/7.2/www.conf /etc/php/7.2/fpm/pool.d/www.conf  &>> /dev/null
+            mv -f /tmp/php-conf/7.2/debug.conf /etc/php/7.2/fpm/pool.d/debug.conf &>> /dev/null
+            mv -f /tmp/php-conf/7.2/php.ini /etc/php/7.2/fpm/php.ini  &>> /dev/null
+            mv -f /tmp/php-conf/7.2/php-fpm.conf /etc/php/7.2/fpm/php-fpm.conf  &>> /dev/null
 
-            service php5.6-fpm restart &>> /dev/null
+            service php7.2-fpm restart &>> /dev/null
             rm -rf /tmp/php-conf
         fi
    fi
@@ -498,17 +485,6 @@ if [ -f /etc/ImageMagick/policy.xml  ]
         sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"WordOps $wo_version_new\";/" /etc/nginx/conf.d/wo-plus.conf &>> /dev/null
     fi
 
-    # Disable Xdebug on old systems if and only if wo debug is off
-    if [ -f /etc/php5/mods-available/xdebug.ini ]; then
-        wo_debug_value=$(grep -Hr 9001 /etc/nginx/conf.d/upstream.conf | wc -l )
-        if [ $wo_debug_value -eq 1 ]; then
-            grep -Hr ";zend_extension" /etc/php5/mods-available/xdebug.ini &>> /dev/null
-            if [ $? -ne 0 ]; then
-                sed -i "s/zend_extension/;zend_extension/" /etc/php5/mods-available/xdebug.ini
-            fi
-        fi
-    fi
-
     # Fix HHVM autostart on reboot
     dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null
     if [ $? -eq 0 ]; then
@@ -537,7 +513,6 @@ if [ -f /etc/ImageMagick/policy.xml  ]
             echo -e "hhvm.server.ip = 127.0.0.1\n" >> /etc/hhvm/server.ini
         fi
     fi
-
 
     # Rename Redis Header
     if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
@@ -613,9 +588,9 @@ if [ -f /etc/ImageMagick/policy.xml  ]
         fi
     fi
 
-    #Fix For ssl_ciphers
+    # Support PFS
     if [ -f /etc/nginx/nginx.conf ]; then
-       sed -i 's/HIGH:!aNULL:!MD5:!kEDH;/ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA;/' /etc/nginx/nginx.conf
+       sed -i 's/HIGH:!aNULL:!MD5:!kEDH;/ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;/' /etc/nginx/nginx.conf
     fi
 
    #Fix for SSL cert --all

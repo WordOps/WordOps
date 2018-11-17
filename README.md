@@ -1,6 +1,6 @@
 # [WordOps](https://wordops.org/)
 
-[![Travis Build Status](https://travis-ci.org/WordOps/WordOps.svg)](https://travis-ci.org/WordOps/WordOps)
+[![Travis Build Status](https://travis-ci.org/WordOps/WordOps.svg?branch=master)](https://travis-ci.org/WordOps/WordOps)
 
 WordOps (wo) is the essential toolset that eases WordPress site and server administration.
 
