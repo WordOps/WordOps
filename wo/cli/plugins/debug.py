@@ -50,11 +50,11 @@ class WODebugController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--php7'],
-                dict(help='start/stop debugging server PHP 7 configuration',
+                dict(help='start/stop debugging server PHP 7.2 configuration',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--fpm7'],
-                dict(help='start/stop debugging fastcgi 7.0 configuration',
+                dict(help='start/stop debugging fastcgi 7.2 configuration',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--mysql'],
@@ -293,13 +293,13 @@ class WODebugController(CementBaseController):
 
         if (self.app.pargs.php7 == 'on' and not self.app.pargs.site_name):
             if (WOVariables.wo_platform_codename == 'wheezy' or WOVariables.wo_platform_codename == 'precise'):
-                Log.error(self,"PHP 7.0 not supported.")
+                Log.error(self,"PHP 7.2 not supported.")
             if not (WOShellExec.cmd_exec(self, "sed -n \"/upstream php7"
                                                "{/,/}/p \" /etc/nginx/"
                                                "conf.d/upstream.conf "
                                                "| grep 9170")):
 
-                Log.info(self, "Enabling PHP 7.0 debug")
+                Log.info(self, "Enabling PHP 7.2 debug")
 
                 # Change upstream.conf
                 nc = NginxConfig()
@@ -338,7 +338,7 @@ class WODebugController(CementBaseController):
             if WOShellExec.cmd_exec(self, " sed -n \"/upstream php7 {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
                                           "| grep 9170"):
-                Log.info(self, "Disabling PHP 7.0 debug")
+                Log.info(self, "Disabling PHP 7.2 debug")
 
                 # Change upstream.conf
                 nc = NginxConfig()
@@ -357,7 +357,7 @@ class WODebugController(CementBaseController):
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
-                Log.info(self, "PHP 7.0 debug is already disabled")
+                Log.info(self, "PHP 7.2 debug is already disabled")
 
     @expose(hide=True)
     def debug_fpm7(self):
@@ -366,7 +366,7 @@ class WODebugController(CementBaseController):
         if (self.app.pargs.fpm7 == 'on' and not self.app.pargs.site_name):
             if not WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                               "/etc/php/7.2/fpm/php-fpm.conf"):
-                Log.info(self, "Setting up PHP7.0-FPM log_level = debug")
+                Log.info(self, "Setting up PHP7.2-FPM log_level = debug")
                 config = configparser.ConfigParser()
                 config.read('/etc/php/7.2/fpm/php-fpm.conf')
                 config.remove_option('global', 'include')
@@ -374,12 +374,12 @@ class WODebugController(CementBaseController):
                 config['global']['include'] = '/etc/php/7.2/fpm/pool.d/*.conf'
                 with open('/etc/php/7.2/fpm/php-fpm.conf',
                           encoding='utf-8', mode='w') as configfile:
-                    Log.debug(self, "Writting php7.0-FPM configuration into "
+                    Log.debug(self, "Writing the PHP configuration into "
                               "/etc/php/7.2/fpm/php-fpm.conf")
                     config.write(configfile)
                 self.trigger_php = True
             else:
-                Log.info(self, "PHP7.0-FPM log_level = debug already setup")
+                Log.info(self, "PHP7.2-FPM log_level = debug already setup")
 
             self.msg = self.msg + ['/var/log/php/7.2/fpm.log']
 
@@ -387,7 +387,7 @@ class WODebugController(CementBaseController):
         elif (self.app.pargs.fpm7 == 'off' and not self.app.pargs.site_name):
             if WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                           "/etc/php/7.2/fpm/php-fpm.conf"):
-                Log.info(self, "Disabling PHP7.0-FPM log_level = debug")
+                Log.info(self, "Disabling PHP7.2-FPM log_level = debug")
                 config = configparser.ConfigParser()
                 config.read('/etc/php/7.2/fpm/php-fpm.conf')
                 config.remove_option('global', 'include')
@@ -395,12 +395,12 @@ class WODebugController(CementBaseController):
                 config['global']['include'] = '/etc/php/7.2/fpm/pool.d/*.conf'
                 with open('/etc/php/7.2/fpm/php-fpm.conf',
                           encoding='utf-8', mode='w') as configfile:
-                    Log.debug(self, "writting php7.0 configuration into "
+                    Log.debug(self, "Writing the php7.2 configuration into "
                               "/etc/php/7.2/fpm/php-fpm.conf")
                     config.write(configfile)
                 self.trigger_php = True
             else:
-                Log.info(self, "PHP7.0-FPM log_level = debug  already disabled")
+                Log.info(self, "PHP7.2-FPM log_level = debug  already disabled")
 
     @expose(hide=True)
     def debug_mysql(self):
@@ -628,8 +628,8 @@ class WODebugController(CementBaseController):
             if WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic':
                 if WOAptGet.is_installed(self,'php5.6-fpm'):
                     WOService.reload_service(self, 'php5.6-fpm')
-                if WOAptGet.is_installed(self,'php7.0-fpm'):
-                    WOService.reload_service(self, 'php7.0-fpm')
+                if WOAptGet.is_installed(self,'php7.2-fpm'):
+                    WOService.reload_service(self, 'php7.2-fpm')
             else:
                 WOService.reload_service(self, 'php5-fpm')
         self.app.close(0)
@@ -716,7 +716,7 @@ class WODebugController(CementBaseController):
             self.app.pargs.nginx = 'on'
             self.app.pargs.php = 'on'
             self.app.pargs.fpm = 'on'
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and WOAptGet.is_installed(self,'php7.0-fpm'):
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and WOAptGet.is_installed(self,'php7.2-fpm'):
                 self.app.pargs.php7 = 'on'
                 self.app.pargs.fpm7 = 'on'
             self.app.pargs.mysql = 'on'
@@ -728,7 +728,7 @@ class WODebugController(CementBaseController):
             self.app.pargs.nginx = 'off'
             self.app.pargs.php = 'off'
             self.app.pargs.fpm = 'off'
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and WOAptGet.is_installed(self,'php7.0-fpm'):
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and WOAptGet.is_installed(self,'php7.2-fpm'):
                 self.app.pargs.php7 = 'off'
                 self.app.pargs.fpm7 = 'off'
             self.app.pargs.mysql = 'off'
@@ -776,12 +776,12 @@ class WODebugController(CementBaseController):
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 if WOAptGet.is_installed(self,'php5.6-fpm'):
                     WOService.restart_service(self, 'php5.6-fpm')
-                if WOAptGet.is_installed(self,'php7.0-fpm'):
-                    WOService.restart_service(self, 'php7.0-fpm')
+                if WOAptGet.is_installed(self,'php7.2-fpm'):
+                    WOService.restart_service(self, 'php7.2-fpm')
             else:
                 WOService.restart_service(self, 'php5-fpm')
                 if WOVariables.wo_platform_codename == 'jessie':
-                    WOService.restart_service(self, 'php7.0-fpm')
+                    WOService.restart_service(self, 'php7.2-fpm')
 
         if len(self.msg) > 0:
             if not self.app.pargs.interactive:

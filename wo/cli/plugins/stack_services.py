@@ -46,17 +46,17 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP5.6-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
 
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
             else:
                 Log.info(self, "Your platform does not support PHP 7")
 
@@ -123,17 +123,17 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP5.6-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
 
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
             else:
                 Log.info(self, "Your platform does not support PHP 7")
 
@@ -200,17 +200,17 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP5.6-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
 
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
             else:
                 Log.info(self, "Your platform does not support PHP 7")
 
@@ -279,17 +279,17 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP5.6-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
 
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
             else:
                 Log.info(self, "Your platform does not support PHP 7")
 
@@ -356,17 +356,17 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP5.6-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
 
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    services = services + ['php7.0-fpm']
+                if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP7.0-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
             else:
                 Log.info(self, "Your platform does not support PHP 7")
 

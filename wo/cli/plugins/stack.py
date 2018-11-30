@@ -158,8 +158,7 @@ class WOStackController(CementBaseController):
             WORepo.add_key(self, WOVariables.wo_nginx_key)
 
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            if set(WOVariables.wo_php7_2).issubset(set(apt_packages)) \
-                    or set(WOVariables.wo_php5_6).issubset(set(apt_packages)):
+            if set(WOVariables.wo_php72).issubset(set(apt_packages)):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 WORepo.add(self, ppa=WOVariables.wo_php_repo)
@@ -178,7 +177,7 @@ class WOStackController(CementBaseController):
                     WORepo.add(self, ppa=WOVariables.wo_php_repo)
 
             if WOVariables.wo_platform_codename == 'jessie':
-                if set(WOVariables.wo_php7_0).issubset(set(apt_packages)):
+                if set(WOVariables.wo_php72).issubset(set(apt_packages)):
                     Log.debug(self, 'Adding repo_url of php 7.0 for debian')
                     WORepo.add(self, repo_url=WOVariables.wo_php_repo)
                     Log.debug(self, 'Adding Dotdeb/php GPG key')
@@ -249,7 +248,7 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     data = dict(php="9000", debug="9001", hhvm="8000",php7="9070",debug7="9170",
-                                hhvmconf=False, php7conf= True if WOAptGet.is_installed(self,'php7.0-fpm') else False )
+                                hhvmconf=False, php7conf= True if WOAptGet.is_installed(self,'php7.2-fpm') else False )
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
                     wo_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -1015,7 +1014,7 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php5.6-fpm')
 
         #PHP7.0 configuration for debian
-            if (WOVariables.wo_platform_codename == 'jessie' ) and set(WOVariables.wo_php7_2).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_codename == 'jessie' ) and set(WOVariables.wo_php72).issubset(set(apt_packages)):
                  # Create log directories
                 if not os.path.exists('/var/log/php/7.2/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.2/')
@@ -1037,7 +1036,7 @@ class WOStackController(CementBaseController):
                     config.write(configfile)
 
                 # Parse /etc/php/7.2/fpm/php-fpm.conf
-                data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php7.0-fpm.log",
+                data = dict(pid="/run/php/php7.2-fpm.pid", error_log="/var/log/php7.2-fpm.log",
                               include="/etc/php/7.2/fpm/pool.d/*.conf")
                 Log.debug(self, "writting php 7.0 configuration into "
                               "/etc/php/7.2/fpm/php-fpm.conf")
@@ -1134,10 +1133,10 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user, recursive=True)
 
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-                WOService.restart_service(self, 'php7.0-fpm')
+                WOService.restart_service(self, 'php7.2-fpm')
 
-            #preconfiguration for php7.0
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php7_2).issubset(set(apt_packages)):
+            #preconfiguration for php7.2
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php72).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.2/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.2/')
@@ -1159,7 +1158,7 @@ class WOStackController(CementBaseController):
                     config.write(configfile)
 
                 # Parse /etc/php/7.2/fpm/php-fpm.conf
-                data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php/7.2/fpm.log",
+                data = dict(pid="/run/php/php7.2-fpm.pid", error_log="/var/log/php/7.2/fpm.log",
                               include="/etc/php/7.2/fpm/pool.d/*.conf")
                 Log.debug(self, "writting php 7.0 configuration into "
                               "/etc/php/7.2/fpm/php-fpm.conf")
@@ -1256,7 +1255,7 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user, recursive=True)
 
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-                WOService.restart_service(self, 'php7.0-fpm')
+                WOService.restart_service(self, 'php7.2-fpm')
 
 
 
@@ -1548,7 +1547,7 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP")
                 if not (WOAptGet.is_installed(self, 'php5-fpm') or WOAptGet.is_installed(self, 'php5.6-fpm')):
                     if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                        apt_packages = apt_packages + WOVariables.wo_php7_2 + WOVariables.wo_php_extra
+                        apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php
                 else:
@@ -1558,26 +1557,24 @@ class WOStackController(CementBaseController):
         #PHP 7.0 for Debian (jessie+)
             if self.app.pargs.php7 and WOVariables.wo_platform_distro == 'debian':
                 if (WOVariables.wo_platform_codename == 'jessie'):
-                    Log.debug(self, "Setting apt_packages variable for PHP 7.0")
-                    if not WOAptGet.is_installed(self, 'php7.0-fpm') :
-                        apt_packages = apt_packages + WOVariables.wo_php7_0
+                    Log.debug(self, "Setting apt_packages variable for PHP 7.2")
+                    if not WOAptGet.is_installed(self, 'php7.2-fpm') :
+                        apt_packages = apt_packages + WOVariables.wo_php72
                         if not WOAptGet.is_installed(self, 'php5-fpm'):
                             apt_packages = apt_packages + WOVariables.wo_php
                     else:
-                        Log.debug(self, "PHP 7.0 already installed")
-                        Log.info(self, "PHP 7.0 already installed")
+                        Log.debug(self, "PHP 7.2 already installed")
+                        Log.info(self, "PHP 7.2 already installed")
                 else:
-                    Log.debug(self, "PHP 7.0  Not Available for your Distribution")
-                    Log.info(self, "PHP 7.0  Not Available for your Distribution")
+                    Log.debug(self, "PHP 7.2  Not Available for your Distribution")
+                    Log.info(self, "PHP 7.2  Not Available for your Distribution")
 
         #PHP 7.0 for Ubuntu
             if self.app.pargs.php7 and not WOVariables.wo_platform_distro == 'debian':
                 if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                     Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                     if not WOAptGet.is_installed(self, 'php7.2-fpm') :
-                        apt_packages = apt_packages + WOVariables.wo_php7_2 + WOVariables.wo_php_extra
-                        if not WOAptGet.is_installed(self, 'php5.6-fpm'):
-                            apt_packages = apt_packages + WOVariables.wo_php5_6 + WOVariables.wo_php_extra
+                        apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
                     else:
                         Log.debug(self, "PHP 7.2 already installed")
                         Log.info(self, "PHP 7.2 already installed")
@@ -1785,7 +1782,7 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                apt_packages = apt_packages + WOVariables.wo_php7_2
+                apt_packages = apt_packages + WOVariables.wo_php72
                 if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
@@ -1795,7 +1792,7 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'jessie'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
-                apt_packages = apt_packages + WOVariables.wo_php7_0
+                apt_packages = apt_packages + WOVariables.wo_php72
                 if not WOAptGet.is_installed(self, 'php5-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
@@ -1804,7 +1801,7 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
-                apt_packages = apt_packages + WOVariables.wo_php7_0
+                apt_packages = apt_packages + WOVariables.wo_php72
                 if not WOAptGet.is_installed(self, 'php5.6-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
@@ -1934,30 +1931,28 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                apt_packages = apt_packages + WOVariables.wo_php5_6
-                if not WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
-                apt_packages = apt_packages + WOVariables.wo_php
+                apt_packages = apt_packages + WOVariables.wo_php72
 
         #For debian --php7
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'jessie'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
-                apt_packages = apt_packages + WOVariables.wo_php7_0
+                apt_packages = apt_packages + WOVariables.wo_php72
                 if not WOAptGet.is_installed(self, 'php5-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
-                Log.info(self,"PHP 7.0 not supported.")
+                Log.info(self,"PHP 7.2 not supported.")
 
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
-                apt_packages = apt_packages + WOVariables.wo_php7_0
+                apt_packages = apt_packages + WOVariables.wo_php72
                 if not WOAptGet.is_installed(self, 'php5.6-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
-                Log.info(self,"PHP 7.0 not supported.")
+                Log.info(self,"PHP 7.2 not supported.")
         if self.app.pargs.hhvm:
             if WOAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Purge apt_packages varible of HHVM")

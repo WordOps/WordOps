@@ -140,7 +140,7 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_php7(self):
         """Display PHP information"""
-        version = os.popen("php7.0 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
+        version = os.popen("php7.2 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
         config.read('/etc/php/7.2/fpm/php.ini')
@@ -247,7 +247,7 @@ class WOInfoController(CementBaseController):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
-            if WOAptGet.is_installed(self, 'php7.0-fpm'):
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
                     self.app.pargs.php = True
 
         if self.app.pargs.nginx:
@@ -269,10 +269,10 @@ class WOInfoController(CementBaseController):
                     Log.error(self, "PHP5.6 is not installed")
 
         if self.app.pargs.php7:
-            if WOAptGet.is_installed(self, 'php7.0-fpm'):
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 self.info_php7()
             else:
-                Log.error(self, "PHP 7.0 is not installed")
+                Log.error(self, "PHP 7.2 is not installed")
 
         if self.app.pargs.mysql:
             if WOShellExec.cmd_exec(self, "mysqladmin ping"):
