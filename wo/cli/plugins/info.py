@@ -30,7 +30,7 @@ class WOInfoController(CementBaseController):
                 dict(help='Get PHP configuration information',
                      action='store_true')),
             (['--php7'],
-                dict(help='Get PHP 7.0 configuration information',
+                dict(help='Get PHP 7.2 configuration information',
                      action='store_true')),
             (['--nginx'],
                 dict(help='Get Nginx configuration information',
@@ -143,14 +143,14 @@ class WOInfoController(CementBaseController):
         version = os.popen("php7.0 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
-        config.read('/etc/php/7.0/fpm/php.ini')
+        config.read('/etc/php/7.2/fpm/php.ini')
         expose_php = config['PHP']['expose_php']
         memory_limit = config['PHP']['memory_limit']
         post_max_size = config['PHP']['post_max_size']
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/php/7.0/fpm/pool.d/www.conf')
+        config.read('/etc/php/7.2/fpm/pool.d/www.conf')
         www_listen = config['www']['listen']
         www_ping_path = config['www']['ping.path']
         www_pm_status_path = config['www']['pm.status_path']
@@ -168,7 +168,7 @@ class WOInfoController(CementBaseController):
         except Exception as e:
             www_xdebug = 'off'
 
-        config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
+        config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
         debug_listen = config['debug']['listen']
         debug_ping_path = config['debug']['ping.path']
         debug_pm_status_path = config['debug']['pm.status_path']

@@ -310,20 +310,20 @@ class WODebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
-                WOFileUtils.searchreplace(self, "/etc/php/7.0/mods-available/"
+                WOFileUtils.searchreplace(self, "/etc/php/7.2/mods-available/"
                                               "xdebug.ini",
                                               ";zend_extension",
                                               "zend_extension")
 
                 # Fix slow log is not enabled default in PHP5.6
                 config = configparser.ConfigParser()
-                config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
-                config['debug']['slowlog'] = '/var/log/php/7.0/slow.log'
+                config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
+                config['debug']['slowlog'] = '/var/log/php/7.2/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/php/7.0/fpm/pool.d/debug.conf',
+                with open('/etc/php/7.2/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "Writting debug.conf configuration into "
-                              "/etc/php/7.0/fpm/pool.d/debug.conf")
+                              "/etc/php/7.2/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
                 self.trigger_php = True
@@ -331,7 +331,7 @@ class WODebugController(CementBaseController):
             else:
                 Log.info(self, "PHP debug is already enabled")
 
-            self.msg = self.msg + ['/var/log/php/7.0/slow.log']
+            self.msg = self.msg + ['/var/log/php/7.2/slow.log']
 
         # PHP global debug stop
         elif (self.app.pargs.php7 == 'off' and not self.app.pargs.site_name):
@@ -349,7 +349,7 @@ class WODebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                WOFileUtils.searchreplace(self, "/etc/php/7.0/mods-available/"
+                WOFileUtils.searchreplace(self, "/etc/php/7.2/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -365,38 +365,38 @@ class WODebugController(CementBaseController):
         # PHP5-FPM start global debug
         if (self.app.pargs.fpm7 == 'on' and not self.app.pargs.site_name):
             if not WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                              "/etc/php/7.0/fpm/php-fpm.conf"):
+                                              "/etc/php/7.2/fpm/php-fpm.conf"):
                 Log.info(self, "Setting up PHP7.0-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/php/7.0/fpm/php-fpm.conf')
+                config.read('/etc/php/7.2/fpm/php-fpm.conf')
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'debug'
-                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
-                with open('/etc/php/7.0/fpm/php-fpm.conf',
+                config['global']['include'] = '/etc/php/7.2/fpm/pool.d/*.conf'
+                with open('/etc/php/7.2/fpm/php-fpm.conf',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php7.0-FPM configuration into "
-                              "/etc/php/7.0/fpm/php-fpm.conf")
+                              "/etc/php/7.2/fpm/php-fpm.conf")
                     config.write(configfile)
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP7.0-FPM log_level = debug already setup")
 
-            self.msg = self.msg + ['/var/log/php/7.0/fpm.log']
+            self.msg = self.msg + ['/var/log/php/7.2/fpm.log']
 
         # PHP5-FPM stop global debug
         elif (self.app.pargs.fpm7 == 'off' and not self.app.pargs.site_name):
             if WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                          "/etc/php/7.0/fpm/php-fpm.conf"):
+                                          "/etc/php/7.2/fpm/php-fpm.conf"):
                 Log.info(self, "Disabling PHP7.0-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/php/7.0/fpm/php-fpm.conf')
+                config.read('/etc/php/7.2/fpm/php-fpm.conf')
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
-                with open('/etc/php/7.0/fpm/php-fpm.conf',
+                config['global']['include'] = '/etc/php/7.2/fpm/pool.d/*.conf'
+                with open('/etc/php/7.2/fpm/php-fpm.conf',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php7.0 configuration into "
-                              "/etc/php/7.0/fpm/php-fpm.conf")
+                              "/etc/php/7.2/fpm/php-fpm.conf")
                     config.write(configfile)
                 self.trigger_php = True
             else:

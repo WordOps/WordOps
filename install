@@ -1,57 +1,77 @@
 #!/bin/bash
+#########################################
+### WordOps install and update script ###
+#########################################
+### CONTENTS
+### ---
+### 1. VARIABLES AND DECLARATIONS
+### 2. PREPARE FOR INSTALLATION
 
-# WordOps install and update script
+###
+# 1 - Set the CLI output colors
+###
 
-# Blue
 function wo_lib_echo()
 {
     echo $(tput setaf 4)$@$(tput sgr0)
 }
-# White
+
 function wo_lib_echo_info()
 {
     echo $(tput setaf 7)$@$(tput sgr0)
 }
-# Red
+
 function wo_lib_echo_fail()
 {
     echo $(tput setaf 1)$@$(tput sgr0)
 }
 
-# Check whether the installation is called with elevated rights
+###
+# 1 - Check whether the installation is called with elevated rights
+###
 if [[ $EUID -ne 0 ]]; then
     wo_lib_echo_fail "Sudo privilege required..."
     wo_lib_echo_fail "Uses: wget -qO wo wordops.se/tup && sudo bash wo"
     exit 100
 fi
 
-# Capture errors
+###
+# 1 - Capture errors
+###
 function wo_lib_error()
 {
     echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)"
     exit $2
 }
 
-# Update the apt sewers with fresh info
-wo_lib_echo "Executing apt-get update, please wait..."
+###
+# 1- Update the apt sewers with fresh info
+###
+wo_lib_echo "Updating apt-get repository info"
 apt-get update &>> /dev/null
 
-# Check whether lsb_release is installed, and if not, install it
+###
+# 1- Check whether lsb_release is installed, and if not, install it
+###
 if [ ! -x /usr/bin/lsb_release ]; then
     wo_lib_echo "Installing lsb-release, please wait..."
     apt-get -y install lsb-release &>> /dev/null
 fi
 
-# Define variables for later use
+###
+# 1 - Define variables for later use
+###
 wo_branch=$1
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.0"
+readonly wo_version_new="3.8.5"
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
 readonly wo_distro_version=$(lsb_release -sc)
 
-# Checking linux distro
+###
+# 1 - Checking linux distro
+###
 if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ]; then
     wo_lib_echo_fail "WordOps (wo) only supports Ubuntu and Debian at the moment."
     wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
@@ -60,45 +80,64 @@ if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ]; the
     exit 100
 fi
 
-# WordOps (wo) only supports Ubuntu/Debian versions that are eligible for support
+###
+# 1 - WordOps (wo) only supports Ubuntu/Debian versions that are eligible for support
+###
 lsb_release -d | egrep -e "14.04|16.04|18.04|jessie|stretch" &>> /dev/null
 if [ "$?" -ne "0" ]; then
     wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
     exit 100
 fi
 
-# To prevent errors or unexpected behaviour, create
-# the log directory and properly set the ACL.
+###
+# 1 - To prevent errors or unexpected behaviour, create the log and ACL it
+###
 if [ ! -d $wo_log_dir ]; then
 
     wo_lib_echo "Creating WordOps log directory, just a second..."
     mkdir -p $wo_log_dir || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
 
-    # Touch/create two empty log files within the wo_log_dir
     touch /var/log/wo/{wordops.log,install.log}
 
-    # Set the ACL to only allow access by the root user and block others
     chmod -R 700 /var/log/wo || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
 fi
 
-# Install a few dependencies (python v3, git, tar and python-software-properties),
-# plus generate the locale afterwards.
+###
+# 2 - Setup the dependencies for installation
+####
 function wo_install_dep()
 {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common sendmail || wo_lib_error "There was an error during dependency installation, exit status " 1
+        apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common postfix pigz || wo_lib_error "There was an error during dependency installation, exit status " 1
     elif [ "$wo_linux_distro" == "Debian" ]; then
-        apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties sendmail || wo_lib_error "There was an error during dependency installation, exit status " 1
+        apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python-setuptools python3-dev sqlite3 git tar software-properties-common postfix pigz || wo_lib_error "There was an error during dependency installation, exit status " 1
     fi
 
-    # Generate the locale, output to the blackhole rather than STDOUT
     locale-gen en &>> /dev/null
 }
 
-# Create the WordOps database and intialize it
+###
+# 3 - Create/migrate the essentials
+###
 function wo_sync_db()
 {
-    if [ ! -f /var/lib/wo/dbase.db ]; then
+    ###
+    # Switching from EE -> WO
+    ###
+    if [ -f /var/lib/ee/ee.db ]; then
+        # Create the WordOps folder
+        mkdir -p /var/lib/wo
+
+        # Backup the nginx directory
+        tar -cvf - /etc/nginx /var/lib/ee/ee.db | pigz -9 > /var/lib/wo/ee-nginx.tgz
+
+        # Copy the EasyEngine database
+        cp /var/lib/ee/ee.db /var/lib/wo/dbase.db
+
+    ###
+    # Clean WO installation
+    ###
+    elif [ ! -f /var/lib/wo/dbase.db ]; then
         mkdir -p /var/lib/wo
 
         echo "CREATE TABLE sites (
@@ -188,10 +227,9 @@ function wo_sync_db()
         # Import the configuration into the WordOps SQLite database
         echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
         VALUES (\"$site\", \"$wo_site_current\", \"$wo_site_current_cache\", \"$wo_webroot\", \"$wo_site_status\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/wo/dbase.db
-
         done
     else
-        wo_php_version=$(php -v | head -n1 | cut -d' ' -f2 |cut -c1-3)
+        wo_php_version="7.2"
         wo_lib_echo "Updating WordOps Database"
         echo "ALTER TABLE sites ADD COLUMN db_name varchar;" | sqlite3 /var/lib/wo/dbase.db
         echo "ALTER TABLE sites ADD COLUMN db_user varchar; " | sqlite3 /var/lib/wo/dbase.db
@@ -199,6 +237,33 @@ function wo_sync_db()
         echo "ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/wo/dbase.db
         echo "ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0';" | sqlite3 /var/lib/wo/dbase.db
         echo "ALTER TABLE sites ADD COLUMN php_version varchar DEFAULT \"$wo_php_version\";" | sqlite3 /var/lib/wo/dbase.db
+    fi
+
+    ###
+    # ee-acme-sh by VirtuBox, https://virtubox.net/
+    ###
+    if [ ! -f ~/.acme.sh/acme.sh ]; then
+        wget -O -  https://get.acme.sh | sh
+        BASHRC_EE_ACME_FIRST_RELEASE=$(grep "ee-acme" $HOME/.bashrc)
+        BASHRC_EE_ACME_LAST_RELEASE=$(grep "ee-acme.sh" $HOME/.bashrc)
+
+        if [ -f $HOME/.ee-acme/ee-acme ] && [ -z "$BASHRC_EE_ACME_LAST_RELEASE" ]; then
+            rm -rf $HOME/.ee-acme/*
+            echo 'alias ee-acme="/root/.ee-acme/ee-acme.sh"' >> $HOME/.ee-acme/ee-acme
+            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
+            chmod +x $HOME/.ee-acme/ee-acme.sh
+        elif [ -x $HOME/.ee-acme/ee-acme.sh ]; then
+            rm $HOME/.ee-acme/ee-acme.sh
+            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
+            chmod +x $HOME/.ee-acme/ee-acme.sh
+        elif [ ! -d  $HOME/.ee-acme ]; then
+            mkdir -p $HOME/.ee-acme
+            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
+            chmod +x $HOME/.ee-acme/ee-acme.sh
+            if [ -z "$BASHRC_EE_ACME_FIRST_RELEASE" ] && [ -z "$BASHRC_EE_ACME_LAST_RELEASE" ]; then
+                    echo 'alias ee-acme="/root/.ee-acme/ee-acme.sh"' >> $HOME/.bashrc
+            fi
+        fi
     fi
 }
 
@@ -223,7 +288,7 @@ function wo_update_wp_cli()
         dpkg --compare-versions ${WP_CLI_VERSION} lt 1.4.1
         # Update WP-CLI to the most recent version
         if [ "$?" == "0" ]; then
-           wget -qO ${WP_CLI_PATH} https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+           wget -qO ${WP_CLI_PATH} https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
            chmod +x ${WP_CLI_PATH}
         fi
     fi
@@ -232,11 +297,9 @@ function wo_update_wp_cli()
 # Now, finally, let's install WordOps
 function wo_install()
 {
-    # Remove old versions of EasyEngine/WordOps
     rm -rf /tmp/easyengine &>> /dev/null
     rm -rf /tmp/wordops &>> /dev/null
 
-    # Clone the latest version directly from GitHub
     wo_lib_echo "Downloading WordOps straight from GitHub - fresh and brewed with love. Hold your horses..."
     if [ "$wo_branch" = "" ]; then
         wo_branch=master
@@ -250,87 +313,26 @@ function wo_install()
     python3 setup.py install || wo_lib_error "An error was encountered during the installation, exit status " $?
 }
 
-# Update the WordOps installation, 
-# remove old versions
-function wo_update()
-{
-    wo_lib_echo "Importing the EasyEngine configuration and magically importing it to WordOps."
-    wo_lib_echo "No worries, we'll make sure the configuration is duly backupped..."
-    wo_grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }' | head -1 )
-    wo_db_name=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
-    wo_db_user=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
-    wo_wp_prefix=$(grep prefix /etc/easyengine/ee.conf | awk '{ print $3 }')
-    wo_wp_user=$(grep 'user ' /etc/easyengine/ee.conf | grep -v db-user |awk '{ print $3 }')
-    wo_wp_pass=$(grep password /etc/easyengine/ee.conf | awk '{ print $3 }')
-    wo_wp_email=$(grep email /etc/easyengine/ee.conf | awk '{ print $3 }')
-    wo_ip_addr=$(grep ip-address /etc/easyengine/ee.conf |awk -F'=' '{ print $2 }')
-
-    sed -i "s/ip-address.*/ip-address = ${wo_ip_addr}/" /etc/wo/wo.conf && \
-    sed -i "s/grant-host.*/grant-host = ${wo_grant_host}/" /etc/ee/wo.conf && \
-    sed -i "s/db-name.*/db-name = ${db-name}/" /etc/ee/wo.conf && \
-    sed -i "s/db-user.*/db-user = ${wo_db_user}/" /etc/wo/wo.conf && \
-    sed -i "s/prefix.*/prefix = ${wo_wp_prefix}/" /etc/wo/wo.conf && \
-    sed -i "s/^user.*/user = ${wo_wp_user}/" /etc/wo/wo.conf && \
-    sed -i "s/password.*/password = ${wo_wp_password}/" /etc/wo/wo.conf && \
-    sed -i "s/email.*/email = ${wo_wp_email}/" /etc/wo/wo.conf || wo_lib_error "An error was encountered during the configuration update, exit status " $?
-
-    wo_lib_echo "Removing EasyEngine 2.x"
-    rm -rf /etc/bash_completion.d/ee /etc/easyengine/ /usr/share/easyengine/ /usr/local/lib/easyengine /usr/local/sbin/easyengine /usr/local/sbin/ee /var/log/easyengine
-
-    # Softlink to fix command not found error
-    ln -s /usr/local/bin/wo /usr/local/sbin/wo || wo_lib_error "Unable to softlink the WordOps binary, exit status " $?
-}
-
 function wo_upgrade_php(){
-    # Change the PHP repository for PHP 7.x support
-   if [ "$wo_distro_version" == "trusty" ]; then
-        if [ -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list ]; then
-            # add-apt-repository -y --remove 'ppa:ondrej/php5-5.6'
-            add-apt-repository -y 'ppa:ondrej/php'
-            wo_lib_echo "Updating the PHP repository for some neat PHP 7 support"
-            apt-get update &>> /dev/null
-            apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-mysql php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-recode php7.2-mysql php7.2-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php7.2-zip php7.2-xml php7.2-soap php-memcache || wo_lib_error "Unable to install PHP 5.6 packages, exit status " 1
-            sed -i "s/pid.*/pid = \/run\/php\/php5.6-fpm.pid/" /etc/php/5.6/fpm/php-fpm.conf && \
-            sed -i "s/error_log.*/error_log = \/var\/log\/php\/5.6\/fpm.log/" /etc/php/5.6/fpm/php-fpm.conf && \
-            sed -i "s/log_level.*/log_level = notice/" /etc/php/5.6/fpm/php-fpm.conf && \
-            sed -i "s/include.*/include = \/etc\/php\/5.6\/fpm\/pool.d\/*.conf/" /etc/php/5.6/fpm/php-fpm.conf && \
-            sed -i "s/slowlog =.*/slowlog = \/var\/log\/php\/5.6\/slow.log/" /etc/php/5.6/fpm/pool.d/debug.conf || wo_lib_error "An error was encountered during the configuration update, exit status " $?
-            mkdir -p /var/log/php/7.2/
-            touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
-            service php5-fpm stop &>> /dev/null
-            service php7.2-fpm restart &>> /dev/null
-            rm -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list &>> /dev/null
-            apt-get remove -y php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
 
-          # Fix for PHP 7.2 missed packages
-        elif [ -f /etc/php/mods-available/readline.ini ]; then
-              mkdir -p /tmp/php-conf/7.2
+    if [ "$wo_linux_distro" == "Ubuntu" ]; then
+        add-apt-repository -y 'ppa:ondrej/php'
+        wo_lib_echo "Updating the PHP repository for some neat PHP 7 support"
+        apt-get update &>> /dev/null
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-mysql php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-recode php7.2-mysql php7.2-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php7.2-zip php7.2-xml php7.2-soap php-memcache || wo_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+        mkdir -p /var/log/php/7.2/
+        touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
+        systemctl php7.2-fpm restart &>> /dev/null
 
-              cp -f /etc/php/7.2/fpm/pool.d/www.conf /tmp/php-conf/7.2 &>> /dev/null
-              cp -f /etc/php/7.2/fpm/pool.d/debug.conf /tmp/php-conf/7.2 &>> /dev/null
-              cp -f /etc/php/7.2/fpm/php.ini /tmp/php-conf/7.2 &>> /dev/null
-              cp -f /etc/php/7.2/fpm/php-fpm.conf /tmp/php-conf/7.2 &>> /dev/null
-
-
-            apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-mysql php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-recode php7.2-mysql php7.2-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php7.2-zip php7.2-xml php-memcache || wo_lib_error "Unable to install PHP 7.2 packages, exit status " 1
-            dpkg-query -W -f='${Status} ${Version}\n' php7.2-fpm 2>/dev/null | grep installed
-            if [ "$?" -eq "0" ]; then
-                apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-common php7.2-recode php7.2-mysql php7.2-cli php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-mysql php7.2-opcache php7.2-zip php7.2-xml php-memcached php-imagick php-memcache memcached php-pear php-xdebug php-msgpack php7.2-soap || wo_lib_error "Unable to install PHP 7.2 packages, exit status " 1
-                mv -f /tmp/php-conf/7.2/www.conf /etc/php/7.2/fpm/pool.d/www.conf  &>> /dev/null
-                mv -f /tmp/php-conf/7.2/debug.conf /etc/php/7.2/fpm/pool.d/debug.conf &>> /dev/null
-                mv -f /tmp/php-conf/7.2/php.ini /etc/php/7.2/fpm/php.ini  &>> /dev/null
-                mv -f /tmp/php-conf/7.2/php-fpm.conf /etc/php/7.2/fpm/php-fpm.conf  &>> /dev/null
-                service php7.2-fpm restart &>> /dev/null
-            fi
-
-            mv -f /tmp/php-conf/7.2/www.conf /etc/php/7.2/fpm/pool.d/www.conf  &>> /dev/null
-            mv -f /tmp/php-conf/7.2/debug.conf /etc/php/7.2/fpm/pool.d/debug.conf &>> /dev/null
-            mv -f /tmp/php-conf/7.2/php.ini /etc/php/7.2/fpm/php.ini  &>> /dev/null
-            mv -f /tmp/php-conf/7.2/php-fpm.conf /etc/php/7.2/fpm/php-fpm.conf  &>> /dev/null
-
-            service php7.2-fpm restart &>> /dev/null
-            rm -rf /tmp/php-conf
-        fi
+    elif [ "$wo_linux_distro" == "Debian" ]; then
+        apt-get install apt-transport-https lsb-release ca-certificates locales locales-all -y
+        export LC_ALL=en_US.UTF-8
+        export LANG=en_US.UTF-8
+        wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
+        apt-get update &>> /dev/null
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-readline php7.2-mysql php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-bcmath php7.2-recode php7.2-mysql php7.2-opcache php-memcached php-imagick memcached php-pear php-xdebug php-msgpack php7.2-zip php7.2-xml php7.2-soap php-memcache || wo_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+        systemctl php7.2-fpm restart &>> /dev/null 
    fi
 
 }
@@ -386,10 +388,6 @@ if [ -f /etc/ImageMagick/policy.xml  ]
 
     if [ -f /etc/nginx/nginx.conf ]; then
         wo_lib_echo "Updating Nginx configuration, please wait..."
-        # From version 3.1.10 we are using Suse builder for repository
-        if [ "$wo_distro_version" == "precise" ]; then
-
-          wo_lib_echo_fail ".my.cnf cannot be located in your current user or root folder..."
 
         elif [ "$wo_distro_version" == "trusty" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
@@ -401,7 +399,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                     gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
                     gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
                     if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
-                        mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
+                        mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/wo-nginx.conf.old &>> /dev/null
                     fi
                     mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
                     apt-get update
@@ -421,35 +419,9 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                     service nginx restart &>> /dev/null
                 fi
 
-        elif [ "$wo_distro_version" == "wheezy" ]; then
-            grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
-            if [[ $? -ne 0 ]]; then
-                echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
-                gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
-                gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-                if [ -f /etc/nginx/conf.d/wo-nginx.conf ]; then
-                    mv /etc/nginx/conf.d/wo-nginx.conf /etc/nginx/conf.d/wo-nginx.conf.old &>> /dev/null
-                fi
-                mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
-                mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
-                apt-get update
-                service nginx stop &>> /dev/null
-                DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
-                service nginx restart &>> /dev/null
-            fi
-            dpkg --get-selections | grep -v deinstall | grep nginx-common
-            if [ $? -eq 0 ]; then
-	            apt-get update
-	            service nginx stop &>> /dev/null
-	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-ee nginx-custom
-                service nginx restart &>> /dev/null
-            fi
-        elif [ "$wo_distro_version" == "jessie" ]; then
-
+        elif [ "$wo_linux_distro" == "Debian" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
-            #grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/wo-repo.list &>> /dev/null
             if [[ $? -ne 0 ]]; then
-                #sed -i "/deb http:\/\/packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/wo-repo.list &>> /dev/null
                 echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
                 gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
                 gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
@@ -459,9 +431,9 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
                 mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
                 apt-get update
-                service nginx stop &>> /dev/null
+                systemctl stop nginx &>> /dev/null
                 apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
-                service nginx restart &>> /dev/null
+                systemctl restart nginx &>> /dev/null
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-common
             if [ $? -eq 0 ]; then
@@ -470,9 +442,9 @@ if [ -f /etc/ImageMagick/policy.xml  ]
 	            if [ $? -eq 0 ]; then
                     apt-get remove -y nginx-mainline
                 fi
-                service nginx stop &>> /dev/null
+                systemctl stop nginx &>> /dev/null
 	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom
-                service nginx restart &>> /dev/null
+                systemctl restart nginx &>> /dev/null
             fi
         fi
     fi
@@ -551,7 +523,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
     #Fix Redis-server security issue
     #http://redis.io/topics/security
      if [ -f /etc/redis/redis.conf  ]; then
-       grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' &>> /dev/null
+       grep -0 -v "#" /etc/redis/redis.confse | grep 'bind' &>> /dev/null
        if [ $? -ne 0 ]; then
             sed -i '$ a bind 127.0.0.1' /etc/redis/redis.conf &>> /dev/null
             service redis-server restart &>> /dev/null
@@ -600,9 +572,6 @@ if [ -f /etc/ImageMagick/policy.xml  ]
         crontab -l | sed '/--min_expiry_limit/d' | crontab -
         /bin/bash -c "crontab -l 2> /dev/null | { cat; echo -e \"\n0 0 * * 0 wo site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by EasyEngine\"; } | crontab -"
    fi
-
-
-
 }
 
 # Do git intialisation

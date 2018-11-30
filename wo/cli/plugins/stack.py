@@ -1017,38 +1017,38 @@ class WOStackController(CementBaseController):
         #PHP7.0 configuration for debian
             if (WOVariables.wo_platform_codename == 'jessie' ) and set(WOVariables.wo_php7_0).issubset(set(apt_packages)):
                  # Create log directories
-                if not os.path.exists('/var/log/php/7.0/'):
-                    Log.debug(self, 'Creating directory /var/log/php/7.0/')
-                    os.makedirs('/var/log/php/7.0/')
+                if not os.path.exists('/var/log/php/7.2/'):
+                    Log.debug(self, 'Creating directory /var/log/php/7.2/')
+                    os.makedirs('/var/log/php/7.2/')
 
-                # Parse etc/php/7.0/fpm/php.ini
+                # Parse etc/php/7.2/fpm/php.ini
                 config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file /etc/php/7.0/fpm/php.ini")
-                config.read('/etc/php/7.0/fpm/php.ini')
+                Log.debug(self, "configuring php file /etc/php/7.2/fpm/php.ini")
+                config.read('/etc/php/7.2/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
                 config['PHP']['date.timezone'] = WOVariables.wo_timezone
-                with open('/etc/php/7.0/fpm/php.ini',
+                with open('/etc/php/7.2/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
-                              "/etc/php/7.0/fpm/php.ini")
+                              "/etc/php/7.2/fpm/php.ini")
                     config.write(configfile)
 
-                # Parse /etc/php/7.0/fpm/php-fpm.conf
+                # Parse /etc/php/7.2/fpm/php-fpm.conf
                 data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php7.0-fpm.log",
-                              include="/etc/php/7.0/fpm/pool.d/*.conf")
+                              include="/etc/php/7.2/fpm/pool.d/*.conf")
                 Log.debug(self, "writting php 7.0 configuration into "
-                              "/etc/php/7.0/fpm/php-fpm.conf")
-                wo_php_fpm = open('/etc/php/7.0/fpm/php-fpm.conf',
+                              "/etc/php/7.2/fpm/php-fpm.conf")
+                wo_php_fpm = open('/etc/php/7.2/fpm/php-fpm.conf',
                                    encoding='utf-8', mode='w')
                 self.app.render((data), 'php-fpm.mustache', out=wo_php_fpm)
                 wo_php_fpm.close()
 
-                # Parse /etc/php/7.0/fpm/pool.d/www.conf
+                # Parse /etc/php/7.2/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read_file(codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
+                config.read_file(codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                              "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
@@ -1060,30 +1060,30 @@ class WOStackController(CementBaseController):
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9070'
-                with codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
+                with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php/7.0/fpm/pool.d/www.conf")
+                              "/etc/php/7.2/fpm/pool.d/www.conf")
                     config.write(configfile)
 
-                # Generate /etc/php/7.0/fpm/pool.d/debug.conf
-                WOFileUtils.copyfile(self, "/etc/php/7.0/fpm/pool.d/www.conf",
-                                     "/etc/php/7.0/fpm/pool.d/debug.conf")
-                WOFileUtils.searchreplace(self, "/etc/php/7.0/fpm/pool.d/"
+                # Generate /etc/php/7.2/fpm/pool.d/debug.conf
+                WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
+                                     "/etc/php/7.2/fpm/pool.d/debug.conf")
+                WOFileUtils.searchreplace(self, "/etc/php/7.2/fpm/pool.d/"
                                           "debug.conf", "[www]", "[debug]")
                 config = configparser.ConfigParser()
-                config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
+                config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9170'
                 config['debug']['rlimit_core'] = 'unlimited'
-                config['debug']['slowlog'] = '/var/log/php/7.0/slow.log'
+                config['debug']['slowlog'] = '/var/log/php/7.2/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/php/7.0/fpm/pool.d/debug.conf',
+                with open('/etc/php/7.2/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php/7.0/fpm/pool.d/debug.conf")
+                              "/etc/php/7.2/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
-                with open("/etc/php/7.0/fpm/pool.d/debug.conf",
+                with open("/etc/php/7.2/fpm/pool.d/debug.conf",
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("php_admin_value[xdebug.profiler_output_dir] "
                                  "= /tmp/ \nphp_admin_value[xdebug.profiler_"
@@ -1093,8 +1093,8 @@ class WOStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.0/mods-available/xdebug.ini"):
-                    WOFileUtils.searchreplace(self, "/etc/php/7.0/mods-available/"
+                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.2/mods-available/xdebug.ini"):
+                    WOFileUtils.searchreplace(self, "/etc/php/7.2/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -1139,38 +1139,38 @@ class WOStackController(CementBaseController):
             #preconfiguration for php7.0
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php7_0).issubset(set(apt_packages)):
                 # Create log directories
-                if not os.path.exists('/var/log/php/7.0/'):
-                    Log.debug(self, 'Creating directory /var/log/php/7.0/')
-                    os.makedirs('/var/log/php/7.0/')
+                if not os.path.exists('/var/log/php/7.2/'):
+                    Log.debug(self, 'Creating directory /var/log/php/7.2/')
+                    os.makedirs('/var/log/php/7.2/')
 
-                # Parse etc/php/7.0/fpm/php.ini
+                # Parse etc/php/7.2/fpm/php.ini
                 config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file /etc/php/7.0/fpm/php.ini")
-                config.read('/etc/php/7.0/fpm/php.ini')
+                Log.debug(self, "configuring php file /etc/php/7.2/fpm/php.ini")
+                config.read('/etc/php/7.2/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
                 config['PHP']['date.timezone'] = WOVariables.wo_timezone
-                with open('/etc/php/7.0/fpm/php.ini',
+                with open('/etc/php/7.2/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
-                              "/etc/php/7.0/fpm/php.ini")
+                              "/etc/php/7.2/fpm/php.ini")
                     config.write(configfile)
 
-                # Parse /etc/php/7.0/fpm/php-fpm.conf
-                data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php/7.0/fpm.log",
-                              include="/etc/php/7.0/fpm/pool.d/*.conf")
+                # Parse /etc/php/7.2/fpm/php-fpm.conf
+                data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php/7.2/fpm.log",
+                              include="/etc/php/7.2/fpm/pool.d/*.conf")
                 Log.debug(self, "writting php 7.0 configuration into "
-                              "/etc/php/7.0/fpm/php-fpm.conf")
-                wo_php_fpm = open('/etc/php/7.0/fpm/php-fpm.conf',
+                              "/etc/php/7.2/fpm/php-fpm.conf")
+                wo_php_fpm = open('/etc/php/7.2/fpm/php-fpm.conf',
                                    encoding='utf-8', mode='w')
                 self.app.render((data), 'php-fpm.mustache', out=wo_php_fpm)
                 wo_php_fpm.close()
 
-                # Parse /etc/php/7.0/fpm/pool.d/www.conf
+                # Parse /etc/php/7.2/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read_file(codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
+                config.read_file(codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                              "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
@@ -1182,30 +1182,30 @@ class WOStackController(CementBaseController):
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9070'
-                with codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
+                with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php/7.0/fpm/pool.d/www.conf")
+                              "/etc/php/7.2/fpm/pool.d/www.conf")
                     config.write(configfile)
 
-                # Generate /etc/php/7.0/fpm/pool.d/debug.conf
-                WOFileUtils.copyfile(self, "/etc/php/7.0/fpm/pool.d/www.conf",
-                                     "/etc/php/7.0/fpm/pool.d/debug.conf")
-                WOFileUtils.searchreplace(self, "/etc/php/7.0/fpm/pool.d/"
+                # Generate /etc/php/7.2/fpm/pool.d/debug.conf
+                WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
+                                     "/etc/php/7.2/fpm/pool.d/debug.conf")
+                WOFileUtils.searchreplace(self, "/etc/php/7.2/fpm/pool.d/"
                                           "debug.conf", "[www]", "[debug]")
                 config = configparser.ConfigParser()
-                config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
+                config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9170'
                 config['debug']['rlimit_core'] = 'unlimited'
-                config['debug']['slowlog'] = '/var/log/php/7.0/slow.log'
+                config['debug']['slowlog'] = '/var/log/php/7.2/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/php/7.0/fpm/pool.d/debug.conf',
+                with open('/etc/php/7.2/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php/7.0/fpm/pool.d/debug.conf")
+                              "/etc/php/7.2/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
-                with open("/etc/php/7.0/fpm/pool.d/debug.conf",
+                with open("/etc/php/7.2/fpm/pool.d/debug.conf",
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("php_admin_value[xdebug.profiler_output_dir] "
                                  "= /tmp/ \nphp_admin_value[xdebug.profiler_"
@@ -1215,8 +1215,8 @@ class WOStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.0/mods-available/xdebug.ini"):
-                    WOFileUtils.searchreplace(self, "/etc/php/7.0/mods-available/"
+                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.2/mods-available/xdebug.ini"):
+                    WOFileUtils.searchreplace(self, "/etc/php/7.2/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
