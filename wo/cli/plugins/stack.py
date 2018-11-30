@@ -243,7 +243,7 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=wo_nginx)
                     wo_nginx.close()
 
-                    data = dict(php="9000", debug="9001", hhvm="8000",php72="9072",debug7="9170",
+                    data = dict(php="9000", debug="9001", hhvm="8000",php72="9072",debug7="9172",
                                 hhvmconf=False, php7conf= True if WOAptGet.is_installed(self,'php7.2-fpm') else False )
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
@@ -569,7 +569,7 @@ class WOStackController(CementBaseController):
                                              "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                              "'\"$http_referer\" \"$http_user_agent\"';\n")
             #setup nginx common folder for php7
-            if self.app.pargs.php7:
+            if self.app.pargs.php72:
                 if os.path.isdir("/etc/nginx/common") and (not
                     os.path.isfile("/etc/nginx/common/php7.conf")):
                     data = dict()
@@ -627,8 +627,8 @@ class WOStackController(CementBaseController):
                     if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
                                           "php72"):
                         with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                            php_file.write("upstream php7 {\nserver 127.0.0.1:9070;\n}\n"
-                                    "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n")
+                            php_file.write("upstream php72 {\nserver 127.0.0.1:9072;\n}\n"
+                                    "upstream debug72 {\nserver 127.0.0.1:9172;\n}\n")
 
             if set(WOVariables.wo_hhvm).issubset(set(apt_packages)):
 
@@ -1054,7 +1054,7 @@ class WOStackController(CementBaseController):
                 config['www']['pm.max_spare_servers'] = '30'
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
-                config['www']['listen'] = '127.0.0.1:9070'
+                config['www']['listen'] = '127.0.0.1:9072'
                 with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
@@ -1068,7 +1068,7 @@ class WOStackController(CementBaseController):
                                           "debug.conf", "[www]", "[debug]")
                 config = configparser.ConfigParser()
                 config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
-                config['debug']['listen'] = '127.0.0.1:9170'
+                config['debug']['listen'] = '127.0.0.1:9172'
                 config['debug']['rlimit_core'] = 'unlimited'
                 config['debug']['slowlog'] = '/var/log/php/7.2/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
@@ -1176,7 +1176,7 @@ class WOStackController(CementBaseController):
                 config['www']['pm.max_spare_servers'] = '30'
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
-                config['www']['listen'] = '127.0.0.1:9070'
+                config['www']['listen'] = '127.0.0.1:9072'
                 with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
@@ -1190,7 +1190,7 @@ class WOStackController(CementBaseController):
                                           "debug.conf", "[www]", "[debug]")
                 config = configparser.ConfigParser()
                 config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
-                config['debug']['listen'] = '127.0.0.1:9170'
+                config['debug']['listen'] = '127.0.0.1:9172'
                 config['debug']['rlimit_core'] = 'unlimited'
                 config['debug']['slowlog'] = '/var/log/php/7.2/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
@@ -1491,7 +1491,7 @@ class WOStackController(CementBaseController):
                (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and 
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.redis) and (not self.app.pargs.phpredisadmin) and 
-               (not self.app.pargs.php7)):
+               (not self.app.pargs.php72)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
 
@@ -1551,7 +1551,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "PHP already installed")
 
         #PHP 7.0 for Debian (jessie+)
-            if self.app.pargs.php7 and WOVariables.wo_platform_distro == 'debian':
+            if self.app.pargs.php72 and WOVariables.wo_platform_distro == 'debian':
                 if (WOVariables.wo_platform_codename == 'jessie'):
                     Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                     if not WOAptGet.is_installed(self, 'php7.2-fpm') :
@@ -1566,7 +1566,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "PHP 7.2  Not Available for your Distribution")
 
         #PHP 7.0 for Ubuntu
-            if self.app.pargs.php7 and not WOVariables.wo_platform_distro == 'debian':
+            if self.app.pargs.php72 and not WOVariables.wo_platform_distro == 'debian':
                 if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                     Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                     if not WOAptGet.is_installed(self, 'php7.2-fpm') :
@@ -1743,7 +1743,7 @@ class WOStackController(CementBaseController):
 
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.nginx) and (not self.app.pargs.php) and 
-           (not self.app.pargs.php7) and (not self.app.pargs.mysql) and 
+           (not self.app.pargs.php72) and (not self.app.pargs.mysql) and 
            (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and 
            (not self.app.pargs.hhvm) and (not self.app.pargs.adminer) and 
            (not self.app.pargs.utils) and (not self.app.pargs.all) and 
@@ -1755,7 +1755,7 @@ class WOStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                self.app.pargs.php7 = True
+                self.app.pargs.php72 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -1785,7 +1785,7 @@ class WOStackController(CementBaseController):
                 apt_packages = apt_packages + WOVariables.wo_php
 
         #PHP7.0 for debian(jessie+)
-        if self.app.pargs.php7:
+        if self.app.pargs.php72:
             if (WOVariables.wo_platform_codename == 'jessie'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + WOVariables.wo_php72
@@ -1794,7 +1794,7 @@ class WOStackController(CementBaseController):
             else:
                 Log.info(self,"PHP 7.0 not supported.")
 
-        if self.app.pargs.php7:
+        if self.app.pargs.php72:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + WOVariables.wo_php72
@@ -1877,7 +1877,7 @@ class WOStackController(CementBaseController):
                 Log.info(self, "Successfully removed packages")
 
                 #Added for Ondrej Repo missing package Fix
-                if self.app.pargs.php7:
+                if self.app.pargs.php72:
                     if WOAptGet.is_installed(self, 'php5.6-fpm'):
                         Log.info(self, "PHP5.6-fpm found on system.")
                         Log.info(self, "Verifying and installing missing packages,")
@@ -1932,7 +1932,7 @@ class WOStackController(CementBaseController):
                 apt_packages = apt_packages + WOVariables.wo_php72
 
         #For debian --php7
-        if self.app.pargs.php7:
+        if self.app.pargs.php72:
             if (WOVariables.wo_platform_codename == 'jessie'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + WOVariables.wo_php72
@@ -1941,7 +1941,7 @@ class WOStackController(CementBaseController):
             else:
                 Log.info(self,"PHP 7.2 not supported.")
 
-        if self.app.pargs.php7:
+        if self.app.pargs.php72:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + WOVariables.wo_php72
@@ -2019,7 +2019,7 @@ class WOStackController(CementBaseController):
                 Log.info(self, "Successfully purged packages")
 
                 #Added for php Ondrej repo missing package fix
-                if self.app.pargs.php7:
+                if self.app.pargs.php72:
                     if WOAptGet.is_installed(self, 'php5.6-fpm'):
                         Log.info(self, "PHP5.6-fpm found on system.")
                         Log.info(self, "Verifying and installing missing packages,")

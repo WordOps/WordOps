@@ -49,7 +49,7 @@ class WODebugController(CementBaseController):
                 dict(help='start/stop debugging fastcgi configuration',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
-            (['--php7'],
+            (['--php72'],
                 dict(help='start/stop debugging server PHP 7.2 configuration',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
@@ -287,26 +287,26 @@ class WODebugController(CementBaseController):
                 Log.info(self, "PHP5-FPM log_level = debug  already disabled")
 
     @expose(hide=True)
-    def debug_php7(self):
+    def debug_php72(self):
         """Start/Stop PHP debug"""
         # PHP global debug start
 
-        if (self.app.pargs.php7 == 'on' and not self.app.pargs.site_name):
+        if (self.app.pargs.php72 == 'on' and not self.app.pargs.site_name):
             if (WOVariables.wo_platform_codename == 'wheezy' or WOVariables.wo_platform_codename == 'precise'):
                 Log.error(self,"PHP 7.2 not supported.")
             if not (WOShellExec.cmd_exec(self, "sed -n \"/upstream php7"
                                                "{/,/}/p \" /etc/nginx/"
                                                "conf.d/upstream.conf "
-                                               "| grep 9170")):
+                                               "| grep 9172")):
 
                 Log.info(self, "Enabling PHP 7.2 debug")
 
                 # Change upstream.conf
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
-                nc.set([('upstream','php7',), 'server'], '127.0.0.1:9170')
+                nc.set([('upstream','php72',), 'server'], '127.0.0.1:9172')
                 if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
-                    nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:9170')
+                    nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:9172')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
@@ -335,15 +335,15 @@ class WODebugController(CementBaseController):
 
         # PHP global debug stop
         elif (self.app.pargs.php7 == 'off' and not self.app.pargs.site_name):
-            if WOShellExec.cmd_exec(self, " sed -n \"/upstream php7 {/,/}/p\" "
+            if WOShellExec.cmd_exec(self, " sed -n \"/upstream php72 {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
-                                          "| grep 9170"):
+                                          "| grep 9172"):
                 Log.info(self, "Disabling PHP 7.2 debug")
 
                 # Change upstream.conf
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
-                nc.set([('upstream','php7',), 'server'], '127.0.0.1:9070')
+                nc.set([('upstream','php72',), 'server'], '127.0.0.1:9072')
                 if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
                     nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:8000')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')

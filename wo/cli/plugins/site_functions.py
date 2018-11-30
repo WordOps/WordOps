@@ -896,8 +896,8 @@ def site_package_check(self, stype):
             if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
                                           "php72"):
                 with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                    php_file.write("upstream php7 {\nserver 127.0.0.1:9070;\n}\n"
-                                    "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n")
+                    php_file.write("upstream php72 {\nserver 127.0.0.1:9072;\n}\n"
+                                    "upstream debug72 {\nserver 127.0.0.1:9172;\n}\n")
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
