@@ -63,7 +63,7 @@ fi
 ###
 wo_branch=$1
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.8.5"
+readonly wo_version_new="3.8.6"
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -447,7 +447,6 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                 systemctl restart nginx &>> /dev/null
             fi
         fi
-    fi
 
     if [ -f /etc/nginx/nginx.conf ]; then
         sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"WordOps $wo_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null

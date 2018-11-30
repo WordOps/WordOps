@@ -1015,7 +1015,7 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php5.6-fpm')
 
         #PHP7.0 configuration for debian
-            if (WOVariables.wo_platform_codename == 'jessie' ) and set(WOVariables.wo_php7_0).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_codename == 'jessie' ) and set(WOVariables.wo_php7_2).issubset(set(apt_packages)):
                  # Create log directories
                 if not os.path.exists('/var/log/php/7.2/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.2/')
@@ -1137,7 +1137,7 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php7.0-fpm')
 
             #preconfiguration for php7.0
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php7_0).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php7_2).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.2/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.2/')

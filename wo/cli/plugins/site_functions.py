@@ -722,12 +722,12 @@ def site_package_check(self, stype):
 
     if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            Log.debug(self, "Setting apt_packages variable for PHP 5.6")
-            if not WOAptGet.is_installed(self, 'php5.6-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php5_6
+            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
+            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php7_2 + WOVariables.wo_php_extra
             Log.debug(self, "Setting apt_packages variable for PHP 7.0")
             if not WOAptGet.is_installed(self, 'php7.0-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php7_0 + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVariables.wo_php7_2 + WOVariables.wo_php_extra
         else:
             if WOVariables.wo_platform_codename == 'wheezy':
                 Log.warn(self, "PHP 7.0 not available for your system.")
@@ -739,7 +739,7 @@ def site_package_check(self, stype):
             else:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.0")
                 if not WOAptGet.is_installed(self, 'php7.0-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php7_0
+                    apt_packages = apt_packages + WOVariables.wo_php7_2
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -852,7 +852,7 @@ def site_package_check(self, stype):
 
         Log.debug(self, "Setting apt_packages variable for PHP 7.0")
         if not WOAptGet.is_installed(self, 'php7.0-fpm'):
-            apt_packages = apt_packages + WOVariables.wo_php7_0 + WOVariables.wo_php_extra
+            apt_packages = apt_packages + WOVariables.wo_php7_2 + WOVariables.wo_php_extra
 
         if os.path.isdir("/etc/nginx/common") and (not
            os.path.isfile("/etc/nginx/common/php7.conf")):

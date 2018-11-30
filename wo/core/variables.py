@@ -12,7 +12,7 @@ class WOVariables():
     """Intialization of core variables"""
 
      # WordOps version
-    wo_version = "3.8.5"
+    wo_version = "3.8.6"
     # WordOps packages versions
     wo_wp_cli = "2.0.1"
     wo_adminer = "4.6.3"
@@ -81,7 +81,7 @@ class WOVariables():
 
     # WordOps stack installation variables
     # Nginx repo and packages
-    elif wo_platform_codename == 'trusty':
+    if wo_platform_codename == 'trusty':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
     elif wo_platform_codename == 'xenial':

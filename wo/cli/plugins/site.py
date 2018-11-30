@@ -455,9 +455,7 @@ class WOSiteCreateController(CementBaseController):
 
         if data and self.app.pargs.php7:
             if (not self.app.pargs.experimental):
-                Log.info(self, "PHP7.0 is experimental feature and it may not "
-                         "work with all CSS/JS/Cache of your site.\nDo you wish"
-                         " to install PHP 7.0 now for {0}?".format(wo_domain))
+                Log.info(self, "Do you wish to install PHP 7.2 now for {0}?".format(wo_domain))
 
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]:")
@@ -566,9 +564,9 @@ class WOSiteCreateController(CementBaseController):
                 return
 
             if data['php7']:
-                php_version = "7.0"
+                php_version = "7.2"
             else:
-                php_version = "5.6"
+                php_version = "7.2"
 
 
             addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
