@@ -80,9 +80,9 @@ class WOStackMigrateController(CementBaseController):
         # Install MariaDB
         apt_packages = WOVariables.wo_mysql
 
-        # If PHP is installed then install php5-mysql
-        if WOAptGet.is_installed(self, "php5-fpm"):
-            apt_packages = apt_packages + ["php5-mysql"]
+        # If PHP is installed then install php7.2-mysql
+        if WOAptGet.is_installed(self, "php7.2-fpm"):
+            apt_packages = apt_packages + ["php7.2-mysql"]
 
         Log.info(self, "Updating apt-cache, hang on...")
         WOAptGet.update(self)

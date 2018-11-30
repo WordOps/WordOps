@@ -5,15 +5,15 @@
 .SH SYNOPSIS
 wo [ --version | --help | info | stack | site | debug | update | clean | import_slow_log | log | secure | sync]
 .TP
-wo stack [ install | remove | purge | migrate | upgrade] [ --web | --mail | --all | --nginx | --php | --php7 | --mysql | --admin | --postfix | --mailscanner | --adminer | --redis | --hhvm | --phpmyadmin | --phpredisadmin | --wpcli | --utils ]
+wo stack [ install | remove | purge | migrate | upgrade] [ --web | --mail | --all | --nginx | --php | --php72 | --mysql | --admin | --postfix | --mailscanner | --adminer | --redis | --hhvm | --phpmyadmin | --phpredisadmin | --wpcli | --utils ]
 .TP
-wo stack [ status | start | stop | reload | restart ] [--all | --nginx | --php | --php7 |--mysql | --devcot | --web | --postfix | --memcache | --redis]
+wo stack [ status | start | stop | reload | restart ] [--all | --nginx | --php | --php72 |--mysql | --devcot | --web | --postfix | --memcache | --redis]
 .TP
 wo site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-wo site create example.com [ --html | --php | --php7 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --letsencrypt/-le]]
+wo site create example.com [ --html | --php | --php72 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --letsencrypt/-le]]
 .TP
-wo site update example.com [ --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ] [--password] [--letsencrypt=on/off/renew]]
+wo site update example.com [ --php | --php72 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ] [--password] [--letsencrypt=on/off/renew]]
 .TP
 wo site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
 .TP
@@ -46,19 +46,19 @@ Display WordOps (wo) help.
 .TP
 .B stack
 .TP
-.B install [ --all | --web | --mail | --nginx | --php | --php7 |--mysql | --redis | --postfix | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
+.B install [ --all | --web | --mail | --nginx | --php | --php72 |--mysql | --redis | --postfix | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
 .br
 Install Nginx PHP5 MySQL Postfix stack Packages if not used with
 .br
 any options.Installs specific package if used with option.
 .TP
-.B remove [ --all | --web | --mail | --nginx | --php | --php7 |--mysql | --redis | --postfix | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
+.B remove [ --all | --web | --mail | --nginx | --php | --php72 |--mysql | --redis | --postfix | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
 .br
 Remove Nginx PHP5 MySQL Postfix stack Packages if not used with
 .br
 any options. Remove specific package if used with option.
 .TP
-.B purge [ --all | --web | --mail | --nginx | --php | --php7 |--mysql | --redis | --postfix | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
+.B purge [ --all | --web | --mail | --nginx | --php | --php72 |--mysql | --redis | --postfix | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
 .br
 Purge Nginx PHP5 MySQL Postfix stack Packages if not used with any
 .br
@@ -129,13 +129,13 @@ Disable site by Destroying softlink with site file in
 .br
 Edit NGINX configuration of site.
 .TP
-.B create [ example.com ] [ --html | --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ]]
+.B create [ example.com ] [ --html | --php | --php72 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ]]
 .br
 Create new site according to given options. If no options provided
 .br
 create static site with html only.
 .TP
-.B update [ example.com ] [ --html | --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --w3tc | --wpfc | --wpredis | --hhvm ] [--password]]
+.B update [ example.com ] [ --html | --php | --php72 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --w3tc | --wpfc | --wpredis | --hhvm ] [--password]]
 .br
 Update site configuration according to specified options.
 .TP
@@ -143,7 +143,7 @@ Update site configuration according to specified options.
 .br
 Delete site i.e webroot, database, ad configuration permanently.
 .TP
-.B debug [ -i | --nginx=on/off | --php=on/off | --php7=on/off | --mysql=on/off | --rewrite=on/off | --fpm=on/off | --fpm7=on/off ]
+.B debug [ -i | --nginx=on/off | --php=on/off | --php72=on/off | --mysql=on/off | --rewrite=on/off | --fpm=on/off | --fpm7=on/off ]
 .br
 Starts server level debugging. If this is used without arguments it will start debugging
 .br
@@ -182,9 +182,9 @@ used with wo debug command. used to start or stop nginx debugging.
 .br
 used with wo debug command. used to start or stop php debugging.
 .TP
-.B --php7=on/off
+.B --php72=on/off
 .br
-used with wo debug command. used to start or stop php7 debugging.
+used with wo debug command. used to start or stop php72 debugging.
 .TP
 .B --mysql=on/off
 .br

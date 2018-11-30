@@ -57,10 +57,6 @@ class WOStackController(CementBaseController):
 #                dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP stack', action='store_true')),
-            (['--php7'],
-                dict(help='Install PHP 7.0 stack', action='store_true')),
-            (['--php71'],
-                dict(help='Install PHP 7.1 stack', action='store_true')),
             (['--php72'],
                 dict(help='Install PHP 7.2 stack', action='store_true')),
             (['--mysql'],
@@ -247,7 +243,7 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=wo_nginx)
                     wo_nginx.close()
 
-                    data = dict(php="9000", debug="9001", hhvm="8000",php7="9070",debug7="9170",
+                    data = dict(php="9000", debug="9001", hhvm="8000",php72="9072",debug7="9170",
                                 hhvmconf=False, php7conf= True if WOAptGet.is_installed(self,'php7.2-fpm') else False )
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
@@ -629,7 +625,7 @@ class WOStackController(CementBaseController):
 
                 if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                     if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
-                                          "php7"):
+                                          "php72"):
                         with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
                             php_file.write("upstream php7 {\nserver 127.0.0.1:9070;\n}\n"
                                     "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n")
@@ -892,7 +888,7 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php5-fpm')
 
 
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php5_6).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 # Create log directories
                 if not os.path.exists('/var/log/php/5.6/'):
                     Log.debug(self, 'Creating directory /var/log/php/5.6/')

@@ -29,7 +29,7 @@ class WOInfoController(CementBaseController):
             (['--php'],
                 dict(help='Get PHP configuration information',
                      action='store_true')),
-            (['--php7'],
+            (['--php72'],
                 dict(help='Get PHP 7.2 configuration information',
                      action='store_true')),
             (['--nginx'],
@@ -138,7 +138,7 @@ class WOInfoController(CementBaseController):
         self.app.render((data), 'info_php.mustache')
 
     @expose(hide=True)
-    def info_php7(self):
+    def info_php72(self):
         """Display PHP information"""
         version = os.popen("php7.2 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
@@ -243,7 +243,7 @@ class WOInfoController(CementBaseController):
     def default(self):
         """default function for info"""
         if (not self.app.pargs.nginx and not self.app.pargs.php
-           and not self.app.pargs.mysql and not self.app.pargs.php7):
+           and not self.app.pargs.mysql and not self.app.pargs.php72):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -268,9 +268,9 @@ class WOInfoController(CementBaseController):
                 else:
                     Log.error(self, "PHP5.6 is not installed")
 
-        if self.app.pargs.php7:
+        if self.app.pargs.php72:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                self.info_php7()
+                self.info_php72()
             else:
                 Log.error(self, "PHP 7.2 is not installed")
 

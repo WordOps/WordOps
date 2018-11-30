@@ -309,8 +309,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create html site", action='store_true')),
             (['--php'],
                 dict(help="create php site", action='store_true')),
-            (['--php7'],
-                dict(help="create php 7.0 site", action='store_true')),
+            (['--php72'],
+                dict(help="create php 7.2 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -410,16 +410,16 @@ class WOSiteCreateController(CementBaseController):
             data['port'] = port
             wo_site_webroot = ""
 
-        if self.app.pargs.php7:
+        if self.app.pargs.php72:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=False, php7=True, wp=False,
+                        static=False,  basic=False, php72=True, wp=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
 
         if stype in ['html', 'php' ]:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True,  basic=False, php7=False, wp=False,
+                        static=True,  basic=False, php72=False, wp=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
 
@@ -453,27 +453,27 @@ class WOSiteCreateController(CementBaseController):
         if stype == "html" and self.app.pargs.hhvm:
             Log.error(self, "Can not create HTML site with HHVM")
 
-        if data and self.app.pargs.php7:
+        if data and self.app.pargs.php72:
             if (not self.app.pargs.experimental):
                 Log.info(self, "Do you wish to install PHP 7.2 now for {0}?".format(wo_domain))
 
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using PHP 7.0 for site.")
-                    data['php7'] = False
+                    Log.info(self, "Not using PHP 7.2 for site.")
+                    data['php72'] = False
                     data['basic'] = True
-                    php7 = 0
-                    self.app.pargs.php7 = False
+                    php72 = 0
+                    self.app.pargs.php72 = False
                 else:
-                    data['php7'] = True
-                    php7 = 1
+                    data['php72'] = True
+                    php72 = 1
             else:
-                data['php7'] = True
-                php7 = 1
+                data['php72'] = True
+                php72 = 1
         elif data:
-            data['php7'] = False
-            php7 = 0
+            data['php72'] = False
+            php72 = 0
 
         if (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis) and (not self.app.pargs.hhvm):
             data['basic'] = True
@@ -563,7 +563,7 @@ class WOSiteCreateController(CementBaseController):
                          " http://{0}".format(wo_domain))
                 return
 
-            if data['php7']:
+            if data['php72']:
                 php_version = "7.2"
             else:
                 php_version = "7.2"
@@ -775,7 +775,7 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to html site", action='store_true')),
             (['--php'],
                 dict(help="update to php site", action='store_true')),
-            (['--php7'],
+            (['--php72'],
                 dict(help="update to php7 site",
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
@@ -822,7 +822,7 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.html:
                 Log.error(self, "No site can be updated to html")
 
-            if not (pargs.php or pargs.php7 or
+            if not (pargs.php or pargs.php72 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or 
                     pargs.hhvm or pargs.wpredis or pargs.letsencrypt):
@@ -850,7 +850,7 @@ class WOSiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         hhvm = None
         letsencrypt = False
-        php7 = None
+        php72 = None
 
 
         data = dict()
@@ -899,13 +899,13 @@ class WOSiteUpdateController(CementBaseController):
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
 
-            if check_php_version == "7.0":
-                old_php7 = True
+            if check_php_version == "7.2":
+                old_php72 = True
             else:
-                old_php7 = False
+                old_php72 = False
 
         if (pargs.password and not (pargs.html or
-            pargs.php or pargs.php7 or pargs.mysql or 
+            pargs.php or pargs.php72 or pargs.mysql or 
             pargs.wp or pargs.wpfc or pargs.wpsc or 
             pargs.wpsubdir or pargs.wpsubdomain)):
             try:
@@ -925,16 +925,16 @@ class WOSiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php7']) or
-          #  (stype == 'php7' and oldsitetype not in ['html', 'mysql', 'php', 'php7', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
+        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php72']) or
+          #  (stype == 'php72' and oldsitetype not in ['html', 'mysql', 'php', 'php72', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
-                                                      'proxy','php7']) or
+                                                      'proxy','php72']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
-                                                   'proxy', 'wp', 'php7']) or
+                                                   'proxy', 'wp', 'php72']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype) and
-                    not  pargs.php7):
+                    not  pargs.php72):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -976,7 +976,7 @@ class WOSiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if pargs.hhvm or pargs.php7:
+        if pargs.hhvm or pargs.php72:
             if not data:
                 data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                             currsitetype=oldsitetype,
@@ -1038,24 +1038,24 @@ class WOSiteUpdateController(CementBaseController):
                 data['hhvm'] = False
                 hhvm = False
 
-            if pargs.php7 == 'on' :
-                data['php7'] = True
-                php7 = True
-                check_php_version= '7.0'
-            elif pargs.php7 == 'off':
-                data['php7'] = False
-                php7 = False
+            if pargs.php72 == 'on' :
+                data['php72'] = True
+                php72 = True
+                check_php_version= '7.2'
+            elif pargs.php72 == 'off':
+                data['php72'] = False
+                php72 = False
                 check_php_version = '5.6'
 
-        if pargs.php7:
-            if php7 is old_php7:
-                if php7 is False:
-                    Log.info(self, "PHP 7.0 is already disabled for given "
+        if pargs.php72:
+            if php72 is old_php72:
+                if php72 is False:
+                    Log.info(self, "PHP 7.2 is already disabled for given "
                              "site")
-                elif php7 is True:
-                    Log.info(self, "PHP 7.0 is already enabled for given "
+                elif php72 is True:
+                    Log.info(self, "PHP 7.2 is already enabled for given "
                              "site")
-                pargs.php7 = False
+                pargs.php72 = False
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
@@ -1154,33 +1154,30 @@ class WOSiteUpdateController(CementBaseController):
                 data['hhvm'] = False
                 hhvm = False
 
-        if data and (not pargs.php7):
-            if old_php7 is True:
-                data['php7'] = True
-                php7 = True
+        if data and (not pargs.php72):
+            if old_php72 is True:
+                data['php72'] = True
+                php72 = True
             else:
-                data['php7'] = False
-                php7 = False
+                data['php72'] = False
+                php72 = False
 
-        if pargs.hhvm=="on" or pargs.letsencrypt=="on" or pargs.php7=="on":
-            if pargs.php7 == "on":
+        if pargs.hhvm=="on" or pargs.letsencrypt=="on" or pargs.php72=="on":
+            if pargs.php72 == "on":
                 if (not pargs.experimental):
-                    Log.info(self, "PHP7.0 is experimental feature and it may not"
-                             " work with all plugins of your site.\nYou can "
-                             "disable it by passing --php7=off later.\nDo you wish"
-                             " to enable PHP now for {0}?".format(wo_domain))
+                    Log.info(self, "Do you wish to enable PHP 7.2 now for {0}?".format(wo_domain))
 
                     check_prompt = input("Type \"y\" to continue [n]:")
                     if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using PHP 7.0 for site")
-                        data['php7'] = False
-                        php7 = False
+                        Log.info(self, "Not using PHP 7.2 for site")
+                        data['php72'] = False
+                        php72 = False
                     else:
-                        data['php7'] = True
-                        php7 = True
+                        data['php72'] = True
+                        php72 = True
                 else:
-                    data['php7'] = True
-                    php7 = True
+                    data['php72'] = True
+                    php72 = True
 
             if pargs.hhvm == "on":
                 if (not pargs.experimental):
@@ -1242,7 +1239,7 @@ class WOSiteUpdateController(CementBaseController):
                     data['basic'] = True
                     cache = 'basic'
 
-        if ((hhvm is old_hhvm) and (php7 is old_php7) and
+        if ((hhvm is old_hhvm) and (php72 is old_php72) and
             (stype == oldsitetype and cache == oldcachetype)):
             return 1
 
