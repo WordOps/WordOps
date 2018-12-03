@@ -6,6 +6,8 @@
 ### ---
 ### 1. VARIABLES AND DECLARATIONS
 ### 2. PREPARE FOR INSTALLATION
+### 3. INSTALLATION
+### 4. 
 
 ###
 # 1 - Set the CLI output colors
@@ -62,6 +64,7 @@ fi
 # 1 - Define variables for later use
 ###
 wo_branch=$1
+migration=0
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.8.6"
 readonly wo_log_dir=/var/log/wo/
@@ -129,17 +132,22 @@ function wo_sync_db()
         mkdir -p /var/lib/wo
 
         # Backup the nginx directory
-        tar -cvf - /etc/nginx /var/lib/ee/ee.db | pigz -9 > /var/lib/wo/ee-nginx.tgz
-
+        tar -cvf - /etc/nginx /etc/ee /var/lib/ee | pigz -9 > /var/lib/wo/ee-backup.tgz
+        
         # Copy the EasyEngine database
-        cp /var/lib/ee/ee.db /var/lib/wo/dbase.db
+        cp /var/lib/ee/ee.db /var/lib/wo/dbase-ee.db
+
+        # Set the migration variable for the closing text
+        migration=1
 
     ###
     # Clean WO installation
     ###
     elif [ ! -f /var/lib/wo/dbase.db ]; then
+        # Create the directory holding the WordOps database
         mkdir -p /var/lib/wo
 
+        # Create an empty database for WordOps
         echo "CREATE TABLE sites (
            id INTEGER PRIMARY KEY     AUTOINCREMENT,
            sitename UNIQUE,
@@ -158,6 +166,11 @@ function wo_sync_db()
            is_hhvm INT INT DEFAULT '0',
            php_version VARCHAR
         );" | sqlite3 /var/lib/wo/dbase.db
+
+        if [ -f /var/lib/wo/dbase-ee.db]; then
+            # Copy the main EasyEngine database over since we are migrating
+            cp /var/lib/wo/dbase-ee.db /var/lib/wo/dbase.db
+        fi
 
         # Check site is enable/live or disable
         for site in $(ls /etc/nginx/sites-available/ | grep -v default);
@@ -186,11 +199,9 @@ function wo_sync_db()
         elif [ "$wo_site_current_type" = "WPSINGLE BASIC" ]; then
             wo_site_current="wp"
             wo_site_current_cache="basic"
-
         elif [ "$wo_site_current_type" = "WPSINGLE WP SUPER CACHE" ]; then
             wo_site_current="wp"
             wo_site_current_cache="wpsc"
-
         elif [ "$wo_site_current_type" = "WPSINGLE FAST CGI" ] || [ "$wo_site_current_type" = "WPSINGLE FASTCGI" ]; then
             wo_site_current="wp"
             wo_site_current_cache="wpfc"
@@ -199,11 +210,9 @@ function wo_sync_db()
         elif [ "$wo_site_current_type" = "WPSUBDIR BASIC" ]; then
             wo_site_current="wpsubdir"
             wo_site_current_cache="basic"
-
         elif [ "$wo_site_current_type" = "WPSUBDIR WP SUPER CACHE" ]; then
             wo_site_current="wpsubdir"
             wo_site_current_cache="wpsc"
-
         elif [ "$wo_site_current_type" = "WPSUBDIR FAST CGI" ] || [ "$wo_site_current_type" = "WPSUBDIR FASTCGI" ]; then
             wo_site_current="wpsubdir"
             wo_site_current_cache="wpfc"
@@ -212,11 +221,9 @@ function wo_sync_db()
         elif [ "$wo_site_current_type" = "WPSUBDOMAIN BASIC" ]; then
             wo_site_current="wpsubdomain"
             wo_site_current_cache="basic"
-
         elif [ "$wo_site_current_type" = "WPSUBDOMAIN WP SUPER CACHE" ]; then
             wo_site_current="wpsubdomain"
             wo_site_current_cache="wpsc"
-
         elif [ "$wo_site_current_type" = "WPSUBDOMAIN FAST CGI" ] || [ "$wo_site_current_type" = "WPSUBDOMAIN FASTCGI" ]; then
             wo_site_current="wpsubdomain"
             wo_site_current_cache="wpfc"
@@ -237,6 +244,21 @@ function wo_sync_db()
         echo "ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/wo/dbase.db
         echo "ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0';" | sqlite3 /var/lib/wo/dbase.db
         echo "ALTER TABLE sites ADD COLUMN php_version varchar DEFAULT \"$wo_php_version\";" | sqlite3 /var/lib/wo/dbase.db
+    fi
+
+    ###
+    # Copy the upstream config
+    ###
+    if [ -f /etc/nginx/conf.d/upstream.conf ]; then
+        wo_lib_echo "Replace the PHP ports for PHP 7.2"
+        # Copy the previous upstream.conf
+        cp /etc/nginx/conf.d/upstream.conf /etc/nginx/conf.d/upstream.bak
+        # Replace the ports for PHP 7.2
+        sed -i "s/127.0.0.1:9000/127.0.0.1:9072/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i "s/127.0.0.1:9070/127.0.0.1:9072/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        # Replace the ports for debug PHP 7.2
+        sed -i "s/127.0.0.1:9001/127.0.0.1:9172/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i "s/127.0.0.1:9170/127.0.0.1:9172/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
     fi
 
     ###
@@ -561,7 +583,19 @@ if [ -f /etc/ImageMagick/policy.xml  ]
 
     # Support PFS
     if [ -f /etc/nginx/nginx.conf ]; then
-       sed -i 's/HIGH:!aNULL:!MD5:!kEDH;/ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;/' /etc/nginx/nginx.conf
+        # Replace the default ciphers
+        sed -i 's/HIGH:!aNULL:!MD5:!kEDH;/ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;/' /etc/nginx/nginx.conf
+        # Replace the EasyEngine ciphers
+        sed -i 's/ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA;
+/ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;/' /etc/nginx/nginx.conf
+        # Change the TLS protocols
+        if [ "$wo_distro_version" == "bionic" ]; then
+            # Bionic supports TLSv1.3, so let's enable that
+            sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2 TLSv1.3;/' /etc/nginx/nginx.conf
+        elif
+            # If != Bionic then enable only TLSv1.2
+            sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2;/' /etc/nginx/nginx.conf
+        fi
     fi
 
    #Fix for SSL cert --all
@@ -569,7 +603,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
    if [[ $? -eq 0 ]]; then
         crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
         crontab -l | sed '/--min_expiry_limit/d' | crontab -
-        /bin/bash -c "crontab -l 2> /dev/null | { cat; echo -e \"\n0 0 * * 0 wo site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by EasyEngine\"; } | crontab -"
+        /bin/bash -c "crontab -l 2> /dev/null | { cat; echo -e \"\n0 0 * * 0 wo site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by WordOps\"; } | crontab -"
    fi
 }
 
@@ -585,7 +619,7 @@ function wo_git_init()
         git add -A .
         git commit -am "Updated Nginx" > /dev/null
     fi
-    # EasyEngine under git version control
+    # WordOps under git version control
     cd /etc/wo
     if [ ! -d /etc/wo/.git ]; then
         git init > /dev/null
@@ -606,32 +640,7 @@ function wo_git_init()
 }
 
 # Update WordOps
-if [ -f /usr/local/sbin/easyengine ]; then
-    # Check old EasyEngine version
-    ee version | grep ${wo_version_old} &>> /dev/null
-    if [[ $? -ne 0 ]]; then
-        wo_lib_echo "WordOps/EasyEngine $wo_version_old not found on your system" | tee -ai $wo_install_log
-        wo_lib_echo "Updating your EasyEngine to $wo_version_old for compability" | tee -ai $wo_install_log
-        wget -q https://raw.githubusercontent.com/EasyEngine/easyengine/old-stable/bin/update && bash update
-        if [[ $? -ne 0 ]]; then
-            wo_lib_echo_fail "Unable to update EasyEngine to $wo_version_old, exit status = " $?
-            exit 100
-        fi
-    fi
-    read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
-    if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
-        wo_install_dep | tee -ai $wo_install_log
-        wo_sync_db 2&>>1 $WO_INSTALL_LOG
-        secure_wo_db | tee -ai $WO_INSTALL_LOG
-        wo_upgrade_php | tee -ai $wo_install_log
-        wo_install | tee -ai $wo_install_log
-        wo_update | tee -ai $wo_install_log
-        wo_update_latest | tee -ai $wo_install_log
-        wo_git_init | tee -ai $wo_install_log
-    else
-        wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
-    fi
-elif [ ! -f /usr/local/bin/wo ]; then
+if [ ! -f /usr/local/bin/wo ]; then
     wo_lib_echo "Installing depedencies" | tee -ai $wo_install_log
     wo_install_dep | tee -ai $wo_install_log
     wo_lib_echo "Installing WordOps $wo_branch" | tee -ai $wo_install_log
@@ -653,11 +662,7 @@ else
             wo_update_latest | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             service nginx reload &>> /dev/null
-            if [ "$wo_distro_version" == "trusty" ]; then
-                service php5.6-fpm restart &>> /dev/null
-            else
-                service php5-fpm restart &>> /dev/null
-            fi
+            service php7.2-fpm restart &>> /dev/null
             wo_update_wp_cli | tee -ai $wo_install_log
         else
             wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
@@ -666,12 +671,25 @@ else
         wo_lib_error "You already have WordOps $wo_version_new, exit status = " 1
     fi
 fi
+
 wo sync | tee -ai $WO_INSTALL_LOG
 
-echo
-wo_lib_echo "For WordOps (wo) auto completion, run the following command"
-echo
-wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
-echo
-wo_lib_echo "Yay! WordOps (wo) installed/updated successfully"
-wo_lib_echo "WordOps (wo) help: https://wordops.org/docs"
+if [ "$migration" -eq "1" ]; then
+    echo
+    wo_lib_echo "The migration from EasyEngine to WordOps was succesfull!"
+    wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo/ee-backup.tgz"
+    echo
+    wo_lib_echo_info "For autocompletion, run the following command:"
+    wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
+    echo
+    wo_lib_echo "WordOps (wo) help: https://wordops.org/docs"
+else
+    echo
+    wo_lib_echo "For WordOps (wo) auto completion, run the following command"
+    echo
+    wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
+    echo
+    wo_lib_echo "Yay! WordOps (wo) installed/updated successfully"
+    wo_lib_echo "WordOps (wo) help: https://wordops.org/docs"
+fi
+
