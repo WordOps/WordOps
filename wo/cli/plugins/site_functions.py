@@ -1244,17 +1244,6 @@ def cloneLetsEncrypt(self):
 
 def setupLetsEncrypt(self, wo_domain_name):
     wo_wp_email = WOVariables.wo_email
-    while not wo_wp_email:
-        try:
-            wo_wp_email = input('Enter WordPress email: ')
-        except EOFError as e:
-            Log.debug(self, "{0}".format(e))
-            raise SiteError("input WordPress username failed")
-
-    if not os.path.isdir("/opt/letsencrypt"):
-        cloneLetsEncrypt(self)
-    WOFileUtils.chdir(self, '/opt/letsencrypt')
-    WOShellExec.cmd_exec(self, "git pull")
 
     if os.path.isfile("/etc/letsencrypt/renewal/{0}.conf".format(wo_domain_name)):
         Log.debug(self, "Let's Encrypt certificate found for the domain: {0}"
@@ -1262,9 +1251,8 @@ def setupLetsEncrypt(self, wo_domain_name):
         ssl= archivedCertificateHandle(self,wo_domain_name,wo_wp_email)
     else:
         Log.warn(self,"Please wait while we fetch the new HTTPS certificate for your site.\nIt may take a few minutes depending on the network.")
-        ssl = WOShellExec.cmd_exec(self, "./letsencrypt-auto --rsa-key-size 4096 certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
-                                .format(wo_domain_name)
-                                + "--email {0} --text --agree-tos".format(wo_wp_email))
+        ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -d {0} --standalone "
+                                .format(wo_domain_name))
     if ssl:
         Log.info(self, "The HTTPS setup for your website is successfully completed!")
         Log.info(self, "Your certificate and chain have been saved in "

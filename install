@@ -66,7 +66,7 @@ fi
 wo_branch=$1
 migration=0
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.8.6"
+readonly wo_version_new="3.8.9"
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -254,11 +254,11 @@ function wo_sync_db()
         # Copy the previous upstream.conf
         cp /etc/nginx/conf.d/upstream.conf /etc/nginx/conf.d/upstream.bak
         # Replace the ports for PHP 7.2
-        sed -i "s/127.0.0.1:9000/127.0.0.1:9072/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
-        sed -i "s/127.0.0.1:9070/127.0.0.1:9072/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i "s/9000/9072/" /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i "s/9070/9072/" /etc/nginx/conf.d/upstream.conf &>> /dev/null
         # Replace the ports for debug PHP 7.2
-        sed -i "s/127.0.0.1:9001/127.0.0.1:9172/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
-        sed -i "s/127.0.0.1:9170/127.0.0.1:9172/g" /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i "s/9001/9172/" /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i "s/9170/9172/" /etc/nginx/conf.d/upstream.conf &>> /dev/null
     fi
 
     ###
@@ -644,11 +644,16 @@ if [ ! -f /usr/local/bin/wo ]; then
     wo_lib_echo "Installing depedencies" | tee -ai $wo_install_log
     wo_install_dep | tee -ai $wo_install_log
     wo_lib_echo "Installing WordOps $wo_branch" | tee -ai $wo_install_log
+    secure_wo_db | tee -ai $WO_INSTALL_LOG
+    wo_upgrade_php | tee -ai $wo_install_log
     wo_install | tee -ai $wo_install_log
+    wo_update_latest | tee -ai $wo_install_log
     wo_lib_echo "Running post-install steps" | tee -ai $wo_install_log
     secure_wo_db | tee -ai $WO_INSTALL_LOG
     wo_git_init | tee -ai $wo_install_log
-
+    service nginx reload &>> /dev/null
+    service php7.2-fpm restart &>> /dev/null
+    wo_update_wp_cli | tee -ai $wo_install_log
 else
     wo -v 2>&1 | grep $wo_version_new &>> /dev/null
     if [[ $? -ne 0 ]];then
