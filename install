@@ -66,7 +66,7 @@ fi
 wo_branch=$1
 migration=0
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.8.9"
+readonly wo_version_new="3.9."
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -261,6 +261,9 @@ function wo_sync_db()
         sed -i "s/9170/9172/" /etc/nginx/conf.d/upstream.conf &>> /dev/null
     fi
 
+    echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
+    echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.2');" | sqlite3 /var/lib/wo/dbase.db
+
     ###
     # ee-acme-sh by VirtuBox, https://virtubox.net/
     ###
@@ -280,11 +283,8 @@ function wo_sync_db()
             chmod +x $HOME/.ee-acme/ee-acme.sh
         elif [ ! -d  $HOME/.ee-acme ]; then
             mkdir -p $HOME/.ee-acme
-            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
-            chmod +x $HOME/.ee-acme/ee-acme.sh
-            if [ -z "$BASHRC_EE_ACME_FIRST_RELEASE" ] && [ -z "$BASHRC_EE_ACME_LAST_RELEASE" ]; then
-                    echo 'alias ee-acme="/root/.ee-acme/ee-acme.sh"' >> $HOME/.bashrc
-            fi
+            wget -qO /usr/local/bin/wo-acme https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
+            chmod +x /usr/local/bin/wo-acme
         fi
     fi
 }

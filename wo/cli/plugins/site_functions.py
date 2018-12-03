@@ -1226,22 +1226,6 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
-def cloneLetsEncrypt(self):
-    letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
-    if not os.path.isdir("/opt"):
-        WOFileUtils.mkdir(self,"/opt")
-    try:
-        Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
-        WOFileUtils.chdir(self, '/opt/')
-        WOShellExec.cmd_exec(self, "git clone {0}".format(letsencrypt_repo))
-        Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
-                                            + Log.OKBLUE + "]"))
-        return True
-    except Exception as e:
-        Log.debug(self, "[{err}]".format(err=str(e.reason)))
-        Log.error(self, "Unable to download file, LetsEncrypt")
-        return False
-
 def setupLetsEncrypt(self, wo_domain_name):
     wo_wp_email = WOVariables.wo_email
 
@@ -1251,7 +1235,7 @@ def setupLetsEncrypt(self, wo_domain_name):
         ssl= archivedCertificateHandle(self,wo_domain_name,wo_wp_email)
     else:
         Log.warn(self,"Please wait while we fetch the new HTTPS certificate for your site.\nIt may take a few minutes depending on the network.")
-        ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -d {0} --standalone "
+        ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -s {0} --standalone "
                                 .format(wo_domain_name))
     if ssl:
         Log.info(self, "The HTTPS setup for your website is successfully completed!")
@@ -1268,7 +1252,7 @@ def setupLetsEncrypt(self, wo_domain_name):
             sslconf.write("listen 443 ssl http2;\n"
                                      "ssl on;\n"
                                      "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
-                                     "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
+                                     "ssl_certificate_key     /etc/letsencrypt/live/{0}/key.pem;\n"
                                      .format(wo_domain_name))
             sslconf.close()
             # updateSiteInfo(self, wo_domain_name, ssl=True)
@@ -1296,16 +1280,10 @@ def renewLetsEncrypt(self, wo_domain_name):
             Log.debug(self, "{0}".format(e))
             raise SiteError("Input WordPress email failed")
 
-    if not os.path.isdir("/opt/letsencrypt"):
-        cloneLetsEncrypt(self)
-    WOFileUtils.chdir(self, '/opt/letsencrypt')
-    WOShellExec.cmd_exec(self, "git pull")
-
     Log.info(self, "Renewing SSl cert for https://{0}".format(wo_domain_name))
 
-    ssl = WOShellExec.cmd_exec(self, "./letsencrypt-auto --renew-by-default --rsa-key-size 4096 certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
-                                .format(wo_domain_name)
-                                + "--email {0} --text --agree-tos".format(wo_wp_email))
+    ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -s {0} --standalone".format(wo_domain_name))
+
     mail_list = ''
     if not ssl:
         Log.error(self,"ERROR : Let's Encrypt certificate renewal FAILED!",False)
@@ -1386,10 +1364,10 @@ def archivedCertificateHandle(self,domain,wo_wp_email):
     elif check_prompt == "2" :
         Log.info(self,"Using Existing Certificate files")
         if not (os.path.isfile("/etc/letsencrypt/live/{0}/fullchain.pem".format(domain)) or
-                    os.path.isfile("/etc/letsencrypt/live/{0}/privkey.pem".format(domain))):
+                    os.path.isfile("/etc/letsencrypt/live/{0}/key.pem".format(domain))):
             Log.error(self,"Certificate files not found. Skipping.\n"
                            "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
-                           "/etc/letsencrypt/live/{0}/privkey.pem".format(domain))
+                           "/etc/letsencrypt/live/{0}/key.pem".format(domain))
         ssl = True
 
     elif check_prompt == "3":
