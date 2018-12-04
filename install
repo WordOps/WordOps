@@ -577,7 +577,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
         add-apt-repository -y 'ppa:ondrej/php'
         wo_lib_echo "Updating the PHP repository for some neat PHP 7.2 support"
         apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
         mkdir -p /var/log/php/7.2/
         touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
         systemctl php7.2-fpm restart &>> /dev/null
@@ -589,7 +589,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
         wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
         echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
         apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php7.2-mcrypt php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
         systemctl php7.2-fpm restart &>> /dev/null 
     fi
 
@@ -693,3 +693,4 @@ else
     wo_lib_echo "WordOps (wo) help: https://wordops.org/docs"
 fi
 
+V
