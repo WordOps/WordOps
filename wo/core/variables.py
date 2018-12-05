@@ -115,7 +115,7 @@ class WOVariables():
             wo_php_extra = ["php-memcached", "php-imagick", "php-memcache", "memcached",
                             "graphviz", "php-pear", "php-xdebug", "php-msgpack", "php-redis"]
     elif wo_platform_distro == 'debian':
-        wo_php_repo = ("deb http://packages.dotdeb.org {codename} all".format(codename=wo_platform_codename))
+        wo_php_repo = ("deb https://packages.sury.org/php/ {codename} main".format(codename=wo_platform_codename))
         wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
                   "php-sodium", "php7.2-common", "php7.2-readline", "php7.2-redis",
                   "php7.2-mysql", "php7.2-cli", "php7.2-memcache", "php7.2-imagick",
@@ -158,7 +158,7 @@ class WOVariables():
         wo_redis_repo = ("ppa:chris-lea/redis-server")
 
     else:
-        wo_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
+        wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
                         .format(codename=wo_platform_codename))
 
     if (wo_platform_codename == 'trusty' or wo_platform_codename == 'xenial' or wo_platform_codename == 'bionic' or wo_platform_distro == 'debian'):
