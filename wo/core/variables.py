@@ -161,7 +161,7 @@ class WOVariables():
         wo_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
                         .format(codename=wo_platform_codename))
 
-    if (wo_platform_codename == 'trusty' or wo_platform_codename == 'xenial' or wo_platform_codename == 'bionic'):
+    if (wo_platform_codename == 'trusty' or wo_platform_codename == 'xenial' or wo_platform_codename == 'bionic' or wo_platform_distro == 'debian'):
         wo_redis = ['redis-server', 'php7.2-redis']
 
     # Repo path
