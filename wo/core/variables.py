@@ -12,7 +12,7 @@ class WOVariables():
     """Intialization of core variables"""
 
      # WordOps version
-    wo_version = "3.9.1"
+    wo_version = "3.9.2"
     # WordOps packages versions
     wo_wp_cli = "2.0.1"
     wo_adminer = "4.6.3"
@@ -104,6 +104,10 @@ class WOVariables():
     if wo_platform_distro == 'ubuntu':
         if (wo_platform_codename == 'trusty' or wo_platform_codename == 'xenial' or wo_platform_codename == 'bionic'):
             wo_php_repo = "ppa:ondrej/php"
+            wo_php = ["php7.2-fpm", "php-sodium", "php7.2-curl", "php7.2-gd", "php7.2-imap",
+                          "php7.2-readline", "php7.2-common", "php7.2-recode",
+                          "php7.2-cli", "php7.2-mbstring",
+                         "php7.2-bcmath", "php7.2-mysql", "php7.2-opcache", "php7.2-zip", "php7.2-xml", "php7.2-soap"]
             wo_php72 = ["php7.2-fpm", "php-sodium", "php7.2-curl", "php7.2-gd", "php7.2-imap",
                           "php7.2-readline", "php7.2-common", "php7.2-recode",
                           "php7.2-cli", "php7.2-mbstring",
@@ -112,6 +116,12 @@ class WOVariables():
                             "graphviz", "php-pear", "php-xdebug", "php-msgpack", "php-redis"]
     elif wo_platform_distro == 'debian':
         wo_php_repo = ("deb http://packages.dotdeb.org {codename} all".format(codename=wo_platform_codename))
+        wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
+                  "php-sodium", "php7.2-common", "php7.2-readline", "php7.2-redis",
+                  "php7.2-mysql", "php7.2-cli", "php7.2-memcache", "php7.2-imagick",
+                  "php7.2-mbstring", "php7.2-recode", "php7.2-bcmath", "php7.2-opcache", "php7.2-zip", "php7.2-xml",
+                     "php7.2-soap", "php7.2-msgpack",
+                 "memcached", "graphviz", "php-pear", "php7.2-xdebug"]
         wo_php72 = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
                   "php-sodium", "php7.2-common", "php7.2-readline", "php7.2-redis",
                   "php7.2-mysql", "php7.2-cli", "php7.2-memcache", "php7.2-imagick",
