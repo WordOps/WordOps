@@ -1,13 +1,13 @@
-# [WordOps](https://wordops.org/)
+# [WordOps Develop](https://wordops.org/)
 
-[![Travis Build Status](https://travis-ci.org/WordOps/WordOps.svg?branch=master)](https://travis-ci.org/WordOps/WordOps)
+[![Travis Build Status](https://travis-ci.org/WordOps/WordOps.svg?branch=develop)](https://travis-ci.org/WordOps/WordOps)
 
-WordOps (wo) is the essential toolset that eases WordPress site and server administration.
+WordOps (wo) is the essential toolset that eases WordPress site and server administration. **This is the development branch - THINGS MIGHT BREAK!**
 
 **WordOps currently supports:**
 
 - Ubuntu 14.04, 16.04 & 18.04
-- Debian 7, 8 & 9
+- Debian 8 & 9
 
 **Port requirements:**
 
@@ -25,13 +25,7 @@ WordOps (wo) is the essential toolset that eases WordPress site and server admin
 wget -qO wo wordops.se/tup && sudo bash wo     # Install WordOps
 sudo wo site create example.com --wp     # Install required packages & setup WordPress on example.com
 ```
-## Must read!
 
-WordOps made some fundamental changes:
-
-* We've deprecated the mail stack. Less is more. As an alternative, take a look at [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). And an alternative for Roundcube is [Rainloop](https://www.rainloop.net/).
-* Support for w3tc is dropped as a security precaution.
-* We are currently migrating the PHP 5.x series to PHP 7.1 and PHP 7.2. We'll offer an easy to use migration script once we are confident enough to unleash this daemon. For now, new sites get installed with PHP 7.2 as the default.
 
 ## Update WordOps
 

@@ -53,12 +53,10 @@ class WOStackController(CementBaseController):
                 dict(help='Install admin tools stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
-#            (['--nginxmainline'],
-#                dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP stack', action='store_true')),
-            (['--php72'],
-                dict(help='Install PHP 7.2 stack', action='store_true')),
+            (['--smtp'],
+                dict(help='Install OpenSMTPd stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
             (['--hhvm'],
@@ -86,6 +84,18 @@ class WOStackController(CementBaseController):
     @expose(hide=True)
     def pre_pref(self, apt_packages):
         """Pre settings to do before installation packages"""
+        if set(WOVariables.wo_smtp).issubset(set(apt_packages)):
+            Log.debug(self, "Pre-seeding OpenSMTPd")
+            try:
+                WOShellExec.cmd_exec(self, "echo \"opensmtpd opensmtpd"
+                                     "/main_mailer_type string \'Internet Site"
+                                     "\'\""
+                                     " | debconf-set-selections")
+                WOShellExec.cmd_exec(self, "echo \"opensmtpd opensmtpd/mailname"
+                                     " string $(hostname -f)\" | "
+                                     "debconf-set-selections")
+            except CommandExecutionError as e:
+                Log.error(self, "Failed to intialize OpenSMTPd package")
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -207,6 +217,11 @@ class WOStackController(CementBaseController):
     def post_pref(self, apt_packages, packages):
         """Post activity after installation of packages"""
         if len(apt_packages):
+
+            if set(WOVariables.wo_smtp).issubset(set(apt_packages)):
+                WOGit.add(self, ["/etc/opensmtpd"],
+                          msg="Adding OpenSMTPd into Git")
+                WOService.reload_service(self, 'opensmtpd')
 
             if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
                 if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
@@ -1283,7 +1298,6 @@ class WOStackController(CementBaseController):
                                                      chars),
                                 errormsg="cannot grant priviledges", log=False)
 
-                # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
                 data = dict(host=WOVariables.wo_mysql_host, port='3306',
                             user='anemometer', password=chars)
@@ -1356,6 +1370,7 @@ class WOStackController(CementBaseController):
                 self.app.pargs.php = True
                 self.app.pargs.mysql = True
                 self.app.pargs.wpcli = True
+                self.app.pargs.smtp = True
 
             if self.app.pargs.admin:
                 self.app.pargs.nginx = True
@@ -1606,14 +1621,14 @@ class WOStackController(CementBaseController):
         if self.app.pargs.all:
             self.app.pargs.web = True
             self.app.pargs.admin = True
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                self.app.pargs.php72 = True
+            self.app.pargs.php72 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
+            self.app.pargs.smtp = True
 
         if self.app.pargs.admin:
             self.app.pargs.adminer = True
@@ -1756,14 +1771,14 @@ class WOStackController(CementBaseController):
         if self.app.pargs.all:
             self.app.pargs.web = True
             self.app.pargs.admin = True
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                self.app.pargs.php7 = True
+            self.app.pargs.php7 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
+            self.app.pargs.smtp = True
 
         if self.app.pargs.admin:
             self.app.pargs.adminer = True

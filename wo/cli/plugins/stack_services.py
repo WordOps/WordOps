@@ -23,10 +23,12 @@ class WOStackStatusController(CementBaseController):
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php7
                 or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.redis):
+                or self.app.pargs.redis or self.app.pargs.smtp):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
+            self.app.pargs.smtp = True
+
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self,'nginx-mainline'):
@@ -72,6 +74,12 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
+
+        if self.app.pargs.smtp:
+            if WOAptGet.is_installed(self, 'opensmtpd'):
+                services = services + ['opensmtp']
+            else:
+                Log.info(self, "OpenSMTPd is not installed")
 
         if self.app.pargs.hhvm:
             if WOAptGet.is_installed(self, 'hhvm'):
@@ -100,10 +108,11 @@ class WOStackStatusController(CementBaseController):
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php7
                 or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.redis):
+                or self.app.pargs.redis or self.app.smtp):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
+            self.app.pargs.smtp = True
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self,'nginx-mainline'):
@@ -112,21 +121,10 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php5-fpm'):
-                    services = services + ['php5-fpm']
-                else:
-                    Log.info(self, "PHP5-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                if WOAptGet.is_installed(self, 'php5.6-fpm'):
-                    services = services + ['php5.6-fpm']
-                else:
-                    Log.info(self, "PHP5.6-FPM is not installed")
-
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                Log.info(self, "PHP7.2-FPM is not installed")
 
         if self.app.pargs.php7:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
@@ -150,11 +148,18 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
+        if self.app.pargs.smtp:
+            if WOAptGet.is_installed(self, 'opensmtpd'):
+                services = services + ['opensmtpd']
+            else:
+                Log.info(self, "OpenSMTPd is not installed")
+
         if self.app.pargs.hhvm:
             if WOAptGet.is_installed(self, 'hhvm'):
                 services = services + ['hhvm']
             else:
                 Log.info(self, "HHVM is not installed")
+
         if self.app.pargs.memcache:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
@@ -177,10 +182,11 @@ class WOStackStatusController(CementBaseController):
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php7
                 or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.redis):
+                or self.app.pargs.redis or self.app.pargs.smtp):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
+            self.app.pargs.smtp = True
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self,'nginx-mainline'):
@@ -227,6 +233,12 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
+
+        if self.app.pargs.smtp:
+            if WOAptGet.is_installed(self, 'opensmtpd'):
+                services = services + ['opensmtpd']
+            else:
+                Log.info(self, "OpenSMTPd is not installed")
 
         if self.app.pargs.hhvm:
             if WOAptGet.is_installed(self, 'hhvm'):
@@ -255,10 +267,11 @@ class WOStackStatusController(CementBaseController):
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php7
                 or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.redis):
+                or self.app.pargs.redis or self.app.pargs.smtp):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
+            self.app.pargs.smtp = True
             self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
@@ -268,30 +281,16 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php5-fpm'):
-                    services = services + ['php5-fpm']
-                else:
-                    Log.info(self, "PHP5-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                if WOAptGet.is_installed(self, 'php5.6-fpm'):
-                    services = services + ['php5.6-fpm']
-                else:
-                    Log.info(self, "PHP5.6-FPM is not installed")
+                Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
-
-        if self.app.pargs.php7:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+        if self.app.pargs.php72:
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                Log.info(self, "Your platform does not support PHP 7")
+                Log.info(self, "PHP7.2-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or
@@ -305,6 +304,12 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
+
+        if self.app.pargs.smtp:
+            if WOAptGet.is_installed(self, 'opensmtpd'):
+                services = services + ['opensmtpd']
+            else:
+                Log.info(self, "OpenSMTPd is not installed")
 
         if self.app.pargs.hhvm:
             if WOAptGet.is_installed(self, 'hhvm'):
@@ -333,10 +338,11 @@ class WOStackStatusController(CementBaseController):
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php7
                 or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache 
-                or self.app.pargs.redis):
+                or self.app.pargs.redis or self.app.pargs.smtp):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
+            self.app.pargs.smtp = True
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self,'nginx-mainline'):
@@ -382,6 +388,12 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
+
+        if self.app.pargs.smtp:
+            if WOAptGet.is_installed(self, 'opensmtpd'):
+                services = services + ['opensmtpd']
+            else:
+                Log.info(self, "OpenSMTPd is not installed")
 
         if self.app.pargs.hhvm:
             Log.info(self, "HHVM does not support to reload")

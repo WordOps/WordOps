@@ -142,6 +142,10 @@ class WOVariables():
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]
 
+    # OpenSMTPd repo and packages
+    wo_smtp_repo = ""
+    wo_smtp = ["opensmtpd"]
+
     # HHVM repo details
     if wo_platform_distro == 'ubuntu':
         if wo_platform_codename == "trusty" or wo_platform_codename == "xenial" or wo_platform_codename == "bionic":
