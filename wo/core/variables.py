@@ -83,13 +83,13 @@ class WOVariables():
     # OpenResty repo and packages
     if wo_platform_codename == 'trusty':
         wo_nginx_repo = ("deb http://openresty.org/package/ubuntu "
-                         "trusty openresty")
+                         "trusty main")
     elif wo_platform_codename == 'xenial':
         wo_nginx_repo = ("deb http://openresty.org/package/ubuntu "
-                         "xenial openresty")
+                         "xenial main")
     elif wo_platform_codename == 'bionic':
         wo_nginx_repo = ("deb http://openresty.org/package/ubuntu "
-                        "bionic openresty")
+                        "bionic main")
     elif wo_platform_codename == 'jessie':
         wo_nginx_repo = ("deb http://openresty.org/package/debian "
                          "jessie openresty")
