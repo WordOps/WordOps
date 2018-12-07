@@ -429,9 +429,9 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                     if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
                         rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
                     fi
-                    echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/wo-openresty.list
-                    gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
-                    gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+                    echo -e "\ndeb http://openresty.org/package/ubuntu trusty main" >> /etc/apt/sources.list.d/wo-openresty.list
+                    gpg --keyserver "hkp://pgp.mit.edu" --recv-keys 'D5EDEB74'
+                    gpg -a --export --armor 'D5EDEB74' | apt-key add -
                     if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                         mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/wo-nginx.conf.old &>> /dev/null
                     fi
@@ -456,9 +456,9 @@ if [ -f /etc/ImageMagick/policy.xml  ]
         elif [ "$wo_linux_distro" == "Debian" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
             if [[ $? -ne 0 ]]; then
-                echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-openresty.list
-                gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
-                gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+                echo -e "deb http://openresty.org/package/debian jessie openresty" >> /etc/apt/sources.list.d/wo-openresty.list
+                gpg --keyserver "hkp://pgp.mit.edu" --recv-keys 'D5EDEB74'
+                gpg -a --export --armor 'D5EDEB74' | apt-key add -
                 if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                     mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
                 fi
