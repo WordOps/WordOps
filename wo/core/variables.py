@@ -12,7 +12,7 @@ class WOVariables():
     """Intialization of core variables"""
 
      # WordOps version
-    wo_version = "3.9.2"
+    wo_version = "3.9.5.0"
     # WordOps packages versions
     wo_wp_cli = "2.0.1"
     wo_adminer = "4.6.3"
@@ -80,24 +80,24 @@ class WOVariables():
         wo_mysql_host = "localhost"
 
     # WordOps stack installation variables
-    # Nginx repo and packages
+    # OpenResty repo and packages
     if wo_platform_codename == 'trusty':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
+        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu"
+                         "/rtCamp:/EasyEngine/xUbuntu_14.04/ openresty")
     elif wo_platform_codename == 'xenial':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_16.04/ /")
+        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu"
+                         "/rtCamp:/EasyEngine/xUbuntu_16.04/ openresty")
     elif wo_platform_codename == 'bionic':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                        "/rtCamp:/EasyEngine/xUbuntu_18.04/ /")
+        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu"
+                        "/rtCamp:/EasyEngine/xUbuntu_18.04/ openresty")
     elif wo_platform_codename == 'jessie':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+        wo_nginx_repo = ("deb http://openresty.org/package/debian"
+                         "/rtCamp:/EasyEngine/Debian_8.0/ openresty")
     elif wo_platform_codename == 'stretch':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+        wo_nginx_repo = ("deb http://openresty.org/package/debian"
+                         "/rtCamp:/EasyEngine/Debian_8.0/ openresty")
 
-    wo_nginx = ["nginx-custom", "nginx-ee"]
+    wo_nginx = ["openresty", "nginx-ee"]
     wo_nginx_key = '3050AC3CD2AE6F03'
 
     # PHP repo and packages
@@ -132,11 +132,11 @@ class WOVariables():
 
     # MySQL repo and packages
     if wo_platform_distro == 'ubuntu':
-        wo_mysql_repo = ("deb [arch=amd64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+        wo_mysql_repo = ("deb [arch=amd64,i386,ppc64el] http://ams2.mirrors.digitalocean.com/mariadb/repo/"
                          "10.1/ubuntu {codename} main"
                          .format(codename=wo_platform_codename))
     elif wo_platform_distro == 'debian':
-        wo_mysql_repo = ("deb [arch=amd64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+        wo_mysql_repo = ("deb [arch=amd64,i386,ppc64el] http://ams2.mirrors.digitalocean.com/mariadb/repo/"
                          "10.1/debian {codename} main"
                          .format(codename=wo_platform_codename))
 

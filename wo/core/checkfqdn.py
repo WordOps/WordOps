@@ -4,7 +4,7 @@ import os
 
 
 def check_fqdn(self, wo_host):
-    """FQDN check with WordOps, for mail server hostname must be FQDN"""
+    """FQDN check with WordOps, as the SMTP daemon requires a FQDN"""
     # wo_host=os.popen("hostname -f | tr -d '\n'").read()
     if '.' in wo_host:
         WOVariables.wo_fqdn = wo_host

@@ -5,6 +5,7 @@
 [+] Dropped letsencrypt/certbot in favor of acme.sh
 [+] Integrated OpenSMTPd instead of Postfix/smtp-cli
 [+] Reworked some critical parts of the installer
+[+] Fixed the update stack
 [-] Removed some EE leftovers
 [-] Drank too much coffee
 

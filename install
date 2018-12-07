@@ -66,7 +66,7 @@ fi
 wo_branch=develop
 migration=0
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.5"
+readonly wo_version_new="3.9.5.0"
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -429,7 +429,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                     if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
                         rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
                     fi
-                    echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/wo-repo.list
+                    echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/wo-openresty.list
                     gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
                     gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
                     if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
@@ -438,7 +438,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                     mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
                     apt-get update
                     service nginx stop &>> /dev/null
-                    DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom nginx-ee
+                    DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install openresty nginx-ee
                     service nginx restart &>> /dev/null
                 fi
                 dpkg --get-selections | grep -v deinstall | grep nginx-common
@@ -449,14 +449,14 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                         apt-get remove -y nginx-mainline
                     fi
                     service nginx stop &>> /dev/null
-                    DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom
+                    DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee openresty
                     service nginx restart &>> /dev/null
                 fi
 
         elif [ "$wo_linux_distro" == "Debian" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
             if [[ $? -ne 0 ]]; then
-                echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
+                echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-openresty.list
                 gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
                 gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
                 if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
@@ -466,7 +466,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                 mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
                 apt-get update
                 systemctl stop nginx &>> /dev/null
-                apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+                apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install openresty
                 systemctl restart nginx &>> /dev/null
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-common
@@ -477,7 +477,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
                     apt-get remove -y nginx-mainline
                 fi
                 systemctl stop nginx &>> /dev/null
-                DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom
+                DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee openresty
                 systemctl restart nginx &>> /dev/null
             fi
         fi

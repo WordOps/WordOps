@@ -1390,7 +1390,7 @@ class WOStackController(CementBaseController):
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
-                if not (WOAptGet.is_installed(self, 'nginx-custom')):
+                if not (WOAptGet.is_installed(self, 'openresty')):
                     if not (WOAptGet.is_installed(self, 'nginx-plus') or WOAptGet.is_installed(self, 'nginx')):
                         apt_packages = apt_packages + WOVariables.wo_nginx
                     else:
@@ -1636,7 +1636,7 @@ class WOStackController(CementBaseController):
             self.app.pargs.utils = True
 
         if self.app.pargs.nginx:
-            if WOAptGet.is_installed(self, 'nginx-custom'):
+            if WOAptGet.is_installed(self, 'openresty'):
                 Log.debug(self, "Removing apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
@@ -1727,7 +1727,7 @@ class WOStackController(CementBaseController):
 
             if wo_prompt == 'YES' or wo_prompt == 'yes':
 
-                if (set(["nginx-custom"]).issubset(set(apt_packages))) :
+                if (set(["openresty"]).issubset(set(apt_packages))) :
                     WOService.stop_service(self, 'nginx')
 
                 if len(packages):
@@ -1786,7 +1786,7 @@ class WOStackController(CementBaseController):
             self.app.pargs.utils = True
 
         if self.app.pargs.nginx:
-            if WOAptGet.is_installed(self, 'nginx-custom'):
+            if WOAptGet.is_installed(self, 'openresty'):
                 Log.debug(self, "Purge apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
@@ -1870,7 +1870,7 @@ class WOStackController(CementBaseController):
 
             if wo_prompt == 'YES' or wo_prompt == 'yes':
 
-                if (set(["nginx-custom"]).issubset(set(apt_packages))) :
+                if (set(["openresty"]).issubset(set(apt_packages))) :
                     WOService.stop_service(self, 'nginx')
 
                 if len(apt_packages):
