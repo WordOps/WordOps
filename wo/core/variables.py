@@ -82,23 +82,23 @@ class WOVariables():
     # WordOps stack installation variables
     # OpenResty repo and packages
     if wo_platform_codename == 'trusty':
-        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu"
-                         "/rtCamp:/EasyEngine/xUbuntu_14.04/ openresty")
+        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu "
+                         "trusty openresty")
     elif wo_platform_codename == 'xenial':
-        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu"
-                         "/rtCamp:/EasyEngine/xUbuntu_16.04/ openresty")
+        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu "
+                         "xenial openresty")
     elif wo_platform_codename == 'bionic':
-        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu"
-                        "/rtCamp:/EasyEngine/xUbuntu_18.04/ openresty")
+        wo_nginx_repo = ("deb http://openresty.org/package/ubuntu "
+                        "bionic openresty")
     elif wo_platform_codename == 'jessie':
-        wo_nginx_repo = ("deb http://openresty.org/package/debian"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ openresty")
+        wo_nginx_repo = ("deb http://openresty.org/package/debian "
+                         "jessie openresty")
     elif wo_platform_codename == 'stretch':
-        wo_nginx_repo = ("deb http://openresty.org/package/debian"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ openresty")
+        wo_nginx_repo = ("deb http://openresty.org/package/debian "
+                         "stretch openresty")
 
-    wo_nginx = ["openresty", "nginx-ee"]
-    wo_nginx_key = '3050AC3CD2AE6F03'
+    wo_nginx = ["openresty"]
+    wo_nginx_key = 'D5EDEB74'
 
     # PHP repo and packages
     if wo_platform_distro == 'ubuntu':
