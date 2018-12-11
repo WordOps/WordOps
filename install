@@ -297,6 +297,13 @@ function wo_sync_db()
         sed -i 's/9170/9172/g' /etc/nginx/conf.d/upstream.conf &>> /dev/null
     fi
 
+    ###
+    # Webp mapping
+    ###
+    if [ ! -f /etc/nginx/conf.d/webp.conf ]; then
+        echo -e 'map $http_accept $webp_suffix {\n   default "";\n   "~*webp" ".webp";\n}\n' > /etc/nginx/conf.d/webp.conf
+    fi
+
     echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
     echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.2');" | sqlite3 /var/lib/wo/dbase.db
 
