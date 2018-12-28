@@ -2,20 +2,42 @@
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 # Limit access to avoid brute force attack
 location = /wp-login.php {
-  limit_req zone=one burst=1 nodelay;
-  include fastcgi_params;
-  fastcgi_pass php7;
+    limit_req zone=one burst=1 nodelay;
+    include fastcgi_params;
+    fastcgi_pass php7;
 }
 # Disable wp-config.txt
 location = /wp-config.txt {
-  deny all;
-  access_log off;
-  log_not_found off;
-}
-# Disallow php in upload folder
-location /wp-content/uploads/ {
-  location ~ \.php$ {
-    #Prevent Direct Access Of PHP Files From Web Browsers
     deny all;
-  }
+    access_log off;
+    log_not_found off;
+}
+# webp rewrite rules for jpg and png images
+# try to load alternative image.png.webp before image.png
+location /wp-content/uploads {
+    location ~ \.(png|jpe?g)$ {
+        add_header Vary "Accept-Encoding";
+        add_header "Access-Control-Allow-Origin" "*";
+        add_header Cache-Control "public, no-transform";
+        access_log off;
+        log_not_found off;
+        expires max;
+        try_files $uri$webp_suffix $uri =404;
+    }
+    location ~ \.php$ {
+#Prevent Direct Access Of PHP Files From Web Browsers
+        deny all;
+    }
+}
+# Deny access to any files with a .php extension in the uploads directory
+# Works in sub-directory installs and also in multisite network
+# Keep logging the requests to parse later (or to pass to firewall utilities such as fail2ban)
+location ~* /(?:uploads|files)/.*\.php$ {
+    deny all;
+}
+# mitigate DoS attack CVE with WordPress script concatenation
+# add the following line to wp-config.php
+# define( 'CONCATENATE_SCRIPTS', false );
+location ~ \/wp-admin\/load-(scripts|styles).php {
+    deny all;
 }
