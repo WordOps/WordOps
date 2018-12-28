@@ -6,6 +6,7 @@
 [+] Integrated OpenSMTPd instead of Postfix/smtp-cli
 [+] Reworked some critical parts of the installer
 [+] Fixed the update stack
+[+] Added the nginx configuration improvements courtesy of Virtubox
 [-] Removed some EE leftovers
 [-] Drank too much coffee
 
