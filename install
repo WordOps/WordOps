@@ -301,6 +301,7 @@ function wo_sync_db()
     # Webp mapping
     ###
     if [ ! -f /etc/nginx/conf.d/webp.conf ]; then
+        mkdir -p /etc/nginx/conf.d
         echo -e 'map $http_accept $webp_suffix {\n   default "";\n   "~*webp" ".webp";\n}\n' > /etc/nginx/conf.d/webp.conf
     fi
 
