@@ -153,6 +153,14 @@ function wo_install_dep()
         apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
         systemctl php7.2-fpm restart &>> /dev/null
     fi
+    
+    ###
+    # Webp mapping
+    ###
+    [ ! -f /etc/nginx/conf.d/webp.conf ] && {
+        mkdir -p /etc/nginx/conf.d
+        echo -e 'map $http_accept $webp_suffix {\n   default "";\n   "~*webp" ".webp";\n}\n' > /etc/nginx/conf.d/webp.conf
+    }
 }
 
 ###
@@ -295,14 +303,6 @@ function wo_sync_db()
         # Replace the ports for debug PHP 7.2
         sed -i 's/9001/9172/g' /etc/nginx/conf.d/upstream.conf &>> /dev/null
         sed -i 's/9170/9172/g' /etc/nginx/conf.d/upstream.conf &>> /dev/null
-    fi
-
-    ###
-    # Webp mapping
-    ###
-    if [ ! -f /etc/nginx/conf.d/webp.conf ]; then
-        mkdir -p /etc/nginx/conf.d
-        echo -e 'map $http_accept $webp_suffix {\n   default "";\n   "~*webp" ".webp";\n}\n' > /etc/nginx/conf.d/webp.conf
     fi
 
     echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
