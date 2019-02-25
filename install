@@ -1,13 +1,20 @@
 #!/bin/bash
-#########################################
-### WordOps install and update script ###
-#########################################
-### CONTENTS
-### ---
-### 1. VARIABLES AND DECLARATIONS
-### 2. PREPARE FOR INSTALLATION
-### 3. INSTALLATION
-### 4.
+# -------------------------------------------------------------------------
+# WordOps install and update script
+# -------------------------------------------------------------------------
+# Website:       https://wordops.org
+# GitHub:        https://github.com/WordOps/WordOps
+# Copyright (c) 2019 - WordOps
+# This script is licensed under M.I.T
+# -------------------------------------------------------------------------
+# Version 3.9.1 - 2019-02-25
+# -------------------------------------------------------------------------
+# CONTENTS
+# ---
+# 1. VARIABLES AND DECLARATIONS
+# 2. PREPARE FOR INSTALLATION
+# 3. INSTALLATION
+# 4.
 
 ###
 # 1 - Set the CLI output colors
@@ -42,7 +49,7 @@ fi
 ###
 function wo_lib_error()
 {
-    echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)"
+    echo "[ $(date) ] $(tput setaf 1)$@$(tput sgr0)"
     exit $2
 }
 
@@ -153,7 +160,7 @@ function wo_install_dep()
         apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
         systemctl php7.2-fpm restart &>> /dev/null
     fi
-    
+
     ###
     # Webp mapping
     ###
@@ -211,7 +218,7 @@ function wo_sync_db()
            php_version VARCHAR
         );" | sqlite3 /var/lib/wo/dbase.db
 
-        if [ -f /var/lib/wo/dbase-ee.db]; then
+        if [ -f /var/lib/wo/dbase-ee.db ]; then
             # Copy the main EasyEngine database over since we are migrating
             cp /var/lib/wo/dbase-ee.db /var/lib/wo/dbase.db
         fi
@@ -297,12 +304,14 @@ function wo_sync_db()
         wo_lib_echo "Replace the PHP ports for PHP 7.2"
         # Copy the previous upstream.conf
         cp /etc/nginx/conf.d/upstream.conf /etc/nginx/conf.d/upstream.bak
+        {
         # Replace the ports for PHP 7.2
-        sed -i 's/9000/9072/g' /etc/nginx/conf.d/upstream.conf &>> /dev/null
-        sed -i 's/9070/9072/g' /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i 's/9000/9072/g' /etc/nginx/conf.d/upstream.conf
+        sed -i 's/9070/9072/g' /etc/nginx/conf.d/upstream.conf
         # Replace the ports for debug PHP 7.2
-        sed -i 's/9001/9172/g' /etc/nginx/conf.d/upstream.conf &>> /dev/null
-        sed -i 's/9170/9172/g' /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        sed -i 's/9001/9172/g' /etc/nginx/conf.d/upstream.conf
+        sed -i 's/9170/9172/g' /etc/nginx/conf.d/upstream.conf
+        } > /dev/null 2>&1
     fi
 
     echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
@@ -346,16 +355,16 @@ function secure_wo_db()
 function wo_update_wp_cli()
 {
     wo_lib_echo "Updating WP-CLI version to resolve compatibility issue."
-    PHP_PATH=$(which php)
-    WP_CLI_PATH=$(which wp)
-    if [ "${WP_CLI_PATH}" != "" ]; then
+    PHP_PATH=$(command -v php)
+    WP_CLI_PATH=$(command -v wp)
+    if [  -z "$WP_CLI_PATH" ]; then
         # Obtain the current WP-CLI version
-        WP_CLI_VERSION=$(${PHP_PATH} ${WP_CLI_PATH} --allow-root cli version | awk '{ print $2 }')
-        dpkg --compare-versions ${WP_CLI_VERSION} lt 1.4.1
+        WP_CLI_VERSION=$($PHP_PATH $WP_CLI_PATH --allow-root cli version | awk '{ print $2 }')
+        dpkg --compare-versions "$WP_CLI_VERSION" lt 1.4.1
         # Update WP-CLI to the most recent version
         if [ "$?" == "0" ]; then
-            wget -qO ${WP_CLI_PATH} https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
-            chmod +x ${WP_CLI_PATH}
+            wget -qO "$WP_CLI_PATH" https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
+            chmod +x "$WP_CLI_PATH"
         fi
     fi
 }
@@ -371,10 +380,10 @@ function wo_install()
         wo_branch=master
     fi
 
-    git clone -b $wo_branch https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null \
+    git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null \
     || wo_lib_error "An error was encountered during the download, exit status" $?
 
-    cd /tmp/wordops
+    cd /tmp/wordops || exit 1
     wo_lib_echo "The moment you've all been waiting for, time to install WordOps!"
     python3 setup.py install || wo_lib_error "An error was encountered during the installation, exit status " $?
 }
@@ -384,7 +393,7 @@ function wo_update_latest()
 
     if [ -f /etc/nginx/fastcgi_params  ]
     then
-        cat /etc/nginx/fastcgi_params| grep -q 'HTTP_PROXY'
+        grep -q 'HTTP_PROXY' /etc/nginx/fastcgi_params
         if [[ $? -ne 0 ]]; then
             echo "fastcgi_param  HTTP_PROXY         \"\";" >> /etc/nginx/fastcgi_params
             echo "fastcgi_param  HTTP_PROXY         \"\";" >> /etc/nginx/fastcgi.conf
@@ -641,32 +650,31 @@ function wo_update_latest()
 function wo_git_init()
 {
     # Nginx under git version control
-    if [ -d /etc/nginx ];then
-        cd /etc/nginx
+    [ -d /etc/nginx ] && {
+        cd /etc/nginx || exit 1
         if [ ! -d /etc/nginx/.git ]; then
             git init &>> /dev/null
         fi
         git add -A .
         git commit -am "Updated Nginx" > /dev/null
-    fi
+    }
     # WordOps under git version control
-    cd /etc/wo
-    if [ ! -d /etc/wo/.git ]; then
+    cd /etc/wo || exit 1
+    [ ! -d /etc/wo/.git ] && {
         git init > /dev/null
-    fi
+    }
     git add -A .
     git commit -am "Installed/Updated to WordOps" &>> /dev/null
 
     #PHP under git version control
-    if [ -d /etc/php ];then
-        cd /etc/php
+    [ -d /etc/php ] && {
+        cd /etc/php || exit 1
         if [ ! -d /etc/php/.git ]; then
-            git init &>> /dev/null
+            git init
         fi
         git add -A .
-        git commit -am "Updated PHP" > /dev/null
-    fi
-
+        git commit -am "Updated PHP"
+    }> /dev/null
 }
 
 if [ ! -f /usr/local/bin/wo ]; then
