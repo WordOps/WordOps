@@ -18,7 +18,7 @@ if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_no
 }
 # Use cached or actual file if they exists, Otherwise pass request to WordPress
 location / {
-  try_files $uri $uri/ /index.php?$args;
+  try_files $uri $uri/ /index.php$is_args$args;
 }
 location ~ ^/wp-content/cache/minify/(.+\.(css|js))$ {
   try_files $uri /wp-content/plugins/w3-total-cache/pub/minify.php?file=$1;

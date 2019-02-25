@@ -23,7 +23,7 @@ server {
   include common/acl.conf;
 
   location / {
-    try_files $uri $uri/ /index.php?$args;
+    try_files $uri $uri/ /index.php$is_args$args;
   }
 
   # Display menu at location /fpm/status/
