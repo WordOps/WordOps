@@ -9,7 +9,7 @@ location = /favicon.ico {
 location = /robots.txt {
 # Some WordPress plugin gererate robots.txt file
 # Refer #340 issue
-    try_files $uri $uri/ /index.php?$args @robots;
+    try_files $uri $uri/ /index.php$is_args$args @robots;
     access_log off;
     log_not_found off;
 }

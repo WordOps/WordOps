@@ -1,7 +1,7 @@
 # PHP NGINX CONFIGURATION
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 location / {
-  try_files $uri $uri/ /index.php?$args;
+  try_files $uri $uri/ /index.php$is_args$args;
 }
 location ~ \.php$ {
   try_files $uri =404;
