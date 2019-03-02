@@ -1,18 +1,24 @@
 # Common upstream settings
 upstream php {
-server 127.0.0.1:9072;
+server 127.0.0.1:9000;
 }
 upstream debug {
 # Debug Pool
-server 127.0.0.1:9172;
+server 127.0.0.1:9100;
+}
+upstream php72 {
+server unix:/var/run/php/php72-fpm.sock;
+}
+upstream php73 {
+server unix:/var/run/php/php73-fpm.sock;
 }
 {{#php7conf}}
 upstream php7 {
-server 127.0.0.1:9072;
+server 127.0.0.1:9070;
 }
 upstream debug7 {
 # Debug Pool
-server 127.0.0.1:9172;
+server 127.0.0.1:9170;
 }
 {{/php7conf}}
 

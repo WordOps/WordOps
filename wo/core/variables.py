@@ -11,14 +11,14 @@ import datetime
 class WOVariables():
     """Intialization of core variables"""
 
-     # WordOps version
+    # WordOps version
     wo_version = "3.9.2"
     # WordOps packages versions
     wo_wp_cli = "2.0.1"
     wo_adminer = "4.6.3"
 
     # Get WPCLI path
-    wo_wpcli_path = os.popen('which wp | tr "\n" " "').read()
+    wo_wpcli_path = os.popen('command -v wp | tr "\n" " "').read()
     if wo_wpcli_path == '':
         wo_wpcli_path = '/usr/bin/wp '
 
@@ -68,9 +68,9 @@ class WOVariables():
     wo_mysql_host = ""
     config = configparser.RawConfigParser()
     if os.path.exists('/etc/mysql/conf.d/my.cnf'):
-      cnfpath = "/etc/mysql/conf.d/my.cnf"
+        cnfpath = "/etc/mysql/conf.d/my.cnf"
     else:
-      cnfpath = os.path.expanduser("~")+"/.my.cnf"
+        cnfpath = os.path.expanduser("~")+"/.my.cnf"
     if [cnfpath] == config.read(cnfpath):
         try:
             wo_mysql_host = config.get('client', 'host')
@@ -89,7 +89,7 @@ class WOVariables():
                          "/rtCamp:/EasyEngine/xUbuntu_16.04/ /")
     elif wo_platform_codename == 'bionic':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                        "/rtCamp:/EasyEngine/xUbuntu_18.04/ /")
+                         "/rtCamp:/EasyEngine/xUbuntu_18.04/ /")
     elif wo_platform_codename == 'jessie':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/Debian_8.0/ /")
@@ -104,40 +104,41 @@ class WOVariables():
     if wo_platform_distro == 'ubuntu':
         if (wo_platform_codename == 'trusty' or wo_platform_codename == 'xenial' or wo_platform_codename == 'bionic'):
             wo_php_repo = "ppa:ondrej/php"
-            wo_php = ["php7.2-fpm", "php-sodium", "php7.2-curl", "php7.2-gd", "php7.2-imap",
-                          "php7.2-readline", "php7.2-common", "php7.2-recode",
-                          "php7.2-cli", "php7.2-mbstring",
-                         "php7.2-bcmath", "php7.2-mysql", "php7.2-opcache", "php7.2-zip", "php7.2-xml", "php7.2-soap"]
-            wo_php72 = ["php7.2-fpm", "php-sodium", "php7.2-curl", "php7.2-gd", "php7.2-imap",
-                          "php7.2-readline", "php7.2-common", "php7.2-recode",
-                          "php7.2-cli", "php7.2-mbstring",
-                         "php7.2-bcmath", "php7.2-mysql", "php7.2-opcache", "php7.2-zip", "php7.2-xml", "php7.2-soap"]
-            wo_php_extra = ["php-memcached", "php-imagick", "php-memcache", "memcached",
+            wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
+                      "php7.2-readline", "php7.2-common", "php7.2-recode",
+                      "php7.2-cli", "php7.2-mbstring",
+                      "php7.2-bcmath", "php7.2-mysql", "php7.2-opcache", "php7.2-zip", "php7.2-xml", "php7.2-soap"]
+            wo_php73 = ["php7.3-fpm", "php7.3-curl", "php7.3-gd", "php7.3-imap",
+                        "php7.3-readline", "php7.3-common", "php7.3-recode",
+                        "php7.3-cli", "php7.3-mbstring",
+                        "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache", "php7.3-zip", "php7.3-xml", "php7.3-soap"]
+            wo_php_extra = ["php-memcached", "php-imagick",
                             "graphviz", "php-pear", "php-xdebug", "php-msgpack", "php-redis"]
     elif wo_platform_distro == 'debian':
-        wo_php_repo = ("deb https://packages.sury.org/php/ {codename} main".format(codename=wo_platform_codename))
+        wo_php_repo = (
+            "deb https://packages.sury.org/php/ {codename} main".format(codename=wo_platform_codename))
         wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
-                  "php-sodium", "php7.2-common", "php7.2-readline", "php7.2-redis",
-                  "php7.2-mysql", "php7.2-cli", "php7.2-memcache", "php7.2-imagick",
+                  "php7.2-common", "php7.2-readline", "php-redis",
+                  "php7.2-mysql", "php7.2-cli", "php-imagick",
                   "php7.2-mbstring", "php7.2-recode", "php7.2-bcmath", "php7.2-opcache", "php7.2-zip", "php7.2-xml",
-                     "php7.2-soap", "php7.2-msgpack",
-                 "memcached", "graphviz", "php-pear", "php7.2-xdebug"]
-        wo_php72 = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
-                  "php-sodium", "php7.2-common", "php7.2-readline", "php7.2-redis",
-                  "php7.2-mysql", "php7.2-cli", "php7.2-memcache", "php7.2-imagick",
-                  "php7.2-mbstring", "php7.2-recode", "php7.2-bcmath", "php7.2-opcache", "php7.2-zip", "php7.2-xml",
-                     "php7.2-soap", "php7.2-msgpack",
-                 "memcached", "graphviz", "php-pear", "php7.2-xdebug"]
+                  "php7.2-soap", "php7.2-msgpack",
+                  "graphviz", "php-pear", "php-xdebug"]
+        wo_php73 = ["php7.3-fpm", "php7.3-curl", "php7.3-gd", "php7.3-imap",
+                    "php7.3-common", "php7.3-readline", "php-redis",
+                    "php7.3-mysql", "php7.3-cli", "php-imagick",
+                    "php7.3-mbstring", "php7.3-recode", "php7.3-bcmath", "php7.3-opcache", "php7.3-zip", "php7.3-xml",
+                    "php7.3-soap", "php7.3-msgpack",
+                    "graphviz", "php-pear", "php-xdebug"]
         wo_php_extra = []
 
     # MySQL repo and packages
     if wo_platform_distro == 'ubuntu':
         wo_mysql_repo = ("deb [arch=amd64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
-                         "10.1/ubuntu {codename} main"
+                         "10.3/ubuntu {codename} main"
                          .format(codename=wo_platform_codename))
     elif wo_platform_distro == 'debian':
         wo_mysql_repo = ("deb [arch=amd64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
-                         "10.1/debian {codename} main"
+                         "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]
@@ -146,7 +147,7 @@ class WOVariables():
     if wo_platform_distro == 'ubuntu':
         if wo_platform_codename == "trusty" or wo_platform_codename == "xenial" or wo_platform_codename == "bionic":
             wo_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
-                        .format(codename=wo_platform_codename))
+                            .format(codename=wo_platform_codename))
     else:
         wo_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"
                         .format(codename=wo_platform_codename))
@@ -159,10 +160,10 @@ class WOVariables():
 
     else:
         wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
-                        .format(codename=wo_platform_codename))
+                         .format(codename=wo_platform_codename))
 
     if (wo_platform_codename == 'trusty' or wo_platform_codename == 'xenial' or wo_platform_codename == 'bionic' or wo_platform_distro == 'debian'):
-        wo_redis = ['redis-server', 'php7.2-redis']
+        wo_redis = ['redis-server', 'php-redis']
 
     # Repo path
     wo_repo_file = "wo-repo.list"
