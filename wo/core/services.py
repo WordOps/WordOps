@@ -100,8 +100,8 @@ class WOService():
             Log.info(self, "Reload : {0:10}".format(service_name), end='')
             retcode = subprocess.getstatusoutput(service_cmd)
             if retcode[0] == 0:
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                    return True
+                Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                return True
             else:
                 Log.debug(self, "{0}".format(retcode[1]))
                 Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
@@ -113,11 +113,10 @@ class WOService():
 
     def get_service_status(self, service_name):
 
-
         try:
             is_exist = subprocess.getstatusoutput('which {0}'
                                                   .format(service_name))
-            if is_exist[0] == 0 or service_name in ['php7.0-fpm', 'php5.6-fpm']:
+            if is_exist[0] == 0 or service_name in ['php7.2-fpm', 'php7.3-fpm']:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
                 if retcode[0] == 0:

@@ -72,7 +72,7 @@ def setupdomain(self, data):
         wo_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
                                   .format(wo_domain_name), encoding='utf-8',
                                   mode='w')
-        if not data['php72']:
+        if not data['php73']:
             self.app.render((data), 'virtualconf.mustache',
                           out=wo_site_nginx_conf)
         else:
@@ -623,7 +623,7 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        if data['php72'] is True and not data['wp']:
+        if data['php73'] is True and not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
             WOFileUtils.copyfiles(self, wo_site_webroot + '/htdocs', backup_path + '/htdocs')
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -663,7 +663,7 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/wo-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            if data['php72'] is True and not data['wp']:
+            if data['php73'] is True and not data['wp']:
                 WOFileUtils.copyfile(self, configfiles[0], backup_path)
             else:
                 WOFileUtils.mvfile(self, configfiles[0], backup_path)
@@ -677,7 +677,7 @@ def site_package_check(self, stype):
     stack = WOStackController()
     stack.app = self.app
     if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain', 'php72']:
+                 'wpsubdomain', 'php73']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
@@ -708,22 +708,22 @@ def site_package_check(self, stype):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-    if self.app.pargs.php and self.app.pargs.php72:
+    if self.app.pargs.php and self.app.pargs.php73:
         Log.error(self,"Error: two different PHP versions cannot be combined within the same WordOps site")
 
-    if not self.app.pargs.php72 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
-        apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
+        apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
 
-    if self.app.pargs.php72 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if self.app.pargs.php73 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
         else:
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php72
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php73
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -736,7 +736,7 @@ def site_package_check(self, stype):
 
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting packages variable for WP-CLI")
-        if not WOShellExec.cmd_exec(self, "which wp"):
+        if not WOShellExec.cmd_exec(self, "command -v wp"):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                     "releases/download/v{0}/"
                                     "wp-cli-{0}.phar"
@@ -830,13 +830,13 @@ def site_package_check(self, stype):
                     hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
-    if self.app.pargs.php72:
+    if self.app.pargs.php73:
         if (WOVariables.wo_platform_codename == 'wheezy' or WOVariables.wo_platform_codename == 'precise'):
             Log.error(self,"PHP 7.0 is not supported in your Platform")
 
-        Log.debug(self, "Setting apt_packages variable for PHP 7.0")
-        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-            apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
+        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+        if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
 
         if os.path.isdir("/etc/nginx/common") and (not
            os.path.isfile("/etc/nginx/common/php7.conf")):
@@ -894,9 +894,9 @@ def site_package_check(self, stype):
 
         if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
             if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
-                                          "php72"):
+                                          "php73"):
                 with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                    php_file.write("upstream php72 {\nserver 127.0.0.1:9072;\n}\n"
+                    php_file.write("upstream php73 {\nserver 127.0.0.1:9072;\n}\n"
                                     "upstream debug72 {\nserver 127.0.0.1:9172;\n}\n")
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
@@ -1032,7 +1032,7 @@ def detSitePar(opts):
     cachelist = list()
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain','php72']:
+                           'wpsubdir', 'wpsubdomain','php73']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis']:
             cachelist.append(key)
@@ -1046,7 +1046,7 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php72','mysql','html') for x in typelist]:
+        elif False not in [x in ('php73','mysql','html') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1058,7 +1058,7 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php72','mysql') for x in typelist]:
+        elif False not in [x in ('php73','mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1076,8 +1076,8 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php72','html') for x in typelist]:
-            sitetype = 'php72'
+        elif False not in [x in ('php73','html') for x in typelist]:
+            sitetype = 'php73'
             if not cachelist:
                 cachetype = 'basic'
             else:
@@ -1094,19 +1094,19 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wp','php72') for x in typelist]:
+        elif False not in [x in ('wp','php73') for x in typelist]:
             sitetype = 'wp'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir','php72') for x in typelist]:
+        elif False not in [x in ('wpsubdir','php73') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain','php72') for x in typelist]:
+        elif False not in [x in ('wpsubdomain','php73') for x in typelist]:
             sitetype = 'wpsubdomain'
             if not cachelist:
                 cachetype = 'basic'
@@ -1118,7 +1118,7 @@ def detSitePar(opts):
         if not typelist and not cachelist:
             sitetype = None
             cachetype = None
-        elif (not typelist or "php72" in typelist) and cachelist:
+        elif (not typelist or "php73" in typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif typelist and (not cachelist):

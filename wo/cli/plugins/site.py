@@ -309,8 +309,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create html site", action='store_true')),
             (['--php'],
                 dict(help="create php site", action='store_true')),
-            (['--php72'],
-                dict(help="create php 7.2 site", action='store_true')),
+            (['--php73'],
+                dict(help="create php 7.3 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -344,9 +344,6 @@ class WOSiteCreateController(CementBaseController):
                      dest='wppass')),
             (['--proxy'],
                 dict(help="create proxy for site", nargs='+')),
-            (['--experimental'],
-                dict(help="Enable Experimenal packages without prompt",
-                     action='store_true')),
             ]
 
     @expose(hide=True)
@@ -410,16 +407,16 @@ class WOSiteCreateController(CementBaseController):
             data['port'] = port
             wo_site_webroot = ""
 
-        if self.app.pargs.php72:
+        if self.app.pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=False, php72=True, wp=False,
+                        static=False,  basic=False, php73=True, wp=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
 
         if stype in ['html', 'php' ]:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True,  basic=False, php72=False, wp=False,
+                        static=True,  basic=False, php73=False, wp=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
 
@@ -430,7 +427,7 @@ class WOSiteCreateController(CementBaseController):
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=True, wp=False, wpfc=False, 
+                        static=False,  basic=True, wp=False, wpfc=False,
                         wpsc=False, wpredis=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot,
                         wo_db_name='', wo_db_user='', wo_db_pass='',
@@ -453,49 +450,14 @@ class WOSiteCreateController(CementBaseController):
         if stype == "html" and self.app.pargs.hhvm:
             Log.error(self, "Can not create HTML site with HHVM")
 
-        if data and self.app.pargs.php72:
-            if (not self.app.pargs.experimental):
-                Log.info(self, "Do you wish to install PHP 7.2 now for {0}?".format(wo_domain))
-
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
-                if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using PHP 7.2 for site.")
-                    data['php72'] = False
-                    data['basic'] = True
-                    php72 = 0
-                    self.app.pargs.php72 = False
-                else:
-                    data['php72'] = True
-                    php72 = 1
-            else:
-                data['php72'] = True
-                php72 = 1
-        elif data:
-            data['php72'] = False
-            php72 = 0
+        if data and self.app.pargs.php73:
+                    data['php73'] = True
+                    php73 = 1
 
         if (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis) and (not self.app.pargs.hhvm):
             data['basic'] = True
 
         if data and self.app.pargs.hhvm:
-            if (not self.app.pargs.experimental):
-                Log.info(self, "HHVM is experimental feature and it may not "
-                         "work with all plugins of your site.\nYou can "
-                         "disable it by passing --hhvm=off later.\nDo you wish"
-                         " to enable HHVM now for {0}?".format(wo_domain))
-
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
-                if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using HHVM for site.")
-                    data['hhvm'] = False
-                    hhvm = 0
-                    self.app.pargs.hhvm = False
-                else:
-                    data['hhvm'] = True
-                    hhvm = 1
-            else:
                 data['hhvm'] = True
                 hhvm = 1
 
@@ -503,20 +465,7 @@ class WOSiteCreateController(CementBaseController):
             data['hhvm'] = False
             hhvm = 0
 
-        if (cache == 'wpredis' and (not self.app.pargs.experimental)):
-            Log.info(self, "Redis is experimental feature and it may not "
-                     "work with all CSS/JS/Cache of your site.\nYou can "
-                     "disable it by changing cache later.\nDo you wish"
-                     " to enable Redis now for {0}?".format(wo_domain))
-
-                # Check prompt
-            check_prompt = input("Type \"y\" to continue [n]:")
-            if check_prompt != "Y" and check_prompt != "y":
-                Log.error(self, "Not using Redis for site")
-                cache = 'basic'
-                data['wpredis'] = False
-                data['basic'] = True
-                self.app.pargs.wpredis = False
+        if cache == 'wpredis':
 
         # Check rerequired packages are installed or not
         wo_auth = site_package_check(self, stype)
@@ -563,8 +512,8 @@ class WOSiteCreateController(CementBaseController):
                          " http://{0}".format(wo_domain))
                 return
 
-            if data['php72']:
-                php_version = "7.2"
+            if data['php73']:
+                php_version = "7.3"
             else:
                 php_version = "7.2"
 
@@ -705,23 +654,6 @@ class WOSiteCreateController(CementBaseController):
                       "`tail /var/log/wo/wordops.log` and please try again")
 
         if self.app.pargs.letsencrypt :
-            if (not self.app.pargs.experimental):
-                if stype in ['wpsubdomain']:
-	                    Log.warn(self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
-
-                Log.info(self, "Letsencrypt is currently in beta phase."
-                             " \nDo you wish"
-                             " to enable SSl now for {0}?".format(wo_domain))
-
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
-                if check_prompt != "Y" and check_prompt != "y":
-                    data['letsencrypt'] = False
-                    letsencrypt = False
-                else:
-                    data['letsencrypt'] = True
-                    letsencrypt = True
-            else:
                  data['letsencrypt'] = True
                  letsencrypt = True
 
@@ -775,8 +707,8 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to html site", action='store_true')),
             (['--php'],
                 dict(help="update to php site", action='store_true')),
-            (['--php72'],
-                dict(help="update to php7 site",
+            (['--php73'],
+                dict(help="update to PHP 7.3 site",
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--mysql'],
@@ -804,9 +736,6 @@ class WOSiteUpdateController(CementBaseController):
                      choices=('on', 'off', 'renew'), const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
-            (['--experimental'],
-                dict(help="Enable Experimenal packages without prompt",
-                     action='store_true')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
             ]
@@ -822,9 +751,9 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.html:
                 Log.error(self, "No site can be updated to html")
 
-            if not (pargs.php or pargs.php72 or
+            if not (pargs.php or pargs.php73 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
-                    pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or 
+                    pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
                     pargs.hhvm or pargs.wpredis or pargs.letsencrypt):
                 Log.error(self, "Please provide options to update sites.")
 
@@ -850,7 +779,7 @@ class WOSiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         hhvm = None
         letsencrypt = False
-        php72 = None
+        php73 = None
 
 
         data = dict()
@@ -900,13 +829,13 @@ class WOSiteUpdateController(CementBaseController):
             check_php_version = check_site.php_version
 
             if check_php_version == "7.2":
-                old_php72 = True
+                old_php73 = True
             else:
-                old_php72 = False
+                old_php73 = False
 
         if (pargs.password and not (pargs.html or
-            pargs.php or pargs.php72 or pargs.mysql or 
-            pargs.wp or pargs.wpfc or pargs.wpsc or 
+            pargs.php or pargs.php73 or pargs.mysql or
+            pargs.wp or pargs.wpfc or pargs.wpsc or
             pargs.wpsubdir or pargs.wpsubdomain)):
             try:
                 updatewpuserpassword(self, wo_domain, wo_site_webroot)
@@ -925,16 +854,16 @@ class WOSiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php72']) or
-          #  (stype == 'php72' and oldsitetype not in ['html', 'mysql', 'php', 'php72', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
+        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php73']) or
+          #  (stype == 'php73' and oldsitetype not in ['html', 'mysql', 'php', 'php73', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
-                                                      'proxy','php72']) or
+                                                      'proxy','php73']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
-                                                   'proxy', 'wp', 'php72']) or
+                                                   'proxy', 'wp', 'php73']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype) and
-                    not  pargs.php72):
+                    not  pargs.php73):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -952,7 +881,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if stype == 'php':
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=True, wp=False, wpfc=False, 
+                        static=False,  basic=True, wp=False, wpfc=False,
                         wpsc=False, wpredis=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot,
                         currsitetype=oldsitetype, currcachetype=oldcachetype)
@@ -960,7 +889,7 @@ class WOSiteUpdateController(CementBaseController):
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=True, wp=False, wpfc=False, 
+                        static=False,  basic=True, wp=False, wpfc=False,
                         wpsc=False, wpredis=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot,
                         wo_db_name='', wo_db_user='', wo_db_pass='',
@@ -976,7 +905,7 @@ class WOSiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if pargs.hhvm or pargs.php72:
+        if pargs.hhvm or pargs.php73:
             if not data:
                 data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                             currsitetype=oldsitetype,
@@ -1038,24 +967,24 @@ class WOSiteUpdateController(CementBaseController):
                 data['hhvm'] = False
                 hhvm = False
 
-            if pargs.php72 == 'on' :
-                data['php72'] = True
-                php72 = True
-                check_php_version= '7.2'
-            elif pargs.php72 == 'off':
-                data['php72'] = False
-                php72 = False
-                check_php_version = '5.6'
+            if pargs.php73 == 'on' :
+                data['php73'] = True
+                php73 = True
+                check_php_version= '7.3'
+            elif pargs.php73 == 'off':
+                data['php73'] = False
+                php73 = False
+                check_php_version = '7.2'
 
-        if pargs.php72:
-            if php72 is old_php72:
-                if php72 is False:
-                    Log.info(self, "PHP 7.2 is already disabled for given "
+        if pargs.php73:
+            if php73 is old_php73:
+                if php73 is False:
+                    Log.info(self, "PHP 7.3 is already disabled for given "
                              "site")
-                elif php72 is True:
-                    Log.info(self, "PHP 7.2 is already enabled for given "
+                elif php73 is True:
+                    Log.info(self, "PHP 7.3 is already enabled for given "
                              "site")
-                pargs.php72 = False
+                pargs.php73 = False
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
@@ -1154,92 +1083,31 @@ class WOSiteUpdateController(CementBaseController):
                 data['hhvm'] = False
                 hhvm = False
 
-        if data and (not pargs.php72):
-            if old_php72 is True:
-                data['php72'] = True
-                php72 = True
+        if data and (not pargs.php73):
+            if old_php73 is True:
+                data['php73'] = True
+                php73 = True
             else:
-                data['php72'] = False
-                php72 = False
+                data['php73'] = False
+                php73 = False
 
-        if pargs.hhvm=="on" or pargs.letsencrypt=="on" or pargs.php72=="on":
-            if pargs.php72 == "on":
-                if (not pargs.experimental):
-                    Log.info(self, "Do you wish to enable PHP 7.2 now for {0}?".format(wo_domain))
-
-                    check_prompt = input("Type \"y\" to continue [n]:")
-                    if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using PHP 7.2 for site")
-                        data['php72'] = False
-                        php72 = False
-                    else:
-                        data['php72'] = True
-                        php72 = True
-                else:
-                    data['php72'] = True
-                    php72 = True
+        if pargs.hhvm=="on" or pargs.letsencrypt=="on" or pargs.php73=="on":
+            if pargs.php73 == "on":
+                        data['php73'] = True
+                        php73 = True
 
             if pargs.hhvm == "on":
-                if (not pargs.experimental):
-                    Log.info(self, "HHVM is experimental feature and it may not"
-                             " work with all plugins of your site.\nYou can "
-                             "disable it by passing --hhvm=off later.\nDo you wish"
-                             " to enable HHVM now for {0}?".format(wo_domain))
-
-                    # Check prompt
-                    check_prompt = input("Type \"y\" to continue [n]:")
-                    if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using HHVM for site")
-                        data['hhvm'] = False
-                        hhvm = False
-                    else:
-                        data['hhvm'] = True
-                        hhvm = True
-                else:
                     data['hhvm'] = True
                     hhvm = True
 
             if pargs.letsencrypt == "on":
-
-                if (not pargs.experimental):
-
-                    if oldsitetype in ['wpsubdomain']:
-	                    Log.warn(self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
-
-                    Log.info(self, "Letsencrypt is currently in beta phase."
-                             " \nDo you wish"
-                             " to enable SSl now for {0}?".format(wo_domain))
-
-                    check_prompt = input("Type \"y\" to continue [n]:")
-                    if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using letsencrypt for site")
-                        data['letsencrypt'] = False
-                        letsencrypt = False
-                    else:
-                        data['letsencrypt'] = True
-                        letsencrypt = True
-                else:
                     data['letsencrypt'] = True
                     letsencrypt = True
 
 
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
-            if (not pargs.experimental):
-                Log.info(self, "Redis is experimental feature and it may not"
-                         " work with all plugins of your site.\nYou can "
-                         "disable it by changing cache type later.\nDo you wish"
-                         " to enable Redis now for {0}?".format(wo_domain))
-
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]: ")
-                if check_prompt != "Y" and check_prompt != "y":
-                    Log.error(self, "Not using Redis for site")
-                    data['wpredis'] = False
-                    data['basic'] = True
-                    cache = 'basic'
-
-        if ((hhvm is old_hhvm) and (php72 is old_php72) and
+        if ((hhvm is old_hhvm) and (php73 is old_php73) and
             (stype == oldsitetype and cache == oldcachetype)):
             return 1
 

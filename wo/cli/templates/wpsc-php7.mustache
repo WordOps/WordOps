@@ -25,7 +25,7 @@ location / {
 location ~ \.php$ {
   try_files $uri =404;
   include fastcgi_params;
-  fastcgi_pass php7;
+  fastcgi_pass php73;
   # Following line is needed by WP Super Cache plugin
   fastcgi_param SERVER_NAME $http_host;
 }
