@@ -23,7 +23,7 @@ class WOUpdateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
-        WODownload.download(self, [["https://wrdps.nl/woup",
+        WODownload.download(self, [["https://raw.githubusercontent.com/WordOps/WordOps/master/install",
                                     "/tmp/{0}".format(filename),
                                     "update script"]])
         try:

@@ -62,7 +62,7 @@ apt-get update &>> /dev/null
 ###
 # 1- Check whether lsb_release is installed, and if not, install it
 ###
-if [ ! -x /usr/bin/lsb_release ]; then
+if [ -z "$(command -v lsb_release)" ]; then
     wo_lib_echo "Installing lsb-release, please wait..."
     apt-get -y install lsb-release &>> /dev/null
 fi
@@ -118,9 +118,9 @@ fi
 function wo_install_dep()
 {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz || wo_lib_error "There was an error during dependency installation, exit status " 1
+        apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2  || wo_lib_error "There was an error during dependency installation, exit status " 1
         elif [ "$wo_linux_distro" == "Debian" ]; then
-        apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz || wo_lib_error "There was an error during dependency installation, exit status " 1
+        apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2  || wo_lib_error "There was an error during dependency installation, exit status " 1
     fi
 
     locale-gen en &>> /dev/null
@@ -145,7 +145,7 @@ function wo_install_dep()
         add-apt-repository -y 'ppa:ondrej/php'
         wo_lib_echo "Updating the PHP repository for some neat PHP 7.2 support"
         apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php-memcached php7.2-imap php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
         mkdir -p /var/log/php/7.2/
         touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
         systemctl php7.2-fpm restart &>> /dev/null
@@ -157,7 +157,7 @@ function wo_install_dep()
         wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
         echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
         apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php-memcached php7.2-imap php7.2-common php7.2-readlne php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
         systemctl php7.2-fpm restart &>> /dev/null
     fi
 
@@ -168,6 +168,12 @@ function wo_install_dep()
         mkdir -p /etc/nginx/conf.d
         echo -e 'map $http_accept $webp_suffix {\n   default "";\n   "~*webp" ".webp";\n}\n' > /etc/nginx/conf.d/webp.conf
     }
+
+    # Let's Encrypt .well-known folder setup
+    if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
+        mkdir -p /var/www/html/.well-known/acme-challenge
+        chown -R www-data:www-data /var/www/html/.well-known
+    fi
 }
 
 ###
@@ -305,17 +311,17 @@ function wo_sync_db()
         # Copy the previous upstream.conf
         cp /etc/nginx/conf.d/upstream.conf /etc/nginx/conf.d/upstream.bak
         {
-        # Replace the ports for PHP 7.2
-        sed -i 's/9000/9072/g' /etc/nginx/conf.d/upstream.conf
-        sed -i 's/9070/9072/g' /etc/nginx/conf.d/upstream.conf
-        # Replace the ports for debug PHP 7.2
-        sed -i 's/9001/9172/g' /etc/nginx/conf.d/upstream.conf
-        sed -i 's/9170/9172/g' /etc/nginx/conf.d/upstream.conf
+            # Replace the ports for PHP 7.2
+            sed -i 's/9000/9072/g' /etc/nginx/conf.d/upstream.conf
+            sed -i 's/9070/9072/g' /etc/nginx/conf.d/upstream.conf
+            # Replace the ports for debug PHP 7.2
+            sed -i 's/9001/9172/g' /etc/nginx/conf.d/upstream.conf
+            sed -i 's/9170/9172/g' /etc/nginx/conf.d/upstream.conf
         } > /dev/null 2>&1
     fi
 
     echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
-    echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.2');" | sqlite3 /var/lib/wo/dbase.db
+    echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.3');" | sqlite3 /var/lib/wo/dbase.db
 
     ###
     # ee-acme-sh by VirtuBox, https://virtubox.net/
@@ -355,18 +361,19 @@ function secure_wo_db()
 function wo_update_wp_cli()
 {
     wo_lib_echo "Updating WP-CLI version to resolve compatibility issue."
-    PHP_PATH=$(command -v php)
     WP_CLI_PATH=$(command -v wp)
-    if [  -z "$WP_CLI_PATH" ]; then
-        # Obtain the current WP-CLI version
-        WP_CLI_VERSION=$($PHP_PATH $WP_CLI_PATH --allow-root cli version | awk '{ print $2 }')
-        dpkg --compare-versions "$WP_CLI_VERSION" lt 1.4.1
+    if [ -n "$WP_CLI_PATH" ]; then
         # Update WP-CLI to the most recent version
-        if [ "$?" == "0" ]; then
-            wget -qO "$WP_CLI_PATH" https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
-            chmod +x "$WP_CLI_PATH"
-        fi
+        wget -qO "$WP_CLI_PATH" https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
+        chmod +x "$WP_CLI_PATH"
+    else
+        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
+        chmod +x /usr/local/bin/wp
     fi
+
+    [ -d /etc/bash_completion ] && {
+        wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
+    }
 }
 
 # Now, finally, let's install WordOps
@@ -376,9 +383,9 @@ function wo_install()
     rm -rf /tmp/wordops &>> /dev/null
 
     wo_lib_echo "Downloading WordOps straight from GitHub - fresh and brewed with love. Hold your horses..."
-    if [ "$wo_branch" = "" ]; then
+    [ -z "$wo_branch" ] && {
         wo_branch=master
-    fi
+    }
 
     git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null \
     || wo_lib_error "An error was encountered during the download, exit status" $?
@@ -621,7 +628,7 @@ function wo_update_latest()
         add-apt-repository -y 'ppa:ondrej/php'
         wo_lib_echo "Updating the PHP repository for some neat PHP 7.2 support"
         apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-memcached php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
         mkdir -p /var/log/php/7.2/
         touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
         systemctl php7.2-fpm restart &>> /dev/null
@@ -633,7 +640,7 @@ function wo_update_latest()
         wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
         echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
         apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-sodium php7.2-common php7.2-readline php7.2-redis php7.2-mysql php7.2-cli php7.2-memcache php7.2-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack memcached graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
+        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-memcached php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php7.2-msgpack graphviz php-pear php7.2-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
         systemctl php7.2-fpm restart &>> /dev/null
     fi
 
