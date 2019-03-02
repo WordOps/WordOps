@@ -1,46 +1,68 @@
-# [WordOps](https://wordops.org/)
+<h1 align="center" style="font-size:54px;"><a href="https://wordops.org">
+  WordOps</a>
+  <br>
+</h1>
 
-[![Travis Build Status](https://travis-ci.org/WordOps/WordOps.svg?branch=master)](https://travis-ci.org/WordOps/WordOps)
+<h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
-WordOps (wo) is the essential toolset that eases WordPress site and server administration.
+<p align="center">
+<a href="https://travis-ci.org/WordOps/WordOps"><img src="https://travis-ci.org/WordOps/WordOps.svg?branch=master" alt="build"></a>
+<img src="https://img.shields.io/github/license/wordops/wordops.svg" alt="MIT">
+<img src="https://img.shields.io/github/last-commit/wordops/wordops.svg" alt="Commits">
 
-**WordOps currently supports:**
+</p>
 
-- Ubuntu 14.04, 16.04 & 18.04
-- Debian 7, 8 & 9
 
-**Port requirements:**
 
-| Name  | Port Number | Inbound | Outbound  |
-|:-----:|:-----------:|:-------:|:---------:|
-|SSH    |22           | ✓       |✓          |
-|HTTP    |80           | ✓       |✓          |
-|HTTPS/SSL    |443           | ✓       |✓          |
-|WO Admin    |22222           | ✓       |          |
-|GPG Key Server    |11371           |        |✓          |
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#requirements">Requirements</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#cheatsheet">Cheatsheet</a> •
+  <a href="#credits">Credits</a> •
+  <a href="#license">License</a>
+</p>
 
-## Quick start
+---
+
+## Key Features
+
+- Easy Migration from EasyEngine v3
+- Automated WordPress, Nginx, PHP, MySQL & Redis installation
+- Optimized Nginx configuration with multiple cache backends support
+- Let's Encrypt SSL certificates
+
+## Requirements
+
+### Operating System
+
+- Ubuntu : 16.04 LTS (Xenial) - 18.04 LTS (Bionic)
+- Debian :  8 (Jessie) - 9 (Stretch)
+
+### Ports requirements
+
+- SSH (22 or custom)
+- HTTP & HTTPS (80 & 443)
+- WO Admin (22222)
+- GPG key Server (11371 outbound)
+
+## Getting Started
 
 ```bash
 wget -qO wo wordops.se/tup && sudo bash wo     # Install WordOps
 sudo wo site create example.com --wp     # Install required packages & setup WordPress on example.com
 ```
-## Must read!
+
+## Must read
 
 WordOps made some fundamental changes:
 
-* We've deprecated the mail stack. Less is more. As an alternative, take a look at [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). And an alternative for Roundcube is [Rainloop](https://www.rainloop.net/).
-* Support for w3tc is dropped as a security precaution.
-* We are currently migrating the PHP 5.x series to PHP 7.1 and PHP 7.2. We'll offer an easy to use migration script once we are confident enough to unleash this daemon. For now, new sites get installed with PHP 7.2 as the default.
+- We've deprecated the mail stack. Less is more. As an alternative, take a look at [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). And an alternative for Roundcube is [Rainloop](https://www.rainloop.net/).
+- Support for w3tc is dropped as a security precaution.
+- We are currently migrating the PHP 5.x series to PHP 7.2 and PHP 7.3. We'll offer an easy to use migration script once we are confident enough to unleash this daemon. For now, new sites get installed with PHP 7.2 as the default.
 
-## Update WordOps
-
-#### With one simple command
-```
-wo update
-```
-
-## More site creation commands
+## Usage
 
 ### Standard WordPress sites
 
@@ -70,6 +92,7 @@ wo site create example.com --wpsubdomain --wpredis  # install wpmu-subdomain + n
 ```
 
 ### Non-WordPress sites
+
 ```bash
 wo site create example.com --html     # create example.com for static/html sites
 wo site create example.com --php      # create example.com with php support
@@ -77,19 +100,32 @@ wo site create example.com --mysql    # create example.com with php & mysql supp
 ```
 
 ### HHVM enabled sites
+
 ```bash
 wo site create example.com --wp --hhvm           # create example.com WordPress site with HHVM support
 wo site create example.com --php --hhvm          # create example.com php site with HHVM support
 ```
 
-## Cheatsheet - site creation
+## Cheatsheet
 
 |                    |  single site  | 	multisite w/ subdir  |	multisite w/ subdom     |
 |--------------------|---------------|-----------------------|--------------------------|
 | **NO Cache**       |  --wp         |	--wpsubdir           |	--wpsubdomain           |
 | **WP Super Cache** |	--wpsc       |	--wpsubdir --wpsc    |  --wpsubdomain --wpsc    |
-| **Nginx cache**    |  --wpfc       |  --wpsubdir --wpfc    |  --wpsubdomain --wpfc    |
+| **Nginx fastcgi_cache**    |  --wpfc       |  --wpsubdir --wpfc    |  --wpsubdomain --wpfc    |
 | **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
 
+
+## Update WordOps
+
+```bash
+wo update
+```
+
+## Credits
+
+- [EasyEngine](https://github.com/easyengine/easyengine)
+
 ## License
-[MIT](http://opensource.org/licenses/MIT)
+
+- [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.org)
