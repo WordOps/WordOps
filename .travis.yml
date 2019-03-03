@@ -12,7 +12,7 @@ before_script:
   - sudo rm -rf /etc/mysql/
   - sudo bash -c 'echo example.com > /etc/hostname'
   - sudo apt-get -qq purge mysql* graphviz*
-  - sudo apt-get -qq autoremove
+  - sudo apt-get -qq autoremove --purge
   - sudo apt-get update
 
 script:
@@ -20,7 +20,7 @@ script:
   - unset LANG
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt
+  - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt ccze
   - sudo bash install $TRAVIS_BRANCH
   - sudo wo --help
   - sudo wo stack install || sudo tail -n50 /var/log/wo/wordops.log
@@ -30,31 +30,24 @@ script:
   - sudo wo site create html.net --html || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create php.com --php || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create mysql.com --mysql --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wp1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wp1.com --wp --php73 ```|| sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create site2.net --wp --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site4.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site4.net --wp --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site4.org --wpfc --wp || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site5.com --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsc1.net --wp --wpsc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpfc2.net --wp --wpfc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpfc3.org --wpfc --wp || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdir1.com --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create site6.com --wpsubdir --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site8.com --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site8.net --wpfc --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site9.com --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdirwpsc1.com --wpsubdir --wpsc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdirwpsc2.com --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdirwpfc3.net --wpfc --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdomain1.com --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create site10.org --wpsubdomain --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site12.org --wpsubdomain --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site12.in --wpfc --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
-
-  - yes | sudo wo site create site.hhvm.pagespeed2.com --wpsc --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site.hhvm.pagespeed4.com --wpfc --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site.hhvm.pagespeed5.com --wpsubdir --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site.hhvm.pagespeed6.com --wpsubdir --wpsc --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site.hhvm.pagespeed8.com --wpsubdir --wpfc --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site.hhvm.pagespeed9.com --wpsubdomain --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site.hhvm.pagespeed10.org --wpsubdomain --wpsc --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site.hhvm.pagespeed12.in --wpfc --wpsubdomain --hhvm || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create site1.localtest.me --php --mysql || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create site2.localtest.me --mysql --html || sudo tail -n50 /var/log/wo/wordops.log
@@ -101,4 +94,4 @@ script:
 
   - sudo ls /var/www/
   - sudo wp --allow-root --info
-  - sudo bash -c 'cat /var/log/wo/wordops.log'
+  - sudo bash -c 'cat /var/log/wo/wordops.log | ccze -A'
