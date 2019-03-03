@@ -369,6 +369,7 @@ function wo_update_wp_cli()
     else
         wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
         chmod +x /usr/local/bin/wp
+        ln -s /usr/local/bin/wp /usr/bin/
     fi
 
     [ -d /etc/bash_completion ] && {

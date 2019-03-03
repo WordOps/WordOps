@@ -20,7 +20,7 @@ class WOVariables():
     # Get WPCLI path
     wo_wpcli_path = os.popen('command -v wp | tr "\n" " "').read()
     if wo_wpcli_path == '':
-        wo_wpcli_path = '/usr/bin/wp '
+        wo_wpcli_path = '/usr/local/bin/wp '
 
     # Current date and time of System
     wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
