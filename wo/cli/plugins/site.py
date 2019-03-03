@@ -455,7 +455,7 @@ class WOSiteCreateController(CementBaseController):
 
         if data and self.app.pargs.php73:
             if (self.app.pargs.experimental):
-                Log.info(self, "Do you wish to install PHP 7.2 now for {0}?".format(wo_domain))
+                Log.info(self, "Do you wish to install PHP 7.3 now for {0}?".format(wo_domain))
 
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]:")
@@ -899,7 +899,7 @@ class WOSiteUpdateController(CementBaseController):
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
 
-            if check_php_version == "7.2":
+            if check_php_version == "7.3":
                 old_php73 = True
             else:
                 old_php73 = False

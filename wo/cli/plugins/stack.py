@@ -155,12 +155,12 @@ class WOStackController(CementBaseController):
 
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
             if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                Log.info(self, "Adding repository for PHP, please wait...")
+                Log.info(self, "Adding repository for PHP 7.3, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 WORepo.add(self, ppa=WOVariables.wo_php_repo)
         else:
             if set(WOVariables.wo_php).issubset(set(apt_packages)):
-                Log.info(self, "Adding repository for PHP, please wait...")
+                Log.info(self, "Adding repository for PHP 7.2, please wait...")
                 # Add repository for php
                 if WOVariables.wo_platform_distro == 'debian':
                     if WOVariables.wo_platform_codename != 'jessie':
@@ -174,7 +174,7 @@ class WOStackController(CementBaseController):
 
             if WOVariables.wo_platform_codename == 'jessie':
                 if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                    Log.debug(self, 'Adding repo_url of php 7.0 for debian')
+                    Log.debug(self, 'Adding repo_url of php 7.3 for debian')
                     WORepo.add(self, repo_url=WOVariables.wo_php_repo)
                     Log.debug(self, 'Adding Dotdeb/php GPG key')
                     WORepo.add_key(self, '89DF5277')
@@ -1397,15 +1397,15 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Nginx Stable already installed")
 
             if self.app.pargs.php:
-                Log.debug(self, "Setting apt_packages variable for PHP")
+                Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php5-fpm') or WOAptGet.is_installed(self, 'php7.2-fpm')):
                     if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                         apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php
                 else:
-                    Log.debug(self, "PHP already installed")
-                    Log.info(self, "PHP already installed")
+                    Log.debug(self, "PHP 7.2 already installed")
+                    Log.info(self, "PHP 7.2 already installed")
 
         # PHP 7.3 for Debian (jessie+)
             if self.app.pargs.php73 and WOVariables.wo_platform_distro == 'debian':
@@ -1434,9 +1434,9 @@ class WOStackController(CementBaseController):
                         Log.info(self, "PHP 7.3 already installed")
                 else:
                     Log.debug(
-                        self, "Unfortunately PHP 7.3  is not available for your Ubuntu or Debian version.")
+                        self, "Unfortunately PHP 7.3 is not available for your Ubuntu or Debian version.")
                     Log.info(
-                        self, "Unfortunately PHP 7.3  is not available for your Ubuntu or Debian version.")
+                        self, "Unfortunately PHP 7.3 is not available for your Ubuntu or Debian version.")
 
             if self.app.pargs.hhvm:
                 Log.debug(self, "Setting apt packages variable for HHVM")
