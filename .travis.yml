@@ -30,9 +30,9 @@ script:
   - sudo wo site create html.net --html || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create php.com --php || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create mysql.com --mysql --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create mysqlphp73.com --mysql --php73 || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wp1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wp1.com --wp --php73 ```|| sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpphp73.com --wp --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create wpsc1.net --wp --wpsc || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
