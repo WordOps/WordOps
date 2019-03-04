@@ -37,7 +37,7 @@ class WOSyncController(CementBaseController):
                 # Read config files
                 configfiles = glob.glob(wo_site_webroot + '/*-config.php')
 
-                #search for wp-config.php inside htdocs/
+                # search for wp-config.php inside htdocs/
                 if not configfiles:
                     Log.debug(self, "Config files not found in {0}/ "
                                       .format(wo_site_webroot))
