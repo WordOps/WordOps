@@ -253,6 +253,14 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'upstream.mustache', out=wo_nginx)
                     wo_nginx.close()
 
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/map-wp-fastcgi-cache.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/map-wp-fastcgi-cache.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'fastcgi-cache.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
+
                     # Setup Nginx common directory
                     if not os.path.exists('/etc/nginx/common'):
                         Log.debug(self, 'Creating directory'
