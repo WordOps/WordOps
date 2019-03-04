@@ -674,7 +674,7 @@ if [ ! -f /usr/local/bin/wo ]; then
     wo_lib_echo "Running post-install steps" | tee -ai $wo_install_log
     secure_wo_db | tee -ai $EE_INSTALL_LOG
     wo_git_init | tee -ai $wo_install_log
-
+    wo_update_wp_cli | tee -ai $wo_install_log
 else
     ee -v 2>&1 | grep $wo_version_new &>> /dev/null
     if [[ $? -ne 0 ]];then
