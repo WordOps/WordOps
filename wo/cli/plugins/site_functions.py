@@ -712,13 +712,14 @@ def site_package_check(self, stype):
 
     if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-        apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+            apt_packages = apt_packages + WOVariables.wo_php
 
-    if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+        if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
         else:
             Log.debug(self, "Setting apt_packages variable for PHP 7.3")
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):

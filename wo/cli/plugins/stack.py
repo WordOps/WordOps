@@ -637,7 +637,7 @@ class WOStackController(CementBaseController):
                                             "php73"):
                         with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
                             php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
-                                           "upstream debug73 {\nserver 127.0.0.1:9172;\n}\n")
+                                           "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
 
             if set(WOVariables.wo_hhvm).issubset(set(apt_packages)):
 
