@@ -319,7 +319,7 @@ class WOStackController(CementBaseController):
                     # php7 conf
                     if (WOVariables.wo_platform_codename == 'stretch' or WOVariables.wo_platform_codename == 'jessie' or WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and (not
                                                                                                                                                                                                                                                                             os.path.isfile("/etc/nginx/common/php7.conf")):
-                        #data = dict()
+                        # data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
                                   'file /etc/nginx/common/locations-php7.conf')
                         wo_nginx = open('/etc/nginx/common/locations-php7.conf',
@@ -877,7 +877,7 @@ class WOStackController(CementBaseController):
 
         # PHP7.3 configuration for debian
             if (WOVariables.wo_platform_codename == 'jessie') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                 # Create log directories
+                # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
                     os.makedirs('/var/log/php/7.3/')
@@ -1476,7 +1476,7 @@ class WOStackController(CementBaseController):
                                             "releases/download/v{0}/"
                                             "wp-cli-{0}.phar"
                                             "".format(WOVariables.wo_wp_cli),
-                                            "/usr/bin/wp",
+                                            "/usr/local/bin/wp",
                                             "WP-CLI"]]
                 else:
                     Log.debug(self, "WP-CLI is already installed")
@@ -1686,8 +1686,8 @@ class WOStackController(CementBaseController):
 
         if self.app.pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
-            if os.path.isfile('/usr/bin/wp'):
-                packages = packages + ['/usr/bin/wp']
+            if os.path.isfile('/usr/local/bin/wp'):
+                packages = packages + ['/usr/local/bin/wp']
             else:
                 Log.warn(self, "WP-CLI is not installed with WordOps")
         if self.app.pargs.phpmyadmin:
@@ -1824,8 +1824,8 @@ class WOStackController(CementBaseController):
                 apt_packages = apt_packages + WOVariables.wo_hhvm
 
             Log.debug(self, "Purge package variable WPCLI")
-            if os.path.isfile('/usr/bin/wp'):
-                packages = packages + ['/usr/bin/wp']
+            if os.path.isfile('/usr/local/bin/wp'):
+                packages = packages + ['/usr/local/bin/wp']
             else:
                 Log.warn(self, "WP-CLI is not installed with WordOps")
         if self.app.pargs.phpmyadmin:
