@@ -1,0 +1,38 @@
+# NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION
+# DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
+map $http_x_requested_with $http_request_no_cache {
+    default 0;
+    XMLHttpRequest 1;
+}
+map $http_cookie $cookie_no_cache {
+    default 0;
+    "~*wordpress_[a-f0-9]+" 1;
+    "~*wp-postpass" 1;
+    "~*wordpress_logged_in" 1;
+    "~*wordpress_no_cache" 1;
+    "~*comment_author" 1;
+    "~*woocommerce_items_in_cart" 1;
+    "~*woocommerce_cart_hash" 1;
+    "~*wptouch_switch_toogle" 1;
+    "~*comment_author_email_" 1;
+}
+map $request_uri $uri_no_cache {
+    default 0;
+    "~*/wp-admin/" 1;
+    "~*/wp-[a-zA-Z0-9-]+.php" 1;
+    "~*/feed/" 1;
+    "~*/index.php" 1;
+    "~*/[a-z0-9_-]+-sitemap([0-9]+)?.xml" 1;
+    "~*/sitemap(_index)?.xml" 1;
+    "~*/wp-comments-popup.php" 1;
+    "~*/wp-links-opml.php" 1;
+    "~*/xmlrpc.php" 1;
+}
+map $is_args $query_no_cache {
+    default 1;
+    "" 0;
+}
+map $http_request_no_cache$cookie_no_cache$uri_no_cache$query_no_cache $skip_cache {
+    default 1;
+    0000 0;
+}
