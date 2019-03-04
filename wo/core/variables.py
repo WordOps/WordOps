@@ -12,10 +12,10 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.2"
+    wo_version = "3.9.5"
     # WordOps packages versions
-    wo_wp_cli = "2.0.1"
-    wo_adminer = "4.6.3"
+    wo_wp_cli = "2.1.0"
+    wo_adminer = "4.7.1"
 
     # Get WPCLI path
     wo_wpcli_path = os.popen('command -v wp | tr "\n" " "').read()
@@ -113,7 +113,7 @@ class WOVariables():
                         "php7.3-cli", "php7.3-mbstring",
                         "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache", "php7.3-zip", "php7.3-xml", "php7.3-soap"]
             wo_php_extra = ["php-memcached", "php-imagick",
-                            "graphviz", "php-pear", "php-xdebug", "php-msgpack", "php-redis"]
+                            "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
     elif wo_platform_distro == 'debian':
         wo_php_repo = (
             "deb https://packages.sury.org/php/ {codename} main".format(codename=wo_platform_codename))
@@ -121,13 +121,13 @@ class WOVariables():
                   "php7.2-common", "php7.2-readline", "php-redis",
                   "php7.2-mysql", "php7.2-cli", "php-imagick",
                   "php7.2-mbstring", "php7.2-recode", "php7.2-bcmath", "php7.2-opcache", "php7.2-zip", "php7.2-xml",
-                  "php7.2-soap", "php7.2-msgpack",
+                  "php7.2-soap", "php-msgpack",
                   "graphviz", "php-pear", "php-xdebug"]
         wo_php73 = ["php7.3-fpm", "php7.3-curl", "php7.3-gd", "php7.3-imap",
                     "php7.3-common", "php7.3-readline", "php-redis",
                     "php7.3-mysql", "php7.3-cli", "php-imagick",
                     "php7.3-mbstring", "php7.3-recode", "php7.3-bcmath", "php7.3-opcache", "php7.3-zip", "php7.3-xml",
-                    "php7.3-soap", "php7.3-msgpack",
+                    "php7.3-soap", "php-msgpack",
                     "graphviz", "php-pear", "php-xdebug"]
         wo_php_extra = []
 

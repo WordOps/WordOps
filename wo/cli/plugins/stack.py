@@ -76,7 +76,7 @@ class WOStackController(CementBaseController):
             (['--phpredisadmin'],
                 dict(help='Install phpRedisAdmin', action='store_true')),
         ]
-        usage = "ee stack (command) [options]"
+        usage = "wo stack (command) [options]"
 
     @expose(hide=True)
     def default(self):
@@ -154,13 +154,14 @@ class WOStackController(CementBaseController):
             WORepo.add_key(self, WOVariables.wo_nginx_key)
 
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                Log.info(self, "Adding repository for PHP 7.3, please wait...")
+            if set(WOVariables.wo_php73).issubset(set(apt_packages)) \
+                    or set(WOVariables.wo_php).issubset(set(apt_packages)):
+                Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 WORepo.add(self, ppa=WOVariables.wo_php_repo)
         else:
             if set(WOVariables.wo_php).issubset(set(apt_packages)):
-                Log.info(self, "Adding repository for PHP 7.2, please wait...")
+                Log.info(self, "Adding repository for PHP, please wait...")
                 # Add repository for php
                 if WOVariables.wo_platform_distro == 'debian':
                     if WOVariables.wo_platform_codename != 'jessie':
@@ -244,7 +245,7 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     data = dict(php="9000", debug="9001", hhvm="8000", php73="9072", debug7="9172",
-                                hhvmconf=False, php7conf=True if WOAptGet.is_installed(self, 'php7.2-fpm') else False)
+                                hhvmconf=False, php7conf=True if WOAptGet.is_installed(self, 'php7.3-fpm') else False)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
                     wo_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -627,8 +628,8 @@ class WOStackController(CementBaseController):
                     if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
                                             "php73"):
                         with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                            php_file.write("upstream php73 {\nserver 127.0.0.1:9072;\n}\n"
-                                           "upstream debug72 {\nserver 127.0.0.1:9172;\n}\n")
+                            php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
+                                           "upstream debug73 {\nserver 127.0.0.1:9172;\n}\n")
 
             if set(WOVariables.wo_hhvm).issubset(set(apt_packages)):
 
@@ -774,7 +775,7 @@ class WOStackController(CementBaseController):
                 # Parse /etc/php/7.2/fpm/php-fpm.conf
                 data = dict(pid="/run/php/php7.2-fpm.pid", error_log="/var/log/php/7.2/fpm.log",
                             include="/etc/php/7.2/fpm/pool.d/*.conf")
-                Log.debug(self, "writting php5 configuration into "
+                Log.debug(self, "writting php7.2 configuration into "
                           "/etc/php/7.2/fpm/php-fpm.conf")
                 wo_php_fpm = open('/etc/php/7.2/fpm/php-fpm.conf',
                                   encoding='utf-8', mode='w')
@@ -796,7 +797,7 @@ class WOStackController(CementBaseController):
                 config['www']['pm'] = 'ondemand'
                 config['www']['chdir'] = '/'
                 config['www']['prefix'] = '/var/run/php'
-                config['www']['listen'] = 'php73-fpm.sock'
+                config['www']['listen'] = 'php72-fpm.sock'
                 config['www']['listen.backlog'] = '32768'
                 with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
@@ -899,7 +900,7 @@ class WOStackController(CementBaseController):
                 # Parse /etc/php/7.3/fpm/php-fpm.conf
                 data = dict(pid="/run/php/php7.3-fpm.pid", error_log="/var/log/php7.3-fpm.log",
                             include="/etc/php/7.3/fpm/pool.d/*.conf")
-                Log.debug(self, "writting php 7.0 configuration into "
+                Log.debug(self, "writting php 7.3 configuration into "
                           "/etc/php/7.3/fpm/php-fpm.conf")
                 wo_php_fpm = open('/etc/php/7.3/fpm/php-fpm.conf',
                                   encoding='utf-8', mode='w')
@@ -925,7 +926,7 @@ class WOStackController(CementBaseController):
                 config['www']['listen.backlog'] = '32768'
                 with codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
-                    Log.debug(self, "writting PHP5 configuration into "
+                    Log.debug(self, "writting PHP 7.3 configuration into "
                               "/etc/php/7.3/fpm/pool.d/www.conf")
                     config.write(configfile)
 
@@ -936,13 +937,13 @@ class WOStackController(CementBaseController):
                                           "debug.conf", "[www]", "[debug]")
                 config = configparser.ConfigParser()
                 config.read('/etc/php/7.3/fpm/pool.d/debug.conf')
-                config['debug']['listen'] = '127.0.0.1:9182'
+                config['debug']['listen'] = '127.0.0.1:9173'
                 config['debug']['rlimit_core'] = 'unlimited'
                 config['debug']['slowlog'] = '/var/log/php/7.3/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
                 with open('/etc/php/7.3/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
-                    Log.debug(self, "writting PHP5 configuration into "
+                    Log.debug(self, "writting PHP 7.3 configuration into "
                               "/etc/php/7.3/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
@@ -999,41 +1000,41 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 WOService.restart_service(self, 'php7.3-fpm')
 
-            # preconfiguration for php7.2
+            # preconfiguration for php7.3
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php).issubset(set(apt_packages)):
                 # Create log directories
-                if not os.path.exists('/var/log/php/7.2/'):
-                    Log.debug(self, 'Creating directory /var/log/php/7.2/')
-                    os.makedirs('/var/log/php/7.2/')
+                if not os.path.exists('/var/log/php/7.3/'):
+                    Log.debug(self, 'Creating directory /var/log/php/7.3/')
+                    os.makedirs('/var/log/php/7.3/')
 
                 # Parse etc/php/7.2/fpm/php.ini
                 config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file /etc/php/7.2/fpm/php.ini")
-                config.read('/etc/php/7.2/fpm/php.ini')
+                Log.debug(self, "configuring php file /etc/php/7.3/fpm/php.ini")
+                config.read('/etc/php/7.3/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '64M'
                 config['PHP']['upload_max_filesize'] = '64M'
                 config['PHP']['max_execution_time'] = '30'
                 config['PHP']['date.timezone'] = WOVariables.wo_timezone
-                with open('/etc/php/7.2/fpm/php.ini',
+                with open('/etc/php/7.3/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
-                              "/etc/php/7.2/fpm/php.ini")
+                              "/etc/php/7.3/fpm/php.ini")
                     config.write(configfile)
 
                 # Parse /etc/php/7.2/fpm/php-fpm.conf
-                data = dict(pid="/run/php/php7.2-fpm.pid", error_log="/var/log/php/7.2/fpm.log",
-                            include="/etc/php/7.2/fpm/pool.d/*.conf")
-                Log.debug(self, "writting php 7.0 configuration into "
-                          "/etc/php/7.2/fpm/php-fpm.conf")
-                wo_php_fpm = open('/etc/php/7.2/fpm/php-fpm.conf',
+                data = dict(pid="/run/php/php7.3-fpm.pid", error_log="/var/log/php/7.3/fpm.log",
+                            include="/etc/php/7.3/fpm/pool.d/*.conf")
+                Log.debug(self, "writting php 7.3 configuration into "
+                          "/etc/php/7.3/fpm/php-fpm.conf")
+                wo_php_fpm = open('/etc/php/7.3/fpm/php-fpm.conf',
                                   encoding='utf-8', mode='w')
                 self.app.render((data), 'php-fpm.mustache', out=wo_php_fpm)
                 wo_php_fpm.close()
 
-                # Parse /etc/php/7.2/fpm/pool.d/www.conf
+                # Parse /etc/php/7.3/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read_file(codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
+                config.read_file(codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
                                              "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
@@ -1044,31 +1045,34 @@ class WOStackController(CementBaseController):
                 config['www']['pm.max_spare_servers'] = '5'
                 config['www']['request_terminate_timeout'] = '100'
                 config['www']['pm'] = 'ondemand'
-                config['www']['listen'] = '127.0.0.1:9072'
-                with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
+                config['www']['chdir'] = '/'
+                config['www']['prefix'] = '/var/run/php'
+                config['www']['listen'] = 'php73-fpm.sock'
+                config['www']['listen.backlog'] = '32768'
+                with codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
-                    Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php/7.2/fpm/pool.d/www.conf")
+                    Log.debug(self, "writting PHP 7.3 configuration into "
+                              "/etc/php/7.3/fpm/pool.d/www.conf")
                     config.write(configfile)
 
-                # Generate /etc/php/7.2/fpm/pool.d/debug.conf
-                WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
-                                     "/etc/php/7.2/fpm/pool.d/debug.conf")
-                WOFileUtils.searchreplace(self, "/etc/php/7.2/fpm/pool.d/"
+                # Generate /etc/php/7.3/fpm/pool.d/debug.conf
+                WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
+                                     "/etc/php/7.3/fpm/pool.d/debug.conf")
+                WOFileUtils.searchreplace(self, "/etc/php/7.3/fpm/pool.d/"
                                           "debug.conf", "[www]", "[debug]")
                 config = configparser.ConfigParser()
-                config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
-                config['debug']['listen'] = '127.0.0.1:9172'
+                config.read('/etc/php/7.3/fpm/pool.d/debug.conf')
+                config['debug']['listen'] = '127.0.0.1:9173'
                 config['debug']['rlimit_core'] = 'unlimited'
-                config['debug']['slowlog'] = '/var/log/php/7.2/slow.log'
+                config['debug']['slowlog'] = '/var/log/php/7.3/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/php/7.2/fpm/pool.d/debug.conf',
+                with open('/etc/php/7.3/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
-                    Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php/7.2/fpm/pool.d/debug.conf")
+                    Log.debug(self, "writting PHP 7.3 configuration into "
+                              "/etc/php/7.3/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
-                with open("/etc/php/7.2/fpm/pool.d/debug.conf",
+                with open("/etc/php/7.3/fpm/pool.d/debug.conf",
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("php_admin_value[xdebug.profiler_output_dir] "
                                  "= /tmp/ \nphp_admin_value[xdebug.profiler_"
@@ -1078,8 +1082,8 @@ class WOStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.2/mods-available/xdebug.ini"):
-                    WOFileUtils.searchreplace(self, "/etc/php/7.2/mods-available/"
+                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.3/mods-available/xdebug.ini"):
+                    WOFileUtils.searchreplace(self, "/etc/php/7.3/mods-available/"
                                               "xdebug.ini",
                                               "zend_extension",
                                               ";zend_extension")
@@ -1119,7 +1123,7 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user, recursive=True)
 
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-                WOService.restart_service(self, 'php7.2-fpm')
+                WOService.restart_service(self, 'php7.3-fpm')
 
             if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
                 if not os.path.isfile("/etc/mysql/my.cnf"):
@@ -1147,9 +1151,9 @@ class WOStackController(CementBaseController):
                 WOService.reload_service(self, 'mysql')
 
         if len(packages):
-            if any('/usr/bin/wp' == x[1] for x in packages):
-                Log.debug(self, "Setting Privileges to /usr/bin/wp file ")
-                WOFileUtils.chmod(self, "/usr/bin/wp", 0o775)
+            if any('/usr/local/bin/wp' == x[1] for x in packages):
+                Log.debug(self, "Setting Privileges to /usr/local/bin/wp file ")
+                WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
@@ -1175,7 +1179,7 @@ class WOStackController(CementBaseController):
                           .format(WOVariables.wo_webroot))
                 blowfish_key = ''.join([random.choice
                                         (string.ascii_letters + string.digits)
-                                        for n in range(10)])
+                                        for n in range(25)])
                 WOFileUtils.searchreplace(self,
                                           '{0}22222/htdocs/db/pma/config.inc.php'
                                           .format(WOVariables.wo_webroot),
@@ -1398,7 +1402,7 @@ class WOStackController(CementBaseController):
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-                if not (WOAptGet.is_installed(self, 'php5-fpm') or WOAptGet.is_installed(self, 'php7.2-fpm')):
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm') or WOAptGet.is_installed(self, 'php7.2-fpm')):
                     if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                         apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
                     else:
@@ -1413,7 +1417,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                     if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                         apt_packages = apt_packages + WOVariables.wo_php73
-                        if not WOAptGet.is_installed(self, 'php5-fpm'):
+                        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                             apt_packages = apt_packages + WOVariables.wo_php
                     else:
                         Log.debug(self, "PHP 7.3 already installed")
@@ -1429,6 +1433,8 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                     if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                         apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                                                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                            apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
                     else:
                         Log.debug(self, "PHP 7.3 already installed")
                         Log.info(self, "PHP 7.3 already installed")
@@ -1640,7 +1646,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP")
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 apt_packages = apt_packages + WOVariables.wo_php
-                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
                 apt_packages = apt_packages + WOVariables.wo_php
@@ -1650,7 +1656,7 @@ class WOStackController(CementBaseController):
             if (WOVariables.wo_platform_codename == 'jessie'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.3")
                 apt_packages = apt_packages + WOVariables.wo_php73
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
                 Log.info(self, "PHP 7.3 not supported.")
@@ -1659,7 +1665,7 @@ class WOStackController(CementBaseController):
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.3")
                 apt_packages = apt_packages + WOVariables.wo_php73
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
                 Log.info(self, "PHP 7.3 not supported.")
@@ -1788,9 +1794,11 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                apt_packages = apt_packages + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVariables.wo_php
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
-                apt_packages = apt_packages + WOVariables.wo_php73
+                apt_packages = apt_packages + WOVariables.wo_php
 
         # For debian --php73
         if self.app.pargs.php73:
@@ -1806,7 +1814,7 @@ class WOStackController(CementBaseController):
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.3")
                 apt_packages = apt_packages + WOVariables.wo_php73
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php_extra
             else:
                 Log.info(self, "PHP 7.3 not supported.")
@@ -1814,14 +1822,7 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Purge apt_packages varible of HHVM")
                 apt_packages = apt_packages + WOVariables.wo_hhvm
-        if self.app.pargs.redis:
-            Log.debug(self, "Purge apt_packages variable of Redis")
-            apt_packages = apt_packages + WOVariables.wo_redis
-        if self.app.pargs.mysql:
-            Log.debug(self, "Purge apt_packages variable MySQL")
-            apt_packages = apt_packages + WOVariables.wo_mysql
-            packages = packages + ['/usr/bin/mysqltuner']
-        if self.app.pargs.wpcli:
+
             Log.debug(self, "Purge package variable WPCLI")
             if os.path.isfile('/usr/bin/wp'):
                 packages = packages + ['/usr/bin/wp']
@@ -1880,8 +1881,8 @@ class WOStackController(CementBaseController):
 
                 # Added for php Ondrej repo missing package fix
                 if self.app.pargs.php73:
-                    if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                        Log.info(self, "PHP7.3-fpm found on system.")
+                    if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                        Log.info(self, "PHP7.2-fpm found on system.")
                         Log.info(
                             self, "Verifying and installing missing packages,")
                         WOShellExec.cmd_exec(

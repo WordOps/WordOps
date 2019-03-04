@@ -46,10 +46,10 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
+                if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    services = services + ['php7.3-fpm']
                 else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                    Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
@@ -116,17 +116,17 @@ class WOStackStatusController(CementBaseController):
                 if WOAptGet.is_installed(self, 'php7.2-fpm'):
                     services = services + ['php7.2-fpm']
                 else:
-                    Log.info(self, "PHP5-FPM is not installed")
+                    Log.info(self, "PHP7.2-FPM is not installed")
             else:
                 if WOAptGet.is_installed(self, 'php7.2-fpm'):
                     services = services + ['php7.2-fpm']
                 else:
                     Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
+                if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    services = services + ['php7.3-fpm']
                 else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                    Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
@@ -200,10 +200,10 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
+                if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    services = services + ['php7.3-fpm']
                 else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                    Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
@@ -278,10 +278,10 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
+                if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    services = services + ['php7.3-fpm']
                 else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                    Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
@@ -355,10 +355,10 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "php7.2-fpm is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
+                if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    services = services + ['php7.3-fpm']
                 else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                    Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
@@ -367,7 +367,7 @@ class WOStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP7.3-FPM is not installed")
             else:
-                Log.info(self, "Your platform does not support PHP 7")
+                Log.info(self, "Your platform does not support PHP 7.3")
 
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or

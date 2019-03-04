@@ -18,13 +18,14 @@ fastcgi_read_timeout 300;
 client_max_body_size 100m;
 
 # SSL Settings
-ssl_protocols TLSv1.1 TLSv1.2;
-ssl_session_cache shared:SSL:10m;
-ssl_session_timeout 10m;
+ssl_protocols TLSv1.2;
+ssl_session_cache shared:SSL:50m;
+ssl_session_timeout 1d;
+ssl_session_tickets off;
 {{#Ubuntu}}
 ssl_prefer_server_ciphers on;
 {{/Ubuntu}}
-ssl_ciphers "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+ssl_ciphers "EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES";
 
 # Log format Settings
 log_format rt_cache '$remote_addr $upstream_response_time $upstream_cache_status [$time_local] '
