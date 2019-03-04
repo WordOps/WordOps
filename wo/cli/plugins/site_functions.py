@@ -711,18 +711,18 @@ def site_package_check(self, stype):
     if self.app.pargs.php and self.app.pargs.php73:
         Log.error(self,"Error: two different PHP versions cannot be combined within the same WordOps site")
 
-    if not self.app.pargs.php and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.2")
         apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
 
-    if self.app.pargs.php and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if self.app.pargs.php73 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
         else:
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVariables.wo_php73
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
@@ -896,8 +896,8 @@ def site_package_check(self, stype):
             if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
                                           "php73"):
                 with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                    php_file.write("upstream php73 {\nserver 127.0.0.1:9072;\n}\n"
-                                    "upstream debug72 {\nserver 127.0.0.1:9172;\n}\n")
+                    php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
+                                    "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))

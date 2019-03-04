@@ -4,7 +4,7 @@
 location = /wp-login.php {
     limit_req zone=one burst=1 nodelay;
     include fastcgi_params;
-    fastcgi_pass php;
+    fastcgi_pass php72;
 }
 # Disable wp-config.txt
 location = /wp-config.txt {

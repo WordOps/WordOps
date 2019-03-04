@@ -308,9 +308,9 @@ class WOSiteCreateController(CementBaseController):
             (['--html'],
                 dict(help="create html site", action='store_true')),
             (['--php'],
-                dict(help="create php site", action='store_true')),
-            (['--php73'],
                 dict(help="create php 7.2 site", action='store_true')),
+            (['--php73'],
+                dict(help="create php 7.3 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -461,10 +461,10 @@ class WOSiteCreateController(CementBaseController):
                 check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
                     Log.info(self, "Not using PHP 7.2 for site.")
-                    data['php73'] = False
+                    data['php73'] = True
                     data['basic'] = True
-                    php73 = 0
-                    self.app.pargs.php73 = False
+                    php73 = 1
+                    self.app.pargs.php73 = True
                 else:
                     data['php73'] = True
                     php73 = 1
@@ -564,7 +564,7 @@ class WOSiteCreateController(CementBaseController):
                 return
 
             if data['php73']:
-                php_version = "7.2"
+                php_version = "7.3"
             else:
                 php_version = "7.2"
 
@@ -1225,7 +1225,7 @@ class WOSiteUpdateController(CementBaseController):
 
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
-            if (pargs.experimental):
+            if (not pargs.experimental):
                 Log.info(self, "Redis is experimental feature and it may not"
                          " work with all plugins of your site.\nYou can "
                          "disable it by changing cache type later.\nDo you wish"

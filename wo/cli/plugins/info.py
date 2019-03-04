@@ -250,7 +250,7 @@ class WOInfoController(CementBaseController):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 self.app.pargs.php = True
 
         if self.app.pargs.nginx:

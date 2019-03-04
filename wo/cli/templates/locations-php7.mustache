@@ -59,7 +59,7 @@ location = /nginx_status {
 }
 location ~ ^/(status|ping)$ {
   include fastcgi_params;
-  fastcgi_pass php7;
+  fastcgi_pass php73;
   include common/acl.conf;
 }
 # WordOps (wo) utilities

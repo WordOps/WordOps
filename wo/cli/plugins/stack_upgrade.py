@@ -89,8 +89,8 @@ class WOStackUpgradeController(CementBaseController):
 
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
-           (not self.app.pargs.hhvm) and (not self.app.pargs.all) and 
-           (not self.app.pargs.wpcli) and (not self.app.pargs.redis) and 
+           (not self.app.pargs.hhvm) and (not self.app.pargs.all) and
+           (not self.app.pargs.wpcli) and (not self.app.pargs.redis) and
            (not self.app.pargs.nginxmainline)):
             self.app.pargs.web = True
 
@@ -178,13 +178,13 @@ class WOStackUpgradeController(CementBaseController):
 
             if len(packages):
                 if self.app.pargs.wpcli:
-                    WOFileUtils.remove(self,['/usr/bin/wp'])
+                    WOFileUtils.remove(self,['/usr/local/bin/wp'])
 
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
 
                 if self.app.pargs.wpcli:
-                    WOFileUtils.chmod(self, "/usr/bin/wp", 0o775)
+                    WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
             Log.info(self, "Successfully updated packages")
         else:
