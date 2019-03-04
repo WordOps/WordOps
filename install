@@ -149,27 +149,7 @@ wo_install_dep()
         # Change the TLS protocols
         sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2;/g' /etc/nginx/nginx.conf
     fi
-    
-    if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        add-apt-repository -y 'ppa:ondrej/php'
-        wo_lib_echo "Updating the PHP repository for some neat PHP 7.2 support"
-        apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php-memcached php7.2-imap php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php-msgpack graphviz php-pear php-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
-        mkdir -p /var/log/php/7.2/
-        touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
-        systemctl php7.2-fpm restart &>> /dev/null
-        
-        elif [ "$wo_linux_distro" == "Debian" ]; then
-        apt-get install apt-transport-https lsb-release ca-certificates locales locales-all -y
-        export LC_ALL=en_US.UTF-8
-        export LANG=en_US.UTF-8
-        wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
-        apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php-memcached php7.2-imap php7.2-common php7.2-readlne php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php-msgpack graphviz php-pear php-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
-        systemctl php7.2-fpm restart &>> /dev/null
-    fi
-    
+
     ###
     # Webp mapping
     ###
@@ -475,11 +455,11 @@ wo_update_latest()
             DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom nginx-ee
             service nginx restart &>> /dev/null
         fi
-        dpkg --get-selections | grep -v deinstall | grep nginx-common
-        if [ $? -eq 0 ]; then
+        CHECK_NGINX_COMMON=$(dpkg --get-selections | grep -v deinstall | grep nginx-common)
+        if [ -n "$CHECK_NGINX_COMMON" ]; then
             apt-get update
-            dpkg --get-selections | grep -v deinstall | grep nginx-mainline
-            if [ $? -eq 0 ]; then
+            CHECK_NGINX_MAILINE=$(dpkg --get-selections | grep -v deinstall | grep nginx-mainline)
+            if [ -n "$CHECK_NGINX_MAILINE" ]; then
                 apt-get remove -y nginx-mainline
             fi
             service nginx stop &>> /dev/null
@@ -503,11 +483,11 @@ wo_update_latest()
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
             systemctl restart nginx &>> /dev/null
         fi
-        dpkg --get-selections | grep -v deinstall | grep nginx-common
-        if [ $? -eq 0 ]; then
+        CHECK_NGINX_COMMON=$(dpkg --get-selections | grep -v deinstall | grep nginx-common)
+        if [ -n "$CHECK_NGINX_COMMON" ]; then
             apt-get update
-            dpkg --get-selections | grep -v deinstall | grep nginx-mainline
-            if [ $? -eq 0 ]; then
+            CHECK_NGINX_MAILINE=$(dpkg --get-selections | grep -v deinstall | grep nginx-mainline)
+            if [ -n "$CHECK_NGINX_MAILINE" ]; then
                 apt-get remove -y nginx-mainline
             fi
             systemctl stop nginx &>> /dev/null
@@ -525,8 +505,8 @@ wo_update_latest()
     fi
     
     # Fix HHVM autostart on reboot
-    dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null
-    if [ $? -eq 0 ]; then
+    CHECK_HHVM_INSTALL=$(dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null)
+    if [ -n "$CHECK_HHVM_INSTALL" ]; then
         update-rc.d hhvm defaults &>> /dev/null
     fi
     
@@ -655,6 +635,8 @@ wo_update_latest()
     fi
     
     #Fix for SSL cert --all
+
+    # Fix for SSL cert --all
     crontab -l | grep -q '\-\-min_expiry_limit'
     if [[ $? -eq 0 ]]; then
         crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
@@ -684,6 +666,8 @@ wo_git_init()
     git commit -am "Installed/Updated to WordOps" &>> /dev/null
     
     #PHP under git version control
+
+    # PHP under git version control
     [ -d /etc/php ] && {
         cd /etc/php || exit 1
         if [ ! -d /etc/php/.git ]; then
@@ -711,7 +695,7 @@ else
         read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
             wo_install_dep | tee -ai $wo_install_log
-            wo_sync_db 2&>>1 $EE_INSTALL_LOG
+            wo_sync_db >> $EE_INSTALL_LOG 2>&1
             secure_wo_db | tee -ai $EE_INSTALL_LOG
             wo_upgrade_php | tee -ai $wo_install_log
             wo_install | tee -ai $wo_install_log
