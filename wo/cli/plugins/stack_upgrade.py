@@ -106,7 +106,7 @@ class WOStackUpgradeController(CementBaseController):
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
 
-        if self.app.pargs.nginx :
+        if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
@@ -137,12 +137,12 @@ class WOStackUpgradeController(CementBaseController):
                 Log.info(self, "Redis is not installed")
 
         if self.app.pargs.wpcli:
-            if os.path.isfile('/usr/bin/wp'):
+            if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                         "releases/download/v{0}/"
                                         "wp-cli-{0}.phar"
                                         "".format(WOVariables.wo_wp_cli),
-                                        "/usr/bin/wp",
+                                        "/usr/local/bin/wp",
                                         "WP-CLI"]]
             else:
                 Log.info(self, "WPCLI is not installed with WordOps")
@@ -178,7 +178,7 @@ class WOStackUpgradeController(CementBaseController):
 
             if len(packages):
                 if self.app.pargs.wpcli:
-                    WOFileUtils.remove(self,['/usr/local/bin/wp'])
+                    WOFileUtils.remove(self, ['/usr/local/bin/wp'])
 
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)

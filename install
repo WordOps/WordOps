@@ -597,7 +597,7 @@ wo_update_latest()
     
     
     # Fix for 3.3.2 renamed nginx.conf
-    nginx -V 2>&1 &>>/dev/null
+    nginx -V &>>/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>>/dev/null
         if [[ $? -eq 0 ]]; then
