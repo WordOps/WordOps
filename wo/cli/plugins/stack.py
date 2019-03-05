@@ -1009,7 +1009,7 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php7.3-fpm')
 
             # preconfiguration for php7.3
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -1653,9 +1653,8 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                apt_packages = apt_packages + WOVariables.wo_php
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php_extra
+                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
             else:
                 apt_packages = apt_packages + WOVariables.wo_php
 
@@ -1672,9 +1671,8 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php73:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-                apt_packages = apt_packages + WOVariables.wo_php73
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
             else:
                 Log.info(self, "PHP 7.3 not supported.")
 
@@ -1821,9 +1819,8 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php73:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-                apt_packages = apt_packages + WOVariables.wo_php73
-                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php_extra
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
             else:
                 Log.info(self, "PHP 7.3 not supported.")
         if self.app.pargs.hhvm:
