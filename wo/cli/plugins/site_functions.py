@@ -335,8 +335,8 @@ def setupwordpress(self, data):
                   + "core config "
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host'])
-                  + "--dbuser=\'{0}\' --dbpass= "
-                  "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
+                  + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
+                  "--extra-php<<PHP \n {2} {3} \nPHP\""
                   .format(data['wo_db_user'], data['wo_db_pass'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
@@ -350,7 +350,7 @@ def setupwordpress(self, data):
                                     .format(data['wo_db_name'], wo_wp_prefix,
                                             data['wo_db_host'])
                                     + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                                    "--extra-php<<PHP \n {2} {3} {4} {redissalt}\nPHP\""
+                                    "--extra-php<<PHP \n {2} {3} {redissalt}\nPHP\""
                                     .format(data['wo_db_user'],
                                             data['wo_db_pass'],
                                             "\ndefine(\'WPMU_ACCEL_REDIRECT\',"

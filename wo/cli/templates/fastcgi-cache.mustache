@@ -1,9 +1,13 @@
 # NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
+
+# do not cache xhtml request
 map $http_x_requested_with $http_request_no_cache {
     default 0;
     XMLHttpRequest 1;
 }
+
+# do not cache requests on cookies
 map $http_cookie $cookie_no_cache {
     default 0;
     "~*wordpress_[a-f0-9]+" 1;
@@ -16,6 +20,8 @@ map $http_cookie $cookie_no_cache {
     "~*wptouch_switch_toogle" 1;
     "~*comment_author_email_" 1;
 }
+
+# do not cache the following uri
 map $request_uri $uri_no_cache {
     default 0;
     "~*/wp-admin/" 1;
@@ -28,11 +34,22 @@ map $request_uri $uri_no_cache {
     "~*/wp-links-opml.php" 1;
     "~*/xmlrpc.php" 1;
 }
+
+# do not cache requests with query strings
 map $is_args $query_no_cache {
     default 1;
     "" 0;
 }
+
+# if all previous check are passed, $skip_cache = 0
 map $http_request_no_cache$cookie_no_cache$uri_no_cache$query_no_cache $skip_cache {
     default 1;
     0000 0;
 }
+
+# map $skip_cache with $cache_uri for --wpsc stack
+map $skip_cache $cache_uri {
+    default 'null cache';
+    0 $request_uri;
+}
+

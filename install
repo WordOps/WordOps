@@ -131,8 +131,10 @@ wo_install_dep()
             apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
         fi
         }; then echo -ne '       Installing dependencies                [OK]\r'
+        echo -ne '\n'
     else
         echo -e "        Installing dependencies              [FAIL]"
+        echo -ne '\n'
     fi
     locale-gen en &>> /dev/null
     
