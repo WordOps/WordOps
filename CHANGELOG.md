@@ -8,14 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- Updating nginx fastcgi_cache template
+- Updating Nginx fastcgi_cache template
 - Updating Nginx configuration for WordPress 5.0
 - remove --experimental args
 - MariaDB version bumped to 10.3
 
 #### Added
 
-- Add webp image support with nginx mapping
+- Add WebP image support with Nginx mapping
 - Add PHP 7.3 support
 
 #### Fixed
@@ -27,7 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- Rebranded the fork to WordOps
+- Re-branded the fork to WordOps
 - Codebase cleanup
 - Set PHP 7.2 as the default
 - Included support for newer OS releases
