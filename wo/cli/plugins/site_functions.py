@@ -338,8 +338,6 @@ def setupwordpress(self, data):
                   + "--dbuser=\'{0}\' --dbpass= "
                   "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                   .format(data['wo_db_user'], data['wo_db_pass'],
-                          "\ndefine(\'WP_ALLOW_MULTISITE\', "
-                          "true);",
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
@@ -355,8 +353,6 @@ def setupwordpress(self, data):
                                     "--extra-php<<PHP \n {2} {3} {4} {redissalt}\nPHP\""
                                     .format(data['wo_db_user'],
                                             data['wo_db_pass'],
-                                            "\ndefine(\'WP_ALLOW_MULTISITE\', "
-                                            "true);",
                                             "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                                             " true);",
                                             "\n\ndefine(\'WP_DEBUG\', false);",
@@ -715,7 +711,6 @@ def site_package_check(self, stype):
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                 apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-            
         else:
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
@@ -726,10 +721,10 @@ def site_package_check(self, stype):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
-        else:
-            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73
+            else:
+                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -754,12 +749,12 @@ def site_package_check(self, stype):
             apt_packages = apt_packages + WOVariables.wo_redis
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-           os.path.isfile("/etc/nginx/common/redis.conf")):
+           os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis.conf')
-            wo_nginx = open('/etc/nginx/common/redis.conf',
+                      'file /etc/nginx/common/redis-php72.conf')
+            wo_nginx = open('/etc/nginx/common/redis-php72.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'redis.mustache',
                             out=wo_nginx)
@@ -837,62 +832,64 @@ def site_package_check(self, stype):
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
     if self.app.pargs.php73:
-        if (WOVariables.wo_platform_codename == 'wheezy' or WOVariables.wo_platform_codename == 'precise'):
-            Log.error(self, "PHP 7.3 is not supported in your Platform")
-
-        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-        if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-            apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+        if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+        else:
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php73
 
         if os.path.isdir("/etc/nginx/common") and (not
-           os.path.isfile("/etc/nginx/common/php7.conf")):
+           os.path.isfile("/etc/nginx/common/php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php7.conf')
-            wo_nginx = open('/etc/nginx/common/locations-php7.conf',
+                              'file /etc/nginx/common/locations-php73.conf')
+            wo_nginx = open('/etc/nginx/common/locations-php73.conf',
                                     encoding='utf-8', mode='w')
             self.app.render((data), 'locations-php7.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/php7.conf')
-            wo_nginx = open('/etc/nginx/common/php7.conf',
+                      'file /etc/nginx/common/php73.conf')
+            wo_nginx = open('/etc/nginx/common/php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'php7.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                                'file /etc/nginx/common/wpcommon-php7.conf')
-            wo_nginx = open('/etc/nginx/common/wpcommon-php7.conf',
+                                'file /etc/nginx/common/wpcommon-php73.conf')
+            wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
                                     encoding='utf-8', mode='w')
             self.app.render((data), 'wpcommon-php7.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpfc-php7.conf')
-            wo_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                      'file /etc/nginx/common/wpfc-php73.conf')
+            wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'wpfc-php7.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpsc-php7.conf')
-            wo_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                      'file /etc/nginx/common/wpsc-php73.conf')
+            wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'wpsc-php7.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-            os.path.isfile("/etc/nginx/common/redis-php7.conf")):
+            os.path.isfile("/etc/nginx/common/redis-php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                     'file /etc/nginx/common/redis-php7.conf')
-            wo_nginx = open('/etc/nginx/common/redis-php7.conf',
+                     'file /etc/nginx/common/redis-php73.conf')
+            wo_nginx = open('/etc/nginx/common/redis-php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'redis-php7.mustache',
                             out=wo_nginx)
