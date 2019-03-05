@@ -28,7 +28,7 @@
 
 ## Key Features
 
-- Easy Migration from EasyEngine v3
+- Easy Migration from EasyEngine v3 (migration script development in progress)
 - Automated WordPress, Nginx, PHP, MySQL & Redis installation
 - Optimized Nginx configuration with multiple cache backends support
 - Let's Encrypt SSL certificates

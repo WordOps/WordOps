@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-### v3.X.X - [Unreleased]
+### v3.9.3 - [Unreleased]
 
 #### Changed
 
 - Updating nginx fastcgi_cache template
 - Updating Nginx configuration for WordPress 5.0
 - remove --experimental args
+- MariaDB version bumped to 10.3
 
 #### Added
 
@@ -20,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Fixed
 
 - Nginx variable $webp_suffix on fresh install
+- wo update command
 
 ### v3.9.2 - November 30, 2018
 
