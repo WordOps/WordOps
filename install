@@ -633,8 +633,6 @@ wo_update_latest()
         apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-memcached php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php-msgpack graphviz php-pear php-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
         systemctl php7.2-fpm restart &>> /dev/null
     fi
-    
-    #Fix for SSL cert --all
 
     # Fix for SSL cert --all
     crontab -l | grep -q '\-\-min_expiry_limit'
@@ -664,8 +662,6 @@ wo_git_init()
     }
     git add -A .
     git commit -am "Installed/Updated to WordOps" &>> /dev/null
-    
-    #PHP under git version control
 
     # PHP under git version control
     [ -d /etc/php ] && {
