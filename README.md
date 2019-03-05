@@ -60,7 +60,9 @@ WordOps made some fundamental changes:
 
 - We've deprecated the mail stack. Less is more. As an alternative, take a look at [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). And an alternative for Roundcube is [Rainloop](https://www.rainloop.net/).
 - Support for w3tc is dropped as a security precaution.
-- We are currently migrating the PHP 5.x series to PHP 7.2 and PHP 7.3. We'll offer an easy to use migration script once we are confident enough to unleash this daemon. For now, new sites get installed with PHP 7.2 as the default.
+- PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 will be replaced by PHP 7.3.
+
+We will not overwrite previous php versions Nginx upstreams to avoid issues during the migration from EEv3. A step by step guide will be published soon to explain how to fully migrate from EasyEngine v3 to WordOps
 
 ## Usage
 
