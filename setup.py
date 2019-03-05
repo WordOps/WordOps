@@ -55,10 +55,10 @@ except Exception as e:
     os.system("git config --global user.email {0}".format(wo_email))
 
 if not os.path.isfile('/root/.gitconfig'):
-      shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
+        shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
 
 setup(name='wo',
-      version='3.9.1',
+      version='3.9.3',
       description=long_description,
       long_description=long_description,
       classifiers=[],
