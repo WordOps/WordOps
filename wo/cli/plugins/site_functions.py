@@ -301,24 +301,24 @@ def setupwordpress(self, data):
                   "--dbhost=\'{3}\' "
                   .format(data['wo_db_name'], wo_wp_prefix,
                           data['wo_db_user'], data['wo_db_host'])
-                  + "--dbpass= "
+                  + "--dbpass=\'{0}\' "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['wo_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
-                                 .format(WOVariables.wo_wpcli_path)
-                                 + " core config "
-                                 + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
-                                 "--dbuser=\'{2}\' --dbhost=\'{3}\' "
-                                 .format(data['wo_db_name'], wo_wp_prefix,
+                                    .format(WOVariables.wo_wpcli_path)
+                                    + " core config "
+                                    + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
+                                    "--dbuser=\'{2}\' --dbhost=\'{3}\' "
+                                    .format(data['wo_db_name'], wo_wp_prefix,
                                          data['wo_db_user'], data['wo_db_host']
                                          )
-                                 + "--dbpass=\'{0}\' "
-                                   "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
-                                   .format(data['wo_db_pass'],
-                                           "\n\ndefine(\'WP_DEBUG\', false);",
-                                           redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
+                                    + "--dbpass=\'{0}\' "
+                                    "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
+                                    .format(data['wo_db_pass'],
+                                            "\n\ndefine(\'WP_DEBUG\', false);",
+                                            redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
                                                       .format(wo_domain_name) if data['wpredis']
                                                       else ''),
                                    log=False
