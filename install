@@ -148,14 +148,6 @@ wo_install_dep()
         sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2;/g' /etc/nginx/nginx.conf
     fi
     
-    ###
-    # Webp mapping
-    ###
-    [ ! -f /etc/nginx/conf.d/webp.conf ] && {
-        mkdir -p /etc/nginx/conf.d
-        echo -e 'map $http_accept $webp_suffix {\n   default "";\n   "~*webp" ".webp";\n}\n' > /etc/nginx/conf.d/webp.conf
-    }
-    
     # Let's Encrypt .well-known folder setup
     if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
         mkdir -p /var/www/html/.well-known/acme-challenge
