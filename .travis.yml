@@ -24,73 +24,50 @@ script:
   - sudo bash install $TRAVIS_BRANCH
   - sudo wo --help
   - sudo wo stack install || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo stack install --web || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo stack install --web  || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo stack install --admin || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create html.net --html || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create php.com --php || sudo tail -n50 /var/log/wo/wordops.log
+  
   - sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create mysqlphp73.com --mysql --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create mysql-php73.com --mysql --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  
   - sudo wo site create wp1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpphp73.com --wp --php73 || sudo tail -n50 /var/log/wo/wordops.log
-
-  - sudo wo site create wpsc1.net --wp --wpsc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wp-php73.com --wp --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  
+  - sudo wo site create wpsc1.net --wpsc || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpfc2.net --wp --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpfc3.org --wpfc --wp || sudo tail -n50 /var/log/wo/wordops.log
+  
+  - sudo wo site create wpsc-php73.net --wpsc --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpfc-php73.net --wpfc --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  
+  - sudo wo site create wpredis.net --wpredis || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpredis-php73.net --wpredis --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  
   - sudo wo site create wpsubdir1.com --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdir-php73.com --wpsubdir --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create wpsubdirwpsc1.com --wpsubdir --wpsc || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wpsubdirwpsc2.com --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpsubdirwpfc3.net --wpfc --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
+  
+  - sudo wo site create wpsubdirwpsc1-php73.com --wpsubdir --wpsc --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdirwpsc2-php73.com --wpsubdir --wpfc --php73|| sudo tail -n50 /var/log/wo/wordops.log
+  
   - sudo wo site create wpsubdomain1.com --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdomain1-php73.com --wpsubdomain --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create site1.localtest.me --php --mysql || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site2.localtest.me --mysql --html || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site3.localtest.me --php --html || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site4.localtest.me --wp --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create site5.localtest.me --wp --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site6.localtest.me --wpredis || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site7.localtest.me --wpsubdomain --wpredis || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site create site8.localtest.me --wpsubdir --wpredis || sudo tail -n50 /var/log/wo/wordops.log
-
-
-  - sudo wo debug --all || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo debug --all=off || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo debug site12.net || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo debug site12.net --all=off || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create 1.com --html || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create 2.com --php || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create 3.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site update 1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update 2.com --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update 3.com --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
-
-  - sudo wo site update site1.com --wp --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update site1.com --wp --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site update site1.com --wpredis || sudo tail -n50 /var/log/wo/wordops.log
-
-  - sudo wo site update site5.com --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update site5.com --wpsubdir --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-
-  - sudo wo site update site9.com --wpsubdomain --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update site9.com --wpsubdomain --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site update site.hhvm.pagespeed12.in --hhvm=off || sudo tail -n50 /var/log/wo/wordops.log
-  - yes | sudo wo site update site9.com --hhvm || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site info site.hhvm.pagespeed12.in || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site info site9.com || sudo tail -n50 /var/log/wo/wordops.log
-
-  - sudo wo site create www.site-1.com --wp || sudo tail -n50 /var/log/wo/wordops.log|| sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create www.subsite.site-1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update www.subsite.site-1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site delete www.subsite.site-1.com --all --no-prompt || sudo tail -n50 /var/log/wo/wordops.log
-
-  - sudo wo site delete site12.in --all --no-prompt || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site update 2.com --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site update 3.com --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo ls /var/www/
   - sudo wp --allow-root --info
