@@ -1,7 +1,8 @@
 # WPFC NGINX CONFIGURATION
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
-# $skip_cache variable set in /etc/nginx/conf.d/map-wp-fastcgi-cache.conf
+# $skip_cache variable set in /etc/nginx/conf.d/map-wp.conf
 
+add_header X-fastcgi-cache $upstream_cache_status;
 # Use cached or actual file if they exists, Otherwise pass request to WordPress
 location / {
   try_files $uri $uri/ /index.php$is_args$args;

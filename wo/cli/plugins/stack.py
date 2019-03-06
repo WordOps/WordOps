@@ -254,12 +254,21 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/map-wp-fastcgi-cache.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/map-wp-fastcgi-cache.conf',
+                              'file /etc/nginx/conf.d/map-wp.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/map-wp.conf',
                                     encoding='utf-8', mode='w')
-                    self.app.render((data), 'fastcgi-cache.mustache',
+                    self.app.render((data), 'map-wp.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
+
+                    if not (os.path.isfile('/etc/nginx/conf.d/webp.conf')):
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                        'file /etc/nginx/conf.d/webp.conf')
+                        wo_nginx = open('/etc/nginx/conf.d/webp.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'webp.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
                     # Setup Nginx common directory
                     if not os.path.exists('/etc/nginx/common'):
@@ -317,8 +326,8 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsubdir-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsubdir-php72.conf',
+                              'file /etc/nginx/common/wpsubdir.conf')
+                    wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'wpsubdir.mustache',
                                     out=wo_nginx)
