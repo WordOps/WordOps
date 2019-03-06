@@ -761,8 +761,8 @@ class WOStackController(CementBaseController):
                                              "    keepalive 10;\n}\n")
 
                 if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                    os.path.isfile("/etc/nginx/conf.d/redis-php72.conf")):
-                    with open("/etc/nginx/conf.d/redis-php72.conf", "a") as redis_file:
+                                                                os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                    with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
                         redis_file.write("# Log format Settings\n"
                                          "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
                                          "'$http_host \"$request\" $status $body_bytes_sent '\n"
