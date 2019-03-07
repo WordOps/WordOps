@@ -314,7 +314,7 @@ class WOStackStatusController(CementBaseController):
 
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 services = services + ['php7.3-fpm']
-             else:
+            else:
                 Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
