@@ -359,20 +359,25 @@ wo_update_wp_cli()
 # Now, finally, let's install WordOps
 wo_install()
 {
-    rm -rf /tmp/easyengine
-    rm -rf /tmp/wordops
-    
-    wo_lib_echo "Downloading WordOps straight from GitHub - fresh and brewed with love. Hold your horses..."
-    [ -z "$wo_branch" ] && {
-        wo_branch=master
-    }
-    
-    git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null \
-    || wo_lib_error "An error was encountered during the download, exit status" $?
-    
-    cd /tmp/wordops || exit 1
-    wo_lib_echo "The moment you've all been waiting for, time to install WordOps!"
-    python3 setup.py install || wo_lib_error "An error was encountered during the installation, exit status " $?
+    if {
+        echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch          ${TPUT_RESET}[..]\r"
+        rm -rf /tmp/easyengine
+        rm -rf /tmp/wordops
+        
+        [ -z "$wo_branch" ] && {
+            wo_branch=master
+        }
+        
+        git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null 2>&1
+        
+        cd /tmp/wordops || exit 1
+        python3 setup.py install > /dev/null 2>&1
+        }; then echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch           ${TPUT_RESET}[OK]\r"
+        echo -ne '\n'
+    else
+        echo -e "${TPUT_FAIL}Installing Wordops $wo_branch         ${TPUT_RESET}[FAIL]"
+        echo -ne '\n'
+    fi
 }
 
 wo_update_latest()
@@ -604,7 +609,7 @@ wo_update_latest()
         fi
     fi
     
-   # Fix for SSL cert --all
+    # Fix for SSL cert --all
     crontab -l | grep -q '\-\-min_expiry_limit'
     if [[ $? -eq 0 ]]; then
         crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
@@ -696,7 +701,6 @@ else
     else
         # 3 - Fresh WO setup
         wo_install_dep | tee -ai $wo_install_log
-        wo_lib_echo "Installing WordOps $wo_branch" | tee -ai $wo_install_log
         wo_install | tee -ai $wo_install_log
         wo_lib_echo "Running post-install steps" | tee -ai $wo_install_log
         secure_wo_db | tee -ai $EE_INSTALL_LOG
