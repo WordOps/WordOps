@@ -230,7 +230,7 @@ class WOStackController(CementBaseController):
                                               "\"WordOps{0}\""
                                               .format(WOVariables.wo_version))
                     WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                              "ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:"
+                                              "ECDHE-RSA-AES128-GCM-SHA256:"
                                               "ECDHE-ECDSA-AES128-GCM-SHA256:
                                               "ECDHE-RSA-AES256-GCM-SHA384:"
                                               "ECDHE-ECDSA-AES256-GCM-SHA384:"
@@ -261,9 +261,8 @@ class WOStackController(CementBaseController):
                                               "!RC4:!MD5:!PSK:"
                                               "!ECDH:!EDH-DSS-DES-CBC3-SHA:"
                                               "!EDH-RSA-DES-CBC3-SHA:"
-                                              "!KRB5-DES-CBC3-SHA;",
-                                              "ssl_ciphers \'EECDH+CHACHA20:"
-                                                  "EECDH+AESGCM:EECDH+AES\';")
+                                              "!KRB5-DES-CBC3-SHA",
+                                              "EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES")
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
