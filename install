@@ -27,7 +27,7 @@ TPUT_FAIL=$(tput setaf 1)
 
 wo_lib_echo () {
     TPUT_ECHO=$(tput setaf 4)
-    echo "${TPUT_ECHO}${*}${TPUT_RESET}"
+    echo "${*}${TPUT_RESET}"
 }
 
 wo_lib_echo_info()
@@ -123,17 +123,17 @@ fi
 ####
 wo_install_dep()
 {
-    echo -ne '       Installing dependencies               [..]\r'
+    echo -ne "${TPUT_ECHO}Installing dependencies               ${TPUT_RESET}[..]\r"
     if {
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
             apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
         else
             apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
         fi
-        }; then echo -ne '       Installing dependencies                [OK]\r'
+        }; then echo -ne "${TPUT_ECHO}Installing dependencies                ${TPUT_RESET}[OK]\r"
         echo -ne '\n'
     else
-        echo -e "        Installing dependencies              [FAIL]"
+        echo -e "${TPUT_FAIL}Installing dependencies              ${TPUT_RESET}[FAIL]"
         echo -ne '\n'
     fi
     locale-gen en &>> /dev/null
@@ -695,7 +695,6 @@ else
         fi
     else
         # 3 - Fresh WO setup
-        wo_lib_echo "Installing depedencies" | tee -ai $wo_install_log
         wo_install_dep | tee -ai $wo_install_log
         wo_lib_echo "Installing WordOps $wo_branch" | tee -ai $wo_install_log
         wo_install | tee -ai $wo_install_log

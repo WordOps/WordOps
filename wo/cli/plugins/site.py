@@ -1180,7 +1180,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.hhvm == "on" or pargs.letsencrypt == "on" or pargs.php73 == "on":
             if pargs.php73 == "on":
-                if (not pargs.experimental):
+                if pargs.experimental:
                     Log.info(
                         self, "Do you wish to enable PHP 7.3 now for {0}?".format(wo_domain))
 
@@ -1197,7 +1197,7 @@ class WOSiteUpdateController(CementBaseController):
                     php73 = True
 
             if pargs.hhvm == "on":
-                if (not pargs.experimental):
+                if pargs.experimental:
                     Log.info(self, "HHVM is experimental feature and it may not"
                              " work with all plugins of your site.\nYou can "
                              "disable it by passing --hhvm=off later.\nDo you wish"
@@ -1218,7 +1218,7 @@ class WOSiteUpdateController(CementBaseController):
 
             if pargs.letsencrypt == "on":
 
-                if (not pargs.experimental):
+                if pargs.experimental:
 
                     if oldsitetype in ['wpsubdomain']:
                         Log.warn(
@@ -1241,7 +1241,7 @@ class WOSiteUpdateController(CementBaseController):
                     letsencrypt = True
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
-            if (not pargs.experimental):
+            if pargs.experimental:
                 Log.info(self, "Redis is experimental feature and it may not"
                          " work with all plugins of your site.\nYou can "
                          "disable it by changing cache type later.\nDo you wish"
