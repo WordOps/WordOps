@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-### v3.9.3 - [Unreleased]
+### v3.9.5 - [Unreleased]
+
+#### Changed
+
+-
+
+### v3.9.3 - 2019-03-07
 
 #### Changed
 
@@ -27,13 +33,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- Nginx variable $webp_suffix on fresh install
-- wo update command
-- Fix php services management 
+- Nginx variable $webp_suffix on fresh install ([#21](https://github.com/WordOps/WordOps/issues/21))
+- wo update command ([#7](https://github.com/WordOps/WordOps/issues/7))
+- Fix php services management ([#12](https://github.com/WordOps/WordOps/issues/12))
 - Fix WP-CLI install
 
 
-### v3.9.2 - November 30, 2018
+### v3.9.2 - 2018-11-30
 
 #### Changed
 

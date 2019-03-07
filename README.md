@@ -9,6 +9,7 @@
 <a href="https://travis-ci.org/WordOps/WordOps"><img src="https://travis-ci.org/WordOps/WordOps.svg?branch=master" alt="build"></a>
 <img src="https://img.shields.io/github/license/wordops/wordops.svg" alt="MIT">
 <img src="https://img.shields.io/github/last-commit/wordops/wordops.svg" alt="Commits">
+<img alt="GitHub release" src="https://img.shields.io/github/release-pre/wordops/wordops.svg">
 
 </p>
 
@@ -39,7 +40,7 @@
 ### Operating System
 
 - Ubuntu : 16.04 LTS (Xenial) - 18.04 LTS (Bionic)
-- Debian :  8 (Jessie) - 9 (Stretch)
+- Debian :  8 (Jessie) - 9 (Stretch) -> **Not fully supported yet**
 
 ### Ports requirements
 
@@ -71,6 +72,7 @@ We will not overwrite previous php versions Nginx upstreams to avoid issues duri
 
 ```bash
 wo site create example.com --wp                  # install wordpress without any page caching
+wo site create example.com --wp  --php73         # install wordpress with PHP 7.3  without any page caching
 wo site create example.com --wpsc                # install wordpress with wp-super-cache plugin
 wo site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis             # install wordpress + nginx redis_cache
