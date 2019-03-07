@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.3 - 2019-03-04
+# Version 3.9.3 - 2019-03-05
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.3"
@@ -27,7 +27,7 @@ TPUT_FAIL=$(tput setaf 1)
 
 wo_lib_echo () {
     TPUT_ECHO=$(tput setaf 4)
-    echo "${TPUT_ECHO}${*}${TPUT_RESET}"
+    echo "${*}${TPUT_RESET}"
 }
 
 wo_lib_echo_info()
@@ -82,7 +82,7 @@ fi
 ###
 # 1 - Define variables for later use
 ###
-wo_branch=$1
+wo_branch="$1"
 migration=0
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
@@ -96,17 +96,13 @@ if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ]; the
     wo_lib_echo_fail "WordOps (wo) only supports Ubuntu and Debian at the moment."
     wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
     wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
-    wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
     exit 100
-fi
-
-###
-# 1 - WordOps (wo) only supports Ubuntu/Debian versions that are eligible for support
-###
-lsb_release -d | grep -E "14.04|16.04|18.04|jessie|stretch" &>> /dev/null
-if [ "$?" -ne "0" ]; then
-    wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
-    exit 100
+else
+    check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|jessie|stretch")
+    if [ -z "$check_wo_linux_distro" ]; then
+        wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
+        exit 100
+    fi
 fi
 
 ###
@@ -127,16 +123,18 @@ fi
 ####
 wo_install_dep()
 {
-    echo -ne '       Installing dependencies               [..]\r'
+    echo -ne "${TPUT_ECHO}Installing dependencies               ${TPUT_RESET}[..]\r"
     if {
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
             apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
         else
             apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
         fi
-        }; then echo -ne '       Installing dependencies                [OK]\r'
+        }; then echo -ne "${TPUT_ECHO}Installing dependencies                ${TPUT_RESET}[OK]\r"
+        echo -ne '\n'
     else
-        echo -e "        Installing dependencies              [FAIL]"
+        echo -e "${TPUT_FAIL}Installing dependencies              ${TPUT_RESET}[FAIL]"
+        echo -ne '\n'
     fi
     locale-gen en &>> /dev/null
     
@@ -149,34 +147,6 @@ wo_install_dep()
         # Change the TLS protocols
         sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2;/g' /etc/nginx/nginx.conf
     fi
-    
-    if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        add-apt-repository -y 'ppa:ondrej/php'
-        wo_lib_echo "Updating the PHP repository for some neat PHP 7.2 support"
-        apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php-memcached php7.2-imap php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php-msgpack graphviz php-pear php-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
-        mkdir -p /var/log/php/7.2/
-        touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
-        systemctl php7.2-fpm restart &>> /dev/null
-        
-        elif [ "$wo_linux_distro" == "Debian" ]; then
-        apt-get install apt-transport-https lsb-release ca-certificates locales locales-all -y
-        export LC_ALL=en_US.UTF-8
-        export LANG=en_US.UTF-8
-        wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
-        apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php-memcached php7.2-imap php7.2-common php7.2-readlne php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php-msgpack graphviz php-pear php-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
-        systemctl php7.2-fpm restart &>> /dev/null
-    fi
-    
-    ###
-    # Webp mapping
-    ###
-    [ ! -f /etc/nginx/conf.d/webp.conf ] && {
-        mkdir -p /etc/nginx/conf.d
-        echo -e 'map $http_accept $webp_suffix {\n   default "";\n   "~*webp" ".webp";\n}\n' > /etc/nginx/conf.d/webp.conf
-    }
     
     # Let's Encrypt .well-known folder setup
     if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
@@ -389,20 +359,25 @@ wo_update_wp_cli()
 # Now, finally, let's install WordOps
 wo_install()
 {
-    rm -rf /tmp/easyengine
-    rm -rf /tmp/wordops
-    
-    wo_lib_echo "Downloading WordOps straight from GitHub - fresh and brewed with love. Hold your horses..."
-    [ -z "$wo_branch" ] && {
-        wo_branch=master
-    }
-    
-    git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null \
-    || wo_lib_error "An error was encountered during the download, exit status" $?
-    
-    cd /tmp/wordops || exit 1
-    wo_lib_echo "The moment you've all been waiting for, time to install WordOps!"
-    python3 setup.py install || wo_lib_error "An error was encountered during the installation, exit status " $?
+    if {
+        echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch          ${TPUT_RESET}[..]\r"
+        rm -rf /tmp/easyengine
+        rm -rf /tmp/wordops
+        
+        [ -z "$wo_branch" ] && {
+            wo_branch=master
+        }
+        
+        git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null 2>&1
+        
+        cd /tmp/wordops || exit 1
+        python3 setup.py install > /dev/null 2>&1
+        }; then echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch           ${TPUT_RESET}[OK]\r"
+        echo -ne '\n'
+    else
+        echo -e "${TPUT_FAIL}Installing Wordops $wo_branch         ${TPUT_RESET}[FAIL]"
+        echo -ne '\n'
+    fi
 }
 
 wo_update_latest()
@@ -427,10 +402,10 @@ wo_update_latest()
         fi
     fi
     
-    #Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
+    # Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
     if [ ! -f /etc/mysql/conf.d/my.cnf ]
     then
-        #create conf.d folder if not exist
+        # create conf.d folder if not exist
         if [ ! -d /etc/mysql/conf.d ]; then
             mkdir -p /etc/mysql/conf.d
             chmod 755 /etc/mysql/conf.d
@@ -475,11 +450,11 @@ wo_update_latest()
             DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom nginx-ee
             service nginx restart &>> /dev/null
         fi
-        dpkg --get-selections | grep -v deinstall | grep nginx-common
-        if [ $? -eq 0 ]; then
+        CHECK_NGINX_COMMON=$(dpkg --get-selections | grep -v deinstall | grep nginx-common)
+        if [ -n "$CHECK_NGINX_COMMON" ]; then
             apt-get update
-            dpkg --get-selections | grep -v deinstall | grep nginx-mainline
-            if [ $? -eq 0 ]; then
+            CHECK_NGINX_MAILINE=$(dpkg --get-selections | grep -v deinstall | grep nginx-mainline)
+            if [ -n "$CHECK_NGINX_MAILINE" ]; then
                 apt-get remove -y nginx-mainline
             fi
             service nginx stop &>> /dev/null
@@ -503,11 +478,11 @@ wo_update_latest()
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
             systemctl restart nginx &>> /dev/null
         fi
-        dpkg --get-selections | grep -v deinstall | grep nginx-common
-        if [ $? -eq 0 ]; then
+        CHECK_NGINX_COMMON=$(dpkg --get-selections | grep -v deinstall | grep nginx-common)
+        if [ -n "$CHECK_NGINX_COMMON" ]; then
             apt-get update
-            dpkg --get-selections | grep -v deinstall | grep nginx-mainline
-            if [ $? -eq 0 ]; then
+            CHECK_NGINX_MAILINE=$(dpkg --get-selections | grep -v deinstall | grep nginx-mainline)
+            if [ -n "$CHECK_NGINX_MAILINE" ]; then
                 apt-get remove -y nginx-mainline
             fi
             systemctl stop nginx &>> /dev/null
@@ -525,8 +500,8 @@ wo_update_latest()
     fi
     
     # Fix HHVM autostart on reboot
-    dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null
-    if [ $? -eq 0 ]; then
+    CHECK_HHVM_INSTALL=$(dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null)
+    if [ -n "$CHECK_HHVM_INSTALL" ]; then
         update-rc.d hhvm defaults &>> /dev/null
     fi
     
@@ -579,8 +554,8 @@ wo_update_latest()
         fi
     fi
     
-    #Fix Redis-server security issue
-    #http://redis.io/topics/security
+    # Fix Redis-server security issue
+    # http://redis.io/topics/security
     if [ -f /etc/redis/redis.conf  ]; then
         grep -0 -v "#" /etc/redis/redis.confse | grep 'bind' &>> /dev/null
         if [ $? -ne 0 ]; then
@@ -597,7 +572,7 @@ wo_update_latest()
     
     
     # Fix for 3.3.2 renamed nginx.conf
-    nginx -V 2>&1 &>>/dev/null
+    nginx -V &>>/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>>/dev/null
         if [[ $? -eq 0 ]]; then
@@ -634,27 +609,7 @@ wo_update_latest()
         fi
     fi
     
-    if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        add-apt-repository -y 'ppa:ondrej/php'
-        wo_lib_echo "Updating the PHP repository for some neat PHP 7.2 support"
-        apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-memcached php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php-msgpack graphviz php-pear php-xdebug || wo_lib_error "Not all PHP packages could be installed. " 1
-        mkdir -p /var/log/php/7.2/
-        touch /var/log/php/7.2/slow.log /var/log/php/7.2/fpm.log
-        systemctl php7.2-fpm restart &>> /dev/null
-        
-        elif [ "$wo_linux_distro" == "Debian" ]; then
-        apt-get install apt-transport-https lsb-release ca-certificates locales locales-all -y
-        export LC_ALL=en_US.UTF-8
-        export LANG=en_US.UTF-8
-        wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
-        apt-get update &>> /dev/null
-        apt-get -y install php7.2-fpm php7.2-curl php7.2-gd php7.2-imap php-memcached php7.2-common php7.2-readline php-redis php7.2-mysql php7.2-cli php-imagick php7.2-mbstring php7.2-recode php7.2-bcmath php7.2-opcache php7.2-zip php7.2-xml php7.2-soap php-msgpack graphviz php-pear php-xdebug || wo_lib_error "Not all PHP packages could be installed." 1
-        systemctl php7.2-fpm restart &>> /dev/null
-    fi
-    
-    #Fix for SSL cert --all
+    # Fix for SSL cert --all
     crontab -l | grep -q '\-\-min_expiry_limit'
     if [[ $? -eq 0 ]]; then
         crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
@@ -683,7 +638,7 @@ wo_git_init()
     git add -A .
     git commit -am "Installed/Updated to WordOps" &>> /dev/null
     
-    #PHP under git version control
+    # PHP under git version control
     [ -d /etc/php ] && {
         cd /etc/php || exit 1
         if [ ! -d /etc/php/.git ]; then
@@ -694,24 +649,18 @@ wo_git_init()
     }> /dev/null
 }
 
-if [ ! -x /usr/local/bin/ee ]; then
-    if [ ! -x /usr/local/bin/wo ]; then
-        wo_lib_echo "Installing depedencies" | tee -ai $wo_install_log
-        wo_install_dep | tee -ai $wo_install_log
-        wo_lib_echo "Installing WordOps $wo_branch" | tee -ai $wo_install_log
-        wo_install | tee -ai $wo_install_log
-        wo_lib_echo "Running post-install steps" | tee -ai $wo_install_log
-        secure_wo_db | tee -ai $EE_INSTALL_LOG
-        wo_git_init | tee -ai $wo_install_log
-        wo_update_wp_cli | tee -ai $wo_install_log
-    fi
-else
+###
+# 4 - WO MAIN SETUP
+###
+
+# 1 - WO already installed
+if [ -x /usr/local/bin/wo ]; then
     wo -v 2>&1 | grep $wo_version_new &>> /dev/null
     if [[ $? -ne 0 ]];then
         read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
             wo_install_dep | tee -ai $wo_install_log
-            wo_sync_db 2&>>1 $EE_INSTALL_LOG
+            wo_sync_db >> $EE_INSTALL_LOG 2>&1
             secure_wo_db | tee -ai $EE_INSTALL_LOG
             wo_upgrade_php | tee -ai $wo_install_log
             wo_install | tee -ai $wo_install_log
@@ -725,6 +674,38 @@ else
         fi
     else
         wo_lib_error "You already have WordOps $wo_version_new, exit status = " 1
+    fi
+else
+    # 2 - Migration from EEv3
+    if [ -x /usr/local/bin/ee ]; then
+        ee -v 2>&1 | grep $wo_version_new &>> /dev/null
+        if [[ $? -ne 0 ]];then
+            read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
+            if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
+                wo_install_dep | tee -ai $wo_install_log
+                wo_sync_db >> $EE_INSTALL_LOG 2>&1
+                secure_wo_db | tee -ai $EE_INSTALL_LOG
+                wo_upgrade_php | tee -ai $wo_install_log
+                wo_install | tee -ai $wo_install_log
+                wo_update_latest | tee -ai $wo_install_log
+                wo_git_init | tee -ai $wo_install_log
+                service nginx reload &>> /dev/null
+                service php7.2-fpm restart &>> /dev/null
+                wo_update_wp_cli | tee -ai $wo_install_log
+            else
+                wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
+            fi
+        else
+            wo_lib_error "You already have WordOps $wo_version_new, exit status = " 1
+        fi
+    else
+        # 3 - Fresh WO setup
+        wo_install_dep | tee -ai $wo_install_log
+        wo_install | tee -ai $wo_install_log
+        wo_lib_echo "Running post-install steps" | tee -ai $wo_install_log
+        secure_wo_db | tee -ai $EE_INSTALL_LOG
+        wo_git_init | tee -ai $wo_install_log
+        wo_update_wp_cli | tee -ai $wo_install_log
     fi
 fi
 

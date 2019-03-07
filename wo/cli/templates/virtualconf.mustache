@@ -38,9 +38,9 @@ server {
     }
     {{/static}}
 
-    {{^static}}include {{^hhvm}}{{#basic}}common/php.conf;{{/basic}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}}{{#wpredis}}common/redis.conf;{{/wpredis}} {{/hhvm}}{{#hhvm}}{{#basic}}common/php-hhvm.conf;{{/basic}}{{#wpfc}}common/wpfc-hhvm.conf;{{/wpfc}} {{#wpsc}}common/wpsc-hhvm.conf;{{/wpsc}}{{#wpredis}}common/redis-hhvm.conf;{{/wpredis}} {{/hhvm}}    {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}{{/static}}
-    {{#wp}}include common/wpcommon.conf;{{/wp}}
-    {{^proxy}}include common/locations.conf;{{/proxy}}
+    {{^static}}include {{^hhvm}}{{#basic}}common/php72.conf;{{/basic}}{{#wpfc}}common/wpfc-php72.conf;{{/wpfc}} {{#wpsc}}common/wpsc-php72.conf;{{/wpsc}}{{#wpredis}}common/redis-php72.conf;{{/wpredis}} {{/hhvm}}{{#hhvm}}{{#basic}}common/php-hhvm.conf;{{/basic}}{{#wpfc}}common/wpfc-hhvm.conf;{{/wpfc}} {{#wpsc}}common/wpsc-hhvm.conf;{{/wpsc}}{{#wpredis}}common/redis-hhvm.conf;{{/wpredis}} {{/hhvm}}    {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}{{/static}}
+    {{#wp}}include common/wpcommon-php72.conf;{{/wp}}
+    {{^proxy}}include common/locations-php72.conf;{{/proxy}}
     {{^vma}}{{^rc}}include {{webroot}}/conf/nginx/*.conf;{{/rc}}{{/vma}}
     {{/proxy}}
 }

@@ -1,0 +1,7 @@
+# WEBP NGINX CONFIGURATION
+# DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
+
+map $http_accept $webp_suffix {
+   default "";
+   "~*webp" ".webp";
+}

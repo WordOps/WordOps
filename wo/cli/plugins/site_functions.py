@@ -54,9 +54,9 @@ def check_domain_exists(self, domain):
 
 def setupdomain(self, data):
 
-    #for debug purpose
-   # for key, value in data.items() :
-   #     print (key, value)
+    # for debug purpose
+    # for key, value in data.items() :
+    #     print (key, value)
 
     wo_domain_name = data['site_name']
     wo_site_webroot = data['webroot'] if 'webroot' in data.keys() else ''
@@ -72,7 +72,7 @@ def setupdomain(self, data):
         wo_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
                                   .format(wo_domain_name), encoding='utf-8',
                                   mode='w')
-        if not data['php72']:
+        if not data['php73']:
             self.app.render((data), 'virtualconf.mustache',
                           out=wo_site_nginx_conf)
         else:
@@ -99,7 +99,6 @@ def setupdomain(self, data):
                      + Log.OKBLUE + "]")
             raise SiteError("created nginx configuration failed for site."
                             " check with `nginx -t`")
-
 
     # create symbolic link for
     WOFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}'
@@ -302,30 +301,30 @@ def setupwordpress(self, data):
                   "--dbhost=\'{3}\' "
                   .format(data['wo_db_name'], wo_wp_prefix,
                           data['wo_db_user'], data['wo_db_host'])
-                  + "--dbpass= "
+                  + "--dbpass=\'{0}\' "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['wo_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
-                                 .format(WOVariables.wo_wpcli_path)
-                                 + " core config "
-                                 + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
-                                 "--dbuser=\'{2}\' --dbhost=\'{3}\' "
-                                 .format(data['wo_db_name'], wo_wp_prefix,
+                                    .format(WOVariables.wo_wpcli_path)
+                                    + " core config "
+                                    + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
+                                    "--dbuser=\'{2}\' --dbhost=\'{3}\' "
+                                    .format(data['wo_db_name'], wo_wp_prefix,
                                          data['wo_db_user'], data['wo_db_host']
                                          )
-                                 + "--dbpass=\'{0}\' "
-                                   "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
-                                   .format(data['wo_db_pass'],
-                                           "\n\ndefine(\'WP_DEBUG\', false);",
-                                           redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
+                                    + "--dbpass=\'{0}\' "
+                                    "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
+                                    .format(data['wo_db_pass'],
+                                            "\n\ndefine(\'WP_DEBUG\', false);",
+                                            redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
                                                       .format(wo_domain_name) if data['wpredis']
                                                       else ''),
                                    log=False
-                                 ):
+                                   ):
                 pass
-            else :
+            else:
                 raise SiteError("generate wp-config failed for wp single site")
         except CommandExecutionError as e:
                 raise SiteError("generate wp-config failed for wp single site")
@@ -336,55 +335,50 @@ def setupwordpress(self, data):
                   + "core config "
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host'])
-                  + "--dbuser=\'{0}\' --dbpass= "
-                  "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
+                  + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
+                  "--extra-php<<PHP \n {2} {3} \nPHP\""
                   .format(data['wo_db_user'], data['wo_db_pass'],
-                          "\ndefine(\'WP_ALLOW_MULTISITE\', "
-                          "true);",
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
-                                 .format(WOVariables.wo_wpcli_path)
-                                 + " core config "
-                                 + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
-                                 "--dbhost=\'{2}\' "
-                                 .format(data['wo_db_name'], wo_wp_prefix,
-                                         data['wo_db_host'])
-                                 + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                                   "--extra-php<<PHP \n {2} {3} {4} {redissalt}\nPHP\""
-                                 .format(data['wo_db_user'],
-                                         data['wo_db_pass'],
-                                         "\ndefine(\'WP_ALLOW_MULTISITE\', "
-                                         "true);",
-                                         "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
-                                         " true);",
-                                         "\n\ndefine(\'WP_DEBUG\', false);",
-                                         redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
-                                                      .format(wo_domain_name) if data['wpredis']
-                                                      else ''),
-                                 log=False
-                                 ):
+                                    .format(WOVariables.wo_wpcli_path)
+                                    + " core config "
+                                    + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
+                                    "--dbhost=\'{2}\' "
+                                    .format(data['wo_db_name'], wo_wp_prefix,
+                                            data['wo_db_host'])
+                                    + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
+                                    "--extra-php<<PHP \n {2} {3} {redissalt}\nPHP\""
+                                    .format(data['wo_db_user'],
+                                            data['wo_db_pass'],
+                                            "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
+                                            " true);",
+                                            "\n\ndefine(\'WP_DEBUG\', false);",
+                                            redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
+                                            .format(wo_domain_name) if data['wpredis']
+                                            else ''),
+                                    log=False
+                                    ):
                 pass
             else:
                 raise SiteError("generate wp-config failed for wp multi site")
         except CommandExecutionError as e:
                 raise SiteError("generate wp-config failed for wp multi site")
 
-    #WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
+    # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 
     try:
         import shutil
 
-        Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd()+'/wp-config.php',os.path.abspath(os.path.join(os.getcwd(), os.pardir))))
-        shutil.move(os.getcwd()+'/wp-config.php',os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+        Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))))
+        shutil.move(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
     except Exception as e:
         Log.error(self, 'Unable to move file from {0} to {1}'
-                      .format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))),False)
+                      .format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))), False)
         raise SiteError("Unable to move wp-config.php")
-
 
     if not wo_wp_user:
         wo_wp_user = WOVariables.wo_user
@@ -577,6 +571,7 @@ def uninstallwp_plugin(self, plugin_name, data):
     except CommandExecutionError as e:
         raise SiteError("plugin uninstall failed")
 
+
 def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
     wo_site_webroot = data['webroot']
     Log.info(self, "Setting plugin {0}, please wait..."
@@ -623,7 +618,7 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        if data['php72'] is True and not data['wp']:
+        if data['php73'] is True and not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
             WOFileUtils.copyfiles(self, wo_site_webroot + '/htdocs', backup_path + '/htdocs')
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -634,7 +629,7 @@ def sitebackup(self, data):
 
     configfiles = glob.glob(wo_site_webroot + '/*-config.php')
     if not configfiles:
-        #search for wp-config.php inside htdocs/
+        # search for wp-config.php inside htdocs/
         Log.debug(self, "Config files not found in {0}/ "
                           .format(wo_site_webroot))
         if data['currsitetype'] in ['mysql']:
@@ -663,7 +658,7 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/wo-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            if data['php72'] is True and not data['wp']:
+            if data['php73'] is True and not data['wp']:
                 WOFileUtils.copyfile(self, configfiles[0], backup_path)
             else:
                 WOFileUtils.mvfile(self, configfiles[0], backup_path)
@@ -677,25 +672,25 @@ def site_package_check(self, stype):
     stack = WOStackController()
     stack.app = self.app
     if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain', 'php72']:
+                 'wpsubdomain', 'php73']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
-        if not (WOAptGet.is_installed(self, 'nginx-custom') or  WOAptGet.is_installed(self, 'nginx-mainline')):
+        if not (WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-mainline')):
             # check if Server has nginx-plus installed
             if WOAptGet.is_installed(self, 'nginx-plus'):
                 # do something
                 # do post nginx installation configuration
                 Log.info(self, "NGINX PLUS Detected ...")
                 apt = ["nginx-plus"] + WOVariables.wo_nginx
-                #apt_packages = apt_packages + WOVariables.wo_nginx
+                # apt_packages = apt_packages + WOVariables.wo_nginx
                 stack.post_pref(apt, packages)
             elif WOAptGet.is_installed(self, 'nginx'):
                 Log.info(self, "WordOps detected a previously installed Nginx package. "
                                 "It may or may not have required modules. "
                                 "\nIf you need help, please create an issue at https://github.com/WordOps/WordOps/issues/ \n")
                 apt = ["nginx"] + WOVariables.wo_nginx
-                #apt_packages = apt_packages + WOVariables.wo_nginx
+                # apt_packages = apt_packages + WOVariables.wo_nginx
                 stack.post_pref(apt, packages)
             else:
                 apt_packages = apt_packages + WOVariables.wo_nginx
@@ -708,22 +703,28 @@ def site_package_check(self, stype):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-    if self.app.pargs.php and self.app.pargs.php72:
-        Log.error(self,"Error: two different PHP versions cannot be combined within the same WordOps site")
+    if self.app.pargs.php and self.app.pargs.php73:
+        Log.error(self, "Error: two different PHP versions cannot be combined within the same WordOps site")
 
-    if not self.app.pargs.php72 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP")
-        apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
-
-    if self.app.pargs.php72 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
         else:
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php72
+                apt_packages = apt_packages + WOVariables.wo_php   
+
+        if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+            else:
+                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -736,24 +737,24 @@ def site_package_check(self, stype):
 
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting packages variable for WP-CLI")
-        if not WOShellExec.cmd_exec(self, "which wp"):
+        if not WOShellExec.cmd_exec(self, "command -v wp"):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                     "releases/download/v{0}/"
                                     "wp-cli-{0}.phar"
                                     .format(WOVariables.wo_wp_cli),
-                                    "/usr/bin/wp", "WP-CLI"]]
+                                    "/usr/local/bin/wp", "WP-CLI"]]
     if self.app.pargs.wpredis:
         Log.debug(self, "Setting apt_packages variable for redis")
         if not WOAptGet.is_installed(self, 'redis-server'):
             apt_packages = apt_packages + WOVariables.wo_redis
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-           os.path.isfile("/etc/nginx/common/redis.conf")):
+           os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis.conf')
-            wo_nginx = open('/etc/nginx/common/redis.conf',
+                      'file /etc/nginx/common/redis-php72.conf')
+            wo_nginx = open('/etc/nginx/common/redis-php72.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'redis.mustache',
                             out=wo_nginx)
@@ -830,63 +831,65 @@ def site_package_check(self, stype):
                     hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
-    if self.app.pargs.php72:
-        if (WOVariables.wo_platform_codename == 'wheezy' or WOVariables.wo_platform_codename == 'precise'):
-            Log.error(self,"PHP 7.0 is not supported in your Platform")
-
-        Log.debug(self, "Setting apt_packages variable for PHP 7.0")
-        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-            apt_packages = apt_packages + WOVariables.wo_php72 + WOVariables.wo_php_extra
+    if self.app.pargs.php73:
+        if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+        else:
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php73
 
         if os.path.isdir("/etc/nginx/common") and (not
-           os.path.isfile("/etc/nginx/common/php7.conf")):
+           os.path.isfile("/etc/nginx/common/php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php7.conf')
-            wo_nginx = open('/etc/nginx/common/locations-php7.conf',
+                              'file /etc/nginx/common/locations-php73.conf')
+            wo_nginx = open('/etc/nginx/common/locations-php73.conf',
                                     encoding='utf-8', mode='w')
             self.app.render((data), 'locations-php7.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/php7.conf')
-            wo_nginx = open('/etc/nginx/common/php7.conf',
+                      'file /etc/nginx/common/php73.conf')
+            wo_nginx = open('/etc/nginx/common/php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'php7.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                                'file /etc/nginx/common/wpcommon-php7.conf')
-            wo_nginx = open('/etc/nginx/common/wpcommon-php7.conf',
+                                'file /etc/nginx/common/wpcommon-php73.conf')
+            wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
                                     encoding='utf-8', mode='w')
             self.app.render((data), 'wpcommon-php7.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpfc-php7.conf')
-            wo_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                      'file /etc/nginx/common/wpfc-php73.conf')
+            wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'wpfc-php7.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpsc-php7.conf')
-            wo_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                      'file /etc/nginx/common/wpsc-php73.conf')
+            wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'wpsc-php7.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-            os.path.isfile("/etc/nginx/common/redis-php7.conf")):
+            os.path.isfile("/etc/nginx/common/redis-php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                     'file /etc/nginx/common/redis-php7.conf')
-            wo_nginx = open('/etc/nginx/common/redis-php7.conf',
+                     'file /etc/nginx/common/redis-php73.conf')
+            wo_nginx = open('/etc/nginx/common/redis-php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'redis-php7.mustache',
                             out=wo_nginx)
@@ -894,10 +897,10 @@ def site_package_check(self, stype):
 
         if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
             if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
-                                          "php72"):
+                                          "php73"):
                 with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                    php_file.write("upstream php72 {\nserver 127.0.0.1:9072;\n}\n"
-                                    "upstream debug72 {\nserver 127.0.0.1:9172;\n}\n")
+                    php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
+                                    "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
@@ -1032,7 +1035,7 @@ def detSitePar(opts):
     cachelist = list()
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain','php72']:
+                           'wpsubdir', 'wpsubdomain','php73']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis']:
             cachelist.append(key)
@@ -1046,7 +1049,7 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php72','mysql','html') for x in typelist]:
+        elif False not in [x in ('php73','mysql','html') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1058,7 +1061,7 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php72','mysql') for x in typelist]:
+        elif False not in [x in ('php73','mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1076,8 +1079,8 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php72','html') for x in typelist]:
-            sitetype = 'php72'
+        elif False not in [x in ('php73','html') for x in typelist]:
+            sitetype = 'php73'
             if not cachelist:
                 cachetype = 'basic'
             else:
@@ -1094,19 +1097,19 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wp','php72') for x in typelist]:
+        elif False not in [x in ('wp','php73') for x in typelist]:
             sitetype = 'wp'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir','php72') for x in typelist]:
+        elif False not in [x in ('wpsubdir','php73') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain','php72') for x in typelist]:
+        elif False not in [x in ('wpsubdomain','php73') for x in typelist]:
             sitetype = 'wpsubdomain'
             if not cachelist:
                 cachetype = 'basic'
@@ -1118,7 +1121,7 @@ def detSitePar(opts):
         if not typelist and not cachelist:
             sitetype = None
             cachetype = None
-        elif (not typelist or "php72" in typelist) and cachelist:
+        elif (not typelist or "php73" in typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif typelist and (not cachelist):
