@@ -153,7 +153,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx')
             WORepo.add_key(self, WOVariables.wo_nginx_key)
 
-        if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+        if (WOVariables.wo_platform_distro == 'ubuntu'):
             if set(WOVariables.wo_php73).issubset(set(apt_packages)) \
                     or set(WOVariables.wo_php).issubset(set(apt_packages)):
                 Log.info(self, "Adding repository for PHP, please wait...")
@@ -173,7 +173,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, 'Adding ppa for PHP')
                     WORepo.add(self, ppa=WOVariables.wo_php_repo)
 
-            if WOVariables.wo_platform_codename == 'jessie':
+            if WOVariables.wo_platform_distro == 'debian':
                 if set(WOVariables.wo_php73).issubset(set(apt_packages)):
                     Log.debug(self, 'Adding repo_url of php 7.3 for debian')
                     WORepo.add(self, repo_url=WOVariables.wo_php_repo)
@@ -372,8 +372,9 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     # php7 conf
-                    if (WOVariables.wo_platform_codename == 'stretch' or WOVariables.wo_platform_codename == 'jessie' or WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and (not
-                                                                                                                                                                                                                                                                            os.path.isfile("/etc/nginx/common/php7.conf")):
+                    if (WOVariables.wo_platform_distro == 'debian' or
+                        WOVariables.wo_platform_distro == 'ubuntu') and (not
+                                                                         os.path.isfile("/etc/nginx/common/php73.conf")):
                         # data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
                                   'file /etc/nginx/common/locations-php73.conf')
@@ -571,7 +572,7 @@ class WOStackController(CementBaseController):
                     WOService.restart_service(self, 'nginx')
 
                 if WOAptGet.is_installed(self, 'redis-server'):
-                    if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis.conf")):
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
                         data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
@@ -592,8 +593,7 @@ class WOStackController(CementBaseController):
                         self.app.render((data), 'redis-hhvm.mustache',
                                         out=wo_nginx)
                         wo_nginx.close()
-
-                    if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+                    if (WOVariables.wo_platform_distro == 'ubuntu'):
                         if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
                             data = dict()
                             Log.debug(self, 'Writting the nginx configuration to '
@@ -622,8 +622,7 @@ class WOStackController(CementBaseController):
                                              "'\"$http_referer\" \"$http_user_agent\"';\n")
             # setup nginx common folder for php7
             if self.app.pargs.php73:
-                if os.path.isdir("/etc/nginx/common") and (not
-                                                           os.path.isfile("/etc/nginx/common/php73.conf")):
+                if os.path.isdir("/etc/nginx/common") and (not os.path.isfile("/etc/nginx/common/php73.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/locations-php73.conf')
@@ -727,8 +726,7 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
                 WOService.restart_service(self, 'hhvm')
 
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                                os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
 
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -760,8 +758,7 @@ class WOStackController(CementBaseController):
                                         "output of `nginx -t`")
 
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                                os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -772,8 +769,7 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                                os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
 
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -801,7 +797,7 @@ class WOStackController(CementBaseController):
                                          "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                          "'\"$http_referer\" \"$http_user_agent\"';\n")
 
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.2/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.2/')
@@ -926,7 +922,7 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php7.2-fpm')
 
         # PHP7.3 configuration for debian
-            if (WOVariables.wo_platform_codename == 'jessie') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_distro == 'debian') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -1051,7 +1047,7 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php7.3-fpm')
 
             # preconfiguration for php7.3
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_distro == 'ubuntu') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -1399,9 +1395,11 @@ class WOStackController(CementBaseController):
             if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
                 (not self.app.pargs.nginx) and (not self.app.pargs.php) and
                 (not self.app.pargs.mysql) and (not self.app.pargs.wpcli) and
-                (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
+                (not self.app.pargs.phpmyadmin) and
+                (not self.app.pargs.hhvm) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-                (not self.app.pargs.redis) and (not self.app.pargs.phpredisadmin) and
+                (not self.app.pargs.redis) and
+                (not self.app.pargs.phpredisadmin) and
                     (not self.app.pargs.php73)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
@@ -1435,7 +1433,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
                 if not (WOAptGet.is_installed(self, 'nginx-custom')):
-                    if not (WOAptGet.is_installed(self, 'nginx-plus') or WOAptGet.is_installed(self, 'nginx')):
+                    if not (WOAptGet.is_installed(self, 'nginx-plus') or
+                            WOAptGet.is_installed(self, 'nginx')):
                         apt_packages = apt_packages + WOVariables.wo_nginx
                     else:
                         if WOAptGet.is_installed(self, 'nginx-plus'):
@@ -1452,47 +1451,33 @@ class WOStackController(CementBaseController):
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm') or WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                        apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-                    else:
-                        apt_packages = apt_packages + WOVariables.wo_php
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
                 else:
                     Log.debug(self, "PHP 7.2 already installed")
                     Log.info(self, "PHP 7.2 already installed")
 
         # PHP 7.3 for Debian (jessie+)
             if self.app.pargs.php73 and WOVariables.wo_platform_distro == 'debian':
-                if (WOVariables.wo_platform_codename == 'jessie'):
-                    Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-                    if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                        apt_packages = apt_packages + WOVariables.wo_php73
-                        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                            apt_packages = apt_packages + WOVariables.wo_php
-                    else:
-                        Log.debug(self, "PHP 7.3 already installed")
-                        Log.info(self, "PHP 7.3 already installed")
+                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73
+                    if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                        apt_packages = apt_packages + WOVariables.wo_php
                 else:
-                    Log.debug(
-                        self, "PHP 7.3  Not Available for your Distribution")
-                    Log.info(self, "PHP 7.3  Not Available for your Distribution")
+                    Log.debug(self, "PHP 7.3 already installed")
+                    Log.info(self, "PHP 7.3 already installed")
 
         # PHP 7.3 for Ubuntu
-            if self.app.pargs.php73 and WOVariables.wo_platform_distro == 'ubuntu':
-                if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                    Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-                    if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                        apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
-                        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                            apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-                    else:
-                        Log.debug(self, "PHP 7.3 already installed")
-                        Log.info(self, "PHP 7.3 already installed")
+            if self.app.pargs.php73 and (WOVariables.wo_platform_distro == 'ubuntu'):
+                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73
+                    if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                        apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
                 else:
-                    Log.debug(
-                        self, "Unfortunately PHP 7.3 is not available for your Ubuntu or Debian version.")
-                    Log.info(
-                        self, "Unfortunately PHP 7.3 is not available for your Ubuntu or Debian version.")
+                    Log.debug(self, "PHP 7.3 already installed")
+                    Log.info(self, "PHP 7.3 already installed")
 
             if self.app.pargs.hhvm:
                 Log.debug(self, "Setting apt packages variable for HHVM")
@@ -1664,14 +1649,15 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.hhvm) and (not self.app.pargs.adminer) and
             (not self.app.pargs.utils) and (not self.app.pargs.all) and
-                (not self.app.pargs.redis) and (not self.app.pargs.phpredisadmin)):
+            (not self.app.pargs.redis) and
+                (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
             self.app.pargs.admin = True
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 self.app.pargs.php73 = True
 
         if self.app.pargs.web:
@@ -1694,29 +1680,21 @@ class WOStackController(CementBaseController):
 
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
             else:
                 apt_packages = apt_packages + WOVariables.wo_php
 
-        # PHP7.3 for debian(jessie+)
+        # PHP7.3
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'jessie'):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.3")
                 apt_packages = apt_packages + WOVariables.wo_php73
                 if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
             else:
-                Log.info(self, "PHP 7.3 not supported.")
-
-        if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
-            else:
-                Log.info(self, "PHP 7.3 not supported.")
+                apt_packages = apt_packages + WOVariables.wo_php73
 
         if self.app.pargs.hhvm:
             if WOAptGet.is_installed(self, 'hhvm'):
@@ -1819,7 +1797,7 @@ class WOStackController(CementBaseController):
         if self.app.pargs.all:
             self.app.pargs.web = True
             self.app.pargs.admin = True
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 self.app.pargs.php73 = True
 
         if self.app.pargs.web:
@@ -1841,30 +1819,27 @@ class WOStackController(CementBaseController):
                 Log.error(self, "Cannot Purge! Nginx Stable version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php73
             else:
                 apt_packages = apt_packages + WOVariables.wo_php
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73
 
         # For debian --php73
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'jessie'):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.3")
+                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php
+            else:
                 apt_packages = apt_packages + WOVariables.wo_php73
                 if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php_extra
-            else:
-                Log.info(self, "PHP 7.3 not supported.")
+                    apt_packages = apt_packages + WOVariables.wo_php
 
-        if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
-            else:
-                Log.info(self, "PHP 7.3 not supported.")
         if self.app.pargs.hhvm:
             if WOAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Purge apt_packages varible of HHVM")
