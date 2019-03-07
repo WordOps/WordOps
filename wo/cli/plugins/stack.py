@@ -226,9 +226,44 @@ class WOStackController(CementBaseController):
                                               "add_header")
 
                     WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                              "\"WordOps\"",
+                                              "\"EasyEngine\"",
                                               "\"WordOps{0}\""
                                               .format(WOVariables.wo_version))
+                    WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                              "ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:"
+                                              "ECDHE-ECDSA-AES128-GCM-SHA256:
+                                              "ECDHE-RSA-AES256-GCM-SHA384:"
+                                              "ECDHE-ECDSA-AES256-GCM-SHA384:"
+                                              "DHE-RSA-AES128-GCM-SHA256:"
+                                              "DHE-DSS-AES128-GCM-SHA256:"
+                                              "kEDH+AESGCM:"
+                                              "ECDHE-RSA-AES128-SHA256:"
+                                              "ECDHE-ECDSA-AES128-SHA256:"
+                                              "ECDHE-RSA-AES128-SHA:"
+                                              "ECDHE-ECDSA-AES128-SHA:"
+                                              "ECDHE-RSA-AES256-SHA384:"
+                                              "ECDHE-ECDSA-AES256-SHA384:"
+                                              "ECDHE-RSA-AES256-SHA:"
+                                              "ECDHE-ECDSA-AES256-SHA:"
+                                              "DHE-RSA-AES128-SHA256:"
+                                              "DHE-RSA-AES128-SHADHE-DSS-AES128-SHA256:"
+                                              "DHE-RSA-AES256-SHA256:"
+                                              "DHE-DSS-AES256-SHA:"
+                                              "DHE-RSA-AES256-SHA:"
+                                              "ECDHE-RSA-DES-CBC3-SHA:"
+                                              "ECDHE-ECDSA-DES-CBC3-SHA:"
+                                              "AES128-GCM-SA256:"
+                                              "AES256-GCM-SHA384:"
+                                              "AES128-SHA256:AES256-SHA256:"
+                                              "AES128-SHA:AES256-SHA:AES:"
+                                              "CAMELLIA:DES-CBC3-SHA:!aNULL:"
+                                              "!eNULL:!EXPORT:!DES:"
+                                              "!RC4:!MD5:!PSK:"
+                                              "!ECDH:!EDH-DSS-DES-CBC3-SHA:"
+                                              "!EDH-RSA-DES-CBC3-SHA:"
+                                              "!KRB5-DES-CBC3-SHA;",
+                                              "ssl_ciphers \'EECDH+CHACHA20:"
+                                                  "EECDH+AESGCM:EECDH+AES\';")
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
@@ -558,8 +593,7 @@ class WOStackController(CementBaseController):
                         wo_nginx.close()
 
                     if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                            os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+                        if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
                             data = dict()
                             Log.debug(self, 'Writting the nginx configuration to '
                                       'file /etc/nginx/common/redis-php73.conf')
@@ -579,8 +613,7 @@ class WOStackController(CementBaseController):
                                                  "    server 127.0.0.1:6379;\n"
                                                  "    keepalive 10;\n}\n")
 
-                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                                    os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
                         with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
                             redis_file.write("# Log format Settings\n"
                                              "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
@@ -589,7 +622,7 @@ class WOStackController(CementBaseController):
             # setup nginx common folder for php7
             if self.app.pargs.php73:
                 if os.path.isdir("/etc/nginx/common") and (not
-                    os.path.isfile("/etc/nginx/common/php73.conf")):
+                                                           os.path.isfile("/etc/nginx/common/php73.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/locations-php73.conf')
@@ -727,7 +760,7 @@ class WOStackController(CementBaseController):
 
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
                 if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                    os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+                                                                os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -739,7 +772,7 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                 if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                    os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+                                                                os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
 
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -1892,6 +1925,7 @@ class WOStackController(CementBaseController):
                     WOAptGet.auto_remove(self)
 
                 Log.info(self, "Successfully purged packages")
+
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
