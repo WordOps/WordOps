@@ -24,15 +24,17 @@ readonly wo_version_new="3.9.3"
 
 TPUT_RESET=$(tput sgr0)
 TPUT_FAIL=$(tput setaf 1)
+TPUT_INFO=$(tput setaf 7)
+TPUT_ECHO=$(tput setaf 4)
 
 wo_lib_echo () {
-    TPUT_ECHO=$(tput setaf 4)
+    
     echo "${*}${TPUT_RESET}"
 }
 
 wo_lib_echo_info()
 {
-    TPUT_INFO=$(tput setaf 7)
+    
     echo "${TPUT_INFO}${*}${TPUT_RESET}"
 }
 
@@ -151,7 +153,7 @@ wo_install_dep()
     # Let's Encrypt .well-known folder setup
     if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
         mkdir -p /var/www/html/.well-known/acme-challenge
-        chown -R www-data:www-data /var/www/html/.well-known
+        chown -R www-data:www-data /var/www/html /var/www/html/.well-known
     fi
 }
 
@@ -282,22 +284,6 @@ wo_sync_db()
         echo "ALTER TABLE sites ADD COLUMN php_version varchar DEFAULT \"$wo_php_version\";" | sqlite3 /var/lib/wo/dbase.db
     fi
     
-    ###
-    # Copy the upstream config
-    ###
-    if [ -f /etc/nginx/conf.d/upstream.conf ]; then
-        wo_lib_echo "Replace the PHP ports for PHP 7.2"
-        # Copy the previous upstream.conf
-        cp /etc/nginx/conf.d/upstream.conf /etc/nginx/conf.d/upstream.bak
-        {
-            # Replace the ports for PHP 7.2
-            sed -i 's/9000/9072/g' /etc/nginx/conf.d/upstream.conf
-            sed -i 's/9070/9072/g' /etc/nginx/conf.d/upstream.conf
-            # Replace the ports for debug PHP 7.2
-            sed -i 's/9001/9172/g' /etc/nginx/conf.d/upstream.conf
-            sed -i 's/9170/9172/g' /etc/nginx/conf.d/upstream.conf
-        } > /dev/null 2>&1
-    fi
     
     echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
     echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.3');" | sqlite3 /var/lib/wo/dbase.db
@@ -330,21 +316,25 @@ wo_sync_db()
 # Once again, set the proper ACL on the WordOps configuration directory
 secure_wo_db()
 {
+    
     # The owner is root
     chown -R root:root /var/lib/wo/
     # Only allow access by root, block others
     chmod -R 600 /var/lib/wo/
+    
 }
 
 # Update the WP-CLI version
 wo_update_wp_cli()
 {
-    wo_lib_echo "Updating WP-CLI version to resolve compatibility issue."
+    
     WP_CLI_PATH=$(command -v wp)
     if [ -n "$WP_CLI_PATH" ]; then
+        rm -rf "$WP_CLI_PATH"
         # Update WP-CLI to the most recent version
-        wget -qO "$WP_CLI_PATH" https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
-        chmod +x "$WP_CLI_PATH"
+        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
+        chmod +x /usr/local/bin/wp
+        ln -s /usr/local/bin/wp /usr/bin/
     else
         wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
         chmod +x /usr/local/bin/wp
@@ -354,13 +344,15 @@ wo_update_wp_cli()
     [ -d /etc/bash_completion.d ] && {
         wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
     }
+    echo -ne "Running post-install steps             ${TPUT_RESET}[OK]\r"
+    echo -ne '\n'
 }
 
 # Now, finally, let's install WordOps
 wo_install()
 {
-    if {
-        echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch          ${TPUT_RESET}[..]\r"
+    echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch          ${TPUT_RESET}[..]\r"
+    {
         rm -rf /tmp/easyengine
         rm -rf /tmp/wordops
         
@@ -368,16 +360,12 @@ wo_install()
             wo_branch=master
         }
         
-        git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet > /dev/null 2>&1
+        git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet
         
         cd /tmp/wordops || exit 1
-        python3 setup.py install > /dev/null 2>&1
-        }; then echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch           ${TPUT_RESET}[OK]\r"
-        echo -ne '\n'
-    else
-        echo -e "${TPUT_FAIL}Installing Wordops $wo_branch         ${TPUT_RESET}[FAIL]"
-        echo -ne '\n'
-    fi
+        python3 setup.py install
+    } >> /var/log/wo/install.log 2>&1;
+
 }
 
 wo_update_latest()
@@ -625,19 +613,20 @@ wo_git_init()
     [ -d /etc/nginx ] && {
         cd /etc/nginx || exit 1
         if [ ! -d /etc/nginx/.git ]; then
-            git init &>> /dev/null
+            git init
         fi
         git add -A .
-        git commit -am "Updated Nginx" > /dev/null
-    }
+        git commit -am "Updated Nginx" 
+    } >> /var/log/wo/install.log 2>&1
     # WordOps under git version control
+    [ -d /etc/wo ] && {
     cd /etc/wo || exit 1
     [ ! -d /etc/wo/.git ] && {
-        git init > /dev/null
+        git init
     }
     git add -A .
-    git commit -am "Installed/Updated to WordOps" &>> /dev/null
-    
+    git commit -am "Installed/Updated to WordOps" 
+    } >> /var/log/wo/install.log 2>&1
     # PHP under git version control
     [ -d /etc/php ] && {
         cd /etc/php || exit 1
@@ -646,7 +635,7 @@ wo_git_init()
         fi
         git add -A .
         git commit -am "Updated PHP"
-    }> /dev/null
+    } >> /var/log/wo/install.log 2>&1
 }
 
 ###
@@ -702,10 +691,12 @@ else
         # 3 - Fresh WO setup
         wo_install_dep | tee -ai $wo_install_log
         wo_install | tee -ai $wo_install_log
-        wo_lib_echo "Running post-install steps" | tee -ai $wo_install_log
-        secure_wo_db | tee -ai $EE_INSTALL_LOG
+        echo -ne "${TPUT_ECHO}Running post-install steps             ${TPUT_RESET}[..]\r"
+        secure_wo_db | tee -ai $wo_install_log
         wo_git_init | tee -ai $wo_install_log
         wo_update_wp_cli | tee -ai $wo_install_log
+        echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch           ${TPUT_RESET}[OK]\r"
+        echo -ne '\n'
     fi
 fi
 
