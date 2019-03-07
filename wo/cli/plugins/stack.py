@@ -1218,16 +1218,16 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
-            if any('/tmp/memcache.tar.gz' == x[1]
+            if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
-                Log.debug(self, "Extracting memcache.tar.gz to location"
-                          " {0}22222/htdocs/cache/memcache "
+                Log.debug(self, "Extracting memcached.tar.gz to location"
+                          " {0}22222/htdocs/cache/memcached "
                           .format(WOVariables.wo_webroot))
-                WOExtract.extract(self, '/tmp/memcache.tar.gz',
-                                  '{0}22222/htdocs/cache/memcache'
+                WOExtract.extract(self, '/tmp/memcached.tar.gz',
+                                  '{0}22222/htdocs/cache/memcached'
                                   .format(WOVariables.wo_webroot))
                 Log.debug(self, "Setting Privileges to "
-                          "{0}22222/htdocs/cache/memcache file"
+                          "{0}22222/htdocs/cache/memcached file"
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222'
                                   .format(WOVariables.wo_webroot),
@@ -1527,7 +1527,7 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [["https://storage.googleapis.com/google-code-archive-downloads/"
                                         "v2/code.google.com/phpmemcacheadmin/"
-                                        "phpMemcachedAdmin-1.2.2-r262.tar.gz", '/tmp/memcache.tar.gz',
+                                        "phpMemcachedAdmin-1.2.2-r262.tar.gz", '/tmp/memcached.tar.gz',
                                         'phpMemcachedAdmin'],
                                        ["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
@@ -1725,7 +1725,7 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcache'
+                                   '{0}22222/htdocs/cache/memcached'
                                    .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
@@ -1862,7 +1862,7 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcache'
+                                   '{0}22222/htdocs/cache/memcached'
                                    .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'

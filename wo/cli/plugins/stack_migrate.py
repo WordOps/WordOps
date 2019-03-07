@@ -56,21 +56,21 @@ class WOStackMigrateController(CementBaseController):
                             % e)
 
         Log.debug(self, "Pre-seeding MariaDB")
-        Log.debug(self, "echo \"mariadb-server-10.0 "
+        Log.debug(self, "echo \"mariadb-server-10.3 "
                         "mysql-server/root_password "
                         "password \" | "
                         "debconf-set-selections")
-        WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+        WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
                                    "mysql-server/root_password "
                                    "password {chars}\" | "
                                    "debconf-set-selections"
                                    .format(chars=chars),
                                    log=False)
-        Log.debug(self, "echo \"mariadb-server-10.0 "
+        Log.debug(self, "echo \"mariadb-server-10.3 "
                         "mysql-server/root_password_again "
                         "password \" | "
                         "debconf-set-selections")
-        WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+        WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
                                    "mysql-server/root_password_again "
                                    "password {chars}\" | "
                                    "debconf-set-selections"

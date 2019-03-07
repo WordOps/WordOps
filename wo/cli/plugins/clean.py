@@ -19,14 +19,14 @@ class WOCleanController(CementBaseController):
         label = 'clean'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('Clean NGINX FastCGI cache, Opcache, Memcache, Redis Cache')
+        description = ('Clean NGINX FastCGI cache, Opcache, Memcached, Redis Cache')
         arguments = [
             (['--all'],
                 dict(help='Clean all cache', action='store_true')),
             (['--fastcgi'],
                 dict(help='Clean FastCGI cache', action='store_true')),
-            (['--memcache'],
-                dict(help='Clean MemCache', action='store_true')),
+            (['--memcached'],
+                dict(help='Clean MemCached', action='store_true')),
             (['--opcache'],
                 dict(help='Clean OpCache', action='store_true')),
             (['--redis'],
@@ -37,18 +37,18 @@ class WOCleanController(CementBaseController):
     @expose(hide=True)
     def default(self):
         if (not (self.app.pargs.all or self.app.pargs.fastcgi or
-                 self.app.pargs.memcache or self.app.pargs.opcache or
+                 self.app.pargs.memcached or self.app.pargs.opcache or
                  self.app.pargs.redis)):
             self.clean_fastcgi()
         if self.app.pargs.all:
-            self.clean_memcache()
+            self.clean_memcached()
             self.clean_fastcgi()
             self.clean_opcache()
             self.clean_redis()
         if self.app.pargs.fastcgi:
             self.clean_fastcgi()
-        if self.app.pargs.memcache:
-            self.clean_memcache()
+        if self.app.pargs.memcached:
+            self.clean_memcached()
         if self.app.pargs.opcache:
             self.clean_opcache()
         if self.app.pargs.redis:
@@ -68,9 +68,9 @@ class WOCleanController(CementBaseController):
         try:
             if(WOAptGet.is_installed(self, "memcached")):
                 WOService.restart_service(self, "memcached")
-                Log.info(self, "Cleaning MemCache")
+                Log.info(self, "Cleaning MemCached")
             else:
-                Log.info(self, "Memcache not installed")
+                Log.info(self, "Memcached not installed")
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to restart Memcached", False)

@@ -66,19 +66,17 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_php(self):
         """Display PHP information"""
-        version = os.popen("{0} -v 2>/dev/null | head -n1 | cut -d' ' -f2 |".format("php7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php") +
+        version = os.popen("php7.2 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
-        config.read('/etc/{0}/fpm/php.ini'.format("php/7.2" if (WOVariables.wo_platform_codename ==
-                                                                'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+        config.read('/etc/{0}/fpm/php.ini'.format("php/7.2"))
         expose_php = config['PHP']['expose_php']
         memory_limit = config['PHP']['memory_limit']
         post_max_size = config['PHP']['post_max_size']
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2" if (WOVariables.wo_platform_codename ==
-                                                                        'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+        config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
         www_listen = config['www']['listen']
         www_ping_path = config['www']['ping.path']
         www_pm_status_path = config['www']['pm.status_path']
@@ -96,8 +94,7 @@ class WOInfoController(CementBaseController):
         except Exception as e:
             www_xdebug = 'off'
 
-        config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2" if (WOVariables.wo_platform_codename ==
-                                                                          'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+        config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2"))
         debug_listen = config['debug']['listen']
         debug_ping_path = config['debug']['ping.path']
         debug_pm_status_path = config['debug']['pm.status_path']
@@ -251,7 +248,7 @@ class WOInfoController(CementBaseController):
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                self.app.pargs.php = True
+                self.app.pargs.php73 = True
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-common'):
@@ -260,16 +257,10 @@ class WOInfoController(CementBaseController):
                 Log.error(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    self.info_php()
-                else:
-                    Log.error(self, "PHP 7.2 is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                self.info_php()
             else:
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    self.info_php()
-                else:
-                    Log.error(self, "PHP 7.2 is not installed")
+                Log.error(self, "PHP 7.2 is not installed")
 
         if self.app.pargs.php73:
             if WOAptGet.is_installed(self, 'php7.3-fpm'):

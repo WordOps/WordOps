@@ -13,8 +13,8 @@ class WOStackStatusController(CementBaseController):
         stacked_type = 'embedded'
         description = 'Check the stack status'
         arguments = [
-            (['--memcache'],
-                dict(help='start/stop/restart memcache', action='store_true')),
+            (['--memcached'],
+                dict(help='start/stop/restart memcached', action='store_true')),
         ]
 
     @expose(help="Start stack services")
@@ -22,7 +22,7 @@ class WOStackStatusController(CementBaseController):
         """Start services"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -35,30 +35,20 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
-
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+                Log.info(self, "PHP7.2-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
+            else:
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
             else:
-                Log.info(self, "Your platform does not support PHP 7.3")
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or
@@ -78,11 +68,11 @@ class WOStackStatusController(CementBaseController):
                 services = services + ['hhvm']
             else:
                 Log.info(self, "HHVM is not installed")
-        if self.app.pargs.memcache:
+        if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
             else:
-                Log.info(self, "Memcache is not installed")
+                Log.info(self, "Memcached is not installed")
 
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
@@ -99,7 +89,7 @@ class WOStackStatusController(CementBaseController):
         """Stop services"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -112,30 +102,21 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
+            else:
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
             else:
-                Log.info(self, "Your platform does not support PHP 7.3")
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or
@@ -155,11 +136,11 @@ class WOStackStatusController(CementBaseController):
                 services = services + ['hhvm']
             else:
                 Log.info(self, "HHVM is not installed")
-        if self.app.pargs.memcache:
+        if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
             else:
-                Log.info(self, "Memcache is not installed")
+                Log.info(self, "Memcached is not installed")
 
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
@@ -176,7 +157,7 @@ class WOStackStatusController(CementBaseController):
         """Restart services"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -189,30 +170,21 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
+            else:
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
             else:
-                Log.info(self, "Your platform does not support PHP 7.3")
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or
@@ -232,11 +204,11 @@ class WOStackStatusController(CementBaseController):
                 services = services + ['hhvm']
             else:
                 Log.info(self, "HHVM is not installed")
-        if self.app.pargs.memcache:
+        if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
             else:
-                Log.info(self, "Memcache is not installed")
+                Log.info(self, "Memcached is not installed")
 
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
@@ -253,7 +225,7 @@ class WOStackStatusController(CementBaseController):
         """Status of services"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -267,30 +239,21 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+                Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
+            else:
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
             else:
-                Log.info(self, "Your platform does not support PHP 7.3")
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or
@@ -310,11 +273,11 @@ class WOStackStatusController(CementBaseController):
                 services = services + ['hhvm']
             else:
                 Log.info(self, "HHVM is not installed")
-        if self.app.pargs.memcache:
+        if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
             else:
-                Log.info(self, "Memcache is not installed")
+                Log.info(self, "Memcached is not installed")
 
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
@@ -331,7 +294,7 @@ class WOStackStatusController(CementBaseController):
         """Reload service"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -344,30 +307,21 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (WOVariables.wo_platform_distro == 'debian' or WOVariables.wo_platform_codename == 'precise'):
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "PHP7.2-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                services = services + ['php7.2-fpm']
             else:
-                if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    services = services + ['php7.2-fpm']
-                else:
-                    Log.info(self, "php7.2-fpm is not installed")
+                Log.info(self, "PHP7.2-FPM is not installed")
 
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
+             else:
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    services = services + ['php7.3-fpm']
-                else:
-                    Log.info(self, "PHP7.3-FPM is not installed")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                services = services + ['php7.3-fpm']
             else:
-                Log.info(self, "Your platform does not support PHP 7.3")
+                Log.info(self, "PHP7.3-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or
@@ -385,11 +339,11 @@ class WOStackStatusController(CementBaseController):
         if self.app.pargs.hhvm:
             Log.info(self, "HHVM does not support to reload")
 
-        if self.app.pargs.memcache:
+        if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
             else:
-                Log.info(self, "Memcache is not installed")
+                Log.info(self, "Memcached is not installed")
 
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
