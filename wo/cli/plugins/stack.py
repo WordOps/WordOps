@@ -227,7 +227,7 @@ class WOStackController(CementBaseController):
 
                     WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
                                               "\"EasyEngine\"",
-                                              "\"WordOps{0}\""
+                                              "\"WordOps v{0}\""
                                               .format(WOVariables.wo_version))
                     WOFileUtils.searchreplace(self, '/etc/nginx/nginx.conf',
                                               'ECDHE-RSA-AES128-GCM'
@@ -571,8 +571,7 @@ class WOStackController(CementBaseController):
                     WOService.restart_service(self, 'nginx')
 
                 if WOAptGet.is_installed(self, 'redis-server'):
-                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                                    os.path.isfile("/etc/nginx/common/redis.conf")):
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis.conf")):
 
                         data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
@@ -583,8 +582,7 @@ class WOStackController(CementBaseController):
                                         out=wo_nginx)
                         wo_nginx.close()
 
-                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                                    os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
 
                         data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
