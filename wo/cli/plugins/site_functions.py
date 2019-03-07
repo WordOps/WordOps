@@ -24,6 +24,7 @@ import platform
 
 class SiteError(Exception):
     """Custom Exception Occured when setting up site"""
+
     def __init__(self, message):
         self.message = message
 
@@ -74,10 +75,10 @@ def setupdomain(self, data):
                                   mode='w')
         if not data['php73']:
             self.app.render((data), 'virtualconf.mustache',
-                          out=wo_site_nginx_conf)
+                            out=wo_site_nginx_conf)
         else:
             self.app.render((data), 'virtualconf-php7.mustache',
-                          out=wo_site_nginx_conf)
+                            out=wo_site_nginx_conf)
         wo_site_nginx_conf.close()
     except IOError as e:
         Log.debug(self, "{0}".format(e))
@@ -133,7 +134,7 @@ def setupdomain(self, data):
     finally:
         # TODO Check if directories are setup
         if (os.path.exists('{0}/htdocs'.format(wo_site_webroot)) and
-           os.path.exists('{0}/logs'.format(wo_site_webroot))):
+                os.path.exists('{0}/logs'.format(wo_site_webroot))):
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         else:
             Log.info(self, "[" + Log.ENDC + "Fail" + Log.OKBLUE + "]")
@@ -143,7 +144,7 @@ def setupdomain(self, data):
 def setupdatabase(self, data):
     wo_domain_name = data['site_name']
     wo_random = (''.join(random.sample(string.ascii_uppercase +
-                 string.ascii_lowercase + string.digits, 15)))
+                                       string.ascii_lowercase + string.digits, 15)))
     wo_replace_dot = wo_domain_name.replace('.', '_')
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
@@ -244,7 +245,7 @@ def setupwordpress(self, data):
     wo_wp_email = self.app.config.get('wordpress', 'email')
     # Random characters
     wo_random = (''.join(random.sample(string.ascii_uppercase +
-                 string.ascii_lowercase + string.digits, 15)))
+                                       string.ascii_lowercase + string.digits, 15)))
     wo_wp_prefix = ''
     # wo_wp_user = ''
     # wo_wp_pass = ''
@@ -260,10 +261,11 @@ def setupwordpress(self, data):
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     try:
         if WOShellExec.cmd_exec(self, "wp --allow-root core"
-                             " download"):
+                                " download"):
             pass
         else:
-            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
+            Log.info(self, "[" + Log.ENDC + Log.FAIL +
+                     "Fail" + Log.OKBLUE + "]")
             raise SiteError("download WordPress core failed")
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
@@ -312,8 +314,8 @@ def setupwordpress(self, data):
                                     + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbuser=\'{2}\' --dbhost=\'{3}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
-                                         data['wo_db_user'], data['wo_db_host']
-                                         )
+                                            data['wo_db_user'], data['wo_db_host']
+                                            )
                                     + "--dbpass=\'{0}\' "
                                     "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
                                     .format(data['wo_db_pass'],
@@ -321,13 +323,13 @@ def setupwordpress(self, data):
                                             redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
                                                       .format(wo_domain_name) if data['wpredis']
                                                       else ''),
-                                   log=False
-                                   ):
+                                    log=False
+                                    ):
                 pass
             else:
                 raise SiteError("generate wp-config failed for wp single site")
         except CommandExecutionError as e:
-                raise SiteError("generate wp-config failed for wp single site")
+            raise SiteError("generate wp-config failed for wp single site")
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php {0} --allow-root "
@@ -365,7 +367,7 @@ def setupwordpress(self, data):
             else:
                 raise SiteError("generate wp-config failed for wp multi site")
         except CommandExecutionError as e:
-                raise SiteError("generate wp-config failed for wp multi site")
+            raise SiteError("generate wp-config failed for wp multi site")
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
@@ -373,11 +375,13 @@ def setupwordpress(self, data):
     try:
         import shutil
 
-        Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))))
-        shutil.move(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+        Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd(
+        )+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))))
+        shutil.move(os.getcwd()+'/wp-config.php',
+                    os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
     except Exception as e:
         Log.error(self, 'Unable to move file from {0} to {1}'
-                      .format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))), False)
+                  .format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))), False)
         raise SiteError("Unable to move wp-config.php")
 
     if not wo_wp_user:
@@ -425,17 +429,18 @@ def setupwordpress(self, data):
                   .format(wo_wp_pass, wo_wp_email))
         try:
             if WOShellExec.cmd_exec(self, "php {0} --allow-root core "
-                                 .format(WOVariables.wo_wpcli_path)
-                                 + "install --url=\'{0}\' --title=\'{0}\' "
-                                 "--admin_name=\'{1}\' "
-                                 .format(data['www_domain'], wo_wp_user)
-                                 + "--admin_password=\'{0}\' "
-                                 "--admin_email=\'{1}\'"
-                                 .format(wo_wp_pass, wo_wp_email),
-                                 log=False):
+                                    .format(WOVariables.wo_wpcli_path)
+                                    + "install --url=\'{0}\' --title=\'{0}\' "
+                                    "--admin_name=\'{1}\' "
+                                    .format(data['www_domain'], wo_wp_user)
+                                    + "--admin_password=\'{0}\' "
+                                    "--admin_email=\'{1}\'"
+                                    .format(wo_wp_pass, wo_wp_email),
+                                    log=False):
                 pass
             else:
-                raise SiteError("setup WordPress tables failed for single site")
+                raise SiteError(
+                    "setup WordPress tables failed for single site")
         except CommandExecutionError as e:
             raise SiteError("setup WordPress tables failed for single site")
     else:
@@ -452,21 +457,22 @@ def setupwordpress(self, data):
                           if not data['wpsubdir'] else ''))
         try:
             if WOShellExec.cmd_exec(self, "php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path)
-                                 + "core multisite-install "
-                                 "--url=\'{0}\' --title=\'{0}\' "
-                                 "--admin_name=\'{1}\' "
-                                 .format(data['www_domain'], wo_wp_user)
-                                 + "--admin_password=\'{0}\' "
-                                 "--admin_email=\'{1}\' "
-                                 "{subdomains}"
-                                 .format(wo_wp_pass, wo_wp_email,
-                                         subdomains='--subdomains'
-                                         if not data['wpsubdir'] else ''),
-                                 log=False):
+                                    .format(WOVariables.wo_wpcli_path)
+                                    + "core multisite-install "
+                                    "--url=\'{0}\' --title=\'{0}\' "
+                                    "--admin_name=\'{1}\' "
+                                    .format(data['www_domain'], wo_wp_user)
+                                    + "--admin_password=\'{0}\' "
+                                    "--admin_email=\'{1}\' "
+                                    "{subdomains}"
+                                    .format(wo_wp_pass, wo_wp_email,
+                                            subdomains='--subdomains'
+                                            if not data['wpsubdir'] else ''),
+                                    log=False):
                 pass
             else:
-                raise SiteError("setup WordPress tables failed for wp multi site")
+                raise SiteError(
+                    "setup WordPress tables failed for wp multi site")
         except CommandExecutionError as e:
             raise SiteError("setup WordPress tables failed for wp multi site")
 
@@ -483,10 +489,12 @@ def setupwordpress(self, data):
     installwp_plugin(self, 'nginx-helper', data)
     if data['wpfc']:
         plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_fastcgi","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
-        setupwp_plugin(self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+        setupwp_plugin(self, 'nginx-helper',
+                       'rt_wp_nginx_helper_options', plugin_data, data)
     elif data['wpredis']:
         plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
-        setupwp_plugin(self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+        setupwp_plugin(self, 'nginx-helper',
+                       'rt_wp_nginx_helper_options', plugin_data, data)
 
     """Install Wp Super Cache"""
     if data['wpsc']:
@@ -508,13 +516,14 @@ def setupwordpressnetwork(self, data):
     Log.info(self, "Setting up WordPress Network \t", end='')
     try:
         if WOShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
-                             ' --title=\'{0}\' {subdomains}'
-                             .format(data['www_domain'],
-                                     subdomains='--subdomains'
-                                     if not data['wpsubdir'] else '')):
+                                ' --title=\'{0}\' {subdomains}'
+                                .format(data['www_domain'],
+                                        subdomains='--subdomains'
+                                        if not data['wpsubdir'] else '')):
             pass
         else:
-            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
+            Log.info(self, "[" + Log.ENDC + Log.FAIL +
+                     "Fail" + Log.OKBLUE + "]")
             raise SiteError("setup WordPress network failed")
 
     except CommandExecutionError as e:
@@ -591,7 +600,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
             WOShellExec.cmd_exec(self, "php {0} "
                                  .format(WOVariables.wo_wpcli_path)
                                  + "--allow-root network meta update 1 "
-                                  "{0} \'{1}\' --format=json"
+                                 "{0} \'{1}\' --format=json"
                                  .format(plugin_option, plugin_data
                                          ))
         except CommandExecutionError as e:
@@ -620,7 +629,8 @@ def sitebackup(self, data):
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
         if data['php73'] is True and not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
-            WOFileUtils.copyfiles(self, wo_site_webroot + '/htdocs', backup_path + '/htdocs')
+            WOFileUtils.copyfiles(self, wo_site_webroot +
+                                  '/htdocs', backup_path + '/htdocs')
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         else:
             Log.info(self, "Backing up Webroot \t\t", end='')
@@ -631,12 +641,12 @@ def sitebackup(self, data):
     if not configfiles:
         # search for wp-config.php inside htdocs/
         Log.debug(self, "Config files not found in {0}/ "
-                          .format(wo_site_webroot))
+                  .format(wo_site_webroot))
         if data['currsitetype'] in ['mysql']:
             pass
         else:
             Log.debug(self, "Searching wp-config.php in {0}/htdocs/ "
-                                   .format(wo_site_webroot))
+                      .format(wo_site_webroot))
             configfiles = glob.glob(wo_site_webroot + '/htdocs/wp-config.php')
 
     # if configfiles and WOFileUtils.isexist(self, configfiles[0]):
@@ -687,8 +697,8 @@ def site_package_check(self, stype):
                 stack.post_pref(apt, packages)
             elif WOAptGet.is_installed(self, 'nginx'):
                 Log.info(self, "WordOps detected a previously installed Nginx package. "
-                                "It may or may not have required modules. "
-                                "\nIf you need help, please create an issue at https://github.com/WordOps/WordOps/issues/ \n")
+                         "It may or may not have required modules. "
+                         "\nIf you need help, please create an issue at https://github.com/WordOps/WordOps/issues/ \n")
                 apt = ["nginx"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
                 stack.post_pref(apt, packages)
@@ -704,7 +714,8 @@ def site_package_check(self, stype):
                                    '\t$request_filename;\n')
 
     if self.app.pargs.php and self.app.pargs.php73:
-        Log.error(self, "Error: two different PHP versions cannot be combined within the same WordOps site")
+        Log.error(
+            self, "Error: two different PHP versions cannot be combined within the same WordOps site")
 
     if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
@@ -714,13 +725,13 @@ def site_package_check(self, stype):
         else:
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php   
+                apt_packages = apt_packages + WOVariables.wo_php
 
         if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
             if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php73
             else:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
@@ -749,7 +760,7 @@ def site_package_check(self, stype):
             apt_packages = apt_packages + WOVariables.wo_redis
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-           os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+                                                        os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
@@ -761,7 +772,7 @@ def site_package_check(self, stype):
             wo_nginx.close()
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-           os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+                                                        os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
 
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
@@ -783,7 +794,7 @@ def site_package_check(self, stype):
                                      "    keepalive 10;\n}")
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-           os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                                                        os.path.isfile("/etc/nginx/conf.d/redis.conf")):
             with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
                 redis_file.write("# Log format Settings\n"
                                  "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
@@ -798,7 +809,7 @@ def site_package_check(self, stype):
             apt_packages = apt_packages + WOVariables.wo_hhvm
 
         if os.path.isdir("/etc/nginx/common") and (not
-           os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
+                                                   os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/php-hhvm.conf')
@@ -835,19 +846,19 @@ def site_package_check(self, stype):
         if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
             Log.debug(self, "Setting apt_packages variable for PHP 7.3")
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVariables.wo_php73
         else:
             Log.debug(self, "Setting apt_packages variable for PHP 7.3")
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVariables.wo_php73
 
         if os.path.isdir("/etc/nginx/common") and (not
-           os.path.isfile("/etc/nginx/common/php73.conf")):
+                                                   os.path.isfile("/etc/nginx/common/php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php73.conf')
+                      'file /etc/nginx/common/locations-php73.conf')
             wo_nginx = open('/etc/nginx/common/locations-php73.conf',
-                                    encoding='utf-8', mode='w')
+                            encoding='utf-8', mode='w')
             self.app.render((data), 'locations-php7.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
@@ -861,9 +872,9 @@ def site_package_check(self, stype):
             wo_nginx.close()
 
             Log.debug(self, 'Writting the nginx configuration to '
-                                'file /etc/nginx/common/wpcommon-php73.conf')
+                      'file /etc/nginx/common/wpcommon-php73.conf')
             wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
-                                    encoding='utf-8', mode='w')
+                            encoding='utf-8', mode='w')
             self.app.render((data), 'wpcommon-php7.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
@@ -885,10 +896,10 @@ def site_package_check(self, stype):
             wo_nginx.close()
 
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
-            os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+                                                        os.path.isfile("/etc/nginx/common/redis-php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                     'file /etc/nginx/common/redis-php73.conf')
+                      'file /etc/nginx/common/redis-php73.conf')
             wo_nginx = open('/etc/nginx/common/redis-php73.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'redis-php7.mustache',
@@ -900,7 +911,7 @@ def site_package_check(self, stype):
                                           "php73"):
                 with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
                     php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
-                                    "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
+                                   "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
@@ -999,6 +1010,7 @@ def display_cache_settings(self, data):
                      "page=redis-cache".format(data['site_name']))
         Log.info(self, "Object Cache:\t\tEnable")
 
+
 def logwatch(self, logfiles):
     import zlib
     import base64
@@ -1035,81 +1047,82 @@ def detSitePar(opts):
     cachelist = list()
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain','php73']:
+                           'wpsubdir', 'wpsubdomain', 'php73']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis']:
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:
         if len(cachelist) > 1:
-            raise RuntimeError("Could not determine cache type.Multiple cache parameter entered")
-        elif False not in [x in ('php','mysql','html') for x in typelist]:
+            raise RuntimeError(
+                "Could not determine cache type.Multiple cache parameter entered")
+        elif False not in [x in ('php', 'mysql', 'html') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php73','mysql','html') for x in typelist]:
+        elif False not in [x in ('php73', 'mysql', 'html') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php','mysql') for x in typelist]:
+        elif False not in [x in ('php', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php73','mysql') for x in typelist]:
+        elif False not in [x in ('php73', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('html','mysql') for x in typelist]:
+        elif False not in [x in ('html', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php','html') for x in typelist]:
+        elif False not in [x in ('php', 'html') for x in typelist]:
             sitetype = 'php'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php73','html') for x in typelist]:
+        elif False not in [x in ('php73', 'html') for x in typelist]:
             sitetype = 'php73'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wp','wpsubdir') for x in typelist]:
+        elif False not in [x in ('wp', 'wpsubdir') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wp','wpsubdomain') for x in typelist]:
+        elif False not in [x in ('wp', 'wpsubdomain') for x in typelist]:
             sitetype = 'wpsubdomain'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wp','php73') for x in typelist]:
+        elif False not in [x in ('wp', 'php73') for x in typelist]:
             sitetype = 'wp'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir','php73') for x in typelist]:
+        elif False not in [x in ('wpsubdir', 'php73') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain','php73') for x in typelist]:
+        elif False not in [x in ('wpsubdomain', 'php73') for x in typelist]:
             sitetype = 'wpsubdomain'
             if not cachelist:
                 cachetype = 'basic'
@@ -1136,7 +1149,7 @@ def detSitePar(opts):
 
 def generate_random():
     wo_random10 = (''.join(random.sample(string.ascii_uppercase +
-                   string.ascii_lowercase + string.digits, 10)))
+                                         string.ascii_lowercase + string.digits, 10)))
     return wo_random10
 
 
@@ -1180,7 +1193,7 @@ def deleteWebRoot(self, webroot):
     # do some preprocessing before proceeding
     webroot = webroot.strip()
     if (webroot == "/var/www/" or webroot == "/var/www"
-       or webroot == "/var/www/.." or webroot == "/var/www/."):
+            or webroot == "/var/www/.." or webroot == "/var/www/."):
         Log.debug(self, "Tried to remove {0}, but didn't remove it"
                   .format(webroot))
         return False
@@ -1197,15 +1210,15 @@ def deleteWebRoot(self, webroot):
 def removeNginxConf(self, domain):
     if os.path.isfile('/etc/nginx/sites-available/{0}'
                       .format(domain)):
-            Log.debug(self, "Removing Nginx configuration")
-            WOFileUtils.rm(self, '/etc/nginx/sites-enabled/{0}'
-                           .format(domain))
-            WOFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
-                           .format(domain))
-            WOService.reload_service(self, 'nginx')
-            WOGit.add(self, ["/etc/nginx"],
-                      msg="Deleted {0} "
-                      .format(domain))
+        Log.debug(self, "Removing Nginx configuration")
+        WOFileUtils.rm(self, '/etc/nginx/sites-enabled/{0}'
+                       .format(domain))
+        WOFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
+                       .format(domain))
+        WOService.reload_service(self, 'nginx')
+        WOGit.add(self, ["/etc/nginx"],
+                  msg="Deleted {0} "
+                  .format(domain))
 
 
 def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
@@ -1229,49 +1242,99 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
+
 def setupLetsEncrypt(self, wo_domain_name):
     wo_wp_email = WOVariables.wo_email
 
-    if os.path.isfile("/etc/letsencrypt/renewal/{0}.conf".format(wo_domain_name)):
+    if os.path.isfile("/root/.acme.sh/{0}_ecc/{0}.conf".format(wo_domain_name)):
         Log.debug(self, "Let's Encrypt certificate found for the domain: {0}"
-                 .format(wo_domain_name))
-        ssl= archivedCertificateHandle(self,wo_domain_name,wo_wp_email)
+                  .format(wo_domain_name))
+        ssl = archivedCertificateHandle(self, wo_domain_name, wo_wp_email)
     else:
-        Log.warn(self,"Please wait while we fetch the new HTTPS certificate for your site.\nIt may take a few minutes depending on the network.")
-        ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -s {0} --standalone "
-                                .format(wo_domain_name))
+        Log.warn(self, "Please wait while we fetch the new HTTPS certificate for your site.\nIt may take a few minutes depending on the network.")
+        ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -d {0} -d www.{0} --standalone"
+                                   .format(wo_domain_name))
     if ssl:
         Log.info(self, "The HTTPS setup for your website is successfully completed!")
         Log.info(self, "Your certificate and chain have been saved in "
-                            "/etc/letsencrypt/live/{0}/fullchain.pem".format(wo_domain_name))
+                 "/etc/letsencrypt/live/{0}/fullchain.pem".format(wo_domain_name))
         Log.info(self, "Configuring nginx HTTPS configuration")
 
         try:
-            Log.info(self, "Adding /var/www/{0}/conf/nginx/ssl.conf".format(wo_domain_name))
+            Log.info(
+                self, "Adding /var/www/{0}/conf/nginx/ssl.conf".format(wo_domain_name))
 
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
-                                      .format(wo_domain_name),
-                                      encoding='utf-8', mode='w')
+                           .format(wo_domain_name),
+                           encoding='utf-8', mode='w')
             sslconf.write("listen 443 ssl http2;\n"
-                                     "ssl on;\n"
-                                     "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
-                                     "ssl_certificate_key     /etc/letsencrypt/live/{0}/key.pem;\n"
-                                     .format(wo_domain_name))
+                          "listen [::]:443 ssl http2;\n"
+                          "ssl on;\n"
+                          "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
+                          "ssl_certificate_key     /etc/letsencrypt/live/{0}/key.pem;\n"
+                          .format(wo_domain_name))
             sslconf.close()
             # updateSiteInfo(self, wo_domain_name, ssl=True)
 
             WOGit.add(self, ["/etc/letsencrypt"],
-              msg="Adding letsencrypt folder")
+                      msg="Adding letsencrypt folder")
 
         except IOError as e:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while generating "
-                              "ssl.conf")
+                      "ssl.conf")
     else:
         Log.error(self, "Unable to setup, Let\'s Encrypt", False)
         Log.error(self, "Please make sure that your site is pointed to \n"
                         "same server on which you are running Let\'s Encrypt Client "
                         "\n to allow it to verify the site automatically.")
+
+
+def setupLetsEncryptSubdomain(self, wo_domain_name):
+    wo_wp_email = WOVariables.wo_email
+
+    if os.path.isfile("/root/.acme.sh/{0}_ecc/{0}.conf".format(wo_domain_name)):
+        Log.debug(self, "Let's Encrypt certificate found for the domain: {0}"
+                  .format(wo_domain_name))
+    else:
+        Log.warn(self, "Please wait while we fetch the new HTTPS certificate for your site.\nIt may take a few minutes depending on the network.")
+        ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -s {0} --standalone"
+                                   .format(wo_domain_name))
+    if ssl:
+        Log.info(self, "The HTTPS setup for your website is successfully completed!")
+        Log.info(self, "Your certificate and chain have been saved in "
+                 "/etc/letsencrypt/live/{0}/fullchain.pem".format(wo_domain_name))
+        Log.info(self, "Configuring nginx HTTPS configuration")
+
+        try:
+            Log.info(
+                self, "Adding /var/www/{0}/conf/nginx/ssl.conf".format(wo_domain_name))
+
+            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                           .format(wo_domain_name),
+                           encoding='utf-8', mode='w')
+            sslconf.write("listen 443 ssl http2;\n"
+                          "listen [::]:443 ssl http2;\n"
+                          "ssl on;\n"
+                          "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
+                          "ssl_certificate_key     /etc/letsencrypt/live/{0}/key.pem;\n"
+                          .format(wo_domain_name))
+            sslconf.close()
+            # updateSiteInfo(self, wo_domain_name, ssl=True)
+
+            WOGit.add(self, ["/etc/letsencrypt"],
+                      msg="Adding letsencrypt folder")
+
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while generating "
+                      "ssl.conf")
+    else:
+        Log.error(self, "Unable to setup, Let\'s Encrypt", False)
+        Log.error(self, "Please make sure that your site is pointed to \n"
+                        "same server on which you are running Let\'s Encrypt Client "
+                        "\n to allow it to verify the site automatically.")
+
 
 def renewLetsEncrypt(self, wo_domain_name):
 
@@ -1285,108 +1348,117 @@ def renewLetsEncrypt(self, wo_domain_name):
 
     Log.info(self, "Renewing SSl cert for https://{0}".format(wo_domain_name))
 
-    ssl = WOShellExec.cmd_exec(self, "/usr/local/bin/wo-acme -s {0} --standalone".format(wo_domain_name))
+    ssl = WOShellExec.cmd_exec(
+        self, "/usr/local/bin/wo-acme -s {0} --standalone".format(wo_domain_name))
 
     mail_list = ''
     if not ssl:
-        Log.error(self,"ERROR : Let's Encrypt certificate renewal FAILED!",False)
-        if (SSL.getExpirationDays(self,wo_domain_name)>0):
-                    Log.error(self, "Your current certificate will expire within " + str(SSL.getExpirationDays(self,wo_domain_name)) + " days.",False)
+        Log.error(self, "ERROR : Let's Encrypt certificate renewal FAILED!", False)
+        if (SSL.getExpirationDays(self, wo_domain_name) > 0):
+            Log.error(self, "Your current certificate will expire within " +
+                      str(SSL.getExpirationDays(self, wo_domain_name)) + " days.", False)
         else:
-                    Log.error(self, "Your current certificate already expired!",False)
+            Log.error(self, "Your current certificate already expired!", False)
 
         WOSendMail("wordops@{0}".format(wo_domain_name), wo_wp_email, "[FAIL] HTTPS cert renewal {0}".format(wo_domain_name),
-                       "Hi,\n\nHTTPS certificate renewal for https://{0} was unsuccessful.".format(wo_domain_name) +
-                       "\nPlease check the WordOps log for reason. The current expiry date is : " +
-                            str(SSL.getExpirationDate(self,wo_domain_name)) +
-                       "\n\nFor support visit https://wordops.org/support .\n\nBest regards,\nYour WordOps Worker",files=mail_list,
-                        port=25, isTls=False)
+                   "Hi,\n\nHTTPS certificate renewal for https://{0} was unsuccessful.".format(wo_domain_name) +
+                   "\nPlease check the WordOps log for reason. The current expiry date is : " +
+                   str(SSL.getExpirationDate(self, wo_domain_name)) +
+                   "\n\nFor support visit https://wordops.org/support .\n\nBest regards,\nYour WordOps Worker", files=mail_list,
+                   port=25, isTls=False)
         Log.error(self, "Check the WO log for more details "
-                      "`tail /var/log/wo/wordops.log`")
+                  "`tail /var/log/wo/wordops.log`")
 
     WOGit.add(self, ["/etc/letsencrypt"],
               msg="Adding letsencrypt folder")
     WOSendMail("wordops@{0}".format(wo_domain_name), wo_wp_email, "[SUCCESS] Let's Encrypt certificate renewal {0}".format(wo_domain_name),
-                       "Hi,\n\nYour Let's Encrypt certificate has been renewed for https://{0} .".format(wo_domain_name) +
-                       "\nYour new certificate will expire on : " +
-                            str(SSL.getExpirationDate(self,wo_domain_name)) +
-                       "\n\nBest regards,\nYour WordOps Worker",files=mail_list,
-                        port=25, isTls=False)
+               "Hi,\n\nYour Let's Encrypt certificate has been renewed for https://{0} .".format(wo_domain_name) +
+               "\nYour new certificate will expire on : " +
+               str(SSL.getExpirationDate(self, wo_domain_name)) +
+               "\n\nBest regards,\nYour WordOps Worker", files=mail_list,
+               port=25, isTls=False)
 
-#redirect= False to disable https redirection
-def httpsRedirect(self,wo_domain_name,redirect=True):
+# redirect= False to disable https redirection
+
+
+def httpsRedirect(self, wo_domain_name, redirect=True):
     if redirect:
         if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(wo_domain_name)):
-                WOFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(wo_domain_name),
-                                  "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
+            WOFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(wo_domain_name),
+                               "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
         else:
             try:
-                Log.info(self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
+                Log.info(
+                    self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
 
                 sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
-                                      .format(wo_domain_name),
-                                      encoding='utf-8', mode='w')
+                               .format(wo_domain_name),
+                               encoding='utf-8', mode='w')
                 sslconf.write("server {\n"
-                                     "\tlisten 80;\n" +
-                                     "\tserver_name www.{0} {0};\n".format(wo_domain_name) +
-                                     "\treturn 301 https://{0}".format(wo_domain_name)+"$request_uri;\n}" )
+                              "\tlisten 80;\n" +
+                              "\tlisten [::]:80;\n" +
+                              "\tserver_name www.{0} {0};\n".format(wo_domain_name) +
+                              "\treturn 301 https://{0}".format(wo_domain_name)+"$request_uri;\n}")
                 sslconf.close()
                 # Nginx Configation into GIT
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.debug(self, "Error occured while generating "
-                              "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
+                          "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
 
         Log.info(self, "Added HTTPS Force Redirection for Site "
-                         " http://{0}".format(wo_domain_name))
+                 " http://{0}".format(wo_domain_name))
         WOGit.add(self,
                   ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
     else:
         if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name)):
-             WOFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name),
-                                  "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(wo_domain_name))
-             Log.info(self, "Disabled HTTPS Force Redirection for Site "
-                         " http://{0}".format(wo_domain_name))
+            WOFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name),
+                               "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(wo_domain_name))
+            Log.info(self, "Disabled HTTPS Force Redirection for Site "
+                     " http://{0}".format(wo_domain_name))
 
-def archivedCertificateHandle(self,domain,wo_wp_email):
-    Log.warn(self,"You already have an existing certificate for the domain requested.\n"
-                        "(ref: /etc/letsencrypt/renewal/{0}.conf)".format(domain) +
-                        "\nPlease select an option from below?"
-                    "\n\t1: Reinstall existing certificate"
-                    "\n\t2: Keep the existing certificate for now"
-                    "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
-                        "")
-    check_prompt = input("\nType the appropriate number [1-3] or any other key to cancel: ")
+
+def archivedCertificateHandle(self, domain, wo_wp_email):
+    Log.warn(self, "You already have an existing certificate for the domain requested.\n"
+             "(ref: /etc/letsencrypt/renewal/{0}.conf)".format(domain) +
+             "\nPlease select an option from below?"
+             "\n\t1: Reinstall existing certificate"
+             "\n\t2: Keep the existing certificate for now"
+             "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
+             "")
+    check_prompt = input(
+        "\nType the appropriate number [1-3] or any other key to cancel: ")
     if not os.path.isfile("/etc/letsencrypt/live/{0}/cert.pem".format(domain)):
-            Log.error(self,"/etc/letsencrypt/live/{0}/cert.pem file is missing.".format(domain))
+        Log.error(
+            self, "/etc/letsencrypt/live/{0}/cert.pem file is missing.".format(domain))
     if check_prompt == "1":
-        Log.info(self,"Please wait while we reinstall the Let's Encrypt certificate for your site.\nIt may take a few minutes depending on your network.")
+        Log.info(self, "Please wait while we reinstall the Let's Encrypt certificate for your site.\nIt may take a few minutes depending on your network.")
         ssl = WOShellExec.cmd_exec(self, "./letsencrypt-auto certonly --rsa-key-size 4096 --reinstall --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
-                                .format(domain)
-                                + "--email {0} --text --agree-tos".format(wo_wp_email))
-    elif check_prompt == "2" :
-        Log.info(self,"Using Existing Certificate files")
+                                   .format(domain)
+                                   + "--email {0} --text --agree-tos".format(wo_wp_email))
+    elif check_prompt == "2":
+        Log.info(self, "Using Existing Certificate files")
         if not (os.path.isfile("/etc/letsencrypt/live/{0}/fullchain.pem".format(domain)) or
-                    os.path.isfile("/etc/letsencrypt/live/{0}/key.pem".format(domain))):
-            Log.error(self,"Certificate files not found. Skipping.\n"
-                           "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
-                           "/etc/letsencrypt/live/{0}/key.pem".format(domain))
+                os.path.isfile("/etc/letsencrypt/live/{0}/key.pem".format(domain))):
+            Log.error(self, "Certificate files not found. Skipping.\n"
+                      "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
+                      "/etc/letsencrypt/live/{0}/key.pem".format(domain))
         ssl = True
 
     elif check_prompt == "3":
-        Log.info(self,"Please wait while we renew the Let's Encrypt certificate for your site.\nIt may take a few minutes depending on your network.")
+        Log.info(self, "Please wait while we renew the Let's Encrypt certificate for your site.\nIt may take a few minutes depending on your network.")
         ssl = WOShellExec.cmd_exec(self, "./letsencrypt-auto --renew-by-default --rsa-key-size 4096 certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
-                                .format(domain)
-                                + "--email {0} --text --agree-tos".format(wo_wp_email))
+                                   .format(domain)
+                                   + "--email {0} --text --agree-tos".format(wo_wp_email))
     else:
-        Log.error(self,"Operation cancelled by user.")
+        Log.error(self, "Operation cancelled by user.")
 
     if os.path.isfile("{0}/conf/nginx/ssl.conf"
-                              .format(domain)):
+                      .format(domain)):
         Log.info(self, "Existing ssl.conf . Backing it up ..")
         WOFileUtils.mvfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
-                             .format(domain),
-                             '/var/www/{0}/conf/nginx/ssl.conf.bak'
-                             .format(domain))
+                           .format(domain),
+                           '/var/www/{0}/conf/nginx/ssl.conf.bak'
+                           .format(domain))
 
     return ssl

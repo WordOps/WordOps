@@ -335,6 +335,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create HHVM site", action='store_true')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site", action='store_true')),
+            (['--subdomain'],
+                dict(help="specify the site is a subdomain for letsencrypt", action='store_true')),
             (['--user'],
                 dict(help="provide user for wordpress site")),
             (['--email'],
@@ -711,34 +713,16 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if self.app.pargs.letsencrypt:
-            if (self.app.pargs.experimental):
-                if stype in ['wpsubdomain']:
-                    Log.warn(
-                        self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
-
-                Log.info(self, "Letsencrypt is currently in beta phase."
-                         " \nDo you wish"
-                         " to enable SSl now for {0}?".format(wo_domain))
-
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
-                if check_prompt != "Y" and check_prompt != "y":
-                    data['letsencrypt'] = False
-                    letsencrypt = False
-                else:
-                    data['letsencrypt'] = True
-                    letsencrypt = True
-            else:
-                data['letsencrypt'] = True
-                letsencrypt = True
+        if self.app.pargs.letsencrypt and (not self.app.pargs.subdomain):
+            if stype in ['wpsubdomain']:
+                Log.warn(
+                    self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
+            data['letsencrypt'] = True
+            letsencrypt = True
 
             if data['letsencrypt'] is True:
                 setupLetsEncrypt(self, wo_domain)
                 httpsRedirect(self, wo_domain)
-                Log.info(self, "Creating Cron Job for cert auto-renewal")
-                WOCron.setcron_weekly(self, 'wo site update --le=renew --all 2> /dev/null'.format(wo_domain), 'Renew all'
-                                      ' letsencrypt SSL cert. Set by WordOps')
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -747,12 +731,30 @@ class WOSiteCreateController(CementBaseController):
                 Log.info(self, "Congratulations! Successfully Configured SSl for Site "
                          " https://{0}".format(wo_domain))
 
-                if (SSL.getExpirationDays(self, wo_domain) > 0):
-                    Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) + " days.")
-                else:
-                    Log.warn(
-                        self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+                # Add nginx conf folder into GIT
+                WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],
+                          msg="Adding letsencrypts config of site: {0}"
+                          .format(wo_domain))
+                updateSiteInfo(self, wo_domain, ssl=letsencrypt)
+
+            elif data['letsencrypt'] is False:
+                Log.info(self, "Not using Let\'s encrypt for Site "
+                         " http://{0}".format(wo_domain))
+
+        if self.app.pargs.letsencrypt and self.app.pargs.subdomain:
+            data['letsencrypt'] = True
+            letsencrypt = True
+
+            if data['letsencrypt'] is True:
+                setupLetsEncryptSubdomain(self, wo_domain)
+                httpsRedirect(self, wo_domain)
+
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
+
+                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                         " https://{0}".format(wo_domain))
 
                 # Add nginx conf folder into GIT
                 WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],
