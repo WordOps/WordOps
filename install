@@ -344,8 +344,6 @@ wo_update_wp_cli()
     [ -d /etc/bash_completion.d ] && {
         wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
     }
-    echo -ne "Running post-install steps             ${TPUT_RESET}[OK]\r"
-    echo -ne '\n'
 }
 
 # Now, finally, let's install WordOps
@@ -365,6 +363,8 @@ wo_install()
         cd /tmp/wordops || exit 1
         python3 setup.py install
     } >> /var/log/wo/install.log 2>&1;
+    echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch          ${TPUT_RESET}[OK]\r"
+    echo -ne '\n'
 
 }
 
