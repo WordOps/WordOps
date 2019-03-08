@@ -10,7 +10,7 @@
 # Version 3.9.3 - 2019-03-05
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.3"
+readonly wo_version_new="3.9.3.1"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -125,29 +125,23 @@ fi
 ####
 wo_install_dep()
 {
-    echo -ne "${TPUT_ECHO}Installing dependencies               ${TPUT_RESET}[..]\r"
-    if {
+
+    {
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
             apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
         else
             apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
         fi
-        }; then echo -ne "${TPUT_ECHO}Installing dependencies                ${TPUT_RESET}[OK]\r"
-        echo -ne '\n'
-    else
-        echo -e "${TPUT_FAIL}Installing dependencies              ${TPUT_RESET}[FAIL]"
-        echo -ne '\n'
-    fi
-    locale-gen en &>> /dev/null
     
+    locale-gen en
+     } >> /var/log/wo/install.log 2>&1
     # Support PFS
     if [ -f /etc/nginx/nginx.conf ]; then
-        # Replace the default ciphers
-        sed -i 's/HIGH:!aNULL:!MD5:!kEDH;/EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES;/' /etc/nginx/nginx.conf
-        # Replace the EasyEngine ciphers
-        sed -i 's/ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA;/EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES;/' /etc/nginx/nginx.conf
+        # Replace previous ciphers
+        new_ciphers="EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES"
+        sed -i "s/ssl_ciphers\ \(\"\|.\|'\)\(.*\)\(\"\|.\|'\);/ssl_ciphers \"$new_ciphers\";/" /etc/nginx/nginx.conf
         # Change the TLS protocols
-        sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2;/g' /etc/nginx/nginx.conf
+        sed -i "s/ssl_protocols\ \(.*\);/ssl_protocols TLSv1.2;/" /etc/nginx/nginx.conf
     fi
     
     # Let's Encrypt .well-known folder setup
@@ -349,7 +343,6 @@ wo_update_wp_cli()
 # Now, finally, let's install WordOps
 wo_install()
 {
-    echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch          ${TPUT_RESET}[..]\r"
     {
         rm -rf /tmp/easyengine
         rm -rf /tmp/wordops
@@ -361,10 +354,9 @@ wo_install()
         git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet
         
         cd /tmp/wordops || exit 1
-        python3 setup.py install
     } >> /var/log/wo/install.log 2>&1;
-    echo -ne "${TPUT_ECHO}Installing Wordops $wo_branch          ${TPUT_RESET}[OK]\r"
-    echo -ne '\n'
+        python3 setup.py install
+
 
 }
 
@@ -689,14 +681,14 @@ else
         fi
     else
         # 3 - Fresh WO setup
+        wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
         wo_install_dep | tee -ai $wo_install_log
+        wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
         wo_install | tee -ai $wo_install_log
-        echo -ne "${TPUT_ECHO}Running post-install steps             ${TPUT_RESET}[..]\r"
+        wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
         secure_wo_db | tee -ai $wo_install_log
         wo_git_init | tee -ai $wo_install_log
         wo_update_wp_cli | tee -ai $wo_install_log
-        echo -ne "${TPUT_ECHO}Running post-install steps             ${TPUT_RESET}[OK]\r"
-        echo -ne '\n'
     fi
 fi
 

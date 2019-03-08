@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 -
 
+#### Fixed
+
+- Fix Nginx ssl_ciphers
+
 ### v3.9.3 - 2019-03-07
 
 #### Changed
