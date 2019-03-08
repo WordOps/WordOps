@@ -354,8 +354,9 @@ wo_install()
         git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet
         
         cd /tmp/wordops || exit 1
-        python3 setup.py install
     } >> /var/log/wo/install.log 2>&1;
+        python3 setup.py install
+
 
 }
 
