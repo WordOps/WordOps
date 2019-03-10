@@ -60,5 +60,5 @@ script:
 
   - sudo ls /var/www/
   - sudo wp --allow-root --info
-  - sudo nginx -t
+  - sudo bash -c 'cat /var/log/nginx/error.log | ccze -A'
   - sudo bash -c 'cat /var/log/wo/wordops.log | ccze -A'
