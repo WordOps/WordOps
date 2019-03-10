@@ -6,11 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.5 - [Unreleased]
 
+#### Added
+
+- Nginx module_vts
+- Nginx dynamic_tls_records
+
 #### Changed
 
 - Update WP-CLI version to 2.1.0
 - Update Adminer to 4.6.2
-- Update Nginx-build
+- Update Nginx-build to 1.14.2
+- Refactored nginx.conf
 
 #### Fixed
 
