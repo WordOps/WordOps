@@ -73,7 +73,7 @@ class WOStackUpgradeController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait...")
         WOAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
-        if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
+        if (WOVariables.wo_platform_distro == 'ubuntu'):
             WOAptGet.install(self, WOVariables.wo_php + WOVariables.wo_php_extra)
         else:
             WOAptGet.install(self, WOVariables.wo_php)

@@ -97,7 +97,7 @@ class WOVariables():
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/virtubox:/WordOps/Debian_9.0/ /")
 
-    wo_nginx = ["nginx-custom", "nginx-ee"]
+    wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
 
     # PHP repo and packages
