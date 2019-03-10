@@ -83,22 +83,22 @@ class WOVariables():
     # Nginx repo and packages
     if wo_platform_codename == 'trusty':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
+                         "/virtubox:/WordOps/xUbuntu_14.04/ /")
     elif wo_platform_codename == 'xenial':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_16.04/ /")
+                         "/virtubox:/WordOps/xUbuntu_16.04/ /")
     elif wo_platform_codename == 'bionic':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_18.04/ /")
+                         "/virtubox:/WordOps/xUbuntu_18.04/ /")
     elif wo_platform_codename == 'jessie':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+                         "/virtubox:/WordOps/Debian_8.0/ /")
     elif wo_platform_codename == 'stretch':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+                         "/virtubox:/WordOps/Debian_9.0/ /")
 
     wo_nginx = ["nginx-custom", "nginx-ee"]
-    wo_nginx_key = '3050AC3CD2AE6F03'
+    wo_nginx_key = '188C9FB063F0247A'
 
     # PHP repo and packages
     if wo_platform_distro == 'ubuntu':
@@ -148,9 +148,8 @@ class WOVariables():
 
     # HHVM repo details
     if wo_platform_distro == 'ubuntu':
-        if wo_platform_codename == "trusty" or wo_platform_codename == "xenial" or wo_platform_codename == "bionic":
-            wo_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
-                            .format(codename=wo_platform_codename))
+        wo_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
+                        .format(codename=wo_platform_codename))
     else:
         wo_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"
                         .format(codename=wo_platform_codename))

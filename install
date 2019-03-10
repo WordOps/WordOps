@@ -128,9 +128,9 @@ wo_install_dep()
 
     {
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
-            apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
+            apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 fail2ban > /dev/null 2>&1
         else
-            apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
+            apt-get -y install build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 fail2ban > /dev/null 2>&1
         fi
     
     locale-gen en
@@ -321,15 +321,15 @@ secure_wo_db()
 # Update the WP-CLI version
 wo_update_wp_cli()
 {
-    
+    {
     WP_CLI_PATH=$(command -v wp)
     if [ "$WP_CLI_PATH" != "/usr/local/bin/wp" ]; then
         rm -rf "$WP_CLI_PATH"
         # Update WP-CLI to the most recent version
-        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
+        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
         chmod +x /usr/local/bin/wp
     else
-        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
+        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
         chmod +x /usr/local/bin/wp
     fi
     [ ! -x /usr/bin/wp ] && {
@@ -338,6 +338,8 @@ wo_update_wp_cli()
     [ -d /etc/bash_completion.d ] && {
         wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
     }
+    wp --allow-root cli update
+    } >> /var/log/wo/install.log 2>&1
 }
 
 # Now, finally, let's install WordOps
