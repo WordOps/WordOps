@@ -151,12 +151,7 @@ class WOStackController(CementBaseController):
             Log.info(self, "Adding repository for NGINX, please wait...")
             WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
-            WOShellExec.cmd_exec(self, "wget -qO - https://build"
-                                       ".opensuse.org/"
-                                       "projects/home:virtubox/public_key |"
-                                       "sudo apt-key add -")
-            except CommandExecutionError as e:
-                Log.error("Failed to add Nginx repository key")
+            WORepo.add_key(self, WOVariables.wo_nginx_key)
 
         if (WOVariables.wo_platform_distro == 'ubuntu'):
             if set(WOVariables.wo_php73).issubset(set(apt_packages)) \
