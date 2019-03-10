@@ -23,8 +23,6 @@ script:
   - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt ccze
   - sudo bash install $TRAVIS_BRANCH
   - sudo wo --help
-  - sudo sed -i 's/# debug = false/debug = true/' /etc/wo/wo.conf
-  - sudo sed -i 's/to_console = false/to_console = true/' /etc/wo/wo.conf
   - sudo wo stack install || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo stack install --web  || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo stack install --admin || sudo tail -n50 /var/log/wo/wordops.log
@@ -62,5 +60,4 @@ script:
 
   - sudo ls /var/www/
   - sudo wp --allow-root --info
-  - sudo bash -c 'cat /var/log/nginx/error.log | ccze -A'
   - sudo bash -c 'cat /var/log/wo/wordops.log | ccze -A'
