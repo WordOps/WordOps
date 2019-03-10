@@ -53,8 +53,6 @@ class WOStackController(CementBaseController):
                 dict(help='Install admin tools stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
-            #            (['--nginxmainline'],
-            #                dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP 7.2 stack', action='store_true')),
             (['--php73'],
@@ -181,11 +179,9 @@ class WOStackController(CementBaseController):
                     WORepo.add_key(self, '89DF5277')
 
         if set(WOVariables.wo_hhvm).issubset(set(apt_packages)):
-            if (WOVariables.wo_platform_codename != 'xenial' or WOVariables.wo_platform_codename != 'bionic'):
+            if (WOVariables.wo_platform_codename != 'xenial' or
+                    WOVariables.wo_platform_codename != 'bionic'):
                 Log.info(self, "Adding repository for HHVM, please wait...")
-                if WOVariables.wo_platform_codename == 'precise':
-                    Log.debug(self, 'Adding PPA for Boost')
-                    WORepo.add(self, ppa=WOVariables.wo_boost_repo)
                 Log.debug(self, 'Adding ppa repo for HHVM')
                 WORepo.add(self, repo_url=WOVariables.wo_hhvm_repo)
                 Log.debug(self, 'Adding HHVM GPG Key')
@@ -282,8 +278,11 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=wo_nginx)
                     wo_nginx.close()
 
-                    data = dict(php="9000", debug="9001", hhvm="8000", php73="9072", debug7="9172",
-                                hhvmconf=False, php7conf=True if WOAptGet.is_installed(self, 'php7.3-fpm') else False)
+                    data = dict(php="9000", debug="9001", hhvm="8000",
+                                php7="9070", debug7="9170",
+                                hhvmconf=False, php7conf=True if
+                                WOAptGet.is_installed(self, 'php7.0-fpm')
+                                else False)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
                     wo_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -793,9 +792,15 @@ class WOStackController(CementBaseController):
                 if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
                     with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
                         redis_file.write("# Log format Settings\n"
-                                         "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
-                                         "'$http_host \"$request\" $status $body_bytes_sent '\n"
-                                         "'\"$http_referer\" \"$http_user_agent\"';\n")
+                                         "log_format rt_cache_redis "
+                                         ""'$remote_addr "
+                                         "$upstream_response_time "
+                                         "$srcache_fetch_status [$time_local]"
+                                         " '\n" '$http_host"
+                                         " \"$request\" "
+                                         "$status $body_bytes_sent '\n"
+                                         "'\"$http_referer\" "
+                                         "\"$http_user_agent\"';\n")
 
             if (WOVariables.wo_platform_distro == 'ubuntu'):
                 # Create log directories
@@ -819,7 +824,8 @@ class WOStackController(CementBaseController):
                     config.write(configfile)
 
                 # Parse /etc/php/7.2/fpm/php-fpm.conf
-                data = dict(pid="/run/php/php7.2-fpm.pid", error_log="/var/log/php/7.2/fpm.log",
+                data = dict(pid="/run/php/php7.2-fpm.pid",
+                            error_log="/var/log/php/7.2/fpm.log",
                             include="/etc/php/7.2/fpm/pool.d/*.conf")
                 Log.debug(self, "writting php7.2 configuration into "
                           "/etc/php/7.2/fpm/php-fpm.conf")

@@ -415,21 +415,21 @@ wo_update_latest()
         wo_lib_echo "Updating Nginx configuration, please wait..."
         
         elif [ "$wo_distro_version" == "trusty" ]; then
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        grep -Hr 'http://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
         if [[ $? -ne 0 ]]; then
             if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
                 rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
             fi
-            echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/wo-repo.list
-            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
-            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            echo -e "\ndeb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/wo-repo.list
+            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '188C9FB063F0247A'
+            gpg -a --export --armor '188C9FB063F0247A' | apt-key add -
             if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                 mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/wo-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
             service nginx stop &>> /dev/null
-            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom nginx-ee
+            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom nginx-wo
             service nginx restart &>> /dev/null
         fi
         CHECK_NGINX_COMMON=$(dpkg --get-selections | grep -v deinstall | grep nginx-common)
@@ -440,16 +440,16 @@ wo_update_latest()
                 apt-get remove -y nginx-mainline
             fi
             service nginx stop &>> /dev/null
-            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom
+            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-wo nginx-custom
             service nginx restart &>> /dev/null
         fi
         
         elif [ "$wo_linux_distro" == "Debian" ]; then
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        grep -Hr 'http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
         if [[ $? -ne 0 ]]; then
-            echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
-            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
-            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            echo -e "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
+            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '188C9FB063F0247A'
+            gpg -a --export --armor '188C9FB063F0247A' | apt-key add -
             if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                 mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
             fi
@@ -468,7 +468,7 @@ wo_update_latest()
                 apt-get remove -y nginx-mainline
             fi
             systemctl stop nginx &>> /dev/null
-            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom
+            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-wo nginx-custom
             systemctl restart nginx &>> /dev/null
         fi
     fi
