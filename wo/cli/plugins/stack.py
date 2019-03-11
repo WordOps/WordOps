@@ -793,10 +793,10 @@ class WOStackController(CementBaseController):
                     with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
                         redis_file.write("# Log format Settings\n"
                                          "log_format rt_cache_redis "
-                                         ""'$remote_addr "
+                                         "'$remote_addr "
                                          "$upstream_response_time "
                                          "$srcache_fetch_status [$time_local]"
-                                         " '\n" '$http_host"
+                                         " '\n '$http_host"
                                          " \"$request\" "
                                          "$status $body_bytes_sent '\n"
                                          "'\"$http_referer\" "
