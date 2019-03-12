@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.3 - 2019-03-05
+# Version 3.9.3 - 2019-03-11
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.3.1"

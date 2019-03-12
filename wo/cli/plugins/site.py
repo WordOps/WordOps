@@ -934,8 +934,8 @@ class WOSiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php73']) or
-            #  (stype == 'php73' and oldsitetype not in ['html', 'mysql', 'php', 'php73', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
+        if ((stype == 'php' and 
+            oldsitetype not in ['html', 'proxy', 'php73']) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
                                                       'proxy', 'php73']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',

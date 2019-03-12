@@ -45,6 +45,12 @@ class WOVariables():
     # WordOps default webroot path
     wo_webroot = '/var/www/'
 
+    # WordOps default renewal  SSL certificates path
+    wo_ssl_archive = '/etc/letsencrypt/renewal'
+
+    # WordOps default live SSL certificates path
+    wo_ssl_live = '/etc/letsencrypt/live'
+
     # PHP user
     wo_php_user = 'www-data'
 
