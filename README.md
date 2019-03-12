@@ -10,10 +10,7 @@
 <img src="https://img.shields.io/github/license/wordops/wordops.svg" alt="MIT">
 <img src="https://img.shields.io/github/last-commit/wordops/wordops.svg" alt="Commits">
 <img alt="GitHub release" src="https://img.shields.io/github/release-pre/wordops/wordops.svg">
-
 </p>
-
-
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
@@ -31,7 +28,7 @@
 
 - Easy Migration from EasyEngine v3 (migration script development in progress)
 - Automated WordPress, Nginx, PHP, MySQL & Redis installation
-- Up-to-date server stack with PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- Up-to-date server stack with Nginx 1.14.2, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - Optimized Nginx configurations with multiple cache backends support
 - Let's Encrypt SSL certificates
 
