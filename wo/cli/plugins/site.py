@@ -713,7 +713,8 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if self.app.pargs.letsencrypt and (not self.app.pargs.subdomain):
+        if self.app.pargs.letsencrypt and
+        (not pargs.letsencrypt == "wildcard"):
             if stype in ['wpsubdomain']:
                 Log.warn(
                     self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
@@ -811,7 +812,8 @@ class WOSiteUpdateController(CementBaseController):
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off', 'renew'), const='on', nargs='?')),
+                     choices=('on', 'off', 'renew', 'subdomain', 'wildcard'), 
+                     const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -934,8 +936,8 @@ class WOSiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php73']) or
-            #  (stype == 'php73' and oldsitetype not in ['html', 'mysql', 'php', 'php73', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
+        if ((stype == 'php' and 
+            oldsitetype not in ['html', 'proxy', 'php73']) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
                                                       'proxy', 'php73']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
@@ -1219,28 +1221,14 @@ class WOSiteUpdateController(CementBaseController):
                     hhvm = True
 
             if pargs.letsencrypt == "on":
-
-                if pargs.experimental:
-
-                    if oldsitetype in ['wpsubdomain']:
-                        Log.warn(
-                            self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
-
-                    Log.info(self, "Letsencrypt is currently in beta phase."
-                             " \nDo you wish"
-                             " to enable SSl now for {0}?".format(wo_domain))
-
-                    check_prompt = input("Type \"y\" to continue [n]:")
-                    if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using letsencrypt for site")
-                        data['letsencrypt'] = False
-                        letsencrypt = False
-                    else:
-                        data['letsencrypt'] = True
-                        letsencrypt = True
+                if oldsitetype in ['wpsubdomain']:
+                    data['letsencrypt'] = True
+                    letsencrypt = True
+                    wildcard = True
                 else:
                     data['letsencrypt'] = True
                     letsencrypt = True
+                    wildcard = True
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             if pargs.experimental:
@@ -1303,7 +1291,7 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if pargs.letsencrypt:
+        if pargs.letsencrypt and (not pargs.subdomain):
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
@@ -1316,9 +1304,6 @@ class WOSiteUpdateController(CementBaseController):
                                        .format(wo_site_webroot))
 
                 httpsRedirect(self, wo_domain)
-                Log.info(self, "Creating Cron Job for cert auto-renewal")
-                WOCron.setcron_weekly(self, 'wo site update --le=renew --all 2> /dev/null'.format(wo_domain), 'Renew all'
-                                      ' letsencrypt SSL cert. Set by WordOps')
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1346,8 +1331,58 @@ class WOSiteUpdateController(CementBaseController):
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
                                   "check issues with `nginx -t` command")
-                    # Log.info(self,"Removing Cron Job set for cert auto-renewal")
-                    # WOCron.remove_cron(self,'wo site update {0} --le=renew --min_expiry_limit 30 2> \/dev\/null'.format(wo_domain))
+                    # Log.info(self,"Removing Cron Job set for cert
+                    # auto-renewal") WOCron.remove_cron(self,'wo site
+                    # update {0} --le=renew --min_expiry_limit 30
+                    # 2> \/dev\/null'.format(wo_domain))
+                    Log.info(self, "Successfully Disabled SSl for Site "
+                             " http://{0}".format(wo_domain))
+
+        if pargs.letsencrypt and (pargs.subdomain):
+            if data['letsencrypt'] is True:
+                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
+                                      .format(wo_site_webroot)):
+                    setupLetsEncryptSubdomain(self, wo_domain)
+
+                else:
+                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
+                                       .format(wo_site_webroot),
+                                       '{0}/conf/nginx/ssl.conf'
+                                       .format(wo_site_webroot))
+
+                httpsRedirect(self, wo_domain)
+
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
+
+                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                         " https://{0}".format(wo_domain))
+
+                if (SSL.getExpirationDays(self, wo_domain) > 0):
+                    Log.info(self, "Your cert will expire within " +
+                             str(SSL.getExpirationDays(self, wo_domain)) + " days.")
+                else:
+                    Log.warn(
+                        self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+
+            elif data['letsencrypt'] is False:
+                if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                                  .format(wo_site_webroot)):
+                    Log.info(self, 'Setting Nginx configuration')
+                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
+                                       .format(wo_site_webroot),
+                                       '{0}/conf/nginx/ssl.conf.disabled'
+                                       .format(wo_site_webroot))
+                    httpsRedirect(self, wo_domain, False)
+                    if not WOService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                                  "check issues with `nginx -t` command")
+                    # Log.info(self,"Removing Cron Job set for 
+                    # cert auto-renewal")
+                    # WOCron.remove_cron(self,'wo site update {0} 
+                    # --le=renew --min_expiry_limit 30 2> \/dev\/null'
+                    # .format(wo_domain))
                     Log.info(self, "Successfully Disabled SSl for Site "
                              " http://{0}".format(wo_domain))
 

@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.3 - 2019-03-05
+# Version 3.9.3 - 2019-03-11
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.3.1"
@@ -285,25 +285,27 @@ wo_sync_db()
     ###
     # ee-acme-sh by VirtuBox, https://virtubox.net/
     ###
-    if [ ! -f ~/.acme.sh/acme.sh ]; then
-        wget -O -  https://get.acme.sh | sh
-        BASHRC_EE_ACME_FIRST_RELEASE=$(grep "ee-acme" $HOME/.bashrc)
-        BASHRC_EE_ACME_LAST_RELEASE=$(grep "ee-acme.sh" $HOME/.bashrc)
-        
-        if [ -f $HOME/.ee-acme/ee-acme ] && [ -z "$BASHRC_EE_ACME_LAST_RELEASE" ]; then
-            rm -rf $HOME/.ee-acme/*
-            echo 'alias ee-acme="/root/.ee-acme/ee-acme.sh"' >> $HOME/.ee-acme/ee-acme
-            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
-            chmod +x $HOME/.ee-acme/ee-acme.sh
-            elif [ -x $HOME/.ee-acme/ee-acme.sh ]; then
-            rm $HOME/.ee-acme/ee-acme.sh
-            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
-            chmod +x $HOME/.ee-acme/ee-acme.sh
-            elif [ ! -d  $HOME/.ee-acme ]; then
-            mkdir -p $HOME/.ee-acme
-            wget -qO /usr/local/bin/wo-acme https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
-            chmod +x /usr/local/bin/wo-acme
+    if [ ! -d /opt/acme.sh ]; then
+        git clone https://github.com/Neilpang/acme.sh.git /opt/acme.sh
+        cd /opt/acme.sh || exit 1
+        [ ! -d /etc/letsencrypt/config ] && {
+        mkdir -p /etc/letsencrypt/config
+        }
+        [ ! -d /etc/letsencrypt/live ] && {
+            mkdir -p /etc/letsencrypt/live
+        }
+        [ ! -d /etc/letsencrypt/renewal ] && {
+            mkdir -p /etc/letsencrypt/renewal
+        }
+        ./acme.sh --install  \
+        --home /etc/letsencrypt \
+        --config-home /etc/letsencrypt/config \
+        --cert-home /etc/letsencrypt/renewal
         fi
+        
+        BASHRC_EE_ACME_FIRST_RELEASE=$(grep "ee-acme" $HOME/.bashrc)
+       
+
     fi
 }
 
