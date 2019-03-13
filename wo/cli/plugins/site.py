@@ -132,7 +132,6 @@ class WOSiteController(CementBaseController):
         wo_db_user = ''
         wo_db_pass = ''
 
-
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -445,7 +444,6 @@ class WOSiteCreateController(CementBaseController):
                         data['wpsubdir'] = True
         else:
             pass
-
 
         if data and self.app.pargs.php73:
             if (self.app.pargs.experimental):
@@ -883,7 +881,7 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "\nPassword Unchanged.")
             return 0
 
-        if ((stype == 'php' and 
+        if ((stype == 'php' and
             oldsitetype not in ['html', 'proxy', 'php73']) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
                                                       'proxy', 'php73']) or
@@ -1159,8 +1157,7 @@ class WOSiteUpdateController(CementBaseController):
                     data['basic'] = True
                     cache = 'basic'
 
-        if (php73 is old_php73) and
-                (stype == oldsitetype and cache == oldcachetype)):
+        if (php73 is old_php73) and (stype == oldsitetype and cache == oldcachetype):
             return 1
 
         if not data:
@@ -1199,8 +1196,8 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         if 'proxy' in data.keys() and data['proxy']:
-            updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False)
+            updateSiteInfo(self, wo_domain, stype = stype, cache = cache,
+                           ssl = True if check_site.is_ssl else False)
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
             return 0

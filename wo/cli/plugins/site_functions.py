@@ -153,7 +153,6 @@ def setupdatabase(self, data):
     wo_db_username = ''
     wo_db_password = ''
 
-
     if prompt_dbname == 'True' or prompt_dbname == 'true':
         try:
             wo_db_name = input('Enter the MySQL database name [{0}]: '
