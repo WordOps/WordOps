@@ -882,7 +882,7 @@ class WOSiteUpdateController(CementBaseController):
             return 0
 
         if ((stype == 'php' and
-            oldsitetype not in ['html', 'proxy', 'php73']) or
+             oldsitetype not in ['html', 'proxy', 'php73']) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
                                                       'proxy', 'php73']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
@@ -1196,8 +1196,8 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         if 'proxy' in data.keys() and data['proxy']:
-            updateSiteInfo(self, wo_domain, stype = stype, cache = cache,
-                           ssl = True if check_site.is_ssl else False)
+            updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
+                           ssl=True if check_site.is_ssl else False)
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
             return 0
