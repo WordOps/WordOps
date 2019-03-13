@@ -19,7 +19,7 @@
   <a href="#key-features">Key Features</a> •
   <a href="#getting-started">Getting Started</a> •
   <a href="#usage">Usage</a> •
-  <a href="https://github.com/WordOps/WordOps/wiki/Roadmap">RoadMap</a> •
+  <a href="https://github.com/WordOps/WordOps/projects">RoadMap</a> •
   <a href="https://github.com/WordOps/WordOps/blob/master/CHANGELOG.md">Changelog</a> •
   <a href="#credits">Credits</a> •
   <a href="#license">License</a>
@@ -31,7 +31,7 @@
 
 - Easy Migration from EasyEngine v3 (migration script development in progress)
 - Automated WordPress, Nginx, PHP, MySQL & Redis installation
-- Up-to-date server stack with PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- Up-to-date server stack with Nginx 1.14.2, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - Optimized Nginx configurations with multiple cache backends support
 - Let's Encrypt SSL certificates
 
