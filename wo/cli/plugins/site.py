@@ -472,8 +472,6 @@ class WOSiteCreateController(CementBaseController):
 
         if (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis):
             data['basic'] = True
-            data['hhvm'] = False
-            hhvm = 0
 
         if (cache == 'wpredis' and (self.app.pargs.experimental)):
             Log.info(self, "Redis is experimental feature and it may not "
@@ -823,7 +821,6 @@ class WOSiteUpdateController(CementBaseController):
             self.doupdatesite(pargs)
 
     def doupdatesite(self, pargs):
-        hhvm = None
         letsencrypt = False
         php73 = None
 
@@ -1130,26 +1127,6 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     data['php73'] = True
                     php73 = True
-
-            if pargs.hhvm == "on":
-                if pargs.experimental:
-                    Log.info(self, "HHVM is experimental feature and it may not"
-                             " work with all plugins of your site.\nYou can "
-                             "disable it by passing --hhvm=off later.\nDo you wish"
-                             " to enable HHVM now for {0}?".format(wo_domain))
-
-                    # Check prompt
-                    check_prompt = input("Type \"y\" to continue [n]:")
-                    if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using HHVM for site")
-                        data['hhvm'] = False
-                        hhvm = False
-                    else:
-                        data['hhvm'] = False
-                        hhvm = False
-                else:
-                    data['hhvm'] = False
-                    hhvm = False
 
             if pargs.letsencrypt == "on":
 
