@@ -472,27 +472,6 @@ class WOSiteCreateController(CementBaseController):
 
         if (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis):
             data['basic'] = True
-
-            if (not self.app.pargs.experimental):
-                Log.info(self, "HHVM is experimental feature and it may not "
-                         "work with all plugins of your site.\nYou can "
-                         "disable it by passing --hhvm=off later.\nDo you wish"
-                         " to enable HHVM now for {0}?".format(wo_domain))
-
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
-                if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using HHVM for site.")
-                    data['hhvm'] = False
-                    hhvm = 0
-                    self.app.pargs.hhvm = False
-                else:
-                    data['hhvm'] = True
-                    hhvm = 1
-            else:
-                data['hhvm'] = True
-                hhvm = 1
-
             data['hhvm'] = False
             hhvm = 0
 
@@ -1014,8 +993,8 @@ class WOSiteUpdateController(CementBaseController):
                     data['wpredis'] = True
 
             if pargs.hhvm != 'off':
-                data['hhvm'] = True
-                hhvm = True
+                data['hhvm'] = False
+                hhvm = False
             elif pargs.hhvm == 'off':
                 data['hhvm'] = False
                 hhvm = False
@@ -1166,11 +1145,11 @@ class WOSiteUpdateController(CementBaseController):
                         data['hhvm'] = False
                         hhvm = False
                     else:
-                        data['hhvm'] = True
-                        hhvm = True
+                        data['hhvm'] = False
+                        hhvm = False
                 else:
-                    data['hhvm'] = True
-                    hhvm = True
+                    data['hhvm'] = False
+                    hhvm = False
 
             if pargs.letsencrypt == "on":
 
