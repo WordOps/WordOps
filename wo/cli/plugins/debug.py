@@ -188,27 +188,24 @@ class WODebugController(CementBaseController):
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
                 nc.set([('upstream', 'php',), 'server'], '127.0.0.1:9001')
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
-                    nc.set([('upstream', 'hhvm',), 'server'], '127.0.0.1:9001')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
-                WOFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5") +
+                WOFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5") +
                                           "xdebug.ini",
                                           ";zend_extension",
                                           "zend_extension")
 
                 # Fix slow log is not enabled default in PHP5.6
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2" if (WOVariables.wo_platform_codename ==
-                                                                                  'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+                config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
                 config['debug']['slowlog'] = '/var/log/{0}/slow.log'.format("php/7.2" if (
-                    WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5")
+                    WOVariables.wo_platform_distro == 'ubuntu') else "php5")
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"),
+                with open('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"),
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "Writting debug.conf configuration into "
-                              "/etc/{0}/fpm/pool.d/debug.conf".format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+                              "/etc/{0}/fpm/pool.d/debug.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
                     config.write(confifile)
 
                 self.trigger_php = True
@@ -217,7 +214,7 @@ class WODebugController(CementBaseController):
                 Log.info(self, "PHP debug is already enabled")
 
             self.msg = self.msg + ['/var/log/{0}/slow.log'.format("php/7.2" if (
-                WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5")]
+                WOVariables.wo_platform_distro == 'ubuntu') else "php5")]
 
         # PHP global debug stop
         elif (self.app.pargs.php == 'off' and not self.app.pargs.site_name):
@@ -230,12 +227,10 @@ class WODebugController(CementBaseController):
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
                 nc.set([('upstream', 'php',), 'server'], '127.0.0.1:9000')
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
-                    nc.set([('upstream', 'hhvm',), 'server'], '127.0.0.1:8000')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                WOFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5") +
+                WOFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5") +
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -251,43 +246,41 @@ class WODebugController(CementBaseController):
         # PHP5-FPM start global debug
         if (self.app.pargs.fpm == 'on' and not self.app.pargs.site_name):
             if not WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5")):
+                                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5")):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_codename ==
-                                                                             'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'debug'
                 config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/7.2" if (
-                    WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5")
-                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"),
+                    WOVariables.wo_platform_distro == 'ubuntu') else "php5")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php5-FPM configuration into "
-                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
                     config.write(configfile)
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP5-FPM log_level = debug already setup")
 
             self.msg = self.msg + ['/var/log/{0}/fpm.log'.format("php/7.2" if (
-                WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5")]
+                WOVariables.wo_platform_distro == 'ubuntu') else "php5")]
 
         # PHP5-FPM stop global debug
         elif (self.app.pargs.fpm == 'off' and not self.app.pargs.site_name):
             if WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                          "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5")):
+                                          "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5")):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_codename ==
-                                                                             'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
                 config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/7.2" if (
-                    WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5")
-                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"),
+                    WOVariables.wo_platform_distro == 'ubuntu') else "php5")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
-                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') else "php5"))
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
                     config.write(configfile)
 
                 self.trigger_php = True
@@ -300,8 +293,6 @@ class WODebugController(CementBaseController):
         # PHP global debug start
 
         if (self.app.pargs.php73 == 'on' and not self.app.pargs.site_name):
-            if (WOVariables.wo_platform_codename == 'wheezy' or WOVariables.wo_platform_codename == 'precise'):
-                Log.error(self, "PHP 7.3 not supported.")
             if not (WOShellExec.cmd_exec(self, "sed -n \"/upstream php73"
                                                "{/,/}/p \" /etc/nginx/"
                                                "conf.d/upstream.conf "
@@ -313,8 +304,6 @@ class WODebugController(CementBaseController):
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
                 nc.set([('upstream', 'php73',), 'server'], '127.0.0.1:9173')
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
-                    nc.set([('upstream', 'hhvm',), 'server'], '127.0.0.1:9173')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
@@ -352,8 +341,6 @@ class WODebugController(CementBaseController):
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
                 nc.set([('upstream', 'php72',), 'server'], 'unix:/var/run/php/php72-fpm.sock')
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
-                    nc.set([('upstream', 'hhvm',), 'server'], '127.0.0.1:8000')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
@@ -633,7 +620,7 @@ class WODebugController(CementBaseController):
 
         # Reload PHP
         if self.trigger_php:
-            if WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic':
+            if WOVariables.wo_platform_distro == 'ubuntu':
                 if WOAptGet.is_installed(self, 'php7.2-fpm'):
                     WOService.reload_service(self, 'php7.2-fpm')
                 if WOAptGet.is_installed(self, 'php7.3-fpm'):
@@ -724,7 +711,7 @@ class WODebugController(CementBaseController):
             self.app.pargs.nginx = 'on'
             self.app.pargs.php = 'on'
             self.app.pargs.fpm = 'on'
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and WOAptGet.is_installed(self, 'php7.2-fpm'):
+            if (WOVariables.wo_platform_distro == 'ubuntu') and WOAptGet.is_installed(self, 'php7.2-fpm'):
                 self.app.pargs.php73 = 'on'
                 self.app.pargs.fpm73 = 'on'
             self.app.pargs.mysql = 'on'
@@ -736,7 +723,7 @@ class WODebugController(CementBaseController):
             self.app.pargs.nginx = 'off'
             self.app.pargs.php = 'off'
             self.app.pargs.fpm = 'off'
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic') and WOAptGet.is_installed(self, 'php7.2-fpm'):
+            if (WOVariables.wo_platform_distro == 'ubuntu') and WOAptGet.is_installed(self, 'php7.2-fpm'):
                 self.app.pargs.php73 = 'off'
                 self.app.pargs.fpm73 = 'off'
             self.app.pargs.mysql = 'off'
@@ -781,15 +768,10 @@ class WODebugController(CementBaseController):
             WOService.reload_service(self, 'nginx')
         # Reload PHP
         if self.trigger_php:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
                 if WOAptGet.is_installed(self, 'php7.2-fpm'):
                     WOService.restart_service(self, 'php7.2-fpm')
                 if WOAptGet.is_installed(self, 'php7.3-fpm'):
                     WOService.restart_service(self, 'php7.3-fpm')
-            else:
-                WOService.restart_service(self, 'php7.2-fpm')
-                if WOVariables.wo_platform_codename == 'jessie':
-                    WOService.restart_service(self, 'php7.2-fpm')
 
         if len(self.msg) > 0:
             if not self.app.pargs.interactive:

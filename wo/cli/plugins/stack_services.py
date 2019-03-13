@@ -21,9 +21,11 @@ class WOStackStatusController(CementBaseController):
     def start(self):
         """Start services"""
         services = []
-        if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
-                or self.app.pargs.redis):
+        if not (self.app.pargs.nginx or self.app.pargs.php or
+                self.app.pargs.php73 or
+                self.app.pargs.mysql or
+                self.app.pargs.memcached or
+                self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -63,11 +65,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.hhvm:
-            if WOAptGet.is_installed(self, 'hhvm'):
-                services = services + ['hhvm']
-            else:
-                Log.info(self, "HHVM is not installed")
         if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
@@ -89,7 +86,7 @@ class WOStackStatusController(CementBaseController):
         """Stop services"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
+                or self.app.pargs.mysql or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -131,11 +128,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.hhvm:
-            if WOAptGet.is_installed(self, 'hhvm'):
-                services = services + ['hhvm']
-            else:
-                Log.info(self, "HHVM is not installed")
         if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
@@ -157,7 +149,7 @@ class WOStackStatusController(CementBaseController):
         """Restart services"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
+                or self.app.pargs.mysql or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -199,11 +191,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.hhvm:
-            if WOAptGet.is_installed(self, 'hhvm'):
-                services = services + ['hhvm']
-            else:
-                Log.info(self, "HHVM is not installed")
         if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
@@ -225,12 +212,11 @@ class WOStackStatusController(CementBaseController):
         """Status of services"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
+                or self.app.pargs.mysql or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
-            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-mainline'):
@@ -268,11 +254,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.hhvm:
-            if WOAptGet.is_installed(self, 'hhvm'):
-                services = services + ['hhvm']
-            else:
-                Log.info(self, "HHVM is not installed")
         if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):
                 services = services + ['memcached']
@@ -294,7 +275,7 @@ class WOStackStatusController(CementBaseController):
         """Reload service"""
         services = []
         if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.hhvm or self.app.pargs.memcached
+                or self.app.pargs.mysql or self.app.pargs.memcached
                 or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -335,9 +316,6 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
-
-        if self.app.pargs.hhvm:
-            Log.info(self, "HHVM does not support to reload")
 
         if self.app.pargs.memcached:
             if WOAptGet.is_installed(self, 'memcached'):

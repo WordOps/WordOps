@@ -24,15 +24,6 @@ server 127.0.0.1:{{debug7}};
 }
 {{/php7conf}}
 
-{{#hhvmconf}}
-upstream hhvm {
-# HHVM Pool
-server 127.0.0.1:{{hhvm}};
-server 127.0.0.1:{{php}} backup;
-}
-{{/hhvmconf}}
-
-
 #-------------------------------
 # PHP 7.2
 #-------------------------------

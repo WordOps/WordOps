@@ -34,8 +34,6 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade PHP stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
-            (['--hhvm'],
-                dict(help='Upgrade HHVM stack', action='store_true')),
             (['--wpcli'],
                 dict(help='Upgrade WPCLI', action='store_true')),
             (['--redis'],
@@ -89,9 +87,8 @@ class WOStackUpgradeController(CementBaseController):
 
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
-           (not self.app.pargs.hhvm) and (not self.app.pargs.all) and
-           (not self.app.pargs.wpcli) and (not self.app.pargs.redis) and
-           (not self.app.pargs.nginxmainline)):
+           (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
+           (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline)):
             self.app.pargs.web = True
 
         if self.app.pargs.all:
@@ -117,12 +114,6 @@ class WOStackUpgradeController(CementBaseController):
                 apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
             else:
                 Log.info(self, "PHP 7.2 is not installed")
-
-        if self.app.pargs.hhvm:
-            if WOAptGet.is_installed(self, 'hhvm'):
-                apt_packages = apt_packages + WOVariables.wo_hhvm
-            else:
-                Log.info(self, "HHVM is not installed")
 
         if self.app.pargs.mysql:
             if WOAptGet.is_installed(self, 'mariadb-server'):
@@ -169,8 +160,6 @@ class WOStackUpgradeController(CementBaseController):
                     WOService.restart_service(self, 'nginx')
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):
                     WOService.restart_service(self, 'php7.2-fpm')
-                if set(WOVariables.wo_hhvm).issubset(set(apt_packages)):
-                    WOService.restart_service(self, 'hhvm')
                 if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
                     WOService.restart_service(self, 'mysql')
                 if set(WOVariables.wo_redis).issubset(set(apt_packages)):

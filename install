@@ -481,12 +481,6 @@ wo_update_latest()
         sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"WordOps $wo_version_new\";/" /etc/nginx/conf.d/wo-plus.conf &>> /dev/null
     fi
     
-    # Fix HHVM autostart on reboot
-    CHECK_HHVM_INSTALL=$(dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null)
-    if [ -n "$CHECK_HHVM_INSTALL" ]; then
-        update-rc.d hhvm defaults &>> /dev/null
-    fi
-    
     # Fix WordPress example.html issue
     # Ref: http://wptavern.com/xss-vulnerability-in-jetpack-and-the-twenty-fifteen-default-theme-affects-millions-of-wordpress-users
     dpkg --get-selections | grep -v deinstall | grep nginx &>> /dev/null
@@ -494,47 +488,11 @@ wo_update_latest()
         cp /usr/lib/wo/templates/locations.mustache /etc/nginx/common/locations.conf &>> /dev/null
     fi
     
-    # Fix HHVM upstream issue that was preventing from using EasyEngine for site operations
-    if [ -f /etc/nginx/conf.d/upstream.conf ]; then
-        grep -Hr hhvm /etc/nginx/conf.d/upstream.conf &>> /dev/null
-        if [ $? -ne 0 ]; then
-            echo -e "upstream hhvm {\n# HHVM Pool\nserver 127.0.0.1:8000;\nserver 127.0.0.1:9000 backup;\n}\n" >> /etc/nginx/conf.d/upstream.conf
-        fi
-    fi
-    
-    # Fix HHVM server IP
-    if [ -f /etc/hhvm/server.ini ]; then
-        grep -Hr "hhvm.server.ip" /etc/hhvm/server.ini &>> /dev/null
-        if [ $? -ne 0 ]; then
-            echo -e "hhvm.server.ip = 127.0.0.1\n" >> /etc/hhvm/server.ini
-        fi
-    fi
-    
-    # Rename Redis Header
-    if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
-        sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-    fi
-    
     if [ -f /etc/nginx/common/redis.conf ]; then
         sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
         sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
     fi
     
-    
-    if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
-        # Update Timeout redis-hhvm.conf
-        grep -0 'redis2_query expire $key 6h' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        if [ $? -eq 0 ]; then
-            sed -i 's/redis2_query expire $key 6h/redis2_query expire $key 14400/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        fi
-        
-        #Fix for 3.3.4 redis-hhvm issue
-        grep -0 'HTTP_ACCEPT_ENCODING' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        if [ $? -ne 0 ]; then
-            sed -i 's/fastcgi_params;/fastcgi_params;\n  fastcgi_param HTTP_ACCEPT_ENCODING "";/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        fi
-    fi
     
     # Fix Redis-server security issue
     # http://redis.io/topics/security

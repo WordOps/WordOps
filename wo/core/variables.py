@@ -152,16 +152,6 @@ class WOVariables():
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]
 
-    # HHVM repo details
-    if wo_platform_distro == 'ubuntu':
-        wo_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
-                        .format(codename=wo_platform_codename))
-    else:
-        wo_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"
-                        .format(codename=wo_platform_codename))
-
-    wo_hhvm = ["hhvm"]
-
     # Redis repo details
     if wo_platform_distro == 'ubuntu':
         wo_redis_repo = ("ppa:chris-lea/redis-server")

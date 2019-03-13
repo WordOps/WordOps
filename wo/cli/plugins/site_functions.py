@@ -769,18 +769,6 @@ def site_package_check(self, stype):
                             out=wo_nginx)
             wo_nginx.close()
 
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
-
-            data = dict()
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/redis-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'redis-hhvm.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
         if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
             if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
                                     "upstream.conf",
@@ -801,47 +789,6 @@ def site_package_check(self, stype):
                                  "'$http_host \"$request\" $status"
                                  " $body_bytes_sent '\n"
                                  "'\"$http_referer\" \"$http_user_agent\"';\n")
-
-    if self.app.pargs.hhvm:
-        if platform.architecture()[0] is '32bit':
-            Log.error(self, "HHVM is not supported by 32bit system")
-        Log.debug(self, "Setting apt_packages variable for HHVM")
-        if not WOAptGet.is_installed(self, 'hhvm'):
-            apt_packages = apt_packages + WOVariables.wo_hhvm
-
-        if os.path.isdir("/etc/nginx/common") and (not
-                                                   os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
-            data = dict()
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/php-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/php-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'php-hhvm.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpfc-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpfc-hhvm.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpsc-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpsc-hhvm.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
-                                          "hhvm"):
-                with open("/etc/nginx/conf.d/upstream.conf", "a") as hhvm_file:
-                    hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
-                                    "server 127.0.0.1:9000 backup;\n}\n")
 
     if self.app.pargs.php73:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")

@@ -59,8 +59,6 @@ class WOStackController(CementBaseController):
                 dict(help='Install PHP 7.3 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
-            (['--hhvm'],
-                dict(help='Install HHVM stack', action='store_true')),
             (['--wpcli'],
                 dict(help='Install WPCLI stack', action='store_true')),
             (['--phpmyadmin'],
@@ -178,17 +176,6 @@ class WOStackController(CementBaseController):
                     Log.debug(self, 'Adding Dotdeb/php GPG key')
                     WORepo.add_key(self, '89DF5277')
 
-        if set(WOVariables.wo_hhvm).issubset(set(apt_packages)):
-            if (WOVariables.wo_platform_codename != 'xenial' or
-                    WOVariables.wo_platform_codename != 'bionic'):
-                Log.info(self, "Adding repository for HHVM, please wait...")
-                Log.debug(self, 'Adding ppa repo for HHVM')
-                WORepo.add(self, repo_url=WOVariables.wo_hhvm_repo)
-                Log.debug(self, 'Adding HHVM GPG Key')
-                WORepo.add_key(self, '0x5a16e7281be7a449')
-            else:
-                Log.info(self, "Using default Ubuntu repository for HHVM")
-
         if set(WOVariables.wo_redis).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for Redis, please wait...")
             if WOVariables.wo_platform_distro == 'debian':
@@ -210,12 +197,12 @@ class WOStackController(CementBaseController):
                     # Fix for white screen death with NGINX PLUS
                     if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
                                             'SCRIPT_FILENAME'):
-                        with open('/etc/nginx/fastcgi_params', encoding='utf-8',
-                                  mode='a') as wo_nginx:
+                        with open('/etc/nginx/fastcgi_params',
+                                  encoding='utf-8', mode='a') as wo_nginx:
                             wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
 
-                if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
+                if not (os.path.isfile('/etc/nginx/common/wpfc-php72.conf')):
                     # Change WordOpsVersion in nginx.conf file
                     WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
                                               "# add_header",
@@ -225,44 +212,6 @@ class WOStackController(CementBaseController):
                                               "\"WordOps\"",
                                               "\"WordOps v{0}\""
                                               .format(WOVariables.wo_version))
-                    WOFileUtils.searchreplace(self, '/etc/nginx/nginx.conf',
-                                              'ECDHE-RSA-AES128-GCM'
-                                              '-SHA256:'
-                                              'ECDHE-ECDSA-AES128'
-                                              '-GCM-SHA256:'
-                                              'ECDHE-RSA-AES256-GCM-SHA384:'
-                                              'ECDHE-ECDSA-AES256-GCM-SHA384:'
-                                              'DHE-RSA-AES128-GCM-SHA256:'
-                                              'DHE-DSS-AES128-GCM-SHA256:'
-                                              'kEDH+AESGCM:'
-                                              'ECDHE-RSA-AES128-SHA256:'
-                                              'ECDHE-ECDSA-AES128-SHA256:'
-                                              'ECDHE-RSA-AES128-SHA:'
-                                              'ECDHE-ECDSA-AES128-SHA:'
-                                              'ECDHE-RSA-AES256-SHA384:'
-                                              'ECDHE-ECDSA-AES256-SHA384:'
-                                              'ECDHE-RSA-AES256-SHA:'
-                                              'ECDHE-ECDSA-AES256-SHA:'
-                                              'DHE-RSA-AES128-SHA256:'
-                                              'DHE-RSA-AES128-SHA'
-                                              'DHE-DSS-AES128-SHA256:'
-                                              'DHE-RSA-AES256-SHA256:'
-                                              'DHE-DSS-AES256-SHA:'
-                                              'DHE-RSA-AES256-SHA:'
-                                              'ECDHE-RSA-DES-CBC3-SHA:'
-                                              'ECDHE-ECDSA-DES-CBC3-SHA:'
-                                              'AES128-GCM-SA256:'
-                                              'AES256-GCM-SHA384:'
-                                              'AES128-SHA256:AES256-SHA256:'
-                                              'AES128-SHA:AES256-SHA:AES:'
-                                              'CAMELLIA:DES-CBC3-SHA:!aNULL:'
-                                              '!eNULL:!EXPORT:!DES:'
-                                              '!RC4:!MD5:!PSK:'
-                                              '!ECDH:!EDH-DSS-DES-CBC3-SHA:'
-                                              '!EDH-RSA-DES-CBC3-SHA:'
-                                              '!KRB5-DES-CBC3-SHA',
-                                              'EECDH+CHACHA20:EECDH+AESGCM:'
-                                              'EECDH+AES')
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
@@ -278,10 +227,10 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=wo_nginx)
                     wo_nginx.close()
 
-                    data = dict(php="9000", debug="9001", hhvm="8000",
+                    data = dict(php="9000", debug="9001",
                                 php7="9070", debug7="9170",
-                                hhvmconf=False, php7conf=True if
-                                WOAptGet.is_installed(self, 'php7.0-fpm')
+                                php7conf=True
+                                if WOAptGet.is_installed(self, 'php7.0-fpm')
                                 else False)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
@@ -371,9 +320,7 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     # php7 conf
-                    if (WOVariables.wo_platform_distro == 'debian' or
-                        WOVariables.wo_platform_distro == 'ubuntu') and (not
-                                                                         os.path.isfile("/etc/nginx/common/php73.conf")):
+                    if not os.path.isfile("/etc/nginx/common/php73.conf"):
                         # data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
                                   'file /etc/nginx/common/locations-php73.conf')
@@ -504,7 +451,7 @@ class WOStackController(CementBaseController):
                                              "{0}22222/cert/22222.key 2048"
                                              .format(WOVariables.wo_webroot))
                         WOShellExec.cmd_exec(self, "openssl req -new -batch  "
-                                             "-subj /commonName=localhost.localdomain/ "
+                                             "-subj /commonName=localhost/ "
                                              "-key {0}22222/cert/22222.key "
                                              "-out {0}22222/cert/"
                                              "22222.csr"
@@ -582,16 +529,6 @@ class WOStackController(CementBaseController):
                                         out=wo_nginx)
                         wo_nginx.close()
 
-                    if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
-
-                        data = dict()
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/redis-hhvm.conf')
-                        wo_nginx = open('/etc/nginx/common/redis-hhvm.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'redis-hhvm.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
                     if (WOVariables.wo_platform_distro == 'ubuntu'):
                         if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
                             data = dict()
@@ -680,82 +617,6 @@ class WOStackController(CementBaseController):
                             php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
                                            "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
 
-            if set(WOVariables.wo_hhvm).issubset(set(apt_packages)):
-
-                WOShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
-
-                WOFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
-                                                "9000", "8000")
-                if (WOVariables.wo_platform_codename != 'xenial' or WOVariables.wo_platform_codename != 'bionic'):
-                    WOFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
-                                              "9000", "8000")
-
-                with open("/etc/hhvm/php.ini", "a") as hhvm_file:
-                    hhvm_file.write("hhvm.log.header = true\n"
-                                    "hhvm.log.natives_stack_trace = true\n"
-                                    "hhvm.mysql.socket = "
-                                    "/var/run/mysqld/mysqld.sock\n"
-                                    "hhvm.pdo_mysql.socket = "
-                                    "/var/run/mysqld/mysqld.sock\n"
-                                    "hhvm.mysqli.socket = "
-                                    "/var/run/mysqld/mysqld.sock\n")
-
-                with open("/etc/hhvm/server.ini", "a") as hhvm_file:
-                    hhvm_file.write("hhvm.server.ip = 127.0.0.1\n")
-
-                if os.path.isfile("/etc/nginx/conf.d/fastcgi.conf"):
-                    if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                            "fastcgi.conf",
-                                            "fastcgi_keep_conn"):
-                        with open("/etc/nginx/conf.d/fastcgi.conf",
-                                  "a") as hhvm_file:
-                            hhvm_file.write("fastcgi_keep_conn on;\n")
-
-                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-                    if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                            "upstream.conf",
-                                            "hhvm"):
-                        with open("/etc/nginx/conf.d/upstream.conf",
-                                  "a") as hhvm_file:
-                            hhvm_file.write("upstream hhvm {\nserver "
-                                            "127.0.0.1:8000;\n"
-                                            "server 127.0.0.1:9000 backup;\n}"
-                                            "\n")
-
-                WOGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
-                WOService.restart_service(self, 'hhvm')
-
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
-
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php-hhvm.conf')
-                    wo_nginx = open('/etc/nginx/common/php-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php-hhvm.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-hhvm.conf')
-                    wo_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc-hhvm.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-hhvm.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc-hhvm.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "Failed to reload Nginx, please check "
-                                        "output of `nginx -t`")
-
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
                 if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
@@ -765,17 +626,6 @@ class WOStackController(CementBaseController):
                     wo_nginx = open('/etc/nginx/common/redis-php72.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'redis.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
-
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/redis-hhvm.conf')
-                    wo_nginx = open('/etc/nginx/common/redis-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'redis-hhvm.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
 
@@ -870,7 +720,7 @@ class WOStackController(CementBaseController):
                 config['debug']['request_slowlog_timeout'] = '10s'
                 with open('/etc/php/7.2/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
-                    Log.debug(self, "writting PHP5 configuration into "
+                    Log.debug(self, "writting PHP7.2 configuration into "
                               "/etc/php/7.2/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
@@ -1066,7 +916,7 @@ class WOStackController(CementBaseController):
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '64M'
                 config['PHP']['upload_max_filesize'] = '64M'
-                config['PHP']['max_execution_time'] = '30'
+                config['PHP']['max_execution_time'] = '300'
                 config['PHP']['date.timezone'] = WOVariables.wo_timezone
                 with open('/etc/php/7.3/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
@@ -1402,7 +1252,6 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.nginx) and (not self.app.pargs.php) and
                 (not self.app.pargs.mysql) and (not self.app.pargs.wpcli) and
                 (not self.app.pargs.phpmyadmin) and
-                (not self.app.pargs.hhvm) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin) and
@@ -1484,16 +1333,6 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
-
-            if self.app.pargs.hhvm:
-                Log.debug(self, "Setting apt packages variable for HHVM")
-                if platform.architecture()[0] is '32bit':
-                    Log.error(self, "HHVM is not supported by 32bit system")
-                if not WOAptGet.is_installed(self, 'hhvm'):
-                    apt_packages = apt_packages + WOVariables.wo_hhvm
-                else:
-                    Log.debug(self, "HHVM already installed")
-                    Log.info(self, "HHVM already installed")
 
             if self.app.pargs.mysql:
                 Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -1653,9 +1492,8 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.nginx) and (not self.app.pargs.php) and
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
-            (not self.app.pargs.hhvm) and (not self.app.pargs.adminer) and
-            (not self.app.pargs.utils) and (not self.app.pargs.all) and
-            (not self.app.pargs.redis) and
+            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+            (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
@@ -1701,11 +1539,6 @@ class WOStackController(CementBaseController):
                     apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
             else:
                 apt_packages = apt_packages + WOVariables.wo_php73
-
-        if self.app.pargs.hhvm:
-            if WOAptGet.is_installed(self, 'hhvm'):
-                Log.debug(self, "Removing apt_packages variable of HHVM")
-                apt_packages = apt_packages + WOVariables.wo_hhvm
 
         if self.app.pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
@@ -1794,9 +1627,9 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.nginx) and (not self.app.pargs.php) and
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
-            (not self.app.pargs.hhvm) and (not self.app.pargs.adminer) and
-            (not self.app.pargs.utils) and (not self.app.pargs.all) and
-                (not self.app.pargs.redis) and (not self.app.pargs.phpredisadmin)):
+            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+            (not self.app.pargs.all) and (not self.app.pargs.redis) and
+             (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1845,11 +1678,6 @@ class WOStackController(CementBaseController):
                 apt_packages = apt_packages + WOVariables.wo_php73
                 if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php
-
-        if self.app.pargs.hhvm:
-            if WOAptGet.is_installed(self, 'hhvm'):
-                Log.debug(self, "Purge apt_packages varible of HHVM")
-                apt_packages = apt_packages + WOVariables.wo_hhvm
 
             Log.debug(self, "Purge package variable WPCLI")
             if os.path.isfile('/usr/local/bin/wp'):

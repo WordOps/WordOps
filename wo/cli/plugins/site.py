@@ -148,8 +148,6 @@ class WOSiteController(CementBaseController):
             wo_db_user = siteinfo.db_user
             wo_db_pass = siteinfo.db_password
             wo_db_host = siteinfo.db_host
-            if sitetype != "html":
-                hhvm = ("enabled" if siteinfo.is_hhvm else "disabled")
             if sitetype == "proxy":
                 access_log = "/var/log/nginx/{0}.access.log".format(wo_domain)
                 error_log = "/var/log/nginx/{0}.error.log".format(wo_domain)
@@ -331,8 +329,6 @@ class WOSiteCreateController(CementBaseController):
             (['--wpredis'],
                 dict(help="create wordpress single/multi site with redis cache",
                      action='store_true')),
-            (['--hhvm'],
-                dict(help="create HHVM site", action='store_true')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site", action='store_true')),
             (['--subdomain'],
@@ -375,8 +371,6 @@ class WOSiteCreateController(CementBaseController):
             stype, cache = 'html', 'basic'
         elif stype and self.app.pargs.proxy:
             Log.error(self, "proxy should not be used with other site types")
-        if (self.app.pargs.proxy and self.app.pargs.hhvm):
-            Log.error(self, "Proxy site can not run on hhvm")
 
         if not self.app.pargs.site_name:
             try:
@@ -452,8 +446,6 @@ class WOSiteCreateController(CementBaseController):
         else:
             pass
 
-        if stype == "html" and self.app.pargs.hhvm:
-            Log.error(self, "Can not create HTML site with HHVM")
 
         if data and self.app.pargs.php73:
             if (self.app.pargs.experimental):
@@ -478,10 +470,9 @@ class WOSiteCreateController(CementBaseController):
             data['php73'] = False
             php73 = 0
 
-        if (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis) and (not self.app.pargs.hhvm):
+        if (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis):
             data['basic'] = True
 
-        if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):
                 Log.info(self, "HHVM is experimental feature and it may not "
                          "work with all plugins of your site.\nYou can "
@@ -502,7 +493,6 @@ class WOSiteCreateController(CementBaseController):
                 data['hhvm'] = True
                 hhvm = 1
 
-        elif data:
             data['hhvm'] = False
             hhvm = 0
 
@@ -804,10 +794,6 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to wpsc cache", action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
-            (['--hhvm'],
-                dict(help='Use HHVM for site',
-                     action='store' or 'store_const',
-                     choices=('on', 'off'), const='on', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -835,7 +821,7 @@ class WOSiteUpdateController(CementBaseController):
             if not (pargs.php or pargs.php73 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
-                    pargs.hhvm or pargs.wpredis or pargs.letsencrypt):
+                    pargs.wpredis or pargs.letsencrypt):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -882,8 +868,6 @@ class WOSiteUpdateController(CementBaseController):
             stype, cache = 'html', 'basic'
         elif stype and pargs.proxy:
             Log.error(self, "--proxy can not be used with other site types")
-        if (pargs.proxy and pargs.hhvm):
-            Log.error(self, "Proxy site can not run on hhvm")
 
         if not pargs.site_name:
             try:
@@ -904,7 +888,6 @@ class WOSiteUpdateController(CementBaseController):
         else:
             oldsitetype = check_site.site_type
             oldcachetype = check_site.cache_type
-            old_hhvm = check_site.is_hhvm
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
 
@@ -923,16 +906,6 @@ class WOSiteUpdateController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.info(self, "\nPassword Unchanged.")
             return 0
-
-        if ((stype == "proxy" and stype == oldsitetype and self.app.pargs.hhvm)
-            or (stype == "proxy" and
-                stype == oldsitetype)):
-            Log.info(self, Log.FAIL +
-                     "Can not update proxy site to HHVM")
-            return 1
-        if stype == "html" and stype == oldsitetype and self.app.pargs.hhvm:
-            Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
-            return 1
 
         if ((stype == 'php' and 
             oldsitetype not in ['html', 'proxy', 'php73']) or
@@ -985,7 +958,7 @@ class WOSiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if pargs.hhvm or pargs.php73:
+        if pargs.php73:
             if not data:
                 data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                             currsitetype=oldsitetype,
@@ -1153,25 +1126,6 @@ class WOSiteUpdateController(CementBaseController):
                               "site")
                 pargs.letsencrypt = False
 
-        if pargs.hhvm:
-            if hhvm is old_hhvm:
-                if hhvm is False:
-                    Log.info(self, "HHVM is allready disabled for given "
-                             "site")
-                elif hhvm is True:
-                    Log.info(self, "HHVM is allready enabled for given "
-                             "site")
-
-                pargs.hhvm = False
-
-        if data and (not pargs.hhvm):
-            if old_hhvm is True:
-                data['hhvm'] = True
-                hhvm = True
-            else:
-                data['hhvm'] = False
-                hhvm = False
-
         if data and (not pargs.php73):
             if old_php73 is True:
                 data['php73'] = True
@@ -1180,7 +1134,7 @@ class WOSiteUpdateController(CementBaseController):
                 data['php73'] = False
                 php73 = False
 
-        if pargs.hhvm == "on" or pargs.letsencrypt == "on" or pargs.php73 == "on":
+        if pargs.letsencrypt == "on" or pargs.php73 == "on":
             if pargs.php73 == "on":
                 if pargs.experimental:
                     Log.info(
@@ -1298,7 +1252,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if 'proxy' in data.keys() and data['proxy']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, ssl=True if check_site.is_ssl else False)
+                           ssl=True if check_site.is_ssl else False)
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
             return 0

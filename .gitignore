@@ -64,3 +64,5 @@ coverage_report/
 include/
 local/
 man/
+
+\.pytest_cache/
