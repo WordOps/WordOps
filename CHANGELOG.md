@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Update Adminer to 4.6.2
 - Update Nginx to 1.14.2
 - Refactored nginx.conf
+- Removed HHVM Stack
 
 #### Fixed
 
