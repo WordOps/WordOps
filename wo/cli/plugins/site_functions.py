@@ -152,6 +152,7 @@ def setupdatabase(self, data):
     wo_db_name = ''
     wo_db_username = ''
     wo_db_password = ''
+    hhvm = ''
 
     if prompt_dbname == 'True' or prompt_dbname == 'true':
         try:
@@ -306,6 +307,8 @@ def setupwordpress(self, data):
                   + "--dbpass=\'{0}\' "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['wo_db_pass'],
+                          "\ndefine(\'CONCATENATE_SCRIPTS\',"
+                          " false);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
@@ -342,6 +345,8 @@ def setupwordpress(self, data):
                   .format(data['wo_db_user'], data['wo_db_pass'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
+                          "\ndefine(\'CONCATENATE_SCRIPTS\',"
+                          " false);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
