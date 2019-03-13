@@ -131,7 +131,7 @@ class WOSiteController(CementBaseController):
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
-        hhvm = ''
+
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -165,7 +165,7 @@ class WOSiteController(CementBaseController):
             data = dict(domain=wo_domain, webroot=wo_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=wo_db_name, dbuser=wo_db_user, php_version=php_version,
-                        dbpass=wo_db_pass, hhvm=hhvm,
+                        dbpass=wo_db_pass,
                         ssl=ssl, sslprovider=sslprovider,  sslexpiry=sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
                         .format("enabled" if siteinfo.is_enabled else
@@ -541,7 +541,7 @@ class WOSiteCreateController(CementBaseController):
                 php_version = "7.2"
 
             addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
-                       hhvm=hhvm, php_version=php_version)
+                       php_version=php_version)
 
             # Setup database for MySQL site
             if 'wo_db_name' in data.keys() and not data['wp']:
@@ -903,7 +903,6 @@ class WOSiteUpdateController(CementBaseController):
             data['proxy'] = True
             data['host'] = host
             data['port'] = port
-            hhvm = False
             data['webroot'] = wo_site_webroot
             data['currsitetype'] = oldsitetype
             data['currcachetype'] = oldcachetype
@@ -988,13 +987,6 @@ class WOSiteUpdateController(CementBaseController):
                     data['wpfc'] = False
                     data['wpsc'] = False
                     data['wpredis'] = True
-
-            if pargs.hhvm != 'off':
-                data['hhvm'] = False
-                hhvm = False
-            elif pargs.hhvm == 'off':
-                data['hhvm'] = False
-                hhvm = False
 
             if pargs.php73 == 'on':
                 data['php73'] = True
@@ -1167,7 +1159,7 @@ class WOSiteUpdateController(CementBaseController):
                     data['basic'] = True
                     cache = 'basic'
 
-        if ((hhvm is old_hhvm) and (php73 is old_php73) and
+        if (php73 is old_php73) and
                 (stype == oldsitetype and cache == oldcachetype)):
             return 1
 
@@ -1276,7 +1268,7 @@ class WOSiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, ssl=True if check_site.is_ssl else False, php_version=check_php_version)
+                           ssl=True if check_site.is_ssl else False, php_version=check_php_version)
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
@@ -1478,11 +1470,11 @@ class WOSiteUpdateController(CementBaseController):
                            db_name=data['wo_db_name'],
                            db_user=data['wo_db_user'],
                            db_password=data['wo_db_pass'],
-                           db_host=data['wo_db_host'], hhvm=hhvm,
+                           db_host=data['wo_db_host'],
                            ssl=True if check_site.is_ssl else False, php_version=check_php_version)
         else:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, ssl=True if check_site.is_ssl else False, php_version=check_php_version)
+                           ssl=True if check_site.is_ssl else False, php_version=check_php_version)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(wo_domain))
         return 0

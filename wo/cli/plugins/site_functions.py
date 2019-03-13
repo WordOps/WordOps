@@ -152,7 +152,7 @@ def setupdatabase(self, data):
     wo_db_name = ''
     wo_db_username = ''
     wo_db_password = ''
-    hhvm = ''
+
 
     if prompt_dbname == 'True' or prompt_dbname == 'true':
         try:
