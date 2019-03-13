@@ -1388,9 +1388,9 @@ class WOStackController(CementBaseController):
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
-                packages = packages + [["https://storage.googleapis.com/google-code-archive-downloads/"
-                                        "v2/code.google.com/phpmemcacheadmin/"
-                                        "phpMemcachedAdmin-1.2.2-r262.tar.gz", '/tmp/memcached.tar.gz',
+                packages = packages + [["https://github.com/elijaa/"
+                                        "phpmemcachedadmin/archive/1.3.0.tar.gz",
+                                        '/tmp/memcached.tar.gz',
                                         'phpMemcachedAdmin'],
                                        ["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
