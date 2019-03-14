@@ -85,15 +85,18 @@ class WOStackStatusController(CementBaseController):
     def stop(self):
         """Stop services"""
         services = []
-        if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.memcached
-                or self.app.pargs.redis):
+        if not (self.app.pargs.nginx or self.app.pargs.php or
+                self.app.pargs.php73 or
+                self.app.pargs.mysql or
+                self.app.pargs.memcached or
+                self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-mainline'):
+            if WOAptGet.is_installed(self, 'nginx-custom') or
+            WOAptGet.is_installed(self, 'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -148,15 +151,18 @@ class WOStackStatusController(CementBaseController):
     def restart(self):
         """Restart services"""
         services = []
-        if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.memcached
-                or self.app.pargs.redis):
+        if not (self.app.pargs.nginx or self.app.pargs.php or
+                self.app.pargs.php73 or
+                self.app.pargs.mysql or
+                self.app.pargs.memcached or
+                self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-mainline'):
+            if WOAptGet.is_installed(self, 'nginx-custom') or
+            WOAptGet.is_installed(self, 'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -219,7 +225,8 @@ class WOStackStatusController(CementBaseController):
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-mainline'):
+            if WOAptGet.is_installed(self, 'nginx-custom') or
+            WOAptGet.is_installed(self, 'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -274,15 +281,18 @@ class WOStackStatusController(CementBaseController):
     def reload(self):
         """Reload service"""
         services = []
-        if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php73
-                or self.app.pargs.mysql or self.app.pargs.memcached
-                or self.app.pargs.redis):
+        if not (self.app.pargs.nginx or self.app.pargs.php or
+                self.app.pargs.php73 or
+                self.app.pargs.mysql or
+                self.app.pargs.memcached or
+                self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-mainline'):
+            if WOAptGet.is_installed(self, 'nginx-custom') or
+            WOAptGet.is_installed(self, 'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")

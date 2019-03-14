@@ -193,7 +193,8 @@ class WOStackController(CementBaseController):
         if len(apt_packages):
 
             if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-                if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
+                if set(["nginx-plus"]).issubset(set(apt_packages)) or
+                set(["nginx"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
                     if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
                                             'SCRIPT_FILENAME'):
@@ -372,7 +373,8 @@ class WOStackController(CementBaseController):
 
                     # Nginx-Plus does not have nginx package structure like this
                     # So creating directories
-                    if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
+                    if set(["nginx-plus"]).issubset(set(apt_packages)) or
+                    set(["nginx"]).issubset(set(apt_packages)):
                         Log.info(self,
                                  "Installing WordOpsConfigurations for" "NGINX")
                         if not os.path.exists('/etc/nginx/sites-available'):
@@ -484,7 +486,8 @@ class WOStackController(CementBaseController):
                     WOGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     WOService.reload_service(self, 'nginx')
-                    if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
+                    if set(["nginx-plus"]).issubset(set(apt_packages)) or
+                    set(["nginx"]).issubset(set(apt_packages)):
                         WOShellExec.cmd_exec(self, "sed -i -e 's/^user/#user/'"
                                              " -e '/^#user/a user"
                                              "\ www-data\;'"
@@ -558,7 +561,8 @@ class WOStackController(CementBaseController):
                                              "'\"$http_referer\" \"$http_user_agent\"';\n")
             # setup nginx common folder for php7
             if self.app.pargs.php73:
-                if os.path.isdir("/etc/nginx/common") and (not os.path.isfile("/etc/nginx/common/php73.conf")):
+                if os.path.isdir("/etc/nginx/common") and
+                (not os.path.isfile("/etc/nginx/common/php73.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/locations-php73.conf')
@@ -600,7 +604,8 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                if os.path.isdir("/etc/nginx/common") and (not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+                if os.path.isdir("/etc/nginx/common") and
+                (not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/redis-php73.conf')
@@ -618,7 +623,8 @@ class WOStackController(CementBaseController):
                                            "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
 
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+                if os.path.isfile("/etc/nginx/nginx.conf") and
+                (not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -639,8 +645,10 @@ class WOStackController(CementBaseController):
                                              "    server 127.0.0.1:6379;\n"
                                              "    keepalive 10;\n}\n")
 
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
-                    with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
+                if os.path.isfile("/etc/nginx/nginx.conf") 
+                and (not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                    with open("/etc/nginx/conf.d/redis.conf", "a") as
+                    redis_file:
                         redis_file.write("# Log format Settings\n"
                                          "log_format rt_cache_redis "
                                          "'$remote_addr "
@@ -778,7 +786,8 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php7.2-fpm')
 
         # PHP7.3 configuration for debian
-            if (WOVariables.wo_platform_distro == 'debian') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_distro == 'debian') and
+            set(WOVariables.wo_php73).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -903,7 +912,8 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php7.3-fpm')
 
             # preconfiguration for php7.3
-            if (WOVariables.wo_platform_distro == 'ubuntu') and set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_distro == 'ubuntu') and
+            set(WOVariables.wo_php73).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')

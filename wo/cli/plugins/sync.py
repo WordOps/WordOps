@@ -40,10 +40,10 @@ class WOSyncController(CementBaseController):
                 # search for wp-config.php inside htdocs/
                 if not configfiles:
                     Log.debug(self, "Config files not found in {0}/ "
-                                      .format(wo_site_webroot))
+                                    .format(wo_site_webroot))
                     if site.site_type != 'mysql':
                         Log.debug(self, "Searching wp-config.php in {0}/htdocs/ "
-                                      .format(wo_site_webroot))
+                                        .format(wo_site_webroot))
                         configfiles = glob.glob(wo_site_webroot + '/htdocs/wp-config.php')
 
                 if configfiles:
