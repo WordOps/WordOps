@@ -637,20 +637,21 @@ class WOStackController(CementBaseController):
                                              "    server 127.0.0.1:6379;\n"
                                              "    keepalive 10;\n}\n")
 
-                if (os.path.isfile("/etc/nginx/nginx.conf") and
-                        not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
-                    with open("/etc/nginx/conf.d/redis.conf", "a") as
-                    redis_file:
-                        redis_file.write("# Log format Settings\n"
-                                         "log_format rt_cache_redis "
-                                         "'$remote_addr "
-                                         "$upstream_response_time "
-                                         "$srcache_fetch_status [$time_local]"
-                                         " '\n '$http_host"
-                                         " \"$request\" "
-                                         "$status $body_bytes_sent '\n"
-                                         "'\"$http_referer\" "
-                                         "\"$http_user_agent\"';\n")
+                if os.path.isfile("/etc/nginx/nginx.conf"):
+                    if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
+                        with open("/etc/nginx/conf.d/redis.conf",
+                                  "a") as redis_file:
+                            redis_file.write("# Log format Settings\n"
+                                             "log_format rt_cache_redis "
+                                             "'$remote_addr "
+                                             "$upstream_response_time "
+                                             "$srcache_fetch_status "
+                                             "[$time_local]"
+                                             " '\n '$http_host"
+                                             " \"$request\" "
+                                             "$status $body_bytes_sent '\n"
+                                             "'\"$http_referer\" "
+                                             "\"$http_user_agent\"';\n")
 
             if (WOVariables.wo_platform_distro == 'ubuntu'):
                 # Create log directories
