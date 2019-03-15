@@ -1189,6 +1189,8 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         deleteDB(self, dbname, dbuser, dbhost)
 
 # setup letsencrypt for domain + www.domain
+
+
 def setupLetsEncrypt(self, wo_domain_name):
 
     if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
@@ -1259,7 +1261,9 @@ def setupLetsEncrypt(self, wo_domain_name):
                         "you are running Let\'s Encrypt Client "
                         "\n to allow it to verify the site automatically.")
 
-# setup letsencrypt for a subdomain 
+# setup letsencrypt for a subdomain
+
+
 def setupLetsEncryptSubdomain(self, wo_domain_name):
     wo_wp_email = WOVariables.wo_email
 
@@ -1315,6 +1319,8 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                         "\n to allow it to verify the site automatically.")
 
 # letsencrypt cert renewal
+
+
 def renewLetsEncrypt(self, wo_domain_name):
 
     ssl = WOShellExec.cmd_exec(
