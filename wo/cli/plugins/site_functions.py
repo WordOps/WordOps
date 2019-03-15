@@ -1454,8 +1454,8 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --renew -d {0} --ecc --force"
                                          .format(domain))
 
-        else:
-            Log.error(self, "Operation cancelled by user.")
+    else:
+        Log.error(self, "Operation cancelled by user.")
 
     if os.path.isfile("{0}/conf/nginx/ssl.conf"
                       .format(domain)):
