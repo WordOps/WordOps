@@ -16,7 +16,7 @@
   <a href="#key-features">Key Features</a> •
   <a href="#getting-started">Getting Started</a> •
   <a href="#usage">Usage</a> •
-  <a href="https://github.com/WordOps/WordOps/wiki/Roadmap">RoadMap</a> •
+  <a href="https://github.com/WordOps/WordOps/projects">RoadMap</a> •
   <a href="https://github.com/WordOps/WordOps/blob/master/CHANGELOG.md">Changelog</a> •
   <a href="#credits">Credits</a> •
   <a href="#license">License</a>
