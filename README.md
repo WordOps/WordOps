@@ -61,7 +61,7 @@ sudo wo site create example.com --wp     # Install required packages & setup Wor
 
 WordOps made some fundamental changes:
 
-- We've deprecated the mail stack. Less is more. As an alternative, take a look at [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). And an alternative for Roundcube is [Rainloop](https://www.rainloop.net/).
+- We've deprecated the mail stack. As an alternative, you can take a look at [Mail-in-a-Box](https://github.com/mail-in-a-box/mailinabox), [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). As Roundcube alternative, there is [Rainloop](https://www.rainloop.net/) or [Afterlogic WebMail](https://github.com/afterlogic/webmail-lite-8)
 - Support for w3tc is dropped as a security precaution.
 - PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 has been replaced by PHP 7.3.
 - Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.14.2)
@@ -71,7 +71,8 @@ We are still working on the script to migrate from EasyEngine v3 to WordOps. Her
 - Previous php upstreams in Nginx will not be overwritted
 - php5.6 and php7.0 will not be removed or uninstalled
 - previous Nginx common configurations will not be overwritted
- A step by step guide will be published soon to explain how to fully migrate from EasyEngine v3 to WordOps.
+
+A tutorial will be available soon to explain how to fully migrate from EasyEngine v3 to WordOps.
 
 ## Usage
 
@@ -120,7 +121,6 @@ wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with ngi
 | **WP Super Cache** |  --wpsc       |  -wpsubdir --wpsc    |  --wpsubdomain --wpsc    |
 | **Nginx fastcgi_cache**    |  --wpfc       |  --wpsubdir --wpfc    |  --wpsubdomain --wpfc    |
 | **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
-
 
 ## Update WordOps
 
