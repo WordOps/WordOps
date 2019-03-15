@@ -62,4 +62,4 @@ script:
   - sudo wp --allow-root --info
   - sudo bash -c 'nginx -T 2>&1 | tee -a /var/log/wo/nginx.log'
   - sudo bash -c 'tar -I pigz -cf /var/log/wordops.tar.gz /var/log/wo'
-  - sudo bash -c 'curl --progress-bar --upload-file "/var/log/wordops.tar.gz" https://transfer.vtbox.net/$(basename /var/log/wordops.tar.gz) && echo ""; } && echo ""'
+  - sudo curl --progress-bar --upload-file "/var/log/wordops.tar.gz" https://transfer.vtbox.net/$(basename /var/log/wordops.tar.gz) && echo ""
