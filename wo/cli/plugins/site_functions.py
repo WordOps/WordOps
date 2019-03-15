@@ -306,6 +306,8 @@ def setupwordpress(self, data):
                   + "--dbpass=\'{0}\' "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['wo_db_pass'],
+                          "\ndefine(\'CONCATENATE_SCRIPTS\',"
+                          " false);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
@@ -342,6 +344,8 @@ def setupwordpress(self, data):
                   .format(data['wo_db_user'], data['wo_db_pass'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
+                          "\ndefine(\'CONCATENATE_SCRIPTS\',"
+                          " false);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
@@ -696,9 +700,11 @@ def site_package_check(self, stype):
                 # apt_packages = apt_packages + WOVariables.wo_nginx
                 stack.post_pref(apt, packages)
             elif WOAptGet.is_installed(self, 'nginx'):
-                Log.info(self, "WordOps detected a previously installed Nginx package. "
-                         "It may or may not have required modules. "
-                         "\nIf you need help, please create an issue at https://github.com/WordOps/WordOps/issues/ \n")
+                Log.info(self, "WordOps detected a previously"
+                               "installed Nginx package. "
+                               "It may or may not have required modules. "
+                               "\nIf you need help, please create an issue at "
+                               "https://github.com/WordOps/WordOps/issues/ \n")
                 apt = ["nginx"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
                 stack.post_pref(apt, packages)
@@ -715,27 +721,18 @@ def site_package_check(self, stype):
 
     if self.app.pargs.php and self.app.pargs.php73:
         Log.error(
-            self, "Error: two different PHP versions cannot be combined within the same WordOps site")
+            self, "Error: two different PHP versions cannot be "
+                  "combined within the same WordOps site")
 
     if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-        else:
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php
+        Log.debug(self, "Setting apt_packages variable for PHP 7.2")
+        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+            apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
 
-        if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-            if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73
-            else:
-                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73
+    if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+        if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            apt_packages = apt_packages + WOVariables.wo_php73
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -759,8 +756,8 @@ def site_package_check(self, stype):
         if not WOAptGet.is_installed(self, 'redis-server'):
             apt_packages = apt_packages + WOVariables.wo_redis
 
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+        if (os.path.isfile("/etc/nginx/nginx.conf") and
+                not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
@@ -768,18 +765,6 @@ def site_package_check(self, stype):
             wo_nginx = open('/etc/nginx/common/redis-php72.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'redis.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
-
-            data = dict()
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/redis-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'redis-hhvm.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
@@ -793,67 +778,24 @@ def site_package_check(self, stype):
                                      "    server 127.0.0.1:6379;\n"
                                      "    keepalive 10;\n}")
 
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+        if (os.path.isfile("/etc/nginx/nginx.conf") and
+                not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
             with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
                 redis_file.write("# Log format Settings\n"
-                                 "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
-                                 "'$http_host \"$request\" $status $body_bytes_sent '\n"
+                                 "log_format rt_cache_redis '$remote_addr"
+                                 " $upstream_response_time "
+                                 "$srcache_fetch_status [$time_local] '\n"
+                                 "'$http_host \"$request\" $status"
+                                 " $body_bytes_sent '\n"
                                  "'\"$http_referer\" \"$http_user_agent\"';\n")
 
-    if self.app.pargs.hhvm:
-        if platform.architecture()[0] is '32bit':
-            Log.error(self, "HHVM is not supported by 32bit system")
-        Log.debug(self, "Setting apt_packages variable for HHVM")
-        if not WOAptGet.is_installed(self, 'hhvm'):
-            apt_packages = apt_packages + WOVariables.wo_hhvm
-
-        if os.path.isdir("/etc/nginx/common") and (not
-                                                   os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
-            data = dict()
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/php-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/php-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'php-hhvm.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpfc-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpfc-hhvm.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpsc-hhvm.conf')
-            wo_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpsc-hhvm.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
-                                          "hhvm"):
-                with open("/etc/nginx/conf.d/upstream.conf", "a") as hhvm_file:
-                    hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
-                                    "server 127.0.0.1:9000 backup;\n}\n")
-
     if self.app.pargs.php73:
-        if (WOVariables.wo_platform_codename == 'trusty' or WOVariables.wo_platform_codename == 'xenial' or WOVariables.wo_platform_codename == 'bionic'):
-            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73
-        else:
-            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73
+        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+        if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            apt_packages = apt_packages + WOVariables.wo_php73
 
-        if os.path.isdir("/etc/nginx/common") and (not
-                                                   os.path.isfile("/etc/nginx/common/php73.conf")):
+        if (os.path.isdir("/etc/nginx/common") and
+                not os.path.isfile("/etc/nginx/common/php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/locations-php73.conf')
@@ -895,8 +837,8 @@ def site_package_check(self, stype):
                             out=wo_nginx)
             wo_nginx.close()
 
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+        if (os.path.isfile("/etc/nginx/nginx.conf") and
+                not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/redis-php73.conf')
@@ -910,8 +852,10 @@ def site_package_check(self, stype):
             if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
                                           "php73"):
                 with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                    php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
-                                   "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
+                    php_file.write("upstream php73 {\nserver"
+                                   "unix:/var/run/php/php73-fpm.sock;\n}\n"
+                                   "upstream debug73"
+                                   " {\nserver 127.0.0.1:9173;\n}\n")
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
@@ -1055,7 +999,8 @@ def detSitePar(opts):
     if len(typelist) > 1 or len(cachelist) > 1:
         if len(cachelist) > 1:
             raise RuntimeError(
-                "Could not determine cache type.Multiple cache parameter entered")
+                "Could not determine cache type."
+                "Multiple cache parameter entered")
         elif False not in [x in ('php', 'mysql', 'html') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:

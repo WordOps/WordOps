@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.3 - 2019-03-05
+# Version 3.9.4 - 2019-03-15
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.3.1"
+readonly wo_version_new="3.9.4"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -85,11 +85,17 @@ fi
 # 1 - Define variables for later use
 ###
 wo_branch="$1"
-migration=0
 readonly wo_log_dir=/var/log/wo/
 readonly wo_install_log=/var/log/wo/install.log
-readonly wo_linux_distro=$(lsb_release -i | awk '{print $3}')
+readonly wo_linux_distro=$(lsb_release -is)
 readonly wo_distro_version=$(lsb_release -sc)
+readonly wo_distro_id=$(lsb_release -rs)
+
+if [ -x /usr/loca/bin/ee ]; then
+    migration=1
+else
+    migration=0
+fi
 
 ###
 # 1 - Checking linux distro
@@ -125,16 +131,16 @@ fi
 ####
 wo_install_dep()
 {
-
+    
     {
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
-            apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
+            apt-get -y -qq install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 fail2ban > /dev/null 2>&1
         else
-            apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 > /dev/null 2>&1
+            apt-get -y -qq install build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 fail2ban > /dev/null 2>&1
         fi
-    
-    locale-gen en
-     } >> /var/log/wo/install.log 2>&1
+        
+        locale-gen en
+    } >> /var/log/wo/install.log 2>&1
     # Support PFS
     if [ -f /etc/nginx/nginx.conf ]; then
         # Replace previous ciphers
@@ -205,7 +211,8 @@ wo_sync_db()
         fi
         
         # Check site is enable/live or disable
-        for site in $(ls /etc/nginx/sites-available/ | grep -v default);
+        cd /etc/nginx/sites-available || exit 1
+        for site in $(echo \* | grep -v default);
         do
             if [ -f "/etc/nginx/sites-enabled/$site" ]; then
                 wo_site_status='1'
@@ -214,7 +221,7 @@ wo_sync_db()
             fi
             
             # Acquire information about the current nginx configuration
-            wo_site_current_type=$(head -n1 /etc/nginx/sites-available/$site | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+            wo_site_current_type=$(head -n1 "/etc/nginx/sites-available/$site" | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
             
             # Sniff out the vhost type and cache configuration
             if [ "$wo_site_current_type" = "HTML" ]; then
@@ -282,29 +289,6 @@ wo_sync_db()
     echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
     echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.3');" | sqlite3 /var/lib/wo/dbase.db
     
-    ###
-    # ee-acme-sh by VirtuBox, https://virtubox.net/
-    ###
-    if [ ! -f ~/.acme.sh/acme.sh ]; then
-        wget -O -  https://get.acme.sh | sh
-        BASHRC_EE_ACME_FIRST_RELEASE=$(grep "ee-acme" $HOME/.bashrc)
-        BASHRC_EE_ACME_LAST_RELEASE=$(grep "ee-acme.sh" $HOME/.bashrc)
-        
-        if [ -f $HOME/.ee-acme/ee-acme ] && [ -z "$BASHRC_EE_ACME_LAST_RELEASE" ]; then
-            rm -rf $HOME/.ee-acme/*
-            echo 'alias ee-acme="/root/.ee-acme/ee-acme.sh"' >> $HOME/.ee-acme/ee-acme
-            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
-            chmod +x $HOME/.ee-acme/ee-acme.sh
-            elif [ -x $HOME/.ee-acme/ee-acme.sh ]; then
-            rm $HOME/.ee-acme/ee-acme.sh
-            wget -qO $HOME/.ee-acme/ee-acme.sh https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
-            chmod +x $HOME/.ee-acme/ee-acme.sh
-            elif [ ! -d  $HOME/.ee-acme ]; then
-            mkdir -p $HOME/.ee-acme
-            wget -qO /usr/local/bin/wo-acme https://raw.githubusercontent.com/WordOps/wo-acme-sh/master/script/ee-acme.sh
-            chmod +x /usr/local/bin/wo-acme
-        fi
-    fi
 }
 
 # Once again, set the proper ACL on the WordOps configuration directory
@@ -321,23 +305,59 @@ secure_wo_db()
 # Update the WP-CLI version
 wo_update_wp_cli()
 {
-    
-    WP_CLI_PATH=$(command -v wp)
-    if [ "$WP_CLI_PATH" != "/usr/local/bin/wp" ]; then
-        rm -rf "$WP_CLI_PATH"
-        # Update WP-CLI to the most recent version
-        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
-        chmod +x /usr/local/bin/wp
-    else
-        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/WordOps/wpcli-builds/gh-pages/phar/wp-cli.phar
-        chmod +x /usr/local/bin/wp
+    {
+        WP_CLI_PATH=$(command -v wp)
+        if [ -n "$WP_CLI_PATH" ]; then
+            rm -rf "$WP_CLI_PATH"
+            # Update WP-CLI to the most recent version
+            wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+            chmod +x /usr/local/bin/wp
+        else
+            wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+            chmod +x /usr/local/bin/wp
+        fi
+        [ ! -h /usr/bin/wp ] && {
+            ln -s /usr/local/bin/wp /usr/bin/
+        }
+        [ ! -f /etc/bash_completion.d/wp-completion.bash ] && {
+            wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
+        }
+    } >> /var/log/wo/install.log 2>&1
+}
+
+wo_install_acme_sh() {
+    # check if acme.sh is already installed
+    if [ ! -d /opt/acme.sh ]; then
+        {
+            # clone the git repository
+            git clone https://github.com/Neilpang/acme.sh.git /opt/acme.sh -q
+            cd /opt/acme.sh || exit 1
+            # create conf directories
+            [ ! -d /etc/letsencrypt/config ] && {
+                mkdir -p /etc/letsencrypt/config
+            }
+            [ ! -d /etc/letsencrypt/live ] && {
+                mkdir -p /etc/letsencrypt/live
+            }
+            [ ! -d /etc/letsencrypt/renewal ] && {
+                mkdir -p /etc/letsencrypt/renewal
+            }
+            # install acme.sh
+            ./acme.sh --install  \
+            --home /etc/letsencrypt \
+            --config-home /etc/letsencrypt/config \
+            --cert-home /etc/letsencrypt/renewal
+            # enable auto-upgrade
+            /etc/letsencrypt/acme.sh --upgrade --auto-upgrade
+            
+            # Let's Encrypt .well-known folder setup
+            if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
+                mkdir -p /var/www/html/.well-known/acme-challenge
+                chown -R www-data:www-data  /var/www/html /var/www/html/.well-known
+            fi
+            
+        } >> /var/log/wo/install.log
     fi
-    [ ! -x /usr/bin/wp ] && {
-        ln -s /usr/local/bin/wp /usr/bin/
-    }
-    [ -d /etc/bash_completion.d ] && {
-        wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
-    }
 }
 
 # Now, finally, let's install WordOps
@@ -355,9 +375,64 @@ wo_install()
         
         cd /tmp/wordops || exit 1
     } >> /var/log/wo/install.log 2>&1;
-        python3 setup.py install
+    python3 setup.py install
+    
+    
+}
 
-
+wo_upgrade_nginx()
+{
+    # chec if the package nginx-ee is installed
+    CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
+    if [ -n "$CHECK_NGINX_EE" ]; then
+        {
+            # add new Nginx repository
+            if [ "$wo_linux_distro" = "Ubuntu" ]; then
+                echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_${wo_distro_id}/ /"  >> /etc/apt/sources.list.d/wo-repo.list
+                wget -qO /tmp/nginx-wo.key "https://download.opensuse.org/repositories/home:virtubox:WordOps/xUbuntu_${wo_distro_id}/Release.key"
+            else
+                if [ "$wo_distro_version" == "jessie" ]; then
+                    echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_8.0/ /" > /etc/apt/sources.list.d/wo-repo.list
+                    wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key
+                else
+                    echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_9.0/ /" > /etc/apt/sources.list.d/wo-repo.list
+                    wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key
+                fi
+            fi
+            # prevent apt preference to block install
+            [ -f /etc/apt/preferences.d/nginx-block ] && {
+                mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
+            }
+            # import the respository key for updates
+            apt-key add - < /tmp/nginx-wo.key
+            rm -f /tmp/nginx-wo.key
+            sudo apt-get update
+            # stop nginx
+            service nginx stop
+            # remove previous package
+            apt-mark unhold nginx-ee nginx-common nginx-custom
+            apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom
+            # install new nginx package
+            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confnew" -y install nginx-custom nginx-wo
+            # set back apt preference
+            [ -f "$HOME/nginx-block" ] && {
+                mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
+            }
+            # update nginx headers and ssl_ciphers
+            if [ -f /etc/nginx/nginx.conf ]; then
+                sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"WordOps $wo_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
+                new_ciphers="EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES"
+                sed -i "s/ssl_ciphers\ \(\"\|.\|'\)\(.*\)\(\"\|.\|'\);/ssl_ciphers \"$new_ciphers\";/" /etc/nginx/nginx.conf
+            fi
+            # update redis.conf headers
+            if [ -f /etc/nginx/common/redis.conf ]; then
+                sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
+                sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
+            fi
+            systemctl enable nginx
+            systemctl restart nginx
+        } >> /var/log/wo/install.log 2>&1
+    fi
 }
 
 wo_update_latest()
@@ -408,130 +483,11 @@ wo_update_latest()
         fi
     fi
     
-    
-    if [ -f /etc/nginx/nginx.conf ]; then
-        wo_lib_echo "Updating Nginx configuration, please wait..."
-        
-        elif [ "$wo_distro_version" == "trusty" ]; then
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
-        if [[ $? -ne 0 ]]; then
-            if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
-                rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
-            fi
-            echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/wo-repo.list
-            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
-            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
-                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/wo-nginx.conf.old &>> /dev/null
-            fi
-            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
-            apt-get update
-            service nginx stop &>> /dev/null
-            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom nginx-ee
-            service nginx restart &>> /dev/null
-        fi
-        CHECK_NGINX_COMMON=$(dpkg --get-selections | grep -v deinstall | grep nginx-common)
-        if [ -n "$CHECK_NGINX_COMMON" ]; then
-            apt-get update
-            CHECK_NGINX_MAILINE=$(dpkg --get-selections | grep -v deinstall | grep nginx-mainline)
-            if [ -n "$CHECK_NGINX_MAILINE" ]; then
-                apt-get remove -y nginx-mainline
-            fi
-            service nginx stop &>> /dev/null
-            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom
-            service nginx restart &>> /dev/null
-        fi
-        
-        elif [ "$wo_linux_distro" == "Debian" ]; then
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
-        if [[ $? -ne 0 ]]; then
-            echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
-            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
-            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
-                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
-            fi
-            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
-            mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
-            apt-get update
-            systemctl stop nginx &>> /dev/null
-            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
-            systemctl restart nginx &>> /dev/null
-        fi
-        CHECK_NGINX_COMMON=$(dpkg --get-selections | grep -v deinstall | grep nginx-common)
-        if [ -n "$CHECK_NGINX_COMMON" ]; then
-            apt-get update
-            CHECK_NGINX_MAILINE=$(dpkg --get-selections | grep -v deinstall | grep nginx-mainline)
-            if [ -n "$CHECK_NGINX_MAILINE" ]; then
-                apt-get remove -y nginx-mainline
-            fi
-            systemctl stop nginx &>> /dev/null
-            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom
-            systemctl restart nginx &>> /dev/null
-        fi
-    fi
-    
-    if [ -f /etc/nginx/nginx.conf ]; then
-        sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"WordOps $wo_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
-    fi
-    
-    if [ -f /etc/nginx/conf.d/wo-plus.conf ]; then
-        sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"WordOps $wo_version_new\";/" /etc/nginx/conf.d/wo-plus.conf &>> /dev/null
-    fi
-    
-    # Fix HHVM autostart on reboot
-    CHECK_HHVM_INSTALL=$(dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null)
-    if [ -n "$CHECK_HHVM_INSTALL" ]; then
-        update-rc.d hhvm defaults &>> /dev/null
-    fi
-    
     # Fix WordPress example.html issue
     # Ref: http://wptavern.com/xss-vulnerability-in-jetpack-and-the-twenty-fifteen-default-theme-affects-millions-of-wordpress-users
     dpkg --get-selections | grep -v deinstall | grep nginx &>> /dev/null
     if [ $? -eq 0 ]; then
         cp /usr/lib/wo/templates/locations.mustache /etc/nginx/common/locations.conf &>> /dev/null
-    fi
-    
-    # Fix HHVM upstream issue that was preventing from using EasyEngine for site operations
-    if [ -f /etc/nginx/conf.d/upstream.conf ]; then
-        grep -Hr hhvm /etc/nginx/conf.d/upstream.conf &>> /dev/null
-        if [ $? -ne 0 ]; then
-            echo -e "upstream hhvm {\n# HHVM Pool\nserver 127.0.0.1:8000;\nserver 127.0.0.1:9000 backup;\n}\n" >> /etc/nginx/conf.d/upstream.conf
-        fi
-    fi
-    
-    # Fix HHVM server IP
-    if [ -f /etc/hhvm/server.ini ]; then
-        grep -Hr "hhvm.server.ip" /etc/hhvm/server.ini &>> /dev/null
-        if [ $? -ne 0 ]; then
-            echo -e "hhvm.server.ip = 127.0.0.1\n" >> /etc/hhvm/server.ini
-        fi
-    fi
-    
-    # Rename Redis Header
-    if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
-        sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-    fi
-    
-    if [ -f /etc/nginx/common/redis.conf ]; then
-        sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
-        sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
-    fi
-    
-    
-    if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
-        # Update Timeout redis-hhvm.conf
-        grep -0 'redis2_query expire $key 6h' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        if [ $? -eq 0 ]; then
-            sed -i 's/redis2_query expire $key 6h/redis2_query expire $key 14400/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        fi
-        
-        #Fix for 3.3.4 redis-hhvm issue
-        grep -0 'HTTP_ACCEPT_ENCODING' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        if [ $? -ne 0 ]; then
-            sed -i 's/fastcgi_params;/fastcgi_params;\n  fastcgi_param HTTP_ACCEPT_ENCODING "";/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-        fi
     fi
     
     # Fix Redis-server security issue
@@ -547,7 +503,7 @@ wo_update_latest()
     # Let's Encrypt .well-known folder setup
     if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
         mkdir -p /var/www/html/.well-known/acme-challenge
-        chown -R www-data:www-data /var/www/html/.well-known
+        chown -R www-data:www-data  /var/www/html /var/www/html/.well-known
     fi
     
     
@@ -573,22 +529,6 @@ wo_update_latest()
         fi
     fi
     
-    # Support PFS
-    if [ -f /etc/nginx/nginx.conf ]; then
-        # Replace the default ciphers
-        sed -i 's/HIGH:!aNULL:!MD5:!kEDH;/ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;/' /etc/nginx/nginx.conf
-        # Replace the EasyEngine ciphers
-        sed -i 's/ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA;/ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;/' /etc/nginx/nginx.conf
-        # Change the TLS protocols
-        if [ "$wo_distro_version" == "bionic" ]; then
-            # Bionic supports TLSv1.3, so let's enable that
-            sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2 TLSv1.3;/g' /etc/nginx/nginx.conf
-        else
-            # If != Bionic then enable only TLSv1.2
-            sed -i 's/TLSv1 TLSv1.1 TLSv1.2;/TLSv1.2;/g' /etc/nginx/nginx.conf
-        fi
-    fi
-    
     # Fix for SSL cert --all
     crontab -l | grep -q '\-\-min_expiry_limit'
     if [[ $? -eq 0 ]]; then
@@ -608,16 +548,16 @@ wo_git_init()
             git init
         fi
         git add -A .
-        git commit -am "Updated Nginx" 
+        git commit -am "Updated Nginx"
     } >> /var/log/wo/install.log 2>&1
     # WordOps under git version control
     [ -d /etc/wo ] && {
-    cd /etc/wo || exit 1
-    [ ! -d /etc/wo/.git ] && {
-        git init
-    }
-    git add -A .
-    git commit -am "Installed/Updated to WordOps" 
+        cd /etc/wo || exit 1
+        [ ! -d /etc/wo/.git ] && {
+            git init
+        }
+        git add -A .
+        git commit -am "Installed/Updated to WordOps"
     } >> /var/log/wo/install.log 2>&1
     # PHP under git version control
     [ -d /etc/php ] && {
@@ -641,14 +581,13 @@ if [ -x /usr/local/bin/wo ]; then
         read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
             wo_install_dep | tee -ai $wo_install_log
-            wo_sync_db >> $EE_INSTALL_LOG 2>&1
-            secure_wo_db | tee -ai $EE_INSTALL_LOG
-            wo_upgrade_php | tee -ai $wo_install_log
+            wo_sync_db >> $wo_install_log 2>&1
+            secure_wo_db | tee -ai $wo_install_log
             wo_install | tee -ai $wo_install_log
+            wo_upgrade_nginx | tee -ai $wo_install_log
             wo_update_latest | tee -ai $wo_install_log
+            wo_install_acme_sh | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
-            service nginx reload &>> /dev/null
-            service php7.2-fpm restart &>> /dev/null
             wo_update_wp_cli | tee -ai $wo_install_log
         else
             wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
@@ -664,14 +603,14 @@ else
             read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
             if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
                 wo_install_dep | tee -ai $wo_install_log
-                wo_sync_db >> $EE_INSTALL_LOG 2>&1
-                secure_wo_db | tee -ai $EE_INSTALL_LOG
-                wo_upgrade_php | tee -ai $wo_install_log
+                wo_sync_db >> $wo_install_log 2>&1
+                secure_wo_db | tee -ai $wo_install_log
                 wo_install | tee -ai $wo_install_log
+                wo_upgrade_nginx | tee -ai $wo_install_log
                 wo_update_latest | tee -ai $wo_install_log
+                wo_install_acme_sh | tee -ai $wo_install_log
                 wo_git_init | tee -ai $wo_install_log
                 service nginx reload &>> /dev/null
-                service php7.2-fpm restart &>> /dev/null
                 wo_update_wp_cli | tee -ai $wo_install_log
             else
                 wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
@@ -688,11 +627,12 @@ else
         wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
         secure_wo_db | tee -ai $wo_install_log
         wo_git_init | tee -ai $wo_install_log
+        wo_install_acme_sh | tee -ai $wo_install_log
         wo_update_wp_cli | tee -ai $wo_install_log
     fi
 fi
 
-wo sync | tee -ai $WO_INSTALL_LOG
+wo sync | tee -ai $wo_install_log
 
 if [ "$migration" -eq "1" ]; then
     echo

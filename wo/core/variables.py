@@ -12,7 +12,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.3"
+    wo_version = "3.9.4"
     # WordOps packages versions
     wo_wp_cli = "2.1.0"
     wo_adminer = "4.7.1"
@@ -44,6 +44,12 @@ class WOVariables():
 
     # WordOps default webroot path
     wo_webroot = '/var/www/'
+
+    # WordOps default renewal  SSL certificates path
+    wo_ssl_archive = '/etc/letsencrypt/renewal'
+
+    # WordOps default live SSL certificates path
+    wo_ssl_live = '/etc/letsencrypt/live'
 
     # PHP user
     wo_php_user = 'www-data'
@@ -83,22 +89,22 @@ class WOVariables():
     # Nginx repo and packages
     if wo_platform_codename == 'trusty':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
+                         "/virtubox:/WordOps/xUbuntu_14.04/ /")
     elif wo_platform_codename == 'xenial':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_16.04/ /")
+                         "/virtubox:/WordOps/xUbuntu_16.04/ /")
     elif wo_platform_codename == 'bionic':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/xUbuntu_18.04/ /")
+                         "/virtubox:/WordOps/xUbuntu_18.04/ /")
     elif wo_platform_codename == 'jessie':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+                         "/virtubox:/WordOps/Debian_8.0/ /")
     elif wo_platform_codename == 'stretch':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+                         "/virtubox:/WordOps/Debian_9.0/ /")
 
-    wo_nginx = ["nginx-custom", "nginx-ee"]
-    wo_nginx_key = '3050AC3CD2AE6F03'
+    wo_nginx = ["nginx-custom", "nginx-wo"]
+    wo_nginx_key = '188C9FB063F0247A'
 
     # PHP repo and packages
     if wo_platform_distro == 'ubuntu':
@@ -115,24 +121,24 @@ class WOVariables():
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
         wo_php_extra = ["php-memcached", "php-imagick", "memcached",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+        wo_php_key = ''
     elif wo_platform_distro == 'debian':
         wo_php_repo = (
-            "deb https://packages.sury.org/php/ {codename} main".format(codename=wo_platform_codename))
+            "deb https://packages.sury.org/php/ {codename} main"
+            .format(codename=wo_platform_codename))
         wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
-                  "php7.2-common", "php7.2-readline", "php-redis",
-                  "php7.2-mysql", "php7.2-cli", "php-imagick",
-                  "php7.2-mbstring", "php7.2-recode", "php7.2-bcmath",
-                  "php7.2-opcache", "php7.2-zip", "php7.2-xml",
-                  "php7.2-soap", "php-msgpack",
-                  "graphviz", "php-pear", "php-xdebug"]
+                  "php7.2-readline", "php7.2-common", "php7.2-recode",
+                  "php7.2-cli", "php7.2-mbstring",
+                  "php7.2-bcmath", "php7.2-mysql", "php7.2-opcache",
+                  "php7.2-zip", "php7.2-xml", "php7.2-soap"]
         wo_php73 = ["php7.3-fpm", "php7.3-curl", "php7.3-gd", "php7.3-imap",
-                    "php7.3-common", "php7.3-readline", "php-redis",
-                    "php7.3-mysql", "php7.3-cli", "php-imagick",
-                    "php7.3-mbstring", "php7.3-recode", "php7.3-bcmath",
-                    "php7.3-opcache", "php7.3-zip", "php7.3-xml",
-                    "php7.3-soap", "php-msgpack",
-                    "graphviz", "php-pear", "php-xdebug"]
-        wo_php_extra = []
+                    "php7.3-readline", "php7.3-common", "php7.3-recode",
+                    "php7.3-cli", "php7.3-mbstring",
+                    "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
+                    "php7.3-zip", "php7.3-xml", "php7.3-soap"]
+        wo_php_extra = ["php-memcached", "php-imagick", "memcached",
+                        "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+        wo_php_key = '188C9FB063F0247A'
 
     # MySQL repo and packages
     if wo_platform_distro == 'ubuntu':
@@ -145,17 +151,6 @@ class WOVariables():
                          .format(codename=wo_platform_codename))
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]
-
-    # HHVM repo details
-    if wo_platform_distro == 'ubuntu':
-        if wo_platform_codename == "trusty" or wo_platform_codename == "xenial" or wo_platform_codename == "bionic":
-            wo_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
-                            .format(codename=wo_platform_codename))
-    else:
-        wo_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"
-                        .format(codename=wo_platform_codename))
-
-    wo_hhvm = ["hhvm"]
 
     # Redis repo details
     if wo_platform_distro == 'ubuntu':

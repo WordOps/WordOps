@@ -1,6 +1,12 @@
 """WordOps main application entry point."""
 import sys
 import os
+from cement.core import foundation
+from cement.utils.misc import init_defaults
+from cement.core.exc import FrameworkError, CaughtSignal
+from cement.ext.ext_argparse import ArgParseArgumentHandler
+from wo.core import exc
+from wo.cli.ext.wo_outputhandler import WOOutputHandler
 
 # this has to happen after you import sys, but before you import anything
 # from Cement "source: https://github.com/datafolklabs/cement/issues/290"
@@ -9,13 +15,6 @@ if '--debug' in sys.argv:
     TOGGLE_DEBUG = True
 else:
     TOGGLE_DEBUG = False
-
-from cement.core import foundation
-from cement.utils.misc import init_defaults
-from cement.core.exc import FrameworkError, CaughtSignal
-from cement.ext.ext_argparse import ArgParseArgumentHandler
-from wo.core import exc
-from wo.cli.ext.wo_outputhandler import WOOutputHandler
 
 # Application default.  Should update config/wo.conf to reflect any
 # changes, or additions here.

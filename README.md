@@ -10,10 +10,7 @@
 <img src="https://img.shields.io/github/license/wordops/wordops.svg" alt="MIT">
 <img src="https://img.shields.io/github/last-commit/wordops/wordops.svg" alt="Commits">
 <img alt="GitHub release" src="https://img.shields.io/github/release-pre/wordops/wordops.svg">
-
 </p>
-
-
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
@@ -32,15 +29,19 @@
 - Easy Migration from EasyEngine v3 (migration script development in progress)
 - Automated WordPress, Nginx, PHP, MySQL & Redis installation
 - Up-to-date server stack with Nginx 1.14.2, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- Hardened WordPress security with strict Nginx location directives
 - Optimized Nginx configurations with multiple cache backends support
 - Let's Encrypt SSL certificates
+- Secured SSL/TLS encryption with strong ciphers_suite and modern TLS protocols
 
 ## Requirements
 
 ### Operating System
 
-- Ubuntu : 16.04 LTS (Xenial) - 18.04 LTS (Bionic)
-- Debian :  8 (Jessie) - 9 (Stretch) -> **Not fully supported yet**
+- Ubuntu 16.04 LTS (Xenial)
+- Ubuntu 18.04 LTS (Bionic)
+- Debian 8 (Jessie)
+- Debian 9 (Stretch) -> **Not fully supported yet**
 
 ### Ports requirements
 
@@ -60,11 +61,18 @@ sudo wo site create example.com --wp     # Install required packages & setup Wor
 
 WordOps made some fundamental changes:
 
-- We've deprecated the mail stack. Less is more. As an alternative, take a look at [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). And an alternative for Roundcube is [Rainloop](https://www.rainloop.net/).
+- We've deprecated the mail stack. As an alternative, you can take a look at [Mail-in-a-Box](https://github.com/mail-in-a-box/mailinabox), [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). As Roundcube alternative, there is [Rainloop](https://www.rainloop.net/) or [Afterlogic WebMail](https://github.com/afterlogic/webmail-lite-8)
 - Support for w3tc is dropped as a security precaution.
-- PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 will be replaced by PHP 7.3.
+- PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 has been replaced by PHP 7.3.
+- Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.14.2)
 
-We will not overwrite previous php versions Nginx upstreams to avoid issues during the migration from EEv3. A step by step guide will be published soon to explain how to fully migrate from EasyEngine v3 to WordOps
+We are still working on the script to migrate from EasyEngine v3 to WordOps. Here some informations about the WordOps install script :
+
+- Previous php upstreams in Nginx will not be overwritted
+- php5.6 and php7.0 will not be removed or uninstalled
+- previous Nginx common configurations will not be overwritted
+
+A tutorial will be available soon to explain how to fully migrate from EasyEngine v3 to WordOps.
 
 ## Usage
 
@@ -78,7 +86,7 @@ wo site create example.com --wpfc                # install wordpress + nginx fas
 wo site create example.com --wpredis             # install wordpress + nginx redis_cache
 ```
 
-### WordPress multsite with subdirectory
+### WordPress multisite with subdirectory
 
 ```bash
 wo site create example.com --wpsubdir            # install wpmu-subdirectory without any page caching
@@ -87,7 +95,7 @@ wo site create example.com --wpsubdir --wpfc     # install wpmu-subdirectory + n
 wo site create example.com --wpsubdir --wpredis  # install wpmu-subdirectory + nginx redis_cache
 ```
 
-### WordPress multsite with subdomain
+### WordPress multisite with subdomain
 
 ```bash
 wo site create example.com --wpsubdomain            # install wpmu-subdomain without any page caching
@@ -102,24 +110,17 @@ wo site create example.com --wpsubdomain --wpredis  # install wpmu-subdomain + n
 wo site create example.com --html     # create example.com for static/html sites
 wo site create example.com --php      # create example.com with php support
 wo site create example.com --mysql    # create example.com with php & mysql support
-```
-
-### HHVM enabled sites
-
-```bash
-wo site create example.com --wp --hhvm           # create example.com WordPress site with HHVM support
-wo site create example.com --php --hhvm          # create example.com php site with HHVM support
+wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
 ```
 
 ## Cheatsheet
 
-|                    |  single site  | 	multisite w/ subdir  |	multisite w/ subdom     |
+|                    |  single site  |   multisite w/ subdir  |  multisite w/ subdom     |
 |--------------------|---------------|-----------------------|--------------------------|
-| **NO Cache**       |  --wp         |	--wpsubdir           |	--wpsubdomain           |
-| **WP Super Cache** |	--wpsc       |	--wpsubdir --wpsc    |  --wpsubdomain --wpsc    |
+| **NO Cache**       |  --wp         |  --wpsubdir           |  --wpsubdomain           |
+| **WP Super Cache** |  --wpsc       |  -wpsubdir --wpsc    |  --wpsubdomain --wpsc    |
 | **Nginx fastcgi_cache**    |  --wpfc       |  --wpsubdir --wpfc    |  --wpsubdomain --wpfc    |
 | **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
-
 
 ## Update WordOps
 

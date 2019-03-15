@@ -1,23 +1,36 @@
 # Common upstream settings
-
-# PHP 5.6 upstream
+#-------------------------------
+# PHP 5.6
+#-------------------------------
 upstream php {
-server 127.0.0.1:9000;
+server 127.0.0.1:{{php}};
 }
 
 upstream debug {
-# Debug Pool
-server 127.0.0.1:9001;
+server 127.0.0.1:{{debug}};
 }
 
-# PHP 7.0 upstream
+{{#php7conf}}
+#-------------------------------
+# PHP 7.0
+#-------------------------------
+
 upstream php7 {
-server 127.0.0.1:9070;
+server 127.0.0.1:{{php7}};
 }
+upstream debug7 {
+# Debug Pool
+server 127.0.0.1:{{debug7}};
+}
+{{/php7conf}}
+
+#-------------------------------
+# PHP 7.2
+#-------------------------------
 
 # PHP 7.2 upstream with load-balancing on two unix sockets
 upstream php72 {
-server unix:/var/run/php/php72-fpm.sock;
+    server unix:/var/run/php/php72-fpm.sock;
 }
 
 # PHP 7.2 debug
@@ -26,18 +39,24 @@ upstream debug72 {
 server 127.0.0.1:9172;
 }
 
+#-------------------------------
+# PHP 7.3
+#-------------------------------
+
 # PHP 7.3 upstream with load-balancing on two unix sockets
 upstream php73 {
-server unix:/var/run/php/php73-fpm.sock;
+    server unix:/var/run/php/php73-fpm.sock;
 }
 
-{{#php7conf}}
 # PHP 7.3 debug
 upstream debug73 {
 # Debug Pool
-server 127.0.0.1:9173;
+    server 127.0.0.1:9173;
 }
-{{/php7conf}}
+
+#-------------------------------
+# Netdata
+#-------------------------------
 
 # Netdata Monitoring Upstream
 upstream netdata {
@@ -45,10 +64,3 @@ upstream netdata {
     keepalive 64;
 }
 
-{{#hhvmconf}}
-upstream hhvm {
-# HHVM Pool
-server 127.0.0.1:{{hhvm}};
-server 127.0.0.1:{{php}} backup;
-}
-{{/hhvmconf}}

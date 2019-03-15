@@ -39,6 +39,7 @@ location ~ /\.(?!well-known\/) {
 # letsencrypt validation
 location /.well-known/acme-challenge/ {
    alias /var/www/html/.well-known/acme-challenge/;
+   allow all;
 }
 # Return 403 forbidden for readme.(txt|html) or license.(txt|html) or example.(txt|html) or other common git repository files
 location ~*  "/(^$|readme|license|example|README|LEGALNOTICE|INSTALLATION|CHANGELOG)\.(txt|html|md)" {

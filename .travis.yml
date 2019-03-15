@@ -27,39 +27,28 @@ script:
   - sudo wo stack install --web  || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo stack install --admin || sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create html.net --html || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create php.com --php || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
   
-  - sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create mysql-php73.com --mysql --php73 || sudo tail -n50 /var/log/wo/wordops.log
   
   - sudo wo site create wp1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wp-php73.com --wp --php73 || sudo tail -n50 /var/log/wo/wordops.log
   
-  - sudo wo site create wpsc1.net --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  
-  - sudo wo site create wpsc-php73.net --wpsc --php73 || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpfc-php73.net --wpfc --php73 || sudo tail -n50 /var/log/wo/wordops.log
-  
-  - sudo wo site create wpredis.net --wpredis || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpredis-php73.net --wpredis --php73 || sudo tail -n50 /var/log/wo/wordops.log
-  
-  - sudo wo site create wpsubdir1.com --wpsubdir || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpsubdir-php73.com --wpsubdir --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create wpsubdirwpsc1.com --wpsubdir --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpsubdirwpsc2.com --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsc-php73.net --wpsc --php73 && sudo wo site create wpfc-php73.net --wpfc --php73 || sudo tail -n50 /var/log/wo/wordops.log
   
-  - sudo wo site create wpsubdirwpsc1-php73.com --wpsubdir --wpsc --php73 || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpsubdirwpsc2-php73.com --wpsubdir --wpfc --php73|| sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpredis.net --wpredis && sudo wo site create wpredis-php73.net --wpredis --php73 || sudo tail -n50 /var/log/wo/wordops.log
   
-  - sudo wo site create wpsubdomain1.com --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpsubdomain1-php73.com --wpsubdomain --php73 || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdir1.com --wpsubdir && sudo wo site create wpsubdir-php73.com --wpsubdir --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create wpsubdirwpsc1.com --wpsubdir --wpsc &&  sudo wo site create wpsubdirwpsc2.com --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
+  
+  - sudo wo site create wpsubdirwpsc1-php73.com --wpsubdir --wpsc --php73 && sudo wo site create wpsubdirwpsc2-php73.com --wpsubdir --wpfc --php73  || sudo tail -n50 /var/log/wo/wordops.log
+  
+  - sudo wo site create wpsubdomain1.com --wpsubdomain && sudo wo site create wpsubdomain1-php73.com --wpsubdomain --php73 || sudo tail -n50 /var/log/wo/wordops.log
+
+  - sudo wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc && sudo wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc && sudo wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain  || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create 1.com --html || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create 2.com --php || sudo tail -n50 /var/log/wo/wordops.log
@@ -71,4 +60,6 @@ script:
 
   - sudo ls /var/www/
   - sudo wp --allow-root --info
-  - sudo bash -c 'cat /var/log/wo/wordops.log | ccze -A'
+  - sudo bash -c 'nginx -T 2>&1 > /var/log/wo/nginx.log'
+  - sudo bash -c 'tar -I pigz -cf wordops.tar.gz /var/log/wo'
+  - sudo curl --progress-bar --upload-file "wordops.tar.gz" https://transfer.vtbox.net/$(basename wordops.tar.gz) && echo ""
