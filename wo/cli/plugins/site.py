@@ -678,8 +678,8 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if self.app.pargs.letsencrypt and
-        (not pargs.letsencrypt == "wildcard"):
+        if (self.app.pargs.letsencrypt and
+                not pargs.letsencrypt == "wildcard"):
             if stype in ['wpsubdomain']:
                 Log.warn(
                     self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
@@ -773,7 +773,7 @@ class WOSiteUpdateController(CementBaseController):
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off', 'renew', 'subdomain', 'wildcard'), 
+                     choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
@@ -1277,9 +1277,9 @@ class WOSiteUpdateController(CementBaseController):
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
                                   "check issues with `nginx -t` command")
-                    # Log.info(self,"Removing Cron Job set for 
+                    # Log.info(self,"Removing Cron Job set for
                     # cert auto-renewal")
-                    # WOCron.remove_cron(self,'wo site update {0} 
+                    # WOCron.remove_cron(self,'wo site update {0}
                     # --le=renew --min_expiry_limit 30 2> \/dev\/null'
                     # .format(wo_domain))
                     Log.info(self, "Successfully Disabled SSl for Site "
