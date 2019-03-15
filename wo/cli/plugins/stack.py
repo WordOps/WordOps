@@ -523,7 +523,8 @@ class WOStackController(CementBaseController):
                         wo_nginx.close()
 
                     if (WOVariables.wo_platform_distro == 'ubuntu'):
-                        if (os.path.isfile("/etc/nginx/nginx.conf") and not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+                        if (os.path.isfile("/etc/nginx/nginx.conf") and
+                                not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
                             data = dict()
                             Log.debug(self, 'Writting the nginx configuration to '
                                       'file /etc/nginx/common/redis-php73.conf')
@@ -636,8 +637,8 @@ class WOStackController(CementBaseController):
                                              "    server 127.0.0.1:6379;\n"
                                              "    keepalive 10;\n}\n")
 
-                if (os.path.isfile("/etc/nginx/nginx.conf")
-                        and not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                if (os.path.isfile("/etc/nginx/nginx.conf") and
+                        not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
                     with open("/etc/nginx/conf.d/redis.conf", "a") as
                     redis_file:
                         redis_file.write("# Log format Settings\n"
