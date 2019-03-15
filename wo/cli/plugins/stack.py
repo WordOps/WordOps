@@ -150,39 +150,28 @@ class WOStackController(CementBaseController):
             WORepo.add_key(self, WOVariables.wo_nginx_key)
 
         if (WOVariables.wo_platform_distro == 'ubuntu'):
-            if set(WOVariables.wo_php73).issubset(set(apt_packages)) \
-                    or set(WOVariables.wo_php).issubset(set(apt_packages)):
+            if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
+                    set(WOVariables.wo_php).issubset(set(apt_packages))):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 WORepo.add(self, ppa=WOVariables.wo_php_repo)
         else:
-            if set(WOVariables.wo_php).issubset(set(apt_packages)):
+            if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
+                    set(WOVariables.wo_php).issubset(set(apt_packages))):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 # Add repository for php
-                if WOVariables.wo_platform_distro == 'debian':
-                    if WOVariables.wo_platform_codename != 'jessie':
-                        Log.debug(self, 'Adding repo_url of php for debian')
-                        WORepo.add(self, repo_url=WOVariables.wo_php_repo)
-                        Log.debug(self, 'Adding Dotdeb/php GPG key')
-                        WORepo.add_key(self, '89DF5277')
-                else:
-                    Log.debug(self, 'Adding ppa for PHP')
-                    WORepo.add(self, ppa=WOVariables.wo_php_repo)
-
-            if WOVariables.wo_platform_distro == 'debian':
-                if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                    Log.debug(self, 'Adding repo_url of php 7.3 for debian')
-                    WORepo.add(self, repo_url=WOVariables.wo_php_repo)
-                    Log.debug(self, 'Adding Dotdeb/php GPG key')
-                    WORepo.add_key(self, '89DF5277')
+                Log.debug(self, 'Adding repo_url of php for debian')
+                WORepo.add(self, repo_url=WOVariables.wo_php_repo)
+                Log.debug(self, 'Adding deb.sury GPG key')
+                WORepo.add_key(self, WOVariables.wo_php_key)
 
         if set(WOVariables.wo_redis).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for Redis, please wait...")
             if WOVariables.wo_platform_distro == 'debian':
                 Log.debug(self, 'Adding repo_url of redis for debian')
                 WORepo.add(self, repo_url=WOVariables.wo_redis_repo)
-                Log.debug(self, 'Adding Dotdeb GPG key')
-                WORepo.add_key(self, '89DF5277')
+                Log.debug(self, 'Adding Deb.sury GPG key')
+                WORepo.add_key(self, 'AC0E47584A7A714D')
             else:
                 Log.debug(self, 'Adding ppa for redis')
                 WORepo.add(self, ppa=WOVariables.wo_redis_repo)
@@ -193,8 +182,7 @@ class WOStackController(CementBaseController):
         if len(apt_packages):
 
             if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-                if set(["nginx-plus"]).issubset(set(apt_packages)) or
-                set(["nginx"]).issubset(set(apt_packages)):
+                if set(["nginx"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
                     if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
                                             'SCRIPT_FILENAME'):
@@ -645,7 +633,7 @@ class WOStackController(CementBaseController):
                                              "    server 127.0.0.1:6379;\n"
                                              "    keepalive 10;\n}\n")
 
-                if os.path.isfile("/etc/nginx/nginx.conf") 
+                if os.path.isfile("/etc/nginx/nginx.conf")
                 and (not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
                     with open("/etc/nginx/conf.d/redis.conf", "a") as
                     redis_file:
@@ -785,9 +773,9 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 WOService.restart_service(self, 'php7.2-fpm')
 
-        # PHP7.3 configuration for debian
-            if (WOVariables.wo_platform_distro == 'debian') and
-            set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            # PHP7.3 configuration for debian
+            if (WOVariables.wo_platform_distro == 'debian' and
+                    set(WOVariables.wo_php73).issubset(set(apt_packages))):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -912,8 +900,8 @@ class WOStackController(CementBaseController):
                 WOService.restart_service(self, 'php7.3-fpm')
 
             # preconfiguration for php7.3
-            if (WOVariables.wo_platform_distro == 'ubuntu') and
-            set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            if (WOVariables.wo_platform_distro == 'ubuntu' and
+                    set(WOVariables.wo_php73).issubset(set(apt_packages))):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -1314,6 +1302,7 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "Nginx Stable already installed")
 
+            # PHP 7.2
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
@@ -1322,28 +1311,16 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "PHP 7.2 already installed")
                     Log.info(self, "PHP 7.2 already installed")
 
-        # PHP 7.3 for Debian (jessie+)
-            if self.app.pargs.php73 and WOVariables.wo_platform_distro == 'debian':
+            # PHP 7.3
+            if self.app.pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php73
-                    if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                        apt_packages = apt_packages + WOVariables.wo_php
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
 
-        # PHP 7.3 for Ubuntu
-            if self.app.pargs.php73 and (WOVariables.wo_platform_distro == 'ubuntu'):
-                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73
-                    if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                        apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-                else:
-                    Log.debug(self, "PHP 7.3 already installed")
-                    Log.info(self, "PHP 7.3 already installed")
-
+            # MariaDB 10.3
             if self.app.pargs.mysql:
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
@@ -1359,6 +1336,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "MySQL connection is already alive")
                     Log.info(self, "MySQL connection is already alive")
 
+            # WP-CLI
             if self.app.pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
                 if not WOShellExec.cmd_exec(self, "command -v wp"):
@@ -1371,21 +1349,23 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "WP-CLI is already installed")
                     Log.info(self, "WP-CLI is already installed")
+
+            # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
                 Log.debug(self, "Setting packages varible for phpMyAdmin ")
                 packages = packages + [["https://github.com/phpmyadmin/"
                                         "phpmyadmin/archive/STABLE.tar.gz",
                                         "/tmp/pma.tar.gz", "phpMyAdmin"]]
-
+            # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages varible for phpRedisAdmin")
                 packages = packages + [["https://github.com/ErikDubbelboer/"
                                         "phpRedisAdmin/archive/master.tar.gz",
                                         "/tmp/pra.tar.gz", "phpRedisAdmin"],
                                        ["https://github.com/nrk/predis/"
-                                        "archive/v1.0.1.tar.gz",
+                                        "archive/v1.1.1.tar.gz",
                                         "/tmp/predis.tar.gz", "Predis"]]
-
+            # ADMINER
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["https://www.adminer.org/static/download/"
@@ -1395,11 +1375,12 @@ class WOStackController(CementBaseController):
                                         "htdocs/db/adminer/index.php"
                                         .format(WOVariables.wo_webroot),
                                         "Adminer"]]
-
+            # UTILS
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [["https://github.com/elijaa/"
-                                        "phpmemcachedadmin/archive/1.3.0.tar.gz",
+                                        "phpmemcachedadmin/archive/"
+                                        "1.3.0.tar.gz",
                                         '/tmp/memcached.tar.gz',
                                         'phpMemcachedAdmin'],
                                        ["https://raw.githubusercontent.com"
@@ -1511,8 +1492,7 @@ class WOStackController(CementBaseController):
         if self.app.pargs.all:
             self.app.pargs.web = True
             self.app.pargs.admin = True
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
-                self.app.pargs.php73 = True
+            self.app.pargs.php73 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -1524,55 +1504,53 @@ class WOStackController(CementBaseController):
             self.app.pargs.adminer = True
             self.app.pargs.phpmyadmin = True
             self.app.pargs.utils = True
-
+        # NGINX
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Removing apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
                 Log.error(self, "Cannot Remove! Nginx Stable version not found.")
-
+        # PHP 7.2
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
-                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-            else:
-                apt_packages = apt_packages + WOVariables.wo_php
+            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
 
         # PHP7.3
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
-                Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-                apt_packages = apt_packages + WOVariables.wo_php73
-                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-            else:
+            Log.debug(self, "Removing apt_packages variable of PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVariables.wo_php73
 
+        # REDIS
         if self.app.pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
             apt_packages = apt_packages + WOVariables.wo_redis
 
+        # MariaDB
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + WOVariables.wo_mysql
             packages = packages + ['/usr/bin/mysqltuner']
-
+        # WPCLI
         if self.app.pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
             else:
                 Log.warn(self, "WP-CLI is not installed with WordOps")
+        # PHPMYADMIN
         if self.app.pargs.phpmyadmin:
             Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
                                    .format(WOVariables.wo_webroot)]
+        # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
             packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
                                    .format(WOVariables.wo_webroot)]
+        # ADMINER
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
             packages = packages + ['{0}22222/htdocs/db/adminer'
@@ -1639,15 +1617,14 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
-             (not self.app.pargs.phpredisadmin)):
+                (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
             self.app.pargs.admin = True
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
-                self.app.pargs.php73 = True
+            self.app.pargs.php73 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -1660,52 +1637,54 @@ class WOStackController(CementBaseController):
             self.app.pargs.phpmyadmin = True
             self.app.pargs.utils = True
 
+        # NGINX
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Purge apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
                 Log.error(self, "Cannot Purge! Nginx Stable version not found.")
+
+        # PHP
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
+            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                 apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73
             else:
-                apt_packages = apt_packages + WOVariables.wo_php
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73
+                Log.error(self, "Cannot Purge PHP 7.2. not found.")
 
-        # For debian --php73
+        # PHP 7.3
         if self.app.pargs.php73:
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
-                Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-                apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
-                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php
-            else:
+            Log.debug(self, "Removing apt_packages variable of PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVariables.wo_php73
-                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php
-
+            else:
+                Log.error(self, "Cannot Purge PHP 7.3. not found.")
+        # WP-CLI
+        if self.app.pargs.wpcli:
             Log.debug(self, "Purge package variable WPCLI")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
             else:
                 Log.warn(self, "WP-CLI is not installed with WordOps")
+
+        # PHPMYADMIN
         if self.app.pargs.phpmyadmin:
             packages = packages + ['{0}22222/htdocs/db/pma'.
                                    format(WOVariables.wo_webroot)]
             Log.debug(self, "Purge package variable phpMyAdmin")
+
+        # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
             packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
                                    .format(WOVariables.wo_webroot)]
+        # Adminer
         if self.app.pargs.adminer:
             Log.debug(self, "Purge  package variable Adminer")
             packages = packages + ['{0}22222/htdocs/db/adminer'
                                    .format(WOVariables.wo_webroot)]
+        # utils
         if self.app.pargs.utils:
             Log.debug(self, "Purge package variable utils")
             packages = packages + ['{0}22222/htdocs/php/webgrind/'
