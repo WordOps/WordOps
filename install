@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.3 - 2019-03-14
+# Version 3.9.4 - 2019-03-15
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.4"
@@ -322,7 +322,6 @@ wo_update_wp_cli()
         [ ! -f /etc/bash_completion.d/wp-completion.bash ] && {
             wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
         }
-        wp --allow-root cli update
     } >> /var/log/wo/install.log 2>&1
 }
 
@@ -411,6 +410,7 @@ wo_upgrade_nginx()
             # stop nginx
             service nginx stop
             # remove previous package
+            apt-mark unhold nginx-ee nginx-common nginx-custom
             apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom
             # install new nginx package
             DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confnew" -y install nginx-custom nginx-wo
@@ -581,8 +581,8 @@ if [ -x /usr/local/bin/wo ]; then
         read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
             wo_install_dep | tee -ai $wo_install_log
-            wo_sync_db >> $EE_INSTALL_LOG 2>&1
-            secure_wo_db | tee -ai $EE_INSTALL_LOG
+            wo_sync_db >> $wo_install_log 2>&1
+            secure_wo_db | tee -ai $wo_install_log
             wo_install | tee -ai $wo_install_log
             wo_upgrade_nginx | tee -ai $wo_install_log
             wo_update_latest | tee -ai $wo_install_log
@@ -603,8 +603,8 @@ else
             read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
             if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
                 wo_install_dep | tee -ai $wo_install_log
-                wo_sync_db >> $EE_INSTALL_LOG 2>&1
-                secure_wo_db | tee -ai $EE_INSTALL_LOG
+                wo_sync_db >> $wo_install_log 2>&1
+                secure_wo_db | tee -ai $wo_install_log
                 wo_install | tee -ai $wo_install_log
                 wo_upgrade_nginx | tee -ai $wo_install_log
                 wo_update_latest | tee -ai $wo_install_log
@@ -632,7 +632,7 @@ else
     fi
 fi
 
-wo sync | tee -ai $WO_INSTALL_LOG
+wo sync | tee -ai $wo_install_log
 
 if [ "$migration" -eq "1" ]; then
     echo

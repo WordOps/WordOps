@@ -4,24 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## Releases
+
+---
+
 ### v3.9.5 - [Unreleased]
+
+### v3.9.4 - 2019-03-15
 
 #### Added
 
 - Nginx module nginx_vts
-- Nginx patch dynamic_tls_records
+- Migration script from nginx-ee to nginx-wo
 
 #### Changed
 
 - Update WP-CLI version to 2.1.0
 - Update Adminer to 4.6.2
 - Update Nginx to 1.14.2
+- Update predis to v1.1.1
 - Refactored nginx.conf
 - Removed HHVM Stack
+- Removed old linux distro checks
+- Replace wo-acme-sh by acme.sh
 
 #### Fixed
 
-- Fix Nginx ssl_ciphers
+- Outdated Nginx ssl_ciphers suite
+- Debian 9 nginx build
 
 ### v3.9.3 - 2019-03-07
 
@@ -50,7 +60,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - wo update command ([#7](https://github.com/WordOps/WordOps/issues/7))
 - Fix php services management ([#12](https://github.com/WordOps/WordOps/issues/12))
 - Fix WP-CLI install
-
 
 ### v3.9.2 - 2018-11-30
 

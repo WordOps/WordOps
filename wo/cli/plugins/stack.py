@@ -522,17 +522,16 @@ class WOStackController(CementBaseController):
                                         out=wo_nginx)
                         wo_nginx.close()
 
-                    if (WOVariables.wo_platform_distro == 'ubuntu'):
-                        if (os.path.isfile("/etc/nginx/nginx.conf") and
-                                not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
-                            data = dict()
-                            Log.debug(self, 'Writting the nginx configuration to '
-                                      'file /etc/nginx/common/redis-php73.conf')
-                            wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                                            encoding='utf-8', mode='w')
-                            self.app.render((data), 'redis-php7.mustache',
-                                            out=wo_nginx)
-                            wo_nginx.close()
+                    if (os.path.isfile("/etc/nginx/nginx.conf") and
+                            not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+                        data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis-php73.conf')
+                        wo_nginx = open('/etc/nginx/common/redis-php73.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'redis-php7.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
                     if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                         if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
