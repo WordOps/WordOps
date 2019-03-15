@@ -725,19 +725,14 @@ def site_package_check(self, stype):
                   "combined within the same WordOps site")
 
     if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        if WOVariables.wo_platform_distro == 'ubuntu':
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
-        else:
-            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php
+        Log.debug(self, "Setting apt_packages variable for PHP 7.2")
+        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+            apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
 
-        if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73
+    if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+        if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            apt_packages = apt_packages + WOVariables.wo_php73
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -761,8 +756,8 @@ def site_package_check(self, stype):
         if not WOAptGet.is_installed(self, 'redis-server'):
             apt_packages = apt_packages + WOVariables.wo_redis
 
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+        if (os.path.isfile("/etc/nginx/nginx.conf") and
+                not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
@@ -783,8 +778,8 @@ def site_package_check(self, stype):
                                      "    server 127.0.0.1:6379;\n"
                                      "    keepalive 10;\n}")
 
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+        if (os.path.isfile("/etc/nginx/nginx.conf") and
+                not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
             with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
                 redis_file.write("# Log format Settings\n"
                                  "log_format rt_cache_redis '$remote_addr"
@@ -799,8 +794,8 @@ def site_package_check(self, stype):
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
             apt_packages = apt_packages + WOVariables.wo_php73
 
-        if os.path.isdir("/etc/nginx/common") and (not
-                                                   os.path.isfile("/etc/nginx/common/php73.conf")):
+        if (os.path.isdir("/etc/nginx/common") and
+                not os.path.isfile("/etc/nginx/common/php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/locations-php73.conf')
@@ -842,8 +837,8 @@ def site_package_check(self, stype):
                             out=wo_nginx)
             wo_nginx.close()
 
-        if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                                                        os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+        if (os.path.isfile("/etc/nginx/nginx.conf") and
+                not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/redis-php73.conf')
