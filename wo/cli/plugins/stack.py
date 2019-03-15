@@ -653,7 +653,7 @@ class WOStackController(CementBaseController):
                                              "'\"$http_referer\" "
                                              "\"$http_user_agent\"';\n")
 
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
+            if set(WOVariables.wo_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.2/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.2/')
@@ -778,9 +778,8 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 WOService.restart_service(self, 'php7.2-fpm')
 
-            # PHP7.3 configuration for debian
-            if (WOVariables.wo_platform_distro == 'debian' and
-                    set(WOVariables.wo_php73).issubset(set(apt_packages))):
+            # PHP7.3 configuration
+            if set(WOVariables.wo_php73).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.3/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -823,132 +822,6 @@ class WOStackController(CementBaseController):
                 config['www']['pm.min_spare_servers'] = '10'
                 config['www']['pm.max_spare_servers'] = '30'
                 config['www']['request_terminate_timeout'] = '300'
-                config['www']['pm'] = 'ondemand'
-                config['www']['chdir'] = '/'
-                config['www']['prefix'] = '/var/run/php'
-                config['www']['listen'] = 'php73-fpm.sock'
-                config['www']['listen.backlog'] = '32768'
-                with codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
-                                 encoding='utf-8', mode='w') as configfile:
-                    Log.debug(self, "writting PHP 7.3 configuration into "
-                              "/etc/php/7.3/fpm/pool.d/www.conf")
-                    config.write(configfile)
-
-                # Generate /etc/php/7.3/fpm/pool.d/debug.conf
-                WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
-                                     "/etc/php/7.3/fpm/pool.d/debug.conf")
-                WOFileUtils.searchreplace(self, "/etc/php/7.3/fpm/pool.d/"
-                                          "debug.conf", "[www]", "[debug]")
-                config = configparser.ConfigParser()
-                config.read('/etc/php/7.3/fpm/pool.d/debug.conf')
-                config['debug']['listen'] = '127.0.0.1:9173'
-                config['debug']['rlimit_core'] = 'unlimited'
-                config['debug']['slowlog'] = '/var/log/php/7.3/slow.log'
-                config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/php/7.3/fpm/pool.d/debug.conf',
-                          encoding='utf-8', mode='w') as confifile:
-                    Log.debug(self, "writting PHP 7.3 configuration into "
-                              "/etc/php/7.3/fpm/pool.d/debug.conf")
-                    config.write(confifile)
-
-                with open("/etc/php/7.3/fpm/pool.d/debug.conf",
-                          encoding='utf-8', mode='a') as myfile:
-                    myfile.write("php_admin_value[xdebug.profiler_output_dir] "
-                                 "= /tmp/ \nphp_admin_value[xdebug.profiler_"
-                                 "output_name] = cachegrind.out.%p-%H-%R "
-                                 "\nphp_admin_flag[xdebug.profiler_enable"
-                                 "_trigger] = on \nphp_admin_flag[xdebug."
-                                 "profiler_enable] = off\n")
-
-                # Disable xdebug
-                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.3/mods-available/xdebug.ini"):
-                    WOFileUtils.searchreplace(self, "/etc/php/7.3/mods-available/"
-                                              "xdebug.ini",
-                                              "zend_extension",
-                                              ";zend_extension")
-
-                # PHP and Debug pull configuration
-                if not os.path.exists('{0}22222/htdocs/fpm/status/'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, 'Creating directory '
-                              '{0}22222/htdocs/fpm/status/ '
-                              .format(WOVariables.wo_webroot))
-                    os.makedirs('{0}22222/htdocs/fpm/status/'
-                                .format(WOVariables.wo_webroot))
-                open('{0}22222/htdocs/fpm/status/debug'
-                     .format(WOVariables.wo_webroot),
-                     encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/php'
-                     .format(WOVariables.wo_webroot),
-                     encoding='utf-8', mode='a').close()
-
-                # Write info.php
-                if not os.path.exists('{0}22222/htdocs/php/'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, 'Creating directory '
-                              '{0}22222/htdocs/php/ '
-                              .format(WOVariables.wo_webroot))
-                    os.makedirs('{0}22222/htdocs/php'
-                                .format(WOVariables.wo_webroot))
-
-                with open("{0}22222/htdocs/php/info.php"
-                          .format(WOVariables.wo_webroot),
-                          encoding='utf-8', mode='w') as myfile:
-                    myfile.write("<?php\nphpinfo();\n?>")
-
-                WOFileUtils.chown(self, "{0}22222"
-                                  .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user, recursive=True)
-
-                WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-                WOService.restart_service(self, 'php7.3-fpm')
-
-            # preconfiguration for php7.3
-            if (WOVariables.wo_platform_distro == 'ubuntu' and
-                    set(WOVariables.wo_php73).issubset(set(apt_packages))):
-                # Create log directories
-                if not os.path.exists('/var/log/php/7.3/'):
-                    Log.debug(self, 'Creating directory /var/log/php/7.3/')
-                    os.makedirs('/var/log/php/7.3/')
-
-                # Parse etc/php/7.2/fpm/php.ini
-                config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file /etc/php/7.3/fpm/php.ini")
-                config.read('/etc/php/7.3/fpm/php.ini')
-                config['PHP']['expose_php'] = 'Off'
-                config['PHP']['post_max_size'] = '64M'
-                config['PHP']['upload_max_filesize'] = '64M'
-                config['PHP']['max_execution_time'] = '300'
-                config['PHP']['date.timezone'] = WOVariables.wo_timezone
-                with open('/etc/php/7.3/fpm/php.ini',
-                          encoding='utf-8', mode='w') as configfile:
-                    Log.debug(self, "Writting php configuration into "
-                              "/etc/php/7.3/fpm/php.ini")
-                    config.write(configfile)
-
-                # Parse /etc/php/7.2/fpm/php-fpm.conf
-                data = dict(pid="/run/php/php7.3-fpm.pid", error_log="/var/log/php/7.3/fpm.log",
-                            include="/etc/php/7.3/fpm/pool.d/*.conf")
-                Log.debug(self, "writting php 7.3 configuration into "
-                          "/etc/php/7.3/fpm/php-fpm.conf")
-                wo_php_fpm = open('/etc/php/7.3/fpm/php-fpm.conf',
-                                  encoding='utf-8', mode='w')
-                self.app.render((data), 'php-fpm.mustache', out=wo_php_fpm)
-                wo_php_fpm.close()
-
-                # Parse /etc/php/7.3/fpm/pool.d/www.conf
-                config = configparser.ConfigParser()
-                config.read_file(codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
-                                             "r", "utf8"))
-                config['www']['ping.path'] = '/ping'
-                config['www']['pm.status_path'] = '/status'
-                config['www']['pm.max_requests'] = '100'
-                config['www']['pm.max_children'] = '25'
-                config['www']['pm.start_servers'] = '5'
-                config['www']['pm.min_spare_servers'] = '2'
-                config['www']['pm.max_spare_servers'] = '5'
-                config['www']['request_terminate_timeout'] = '100'
                 config['www']['pm'] = 'ondemand'
                 config['www']['chdir'] = '/'
                 config['www']['prefix'] = '/var/run/php'
