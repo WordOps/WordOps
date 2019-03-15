@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Nginx module nginx_vts
 - Migration script from nginx-ee to nginx-wo
-- Partial support for Debian 9 (testing)
+- Support for Debian 9 (testing)
 - New Nginx build v1.14.2
 
 #### Changed
