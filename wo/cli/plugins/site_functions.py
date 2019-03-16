@@ -1203,7 +1203,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                        " for your site.\nIt may take a few minutes"
                        " depending on the network.")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --issue "
-                                         "-d {0} -d www.{0} -w /var/www/html"
+                                         "-d {0} -d www.{0} -w /var/www/html "
                                          "-k ec-384"
                                    .format(wo_domain_name))
     if ssl:
@@ -1219,7 +1219,7 @@ def setupLetsEncrypt(self, wo_domain_name):
         Log.debug(self, "Cert deployment for domain: {0}"
                   .format(wo_domain_name))
         ssl_deploy = WOShellExec.cmd_exec(self,
-                                          "mkdir -p {0}/{1} &&"
+                                          "mkdir -p {0}/{1} && "
                                           "/etc/letsencrypt/acme.sh "
                                           "--install-cert -d {1} --ecc "
                                           "--cert-file {0}/{1}/cert.pem "
@@ -1276,7 +1276,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                        "for your site.\nIt may take a "
                        "few minutes depending on the network.")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --issue "
-                                         "-d {0} -w /var/www/html"
+                                         "-d {0} -w /var/www/html "
                                          "-k ec-384"
                                    .format(wo_domain_name))
     if ssl:
@@ -1427,7 +1427,7 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
         Log.info(self, "Please wait while we reinstall the Let's Encrypt "
                  "certificate for your site.\nIt may take a "
                  "few minutes depending on your network.")
-        ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} &&"
+        ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
                                          "/etc/letsencrypt/acme.sh "
                                          "--install-cert -d {1} --ecc "
                                          "--cert-file {0}/{1}/cert.pem "
