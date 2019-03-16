@@ -680,9 +680,6 @@ class WOSiteCreateController(CementBaseController):
                       "`tail /var/log/wo/wordops.log` and please try again")
 
         if self.app.pargs.letsencrypt == "on":
-            if stype in ['wpsubdomain']:
-                Log.warn(
-                    self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
             data['letsencrypt'] = True
             letsencrypt = True
 
@@ -1079,6 +1076,12 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':
+                data['letsencrypt'] = True
+                letsencrypt = True
+            elif pargs.letsencrypt == 'subdomain':
+                data['letsencrypt'] = True
+                letsencrypt = True
+            elif pargs.letsencrypt == 'wildcard':
                 data['letsencrypt'] = True
                 letsencrypt = True
             elif pargs.letsencrypt == 'off':
