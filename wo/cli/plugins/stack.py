@@ -1183,7 +1183,10 @@ class WOStackController(CementBaseController):
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                    if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
+                        apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                    else:
+                        apt_packages = apt_packages + WOVariables.wo_php
                 else:
                     Log.debug(self, "PHP 7.2 already installed")
                     Log.info(self, "PHP 7.2 already installed")
@@ -1192,7 +1195,10 @@ class WOStackController(CementBaseController):
             if self.app.pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73
+                    if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                        apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                    else:
+                        apt_packages = apt_packages + WOVariables.wo_php73
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
@@ -1398,7 +1404,10 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php73:
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVariables.wo_php73
 
         # REDIS
         if self.app.pargs.redis:
@@ -1534,7 +1543,10 @@ class WOStackController(CementBaseController):
         if self.app.pargs.php73:
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php73
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVariables.wo_php73
             else:
                 Log.error(self, "Cannot Purge PHP 7.3. not found.")
         # WP-CLI

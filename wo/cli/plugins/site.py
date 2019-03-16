@@ -454,7 +454,7 @@ class WOSiteCreateController(CementBaseController):
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using PHP 7.2 for site.")
+                    Log.info(self, "Not using PHP 7.3 for site.")
                     data['php73'] = True
                     data['basic'] = True
                     php73 = 1
