@@ -1202,8 +1202,11 @@ def setupLetsEncrypt(self, wo_domain_name):
         Log.warn(self, "Please wait while we fetch the new HTTPS certificate"
                        " for your site.\nIt may take a few minutes"
                        " depending on the network.")
-        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --issue "
-                                         "-d {0} -d www.{0} -w /var/www/html"
+        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                         "--config-home "
+                                         "'/etc/letsencrypt/config' "
+                                         "--issue "
+                                         "-d {0} -d www.{0} -w /var/www/html "
                                          "-k ec-384"
                                    .format(wo_domain_name))
     if ssl:
@@ -1219,14 +1222,16 @@ def setupLetsEncrypt(self, wo_domain_name):
         Log.debug(self, "Cert deployment for domain: {0}"
                   .format(wo_domain_name))
         ssl_deploy = WOShellExec.cmd_exec(self,
-                                          "mkdir -p {0}/{1} &&"
+                                          "mkdir -p {0}/{1} && "
                                           "/etc/letsencrypt/acme.sh "
+                                          "--config-home "
+                                          "'/etc/letsencrypt/config'"
                                           "--install-cert -d {1} --ecc "
                                           "--cert-file {0}/{1}/cert.pem "
                                           "--key-file {0}/{1}/key.pem "
                                           "--fullchain-file "
                                           "{0}/{1}/fullchain.pem "
-                                          "--reloadcmd="
+                                          "--reloadcmd "
                                           "\"service nginx restart\" "
                                           .format(WOVariables.wo_ssl_live,
                                                   wo_domain_name))
@@ -1275,8 +1280,11 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
         Log.warn(self, "Please wait while we fetch the new HTTPS certificate "
                        "for your site.\nIt may take a "
                        "few minutes depending on the network.")
-        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --issue "
-                                         "-d {0} -w /var/www/html"
+        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                         "--config-home "
+                                         "'/etc/letsencrypt/config' "
+                                         "--issue "
+                                         "-d {0} -w /var/www/html "
                                          "-k ec-384"
                                    .format(wo_domain_name))
     if ssl:
@@ -1324,7 +1332,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
 def renewLetsEncrypt(self, wo_domain_name):
 
     ssl = WOShellExec.cmd_exec(
-        self, "/etc/letsencrypt/acme.sh --renew -d {0} --ecc --force"
+        self, "/etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --renew -d {0} --ecc --force"
         .format(wo_domain_name))
 
     mail_list = ''
@@ -1427,14 +1435,16 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
         Log.info(self, "Please wait while we reinstall the Let's Encrypt "
                  "certificate for your site.\nIt may take a "
                  "few minutes depending on your network.")
-        ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} &&"
+        ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
                                          "/etc/letsencrypt/acme.sh "
+                                         "--config-home "
+                                         "'/etc/letsencrypt/config' "
                                          "--install-cert -d {1} --ecc "
                                          "--cert-file {0}/{1}/cert.pem "
                                          "--key-file {0}/{1}/key.pem "
                                          "--fullchain-file "
                                          "{0}/{1}/fullchain.pem "
-                                         "--reloadcmd="
+                                         "--reloadcmd "
                                          "\"service nginx restart\" "
                                          .format(WOVariables.wo_ssl_live, domain))
 
@@ -1451,7 +1461,7 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
         Log.info(self, "Please wait while we renew the Let's Encrypt"
                        "certificate for your site.\nIt may take a few "
                        "minutes depending on your network.")
-        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --renew -d {0} --ecc --force"
+        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --renew -d {0} --ecc --force"
                                          .format(domain))
 
     else:

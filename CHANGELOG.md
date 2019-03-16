@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - PHP 7.3 extras when php 7.2 isn't installed
 - acme.sh installation
+- acme.sh alias with config home variable
+- deb.sury.org repository gpg key
 
 ### v3.9.4 - 2019-03-15
 

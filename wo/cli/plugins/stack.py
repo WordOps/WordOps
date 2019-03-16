@@ -149,15 +149,13 @@ class WOStackController(CementBaseController):
             Log.debug(self, 'Adding repository for Nginx')
             WORepo.add_key(self, WOVariables.wo_nginx_key)
 
-        if (WOVariables.wo_platform_distro == 'ubuntu'):
-            if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
-                    set(WOVariables.wo_php).issubset(set(apt_packages))):
+        if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
+                set(WOVariables.wo_php).issubset(set(apt_packages))):
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 WORepo.add(self, ppa=WOVariables.wo_php_repo)
-        else:
-            if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
-                    set(WOVariables.wo_php).issubset(set(apt_packages))):
+            else:
                 Log.info(self, "Adding repository for PHP, please wait...")
                 # Add repository for php
                 Log.debug(self, 'Adding repo_url of php for debian')
@@ -167,14 +165,11 @@ class WOStackController(CementBaseController):
 
         if set(WOVariables.wo_redis).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for Redis, please wait...")
-            if WOVariables.wo_platform_distro == 'debian':
-                Log.debug(self, 'Adding repo_url of redis for debian')
-                WORepo.add(self, repo_url=WOVariables.wo_redis_repo)
-                Log.debug(self, 'Adding Deb.sury GPG key')
-                WORepo.add_key(self, 'AC0E47584A7A714D')
-            else:
+            if WOVariables.wo_platform_distro == 'ubuntu':
                 Log.debug(self, 'Adding ppa for redis')
                 WORepo.add(self, ppa=WOVariables.wo_redis_repo)
+            else:
+                Log.debug(self, 'Adding repo_url of redis for debian')
 
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):

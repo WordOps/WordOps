@@ -138,7 +138,7 @@ class WOVariables():
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
         wo_php_extra = ["php-memcached", "php-imagick", "memcached",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
-        wo_php_key = '188C9FB063F0247A'
+        wo_php_key = 'AC0E47584A7A714D'
 
     # MySQL repo and packages
     if wo_platform_distro == 'ubuntu':
