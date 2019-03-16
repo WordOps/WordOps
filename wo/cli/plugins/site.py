@@ -331,7 +331,7 @@ class WOSiteCreateController(CementBaseController):
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off', 'subdomain', 'wildcard'),
+                     choices=('on', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
             (['--user'],
                 dict(help="provide user for wordpress site")),
