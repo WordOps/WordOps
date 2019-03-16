@@ -329,9 +329,10 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create wordpress single/multi site with redis cache",
                      action='store_true')),
             (['-le', '--letsencrypt'],
-                dict(help="configure letsencrypt ssl for the site", action='store_true')),
-            (['--subdomain'],
-                dict(help="specify the site is a subdomain for letsencrypt", action='store_true')),
+                dict(help="configure letsencrypt ssl for the site",
+                     action='store' or 'store_const',
+                     choices=('on', 'off', 'subdomain', 'wildcard'),
+                     const='on', nargs='?')),
             (['--user'],
                 dict(help="provide user for wordpress site")),
             (['--email'],
@@ -453,7 +454,7 @@ class WOSiteCreateController(CementBaseController):
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using PHP 7.2 for site.")
+                    Log.info(self, "Not using PHP 7.3 for site.")
                     data['php73'] = True
                     data['basic'] = True
                     php73 = 1
@@ -678,8 +679,7 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if (self.app.pargs.letsencrypt and
-                not pargs.letsencrypt == "wildcard"):
+        if self.app.pargs.letsencrypt == "on":
             if stype in ['wpsubdomain']:
                 Log.warn(
                     self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
@@ -707,7 +707,7 @@ class WOSiteCreateController(CementBaseController):
                 Log.info(self, "Not using Let\'s encrypt for Site "
                          " http://{0}".format(wo_domain))
 
-        if self.app.pargs.letsencrypt and self.app.pargs.subdomain:
+        if self.app.pargs.letsencrypt == "subdomain":
             data['letsencrypt'] = True
             letsencrypt = True
 
@@ -1190,7 +1190,7 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if pargs.letsencrypt and (not pargs.subdomain):
+        if pargs.letsencrypt == "on":
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
@@ -1237,7 +1237,7 @@ class WOSiteUpdateController(CementBaseController):
                     Log.info(self, "Successfully Disabled SSl for Site "
                              " http://{0}".format(wo_domain))
 
-        if pargs.letsencrypt and (pargs.subdomain):
+        if pargs.letsencrypt == "subdomain":
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
