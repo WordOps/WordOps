@@ -10,7 +10,7 @@
 # Version 3.9.4 - 2019-03-15
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.4"
+readonly wo_version_new="3.9.4.1"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
