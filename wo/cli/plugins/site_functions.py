@@ -1297,7 +1297,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
             ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
                                        "/etc/letsencrypt/acme.sh "
                                        "--config-home "
-                                       "'/etc/letsencrypt/config'"
+                                       "'/etc/letsencrypt/config' "
                                        "--install-cert -d {1} --ecc "
                                        "--cert-file {0}/{1}/cert.pem "
                                        "--key-file {0}/{1}/key.pem "
@@ -1332,7 +1332,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
         except IOError as e:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while generating "
-                          "ssl.conf")
+                            "ssl.conf")
     else:
         Log.error(self, "Unable to install certificate", False)
         Log.error(self, "Please make sure that your site is pointed to \n"
