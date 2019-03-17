@@ -1257,16 +1257,16 @@ def setupLetsEncrypt(self, wo_domain_name):
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
 
-            except IOError as e:
-                Log.debug(self, str(e))
-                Log.debug(self, "Error occured while generating "
-                          "ssl.conf")
-        else:
-            Log.error(self, "Unable to install certificate", False)
-            Log.error(self, "Please make sure that your site is pointed to \n"
-                            "same server on which "
-                            "you are running Let\'s Encrypt Client "
-                            "\n to allow it to verify the site automatically.")
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while generating "
+                            "ssl.conf")
+    else:
+        Log.error(self, "Unable to install certificate", False)
+        Log.error(self, "Please make sure that your site is pointed to \n"
+                        "same server on which "
+                        "you are running Let\'s Encrypt Client "
+                        "\n to allow it to verify the site automatically.")
 
 # setup letsencrypt for a subdomain
 
@@ -1329,16 +1329,16 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
 
-            except IOError as e:
-                Log.debug(self, str(e))
-                Log.debug(self, "Error occured while generating "
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while generating "
                           "ssl.conf")
-        else:
-            Log.error(self, "Unable to install certificate", False)
-            Log.error(self, "Please make sure that your site is pointed to \n"
-                            "same server on which "
-                            "you are running Let\'s Encrypt Client "
-                            "\n to allow it to verify the site automatically.")
+    else:
+        Log.error(self, "Unable to install certificate", False)
+        Log.error(self, "Please make sure that your site is pointed to \n"
+                        "same server on which "
+                        "you are running Let\'s Encrypt Client "
+                        "\n to allow it to verify the site automatically.")
 
 # letsencrypt cert renewal
 
