@@ -74,12 +74,12 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --hhvm --redis --phpredisadmin" \
+                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --redis --phpredisadmin" \
                               -- $cur) )
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --nginx --php --php73 --mysql --all --hhvm --php56 --no-prompt --wpcli" \
+                              -W "--web --nginx --php --php73 --mysql --all --php56 --no-prompt --wpcli" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
@@ -159,13 +159,13 @@ _wo_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --hhvm --proxy= --wpredis --letsencrypt -le" \
+                                    -W "--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --wpredis --letsencrypt -le" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --hhvm --hhvm=off  --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew" \
+                                    -W "--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc  --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew" \
                                  -- $cur) )
                 ;;
             "delete")
@@ -211,9 +211,9 @@ _wo_complete()
         "--wp")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wp --wpsc --wpfc --hhvm --user --email --pass --wpredis --letsencrypt --php73"
+                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --letsencrypt --php73"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wp --wpfc --wpsc --php73 --php73=off --hhvm --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
+                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew"
                 else
                     retlist=""
                 fi
@@ -230,9 +230,9 @@ _wo_complete()
         "--wpsubdir" | "--wpsubdomain")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wpsc --wpfc --hhvm --user --email --pass --wpredis --letsencrypt --php73"
+                    retlist="--wpsc --wpfc --user --email --pass --wpredis --letsencrypt --php73"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wpfc --wpsc --php73 --php73=off --hhvm --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
+                    retlist="--wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew"
                 else
                     retlist=""
                 fi
@@ -246,9 +246,9 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--hhvm" | "--wpredis" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
+        "--wpredis" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
             if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --hhvm --wpredis --php73 --letsencrypt "
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --php73 --letsencrypt "
             else
                 retlist=""
             fi
@@ -259,9 +259,9 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--hhvm" | "--wpredis" | "--wpfc")
+        "--wpredis" | "--wpfc")
             if [ ${COMP_WORDS[2]} == "update" ]; then
-                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --hhvm --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
+                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew"
             else
                 retlist=""
             fi
@@ -314,7 +314,7 @@ _wo_complete()
           elif [ ${COMP_WORDS[2]} == "delete" ]; then
               retlist="--db --files --force"
           elif [ ${COMP_WORDS[2]} == "update" ]; then
-            retlist="--password --php --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --hhvm --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
+            retlist="--password --php --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew"
           else
             retlist=""
           fi
@@ -363,7 +363,7 @@ _wo_complete()
         case "$mprev" in
             "--user" | "--email" | "--pass")
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --hhvm --wpredis --letsencrypt"
+                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt"
                 fi
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
