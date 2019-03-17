@@ -460,7 +460,7 @@ class WOSiteCreateController(CementBaseController):
                 (not self.app.pargs.wpredis)):
             data['basic'] = True
 
-        if (cache == 'wpredis):
+        if (cache == 'wpredis'):
                 cache = 'wpredis'
                 data['wpredis'] = True
                 data['basic'] = False

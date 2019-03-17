@@ -113,6 +113,13 @@ wo site create example.com --mysql    # create example.com with php & mysql supp
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
 ```
 
+### Sites secured with Let's Encrypt
+
+```bash
+wo site create example.com --wp --letsencrypt # install wordpress & secure site with letsencrypt
+wo site create sub.example.com --wp --letsencrypt=subdomain # install wordpress and secure subdomain with letsencrypt
+```
+
 ## Cheatsheet
 
 |                    |  single site  |   multisite w/ subdir  |  multisite w/ subdom     |
