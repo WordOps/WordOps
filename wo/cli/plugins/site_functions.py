@@ -1250,7 +1250,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                           "ssl on;\n"
                           "ssl_certificate     {0}/{1}/fullchain.pem;\n"
                           "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                          .format(wo_ssl_live, wo_domain_name))
+                          .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
             # updateSiteInfo(self, wo_domain_name, ssl=True)
 
@@ -1322,7 +1322,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                           "ssl on;\n"
                           "ssl_certificate     {0}/{1}/fullchain.pem;\n"
                           "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                          .format(wo_ssl_live, wo_domain_name))
+                          .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
             # updateSiteInfo(self, wo_domain_name, ssl=True)
 
@@ -1346,7 +1346,10 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
 def renewLetsEncrypt(self, wo_domain_name):
 
     ssl = WOShellExec.cmd_exec(
-        self, "/etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --renew -d {0} --ecc --force"
+        self, "/etc/letsencrypt/acme.sh "
+              "--config-home "
+              "'/etc/letsencrypt/config' "
+              "--renew -d {0} --ecc --force"
         .format(wo_domain_name))
 
     mail_list = ''
