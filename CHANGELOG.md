@@ -10,8 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.5 - [Unreleased]
 
-### Changed
+#### Added
 
+- IPv6 support with HTTPS
+
+#### Changed
+
+- letsencrypt stack refactored with acme.sh
 - "--letsencrypt=subdomain" option
 
 #### Fixed
