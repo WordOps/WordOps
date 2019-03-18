@@ -10,9 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.5 - [Unreleased]
 
-### Changed
+#### Added
 
+- IPv6 support with HTTPS
+- Brotli support in Nginx
+
+#### Changed
+
+- letsencrypt stack refactored with acme.sh
 - "--letsencrypt=subdomain" option
+- hardened nginx ssl_ecdh_curve
 
 #### Fixed
 

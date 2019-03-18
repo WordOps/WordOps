@@ -311,22 +311,22 @@ class WOSiteCreateController(CementBaseController):
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
-                dict(help="create wordpress single site",
+                dict(help="create WordPress single site",
                      action='store_true')),
             (['--wpsubdir'],
-                dict(help="create wordpress multisite with subdirectory setup",
+                dict(help="create WordPress multisite with subdirectory setup",
                      action='store_true')),
             (['--wpsubdomain'],
-                dict(help="create wordpress multisite with subdomain setup",
+                dict(help="create WordPress multisite with subdomain setup",
                      action='store_true')),
             (['--wpfc'],
-                dict(help="create wordpress single/multi site with wpfc cache",
+                dict(help="create WordPress single/multi site with wpfc cache",
                      action='store_true')),
             (['--wpsc'],
-                dict(help="create wordpress single/multi site with wpsc cache",
+                dict(help="create WordPress single/multi site with wpsc cache",
                      action='store_true')),
             (['--wpredis'],
-                dict(help="create wordpress single/multi site with redis cache",
+                dict(help="create WordPress single/multi site with redis cache",
                      action='store_true')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
@@ -334,16 +334,18 @@ class WOSiteCreateController(CementBaseController):
                      choices=('on', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
             (['--user'],
-                dict(help="provide user for wordpress site")),
+                dict(help="provide user for WordPress site")),
             (['--email'],
-                dict(help="provide email address for wordpress site")),
+                dict(help="provide email address for WordPress site")),
             (['--pass'],
-                dict(help="provide password for wordpress user",
+                dict(help="provide password for WordPress user",
                      dest='wppass')),
             (['--proxy'],
                 dict(help="create proxy for site", nargs='+')),
+            (['--vhostonly'],
+                dict(help="only create vhost and database without installing WordPress", nargs='+')),
             (['--experimental'],
-                dict(help="Enable Experimenal packages without prompt",
+                dict(help="Enable Experimental packages without prompt",
                      action='store_true')),
         ]
 
@@ -447,45 +449,22 @@ class WOSiteCreateController(CementBaseController):
             pass
 
         if data and self.app.pargs.php73:
-            if (self.app.pargs.experimental):
-                Log.info(
-                    self, "Do you wish to install PHP 7.3 now for {0}?".format(wo_domain))
-
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
-                if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using PHP 7.3 for site.")
-                    data['php73'] = True
-                    data['basic'] = True
-                    php73 = 1
-                    self.app.pargs.php73 = True
-                else:
-                    data['php73'] = True
-                    php73 = 1
-            else:
-                data['php73'] = True
-                php73 = 1
+            data['php73'] = True
+            php73 = 1
         elif data:
             data['php73'] = False
             php73 = 0
 
-        if (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis):
+        if ((not self.app.pargs.wpfc) and
+            (not self.app.pargs.wpsc) and
+                (not self.app.pargs.wpredis)):
             data['basic'] = True
 
-        if (cache == 'wpredis' and (self.app.pargs.experimental)):
-            Log.info(self, "Redis is experimental feature and it may not "
-                     "work with all CSS/JS/Cache of your site.\nYou can "
-                     "disable it by changing cache later.\nDo you wish"
-                     " to enable Redis now for {0}?".format(wo_domain))
-
-            # Check prompt
-            check_prompt = input("Type \"y\" to continue [n]:")
-            if check_prompt != "Y" and check_prompt != "y":
-                Log.error(self, "Not using Redis for site")
-                cache = 'basic'
-                data['wpredis'] = False
-                data['basic'] = True
-                self.app.pargs.wpredis = False
+        if (cache == 'wpredis'):
+                cache = 'wpredis'
+                data['wpredis'] = True
+                data['basic'] = False
+                self.app.pargs.wpredis = True
 
         # Check rerequired packages are installed or not
         wo_auth = site_package_check(self, stype)
@@ -1107,21 +1086,8 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.letsencrypt == "on" or pargs.php73 == "on":
             if pargs.php73 == "on":
-                if pargs.experimental:
-                    Log.info(
-                        self, "Do you wish to enable PHP 7.3 now for {0}?".format(wo_domain))
-
-                    check_prompt = input("Type \"y\" to continue [n]:")
-                    if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using PHP 7.3 for site")
-                        data['php73'] = False
-                        php73 = False
-                    else:
-                        data['php73'] = True
-                        php73 = True
-                else:
-                    data['php73'] = True
-                    php73 = True
+                data['php73'] = True
+                php73 = True
 
             if pargs.letsencrypt == "on":
                 if oldsitetype in ['wpsubdomain']:
@@ -1134,21 +1100,12 @@ class WOSiteUpdateController(CementBaseController):
                     wildcard = True
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
-            if pargs.experimental:
-                Log.info(self, "Redis is experimental feature and it may not"
-                         " work with all plugins of your site.\nYou can "
-                         "disable it by changing cache type later.\nDo you wish"
-                         " to enable Redis now for {0}?".format(wo_domain))
+            data['wpredis'] = True
+            data['basic'] = False
+            cache = 'wpredis'
 
-                # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]: ")
-                if check_prompt != "Y" and check_prompt != "y":
-                    Log.error(self, "Not using Redis for site")
-                    data['wpredis'] = False
-                    data['basic'] = True
-                    cache = 'basic'
-
-        if (php73 is old_php73) and (stype == oldsitetype and cache == oldcachetype):
+        if (php73 is old_php73) and (stype == oldsitetype and
+                                     cache == oldcachetype):
             return 1
 
         if not data:
@@ -1258,7 +1215,8 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
 
-                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                Log.info(self, "Congratulations! Successfully"
+                         " Configured SSL for Site "
                          " https://{0}".format(wo_domain))
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
@@ -1266,7 +1224,8 @@ class WOSiteUpdateController(CementBaseController):
                              str(SSL.getExpirationDays(self, wo_domain)) + " days.")
                 else:
                     Log.warn(
-                        self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+                        self, "Your cert already EXPIRED !"
+                              " PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
                 if os.path.isfile("{0}/conf/nginx/ssl.conf"

@@ -6,7 +6,7 @@ server {
     # listen 80 default_server;
     {{/multisite}}
 
-    server_name {{^vma}}{{^rc}}{{site_name}}{{/rc}}{{/vma}} {{#vma}}vma.*{{/vma}} {{#rc}}webmail.*{{/rc}} {{^vma}}{{^rc}}{{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}}{{/rc}}{{/vma}};
+    server_name {{site_name}} {{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}};
 
     {{#multisite}}
     # Uncomment the following line for domain mapping
@@ -28,7 +28,7 @@ server {
     {{/proxy}}
 
     {{^proxy}}
-    {{^vma}}{{^rc}}root {{webroot}}/htdocs;{{/rc}}{{/vma}}
+    root {{webroot}}/htdocs;
     
     {{^proxy}}index {{^static}}index.php{{/static}} index.html index.htm;{{/proxy}}
 
@@ -42,6 +42,6 @@ server {
     {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}{{/static}}
     {{#wp}}include common/wpcommon-php72.conf;{{/wp}}
     {{^proxy}}include common/locations-php72.conf;{{/proxy}}
-    {{^vma}}{{^rc}}include {{webroot}}/conf/nginx/*.conf;{{/rc}}{{/vma}}
+    include {{webroot}}/conf/nginx/*.conf;
     {{/proxy}}
 }
