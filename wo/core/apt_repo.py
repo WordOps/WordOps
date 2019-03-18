@@ -79,12 +79,12 @@ class WORepo():
     def add_key(self, keyids, keyserver=None):
         """
         This function adds imports repository keys from keyserver.
-        default keyserver is hkp://keys.gnupg.net
+        default keyserver is hkp://keyserver.ubuntu.com
         user can provide other keyserver with keyserver="hkp://xyz"
         """
         WOShellExec.cmd_exec(self, "gpg --keyserver {serv}"
                              .format(serv=(keyserver or
-                                           "hkp://keys.gnupg.net"))
+                                           "hkp://keyserver.ubuntu.com"))
                              + " --recv-keys {key}".format(key=keyids))
         WOShellExec.cmd_exec(self, "gpg -a --export --armor {0}"
                              .format(keyids)
