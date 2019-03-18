@@ -1225,7 +1225,7 @@ def setupLetsEncrypt(self, wo_domain_name):
             ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
                                        "/etc/letsencrypt/acme.sh "
                                        "--config-home "
-                                       "'/etc/letsencrypt/config'"
+                                       "'/etc/letsencrypt/config' "
                                        "--install-cert -d {1} --ecc "
                                        "--cert-file {0}/{1}/cert.pem "
                                        "--key-file {0}/{1}/key.pem "
@@ -1467,7 +1467,8 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
 
     elif (check_prompt == "2"):
         Log.info(self, "Using Existing Certificate files")
-        if not os.path.isfile("{0}/{1}/fullchain.pem".format(WOVariables.wo_ssl_live, domain)):
+        if not os.path.isfile("{0}/{1}/fullchain.pem"
+                              .format(WOVariables.wo_ssl_live, domain)):
             Log.error(self, "Certificate files not found. Skipping.\n"
                             "Please check if following file exist"
                             "\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
@@ -1478,7 +1479,11 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
         Log.info(self, "Please wait while we renew the Let's Encrypt"
                        "certificate for your site.\nIt may take a few "
                        "minutes depending on your network.")
-        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --renew -d {0} --ecc --force"
+        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                   "--config-home "
+                                   "'/etc/letsencrypt/config' "
+                                   "--renew -d {0} --ecc "
+                                   "--force"
                                          .format(domain))
 
     else:
