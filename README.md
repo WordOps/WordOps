@@ -135,11 +135,19 @@ wo site create sub.example.com --wp --letsencrypt=subdomain # install wordpress 
 wo update
 ```
 
+## Support
+
+If you feel there is a bug directly related to WordOps, feel free to open an issue.
+For any other questions/suggestions about WordOps or if you need support, please use the [WordOps Community Forum](https://community.wordops.io/).
+
+# Contributing
+
+If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
+
 ## Credits
 
 - Main source : [EasyEngine](https://github.com/easyengine/easyengine)
 - Acme client : [Acme.sh](https://github.com/Neilpang/acme.sh)
-
 
 ## License
 
