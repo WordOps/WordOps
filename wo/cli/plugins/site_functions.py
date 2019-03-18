@@ -1430,11 +1430,11 @@ def httpsRedirect(self, wo_domain_name, redirect=True):
                      " http://{0}".format(wo_domain_name))
 
 
-def archivedCertificateHandle(self, domain, wo_wp_email):
+def archivedCertificateHandle(self, domain):
     Log.warn(self, "You already have an existing certificate "
                    "for the domain requested.\n"
              "(ref: {0}/"
-             "{0}_ecc/{0}.conf)".format(WOVariables.wo_ssl_archive, domain) +
+             "{1}_ecc/{1}.conf)".format(WOVariables.wo_ssl_archive, domain) +
              "\nPlease select an option from below?"
              "\n\t1: Reinstall existing certificate"
              "\n\t2: Keep the existing certificate for now"
@@ -1445,7 +1445,7 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
     if not os.path.isfile("{0}/{1}/fullchain.pem"
                           .format(WOVariables.wo_ssl_live, domain)):
         Log.error(
-            self, "{0}/{1}/cert.pem file is missing."
+            self, "{0}/{1}/fullchain.pem file is missing."
                   .format(WOVariables.wo_ssl_live, domain))
 
     if check_prompt == "1":
@@ -1464,6 +1464,25 @@ def archivedCertificateHandle(self, domain, wo_wp_email):
                                          "--reloadcmd "
                                          "\"service nginx restart\" "
                                          .format(WOVariables.wo_ssl_live, domain))
+        if ssl:
+
+            if not os.path.isfile("/var/www/{0}/conf/nginx/ssl.conf"
+                                  .format(domain)):
+                Log.info(
+                    self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
+                    .format(wo_domain_name))
+                Log.info(self, "Install . Backing it up ..")
+
+                sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                               .format(wo_domain_name),
+                               encoding='utf-8', mode='w')
+                sslconf.write("listen 443 ssl http2;\n"
+                              "listen [::]:443 ssl http2;\n"
+                              "ssl on;\n"
+                              "ssl_certificate     {0}/{1}/fullchain.pem;\n"
+                              "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                              .format(WOVariables.wo_ssl_live, wo_domain_name))
+                sslconf.close()
 
     elif (check_prompt == "2"):
         Log.info(self, "Using Existing Certificate files")

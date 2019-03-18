@@ -28,10 +28,10 @@
 
 - Easy Migration from EasyEngine v3 (migration script development in progress)
 - Automated WordPress, Nginx, PHP, MySQL & Redis installation
-- Up-to-date server stack with Nginx 1.14.2, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- Nginx 1.14.2 with Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - Hardened WordPress security with strict Nginx location directives
 - Optimized Nginx configurations with multiple cache backends support
-- Let's Encrypt SSL certificates
+- Let's Encrypt SSL certificates handled by Acme.sh
 - Secured SSL/TLS encryption with strong ciphers_suite and modern TLS protocols
 
 ## Requirements
@@ -41,7 +41,7 @@
 - Ubuntu 16.04 LTS (Xenial)
 - Ubuntu 18.04 LTS (Bionic)
 - Debian 8 (Jessie)
-- Debian 9 (Stretch) -> **Not fully supported yet**
+- Debian 9 (Stretch)
 
 ### Ports requirements
 
@@ -137,7 +137,9 @@ wo update
 
 ## Credits
 
-- [EasyEngine](https://github.com/easyengine/easyengine)
+- Main source : [EasyEngine](https://github.com/easyengine/easyengine)
+- Acme client : [Acme.sh](https://github.com/Neilpang/acme.sh)
+
 
 ## License
 
