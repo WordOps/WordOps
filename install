@@ -393,10 +393,10 @@ wo_upgrade_nginx()
                 wget -qO /tmp/nginx-wo.key "https://download.opensuse.org/repositories/home:virtubox:WordOps/xUbuntu_${wo_distro_id}/Release.key"
             else
                 if [ "$wo_distro_version" == "jessie" ]; then
-                    echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_8.0/ /" > /etc/apt/sources.list.d/wo-repo.list
+                    echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
                     wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key
                 else
-                    echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_9.0/ /" > /etc/apt/sources.list.d/wo-repo.list
+                    echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_9.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
                     wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key
                 fi
             fi
@@ -414,7 +414,13 @@ wo_upgrade_nginx()
             apt-mark unhold nginx-ee nginx-common nginx-custom
             apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom
             # install new nginx package
-            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confnew" -y install nginx-custom nginx-wo
+            if [ -x /usr/local/bin/wo ]; then
+                rm -f /etc/nginx/conf.d/{upstream.conf,redis.conf,fastcgi.conf}
+                rm -f /etc/nginx/*.default
+                /usr/local/bin/wo stack install
+            else
+                DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confnew" -y install nginx-custom nginx-wo
+            fi
             # set back apt preference
             [ -f "$HOME/nginx-block" ] && {
                 mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
@@ -488,55 +494,19 @@ wo_update_latest()
     # Ref: http://wptavern.com/xss-vulnerability-in-jetpack-and-the-twenty-fifteen-default-theme-affects-millions-of-wordpress-users
     dpkg --get-selections | grep -v deinstall | grep nginx &>> /dev/null
     if [ $? -eq 0 ]; then
-        cp /usr/lib/wo/templates/locations.mustache /etc/nginx/common/locations.conf &>> /dev/null
+        cp /usr/lib/wo/templates/locations.mustache /etc/nginx/common/locations-php72.conf &>> /dev/null
     fi
     
     # Fix Redis-server security issue
     # http://redis.io/topics/security
     if [ -f /etc/redis/redis.conf  ]; then
-        grep -0 -v "#" /etc/redis/redis.confse | grep 'bind' &>> /dev/null
+        grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' &>> /dev/null
         if [ $? -ne 0 ]; then
             sed -i '$ a bind 127.0.0.1' /etc/redis/redis.conf &>> /dev/null
             service redis-server restart &>> /dev/null
         fi
     fi
     
-    # Let's Encrypt .well-known folder setup
-    if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
-        mkdir -p /var/www/html/.well-known/acme-challenge
-        chown -R www-data:www-data  /var/www/html /var/www/html/.well-known
-    fi
-    
-    
-    # Fix for 3.3.2 renamed nginx.conf
-    nginx -V &>>/dev/null 2>&1
-    if [[ $? -eq 0 ]]; then
-        nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>>/dev/null
-        if [[ $? -eq 0 ]]; then
-            if [ -f /etc/nginx/nginx.conf.old ]; then
-                if [ ! -f /etc/nginx/nginx.conf ]; then
-                    cp /etc/nginx/nginx.conf.old /etc/nginx/nginx.conf
-                fi
-            fi
-        fi
-        # Fix for 3.3.2 renamed fastcgi_param
-        nginx -t 2>&1 | grep 'open() "/etc/nginx/fastcgi_params" failed' &>>/dev/null
-        if [[ $? -eq 0 ]]; then
-            if [ -f /etc/nginx/fastcgi_params.old ]; then
-                if [ ! -f /etc/nginx/fastcgi_params ]; then
-                    cp /etc/nginx/fastcgi_params.old /etc/nginx/fastcgi_params
-                fi
-            fi
-        fi
-    fi
-    
-    # Fix for SSL cert --all
-    crontab -l | grep -q '\-\-min_expiry_limit'
-    if [[ $? -eq 0 ]]; then
-        crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
-        crontab -l | sed '/--min_expiry_limit/d' | crontab -
-        /bin/bash -c "crontab -l 2> /dev/null | { cat; echo -e \"\n0 0 * * 0 wo site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by WordOps\"; } | crontab -"
-    fi
 }
 
 # Do git intialisation
