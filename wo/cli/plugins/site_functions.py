@@ -1471,7 +1471,6 @@ def archivedCertificateHandle(self, domain):
                 Log.info(
                     self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
                     .format(domain))
-                Log.info(self, "Install . Backing it up ..")
 
                 sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                .format(domain),
@@ -1483,6 +1482,8 @@ def archivedCertificateHandle(self, domain):
                               "ssl_certificate_key     {0}/{1}/key.pem;\n"
                               .format(WOVariables.wo_ssl_live, domain))
                 sslconf.close()
+
+                ssl = True
 
     elif (check_prompt == "2"):
         Log.info(self, "Using Existing Certificate files")
