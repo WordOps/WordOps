@@ -6,7 +6,7 @@ server {
     # listen 80 default_server;
     {{/multisite}}
 
-    server_name {{^vma}}{{^rc}}{{site_name}}{{/rc}}{{/vma}} {{#vma}}vma.*{{/vma}} {{#rc}}webmail.*{{/rc}} {{^vma}}{{^rc}}{{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}}{{/rc}}{{/vma}};
+    server_name {{site_name}} {{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}}
 
     {{#multisite}}
     # Uncomment the following line for domain mapping
