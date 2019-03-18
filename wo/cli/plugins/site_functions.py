@@ -1252,7 +1252,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                           "ssl_certificate_key     {0}/{1}/key.pem;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
-            # updateSiteInfo(self, wo_domain_name, ssl=True)
+            updateSiteInfo(self, wo_domain_name, ssl=True)
 
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
@@ -1483,7 +1483,7 @@ def archivedCertificateHandle(self, domain):
                               .format(WOVariables.wo_ssl_live, domain))
                 sslconf.close()
 
-                ssl = True
+                updateSiteInfo(self, domain, ssl=True)
 
     elif (check_prompt == "2"):
         Log.info(self, "Using Existing Certificate files")
