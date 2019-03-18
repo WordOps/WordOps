@@ -1470,18 +1470,18 @@ def archivedCertificateHandle(self, domain):
                                   .format(domain)):
                 Log.info(
                     self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
-                    .format(wo_domain_name))
+                    .format(domain))
                 Log.info(self, "Install . Backing it up ..")
 
                 sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
-                               .format(wo_domain_name),
+                               .format(domain),
                                encoding='utf-8', mode='w')
                 sslconf.write("listen 443 ssl http2;\n"
                               "listen [::]:443 ssl http2;\n"
                               "ssl on;\n"
                               "ssl_certificate     {0}/{1}/fullchain.pem;\n"
                               "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                              .format(WOVariables.wo_ssl_live, wo_domain_name))
+                              .format(WOVariables.wo_ssl_live, domain))
                 sslconf.close()
 
     elif (check_prompt == "2"):
