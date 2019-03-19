@@ -25,12 +25,23 @@ server {
         proxy_set_header    X-Real-IP       $remote_addr;
         proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
     }
+    
+    # Security settings for better privacy
+    # Deny hidden files
+    location ~ /\.(?!well-known\/) {
+        deny all;
+    }
+    # letsencrypt validation
+    location /.well-known/acme-challenge/ {
+        alias /var/www/html/.well-known/acme-challenge/;
+        allow all;
+    }
     {{/proxy}}
 
     {{^proxy}}
     root {{webroot}}/htdocs;
 
-    {{^proxy}}index {{^static}}index.php{{/static}} index.html index.htm;{{/proxy}}
+    index {{^static}}index.php{{/static}} index.html index.htm;
 
     {{#static}}
     location / {
@@ -41,7 +52,7 @@ server {
     {{^static}}include {{#basic}}common/php73.conf;{{/basic}}{{#wpfc}}common/wpfc-php73.conf;{{/wpfc}} {{#wpsc}}common/wpsc-php73.conf;{{/wpsc}}{{#wpredis}}common/redis-php73.conf;{{/wpredis}}
     {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}{{/static}}
     {{#wp}}include common/wpcommon-php73.conf;{{/wp}}
-    {{^proxy}}include common/locations-php73.conf;{{/proxy}}
+    include common/locations-php73.conf;
     include {{webroot}}/conf/nginx/*.conf;
     {{/proxy}}
 }
