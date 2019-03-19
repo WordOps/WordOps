@@ -21,7 +21,7 @@ class WOStackMigrateController(CementBaseController):
             (['--mariadb'],
                 dict(help="Migrate database to MariaDB",
                      action='store_true')),
-            ]
+        ]
 
     @expose(hide=True)
     def migrate_mariadb(self):
@@ -97,10 +97,11 @@ class WOStackMigrateController(CementBaseController):
             self.app.args.print_help()
         if self.app.pargs.mariadb:
             if WOVariables.wo_mysql_host is not "localhost":
-                Log.error(self, "Remote MySQL server in use, skipping local install")
+                Log.error(
+                    self, "Remote MySQL server in use, skipping local install")
 
             if WOShellExec.cmd_exec(self, "mysqladmin ping") and (not
-               WOAptGet.is_installed(self, 'mariadb-server')):
+                                                                  WOAptGet.is_installed(self, 'mariadb-server')):
 
                 Log.info(self, "If your database size is big, "
                          "migration may take some time.")

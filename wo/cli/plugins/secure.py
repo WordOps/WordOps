@@ -38,19 +38,19 @@ class WOSecureController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-            if self.app.pargs.auth:
-                self.secure_auth()
-            if self.app.pargs.port:
-                self.secure_port()
-            if self.app.pargs.ip:
-                self.secure_ip()
+        if self.app.pargs.auth:
+            self.secure_auth()
+        if self.app.pargs.port:
+            self.secure_port()
+        if self.app.pargs.ip:
+            self.secure_ip()
 
     @expose(hide=True)
     def secure_auth(self):
         """This function secures authentication"""
         passwd = ''.join([random.choice
-                         (string.ascii_letters + string.digits)
-                         for n in range(6)])
+                          (string.ascii_letters + string.digits)
+                          for n in range(6)])
         if not self.app.pargs.user_input:
             username = input("Provide HTTP authentication user "
                              "name [{0}] :".format(WOVariables.wo_user))
@@ -125,7 +125,7 @@ class WOSecureController(CementBaseController):
             user_ip = ['127.0.0.1']
         for ip_addr in user_ip:
             if not ("exist_ip_address "+ip_addr in open('/etc/nginx/common/'
-                    'acl.conf').read()):
+                                                        'acl.conf').read()):
                 WOShellExec.cmd_exec(self, "sed -i "
                                      "\"/deny/i allow {whitelist_address}\;\""
                                      " /etc/nginx/common/acl.conf"

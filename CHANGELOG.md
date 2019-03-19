@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - IPv6 support with HTTPS
 - Brotli support in Nginx
+- Let's Encrypt support with --proxy
 
 #### Changed
 
