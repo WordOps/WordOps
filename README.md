@@ -1,4 +1,4 @@
-<h1 align="center" style="font-size:54px;"><a href="https://wordops.org">
+<h1 align="center" style="font-size:54px;"><a href="https://wordops.io">
   WordOps</a>
   <br>
 </h1>
@@ -151,4 +151,4 @@ If you'd like to contribute, please fork the repository and make changes as you'
 
 ## License
 
-- [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.org)
+- [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.io)

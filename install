@@ -2,7 +2,7 @@
 # -------------------------------------------------------------------------
 # WordOps install and update script
 # -------------------------------------------------------------------------
-# Website:       https://wordops.org
+# Website:       https://wordops.io
 # GitHub:        https://github.com/WordOps/WordOps
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
@@ -613,7 +613,7 @@ if [ "$migration" -eq "1" ]; then
     wo_lib_echo_info "For autocompletion, run the following command:"
     wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
-    wo_lib_echo "WordOps (wo) help: https://wordops.org/docs"
+    wo_lib_echo "WordOps (wo) help: https://wordops.io/docs"
 else
     echo
     wo_lib_echo "For WordOps (wo) auto completion, run the following command"
@@ -621,5 +621,5 @@ else
     wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
     wo_lib_echo "Yay! WordOps (wo) installed/updated successfully"
-    wo_lib_echo "WordOps (wo) help: https://wordops.org/docs"
+    wo_lib_echo "WordOps (wo) help: https://wordops.io/docs"
 fi
