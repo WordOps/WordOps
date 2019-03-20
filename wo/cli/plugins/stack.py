@@ -876,7 +876,7 @@ class WOStackController(CementBaseController):
 
                 # Parse /etc/php/7.3/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read_file(codecs.open('/ etc/php/7.3/fpm/'
+                config.read_file(codecs.open('/etc/php/7.3/fpm/'
                                              'pool.d/www.conf',
                                              "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
