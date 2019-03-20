@@ -226,14 +226,6 @@ class WOStackController(CementBaseController):
                         (data), 'upstream.mustache', out=wo_nginx)
                     wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/map-wp.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/map-wp.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'map-wp.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
                 if not (os.path.isfile('/etc/nginx/conf.d/stub_status.conf')):
                     data = dict(phpconf=True if
                                 WOAptGet.is_installed(self, 'php7.2-fpm')
@@ -253,6 +245,16 @@ class WOStackController(CementBaseController):
                     wo_nginx = open('/etc/nginx/conf.d/webp.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'webp.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/'
+                              'map-wp-fastcgi-cache.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/'
+                                    'map-wp-fastcgi-cache.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'map-wp.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
 
@@ -486,8 +488,7 @@ class WOStackController(CementBaseController):
                     WOGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     WOService.reload_service(self, 'nginx')
-                    if (set(["nginx-plus"]).issubset(set(apt_packages)) or
-                            set(["nginx"]).issubset(set(apt_packages))):
+                    if set(["nginx"]).issubset(set(apt_packages)):
                         WOShellExec.cmd_exec(self, "sed -i -e 's/^user/#user/'"
                                              " -e '/^#user/a user"
                                              "\ www-data\;'"
@@ -501,18 +502,8 @@ class WOStackController(CementBaseController):
                                                  "\ \/etc\/nginx\/sites-enabled"
                                                  "\/*;' /etc/nginx/nginx.conf")
 
-                        # WordOpsconfig for NGINX plus
-                        data['version'] = WOVariables.wo_version
-                        Log.debug(self, 'Writting for nginx plus configuration'
-                                  ' to file /etc/nginx/conf.d/wo-plus.conf')
-                        wo_nginx = open('/etc/nginx/conf.d/wo-plus.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wo-plus.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
-
-                        print("HTTP Auth User Name: WordOps"
-                              + "\nHTTP Auth Password : {0}".format(passwd))
+                        print("HTTP Auth User Name: WordOps" +
+                              "\nHTTP Auth Password : {0}".format(passwd))
                         WOService.reload_service(self, 'nginx')
                     else:
                         self.msg = (self.msg + ["HTTP Auth User "
@@ -939,8 +930,11 @@ class WOStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.3/mods-available/xdebug.ini"):
-                    WOFileUtils.searchreplace(self, "/etc/php/7.3/mods-available/"
+                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\'"
+                                            " /etc/php/7.3/mods-available"
+                                            "/xdebug.ini"):
+                    WOFileUtils.searchreplace(self, "/etc/php/7.3/"
+                                              "mods-available/"
                                               "xdebug.ini",
                                               "zend_extension",
                                               ";zend_extension")

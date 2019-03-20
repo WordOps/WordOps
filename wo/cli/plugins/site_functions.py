@@ -294,14 +294,14 @@ def setupwordpress(self, data):
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
         Log.debug(self, "bash -c \"php {0} --allow-root "
-                  .format(WOVariables.wo_wpcli_path)
-                  + "core config "
-                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
+                  .format(WOVariables.wo_wpcli_path) +
+                  "core config " +
+                  "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
                   "--dbhost=\'{3}\' "
                   .format(data['wo_db_name'], wo_wp_prefix,
-                          data['wo_db_user'], data['wo_db_host'])
-                  + "--dbpass=\'{0}\' "
-                  "--extra-php<<PHP \n {1}\nPHP\""
+                          data['wo_db_user'], data['wo_db_host']) +
+                  "--dbpass=\'{0}\' "
+                  "--extra-php<<PHP \n {1}\n {2}\nPHP\""
                   .format(data['wo_db_pass'],
                           "\ndefine(\'CONCATENATE_SCRIPTS\',"
                           " false);",
@@ -337,7 +337,7 @@ def setupwordpress(self, data):
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host'])
                   + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                  "--extra-php<<PHP \n {2} {3} \nPHP\""
+                  "--extra-php<<PHP \n {2} {3} {4} \nPHP\""
                   .format(data['wo_db_user'], data['wo_db_pass'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
@@ -1193,7 +1193,6 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
             if not dbhost:
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
-
 
 
 # setup letsencrypt for domain + www.domain
