@@ -186,189 +186,189 @@ class WOStackController(CementBaseController):
                             wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
 
-                    if not (os.path.isfile('/etc/nginx/common/wpfc-php72.conf')):
-                        # Change WordOpsVersion in nginx.conf file
-                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                                  "# add_header",
-                                                  "add_header")
+                if not (os.path.isfile('/etc/nginx/common/wpfc-php72.conf')):
+                    # Change WordOpsVersion in nginx.conf file
+                    WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                              "# add_header",
+                                              "add_header")
 
-                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                                  "\"WordOps\"",
-                                                  "\"WordOps v{0}\""
-                                                  .format(WOVariables.wo_version))
-                        data = dict()
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/conf.d/blockips.conf')
-                        wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render(
-                            (data), 'blockips.mustache', out=wo_nginx)
-                        wo_nginx.close()
+                    WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                              "\"WordOps\"",
+                                              "\"WordOps v{0}\""
+                                              .format(WOVariables.wo_version))
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/blockips.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'blockips.mustache', out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/conf.d/fastcgi.conf')
-                        wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render(
-                            (data), 'fastcgi.mustache', out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/fastcgi.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'fastcgi.mustache', out=wo_nginx)
+                    wo_nginx.close()
 
-                        data = dict(php="9000", debug="9001",
+                    data = dict(php="9000", debug="9001",
                                     php7="9070", debug7="9170",
                                     php7conf=True
                                     if WOAptGet.is_installed(self, 'php7.0-fpm')
                                     else False)
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/conf.d/upstream.conf')
-                        wo_nginx = open('/etc/nginx/conf.d/upstream.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render(
-                            (data), 'upstream.mustache', out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/upstream.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/upstream.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'upstream.mustache', out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/conf.d/map-wp.conf')
-                        wo_nginx = open('/etc/nginx/conf.d/map-wp.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'map-wp.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/map-wp.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/map-wp.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'map-wp.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                    if not (os.path.isfile('/etc/nginx/conf.d/stub_status.conf')):
-                        data = dict(phpconf=True if
-                                    WOAptGet.is_installed(self, 'php7.2-fpm')
-                                    else False)
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/conf.d/stub_status.conf')
-                        wo_nginx = open('/etc/nginx/conf.d/stub_status.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render(
-                            (data), 'stub_status.mustache', out=wo_nginx)
-                        wo_nginx.close()
+                if not (os.path.isfile('/etc/nginx/conf.d/stub_status.conf')):
+                    data = dict(phpconf=True if
+                                WOAptGet.is_installed(self, 'php7.2-fpm')
+                                else False)
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/stub_status.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/stub_status.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'stub_status.mustache', out=wo_nginx)
+                    wo_nginx.close()
 
-                    if not (os.path.isfile('/etc/nginx/conf.d/webp.conf')):
-                        data = dict()
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                        'file /etc/nginx/conf.d/webp.conf')
-                        wo_nginx = open('/etc/nginx/conf.d/webp.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'webp.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                if not (os.path.isfile('/etc/nginx/conf.d/webp.conf')):
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/webp.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/webp.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'webp.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
                     # Setup Nginx common directory
-                    if not os.path.exists('/etc/nginx/common'):
-                        Log.debug(self, 'Creating directory'
-                                  '/etc/nginx/common')
-                        os.makedirs('/etc/nginx/common')
+                if not os.path.exists('/etc/nginx/common'):
+                    Log.debug(self, 'Creating directory'
+                              '/etc/nginx/common')
+                    os.makedirs('/etc/nginx/common')
 
-                        data = dict(webroot=WOVariables.wo_webroot)
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/acl.conf')
-                        wo_nginx = open('/etc/nginx/common/acl.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'acl.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    data = dict(webroot=WOVariables.wo_webroot)
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/acl.conf')
+                    wo_nginx = open('/etc/nginx/common/acl.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'acl.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/locations-php72.conf')
-                        wo_nginx = open('/etc/nginx/common/locations-php72.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'locations.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations-php72.conf')
+                    wo_nginx = open('/etc/nginx/common/locations-php72.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'locations.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/php72.conf')
-                        wo_nginx = open('/etc/nginx/common/php72.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'php.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/php72.conf')
+                    wo_nginx = open('/etc/nginx/common/php72.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'php.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/wpcommon-php72.conf')
-                        wo_nginx = open('/etc/nginx/common/wpcommon-php72.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wpcommon.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpcommon-php72.conf')
+                    wo_nginx = open('/etc/nginx/common/wpcommon-php72.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpcommon.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/wpfc-php72.conf')
-                        wo_nginx = open('/etc/nginx/common/wpfc-php72.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wpfc.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-php72.conf')
+                    wo_nginx = open('/etc/nginx/common/wpfc-php72.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/wpsc-php72.conf')
-                        wo_nginx = open('/etc/nginx/common/wpsc-php72.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wpsc.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-php72.conf')
+                    wo_nginx = open('/etc/nginx/common/wpsc-php72.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/wpsubdir.conf')
-                        wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wpsubdir.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsubdir.conf')
+                    wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsubdir.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
                     # php73 conf
-                    if not os.path.isfile("/etc/nginx/common/php73.conf"):
+                if not os.path.isfile("/etc/nginx/common/php73.conf"):
                         # data = dict()
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/locations-php73.conf')
-                        wo_nginx = open('/etc/nginx/common/locations-php73.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'locations-php7.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations-php73.conf')
+                    wo_nginx = open('/etc/nginx/common/locations-php73.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'locations-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/php73.conf')
-                        wo_nginx = open('/etc/nginx/common/php73.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'php7.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/php73.conf')
+                    wo_nginx = open('/etc/nginx/common/php73.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/wpcommon-php73.conf')
-                        wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wpcommon-php7.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpcommon-php73.conf')
+                    wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpcommon-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/wpfc-php73.conf')
-                        wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wpfc-php7.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-php73.conf')
+                    wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/wpsc-php73.conf')
-                        wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'wpsc-php7.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-php73.conf')
+                    wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/redis-php73.conf')
-                        wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'redis-php7.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/redis-php73.conf')
+                    wo_nginx = open('/etc/nginx/common/redis-php73.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
 
                     # Nginx-Plus does not have nginx
                     # package structure like this
