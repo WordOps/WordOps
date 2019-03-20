@@ -373,21 +373,21 @@ class WOStackController(CementBaseController):
                     # Nginx-Plus does not have nginx
                     # package structure like this
                     # So creating directories
-                    if (set(["nginx-plus"]).issubset(set(apt_packages)) or
-                            set(["nginx"]).issubset(set(apt_packages))):
-                        Log.info(self,
-                                 "Installing WordOpsConfigurations for" "NGINX")
-                        if not os.path.exists('/etc/nginx/sites-available'):
-                            Log.debug(self, 'Creating directory'
-                                      '/etc/nginx/sites-available')
-                            os.makedirs('/etc/nginx/sites-available')
+                if (set(["nginx"]).issubset(set(apt_packages))):
+                    Log.info(self,
+                             "Installing WordOpsConfigurations for" "NGINX")
+                    if not os.path.exists('/etc/nginx/sites-available'):
+                        Log.debug(self, 'Creating directory'
+                                  '/etc/nginx/sites-available')
+                        os.makedirs('/etc/nginx/sites-available')
 
-                        if not os.path.exists('/etc/nginx/sites-enabled'):
-                            Log.debug(self, 'Creating directory'
-                                      '/etc/nginx/sites-available')
-                            os.makedirs('/etc/nginx/sites-enabled')
+                    if not os.path.exists('/etc/nginx/sites-enabled'):
+                        Log.debug(self, 'Creating directory'
+                                  '/etc/nginx/sites-available')
+                        os.makedirs('/etc/nginx/sites-enabled')
 
                     # 22222 port settings
+                    data = dict(webroot=WOVariables.wo_webroot)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
                               '22222')
@@ -897,7 +897,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "writting PHP 7.3 configuration into "
                               "/etc/php/7.3/fpm/pool.d/www.conf")
                     config.write(configfile)
-                    
+
                 # Generate /etc/php/7.3/fpm/pool.d/www-two.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
                                      "/etc/php/7.3/fpm/pool.d/www-two.conf")
