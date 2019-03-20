@@ -196,20 +196,20 @@ class WOLogResetController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.nginx = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-            and (not self.app.pargs.wp) and (not self.app.pargs.site_name)
-                and (not self.app.pargs.slow_log_db)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+            (not self.app.pargs.wp) and (not self.app.pargs.site_name) and
+                (not self.app.pargs.slow_log_db)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
             self.app.pargs.slow_log_db = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-            and (not self.app.pargs.wp) and (self.app.pargs.site_name)
-                and (not self.app.pargs.slow-log-db)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+            (not self.app.pargs.wp) and (self.app.pargs.site_name) and
+                (not self.app.pargs.slow-log-db)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
@@ -335,17 +335,17 @@ class WOLogGzipController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.nginx = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-                and (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-                and (not self.app.pargs.wp) and (self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
@@ -472,17 +472,17 @@ class WOLogMailController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.nginx = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-                and (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-                and (not self.app.pargs.wp) and (self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True

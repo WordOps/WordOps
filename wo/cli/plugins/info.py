@@ -41,9 +41,9 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_nginx(self):
         """Display Nginx information"""
-        version = os.popen("nginx -v 2>&1 | cut -d':' -f2 | cut -d' ' -f2 | "
-                           "cut -d'/' -f2 | tr -d '\n'").read()
-        allow = os.popen("grep ^allow /etc/nginx/common/acl.conf | "
+        version = os.popen("nginx -v 2 > &1 | awk - F '/' '{print $2}' | '"
+                           "awk -F ' ' '{print $1}'").read()
+        allow = os.popen("grep allow /etc/nginx/common/acl.conf | "
                          "cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' '").read()
         nc = NginxConfig()
         nc.loadf('/etc/nginx/nginx.conf')
@@ -242,8 +242,8 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def default(self):
         """default function for info"""
-        if (not self.app.pargs.nginx and not self.app.pargs.php
-                and not self.app.pargs.mysql and not self.app.pargs.php73):
+        if (not self.app.pargs.nginx and not self.app.pargs.php and
+                not self.app.pargs.mysql and not self.app.pargs.php73):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -251,7 +251,8 @@ class WOInfoController(CementBaseController):
                 self.app.pargs.php73 = True
 
         if self.app.pargs.nginx:
-            if WOAptGet.is_installed(self, 'nginx-custom') or WOAptGet.is_installed(self, 'nginx-common'):
+            if (WOAptGet.is_installed(self, 'nginx-custom') or
+                    WOAptGet.is_installed(self, 'nginx-common')):
                 self.info_nginx()
             else:
                 Log.error(self, "Nginx is not installed")

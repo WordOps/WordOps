@@ -1194,9 +1194,9 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
+
+
 # setup letsencrypt for domain + www.domain
-
-
 def setupLetsEncrypt(self, wo_domain_name):
 
     if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
@@ -1450,16 +1450,16 @@ def archivedCertificateHandle(self, domain):
                  "certificate for your site.\nIt may take a "
                  "few minutes depending on your network.")
         ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
-                                         "/etc/letsencrypt/acme.sh "
-                                         "--config-home "
-                                         "'/etc/letsencrypt/config' "
-                                         "--install-cert -d {1} --ecc "
-                                         "--cert-file {0}/{1}/cert.pem "
-                                         "--key-file {0}/{1}/key.pem "
-                                         "--fullchain-file "
-                                         "{0}/{1}/fullchain.pem "
-                                         "--reloadcmd "
-                                         "\"service nginx restart\" "
+                                   "/etc/letsencrypt/acme.sh "
+                                   "--config-home "
+                                   "'/etc/letsencrypt/config' "
+                                   "--install-cert -d {1} --ecc "
+                                   "--cert-file {0}/{1}/cert.pem "
+                                   "--key-file {0}/{1}/key.pem "
+                                   "--fullchain-file "
+                                   "{0}/{1}/fullchain.pem "
+                                   "--reloadcmd "
+                                   "\"service nginx restart\" "
                                          .format(WOVariables.wo_ssl_live, domain))
         if ssl:
 
@@ -1511,7 +1511,7 @@ def archivedCertificateHandle(self, domain):
                                    "--force"
                                          .format(domain))
 
-        if issuessl:
+        if ssl:
 
             try:
 

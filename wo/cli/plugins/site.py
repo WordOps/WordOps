@@ -1099,7 +1099,7 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     data['letsencrypt'] = True
                     letsencrypt = True
-                    wildcard = True
+                    wildcard = False
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             data['wpredis'] = True
