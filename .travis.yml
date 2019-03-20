@@ -30,6 +30,7 @@ script:
   - sudo wo stack install --admin || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create proxy.com --proxy=127.0.0.1:3000
   - sudo wo site create wp1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
   
   - sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log

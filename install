@@ -385,6 +385,7 @@ wo_upgrade_nginx()
 {
     # chec if the package nginx-ee is installed
     CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
+    CHECK_NGINX_VERSION=$(/usr/sbin/nginx -v 2>&1 | awk -F "/" '{print $2}' | grep 1.15)
     if [ -n "$CHECK_NGINX_EE" ]; then
         {
             # add new Nginx repository
@@ -410,12 +411,18 @@ wo_upgrade_nginx()
             sudo apt-get update
             # stop nginx
             service nginx stop
+            
             # remove previous package
             apt-mark unhold nginx-ee nginx-common nginx-custom
             apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom
             # install new nginx package
             if [ -x /usr/local/bin/wo ]; then
+                # backup nginx conf
+                cd /etc || exit 1
+                tar -I pigz -cf backup-nginx.tar.gz nginx
+                cd || exit 1
                 rm -f /etc/nginx/conf.d/{upstream.conf,redis.conf,fastcgi.conf}
+                rm -f /etc/nginx/common/{php72.conf,php73.conf,wpcommon-php72.conf,wpcommon-php73.conf,locations-php72.conf,locations-php73.conf,redis-php72.conf,redis-php73.conf,wpfc-php72.conf,wpfc-php73.conf,wpsc-php72.conf,wpsc-php73.conf}
                 rm -f /etc/nginx/*.default
                 /usr/local/bin/wo stack install
             else

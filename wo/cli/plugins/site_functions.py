@@ -107,9 +107,6 @@ def setupdomain(self, data):
                                       '/etc/nginx/sites-enabled/{0}'
                                       .format(wo_domain_name)])
 
-    if 'proxy' in data.keys() and data['proxy']:
-        return
-
     # Creating htdocs & logs directory
     Log.info(self, "Setting up webroot \t\t", end='')
     try:

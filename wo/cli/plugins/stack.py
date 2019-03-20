@@ -186,52 +186,68 @@ class WOStackController(CementBaseController):
                             wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
 
-                if not (os.path.isfile('/etc/nginx/common/wpfc-php72.conf')):
-                    # Change WordOpsVersion in nginx.conf file
-                    WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                              "# add_header",
-                                              "add_header")
+                    if not (os.path.isfile('/etc/nginx/common/wpfc-php72.conf')):
+                        # Change WordOpsVersion in nginx.conf file
+                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                                  "# add_header",
+                                                  "add_header")
 
-                    WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                              "\"WordOps\"",
-                                              "\"WordOps v{0}\""
-                                              .format(WOVariables.wo_version))
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/blockips.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'blockips.mustache', out=wo_nginx)
-                    wo_nginx.close()
+                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                                  "\"WordOps\"",
+                                                  "\"WordOps v{0}\""
+                                                  .format(WOVariables.wo_version))
+                        data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/conf.d/blockips.conf')
+                        wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render(
+                            (data), 'blockips.mustache', out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/fastcgi.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'fastcgi.mustache', out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/conf.d/fastcgi.conf')
+                        wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render(
+                            (data), 'fastcgi.mustache', out=wo_nginx)
+                        wo_nginx.close()
 
-                    data = dict(php="9000", debug="9001",
-                                php7="9070", debug7="9170",
-                                php7conf=True
-                                if WOAptGet.is_installed(self, 'php7.0-fpm')
-                                else False)
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/upstream.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/upstream.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'upstream.mustache', out=wo_nginx)
-                    wo_nginx.close()
+                        data = dict(php="9000", debug="9001",
+                                    php7="9070", debug7="9170",
+                                    php7conf=True
+                                    if WOAptGet.is_installed(self, 'php7.0-fpm')
+                                    else False)
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/conf.d/upstream.conf')
+                        wo_nginx = open('/etc/nginx/conf.d/upstream.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render(
+                            (data), 'upstream.mustache', out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/map-wp.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/map-wp.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'map-wp.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/conf.d/map-wp.conf')
+                        wo_nginx = open('/etc/nginx/conf.d/map-wp.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'map-wp.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
+
+                    if not (os.path.isfile('/etc/nginx/conf.d/stub_status.conf')):
+                        data = dict(phpconf=True if
+                                    WOAptGet.is_installed(self, 'php7.2-fpm')
+                                    else False)
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/conf.d/stub_status.conf')
+                        wo_nginx = open('/etc/nginx/conf.d/stub_status.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render(
+                            (data), 'stub_status.mustache', out=wo_nginx)
+                        wo_nginx.close()
 
                     if not (os.path.isfile('/etc/nginx/conf.d/webp.conf')):
+                        data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
                                         'file /etc/nginx/conf.d/webp.conf')
                         wo_nginx = open('/etc/nginx/conf.d/webp.conf',
@@ -246,64 +262,64 @@ class WOStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    data = dict(webroot=WOVariables.wo_webroot)
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/acl.conf')
-                    wo_nginx = open('/etc/nginx/common/acl.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'acl.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        data = dict(webroot=WOVariables.wo_webroot)
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/acl.conf')
+                        wo_nginx = open('/etc/nginx/common/acl.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'acl.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'locations.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/locations-php72.conf')
+                        wo_nginx = open('/etc/nginx/common/locations-php72.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'locations.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php72.conf')
-                    wo_nginx = open('/etc/nginx/common/php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/php72.conf')
+                        wo_nginx = open('/etc/nginx/common/php72.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'php.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpcommon-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/wpcommon-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpcommon.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/wpcommon-php72.conf')
+                        wo_nginx = open('/etc/nginx/common/wpcommon-php72.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpcommon.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/wpfc-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/wpfc-php72.conf')
+                        wo_nginx = open('/etc/nginx/common/wpfc-php72.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpfc.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsc-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/wpsc-php72.conf')
+                        wo_nginx = open('/etc/nginx/common/wpsc-php72.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpsc.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsubdir.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsubdir.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/wpsubdir.conf')
+                        wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpsubdir.mustache',
+                                        out=wo_nginx)
+                        wo_nginx.close()
 
-                    # php7 conf
+                    # php73 conf
                     if not os.path.isfile("/etc/nginx/common/php73.conf"):
                         # data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
@@ -499,14 +515,16 @@ class WOStackController(CementBaseController):
                               + "\nHTTP Auth Password : {0}".format(passwd))
                         WOService.reload_service(self, 'nginx')
                     else:
-                        self.msg = (self.msg + ["HTTP Auth User Name: WordOps"]
-                                    + ["HTTP Auth Password : {0}".format(passwd)])
+                        self.msg = (self.msg + ["HTTP Auth User "
+                                                "Name: WordOps"] +
+                                    ["HTTP Auth Password : {0}".format(passwd)])
                 else:
                     WOService.restart_service(self, 'nginx')
 
                 if WOAptGet.is_installed(self, 'redis-server'):
                     if (os.path.isfile("/etc/nginx/nginx.conf") and
-                            not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+                            not os.path.isfile("/etc/nginx/common/"
+                                               "redis-php72.conf")):
 
                         data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
@@ -518,7 +536,8 @@ class WOStackController(CementBaseController):
                         wo_nginx.close()
 
                     if (os.path.isfile("/etc/nginx/nginx.conf") and
-                            not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+                            not os.path.isfile("/etc/nginx/common/"
+                                               "redis-php73.conf")):
                         data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
                                   'file /etc/nginx/common/redis-php73.conf')
@@ -540,11 +559,18 @@ class WOStackController(CementBaseController):
 
                     if (os.path.isfile("/etc/nginx/nginx.conf") and
                             not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
-                        with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
+                        with open("/etc/nginx/conf.d/"
+                                  "redis.conf", "a") as redis_file:
                             redis_file.write("# Log format Settings\n"
-                                             "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
-                                             "'$http_host \"$request\" $status $body_bytes_sent '\n"
-                                             "'\"$http_referer\" \"$http_user_agent\"';\n")
+                                             "log_format rt_cache_redis "
+                                             "'$remote_addr "
+                                             "$upstream_response_time "
+                                             "$srcache_fetch_status "
+                                             "[$time_local] '\n"
+                                             "'$http_host \"$request\" $status"
+                                             " $body_bytes_sent '\n"
+                                             "'\"$http_referer\" "
+                                             "\"$http_user_agent\"';\n")
             # setup nginx common folder for php7
             if self.app.pargs.php73:
                 if (os.path.isdir("/etc/nginx/common") and
@@ -591,7 +617,8 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                 if (os.path.isdir("/etc/nginx/common") and
-                        not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
+                        not os.path.isfile("/etc/nginx/common/"
+                                           "redis-php73.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/redis-php73.conf')
@@ -602,15 +629,20 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                 if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-                    if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
+                    if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "upstream.conf",
                                             "php73"):
-                        with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                            php_file.write("upstream php73 {\nserver unix:/var/run/php/php73-fpm.sock;\n}\n"
-                                           "upstream debug73 {\nserver 127.0.0.1:9173;\n}\n")
+                        with open("/etc/nginx/conf.d/"
+                                  "upstream.conf", "a") as php_file:
+                            php_file.write("upstream php73 {\nserver unix:"
+                                           "/var/run/php/php73-fpm.sock;\n}\n"
+                                           "upstream debug73 {\nserver "
+                                           "127.0.0.1:9173;\n}\n")
 
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
                 if (os.path.isfile("/etc/nginx/nginx.conf") and
-                        not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
+                        not os.path.isfile("/etc/nginx/common/"
+                                           "redis-php72.conf")):
 
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -655,13 +687,23 @@ class WOStackController(CementBaseController):
 
                 # Parse etc/php/7.2/fpm/php.ini
                 config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file /etc/php/7.2/fpm/php.ini")
+                Log.debug(self, "configuring php file "
+                          "/etc/php/7.2/fpm/php.ini")
                 config.read('/etc/php/7.2/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
-                config['PHP']['date.timezone'] = WOVariables.wo_timezone
+                config['PHP']['max_input_vars'] = '20000'
+                config['Date']['date.timezone'] = WOVariables.wo_timezone
+                config['opcache']['opcache.enable'] = '1'
+                config['opcache']['opcache.interned_strings_buffer'] = '8'
+                config['opcache']['opcache.max_accelerated_files'] = '10000'
+                config['opcache']['opcache.memory_consumption'] = '256'
+                config['opcache']['opcache.save_comments'] = '1'
+                config['opcache']['opcache.revalidate_freq'] = '5'
+                config['opcache']['opcache.validate_timestamps'] = '1'
+                config['opcache']['opcache.consistency_checks'] = '0'
                 with open('/etc/php/7.2/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
@@ -681,15 +723,16 @@ class WOStackController(CementBaseController):
 
                 # Parse /etc/php/7.2/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read_file(codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
+                config.read_file(codecs.open('/etc/php/7.2/fpm/'
+                                             'pool.d/www.conf',
                                              "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
-                config['www']['pm.max_requests'] = '100'
-                config['www']['pm.max_children'] = '25'
-                config['www']['pm.start_servers'] = '5'
-                config['www']['pm.min_spare_servers'] = '2'
-                config['www']['pm.max_spare_servers'] = '5'
+                config['www']['pm.max_requests'] = '1500'
+                config['www']['pm.max_children'] = '50'
+                config['www']['pm.start_servers'] = '10'
+                config['www']['pm.min_spare_servers'] = '5'
+                config['www']['pm.max_spare_servers'] = '15'
                 config['www']['request_terminate_timeout'] = '100'
                 config['www']['pm'] = 'ondemand'
                 config['www']['chdir'] = '/'
@@ -701,6 +744,20 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Writing PHP 7.2 configuration into "
                               "/etc/php/7.2/fpm/pool.d/www.conf")
                     config.write(configfile)
+
+                # Generate /etc/php/7.2/fpm/pool.d/www-two.conf
+                WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
+                                     "/etc/php/7.2/fpm/pool.d/www-two.conf")
+                WOFileUtils.searchreplace(self, "/etc/php/7.2/fpm/pool.d/"
+                                          "www-two.conf", "[www]", "[www-two]")
+                config = configparser.ConfigParser()
+                config.read('/etc/php/7.2/fpm/pool.d/www-two.conf')
+                config['www-two']['listen'] = 'php72-two-fpm.sock'
+                with open('/etc/php/7.2/fpm/pool.d/www-two.conf',
+                          encoding='utf-8', mode='w') as confifile:
+                    Log.debug(self, "writting PHP7.2 configuration into "
+                              "/etc/php/7.2/fpm/pool.d/www-two.conf")
+                    config.write(confifile)
 
                 # Generate /etc/php/7.2/fpm/pool.d/debug.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
@@ -729,8 +786,11 @@ class WOStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.2/mods-available/xdebug.ini"):
-                    WOFileUtils.searchreplace(self, "/etc/php/7.2/mods-available/"
+                if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\'"
+                                            " /etc/php/7.2/mods-available/"
+                                            "xdebug.ini"):
+                    WOFileUtils.searchreplace(self, "/etc/php/7.2/"
+                                              "mods-available/"
                                               "xdebug.ini",
                                               "zend_extension",
                                               ";zend_extension")
@@ -781,13 +841,23 @@ class WOStackController(CementBaseController):
 
                 # Parse etc/php/7.3/fpm/php.ini
                 config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file /etc/php/7.3/fpm/php.ini")
+                Log.debug(self, "configuring php file /etc/php/7.3/"
+                          "fpm/php.ini")
                 config.read('/etc/php/7.3/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
-                config['PHP']['date.timezone'] = WOVariables.wo_timezone
+                config['PHP']['max_input_vars'] = '20000'
+                config['Date']['date.timezone'] = WOVariables.wo_timezone
+                config['opcache']['opcache.enable'] = '1'
+                config['opcache']['opcache.interned_strings_buffer'] = '8'
+                config['opcache']['opcache.max_accelerated_files'] = '10000'
+                config['opcache']['opcache.memory_consumption'] = '256'
+                config['opcache']['opcache.save_comments'] = '1'
+                config['opcache']['opcache.revalidate_freq'] = '5'
+                config['opcache']['opcache.validate_timestamps'] = '1'
+                config['opcache']['opcache.consistency_checks'] = '0'
                 with open('/etc/php/7.3/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
@@ -806,11 +876,12 @@ class WOStackController(CementBaseController):
 
                 # Parse /etc/php/7.3/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read_file(codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
+                config.read_file(codecs.open('/ etc/php/7.3/fpm/'
+                                             'pool.d/www.conf',
                                              "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
-                config['www']['pm.max_requests'] = '500'
+                config['www']['pm.max_requests'] = '1500'
                 config['www']['pm.max_children'] = '100'
                 config['www']['pm.start_servers'] = '20'
                 config['www']['pm.min_spare_servers'] = '10'

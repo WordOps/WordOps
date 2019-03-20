@@ -1,0 +1,31 @@
+# Stub status NGINX CONFIGURATION
+# DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
+{{#phpconf}}
+upstream phpstatus {
+    server unix:/run/php/php7.2-fpm.sock;
+}
+{{/phpconf}}
+server {
+    listen 127.0.0.1:80;
+    server_name 127.0.0.1 localhost;
+    access_log off;
+    log_not_found off;
+    root /var/www/html;
+    location ~ /(stub_status|nginx_status) {
+        stub_status on;
+        allow 127.0.0.1;
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+    {{#phpconf}}
+    location ~ /(status|ping) {
+        include fastcgi_params;
+        allow 127.0.0.1;
+        deny all;
+        fastcgi_pass phpstatus;
+        access_log off;
+        log_not_found off;
+    }
+    {{/phpconf}}
+}
