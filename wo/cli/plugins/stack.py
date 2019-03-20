@@ -882,10 +882,10 @@ class WOStackController(CementBaseController):
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
                 config['www']['pm.max_requests'] = '1500'
-                config['www']['pm.max_children'] = '100'
-                config['www']['pm.start_servers'] = '20'
-                config['www']['pm.min_spare_servers'] = '10'
-                config['www']['pm.max_spare_servers'] = '30'
+                config['www']['pm.max_children'] = '50'
+                config['www']['pm.start_servers'] = '10'
+                config['www']['pm.min_spare_servers'] = '5'
+                config['www']['pm.max_spare_servers'] = '15'
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['chdir'] = '/'
@@ -897,6 +897,20 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "writting PHP 7.3 configuration into "
                               "/etc/php/7.3/fpm/pool.d/www.conf")
                     config.write(configfile)
+                    
+                # Generate /etc/php/7.3/fpm/pool.d/www-two.conf
+                WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
+                                     "/etc/php/7.3/fpm/pool.d/www-two.conf")
+                WOFileUtils.searchreplace(self, "/etc/php/7.3/fpm/pool.d/"
+                                          "www-two.conf", "[www]", "[www-two]")
+                config = configparser.ConfigParser()
+                config.read('/etc/php/7.3/fpm/pool.d/www-two.conf')
+                config['www-two']['listen'] = 'php73-two-fpm.sock'
+                with open('/etc/php/7.3/fpm/pool.d/www-two.conf',
+                          encoding='utf-8', mode='w') as confifile:
+                    Log.debug(self, "writting PHP7.3 configuration into "
+                              "/etc/php/7.3/fpm/pool.d/www-two.conf")
+                    config.write(confifile)
 
                 # Generate /etc/php/7.3/fpm/pool.d/debug.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",

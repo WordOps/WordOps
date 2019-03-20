@@ -50,7 +50,12 @@ server 127.0.0.1:9172;
 
 # PHP 7.3 upstream with load-balancing on two unix sockets
 upstream php73 {
+    least_conn;
+    
     server unix:/var/run/php/php73-fpm.sock;
+    server unix:/var/run/php/php73-two-fpm.sock;
+    
+    keepalive 5;
 }
 
 # PHP 7.3 debug
