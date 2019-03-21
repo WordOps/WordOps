@@ -314,11 +314,9 @@ def setupwordpress(self, data):
                                             data['wo_db_user'], data['wo_db_host']
                                             )
                                     + "--dbpass=\'{0}\' "
-                                    "--extra-php<<PHP \n {1} {2} {redissalt}\nPHP\""
+                                    "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
                                     .format(data['wo_db_pass'],
                                             "\n\ndefine(\'WP_DEBUG\', false);",
-                                            "\ndefine(\'CONCATENATE_SCRIPTS\',"
-                                            " false);",
                                             redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
                                                       .format(wo_domain_name) if data['wpredis']
                                                       else ''),

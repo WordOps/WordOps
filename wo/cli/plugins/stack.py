@@ -692,9 +692,8 @@ class WOStackController(CementBaseController):
                 config['opcache']['opcache.max_accelerated_files'] = '10000'
                 config['opcache']['opcache.memory_consumption'] = '256'
                 config['opcache']['opcache.save_comments'] = '1'
-                config['opcache']['opcache.revalidate_freq'] = '5'
+                config['opcache']['opcache.revalidate_freq'] = '2'
                 config['opcache']['opcache.validate_timestamps'] = '1'
-                config['opcache']['opcache.consistency_checks'] = '0'
                 with open('/etc/php/7.2/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
@@ -724,12 +723,14 @@ class WOStackController(CementBaseController):
                 config['www']['pm.start_servers'] = '10'
                 config['www']['pm.min_spare_servers'] = '5'
                 config['www']['pm.max_spare_servers'] = '15'
-                config['www']['request_terminate_timeout'] = '100'
+                config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['chdir'] = '/'
                 config['www']['prefix'] = '/var/run/php'
                 config['www']['listen'] = 'php72-fpm.sock'
+                config['www']['listen.mode'] = '0660'
                 config['www']['listen.backlog'] = '32768'
+                config['www']['catch_workers_output'] = 'yes'
                 with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writing PHP 7.2 configuration into "
@@ -846,9 +847,8 @@ class WOStackController(CementBaseController):
                 config['opcache']['opcache.max_accelerated_files'] = '10000'
                 config['opcache']['opcache.memory_consumption'] = '256'
                 config['opcache']['opcache.save_comments'] = '1'
-                config['opcache']['opcache.revalidate_freq'] = '5'
+                config['opcache']['opcache.revalidate_freq'] = '2'
                 config['opcache']['opcache.validate_timestamps'] = '1'
-                config['opcache']['opcache.consistency_checks'] = '0'
                 with open('/etc/php/7.3/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
@@ -882,7 +882,9 @@ class WOStackController(CementBaseController):
                 config['www']['chdir'] = '/'
                 config['www']['prefix'] = '/var/run/php'
                 config['www']['listen'] = 'php73-fpm.sock'
+                config['www']['listen.mode'] = '0660'
                 config['www']['listen.backlog'] = '32768'
+                config['www']['catch_workers_output'] = 'yes'
                 with codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP 7.3 configuration into "
