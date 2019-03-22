@@ -422,19 +422,23 @@ wo_upgrade_nginx()
                     apt-mark unhold nginx-wo nginx-common nginx-custom
                     apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
                 fi
-                # remove previous php-fpm pool configuration
-                if [ -n "$CHECK_PHP72" ]; then
-                    apt-get remove php7.2-fpm -y -qq --purge
-                    rm -f /etc/php/7.2/fpm/pool.d/*
-                fi
-                if [ -n "$CHECK_PHP73" ]; then
-                    apt-get remove php7.3-fpm -y -qq --purge
-                    rm -f /etc/php/7.3/fpm/pool.d/*
-                fi
+
+
+
 
                 # install new nginx package
                 if [ -x /usr/local/bin/wo ]; then
-                    /usr/local/bin/wo stack install --nginx --php --php73
+                    # remove previous php-fpm pool configuration
+                    if [ -n "$CHECK_PHP72" ]; then
+                        apt-get remove php7.2-fpm -y -qq --purge
+                        rm -f /etc/php/7.2/fpm/pool.d/*
+                    fi
+                    /usr/local/bin/wo stack install --nginx --php
+                    if [ -n "$CHECK_PHP73" ]; then
+                        apt-get remove php7.3-fpm -y -qq --purge
+                        rm -f /etc/php/7.3/fpm/pool.d/*
+                        /usr/local/bin/wo stack install --php73
+                    fi
                 fi
 
                 # restore sites and configuration
