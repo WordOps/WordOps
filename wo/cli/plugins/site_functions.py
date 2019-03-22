@@ -1202,9 +1202,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                   .format(wo_domain_name))
         ssl = archivedCertificateHandle(self, wo_domain_name)
     else:
-        Log.warn(self, "Please wait while we fetch the new HTTPS certificate"
-                       " for your site.\nIt may take a few minutes"
-                       " depending on the network.")
+        Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                    "--config-home "
                                    "'/etc/letsencrypt/config' "
@@ -1216,7 +1214,7 @@ def setupLetsEncrypt(self, wo_domain_name):
     if ssl:
 
         try:
-
+            Log.info(self, "Deploying SSL cert with acme.sh")
             Log.debug(self, "Cert deployment for domain: {0}"
                       .format(wo_domain_name))
             sslsetup = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
@@ -1273,9 +1271,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                   .format(wo_domain_name))
         ssl = archivedCertificateHandle(self, wo_domain_name)
     else:
-        Log.info(self, "Please wait while we fetch the new HTTPS certificate"
-                       " for your site.\nIt may take a few minutes"
-                       " depending on the network.")
+        Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                    "--config-home "
                                    "'/etc/letsencrypt/config' "
@@ -1286,8 +1282,8 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
     if ssl:
 
         try:
-
-            Log.debug(self, "Cert deployment for domain: {0}"
+            Log.info(self, "Deploying SSL cert with acme.sh")
+            Log.debug(self, "Deploying cert for domain: {0}"
                       .format(wo_domain_name))
             sslsetup = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
                                             "/etc/letsencrypt/acme.sh "
@@ -1442,9 +1438,7 @@ def archivedCertificateHandle(self, domain):
                   .format(WOVariables.wo_ssl_live, domain))
 
     if check_prompt == "1":
-        Log.info(self, "Please wait while we reinstall the Let's Encrypt "
-                 "certificate for your site.\nIt may take a "
-                 "few minutes depending on your network.")
+        Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
                                    "/etc/letsencrypt/acme.sh "
                                    "--config-home "
@@ -1497,9 +1491,7 @@ def archivedCertificateHandle(self, domain):
             updateSiteInfo(self, domain, ssl=True)
 
     elif (check_prompt == "3"):
-        Log.info(self, "Please wait while we renew the Let's Encrypt"
-                       "certificate for your site.\nIt may take a few "
-                       "minutes depending on your network.")
+        Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                    "--config-home "
                                    "'/etc/letsencrypt/config' "
