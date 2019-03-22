@@ -1229,44 +1229,43 @@ def setupLetsEncrypt(self, wo_domain_name):
                                        "\"service nginx restart\" "
                                        .format(WOVariables.wo_ssl_live,
                                                wo_domain_name))
-    if ssl:
+        if ssl:
 
-        try:
-            Log.info(
-                self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
-                .format(wo_domain_name))
+            try:
+                Log.info(
+                    self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
+                    .format(wo_domain_name))
 
-            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
-                           .format(wo_domain_name),
-                           encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl http2;\n"
-                          "listen [::]:443 ssl http2;\n"
-                          "ssl on;\n"
-                          "ssl_certificate     {0}/{1}/fullchain.pem;\n"
-                          "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                          .format(WOVariables.wo_ssl_live, wo_domain_name))
-            sslconf.close()
-            updateSiteInfo(self, wo_domain_name, ssl=True)
+                sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                               .format(wo_domain_name),
+                               encoding='utf-8', mode='w')
+                sslconf.write("listen 443 ssl http2;\n"
+                              "listen [::]:443 ssl http2;\n"
+                              "ssl on;\n"
+                              "ssl_certificate     {0}/{1}/fullchain.pem;\n"
+                              "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                              .format(WOVariables.wo_ssl_live, wo_domain_name))
+                sslconf.close()
+                updateSiteInfo(self, wo_domain_name, ssl=True)
 
-            WOGit.add(self, ["/etc/letsencrypt"],
-                      msg="Adding letsencrypt folder")
+                WOGit.add(self, ["/etc/letsencrypt"],
+                          msg="Adding letsencrypt folder")
 
-        except IOError as e:
-            Log.debug(self, str(e))
-            Log.debug(self, "Error occured while generating "
-                            "ssl.conf")
-    else:
-        Log.error(self, "Unable to install certificate", False)
-        Log.error(self, "Please make sure that your site is pointed to \n"
-                        "same server on which "
-                        "you are running Let\'s Encrypt Client "
-                        "\n to allow it to verify the site automatically.")
+            except IOError as e:
+                Log.debug(self, str(e))
+                Log.debug(self, "Error occured while generating "
+                          "ssl.conf")
+        else:
+            Log.error(self, "Unable to install certificate", False)
+            Log.error(self, "Please make sure that your site is pointed to \n"
+                      "same server on which "
+                      "you are running Let\'s Encrypt Client "
+                      "\n to allow it to verify the site automatically.")
 
 # setup letsencrypt for a subdomain
 
 
 def setupLetsEncryptSubdomain(self, wo_domain_name):
-    wo_wp_email = WOVariables.wo_email
 
     if os.path.isfile("{0}/{1}_ecc/{1}.conf"
                       .format(WOVariables.wo_ssl_archive, wo_domain_name)):
@@ -1274,7 +1273,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                   .format(wo_domain_name))
         ssl = archivedCertificateHandle(self, wo_domain_name)
     else:
-        Log.warn(self, "Please wait while we fetch the new HTTPS certificate"
+        Log.info(self, "Please wait while we fetch the new HTTPS certificate"
                        " for your site.\nIt may take a few minutes"
                        " depending on the network.")
         sslissue = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
@@ -1301,38 +1300,39 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                                        "\"service nginx restart\" "
                                        .format(WOVariables.wo_ssl_live,
                                                wo_domain_name))
-    if ssl:
 
-        try:
-            Log.info(
-                self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
-                .format(wo_domain_name))
+        if ssl:
 
-            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
-                           .format(wo_domain_name),
-                           encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl http2;\n"
-                          "listen [::]:443 ssl http2;\n"
-                          "ssl on;\n"
-                          "ssl_certificate     {0}/{1}/fullchain.pem;\n"
-                          "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                          .format(WOVariables.wo_ssl_live, wo_domain_name))
-            sslconf.close()
-            updateSiteInfo(self, wo_domain_name, ssl=True)
+            try:
+                Log.info(
+                    self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
+                    .format(wo_domain_name))
 
-            WOGit.add(self, ["/etc/letsencrypt"],
-                      msg="Adding letsencrypt folder")
+                sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                               .format(wo_domain_name),
+                               encoding='utf-8', mode='w')
+                sslconf.write("listen 443 ssl http2;\n"
+                              "listen [::]:443 ssl http2;\n"
+                              "ssl on;\n"
+                              "ssl_certificate     {0}/{1}/fullchain.pem;\n"
+                              "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                              .format(WOVariables.wo_ssl_live, wo_domain_name))
+                sslconf.close()
+                updateSiteInfo(self, wo_domain_name, ssl=True)
 
-        except IOError as e:
-            Log.debug(self, str(e))
-            Log.debug(self, "Error occured while generating "
-                            "ssl.conf")
-    else:
-        Log.error(self, "Unable to install certificate", False)
-        Log.error(self, "Please make sure that your site is pointed to \n"
-                        "same server on which "
-                        "you are running Let\'s Encrypt Client "
-                        "\n to allow it to verify the site automatically.")
+                WOGit.add(self, ["/etc/letsencrypt"],
+                          msg="Adding letsencrypt folder")
+
+            except IOError as e:
+                Log.debug(self, str(e))
+                Log.debug(self, "Error occured while generating "
+                          "ssl.conf")
+        else:
+            Log.error(self, "Unable to create ssl.conf", False)
+            Log.error(self, "Please make sure that your site is pointed to \n"
+                      "same server on which "
+                      "you are running Let\'s Encrypt Client "
+                      "\n to allow it to verify the site automatically.")
 
 # letsencrypt cert renewal
 
