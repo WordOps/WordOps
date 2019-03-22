@@ -27,6 +27,7 @@ TPUT_FAIL=$(tput setaf 1)
 TPUT_INFO=$(tput setaf 7)
 TPUT_ECHO=$(tput setaf 4)
 
+
 wo_lib_echo () {
 
     echo "${TPUT_ECHO}${*}${TPUT_RESET}"
@@ -447,17 +448,32 @@ wo_upgrade_nginx()
         # restore sites and configuration
         /usr/bin/rsync -auz /var/lib/wo/backup/nginx/ /etc/nginx/
 
-        # set back apt preference
-        [ -f "$HOME/nginx-block" ] && {
-            mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
-        }
         # update redis.conf headers
         if [ -f /etc/nginx/common/redis.conf ]; then
             sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
             sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
         fi
-        systemctl enable nginx
-        systemctl restart nginx
+
+        VERIFY_NGINX_CONFIG=$(nginx -t 2>&1 | grep failed)
+        # check if nginx -t do not return errors
+        if [ -z "$VERIFY_NGINX_CONFIG" ]; then
+            systemctl stop nginx
+            systemctl start nginx
+        else
+            VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
+            if [ -n "$VERIFY_NGINX_BUCKET" ]; then
+                sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+            fi
+            systemctl stop nginx
+            systemctl start nginx
+        fi
+
+        # set back apt preference
+        [ -f "$HOME/nginx-block" ] && {
+            mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
+        }
+
+
     } >> /var/log/wo/install.log 2>&1
 
 }
@@ -564,13 +580,19 @@ if [ -x /usr/local/bin/wo ]; then
     if [[ $? -ne 0 ]];then
         read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
+            wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
+            wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
             wo_sync_db >> $wo_install_log 2>&1
             secure_wo_db | tee -ai $wo_install_log
+            wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             wo_install | tee -ai $wo_install_log
+            wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
             wo_upgrade_nginx | tee -ai $wo_install_log
             wo_update_latest | tee -ai $wo_install_log
+            wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh | tee -ai $wo_install_log
+            wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
         else
@@ -582,25 +604,25 @@ if [ -x /usr/local/bin/wo ]; then
 else
     # 2 - Migration from EEv3
     if [ -x /usr/local/bin/ee ]; then
-        ee -v 2>&1 | grep $wo_version_new &>> /dev/null
-        if [[ $? -ne 0 ]];then
-            read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
-            if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
-                wo_install_dep | tee -ai $wo_install_log
-                wo_sync_db >> $wo_install_log 2>&1
-                secure_wo_db | tee -ai $wo_install_log
-                wo_install | tee -ai $wo_install_log
-                wo_upgrade_nginx | tee -ai $wo_install_log
-                wo_update_latest | tee -ai $wo_install_log
-                wo_install_acme_sh | tee -ai $wo_install_log
-                wo_git_init | tee -ai $wo_install_log
-                service nginx reload &>> /dev/null
-                wo_update_wp_cli | tee -ai $wo_install_log
-            else
-                wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
-            fi
+        read -p "Migrate from EasyEngine to WordOps (y/n): " wo_ans
+        if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
+            wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
+            wo_install_dep | tee -ai $wo_install_log
+            wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
+            wo_sync_db >> $wo_install_log 2>&1
+            secure_wo_db | tee -ai $wo_install_log
+            wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
+            wo_install | tee -ai $wo_install_log
+            wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+            wo_upgrade_nginx | tee -ai $wo_install_log
+            wo_update_latest | tee -ai $wo_install_log
+            wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+            wo_install_acme_sh | tee -ai $wo_install_log
+            wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
+            wo_git_init | tee -ai $wo_install_log
+            wo_update_wp_cli | tee -ai $wo_install_log
         else
-            wo_lib_error "You already have WordOps $wo_version_new, exit status = " 1
+            wo_lib_error "Not installing WordOps, exit status = " 1
         fi
     else
         # 3 - Fresh WO setup
@@ -608,10 +630,11 @@ else
         wo_install_dep | tee -ai $wo_install_log
         wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
         wo_install | tee -ai $wo_install_log
+        wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+        wo_install_acme_sh | tee -ai $wo_install_log
         wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
         secure_wo_db | tee -ai $wo_install_log
         wo_git_init | tee -ai $wo_install_log
-        wo_install_acme_sh | tee -ai $wo_install_log
         wo_update_wp_cli | tee -ai $wo_install_log
     fi
 fi
