@@ -373,11 +373,11 @@ wo_upgrade_nginx() {
 
             tar -I pigz "$BACKUP_FILE" /var/lib/wo/backup/nginx
             rm -rf /var/lib/wo/backup/nginx
-        else
+        fi
             # backup nginx conf
             mkdir -p /var/lib/wo/backup
             rsync -az /etc/nginx/ /var/lib/wo/backup/nginx/
-        fi
+
 
         # chec if the package nginx-ee is installed
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
