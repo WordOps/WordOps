@@ -222,12 +222,12 @@ wo_sync_db()
 
                 if [ "$(echo "$wo_site_current_type" | grep php)" ]; then
                     if [ "$(echo "$wo_site_current_type" | grep php7)" ]; then
-                        php_version="7.0"
+                        wo_php_version="7.0"
                     else
-                        php_version="5.6"
+                        wo_php_version="5.6"
                     fi
                 else
-                    php_version=""
+                    wo_php_version=""
                 fi
 
                 if [ "$(echo "$wo_site_current_type" | grep redis)" ]; then
@@ -271,7 +271,6 @@ wo_sync_db()
             VALUES (\"$site\", \"$wo_site_current\", \"$wo_site_current_cache\", \"$wo_webroot\", \"$wo_site_status\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/wo/dbase.db
 
 
-            wo_php_version="7.2"
             wo_lib_echo "Updating WordOps Database"
             echo "ALTER TABLE sites ADD COLUMN db_name varchar;" | sqlite3 /var/lib/wo/dbase.db
             echo "ALTER TABLE sites ADD COLUMN db_user varchar; " | sqlite3 /var/lib/wo/dbase.db
@@ -282,8 +281,8 @@ wo_sync_db()
         fi
 
 
-#        echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
-#        echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.3');" | sqlite3 /var/lib/wo/dbase.db
+        #        echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
+        #        echo "UPDATE sites SET php_version = REPLACE(php_version, '7.0', '7.3');" | sqlite3 /var/lib/wo/dbase.db
     fi
 }
 
@@ -380,11 +379,7 @@ wo_upgrade_nginx()
 {
 
     {
-        # create backup directory
-        mkdir -p /var/lib/wo/backup
 
-        # backup all sites available
-        /usr/bin/rsync -az /etc/nginx/ /var/lib/wo/backup/nginx/
 
         # chec if the package nginx-ee is installed
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
@@ -394,80 +389,83 @@ wo_upgrade_nginx()
 
         # add new Nginx repository
         if [ "$wo_linux_distro" = "Ubuntu" ]; then
-            echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_${wo_distro_id}/ /"  >> /etc/apt/sources.list.d/wo-repo.list
             wget -qO /tmp/nginx-wo.key "https://download.opensuse.org/repositories/home:virtubox:WordOps/xUbuntu_${wo_distro_id}/Release.key"
         else
             if [ "$wo_distro_version" == "jessie" ]; then
-                echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_8.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
                 wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key
             else
-                echo "deb http://download.opensuse.org/repositories/home:/virtubox:/WordOps/Debian_9.0/ /" >> /etc/apt/sources.list.d/wo-repo.list
                 wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key
             fi
         fi
-        # prevent apt preference to block install
-        [ -f /etc/apt/preferences.d/nginx-block ] && {
-            mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
-        }
         # import the respository key for updates
         apt-key add - < /tmp/nginx-wo.key
         rm -f /tmp/nginx-wo.key
         sudo apt-get update
-        # stop nginx
-        service nginx stop
 
-        if [ -n "$CHECK_NGINX_EE" ]; then
-            # remove previous package
-            apt-mark unhold nginx-ee nginx-common nginx-custom
-            apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom --purge
-            elif [ -n "$CHECK_NGINX_WO" ]; then
-            apt-mark unhold nginx-wo nginx-common nginx-custom
-            apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
-        fi
-        # remove previous php-fpm pool configuration
-        if [ -n "$CHECK_PHP72" ]; then
-            apt-get remove php7.2-fpm -y -qq --purge
-            rm -f /etc/php/7.2/fpm/pool.d/*
-        fi
-        if [ -n "$CHECK_PHP73" ]; then
-            apt-get remove php7.3-fpm -y -qq --purge
-            rm -f /etc/php/7.3/fpm/pool.d/*
-        fi
+        if [ -x /usr/sbin/nginx ] ; then
+            CHECK_BROTLI="$(nginx -V 2>&1 | grep brotli)"
+            if [ -z "$CHECK_BROTLI" ]; then
 
-        # install new nginx package
-        if [ -x /usr/local/bin/wo ]; then
-            /usr/local/bin/wo stack install --nginx --php --php73
-        fi
+                # stop nginx
+                service nginx stop
 
-        # restore sites and configuration
-        /usr/bin/rsync -auz /var/lib/wo/backup/nginx/ /etc/nginx/
+                # prevent apt preference to block install
+                [ -f /etc/apt/preferences.d/nginx-block ] && {
+                    mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
+                }
 
-        # update redis.conf headers
-        if [ -f /etc/nginx/common/redis.conf ]; then
-            sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
-            sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
-        fi
+                if [ -n "$CHECK_NGINX_EE" ]; then
+                    # remove previous package
+                    apt-mark unhold nginx-ee nginx-common nginx-custom
+                    apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom --purge
+                    elif [ -n "$CHECK_NGINX_WO" ]; then
+                    apt-mark unhold nginx-wo nginx-common nginx-custom
+                    apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
+                fi
+                # remove previous php-fpm pool configuration
+                if [ -n "$CHECK_PHP72" ]; then
+                    apt-get remove php7.2-fpm -y -qq --purge
+                    rm -f /etc/php/7.2/fpm/pool.d/*
+                fi
+                if [ -n "$CHECK_PHP73" ]; then
+                    apt-get remove php7.3-fpm -y -qq --purge
+                    rm -f /etc/php/7.3/fpm/pool.d/*
+                fi
 
-        VERIFY_NGINX_CONFIG=$(nginx -t 2>&1 | grep failed)
-        # check if nginx -t do not return errors
-        if [ -z "$VERIFY_NGINX_CONFIG" ]; then
-            systemctl stop nginx
-            systemctl start nginx
-        else
-            VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
-            if [ -n "$VERIFY_NGINX_BUCKET" ]; then
-                sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+                # install new nginx package
+                if [ -x /usr/local/bin/wo ]; then
+                    /usr/local/bin/wo stack install --nginx --php --php73
+                fi
+
+                # restore sites and configuration
+                /usr/bin/rsync -auz /var/lib/wo/backup/nginx/ /etc/nginx/
+
+                # update redis.conf headers
+                if [ -f /etc/nginx/common/redis.conf ]; then
+                    sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
+                    sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
+                fi
+
+                VERIFY_NGINX_CONFIG=$(nginx -t 2>&1 | grep failed)
+                # check if nginx -t do not return errors
+                if [ -z "$VERIFY_NGINX_CONFIG" ]; then
+                    systemctl stop nginx
+                    systemctl start nginx
+                else
+                    VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
+                    if [ -n "$VERIFY_NGINX_BUCKET" ]; then
+                        sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+                    fi
+                    systemctl stop nginx
+                    systemctl start nginx
+                fi
+
+                # set back apt preference
+                [ -f "$HOME/nginx-block" ] && {
+                    mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
+                }
             fi
-            systemctl stop nginx
-            systemctl start nginx
         fi
-
-        # set back apt preference
-        [ -f "$HOME/nginx-block" ] && {
-            mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
-        }
-
-
     } >> /var/log/wo/install.log 2>&1
 
 }
@@ -502,14 +500,17 @@ wo_update_latest()
             chmod 755 /etc/mysql/conf.d
         }
         if [ -f $HOME/.my.cnf ]; then
-            cp ~/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+            cp -f $HOME/.my.cnf /etc/mysql/conf.d/my.cnf
             chmod 600 /etc/mysql/conf.d/my.cnf
 
             elif [ -f /root/.my.cnf ]; then
-            cp /root/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+            cp -f /root/.my.cnf /etc/mysql/conf.d/my.cnf
             chmod 600 /etc/mysql/conf.d/my.cnf
-        else
-            wo_lib_echo_fail ".my.cnf cannot be located in your current user or root folder..."
+        fi
+    else
+        if [ ! -f /root/.my.cnf ]; then
+            cp /etc/mysql/conf.d/my.cnf /root/.my.cnf
+            chmod 600  /root/.my.cnf
         fi
     fi
 
