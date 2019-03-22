@@ -6,6 +6,11 @@
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
 <p align="center">
+<img  src="https://img.virtubox.net/images/2019/03/22/wordops-stable.mp4.gif" width="540"></p>
+
+
+
+<p align="center">
 <a href="https://travis-ci.org/WordOps/WordOps"><img src="https://travis-ci.org/WordOps/WordOps.svg?branch=master" alt="build"></a>
 <img src="https://img.shields.io/github/license/wordops/wordops.svg" alt="MIT">
 <img src="https://img.shields.io/github/last-commit/wordops/wordops.svg" alt="Commits">
@@ -26,7 +31,7 @@
 
 ## Key Features
 
-- Easy Migration from EasyEngine v3 (migration script development in progress)
+- Easy Migration from EasyEngine v3
 - Automated WordPress, Nginx, PHP, MySQL & Redis installation
 - Nginx 1.14.2 with Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - Hardened WordPress security with strict Nginx location directives
@@ -64,9 +69,10 @@ WordOps made some fundamental changes:
 - We've deprecated the mail stack. As an alternative, you can take a look at [Mail-in-a-Box](https://github.com/mail-in-a-box/mailinabox), [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). As Roundcube alternative, there is [Rainloop](https://www.rainloop.net/) or [Afterlogic WebMail](https://github.com/afterlogic/webmail-lite-8)
 - Support for w3tc is dropped as a security precaution.
 - PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 has been replaced by PHP 7.3.
-- Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.14.2)
+- Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.14.2 with Brolti support)
+- Let's Encrypt stack isn't based on letsencrypt-auto anymore, we use acme.sh to handle SSL certificates
 
-We are still working on the script to migrate from EasyEngine v3 to WordOps. Here some informations about the WordOps install script :
+If you are going to migrate from EasyEngine v3, here some important informations :
 
 - Previous php upstreams in Nginx will not be overwritted
 - php5.6 and php7.0 will not be removed or uninstalled
