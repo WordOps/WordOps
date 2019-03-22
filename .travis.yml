@@ -30,6 +30,7 @@ script:
   - sudo wo stack install --admin || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site create proxy.com --proxy=127.0.0.1:3000 || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create wp1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
   
   - sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
@@ -60,4 +61,4 @@ script:
   - sudo wp --allow-root --info
   - sudo bash -c 'nginx -T 2>&1 > /var/log/wo/nginx.log 2>&1' || sudo tail -n50 /var/log/wo/wordops.log
   - sudo bash -c 'tar -I pigz -cf wordops.tar.gz /var/log/wo'
-  - sudo curl --progress-bar --upload-file "wordops.tar.gz" https://transfer.sh/$(basename wordops.tar.gz) && echo "" || sudo echo "transfer.sh is down"
+  - sudo curl --progress-bar --upload-file "wordops.tar.gz" https://transfer.vtbox.net/$(basename wordops.tar.gz) && echo "" || sudo echo "transfer.sh is down"

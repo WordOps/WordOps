@@ -57,7 +57,7 @@ class WOLogShowController(CementBaseController):
                      action='store_true')),
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
-            ]
+        ]
         usage = "wo log show [<site_name>] [options]"
 
     @expose(hide=True)
@@ -68,17 +68,17 @@ class WOLogShowController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.nginx = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
@@ -185,7 +185,7 @@ class WOLogResetController(CementBaseController):
                      action='store_true')),
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
-            ]
+        ]
         usage = "wo log reset [<site_name>] [options]"
 
     @expose(hide=True)
@@ -196,20 +196,20 @@ class WOLogResetController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.nginx = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (not self.app.pargs.site_name)
-           and (not self.app.pargs.slow_log_db)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+            (not self.app.pargs.wp) and (not self.app.pargs.site_name) and
+                (not self.app.pargs.slow_log_db)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
             self.app.pargs.slow_log_db = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (self.app.pargs.site_name)
-           and (not self.app.pargs.slow-log-db)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+            (not self.app.pargs.wp) and (self.app.pargs.site_name) and
+                (not self.app.pargs.slow-log-db)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
@@ -324,7 +324,7 @@ class WOLogGzipController(CementBaseController):
                      action='store_true')),
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
-            ]
+        ]
         usage = "wo log gzip [<site_name>] [options]"
 
     @expose(hide=True)
@@ -335,17 +335,17 @@ class WOLogGzipController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.nginx = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
@@ -461,7 +461,7 @@ class WOLogMailController(CementBaseController):
             (['--to'],
              dict(help='Email addresses to send log files', action='append',
                   dest='to', nargs=1, required=True)),
-            ]
+        ]
         usage = "wo log mail [<site_name>] [options]"
 
     @expose(hide=True)
@@ -472,17 +472,17 @@ class WOLogMailController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.nginx = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
-           and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (self.app.pargs.site_name)):
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
+            (not self.app.pargs.mysql) and (not self.app.pargs.access) and
+                (not self.app.pargs.wp) and (self.app.pargs.site_name)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True

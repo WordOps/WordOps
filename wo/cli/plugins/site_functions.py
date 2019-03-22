@@ -107,9 +107,6 @@ def setupdomain(self, data):
                                       '/etc/nginx/sites-enabled/{0}'
                                       .format(wo_domain_name)])
 
-    if 'proxy' in data.keys() and data['proxy']:
-        return
-
     # Creating htdocs & logs directory
     Log.info(self, "Setting up webroot \t\t", end='')
     try:
@@ -297,17 +294,15 @@ def setupwordpress(self, data):
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
         Log.debug(self, "bash -c \"php {0} --allow-root "
-                  .format(WOVariables.wo_wpcli_path)
-                  + "core config "
-                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
+                  .format(WOVariables.wo_wpcli_path) +
+                  "core config " +
+                  "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
                   "--dbhost=\'{3}\' "
                   .format(data['wo_db_name'], wo_wp_prefix,
-                          data['wo_db_user'], data['wo_db_host'])
-                  + "--dbpass=\'{0}\' "
+                          data['wo_db_user'], data['wo_db_host']) +
+                  "--dbpass=\'{0}\' "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['wo_db_pass'],
-                          "\ndefine(\'CONCATENATE_SCRIPTS\',"
-                          " false);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
@@ -340,7 +335,7 @@ def setupwordpress(self, data):
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host'])
                   + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                  "--extra-php<<PHP \n {2} {3} \nPHP\""
+                  "--extra-php<<PHP \n {2} {3} {4} \nPHP\""
                   .format(data['wo_db_user'], data['wo_db_pass'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
@@ -1197,9 +1192,8 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
+
 # setup letsencrypt for domain + www.domain
-
-
 def setupLetsEncrypt(self, wo_domain_name):
 
     if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
@@ -1208,36 +1202,34 @@ def setupLetsEncrypt(self, wo_domain_name):
                   .format(wo_domain_name))
         ssl = archivedCertificateHandle(self, wo_domain_name)
     else:
-        Log.warn(self, "Please wait while we fetch the new HTTPS certificate"
-                       " for your site.\nIt may take a few minutes"
-                       " depending on the network.")
-        sslissue = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                        "--config-home "
-                                        "'/etc/letsencrypt/config' "
-                                        "--issue "
-                                        "-d {0} -d www.{0} -w /var/www/html "
-                                        "-k ec-384"
-                                        .format(wo_domain_name))
-        if sslissue:
+        Log.info(self, "Issuing SSL cert with acme.sh")
+        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                   "--config-home "
+                                   "'/etc/letsencrypt/config' "
+                                   "--issue "
+                                   "-d {0} -d www.{0} -w /var/www/html "
+                                   "-k ec-384"
+                                   .format(wo_domain_name))
 
-            Log.debug(self, "Cert deployment for domain: {0}"
-                      .format(wo_domain_name))
-            ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
-                                       "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
-                                       "--install-cert -d {1} --ecc "
-                                       "--cert-file {0}/{1}/cert.pem "
-                                       "--key-file {0}/{1}/key.pem "
-                                       "--fullchain-file "
-                                       "{0}/{1}/fullchain.pem "
-                                       "--reloadcmd "
-                                       "\"service nginx restart\" "
-                                       .format(WOVariables.wo_ssl_live,
-                                               wo_domain_name))
     if ssl:
 
         try:
+            Log.info(self, "Deploying SSL cert with acme.sh")
+            Log.debug(self, "Cert deployment for domain: {0}"
+                      .format(wo_domain_name))
+            sslsetup = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
+                                            "/etc/letsencrypt/acme.sh "
+                                            "--config-home "
+                                            "'/etc/letsencrypt/config' "
+                                            "--install-cert -d {1} --ecc "
+                                            "--cert-file {0}/{1}/cert.pem "
+                                            "--key-file {0}/{1}/key.pem "
+                                            "--fullchain-file "
+                                            "{0}/{1}/fullchain.pem "
+                                            "--reloadcmd "
+                                            "\"service nginx restart\" "
+                                            .format(WOVariables.wo_ssl_live,
+                                                    wo_domain_name))
             Log.info(
                 self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
                 .format(wo_domain_name))
@@ -1260,19 +1252,18 @@ def setupLetsEncrypt(self, wo_domain_name):
         except IOError as e:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while generating "
-                            "ssl.conf")
+                      "ssl.conf")
     else:
         Log.error(self, "Unable to install certificate", False)
         Log.error(self, "Please make sure that your site is pointed to \n"
-                        "same server on which "
-                        "you are running Let\'s Encrypt Client "
-                        "\n to allow it to verify the site automatically.")
+                  "same server on which "
+                  "you are running Let\'s Encrypt Client "
+                  "\n to allow it to verify the site automatically.")
 
 # setup letsencrypt for a subdomain
 
 
 def setupLetsEncryptSubdomain(self, wo_domain_name):
-    wo_wp_email = WOVariables.wo_email
 
     if os.path.isfile("{0}/{1}_ecc/{1}.conf"
                       .format(WOVariables.wo_ssl_archive, wo_domain_name)):
@@ -1280,36 +1271,34 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                   .format(wo_domain_name))
         ssl = archivedCertificateHandle(self, wo_domain_name)
     else:
-        Log.warn(self, "Please wait while we fetch the new HTTPS certificate"
-                       " for your site.\nIt may take a few minutes"
-                       " depending on the network.")
-        sslissue = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                              "--config-home "
-                                              "'/etc/letsencrypt/config' "
-                                              "--issue "
-                                              "-d {0} -w /var/www/html "
-                                              "-k ec-384"
-                                              .format(wo_domain_name))
-        if sslissue:
-
-            Log.debug(self, "Cert deployment for domain: {0}"
-                      .format(wo_domain_name))
-            ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
-                                       "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
-                                       "--install-cert -d {1} --ecc "
-                                       "--cert-file {0}/{1}/cert.pem "
-                                       "--key-file {0}/{1}/key.pem "
-                                       "--fullchain-file "
-                                       "{0}/{1}/fullchain.pem "
-                                       "--reloadcmd "
-                                       "\"service nginx restart\" "
-                                       .format(WOVariables.wo_ssl_live,
-                                               wo_domain_name))
+        Log.info(self, "Issuing SSL cert with acme.sh")
+        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                   "--config-home "
+                                   "'/etc/letsencrypt/config' "
+                                   "--issue "
+                                   "-d {0} -w /var/www/html "
+                                   "-k ec-384"
+                                   .format(wo_domain_name))
     if ssl:
 
         try:
+            Log.info(self, "Deploying SSL cert with acme.sh")
+            Log.debug(self, "Deploying cert for domain: {0}"
+                      .format(wo_domain_name))
+            sslsetup = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
+                                            "/etc/letsencrypt/acme.sh "
+                                            "--config-home "
+                                            "'/etc/letsencrypt/config' "
+                                            "--install-cert -d {1} --ecc "
+                                            "--cert-file {0}/{1}/cert.pem "
+                                            "--key-file {0}/{1}/key.pem "
+                                            "--fullchain-file "
+                                            "{0}/{1}/fullchain.pem "
+                                            "--reloadcmd "
+                                            "\"service nginx restart\" "
+                                            .format(WOVariables.wo_ssl_live,
+                                                    wo_domain_name))
+
             Log.info(
                 self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
                 .format(wo_domain_name))
@@ -1332,13 +1321,13 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
         except IOError as e:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while generating "
-                            "ssl.conf")
+                      "ssl.conf")
     else:
-        Log.error(self, "Unable to install certificate", False)
+        Log.error(self, "Unable to create ssl.conf", False)
         Log.error(self, "Please make sure that your site is pointed to \n"
-                        "same server on which "
-                        "you are running Let\'s Encrypt Client "
-                        "\n to allow it to verify the site automatically.")
+                  "same server on which "
+                  "you are running Let\'s Encrypt Client "
+                  "\n to allow it to verify the site automatically.")
 
 # letsencrypt cert renewal
 
@@ -1449,20 +1438,18 @@ def archivedCertificateHandle(self, domain):
                   .format(WOVariables.wo_ssl_live, domain))
 
     if check_prompt == "1":
-        Log.info(self, "Please wait while we reinstall the Let's Encrypt "
-                 "certificate for your site.\nIt may take a "
-                 "few minutes depending on your network.")
+        Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
-                                         "/etc/letsencrypt/acme.sh "
-                                         "--config-home "
-                                         "'/etc/letsencrypt/config' "
-                                         "--install-cert -d {1} --ecc "
-                                         "--cert-file {0}/{1}/cert.pem "
-                                         "--key-file {0}/{1}/key.pem "
-                                         "--fullchain-file "
-                                         "{0}/{1}/fullchain.pem "
-                                         "--reloadcmd "
-                                         "\"service nginx restart\" "
+                                   "/etc/letsencrypt/acme.sh "
+                                   "--config-home "
+                                   "'/etc/letsencrypt/config' "
+                                   "--install-cert -d {1} --ecc "
+                                   "--cert-file {0}/{1}/cert.pem "
+                                   "--key-file {0}/{1}/key.pem "
+                                   "--fullchain-file "
+                                   "{0}/{1}/fullchain.pem "
+                                   "--reloadcmd "
+                                   "\"service nginx restart\" "
                                          .format(WOVariables.wo_ssl_live, domain))
         if ssl:
 
@@ -1504,9 +1491,7 @@ def archivedCertificateHandle(self, domain):
             updateSiteInfo(self, domain, ssl=True)
 
     elif (check_prompt == "3"):
-        Log.info(self, "Please wait while we renew the Let's Encrypt"
-                       "certificate for your site.\nIt may take a few "
-                       "minutes depending on your network.")
+        Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                    "--config-home "
                                    "'/etc/letsencrypt/config' "
@@ -1514,7 +1499,7 @@ def archivedCertificateHandle(self, domain):
                                    "--force"
                                          .format(domain))
 
-        if issuessl:
+        if ssl:
 
             try:
 
@@ -1547,4 +1532,4 @@ def archivedCertificateHandle(self, domain):
                            '/var/www/{0}/conf/nginx/ssl.conf.bak'
                            .format(domain))
 
-    return ssl
+        return ssl

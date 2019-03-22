@@ -326,7 +326,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create WordPress single/multi site with wpsc cache",
                      action='store_true')),
             (['--wpredis'],
-                dict(help="create WordPress single/multi site with redis cache",
+                dict(help="create WordPress single/multi site "
+                     "with redis cache",
                      action='store_true')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
@@ -342,8 +343,9 @@ class WOSiteCreateController(CementBaseController):
                      dest='wppass')),
             (['--proxy'],
                 dict(help="create proxy for site", nargs='+')),
-            (['--vhostonly'],
-                dict(help="only create vhost and database without installing WordPress", nargs='+')),
+            (['--vhostonly'], dict(help="only create vhost and database "
+                                   "without installing WordPress",
+                                   action='store_true')),
             (['--experimental'],
                 dict(help="Enable Experimental packages without prompt",
                      action='store_true')),
@@ -406,7 +408,7 @@ class WOSiteCreateController(CementBaseController):
             data['proxy'] = True
             data['host'] = host
             data['port'] = port
-            wo_site_webroot = ""
+            wo_site_webroot = WOVariables.wo_webroot + wo_domain
 
         if self.app.pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
@@ -461,10 +463,10 @@ class WOSiteCreateController(CementBaseController):
             data['basic'] = True
 
         if (cache == 'wpredis'):
-                cache = 'wpredis'
-                data['wpredis'] = True
-                data['basic'] = False
-                self.app.pargs.wpredis = True
+            cache = 'wpredis'
+            data['wpredis'] = True
+            data['basic'] = False
+            self.app.pargs.wpredis = True
 
         # Check rerequired packages are installed or not
         wo_auth = site_package_check(self, stype)
@@ -1097,7 +1099,7 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     data['letsencrypt'] = True
                     letsencrypt = True
-                    wildcard = True
+                    wildcard = False
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             data['wpredis'] = True

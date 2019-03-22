@@ -19,7 +19,8 @@ class WOCleanController(CementBaseController):
         label = 'clean'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('Clean NGINX FastCGI cache, Opcache, Memcached, Redis Cache')
+        description = (
+            'Clean NGINX FastCGI cache, Opcache, Memcached, Redis Cache')
         arguments = [
             (['--all'],
                 dict(help='Clean all cache', action='store_true')),
@@ -31,7 +32,7 @@ class WOCleanController(CementBaseController):
                 dict(help='Clean OpCache', action='store_true')),
             (['--redis'],
                 dict(help='Clean Redis Cache', action='store_true')),
-            ]
+        ]
         usage = "wo clean [options]"
 
     @expose(hide=True)
@@ -90,13 +91,13 @@ class WOCleanController(CementBaseController):
             wp = urllib.request.urlopen(" https://127.0.0.1:22222/cache"
                                         "/opcache/opgui.php?page=reset").read()
         except Exception as e:
-                Log.debug(self, "{0}".format(e))
-                Log.debug(self, "Unable hit url, "
-                          " https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset,"
-                          " please check you have admin tools installed")
-                Log.debug(self, "please check you have admin tools installed,"
-                         " or install them with `wo stack install --admin`")
-                Log.error(self, "Unable to clean opcache", False)
+            Log.debug(self, "{0}".format(e))
+            Log.debug(self, "Unable hit url, "
+                      " https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset,"
+                      " please check you have admin tools installed")
+            Log.debug(self, "please check you have admin tools installed,"
+                      " or install them with `wo stack install --admin`")
+            Log.error(self, "Unable to clean opcache", False)
 
 
 def load(app):

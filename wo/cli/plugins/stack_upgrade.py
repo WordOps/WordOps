@@ -41,7 +41,7 @@ class WOStackUpgradeController(CementBaseController):
             (['--no-prompt'],
                 dict(help="Upgrade Packages without any prompt",
                      action='store_true')),
-            ]
+        ]
 
     @expose(hide=True)
     def upgrade_php56(self):
@@ -72,7 +72,8 @@ class WOStackUpgradeController(CementBaseController):
         WOAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
         if (WOVariables.wo_platform_distro == 'ubuntu'):
-            WOAptGet.install(self, WOVariables.wo_php + WOVariables.wo_php_extra)
+            WOAptGet.install(self, WOVariables.wo_php +
+                             WOVariables.wo_php_extra)
         else:
             WOAptGet.install(self, WOVariables.wo_php)
 
@@ -86,9 +87,9 @@ class WOStackUpgradeController(CementBaseController):
         packages = []
 
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
-           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
-           (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
-           (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline)):
+            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+            (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
+                (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline)):
             self.app.pargs.web = True
 
         if self.app.pargs.all:

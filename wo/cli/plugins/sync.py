@@ -44,21 +44,22 @@ class WOSyncController(CementBaseController):
                     if site.site_type != 'mysql':
                         Log.debug(self, "Searching wp-config.php in {0}/htdocs/ "
                                         .format(wo_site_webroot))
-                        configfiles = glob.glob(wo_site_webroot + '/htdocs/wp-config.php')
+                        configfiles = glob.glob(
+                            wo_site_webroot + '/htdocs/wp-config.php')
 
                 if configfiles:
                     if WOFileUtils.isexist(self, configfiles[0]):
                         wo_db_name = (WOFileUtils.grep(self, configfiles[0],
-                                      'DB_NAME').split(',')[1]
+                                                       'DB_NAME').split(',')[1]
                                       .split(')')[0].strip().replace('\'', ''))
                         wo_db_user = (WOFileUtils.grep(self, configfiles[0],
-                                      'DB_USER').split(',')[1]
+                                                       'DB_USER').split(',')[1]
                                       .split(')')[0].strip().replace('\'', ''))
                         wo_db_pass = (WOFileUtils.grep(self, configfiles[0],
-                                      'DB_PASSWORD').split(',')[1]
+                                                       'DB_PASSWORD').split(',')[1]
                                       .split(')')[0].strip().replace('\'', ''))
                         wo_db_host = (WOFileUtils.grep(self, configfiles[0],
-                                      'DB_HOST').split(',')[1]
+                                                       'DB_HOST').split(',')[1]
                                       .split(')')[0].strip().replace('\'', ''))
 
                         # Check if database really exist
@@ -84,7 +85,7 @@ class WOSyncController(CementBaseController):
                                            db_host=wo_db_host)
                 else:
                     Log.debug(self, "Config files not found for {0} "
-                                      .format(site.sitename))
+                              .format(site.sitename))
 
 
 def load(app):

@@ -14,12 +14,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - IPv6 support with HTTPS
 - Brotli support in Nginx
+- Let's Encrypt support with --proxy
+- Install script handle migration from EEv3
+- load-balancing on unix socket for php-fpm
+- stub_status vhost for metrics
+- opcache optimization for php-fpm
 
 #### Changed
 
 - letsencrypt stack refactored with acme.sh
+- letsencrypt validation with webroot folder
 - "--letsencrypt=subdomain" option
 - hardened nginx ssl_ecdh_curve
+- Update phpredisadmin
 
 #### Fixed
 
@@ -27,6 +34,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - acme.sh installation
 - acme.sh alias with config home variable
 - deb.sury.org repository gpg key
+- Nginx upgrade from previous WordOps release
+- Force new Nginx templates during update
+- Error message about missing my.cnf file during upgrade
 
 ### v3.9.4 - 2019-03-15
 
