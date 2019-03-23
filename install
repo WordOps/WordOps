@@ -83,10 +83,16 @@ fi
 ###
 wo_branch="$1"
 readonly wo_log_dir=/var/log/wo/
+readonly wo_backup_dir=/var/lib/wo-backup
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -is)
 readonly wo_distro_version=$(lsb_release -sc)
 readonly wo_distro_id=$(lsb_release -rs)
+TIME_FORMAT='%d-%b-%Y-%H%M%S'
+TIME=$(date +"$TIME_FORMAT")
+NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
+EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
+WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
 
 if [ -x /usr/local/bin/ee ]; then
     migration=1
@@ -118,6 +124,11 @@ if [ ! -d "$wo_log_dir" ]; then
     wo_lib_echo "Creating WordOps log directory, just a second..."
     mkdir -p "$wo_log_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
 
+    wo_lib_echo "Creating WordOps backup directory, just a second..."
+    mkdir -p "$wo_backup_dir" || wo_lib_error "Whoops - seems we are unable to create the backup directory $wo_backup_dir, exit status " $?
+    chmod -R 600 "$wo_backup_dir"
+
+    # create wordops log files
     touch /var/log/wo/{wordops.log,install.log}
 
     chmod -R 700 /var/log/wo || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
@@ -137,7 +148,7 @@ wo_install_dep() {
         fi
 
         locale-gen en
-    } >> /var/log/wo/install.log 2>&1
+    } >> "$wo_install_log" 2>&1
     # Support PFS
     if [ -f /etc/nginx/nginx.conf ]; then
         # Replace previous ciphers
@@ -151,6 +162,7 @@ wo_install_dep() {
     if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
         mkdir -p /var/www/html/.well-known/acme-challenge
         chown -R www-data:www-data /var/www/html /var/www/html/.well-known
+        chmod 750 /var/www/html /var/www/html/.well-known
     fi
 }
 
@@ -177,7 +189,6 @@ wo_sync_db() {
             ###
 
             cp /var/lib/ee/ee.db /var/lib/wo/dbase.db
-            rm -rf /var/lib/ee
         else
 
             # Create an empty database for WordOps
@@ -306,7 +317,7 @@ wo_update_wp_cli() {
         [ ! -f /etc/bash_completion.d/wp-completion.bash ] && {
             wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
         }
-    } >> /var/log/wo/install.log 2>&1
+    } >> "$wo_install_log" 2>&1
 }
 
 wo_install_acme_sh() {
@@ -338,9 +349,25 @@ wo_install_acme_sh() {
             if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
                 mkdir -p /var/www/html/.well-known/acme-challenge
                 chown -R www-data:www-data /var/www/html /var/www/html/.well-known
+                chmod 750 /var/www/html /var/www/html/.well-known
+            else
+                chmod 750 /var/www/html /var/www/html/.well-known
             fi
 
-        } >> /var/log/wo/install.log 2>&1
+        } >> "$wo_install_log" 2>&1
+    fi
+    if [ -d "$HOME/.acme/.sh" ]; then
+    {
+        rsync -az --exclude="account.conf" \
+            --exclude="acme.sh" \
+            --exclude="acme.sh.env" \
+            --exclude="deploy" \
+            --exclude="dnsapi" \
+            --exclude="http.header" \
+            --exclude="ca" \
+        "$HOME/.acme.sh/" \
+        /etc/letsencrypt/renewal/
+    } >> "$wo_install_log" 2>&1
     fi
 }
 
@@ -357,7 +384,7 @@ wo_install() {
         git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet
 
         cd /tmp/wordops || exit 1
-    } >> /var/log/wo/install.log 2>&1
+    } >> "$wo_install_log" 2>&1
     python3 setup.py install
 
 }
@@ -366,18 +393,12 @@ wo_upgrade_nginx() {
 
     {
 
-        if [ -d /var/lib/wo/backup/nginx ]; then
-            TIME_FORMAT='%d-%b-%Y-%H%M%S'
-            TIME=$(date +"$TIME_FORMAT")
-            BACKUP_FILE="/var/lib/wo/backup/nginx-backup.$TIME.tar.gz"
-
-            tar -I pigz "$BACKUP_FILE" /var/lib/wo/backup/nginx
-            rm -rf /var/lib/wo/backup/nginx
+        if [ -d /var/lib/wo-backup/nginx ]; then
+            tar -I pigz "$NGINX_BACKUP_FILE" /var/lib/wo-backup/nginx
+            rm -rf /var/lib/wo-backup/nginx
         fi
-            # backup nginx conf
-            mkdir -p /var/lib/wo/backup
-            rsync -az /etc/nginx/ /var/lib/wo/backup/nginx/
-
+        # backup nginx conf
+        /usr/bin/rsync -az /etc/nginx/ /var/lib/wo-backup/nginx/
 
         # chec if the package nginx-ee is installed
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
@@ -408,17 +429,20 @@ wo_upgrade_nginx() {
             mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
         }
 
-        if [ -n "$CHECK_NGINX_EE" ]; then
-            # remove previous package
-            apt-mark unhold nginx-ee nginx-common nginx-custom
-            apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom --purge
-        elif [ -n "$CHECK_NGINX_WO" ]; then
-            apt-mark unhold nginx-wo nginx-common nginx-custom
-            apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
-        fi
-
         # install new nginx package
         if [ -x /usr/local/bin/wo ]; then
+
+            if [ -n "$CHECK_NGINX_EE" ]; then
+                # remove previous package
+                apt-mark unhold nginx-ee nginx-common nginx-custom
+                apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom --purge
+                rm -rf /etc/nginx
+            elif [ -n "$CHECK_NGINX_WO" ]; then
+                apt-mark unhold nginx-wo nginx-common nginx-custom
+                apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
+                rm -rf /etc/nginx
+            fi
+
             # remove previous php-fpm pool configuration
             if [ -n "$CHECK_PHP72" ]; then
                 apt-get remove php7.2-fpm -y -qq --purge
@@ -433,7 +457,7 @@ wo_upgrade_nginx() {
         fi
 
         # restore sites and configuration
-        /usr/bin/rsync -auz /var/lib/wo/backup/nginx/ /etc/nginx/
+        /usr/bin/rsync -auz /var/lib/wo-backup/nginx/ /etc/nginx/
 
         # update redis.conf headers
         if [ -f /etc/nginx/common/redis.conf ]; then
@@ -461,18 +485,18 @@ wo_upgrade_nginx() {
             mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
         }
 
-    } >> /var/log/wo/install.log 2>&1
+    } >> "$wo_install_log" 2>&1
 
 }
 
 wo_update_latest() {
 
     if [ -f /etc/nginx/fastcgi_params ]; then
-        grep -q 'HTTP_PROXY' /etc/nginx/fastcgi_params
-        if [[ $? -ne 0 ]]; then
+        CHECK_HTTP_PROXY=$(grep 'HTTP_PROXY' /etc/nginx/fastcgi_params)
+        if [ -z "$CHECK_HTTP_PROXY" ]; then
             echo 'fastcgi_param  HTTP_PROXY         "";' >> /etc/nginx/fastcgi_params
             echo 'fastcgi_param  HTTP_PROXY         "";' >> /etc/nginx/fastcgi.conf
-            service nginx restart
+            service nginx restart | tee -ai $wo_install_log
         fi
     fi
 
@@ -506,8 +530,8 @@ wo_update_latest() {
     fi
     # Fix WordPress example.html issue
     # Ref: http://wptavern.com/xss-vulnerability-in-jetpack-and-the-twenty-fifteen-default-theme-affects-millions-of-wordpress-users
-    dpkg --get-selections | grep -v deinstall | grep nginx
-    if [ $? -eq 0 ]; then
+    CHECK_DEINSTALL_NGINX=$(dpkg --get-selections | grep -v deinstall | grep nginx)
+    if [ -z "$CHECK_DEINSTALL_NGINX" ]; then
         cp /usr/lib/wo/templates/locations.mustache /etc/nginx/common/locations-php72.conf
 
     fi
@@ -517,10 +541,10 @@ wo_update_latest() {
     if [ -f /etc/redis/redis.conf ]; then
         grep -0 -v "#" /etc/redis/redis.conf | grep 'bind'
 
-        if [ $? -ne 0 ]; then
+        if [ "$?" -ne 0 ]; then
             sed -i '$ a bind 127.0.0.1' /etc/redis/redis.conf &
 
-            service redis-server restart
+            service redis-server restart > /dev/null 2>&1
 
         fi
     fi
@@ -558,6 +582,18 @@ wo_git_init() {
     } >> /var/log/wo/install.log 2>&1
 }
 
+wo_backup_ee() {
+    tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+}
+
+wo_backup_wo() {
+    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo
+}
+
+wo_clean_ee() {
+    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+}
+
 ###
 # 4 - WO MAIN SETUP
 ###
@@ -570,11 +606,13 @@ if [ -x /usr/local/bin/wo ]; then
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
+            wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
+            wo_backup_wo | tee -ai $wo_install_log
             wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
-            wo_sync_db >> $wo_install_log 2>&1
+            wo_sync_db | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            wo_install | tee -ai $wo_install_log
+            wo_install >> wo_install_log 2>&1
             wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
             wo_upgrade_nginx | tee -ai $wo_install_log
             wo_update_latest | tee -ai $wo_install_log
@@ -596,11 +634,13 @@ else
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
+            wo_lib_echo "Backing-up EE install" | tee -ai $wo_install_log
+            wo_backup_ee | tee -ai $wo_install_log
             wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
-            wo_sync_db >> $wo_install_log 2>&1
+            wo_sync_db | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            wo_install | tee -ai $wo_install_log
+            wo_install >> wo_install_log 2>&1
             wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
             wo_upgrade_nginx | tee -ai $wo_install_log
             wo_update_latest | tee -ai $wo_install_log
@@ -609,6 +649,9 @@ else
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
+            wo_lib_echo "Cleaning-up EE previous install" | tee -ai $wo_install_log
+            wo_clean_ee | tee -ai $wo_install_log
+           e
         else
             wo_lib_error "Not installing WordOps, exit status = " 1
         fi
@@ -632,7 +675,7 @@ wo sync | tee -ai $wo_install_log
 if [ "$migration" -eq "1" ]; then
     echo
     wo_lib_echo "The migration from EasyEngine to WordOps was succesfull!"
-    wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo/ee-backup.tgz"
+    wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo-backup/ee-backup.tgz"
     echo
     wo_lib_echo_info "For autocompletion, run the following command:"
     wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"

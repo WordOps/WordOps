@@ -214,10 +214,7 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     data = dict(php="9000", debug="9001",
-                                    php7="9070", debug7="9170",
-                                    php7conf=True
-                                    if WOAptGet.is_installed(self, 'php7.0-fpm')
-                                    else False)
+                                    php7="9070", debug7="9170")
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
                     wo_nginx = open('/etc/nginx/conf.d/upstream.conf',

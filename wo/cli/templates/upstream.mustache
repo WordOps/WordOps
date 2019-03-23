@@ -10,7 +10,7 @@ upstream debug {
 server 127.0.0.1:{{debug}};
 }
 
-{{#php7conf}}
+
 #-------------------------------
 # PHP 7.0
 #-------------------------------
@@ -22,7 +22,7 @@ upstream debug7 {
 # Debug Pool
 server 127.0.0.1:{{debug7}};
 }
-{{/php7conf}}
+
 
 #-------------------------------
 # PHP 7.2
@@ -31,10 +31,10 @@ server 127.0.0.1:{{debug7}};
 # PHP 7.2 upstream with load-balancing on two unix sockets
 upstream php72 {
     least_conn;
-    
+
     server unix:/var/run/php/php72-fpm.sock;
     server unix:/var/run/php/php72-two-fpm.sock;
-    
+
     keepalive 5;
 }
 
@@ -51,10 +51,10 @@ server 127.0.0.1:9172;
 # PHP 7.3 upstream with load-balancing on two unix sockets
 upstream php73 {
     least_conn;
-    
+
     server unix:/var/run/php/php73-fpm.sock;
     server unix:/var/run/php/php73-two-fpm.sock;
-    
+
     keepalive 5;
 }
 

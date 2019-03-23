@@ -19,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - load-balancing on unix socket for php-fpm
 - stub_status vhost for metrics
 - opcache optimization for php-fpm
+- EasyEngine configuration backup before migration
+- EasyEngine configuration cleanup
+- WordOps configuration backup before upgrade
 
 #### Changed
 
