@@ -357,17 +357,17 @@ wo_install_acme_sh() {
         } >> "$wo_install_log" 2>&1
     fi
     if [ -d "$HOME/.acme/.sh" ]; then
-    {
-        rsync -az --exclude="account.conf" \
-            --exclude="acme.sh" \
-            --exclude="acme.sh.env" \
-            --exclude="deploy" \
-            --exclude="dnsapi" \
-            --exclude="http.header" \
-            --exclude="ca" \
-        "$HOME/.acme.sh/" \
-        /etc/letsencrypt/renewal/
-    } >> "$wo_install_log" 2>&1
+        {
+            rsync -az --exclude="account.conf" \
+                --exclude="acme.sh" \
+                --exclude="acme.sh.env" \
+                --exclude="deploy" \
+                --exclude="dnsapi" \
+                --exclude="http.header" \
+                --exclude="ca" \
+                "$HOME/.acme.sh/" \
+                /etc/letsencrypt/renewal/
+        } >> "$wo_install_log" 2>&1
     fi
 }
 
@@ -651,7 +651,6 @@ else
             wo_update_wp_cli | tee -ai $wo_install_log
             wo_lib_echo "Cleaning-up EE previous install" | tee -ai $wo_install_log
             wo_clean_ee | tee -ai $wo_install_log
-           e
         else
             wo_lib_error "Not installing WordOps, exit status = " 1
         fi
