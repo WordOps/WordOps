@@ -1,3 +1,5 @@
+"""Maintenance Plugin for WordOps"""
+
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from wo.core.logging import Log
@@ -19,10 +21,8 @@ def wo_maintenance_hook(app):
 
 class WOMaintenanceController(CementBaseController):
     class Meta:
-        label = 'wo_maintenance'
+        label = 'maintenance'
         stacked_on = 'base'
-        aliases = ['maintenance']
-        aliases_only = True
         stacked_type = 'nested'
         description = ('update server packages to latest version')
         usage = "wo maintenance"
