@@ -540,7 +540,7 @@ wo_update_latest() {
     # Fix Redis-server security issue
     # http://redis.io/topics/security
     if [ -f /etc/redis/redis.conf ]; then
-        grep -0 -v "#" /etc/redis/redis.conf | grep 'bind'
+        grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' >> /dev/null 2>&1
 
         if [ "$?" -ne 0 ]; then
             sed -i '$ a bind 127.0.0.1' /etc/redis/redis.conf &
@@ -584,15 +584,15 @@ wo_git_init() {
 }
 
 wo_backup_ee() {
-    tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+    tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
 }
 
 wo_backup_wo() {
-    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo
+    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean_ee() {
-    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
 }
 
 ###
@@ -610,7 +610,6 @@ if [ -x /usr/local/bin/wo ]; then
             wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
             wo_backup_wo | tee -ai $wo_install_log
             wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
-            wo_sync_db | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             wo_install >> wo_install_log 2>&1
