@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - EasyEngine configuration backup before migration
 - EasyEngine configuration cleanup
 - WordOps configuration backup before upgrade
+- Previous acme.sh certs migration
 
 #### Changed
 
