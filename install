@@ -425,70 +425,73 @@ wo_upgrade_nginx() {
         rm -f /tmp/nginx-wo.key
         sudo apt-get update
 
-        # stop nginx
-        service nginx stop
+        CHECK_NGINX_UPSTREAM_VERSION=$(grep "v3.9.5" /etc/nginx/conf.d/upstream.conf)
+        if [ -z "$CHECK_NGINX_UPSTREAM_VERSION" ]; then
 
-        # prevent apt preference to block install
-        [ -f /etc/apt/preferences.d/nginx-block ] && {
-            mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
-        }
+            # stop nginx
+            service nginx stop
 
-        # install new nginx package
-        if [ -x /usr/local/bin/wo ]; then
+            # prevent apt preference to block install
+            [ -f /etc/apt/preferences.d/nginx-block ] && {
+                mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
+            }
 
-            if [ -n "$CHECK_NGINX_EE" ]; then
-                # remove previous package
-                apt-mark unhold nginx-ee nginx-common nginx-custom
-                apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom --purge
-                rm -rf /etc/nginx
-            elif [ -n "$CHECK_NGINX_WO" ]; then
-                apt-mark unhold nginx-wo nginx-common nginx-custom
-                apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
-                rm -rf /etc/nginx
+            # install new nginx package
+            if [ -x /usr/local/bin/wo ]; then
+
+                if [ -n "$CHECK_NGINX_EE" ]; then
+                    # remove previous package
+                    apt-mark unhold nginx-ee nginx-common nginx-custom
+                    apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom --purge
+                    rm -rf /etc/nginx
+                elif [ -n "$CHECK_NGINX_WO" ]; then
+                    apt-mark unhold nginx-wo nginx-common nginx-custom
+                    apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
+                    rm -rf /etc/nginx
+                fi
+
+                # remove previous php-fpm pool configuration
+                if [ -n "$CHECK_PHP72" ]; then
+                    apt-get remove php7.2-fpm -y -qq --purge
+                    rm -f /etc/php/7.2/fpm/pool.d/*
+                fi
+                /usr/local/bin/wo stack install --nginx --php
+                if [ -n "$CHECK_PHP73" ]; then
+                    apt-get remove php7.3-fpm -y -qq --purge
+                    rm -f /etc/php/7.3/fpm/pool.d/*
+                    /usr/local/bin/wo stack install --php73
+                fi
             fi
 
-            # remove previous php-fpm pool configuration
-            if [ -n "$CHECK_PHP72" ]; then
-                apt-get remove php7.2-fpm -y -qq --purge
-                rm -f /etc/php/7.2/fpm/pool.d/*
+            # restore sites and configuration
+            /usr/bin/rsync -auz /var/lib/wo-backup/nginx/ /etc/nginx/
+
+            # update redis.conf headers
+            if [ -f /etc/nginx/common/redis.conf ]; then
+                sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf
+                sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf
+
             fi
-            /usr/local/bin/wo stack install --nginx --php
-            if [ -n "$CHECK_PHP73" ]; then
-                apt-get remove php7.3-fpm -y -qq --purge
-                rm -f /etc/php/7.3/fpm/pool.d/*
-                /usr/local/bin/wo stack install --php73
+
+            VERIFY_NGINX_CONFIG=$(nginx -t 2>&1 | grep failed)
+            # check if nginx -t do not return errors
+            if [ -z "$VERIFY_NGINX_CONFIG" ]; then
+                systemctl stop nginx
+                systemctl start nginx
+            else
+                VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
+                if [ -n "$VERIFY_NGINX_BUCKET" ]; then
+                    sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+                fi
+                systemctl stop nginx
+                systemctl start nginx
             fi
+
+            # set back apt preference
+            [ -f "$HOME/nginx-block" ] && {
+                mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
+            }
         fi
-
-        # restore sites and configuration
-        /usr/bin/rsync -auz /var/lib/wo-backup/nginx/ /etc/nginx/
-
-        # update redis.conf headers
-        if [ -f /etc/nginx/common/redis.conf ]; then
-            sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf
-            sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf
-
-        fi
-
-        VERIFY_NGINX_CONFIG=$(nginx -t 2>&1 | grep failed)
-        # check if nginx -t do not return errors
-        if [ -z "$VERIFY_NGINX_CONFIG" ]; then
-            systemctl stop nginx
-            systemctl start nginx
-        else
-            VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
-            if [ -n "$VERIFY_NGINX_BUCKET" ]; then
-                sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
-            fi
-            systemctl stop nginx
-            systemctl start nginx
-        fi
-
-        # set back apt preference
-        [ -f "$HOME/nginx-block" ] && {
-            mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
-        }
-
     } >> "$wo_install_log" 2>&1
 
 }
