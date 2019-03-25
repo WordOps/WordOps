@@ -619,8 +619,10 @@ if [ -x /usr/local/bin/wo ]; then
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             wo_install >> wo_install_log 2>&1
+            if [ -x "$(command -v nginx)" ]; then
             wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
             wo_upgrade_nginx | tee -ai $wo_install_log
+            fi
             wo_update_latest | tee -ai $wo_install_log
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh | tee -ai $wo_install_log
@@ -647,8 +649,10 @@ else
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             wo_install >> wo_install_log 2>&1
+            if [ -x "$(command -v nginx)" ]; then
             wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
             wo_upgrade_nginx | tee -ai $wo_install_log
+            fi
             wo_update_latest | tee -ai $wo_install_log
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh | tee -ai $wo_install_log
