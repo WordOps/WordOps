@@ -32,7 +32,7 @@ class WOMaintenanceController(CementBaseController):
             Log.info(self, "updating apt-cache, please wait...")
             WOShellExec.cmd_exec(self, "apt-get update - qq")
             Log.info(self, "updating packages, please wait...")
-            WOShellExec.cmd_exec(self,  "DEBIAN_FRONTEND=noninteractive"
+            WOShellExec.cmd_exec(self,  "DEBIAN_FRONTEND=noninteractive "
                                  "apt-get -o "
                                  "Dpkg::Options::='--force-confmiss' "
                                  "-o Dpkg::Options::='--force-confold' "
