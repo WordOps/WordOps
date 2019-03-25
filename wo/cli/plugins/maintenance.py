@@ -30,7 +30,7 @@ class WOMaintenanceController(CementBaseController):
 
         try:
             Log.info(self, "updating apt-cache, please wait...")
-            WOShellExec.cmd_exec(self, "apt-get update - qq")
+            WOShellExec.cmd_exec(self, "apt-get update")
             Log.info(self, "updating packages, please wait...")
             WOShellExec.cmd_exec(self,  "DEBIAN_FRONTEND=noninteractive "
                                  "apt-get -o "
@@ -39,7 +39,7 @@ class WOMaintenanceController(CementBaseController):
                                  "-y dist-upgrade")
             Log.info(self, "cleaning-up packages, please wait...")
             WOShellExec.cmd_exec(self, "apt-get -y --purge autoremove")
-            WOShellExec.cmd_exec(self, "apt-get - y autoclean")
+            WOShellExec.cmd_exec(self, "apt-get -y autoclean")
         except OSError as e:
             Log.debug(self, str(e))
             Log.error(self, "Package updates failed !")
