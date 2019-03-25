@@ -11,7 +11,7 @@ _wo_complete()
     # SETUP THE BASE LEVEL (everything after "wo")
     if [ $COMP_CWORD -eq 1 ]; then
         COMPREPLY=( $(compgen \
-                      -W "stack site debug clean secure import-slow-log log update sync info --version --help --quiet" \
+                      -W "stack site debug clean secure import-slow-log log update sync info maintenance --version --help --quiet" \
                       -- $cur) )
 
 

@@ -31,8 +31,7 @@ class WOStackStatusController(CementBaseController):
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-mainline')):
+            if (WOAptGet.is_installed(self, 'nginx-custom')):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -96,8 +95,7 @@ class WOStackStatusController(CementBaseController):
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-mainline')):
+            if (WOAptGet.is_installed(self, 'nginx-custom')):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -162,8 +160,7 @@ class WOStackStatusController(CementBaseController):
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-mainline')):
+            if (WOAptGet.is_installed(self, 'nginx-custom')):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -228,8 +225,7 @@ class WOStackStatusController(CementBaseController):
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-mainline')):
+            if (WOAptGet.is_installed(self, 'nginx-custom')):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")

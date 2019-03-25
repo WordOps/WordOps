@@ -97,7 +97,7 @@ class WOStackController(CementBaseController):
                            keyserver="keyserver.ubuntu.com")
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver="keyserver.ubuntu.com")
-            chars = ''.join(random.sample(string.ascii_letters, 8))
+            chars = ''.join(random.sample(string.ascii_letters, 16))
             Log.debug(self, "Pre-seeding MySQL")
             Log.debug(self, "echo \"mariadb-server-10.3 "
                       "mysql-server/root_password "
@@ -214,10 +214,7 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     data = dict(php="9000", debug="9001",
-                                    php7="9070", debug7="9170",
-                                    php7conf=True
-                                    if WOAptGet.is_installed(self, 'php7.0-fpm')
-                                    else False)
+                                    php7="9070", debug7="9170")
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
                     wo_nginx = open('/etc/nginx/conf.d/upstream.conf',

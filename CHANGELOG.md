@@ -19,6 +19,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - load-balancing on unix socket for php-fpm
 - stub_status vhost for metrics
 - opcache optimization for php-fpm
+- EasyEngine configuration backup before migration
+- EasyEngine configuration cleanup after migration
+- WordOps configuration backup before upgrade
+- Previous acme.sh certs migration
+- "wo maintenance" command to perform server package update & cleanup
 
 #### Changed
 
@@ -27,6 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - "--letsencrypt=subdomain" option
 - hardened nginx ssl_ecdh_curve
 - Update phpredisadmin
+- Increase MySQL root password size to 16 characters
+- Increase MySQL users password size to 16 characters
 
 #### Fixed
 
@@ -37,6 +44,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Nginx upgrade from previous WordOps release
 - Force new Nginx templates during update
 - Error message about missing my.cnf file during upgrade
+- PHP 7.2 & PHP 7.3 pool configuration during upgrade
+- WordOps backup directory creation before upgrade
+- EasyEngine database sync during migration
 
 ### v3.9.4 - 2019-03-15
 
