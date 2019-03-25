@@ -453,12 +453,12 @@ wo_upgrade_nginx() {
                 # remove previous php-fpm pool configuration
                 if [ -n "$CHECK_PHP72" ]; then
                     apt-get remove php7.2-fpm -y -qq --purge
-                    rm -f /etc/php/7.2/fpm/pool.d/*
+                    rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                 fi
                 /usr/local/bin/wo stack install --nginx --php
                 if [ -n "$CHECK_PHP73" ]; then
                     apt-get remove php7.3-fpm -y -qq --purge
-                    rm -f /etc/php/7.3/fpm/pool.d/*
+                    rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                     /usr/local/bin/wo stack install --php73
                 fi
             fi
