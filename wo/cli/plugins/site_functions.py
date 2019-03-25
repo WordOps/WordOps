@@ -1197,11 +1197,23 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
 # setup letsencrypt for domain + www.domain
 def setupLetsEncrypt(self, wo_domain_name):
 
-    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
-                      .format(wo_domain_name)):
-        Log.debug(self, "Let's Encrypt certificate found for the domain: {0}"
-                  .format(wo_domain_name))
-        ssl = archivedCertificateHandle(self, wo_domain_name)
+    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"):
+        if os.path.isfile("/etc/letsencrypt/"
+                          "renewal/{0}_ecc/"
+                          "fullchain.cer".format(wo_domain_name)):
+            Log.debug(self, "Let's Encrypt certificate "
+                      "found for the domain: {0}"
+                      .format(wo_domain_name))
+            ssl = archivedCertificateHandle(self, wo_domain_name)
+        else:
+            Log.info(self, "Issuing SSL cert with acme.sh")
+            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--issue "
+                                       "-d {0} -d www.{0} -w /var/www/html "
+                                       "-k ec-384 --force"
+                                       .format(wo_domain_name))
     else:
         Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
@@ -1266,11 +1278,23 @@ def setupLetsEncrypt(self, wo_domain_name):
 
 def setupLetsEncryptSubdomain(self, wo_domain_name):
 
-    if os.path.isfile("{0}/{1}_ecc/{1}.conf"
-                      .format(WOVariables.wo_ssl_archive, wo_domain_name)):
-        Log.debug(self, "Let's Encrypt certificate found for the domain: {0}"
-                  .format(wo_domain_name))
-        ssl = archivedCertificateHandle(self, wo_domain_name)
+    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"):
+        if os.path.isfile("/etc/letsencrypt/"
+                          "renewal/{0}_ecc/"
+                          "fullchain.cer".format(wo_domain_name)):
+            Log.debug(self, "Let's Encrypt certificate "
+                      "found for the domain: {0}"
+                      .format(wo_domain_name))
+            ssl = archivedCertificateHandle(self, wo_domain_name)
+        else:
+            Log.info(self, "Issuing SSL cert with acme.sh")
+            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--issue "
+                                       "-d {0} -w /var/www/html "
+                                       "-k ec-384 --force"
+                                       .format(wo_domain_name))
     else:
         Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
