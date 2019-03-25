@@ -50,7 +50,7 @@ class WOSecureController(CementBaseController):
         """This function secures authentication"""
         passwd = ''.join([random.choice
                           (string.ascii_letters + string.digits)
-                          for n in range(6)])
+                          for n in range(16)])
         if not self.app.pargs.user_input:
             username = input("Provide HTTP authentication user "
                              "name [{0}] :".format(WOVariables.wo_user))

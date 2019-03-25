@@ -306,9 +306,9 @@ def setupwordpress(self, data):
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
-                                    .format(WOVariables.wo_wpcli_path)
-                                    + " core config "
-                                    + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
+                                    .format(WOVariables.wo_wpcli_path) +
+                                    " core config " +
+                                    "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbuser=\'{2}\' --dbhost=\'{3}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
                                             data['wo_db_user'], data['wo_db_host']
@@ -330,11 +330,11 @@ def setupwordpress(self, data):
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php {0} --allow-root "
-                  .format(WOVariables.wo_wpcli_path)
-                  + "core config "
-                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
-                  .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host'])
-                  + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
+                  .format(WOVariables.wo_wpcli_path) +
+                  "core config " +
+                  "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
+                  .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host']) +
+                  "--dbuser=\'{0}\' --dbpass=\'{1}\' "
                   "--extra-php<<PHP \n {2} {3} {4} \nPHP\""
                   .format(data['wo_db_user'], data['wo_db_pass'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
@@ -380,7 +380,8 @@ def setupwordpress(self, data):
                     os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
     except Exception as e:
         Log.error(self, 'Unable to move file from {0} to {1}'
-                  .format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))), False)
+                  .format(os.getcwd()+'/wp-config.php',
+                          os.path.abspath(os.path.join(os.getcwd(), os.pardir))), False)
         raise SiteError("Unable to move wp-config.php")
 
     if not wo_wp_user:
@@ -421,18 +422,18 @@ def setupwordpress(self, data):
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
         Log.debug(self, "php {0} --allow-root core install "
-                  .format(WOVariables.wo_wpcli_path)
-                  + "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
-                  .format(data['www_domain'], wo_wp_user)
-                  + "--admin_password= --admin_email=\'{1}\'"
+                  .format(WOVariables.wo_wpcli_path) +
+                  "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
+                  .format(data['www_domain'], wo_wp_user) +
+                  "--admin_password= --admin_email=\'{1}\'"
                   .format(wo_wp_pass, wo_wp_email))
         try:
             if WOShellExec.cmd_exec(self, "php {0} --allow-root core "
-                                    .format(WOVariables.wo_wpcli_path)
-                                    + "install --url=\'{0}\' --title=\'{0}\' "
+                                    .format(WOVariables.wo_wpcli_path) +
+                                    "install --url=\'{0}\' --title=\'{0}\' "
                                     "--admin_name=\'{1}\' "
-                                    .format(data['www_domain'], wo_wp_user)
-                                    + "--admin_password=\'{0}\' "
+                                    .format(data['www_domain'], wo_wp_user) +
+                                    "--admin_password=\'{0}\' "
                                     "--admin_email=\'{1}\'"
                                     .format(wo_wp_pass, wo_wp_email),
                                     log=False):
@@ -445,23 +446,23 @@ def setupwordpress(self, data):
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
         Log.debug(self, "php {0} --allow-root "
-                  .format(WOVariables.wo_wpcli_path)
-                  + "core multisite-install "
+                  .format(WOVariables.wo_wpcli_path) +
+                  "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
-                  .format(data['www_domain'], wo_wp_user)
-                  + "--admin_password= --admin_email=\'{1}\' "
+                  .format(data['www_domain'], wo_wp_user) +
+                  "--admin_password= --admin_email=\'{1}\' "
                   "{subdomains}"
                   .format(wo_wp_pass, wo_wp_email,
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
             if WOShellExec.cmd_exec(self, "php {0} --allow-root "
-                                    .format(WOVariables.wo_wpcli_path)
-                                    + "core multisite-install "
+                                    .format(WOVariables.wo_wpcli_path) +
+                                    "core multisite-install "
                                     "--url=\'{0}\' --title=\'{0}\' "
                                     "--admin_name=\'{1}\' "
-                                    .format(data['www_domain'], wo_wp_user)
-                                    + "--admin_password=\'{0}\' "
+                                    .format(data['www_domain'], wo_wp_user) +
+                                    "--admin_password=\'{0}\' "
                                     "--admin_email=\'{1}\' "
                                     "{subdomains}"
                                     .format(wo_wp_pass, wo_wp_email,
@@ -478,8 +479,8 @@ def setupwordpress(self, data):
     Log.debug(self, "Updating WordPress permalink")
     try:
         WOShellExec.cmd_exec(self, " php {0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path)
-                             + "rewrite structure "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "rewrite structure "
                              "/%year%/%monthnum%/%day%/%postname%/")
     except CommandExecutionError as e:
         raise SiteError("Update wordpress permalinks failed")
@@ -538,16 +539,16 @@ def installwp_plugin(self, plugin_name, data):
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     try:
         WOShellExec.cmd_exec(self, "php {0} plugin "
-                             .format(WOVariables.wo_wpcli_path)
-                             + "--allow-root install "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "--allow-root install "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
         raise SiteError("plugin installation failed")
 
     try:
         WOShellExec.cmd_exec(self, "php {0} plugin "
-                             .format(WOVariables.wo_wpcli_path)
-                             + "--allow-root activate "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "--allow-root activate "
                              "{0} {na}"
                              .format(plugin_name,
                                      na='--network' if data['multisite']
@@ -1099,7 +1100,7 @@ def detSitePar(opts):
 
 def generate_random():
     wo_random10 = (''.join(random.sample(string.ascii_uppercase +
-                                         string.ascii_lowercase + string.digits, 10)))
+                                         string.ascii_lowercase + string.digits, 16)))
     return wo_random10
 
 

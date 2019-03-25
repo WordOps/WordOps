@@ -97,7 +97,7 @@ class WOStackController(CementBaseController):
                            keyserver="keyserver.ubuntu.com")
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver="keyserver.ubuntu.com")
-            chars = ''.join(random.sample(string.ascii_letters, 8))
+            chars = ''.join(random.sample(string.ascii_letters, 16))
             Log.debug(self, "Pre-seeding MySQL")
             Log.debug(self, "echo \"mariadb-server-10.3 "
                       "mysql-server/root_password "
