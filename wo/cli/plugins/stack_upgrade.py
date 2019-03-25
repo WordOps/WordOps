@@ -71,14 +71,8 @@ class WOStackUpgradeController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait...")
         WOAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
-        if (WOVariables.wo_platform_distro == 'ubuntu'):
-            WOAptGet.install(self, WOVariables.wo_php +
+        WOAptGet.install(self, WOVariables.wo_php +
                              WOVariables.wo_php_extra)
-        else:
-            WOAptGet.install(self, WOVariables.wo_php)
-
-        if WOVariables.wo_platform_distro == "debian":
-            WOShellExec.cmd_exec(self, "pecl install xdebug")
 
     @expose(hide=True)
     def default(self):
@@ -89,7 +83,7 @@ class WOStackUpgradeController(CementBaseController):
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
             (not self.app.pargs.php) and (not self.app.pargs.mysql) and
             (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
-                (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline)):
+                (not self.app.pargs.redis)):
             self.app.pargs.web = True
 
         if self.app.pargs.all:
