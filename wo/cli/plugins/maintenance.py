@@ -11,8 +11,6 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.shellexec import WOShellExec
 from wo.core.git import WOGit
 from wo.core.download import WODownload
-import configparser
-import os
 
 
 def wo_maintenance_hook(app):

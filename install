@@ -679,7 +679,7 @@ if [ "$migration" -eq "1" ]; then
     wo_lib_echo_info "For autocompletion, run the following command:"
     wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
-    wo_lib_echo "WordOps (wo) help: https://wordops.io/docs"
+    wo_lib_echo "WordOps (wo) help: https://docs.wordops.io"
 else
     echo
     wo_lib_echo "For WordOps (wo) auto completion, run the following command"
@@ -687,5 +687,5 @@ else
     wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
     wo_lib_echo "Yay! WordOps (wo) installed/updated successfully"
-    wo_lib_echo "WordOps (wo) help: https://wordops.io/docs"
+    wo_lib_echo "WordOps (wo) help: https://docs.wordops.io"
 fi
