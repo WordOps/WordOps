@@ -10,4 +10,4 @@ System Information
 - [ ] wo info
 - [ ] nginx -V
 - [ ] wo -v
-- [ ] wp --allow-root info
+- [ ] wp cli info --allow-root

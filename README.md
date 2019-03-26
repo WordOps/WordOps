@@ -6,7 +6,7 @@
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
 <p align="center">
-<img  src="https://img.virtubox.net/images/2019/03/22/wordops-stable.mp4.gif" width="540"></p>
+<img src="https://img.virtubox.net/images/2019/03/26/wo-stable.gif" width="540" alt="WordOps" /></p>
 
 
 
