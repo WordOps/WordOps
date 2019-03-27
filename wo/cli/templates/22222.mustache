@@ -1,4 +1,4 @@
-# WordOps admin NGINX CONFIGURATION
+# WordOps admin NGINX CONFIGURATION - WO v3.9.5
 
 server {
 
@@ -21,7 +21,7 @@ server {
 
   # HTTP Authentication on port 22222
   include common/acl.conf;
-  
+
   # nginx-vts-status
   location /vts_status {
   vhost_traffic_status_display;
@@ -47,7 +47,7 @@ server {
     include fastcgi_params;
     fastcgi_pass php72;
   }
-  
+
      location /netdata {
         return 301 /netdata/;
    }

@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.4 - 2019-03-22
+# Version 3.9.5 - 2019-03-27
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.4.3"
@@ -425,7 +425,7 @@ wo_upgrade_nginx() {
         rm -f /tmp/nginx-wo.key
         sudo apt-get update
 
-        CHECK_NGINX_UPSTREAM_VERSION=$(grep "v3.9.5" /etc/nginx/conf.d/upstream.conf)
+        CHECK_NGINX_UPSTREAM_VERSION=$(grep "v3.9.5" /etc/nginx/conf.d/fastcgi.conf)
         if [ -z "$CHECK_NGINX_UPSTREAM_VERSION" ]; then
 
             # stop nginx

@@ -994,11 +994,13 @@ class WOSiteUpdateController(CementBaseController):
                     renewLetsEncrypt(self, wo_domain)
                 else:
                     Log.error(
-                        self, "You have more than 30 days with the current certificate - refusing to run.")
+                        self, "You have more than 30 days with the current "
+                        "certificate - refusing to run.")
 
             else:
                 Log.error(
-                    self, "Cannot renew - HTTPS is not configured for the given site. Install LE first...")
+                    self, "Cannot renew - HTTPS is not configured for "
+                    "the given site. Install LE first...")
 
             if not WOService.reload_service(self, 'nginx'):
                 Log.error(self, "service nginx reload failed. "
@@ -1013,7 +1015,8 @@ class WOSiteUpdateController(CementBaseController):
 
             else:
                 Log.warn(
-                    self, "The certificate seems to be already expired. Please renew it as soon as possible...")
+                    self, "The certificate seems to be already expired. "
+                    "Please renew it as soon as possible...")
             return 0
 
         if pargs.all and pargs.letsencrypt == "renew":
@@ -1024,15 +1027,16 @@ class WOSiteUpdateController(CementBaseController):
                     return 0
                 min_expiry_days = 30
                 if (expiry_days <= min_expiry_days):
-                    renewLetsEncrypt(self, wo_domain)
+                    Log.info(self, "Certificate was successfully renewed")
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
                                   "check issues with `nginx -t` command")
-                    Log.info(self, "SUCCESS: Certificate was successfully renewed For"
-                             " https://{0}".format(wo_domain))
+                    Log.info(self, "SUCCESS: Certificate was successfully "
+                             "renewed For https://{0}".format(wo_domain))
                 else:
                     Log.info(
-                        self, "You have more than 30 days with the current certificate - refusing to run.\n")
+                        self, "You have more than 30 days with the current "
+                        "certificate - refusing to run.\n")
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
@@ -1044,7 +1048,8 @@ class WOSiteUpdateController(CementBaseController):
                 #       Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
             else:
                 Log.info(
-                    self, "SSL not configured for site http://{0}".format(wo_domain))
+                    self, "SSL not configured for "
+                    "site http://{0}".format(wo_domain))
                 return 0
 
         if pargs.all and pargs.letsencrypt == "off":
@@ -1404,7 +1409,8 @@ class WOSiteUpdateController(CementBaseController):
                             wo_site_webroot)
                     else:
                         Log.debug(
-                            self, "Updating wp-config.php failed. File could not be located.")
+                            self, "Updating wp-config.php failed. "
+                            "File could not be located.")
                         Log.error(
                             self, "wp-config.php could not be located !!")
                         raise SiteError

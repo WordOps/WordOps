@@ -271,8 +271,8 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-php72.conf',
+                              'file /etc/nginx/common/locations-wo.conf')
+                    wo_nginx = open('/etc/nginx/common/locations-wo.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
@@ -322,14 +322,6 @@ class WOStackController(CementBaseController):
                 if not os.path.isfile("/etc/nginx/common/php73.conf"):
                         # data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'locations-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
                     wo_nginx = open('/etc/nginx/common/php73.conf',
                                     encoding='utf-8', mode='w')
@@ -366,6 +358,15 @@ class WOStackController(CementBaseController):
                     wo_nginx = open('/etc/nginx/common/redis-php73.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'redis-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
+
+                if not os.path.isfile("/etc/nginx/common/locations-wo.conf"):
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations-wo.conf')
+                    wo_nginx = open('/etc/nginx/common/locations-wo.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
 
@@ -564,13 +565,6 @@ class WOStackController(CementBaseController):
                 if (os.path.isdir("/etc/nginx/common") and
                         not os.path.isfile("/etc/nginx/common/php73.conf")):
                     data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'locations-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
@@ -1400,6 +1394,9 @@ class WOStackController(CementBaseController):
                 # set redis.conf parameter
                 # set maxmemory 10% for ram below 512MB and 20% for others
                 # set maxmemory-policy allkeys-lru
+                # enable systemd service
+                Log.debug(self, "Enabling redis systemd service")
+                WOShellExec.cmd_exec(self, "systemctl enable redis-server")
                 if os.path.isfile("/etc/redis/redis.conf"):
                     if WOVariables.wo_ram < 512:
                         Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
@@ -1410,6 +1407,7 @@ class WOStackController(CementBaseController):
                             self, "Setting maxmemory-policy variable to allkeys-lru in redis.conf")
                         WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy allkeys-lru/' "
                                                    "/etc/redis/redis.conf")
+
                         WOService.restart_service(self, 'redis-server')
                     else:
                         Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
@@ -1470,17 +1468,24 @@ class WOStackController(CementBaseController):
         # PHP 7.2
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVariables.wo_php
+            else:
+                Log.error(self, "PHP 7.2 not found")
 
         # PHP7.3
         if self.app.pargs.php73:
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
+            else:
+                Log.error(self, "PHP 7.3 not found")
 
         # REDIS
         if self.app.pargs.redis:
@@ -1554,15 +1559,6 @@ class WOStackController(CementBaseController):
 
                 Log.info(self, "Successfully removed packages")
 
-                # Added for Ondrej Repo missing package Fix
-                if self.app.pargs.php:
-                    if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                        Log.info(self, "PHP7.2-fpm found on system.")
-                        Log.info(
-                            self, "Verifying and installing missing packages,")
-                        WOShellExec.cmd_exec(
-                            self, "apt-get install -y php-memcached php-igbinary")
-
     @expose(help="Purge packages")
     def purge(self):
         """Start purging of packages"""
@@ -1607,21 +1603,25 @@ class WOStackController(CementBaseController):
         # PHP
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
-            if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+                if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
+                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVariables.wo_php
             else:
                 Log.error(self, "Cannot Purge PHP 7.2. not found.")
 
         # PHP 7.3
         if self.app.pargs.php73:
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
             else:
                 Log.error(self, "Cannot Purge PHP 7.3. not found.")
+
         # WP-CLI
         if self.app.pargs.wpcli:
             Log.debug(self, "Purge package variable WPCLI")

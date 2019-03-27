@@ -72,7 +72,7 @@ class WOStackUpgradeController(CementBaseController):
         WOAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
         WOAptGet.install(self, WOVariables.wo_php +
-                             WOVariables.wo_php_extra)
+                         WOVariables.wo_php_extra)
 
     @expose(hide=True)
     def default(self):
@@ -106,7 +106,10 @@ class WOStackUpgradeController(CementBaseController):
 
         if self.app.pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVariables.wo_php
             else:
                 Log.info(self, "PHP 7.2 is not installed")
 
