@@ -425,7 +425,7 @@ wo_upgrade_nginx() {
         rm -f /tmp/nginx-wo.key
         sudo apt-get update
 
-        CHECK_NGINX_UPSTREAM_VERSION=$(grep "v3.9.5" /etc/nginx/conf.d/upstream.conf)
+        CHECK_NGINX_UPSTREAM_VERSION=$(grep "v3.9.5" /etc/nginx/conf.d/fastcgi.conf)
         if [ -z "$CHECK_NGINX_UPSTREAM_VERSION" ]; then
 
             # stop nginx

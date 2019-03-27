@@ -271,8 +271,8 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-php72.conf',
+                              'file /etc/nginx/common/locations-wo.conf')
+                    wo_nginx = open('/etc/nginx/common/locations-wo.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
@@ -322,14 +322,6 @@ class WOStackController(CementBaseController):
                 if not os.path.isfile("/etc/nginx/common/php73.conf"):
                         # data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'locations-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
                     wo_nginx = open('/etc/nginx/common/php73.conf',
                                     encoding='utf-8', mode='w')
@@ -366,6 +358,15 @@ class WOStackController(CementBaseController):
                     wo_nginx = open('/etc/nginx/common/redis-php73.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'redis-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
+
+                if not os.path.isfile("/etc/nginx/common/locations-wo.conf"):
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations-wo.conf')
+                    wo_nginx = open('/etc/nginx/common/locations-wo.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
 
@@ -564,13 +565,6 @@ class WOStackController(CementBaseController):
                 if (os.path.isdir("/etc/nginx/common") and
                         not os.path.isfile("/etc/nginx/common/php73.conf")):
                     data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'locations-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
