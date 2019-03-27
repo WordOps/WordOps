@@ -141,7 +141,7 @@ def setupdomain(self, data):
 def setupdatabase(self, data):
     wo_domain_name = data['site_name']
     wo_random = (''.join(random.sample(string.ascii_uppercase +
-                                       string.ascii_lowercase + string.digits, 15)))
+                                       string.ascii_lowercase + string.digits, 24)))
     wo_replace_dot = wo_domain_name.replace('.', '_')
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
@@ -804,8 +804,8 @@ def site_package_check(self, stype):
                 not os.path.isfile("/etc/nginx/common/php73.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/locations-php73.conf')
-            wo_nginx = open('/etc/nginx/common/locations-php73.conf',
+                      'file /etc/nginx/common/locations-wo.conf')
+            wo_nginx = open('/etc/nginx/common/locations-wo.conf',
                             encoding='utf-8', mode='w')
             self.app.render((data), 'locations-php7.mustache',
                                     out=wo_nginx)
