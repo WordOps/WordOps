@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Update phpredisadmin
 - Increase MySQL root password size to 16 characters
 - Increase MySQL users password size to 16 characters
+- Nginx locations template is the same for php7.2 & 7.3
 
 #### Fixed
 
