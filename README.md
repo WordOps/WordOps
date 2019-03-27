@@ -147,8 +147,7 @@ For any other questions/suggestions about WordOps or if you need support, please
 # Contributing
 
 If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
-There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribut by improving [WordOps documentation](https://github.com/WordOps/docs.wordops.io).
-
+There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.io).
 
 ## Credits
 
