@@ -6,10 +6,7 @@
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
 <p align="center">
-<video width="540" autoplay loop muted>
-  <source src="https://wordops.io/wordops-stable-2-vp9.webm" type="video/webm">
-  Your browser does not support the video tag.
-</video>
+<img src="https://img.virtubox.net/images/2019/03/27/wordops-stable-3.mp4272f5d7aa346a57d.gif" width="540" alt="WordOps" />
 
 </p>
 
