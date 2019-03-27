@@ -6,9 +6,12 @@
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
 <p align="center">
-<img src="https://img.virtubox.net/images/2019/03/26/wo-stable.gif" width="540" alt="WordOps" /></p>
+<video width="540" autoplay loop muted>
+  <source src="https://wordops.io/wordops-stable-2-vp9.webm" type="video/webm">
+  Your browser does not support the video tag.
+</video>
 
-
+</p>
 
 <p align="center">
 <a href="https://travis-ci.org/WordOps/WordOps"><img src="https://travis-ci.org/WordOps/WordOps.svg?branch=master" alt="build"></a>
@@ -31,13 +34,13 @@
 
 ## Key Features
 
-- Easy Migration from EasyEngine v3
-- Automated WordPress, Nginx, PHP, MySQL & Redis installation
-- Nginx 1.14.2 with Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
-- Hardened WordPress security with strict Nginx location directives
-- Optimized Nginx configurations with multiple cache backends support
-- Let's Encrypt SSL certificates handled by Acme.sh
-- Secured SSL/TLS encryption with strong ciphers_suite and modern TLS protocols
+- **Easy to install** : One step automated installer with migration from EasyEngine v3 support
+- **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
+- **Up-to-date** : Nginx 1.14.2 with Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- **Secured** : Hardened WordPress security with strict Nginx location directives
+- **Powerful** : Optimized Nginx configurations with multiple cache backends support
+- **SSL** : Let's Encrypt SSL certificates handled by Acme.sh
+- **Modern** : Secured SSL/TLS encryption with strong ciphers_suite and modern TLS protocols
 
 ## Requirements
 
@@ -77,8 +80,6 @@ If you are going to migrate from EasyEngine v3, here some important informations
 - Previous php upstreams in Nginx will not be overwritted
 - php5.6 and php7.0 will not be removed or uninstalled
 - previous Nginx common configurations will not be overwritted
-
-A tutorial will be available soon to explain how to fully migrate from EasyEngine v3 to WordOps.
 
 ## Usage
 
@@ -149,11 +150,14 @@ For any other questions/suggestions about WordOps or if you need support, please
 # Contributing
 
 If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
+There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribut by improving [WordOps documentation](https://github.com/WordOps/docs.wordops.io).
+
 
 ## Credits
 
 - Main source : [EasyEngine](https://github.com/easyengine/easyengine)
 - Acme client : [Acme.sh](https://github.com/Neilpang/acme.sh)
+- WordPress deployment : [WP-CLI](https://github.com/wp-cli/wp-cli)
 
 ## License
 

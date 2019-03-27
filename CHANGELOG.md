@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Install script handle migration from EEv3
 - load-balancing on unix socket for php-fpm
 - stub_status vhost for metrics
+- "--letsencrypt=subdomain" option
 - opcache optimization for php-fpm
 - EasyEngine configuration backup before migration
 - EasyEngine configuration cleanup after migration
@@ -29,7 +30,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - letsencrypt stack refactored with acme.sh
 - letsencrypt validation with webroot folder
-- "--letsencrypt=subdomain" option
 - hardened nginx ssl_ecdh_curve
 - Update phpredisadmin
 - Increase MySQL root password size to 16 characters
@@ -47,6 +47,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - PHP 7.2 & PHP 7.3 pool configuration during upgrade
 - WordOps backup directory creation before upgrade
 - EasyEngine database sync during migration
+- command "wo info"
 
 ### v3.9.4 - 2019-03-15
 
