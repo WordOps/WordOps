@@ -375,12 +375,12 @@ class WOStackController(CementBaseController):
                     # So creating directories
                 if not os.path.exists('/etc/nginx/sites-available'):
                     Log.debug(self, 'Creating directory'
-                                  '/etc/nginx/sites-available')
+                              '/etc/nginx/sites-available')
                     os.makedirs('/etc/nginx/sites-available')
 
                 if not os.path.exists('/etc/nginx/sites-enabled'):
                     Log.debug(self, 'Creating directory'
-                                  '/etc/nginx/sites-available')
+                              '/etc/nginx/sites-available')
                     os.makedirs('/etc/nginx/sites-enabled')
 
                     # 22222 port settings
