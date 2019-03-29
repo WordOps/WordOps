@@ -373,21 +373,18 @@ class WOStackController(CementBaseController):
                     # Nginx-Plus does not have nginx
                     # package structure like this
                     # So creating directories
-                if (set(["nginx"]).issubset(set(apt_packages))):
-                    Log.info(self,
-                             "Installing WordOpsConfigurations for" "NGINX")
-                    if not os.path.exists('/etc/nginx/sites-available'):
-                        Log.debug(self, 'Creating directory'
+                if not os.path.exists('/etc/nginx/sites-available'):
+                    Log.debug(self, 'Creating directory'
                                   '/etc/nginx/sites-available')
-                        os.makedirs('/etc/nginx/sites-available')
+                    os.makedirs('/etc/nginx/sites-available')
 
-                    if not os.path.exists('/etc/nginx/sites-enabled'):
-                        Log.debug(self, 'Creating directory'
+                if not os.path.exists('/etc/nginx/sites-enabled'):
+                    Log.debug(self, 'Creating directory'
                                   '/etc/nginx/sites-available')
-                        os.makedirs('/etc/nginx/sites-enabled')
+                    os.makedirs('/etc/nginx/sites-enabled')
 
                     # 22222 port settings
-                    data = dict(webroot=WOVariables.wo_webroot)
+                if not os.path.isfile("/etc/nginx/sites-available/22222"):
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
                               '22222')
@@ -487,19 +484,6 @@ class WOStackController(CementBaseController):
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     WOService.reload_service(self, 'nginx')
                     if set(["nginx"]).issubset(set(apt_packages)):
-                        WOShellExec.cmd_exec(self, "sed -i -e 's/^user/#user/'"
-                                             " -e '/^#user/a user"
-                                             "\ www-data\;'"
-                                             " /etc/nginx/nginx.conf")
-                        if not WOShellExec.cmd_exec(self, "cat /etc/nginx/"
-                                                    "nginx.conf | grep -q "
-                                                    "'/etc/nginx/sites-enabled'"):
-                            WOShellExec.cmd_exec(self, "sed -i '/\/etc\/"
-                                                 "nginx\/conf\.d\/\*"
-                                                 "\.conf/a \    include"
-                                                 "\ \/etc\/nginx\/sites-enabled"
-                                                 "\/*;' /etc/nginx/nginx.conf")
-
                         print("HTTP Auth User Name: WordOps" +
                               "\nHTTP Auth Password : {0}".format(passwd))
                         WOService.reload_service(self, 'nginx')
