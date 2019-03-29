@@ -20,7 +20,7 @@ script:
   - unset LANG
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt ccze
+  - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt ccze tree
   - sudo bash install $TRAVIS_BRANCH
   - sudo wo --help
 
@@ -63,3 +63,4 @@ script:
   - sudo bash -c 'nginx -T 2>&1 > /var/log/wo/nginx.log 2>&1' || sudo tail -n50 /var/log/wo/wordops.log
   - sudo bash -c 'tar -I pigz -cf wordops.tar.gz /var/log/wo'
   - sudo curl --progress-bar --upload-file "wordops.tar.gz" https://transfer.vtbox.net/$(basename wordops.tar.gz) && echo "" || sudo echo "transfer.sh is down"
+  - sudo tree -L 2 /etc/nginx
