@@ -1,4 +1,4 @@
-<h1 align="center" style="font-size:54px;"><a href="https://wordops.io">
+<h1 align="center" style="font-size:54px;"><a href="https://wordops.net">
   WordOps</a>
   <br>
 </h1>
@@ -25,6 +25,11 @@
   <a href="https://github.com/WordOps/WordOps/blob/master/CHANGELOG.md">Changelog</a> •
   <a href="#credits">Credits</a> •
   <a href="#license">License</a>
+</p>
+<p align="center">
+<a href="https://wordops.net"> WordOps site</a> •
+<a href="https://community.wordops.net">Community forum</a> •
+<a href="https://docs.wordops.net">Documentation</a>
 </p>
 
 ---
@@ -142,12 +147,12 @@ wo update
 ## Support
 
 If you feel there is a bug directly related to WordOps, feel free to open an issue.
-For any other questions/suggestions about WordOps or if you need support, please use the [WordOps Community Forum](https://community.wordops.io/).
+For any other questions/suggestions about WordOps or if you need support, please use the [WordOps Community Forum](https://community.wordops.net/).
 
 # Contributing
 
 If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
-There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.io).
+There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.net).
 
 ## Credits
 
@@ -157,4 +162,4 @@ There is no need to be a developer or a system administrator to contribute to Wo
 
 ## License
 
-- [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.io)
+- [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.net)

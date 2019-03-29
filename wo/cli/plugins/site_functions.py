@@ -1382,7 +1382,7 @@ def renewLetsEncrypt(self, wo_domain_name):
         #           "\nPlease check the WordOps log for reason
         # The current expiry date is : " +
         #           str(SSL.getExpirationDate(self, wo_domain_name)) +
-        #           "\n\nFor support visit https://wordops.io/support .
+        #           "\n\nFor support visit https://wordops.net/support .
         # \n\nBest regards,\nYour WordOps Worker", files=mail_list,
         #           port=25, isTls=False)
         Log.error(self, "Check the WO log for more details "
