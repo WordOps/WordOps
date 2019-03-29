@@ -1,6 +1,6 @@
 
-This issue tracker is only for issues related to WordOps. 
-Please use <https://community.wordops.io> for support questions.
+This issue tracker is only for issues related to WordOps.
+Please use <https://community.wordops.net> for support questions.
 
 If you feel the issue is a WordOps specific issue, please attach the output of the following commands.
 
