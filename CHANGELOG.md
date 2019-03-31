@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - WordOps configuration backup before upgrade
 - Previous acme.sh certs migration
 - "wo maintenance" command to perform server package update & cleanup
+- Support for Netdata on backend : https://server.hostname:22222/netdata/
 
 #### Changed
 

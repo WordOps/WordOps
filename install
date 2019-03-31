@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # -------------------------------------------------------------------------
 # WordOps install and update script
 # -------------------------------------------------------------------------
@@ -425,7 +425,11 @@ wo_upgrade_nginx() {
         rm -f /tmp/nginx-wo.key
         sudo apt-get update
 
-        CHECK_NGINX_UPSTREAM_VERSION=$(grep "v3.9.5.1" /etc/nginx/conf.d/fastcgi.conf)
+        if [ -f /etc/nginx/common/release ]; then
+            CHECK_NGINX_UPSTREAM_VERSION=$(grep "$wo_version_new" /etc/nginx/common/release)
+        else
+            CHECK_NGINX_UPSTREAM_VERSION=$(grep "$wo_version_new" /etc/nginx/conf.d/fastcgi.conf)
+        fi
         if [ -z "$CHECK_NGINX_UPSTREAM_VERSION" ]; then
 
             # stop nginx
@@ -456,6 +460,7 @@ wo_upgrade_nginx() {
                     rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                 fi
                 /usr/local/bin/wo stack install --nginx --php
+                echo "$wo_version_new" > /etc/nginx/common/release
                 if [ -n "$CHECK_PHP73" ]; then
                     apt-get remove php7.3-fpm -y -qq --purge
                     rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
@@ -534,13 +539,6 @@ wo_update_latest() {
             cp /etc/mysql/conf.d/my.cnf /root/.my.cnf
             chmod 600 /root/.my.cnf
         fi
-    fi
-    # Fix WordPress example.html issue
-    # Ref: http://wptavern.com/xss-vulnerability-in-jetpack-and-the-twenty-fifteen-default-theme-affects-millions-of-wordpress-users
-    CHECK_DEINSTALL_NGINX=$(dpkg --get-selections | grep -v deinstall | grep nginx)
-    if [ -z "$CHECK_DEINSTALL_NGINX" ]; then
-        cp /usr/lib/wo/templates/locations.mustache /etc/nginx/common/locations-php72.conf
-
     fi
 
     # Fix Redis-server security issue
@@ -621,11 +619,13 @@ if [ -x /usr/local/bin/wo ]; then
             wo_install >> wo_install_log 2>&1
             if [ -x "$(command -v nginx)" ]; then
             wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-            wo_upgrade_nginx | tee -ai $wo_install_log
+                wo_upgrade_nginx | tee -ai $wo_install_log
             fi
             wo_update_latest | tee -ai $wo_install_log
-            wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
-            wo_install_acme_sh | tee -ai $wo_install_log
+            if [ ! -d /opt/acme.sh ]; then
+                wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+                wo_install_acme_sh | tee -ai $wo_install_log
+            fi
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
@@ -651,11 +651,13 @@ else
             wo_install >> wo_install_log 2>&1
             if [ -x "$(command -v nginx)" ]; then
             wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-            wo_upgrade_nginx | tee -ai $wo_install_log
+                wo_upgrade_nginx | tee -ai $wo_install_log
             fi
             wo_update_latest | tee -ai $wo_install_log
-            wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
-            wo_install_acme_sh | tee -ai $wo_install_log
+            if [ ! -d /opt/acme.sh ]; then
+                wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+                wo_install_acme_sh | tee -ai $wo_install_log
+            fi
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log

@@ -369,6 +369,10 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
+                if not os.path.isfile("/etc/nginx/common/release"):
+                    with open("/etc/nginx/common/release",
+                              "a") as release_file:
+                        release_file.write("v3.9.5")
 
                     # Nginx-Plus does not have nginx
                     # package structure like this
@@ -1029,6 +1033,17 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
+
+                if os.path.isfile("/tmp/composer-install"):
+                    WOShellExec.cmd_exec(self, "php -q /tmp/composer-install"
+                                         "--install-dir=/tmp/")
+                    shutil.move('/tmp/composer.phar',
+                                '/usr/local/bin/composer')
+                    WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+                    WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
+                                         "update --no-dev -d "
+                                         "/var/www/22222/htdocs/db/pma/")
+
             if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting memcached.tar.gz to location"
@@ -1286,13 +1301,15 @@ class WOStackController(CementBaseController):
 
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
-                Log.debug(self, "Setting packages varible for phpMyAdmin ")
+                Log.debug(self, "Setting packages variable for phpMyAdmin ")
                 packages = packages + [["https://github.com/phpmyadmin/"
                                         "phpmyadmin/archive/STABLE.tar.gz",
-                                        "/tmp/pma.tar.gz", "phpMyAdmin"]]
+                                        "/tmp/pma.tar.gz", "phpMyAdmin"],
+                                       ["https://getcomposer.org/installer",
+                                        "/tmp/composer-install", "composer"]]
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
-                Log.debug(self, "Setting packages varible for phpRedisAdmin")
+                Log.debug(self, "Setting packages variable for phpRedisAdmin")
                 packages = packages + [["https://github.com/ErikDubbelboer/"
                                         "phpRedisAdmin/archive/master.tar.gz",
                                         "/tmp/pra.tar.gz", "phpRedisAdmin"],
