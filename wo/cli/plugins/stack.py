@@ -1034,10 +1034,11 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   recursive=True)
 
-                if os.path.isfile("/tmp/composer-install"):
-                    WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
-                                         "--install-dir=/tmp/")
-                    shutil.move('/tmp/composer.phar',
+            if any('/tmp/composer-install' == x[1]
+                   for x in packages):
+                WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
+                                     "--install-dir=/tmp/")
+                shutil.move('/tmp/composer.phar',
                                 '/usr/local/bin/composer')
                     WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
                     WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
@@ -1306,7 +1307,7 @@ class WOStackController(CementBaseController):
                                         "phpmyadmin/archive/STABLE.tar.gz",
                                         "/tmp/pma.tar.gz", "phpMyAdmin"],
                                        ["https://getcomposer.org/installer",
-                                        "/tmp/composer-install", "composer"]]
+                                        "/tmp/composer-install", "Composer"]]
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages variable for phpRedisAdmin")
