@@ -1038,7 +1038,7 @@ class WOStackController(CementBaseController):
                    for x in packages):
                 WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
                                      "--install-dir=/tmp/")
-                shutil.copyfile('tmp/composer.phar',
+                shutil.copyfile('/tmp/composer.phar',
                                 '/usr/local/bin/composer')
                 WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
                 WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
