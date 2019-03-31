@@ -1035,7 +1035,7 @@ class WOStackController(CementBaseController):
                                   recursive=True)
 
                 if os.path.isfile("/tmp/composer-install"):
-                    WOShellExec.cmd_exec(self, "php -q /tmp/composer-install"
+                    WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
                                          "--install-dir=/tmp/")
                     shutil.move('/tmp/composer.phar',
                                 '/usr/local/bin/composer')
