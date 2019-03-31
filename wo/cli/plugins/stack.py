@@ -774,10 +774,16 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/fpm/status/'
                                 .format(WOVariables.wo_webroot))
-                open('{0}22222/htdocs/fpm/status/debug'
+                open('{0}22222/htdocs/fpm/status/debug72'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/php'
+                open('{0}22222/htdocs/fpm/status/debug73'
+                     .format(WOVariables.wo_webroot),
+                     encoding='utf-8', mode='a').close()
+                open('{0}22222/htdocs/fpm/status/php72'
+                     .format(WOVariables.wo_webroot),
+                     encoding='utf-8', mode='a').close()
+                open('{0}22222/htdocs/fpm/status/php73'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
 
