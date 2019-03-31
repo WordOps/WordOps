@@ -466,6 +466,7 @@ wo_upgrade_nginx() {
                     rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                     /usr/local/bin/wo stack install --php73
                 fi
+                rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf}
             fi
 
             # restore sites and configuration
