@@ -999,9 +999,9 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/db'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/phpmyadmin-STABLE/',
-                            '{0}22222/htdocs/db/pma/'
-                            .format(WOVariables.wo_webroot))
+                    shutil.move('/tmp/phpmyadmin-STABLE/',
+                                '{0}22222/htdocs/db/pma/'
+                                .format(WOVariables.wo_webroot))
                 shutil.copyfile('{0}22222/htdocs/db/pma/config.sample.inc.php'
                                 .format(WOVariables.wo_webroot),
                                 '{0}22222/htdocs/db/pma/config.inc.php'
@@ -1038,12 +1038,12 @@ class WOStackController(CementBaseController):
                    for x in packages):
                 WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
                                      "--install-dir=/tmp/")
-                shutil.move('/tmp/composer.phar',
+                shutil.copyfile('tmp/composer.phar',
                                 '/usr/local/bin/composer')
-                    WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
-                    WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
-                                         "update --no-dev -d "
-                                         "/var/www/22222/htdocs/db/pma/")
+                WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+                WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
+                                     "update --no-dev -d "
+                                     "/var/www/22222/htdocs/db/pma/")
 
             if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
