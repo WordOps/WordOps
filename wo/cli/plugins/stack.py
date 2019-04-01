@@ -63,6 +63,10 @@ class WOStackController(CementBaseController):
                 dict(help='Install WPCLI stack', action='store_true')),
             (['--phpmyadmin'],
                 dict(help='Install PHPMyAdmin stack', action='store_true')),
+            (['--composer'],
+                dict(help='Install Composer stack', action='store_true')),
+            (['--netdata'],
+                dict(help='Install Netdata monitoring suite', action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
@@ -373,6 +377,7 @@ class WOStackController(CementBaseController):
                     with open("/etc/nginx/common/release",
                               "a") as release_file:
                         release_file.write("v3.9.5")
+                    release_file.close()
 
                     # Nginx-Plus does not have nginx
                     # package structure like this
@@ -777,13 +782,7 @@ class WOStackController(CementBaseController):
                 open('{0}22222/htdocs/fpm/status/debug72'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/debug73'
-                     .format(WOVariables.wo_webroot),
-                     encoding='utf-8', mode='a').close()
                 open('{0}22222/htdocs/fpm/status/php72'
-                     .format(WOVariables.wo_webroot),
-                     encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/php73'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
 
@@ -934,10 +933,10 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/fpm/status/'
                                 .format(WOVariables.wo_webroot))
-                open('{0}22222/htdocs/fpm/status/debug'
+                open('{0}22222/htdocs/fpm/status/debug73'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/php'
+                open('{0}22222/htdocs/fpm/status/php73'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
 
@@ -1200,6 +1199,7 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.nginx) and (not self.app.pargs.php) and
                 (not self.app.pargs.mysql) and (not self.app.pargs.wpcli) and
                 (not self.app.pargs.phpmyadmin) and
+                (not self.app.pargs.composer) and (not self.app.pargs.netdata)
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin) and
@@ -1257,7 +1257,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
-                        apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                        apt_packages = apt_packages + WOVariables.wo_php + \
+                             WOVariables.wo_php_extra
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php
                 else:
@@ -1269,7 +1270,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                        apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                        apt_packages = apt_packages + WOVariables.wo_php + \
+                            WOVariables.wo_php73 + WOVariables.wo_php_extra
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php73
                 else:
@@ -1311,8 +1313,11 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting packages variable for phpMyAdmin ")
                 packages = packages + [["https://github.com/phpmyadmin/"
                                         "phpmyadmin/archive/STABLE.tar.gz",
-                                        "/tmp/pma.tar.gz", "phpMyAdmin"],
-                                       ["https://getcomposer.org/installer",
+                                        "/tmp/pma.tar.gz", "phpMyAdmin"]]
+            # Composer
+            if self.app.pargs.composer:
+                Log.debug(self, "Setting packages variable for Composer ")
+                packages = packages + [["https://getcomposer.org/installer",
                                         "/tmp/composer-install", "Composer"]]
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
@@ -1465,6 +1470,7 @@ class WOStackController(CementBaseController):
         if self.app.pargs.admin:
             self.app.pargs.adminer = True
             self.app.pargs.phpmyadmin = True
+            self.app.pargs.composer = True
             self.app.pargs.utils = True
         # NGINX
         if self.app.pargs.nginx:
@@ -1478,7 +1484,8 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php + \
+                        WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
             else:
@@ -1489,7 +1496,8 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php73 + \
+                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
             else:
