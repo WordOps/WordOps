@@ -1004,9 +1004,9 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/db'
                                 .format(WOVariables.wo_webroot))
-                    shutil.move('/tmp/phpmyadmin-STABLE/',
-                                '{0}22222/htdocs/db/pma/'
-                                .format(WOVariables.wo_webroot))
+                shutil.move('/tmp/phpmyadmin-STABLE/',
+                            '{0}22222/htdocs/db/pma/'
+                            .format(WOVariables.wo_webroot))
                 shutil.copyfile('{0}22222/htdocs/db/pma/config.sample.inc.php'
                                 .format(WOVariables.wo_webroot),
                                 '{0}22222/htdocs/db/pma/config.inc.php'
@@ -1223,7 +1223,9 @@ class WOStackController(CementBaseController):
                 self.app.pargs.mysql = True
                 self.app.pargs.adminer = True
                 self.app.pargs.phpmyadmin = True
+                self.app.pargs.composer = True
                 self.app.pargs.utils = True
+                self.app.pargs.netdata = True
 
             if self.app.pargs.redis:
                 if not WOAptGet.is_installed(self, 'redis-server'):
@@ -1258,7 +1260,7 @@ class WOStackController(CementBaseController):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
                         apt_packages = apt_packages + WOVariables.wo_php + \
-                             WOVariables.wo_php_extra
+                            WOVariables.wo_php_extra
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php
                 else:
@@ -1497,7 +1499,7 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     apt_packages = apt_packages + WOVariables.wo_php73 + \
-                         WOVariables.wo_php_extra
+                        WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
             else:
