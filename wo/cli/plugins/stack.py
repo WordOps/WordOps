@@ -66,7 +66,8 @@ class WOStackController(CementBaseController):
             (['--composer'],
                 dict(help='Install Composer stack', action='store_true')),
             (['--netdata'],
-                dict(help='Install Netdata monitoring suite', action='store_true')),
+                dict(help='Install Netdata monitoring suite',
+                     action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
@@ -1067,6 +1068,17 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   recursive=True)
 
+            if any('/tmp/netdata.tar.gz' == x[1]
+                   for x in packages):
+                if not os.path.exists('/etc/netdata'):
+                    Log.debug(self, "Extracting netdata.tar.gz to location"
+                              "/usr/src/netdata.git/")
+                    WOExtract.extract(self, '/tmp/netdata.tar.gz', '/tmp/')
+                    WOShellExec.cmd_exec(self, "/tmp/netdata-v1.13.0/"
+                                         "netdata-installer.sh "
+                                         "--stable-channel "
+                                         "--dont-wait")
+
             if any('/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
@@ -1333,13 +1345,24 @@ class WOStackController(CementBaseController):
             # ADMINER
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["https://www.adminer.org/static/download/"
-                                        "{0}/adminer-{0}.php"
+                packages = packages + [["https://www.adminer.org/static/"
+                                        "download/{0}/adminer-{0}.php"
                                         "".format(WOVariables.wo_adminer),
                                         "{0}22222/"
                                         "htdocs/db/adminer/index.php"
                                         .format(WOVariables.wo_webroot),
                                         "Adminer"]]
+            # Netdata
+            if self.app.pargs.netdata:
+                Log.debug(self, "Setting packages variable for Netdata")
+                if not os.path.exists('/etc/netdata'):
+                    packages = packages + [['https://github.com/'
+                                            'netdata/netdata/releases/'
+                                            'download/v1.13.0/'
+                                            'netdata-v1.13.0.tar.gz',
+                                            '/tmp/netdata.tar.gz',
+                                            'netdata']]
+
             # UTILS
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -1453,6 +1476,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+            (not self.app.pargs.composer) and (not self.app.pargs.netdata)
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
@@ -1589,6 +1613,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+            (not self.app.pargs.composer) and (not self.app.pargs.netdata)
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
