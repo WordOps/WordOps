@@ -63,6 +63,11 @@ class WOStackController(CementBaseController):
                 dict(help='Install WPCLI stack', action='store_true')),
             (['--phpmyadmin'],
                 dict(help='Install PHPMyAdmin stack', action='store_true')),
+            (['--composer'],
+                dict(help='Install Composer stack', action='store_true')),
+            (['--netdata'],
+                dict(help='Install Netdata monitoring suite',
+                     action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
@@ -369,6 +374,11 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
+                if not os.path.isfile("/etc/nginx/common/release"):
+                    with open("/etc/nginx/common/release",
+                              "a") as release_file:
+                        release_file.write("v3.9.5")
+                    release_file.close()
 
                     # Nginx-Plus does not have nginx
                     # package structure like this
@@ -770,10 +780,10 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/fpm/status/'
                                 .format(WOVariables.wo_webroot))
-                open('{0}22222/htdocs/fpm/status/debug'
+                open('{0}22222/htdocs/fpm/status/debug72'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/php'
+                open('{0}22222/htdocs/fpm/status/php72'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
 
@@ -924,10 +934,10 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/fpm/status/'
                                 .format(WOVariables.wo_webroot))
-                open('{0}22222/htdocs/fpm/status/debug'
+                open('{0}22222/htdocs/fpm/status/debug73'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/php'
+                open('{0}22222/htdocs/fpm/status/php73'
                      .format(WOVariables.wo_webroot),
                      encoding='utf-8', mode='a').close()
 
@@ -995,32 +1005,35 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/db'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/phpmyadmin-STABLE/',
-                            '{0}22222/htdocs/db/pma/'
-                            .format(WOVariables.wo_webroot))
-                shutil.copyfile('{0}22222/htdocs/db/pma/config.sample.inc.php'
-                                .format(WOVariables.wo_webroot),
-                                '{0}22222/htdocs/db/pma/config.inc.php'
+                if not os.path.exists('{0}22222/htdocs/db/'
+                                      'pma/phpmyadmin-STABLE'
+                                      .format(WOVariables.wo_webroot)):
+                    shutil.move('/tmp/phpmyadmin-STABLE/',
+                                '{0}22222/htdocs/db/pma/'
                                 .format(WOVariables.wo_webroot))
-                Log.debug(self, 'Setting Blowfish Secret Key FOR COOKIE AUTH to  '
-                          '{0}22222/htdocs/db/pma/config.inc.php file '
-                          .format(WOVariables.wo_webroot))
-                blowfish_key = ''.join([random.choice
-                                        (string.ascii_letters + string.digits)
-                                        for n in range(25)])
-                WOFileUtils.searchreplace(self,
-                                          '{0}22222/htdocs/db/pma/config.inc.php'
-                                          .format(WOVariables.wo_webroot),
-                                          "$cfg[\'blowfish_secret\'] = \'\';", "$cfg[\'blowfish_secret\'] = \'{0}\';"
-                                          .format(blowfish_key))
-                Log.debug(self, 'Setting HOST Server For Mysql to  '
-                          '{0}22222/htdocs/db/pma/config.inc.php file '
-                          .format(WOVariables.wo_webroot))
-                WOFileUtils.searchreplace(self,
-                                          '{0}22222/htdocs/db/pma/config.inc.php'
-                                          .format(WOVariables.wo_webroot),
-                                          "$cfg[\'Servers\'][$i][\'host\'] = \'localhost\';", "$cfg[\'Servers\'][$i][\'host\'] = \'{0}\';"
-                                          .format(WOVariables.wo_mysql_host))
+                    shutil.copyfile('{0}22222/htdocs/db/pma/config.sample.inc.php'
+                                    .format(WOVariables.wo_webroot),
+                                    '{0}22222/htdocs/db/pma/config.inc.php'
+                                    .format(WOVariables.wo_webroot))
+                    Log.debug(self, 'Setting Blowfish Secret Key FOR COOKIE AUTH to  '
+                              '{0}22222/htdocs/db/pma/config.inc.php file '
+                              .format(WOVariables.wo_webroot))
+                    blowfish_key = ''.join([random.choice
+                                            (string.ascii_letters + string.digits)
+                                            for n in range(25)])
+                    WOFileUtils.searchreplace(self,
+                                              '{0}22222/htdocs/db/pma/config.inc.php'
+                                              .format(WOVariables.wo_webroot),
+                                              "$cfg[\'blowfish_secret\'] = \'\';", "$cfg[\'blowfish_secret\'] = \'{0}\';"
+                                              .format(blowfish_key))
+                    Log.debug(self, 'Setting HOST Server For Mysql to  '
+                              '{0}22222/htdocs/db/pma/config.inc.php file '
+                              .format(WOVariables.wo_webroot))
+                    WOFileUtils.searchreplace(self,
+                                              '{0}22222/htdocs/db/pma/config.inc.php'
+                                              .format(WOVariables.wo_webroot),
+                                              "$cfg[\'Servers\'][$i][\'host\'] = \'localhost\';", "$cfg[\'Servers\'][$i][\'host\'] = \'{0}\';"
+                                              .format(WOVariables.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
                           .format(WOVariables.wo_webroot))
@@ -1029,6 +1042,29 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
+            # composer install and phpmyadmin update
+            if any('/tmp/composer-install' == x[1]
+                   for x in packages):
+                WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
+                                     "--install-dir=/tmp/")
+                shutil.copyfile('/tmp/composer.phar',
+                                '/usr/local/bin/composer')
+                WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+                WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
+                                     "update --no-dev -d "
+                                     "/var/www/22222/htdocs/db/pma/")
+            # netdata install
+            if any('/tmp/kickstart.sh' == x[1]
+                   for x in packages):
+                if not os.path.exists('/etc/netdata'):
+                    WOShellExec.cmd_exec(self, "bash /tmp/kickstart.sh "
+                                         "--dont-wait --no-updates")
+                WOFileUtils.searchreplace(self, "/usr/lib/netdata/conf.d/"
+                                          "health_alarm_notify.conf",
+                                          'SEND_EMAIL="YES"',
+                                          'SEND_EMAIL="NO"')
+                WOService.restart_service(self, 'netdata')
+
             if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting memcached.tar.gz to location"
@@ -1045,7 +1081,6 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
-
             if any('/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
@@ -1058,9 +1093,11 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/php'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/webgrind-master/',
-                            '{0}22222/htdocs/php/webgrind'
-                            .format(WOVariables.wo_webroot))
+                if not os.path.exists('{0}22222/htdocs/php/webgrind'
+                                      .format(WOVariables.wo_webroot)):
+                    shutil.move('/tmp/webgrind-master/',
+                                '{0}22222/htdocs/php/webgrind'
+                                .format(WOVariables.wo_webroot))
 
                 WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
                                           "config.php"
@@ -1096,41 +1133,46 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Creating directory")
                     os.makedirs('{0}22222/htdocs/db/'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/Anemometer-master',
-                            '{0}22222/htdocs/db/anemometer'
-                            .format(WOVariables.wo_webroot))
-                chars = ''.join(random.sample(string.ascii_letters, 8))
-                try:
-                    WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
-                                         '/anemometer/install.sql'
-                                         .format(WOVariables.wo_webroot))
-                except CommandExecutionError as e:
-                    raise SiteError("Unable to import Anemometer database")
+                if not os.path.exists('{0}22222/htdocs/db/anemometer'
+                                      .format(WOVariables.wo_webroot)):
+                    shutil.move('/tmp/Anemometer-master',
+                                '{0}22222/htdocs/db/anemometer'
+                                .format(WOVariables.wo_webroot))
+                    chars = ''.join(random.sample(string.ascii_letters, 8))
+                    try:
+                        WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
+                                             '/anemometer/install.sql'
+                                             .format(WOVariables.wo_webroot))
+                    except CommandExecutionError as e:
+                        raise SiteError("Unable to import Anemometer database")
 
-                WOMysql.execute(self, 'grant select on *.* to \'anemometer\''
-                                '@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get('mysql',
-                                                                         'grant-host'), chars))
-                Log.debug(self, "grant all on slow-query-log.*"
-                          " to anemometer@root_user IDENTIFIED BY password ")
-                WOMysql.execute(self, 'grant all on slow_query_log.* to'
-                                '\'anemometer\'@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get(
-                                                     'mysql', 'grant-host'),
-                                                     chars),
-                                errormsg="cannot grant priviledges", log=False)
+                    WOMysql.execute(self, 'grant select on'
+                                    ' *.* to \'anemometer\''
+                                    '@\'{0}\' IDENTIFIED'
+                                    ' BY \'{1}\''.format(self.app.config.get
+                                                         ('mysql', 'grant-host'),
+                                                         chars))
+                    Log.debug(self, "grant all on slow-query-log.*"
+                              " to anemometer@root_user"
+                              " IDENTIFIED BY password ")
+                    WOMysql.execute(self, 'grant all on slow_query_log.* to'
+                                    '\'anemometer\'@\'{0}\' IDENTIFIED'
+                                    ' BY \'{1}\''.format(self.app.config.get(
+                                        'mysql', 'grant-host'),
+                                        chars),
+                                    errormsg="cannot grant priviledges", log=False)
 
-                # Custom Anemometer configuration
-                Log.debug(self, "configration Anemometer")
-                data = dict(host=WOVariables.wo_mysql_host, port='3306',
-                            user='anemometer', password=chars)
-                wo_anemometer = open('{0}22222/htdocs/db/anemometer'
-                                     '/conf/config.inc.php'
-                                     .format(WOVariables.wo_webroot),
-                                     encoding='utf-8', mode='w')
-                self.app.render((data), 'anemometer.mustache',
-                                out=wo_anemometer)
-                wo_anemometer.close()
+                    # Custom Anemometer configuration
+                    Log.debug(self, "configration Anemometer")
+                    data = dict(host=WOVariables.wo_mysql_host, port='3306',
+                                user='anemometer', password=chars)
+                    wo_anemometer = open('{0}22222/htdocs/db/anemometer'
+                                         '/conf/config.inc.php'
+                                         .format(WOVariables.wo_webroot),
+                                         encoding='utf-8', mode='w')
+                    self.app.render((data), 'anemometer.mustache',
+                                    out=wo_anemometer)
+                    wo_anemometer.close()
 
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
@@ -1148,16 +1190,20 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/cache/redis'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/phpRedisAdmin-master/',
-                            '{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                            .format(WOVariables.wo_webroot))
+                if not os.path.exists('{0}22222/htdocs/cache/'
+                                      'redis/phpRedisAdmin'
+                                      .format(WOVariables.wo_webroot)):
+                    shutil.move('/tmp/phpRedisAdmin-master/',
+                                '{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                                .format(WOVariables.wo_webroot))
 
-                Log.debug(self, 'Extracting file /tmp/predis.tar.gz to '
-                          'loaction /tmp/')
-                WOExtract.extract(self, '/tmp/predis.tar.gz', '/tmp/')
-                shutil.move('/tmp/predis-1.0.1/',
-                            '{0}22222/htdocs/cache/redis/phpRedisAdmin/vendor'
-                            .format(WOVariables.wo_webroot))
+                    Log.debug(self, 'Extracting file /tmp/predis.tar.gz to '
+                              'loaction /tmp/')
+                    WOExtract.extract(self, '/tmp/predis.tar.gz', '/tmp/')
+                    shutil.move('/tmp/predis-1.0.1/',
+                                '{0}22222/htdocs/cache/redis/'
+                                'phpRedisAdmin/vendor'
+                                .format(WOVariables.wo_webroot))
 
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/cache/ file '
@@ -1178,6 +1224,8 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.nginx) and (not self.app.pargs.php) and
                 (not self.app.pargs.mysql) and (not self.app.pargs.wpcli) and
                 (not self.app.pargs.phpmyadmin) and
+                (not self.app.pargs.composer) and
+                (not self.app.pargs.netdata) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin) and
@@ -1201,7 +1249,9 @@ class WOStackController(CementBaseController):
                 self.app.pargs.mysql = True
                 self.app.pargs.adminer = True
                 self.app.pargs.phpmyadmin = True
+                self.app.pargs.composer = True
                 self.app.pargs.utils = True
+                self.app.pargs.netdata = True
 
             if self.app.pargs.redis:
                 if not WOAptGet.is_installed(self, 'redis-server'):
@@ -1223,8 +1273,10 @@ class WOStackController(CementBaseController):
                             apt = ["nginx-plus"] + WOVariables.wo_nginx
                             self.post_pref(apt, packages)
                         elif WOAptGet.is_installed(self, 'nginx'):
-                            Log.info(self, "WordOps detected an already installed nginx package."
-                                     "It may or may not have required modules.\n")
+                            Log.info(self, "WordOps detected an already "
+                                     "installed nginx package."
+                                     "It may or may not have "
+                                     "required modules.\n")
                             apt = ["nginx"] + WOVariables.wo_nginx
                             self.post_pref(apt, packages)
                 else:
@@ -1235,7 +1287,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
-                        apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                        apt_packages = apt_packages + WOVariables.wo_php + \
+                            WOVariables.wo_php_extra
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php
                 else:
@@ -1247,7 +1300,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                        apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                        apt_packages = apt_packages + WOVariables.wo_php + \
+                            WOVariables.wo_php73 + WOVariables.wo_php_extra
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php73
                 else:
@@ -1286,13 +1340,18 @@ class WOStackController(CementBaseController):
 
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
-                Log.debug(self, "Setting packages varible for phpMyAdmin ")
+                Log.debug(self, "Setting packages variable for phpMyAdmin ")
                 packages = packages + [["https://github.com/phpmyadmin/"
                                         "phpmyadmin/archive/STABLE.tar.gz",
                                         "/tmp/pma.tar.gz", "phpMyAdmin"]]
+            # Composer
+            if self.app.pargs.composer:
+                Log.debug(self, "Setting packages variable for Composer ")
+                packages = packages + [["https://getcomposer.org/installer",
+                                        "/tmp/composer-install", "Composer"]]
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
-                Log.debug(self, "Setting packages varible for phpRedisAdmin")
+                Log.debug(self, "Setting packages variable for phpRedisAdmin")
                 packages = packages + [["https://github.com/ErikDubbelboer/"
                                         "phpRedisAdmin/archive/master.tar.gz",
                                         "/tmp/pra.tar.gz", "phpRedisAdmin"],
@@ -1302,13 +1361,22 @@ class WOStackController(CementBaseController):
             # ADMINER
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["https://www.adminer.org/static/download/"
-                                        "{0}/adminer-{0}.php"
+                packages = packages + [["https://www.adminer.org/static/"
+                                        "download/{0}/adminer-{0}.php"
                                         "".format(WOVariables.wo_adminer),
                                         "{0}22222/"
                                         "htdocs/db/adminer/index.php"
                                         .format(WOVariables.wo_webroot),
                                         "Adminer"]]
+            # Netdata
+            if self.app.pargs.netdata:
+                Log.debug(self, "Setting packages variable for Netdata")
+                if not os.path.exists('/opt/netdata'):
+                    packages = packages + [['https://my-netdata.io/'
+                                            'kickstart.sh',
+                                            '/tmp/kickstart.sh',
+                                            'Netdata']]
+
             # UTILS
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -1422,6 +1490,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+            (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
@@ -1441,6 +1510,7 @@ class WOStackController(CementBaseController):
         if self.app.pargs.admin:
             self.app.pargs.adminer = True
             self.app.pargs.phpmyadmin = True
+            self.app.pargs.composer = True
             self.app.pargs.utils = True
         # NGINX
         if self.app.pargs.nginx:
@@ -1454,7 +1524,8 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php + \
+                        WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
             else:
@@ -1465,7 +1536,8 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php73 + \
+                        WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
             else:
@@ -1555,6 +1627,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+            (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True

@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - WordOps configuration backup before upgrade
 - Previous acme.sh certs migration
 - "wo maintenance" command to perform server package update & cleanup
+- Support for Netdata on backend : https://server.hostname:22222/netdata/
+- New Stacks : composer and netdata
 
 #### Changed
 
@@ -48,7 +50,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - PHP 7.2 & PHP 7.3 pool configuration during upgrade
 - WordOps backup directory creation before upgrade
 - EasyEngine database sync during migration
-- command "wo info"
+- fix command "wo info"
+- phpmyadmin install with composer
+- command "wo clean --memcached"
 
 ### v3.9.4 - 2019-03-15
 

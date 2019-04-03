@@ -65,7 +65,7 @@ class WOCleanController(CementBaseController):
             Log.info(self, "Redis is not installed")
 
     @expose(hide=True)
-    def clean_memcache(self):
+    def clean_memcached(self):
         try:
             if(WOAptGet.is_installed(self, "memcached")):
                 WOService.restart_service(self, "memcached")
