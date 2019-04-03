@@ -1101,9 +1101,11 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/php'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/webgrind-master/',
-                            '{0}22222/htdocs/php/webgrind'
-                            .format(WOVariables.wo_webroot))
+                if not os.path.exists('{0}22222/htdocs/php/webgrind'
+                                      .format(WOVariables.wo_webroot)):
+                    shutil.move('/tmp/webgrind-master/',
+                                '{0}22222/htdocs/php/webgrind'
+                                .format(WOVariables.wo_webroot))
 
                 WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
                                           "config.php"
@@ -1139,16 +1141,18 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Creating directory")
                     os.makedirs('{0}22222/htdocs/db/'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/Anemometer-master',
-                            '{0}22222/htdocs/db/anemometer'
-                            .format(WOVariables.wo_webroot))
-                chars = ''.join(random.sample(string.ascii_letters, 8))
-                try:
-                    WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
-                                         '/anemometer/install.sql'
-                                         .format(WOVariables.wo_webroot))
-                except CommandExecutionError as e:
-                    raise SiteError("Unable to import Anemometer database")
+                if not os.path.exists('{0}22222/htdocs/db/anemometer'
+                                      .format(WOVariables.wo_webroot)):
+                    shutil.move('/tmp/Anemometer-master',
+                                '{0}22222/htdocs/db/anemometer'
+                                .format(WOVariables.wo_webroot))
+                    chars = ''.join(random.sample(string.ascii_letters, 8))
+                    try:
+                        WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
+                                             '/anemometer/install.sql'
+                                             .format(WOVariables.wo_webroot))
+                    except CommandExecutionError as e:
+                        raise SiteError("Unable to import Anemometer database")
 
                 WOMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'{0}\' IDENTIFIED'
@@ -1192,16 +1196,20 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/cache/redis'
                                 .format(WOVariables.wo_webroot))
-                shutil.move('/tmp/phpRedisAdmin-master/',
-                            '{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                            .format(WOVariables.wo_webroot))
+                if not os.path.exists('{0}22222/htdocs/cache/'
+                                      'redis/phpRedisAdmin'
+                                      .format(WOVariables.wo_webroot)):
+                    shutil.move('/tmp/phpRedisAdmin-master/',
+                                '{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                                .format(WOVariables.wo_webroot))
 
-                Log.debug(self, 'Extracting file /tmp/predis.tar.gz to '
-                          'loaction /tmp/')
-                WOExtract.extract(self, '/tmp/predis.tar.gz', '/tmp/')
-                shutil.move('/tmp/predis-1.0.1/',
-                            '{0}22222/htdocs/cache/redis/phpRedisAdmin/vendor'
-                            .format(WOVariables.wo_webroot))
+                    Log.debug(self, 'Extracting file /tmp/predis.tar.gz to '
+                              'loaction /tmp/')
+                    WOExtract.extract(self, '/tmp/predis.tar.gz', '/tmp/')
+                    shutil.move('/tmp/predis-1.0.1/',
+                                '{0}22222/htdocs/cache/redis/'
+                                'phpRedisAdmin/vendor'
+                                .format(WOVariables.wo_webroot))
 
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/cache/ file '
