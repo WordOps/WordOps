@@ -1073,8 +1073,10 @@ class WOStackController(CementBaseController):
                 if not os.path.exists('/etc/netdata'):
                     Log.debug(self, "Extracting netdata.tar.gz to location"
                               "/usr/src/netdata.git/")
-                    WOExtract.extract(self, '/tmp/netdata.tar.gz', '/tmp/')
-                    WOShellExec.cmd_exec(self, "/tmp/netdata-v1.13.0/"
+                    WOExtract.extract(self, '/tmp/netdata.tar.gz',
+                                      '/usr/src/netdata.git/')
+                    WOShellExec.cmd_exec(self, "bash /usr/src/netdata.git/"
+                                         "netdata-v1.13.0/"
                                          "netdata-installer.sh "
                                          "--stable-channel "
                                          "--dont-wait")
@@ -1142,8 +1144,9 @@ class WOStackController(CementBaseController):
 
                 WOMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get('mysql',
-                                                                         'grant-host'), chars))
+                                ' BY \'{1}\''.format(self.app.config.get
+                                                     ('mysql', 'grant-host'),
+                                                     chars))
                 Log.debug(self, "grant all on slow-query-log.*"
                           " to anemometer@root_user IDENTIFIED BY password ")
                 WOMysql.execute(self, 'grant all on slow_query_log.* to'
@@ -1211,7 +1214,7 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.nginx) and (not self.app.pargs.php) and
                 (not self.app.pargs.mysql) and (not self.app.pargs.wpcli) and
                 (not self.app.pargs.phpmyadmin) and
-                (not self.app.pargs.composer) and (not self.app.pargs.netdata)
+                (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin) and
@@ -1237,7 +1240,6 @@ class WOStackController(CementBaseController):
                 self.app.pargs.phpmyadmin = True
                 self.app.pargs.composer = True
                 self.app.pargs.utils = True
-                self.app.pargs.netdata = True
 
             if self.app.pargs.redis:
                 if not WOAptGet.is_installed(self, 'redis-server'):
@@ -1476,7 +1478,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-            (not self.app.pargs.composer) and (not self.app.pargs.netdata)
+            (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
@@ -1613,7 +1615,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-            (not self.app.pargs.composer) and (not self.app.pargs.netdata)
+            (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
