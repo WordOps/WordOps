@@ -1154,19 +1154,21 @@ class WOStackController(CementBaseController):
                     except CommandExecutionError as e:
                         raise SiteError("Unable to import Anemometer database")
 
-                WOMysql.execute(self, 'grant select on *.* to \'anemometer\''
-                                '@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get
-                                                     ('mysql', 'grant-host'),
-                                                     chars))
-                Log.debug(self, "grant all on slow-query-log.*"
-                          " to anemometer@root_user IDENTIFIED BY password ")
-                WOMysql.execute(self, 'grant all on slow_query_log.* to'
-                                '\'anemometer\'@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get(
-                                                     'mysql', 'grant-host'),
-                                                     chars),
-                                errormsg="cannot grant priviledges", log=False)
+                    WOMysql.execute(self, 'grant select on'
+                                    ' *.* to \'anemometer\''
+                                    '@\'{0}\' IDENTIFIED'
+                                    ' BY \'{1}\''.format(self.app.config.get
+                                                         ('mysql', 'grant-host'),
+                                                         chars))
+                    Log.debug(self, "grant all on slow-query-log.*"
+                              " to anemometer@root_user"
+                              " IDENTIFIED BY password ")
+                    WOMysql.execute(self, 'grant all on slow_query_log.* to'
+                                    '\'anemometer\'@\'{0}\' IDENTIFIED'
+                                    ' BY \'{1}\''.format(self.app.config.get(
+                                        'mysql', 'grant-host'),
+                                        chars),
+                                    errormsg="cannot grant priviledges", log=False)
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
