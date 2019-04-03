@@ -1042,7 +1042,7 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
-
+            # composer install and phpmyadmin update
             if any('/tmp/composer-install' == x[1]
                    for x in packages):
                 WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
@@ -1053,6 +1053,12 @@ class WOStackController(CementBaseController):
                 WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
                                      "update --no-dev -d "
                                      "/var/www/22222/htdocs/db/pma/")
+            # netdata install
+            if any('/tmp/kickstart.sh' == x[1]
+                   for x in packages):
+                if not os.path.exists('/etc/netdata'):
+                    WOShellExec.cmd_exec(self, "bash /tmp/kickstart.sh "
+                                         "--dont-wait --no-updates")
 
             if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
@@ -1365,9 +1371,6 @@ class WOStackController(CementBaseController):
                                             'kickstart.sh',
                                             '/tmp/kickstart.sh',
                                             'Netdata']]
-                    WOShellExec.cmd_exec(
-                        self, "bash /tmp/kickstart.sh "
-                        "--dont-wait --no-updates")
 
             # UTILS
             if self.app.pargs.utils:
