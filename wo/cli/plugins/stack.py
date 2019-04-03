@@ -1059,6 +1059,11 @@ class WOStackController(CementBaseController):
                 if not os.path.exists('/etc/netdata'):
                     WOShellExec.cmd_exec(self, "bash /tmp/kickstart.sh "
                                          "--dont-wait --no-updates")
+                WOFileUtils.searchreplace(self, "/usr/lib/netdata/conf.d/"
+                                          "health_alarm_notify.conf",
+                                          'SEND_EMAIL="YES"',
+                                          'SEND_EMAIL="NO"')
+                WOService.restart_service(self, 'netdata')
 
             if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
