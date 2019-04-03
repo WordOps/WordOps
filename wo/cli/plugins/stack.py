@@ -1075,6 +1075,11 @@ class WOStackController(CementBaseController):
                               "/usr/src/netdata.git/")
                     WOExtract.extract(self, '/tmp/netdata.tar.gz',
                                       '/usr/src/netdata.git/')
+                    WOShellExec.cmd_exec(self, "apt-get install zlib1g-dev "
+                                         "uuid-dev libmnl-dev gcc make "
+                                         "git autoconf autoconf-archive "
+                                         "autogen automake pkg-config "
+                                         "curl -y")
                     WOShellExec.cmd_exec(self, "bash /usr/src/netdata.git/"
                                          "netdata-v1.13.0/"
                                          "netdata-installer.sh "
