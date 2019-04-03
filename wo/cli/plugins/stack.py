@@ -1258,6 +1258,7 @@ class WOStackController(CementBaseController):
                 self.app.pargs.phpmyadmin = True
                 self.app.pargs.composer = True
                 self.app.pargs.utils = True
+                self.app.pargs.netdata = True
 
             if self.app.pargs.redis:
                 if not WOAptGet.is_installed(self, 'redis-server'):
