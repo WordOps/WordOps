@@ -1146,41 +1146,41 @@ class WOStackController(CementBaseController):
                     shutil.move('/tmp/Anemometer-master',
                                 '{0}22222/htdocs/db/anemometer'
                                 .format(WOVariables.wo_webroot))
-                chars = ''.join(random.sample(string.ascii_letters, 8))
-                try:
-                    WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
-                                         '/anemometer/install.sql'
-                                         .format(WOVariables.wo_webroot))
-                except CommandExecutionError as e:
-                    raise SiteError("Unable to import Anemometer database")
+                    chars = ''.join(random.sample(string.ascii_letters, 8))
+                    try:
+                        WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
+                                             '/anemometer/install.sql'
+                                             .format(WOVariables.wo_webroot))
+                    except CommandExecutionError as e:
+                        raise SiteError("Unable to import Anemometer database")
 
-                WOMysql.execute(self, 'grant select on'
-                                ' *.* to \'anemometer\''
-                                '@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get
-                                                     ('mysql', 'grant-host'),
-                                                     chars))
-                Log.debug(self, "grant all on slow-query-log.*"
-                          " to anemometer@root_user"
-                          " IDENTIFIED BY password ")
-                WOMysql.execute(self, 'grant all on slow_query_log.* to'
-                                '\'anemometer\'@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get(
-                                    'mysql', 'grant-host'),
-                                    chars),
-                                errormsg="cannot grant priviledges", log=False)
+                    WOMysql.execute(self, 'grant select on'
+                                    ' *.* to \'anemometer\''
+                                    '@\'{0}\' IDENTIFIED'
+                                    ' BY \'{1}\''.format(self.app.config.get
+                                                         ('mysql', 'grant-host'),
+                                                         chars))
+                    Log.debug(self, "grant all on slow-query-log.*"
+                              " to anemometer@root_user"
+                              " IDENTIFIED BY password ")
+                    WOMysql.execute(self, 'grant all on slow_query_log.* to'
+                                    '\'anemometer\'@\'{0}\' IDENTIFIED'
+                                    ' BY \'{1}\''.format(self.app.config.get(
+                                        'mysql', 'grant-host'),
+                                        chars),
+                                    errormsg="cannot grant priviledges", log=False)
 
-                # Custom Anemometer configuration
-                Log.debug(self, "configration Anemometer")
-                data = dict(host=WOVariables.wo_mysql_host, port='3306',
-                            user='anemometer', password=chars)
-                wo_anemometer = open('{0}22222/htdocs/db/anemometer'
-                                     '/conf/config.inc.php'
-                                     .format(WOVariables.wo_webroot),
-                                     encoding='utf-8', mode='w')
-                self.app.render((data), 'anemometer.mustache',
-                                out=wo_anemometer)
-                wo_anemometer.close()
+                    # Custom Anemometer configuration
+                    Log.debug(self, "configration Anemometer")
+                    data = dict(host=WOVariables.wo_mysql_host, port='3306',
+                                user='anemometer', password=chars)
+                    wo_anemometer = open('{0}22222/htdocs/db/anemometer'
+                                         '/conf/config.inc.php'
+                                         .format(WOVariables.wo_webroot),
+                                         encoding='utf-8', mode='w')
+                    self.app.render((data), 'anemometer.mustache',
+                                    out=wo_anemometer)
+                    wo_anemometer.close()
 
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
