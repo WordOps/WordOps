@@ -1070,25 +1070,6 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
-
-            if any('/tmp/netdata.tar.gz' == x[1]
-                   for x in packages):
-                if not os.path.exists('/etc/netdata'):
-                    Log.debug(self, "Extracting netdata.tar.gz to location"
-                              "/usr/src/netdata.git/")
-                    WOExtract.extract(self, '/tmp/netdata.tar.gz',
-                                      '/usr/src/netdata.git/')
-                    WOShellExec.cmd_exec(self, "apt-get install zlib1g-dev "
-                                         "uuid-dev libmnl-dev gcc make "
-                                         "git autoconf autoconf-archive "
-                                         "autogen automake pkg-config "
-                                         "curl -y")
-                    WOShellExec.cmd_exec(self, "bash /usr/src/netdata.git/"
-                                         "netdata-v1.13.0/"
-                                         "netdata-installer.sh "
-                                         "--stable-channel "
-                                         "--dont-wait")
-
             if any('/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
@@ -1232,7 +1213,8 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.nginx) and (not self.app.pargs.php) and
                 (not self.app.pargs.mysql) and (not self.app.pargs.wpcli) and
                 (not self.app.pargs.phpmyadmin) and
-                (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
+                (not self.app.pargs.composer) and
+                (not self.app.pargs.netdata) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin) and
@@ -1280,8 +1262,10 @@ class WOStackController(CementBaseController):
                             apt = ["nginx-plus"] + WOVariables.wo_nginx
                             self.post_pref(apt, packages)
                         elif WOAptGet.is_installed(self, 'nginx'):
-                            Log.info(self, "WordOps detected an already installed nginx package."
-                                     "It may or may not have required modules.\n")
+                            Log.info(self, "WordOps detected an already "
+                                     "installed nginx package."
+                                     "It may or may not have "
+                                     "required modules.\n")
                             apt = ["nginx"] + WOVariables.wo_nginx
                             self.post_pref(apt, packages)
                 else:
@@ -1376,13 +1360,14 @@ class WOStackController(CementBaseController):
             # Netdata
             if self.app.pargs.netdata:
                 Log.debug(self, "Setting packages variable for Netdata")
-                if not os.path.exists('/etc/netdata'):
-                    packages = packages + [['https://github.com/'
-                                            'netdata/netdata/releases/'
-                                            'download/v1.13.0/'
-                                            'netdata-v1.13.0.tar.gz',
-                                            '/tmp/netdata.tar.gz',
-                                            'netdata']]
+                if not os.path.exists('/opt/netdata'):
+                    packages = packages + [['https://my-netdata.io/'
+                                            'kickstart.sh',
+                                            '/tmp/kickstart.sh',
+                                            'Netdata']]
+                    WOShellExec.cmd_exec(
+                        self, "bash /tmp/kickstart.sh "
+                        "--dont-wait --no-updates")
 
             # UTILS
             if self.app.pargs.utils:
