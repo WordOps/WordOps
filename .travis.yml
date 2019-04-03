@@ -64,4 +64,3 @@ script:
   - sudo bash -c 'tar -I pigz -cf wordops.tar.gz /var/log/wo'
   - sudo curl --progress-bar --upload-file "wordops.tar.gz" https://transfer.vtbox.net/$(basename wordops.tar.gz) && echo "" || sudo echo "transfer.sh is down"
   - sudo tree -L 2 /etc/nginx
-  - sudo tree -L 4 /var/www/22222

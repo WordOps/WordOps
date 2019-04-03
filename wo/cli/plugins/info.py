@@ -252,7 +252,7 @@ class WOInfoController(CementBaseController):
 
         if self.app.pargs.nginx:
             if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-common')):
+                    WOAptGet.is_installed(self, 'nginx-wo')):
                 self.info_nginx()
             else:
                 Log.error(self, "Nginx is not installed")
