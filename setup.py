@@ -33,11 +33,9 @@ try:
     wo_user = config['user']['name']
     wo_email = config['user']['email']
 except Exception as e:
-    print("WordOps (wo) required your name & email address to track"
-          " changes you made under the Git version control")
-    print("WordOps (wo) will be able to send you daily reports & alerts in "
-          "upcoming version")
-    print("WordOps (wo) will NEVER share your information with other parties")
+    print("WordOps (wo) require an username & and an email "
+          "address to configure Git (used to save server configurations)")
+    print("Your informations will ONLY be stored locally")
 
     wo_user = input("Enter your name: ")
     while wo_user is "":
@@ -55,7 +53,7 @@ except Exception as e:
     os.system("git config --global user.email {0}".format(wo_email))
 
 if not os.path.isfile('/root/.gitconfig'):
-        shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
+    shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
 
 setup(name='wo',
       version='3.9.4',
@@ -87,7 +85,7 @@ setup(name='wo',
           'psutil == 3.1.1',
           'sh',
           'SQLAlchemy',
-          ],
+      ],
       data_files=[('/etc/wo', ['config/wo.conf']),
                   ('/etc/wo/plugins.d', conf),
                   ('/usr/lib/wo/templates', templates),
