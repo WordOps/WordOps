@@ -96,8 +96,8 @@ def setupdomain(self, data):
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         except CalledProcessError as e:
             Log.debug(self, "{0}".format(str(e)))
-            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail"
-                     + Log.OKBLUE + "]")
+            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" +
+                     Log.OKBLUE + "]")
             raise SiteError("created nginx configuration failed for site."
                             " check with `nginx -t`")
 
@@ -312,8 +312,8 @@ def setupwordpress(self, data):
                                     "--dbuser=\'{2}\' --dbhost=\'{3}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
                                             data['wo_db_user'], data['wo_db_host']
-                                            )
-                                    + "--dbpass=\'{0}\' "
+                                            ) +
+                                    "--dbpass=\'{0}\' "
                                     "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
                                     .format(data['wo_db_pass'],
                                             "\n\ndefine(\'WP_DEBUG\', false);",
@@ -344,13 +344,13 @@ def setupwordpress(self, data):
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
-                                    .format(WOVariables.wo_wpcli_path)
-                                    + " core config "
-                                    + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
+                                    .format(WOVariables.wo_wpcli_path) +
+                                    " core config " +
+                                    "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbhost=\'{2}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
-                                            data['wo_db_host'])
-                                    + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
+                                            data['wo_db_host']) +
+                                    "--dbuser=\'{0}\' --dbpass=\'{1}\' "
                                     "--extra-php<<PHP \n {2} {3} {redissalt}\nPHP\""
                                     .format(data['wo_db_user'],
                                             data['wo_db_pass'],
@@ -569,13 +569,13 @@ def uninstallwp_plugin(self, plugin_name, data):
              .format(plugin_name))
     try:
         WOShellExec.cmd_exec(self, "php {0} plugin "
-                             .format(WOVariables.wo_wpcli_path)
-                             + "--allow-root deactivate "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "--allow-root deactivate "
                              "{0}".format(plugin_name))
 
         WOShellExec.cmd_exec(self, "php {0} plugin "
-                             .format(WOVariables.wo_wpcli_path)
-                             + "--allow-root uninstall "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "--allow-root uninstall "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
         raise SiteError("plugin uninstall failed")
@@ -590,16 +590,17 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
     if not data['multisite']:
         try:
             WOShellExec.cmd_exec(self, "php {0} "
-                                 .format(WOVariables.wo_wpcli_path)
-                                 + "--allow-root option update "
-                                 "{0} \'{1}\' --format=json".format(plugin_option, plugin_data))
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "--allow-root option update "
+                                 "{0} \'{1}\' --format=json"
+                                 .format(plugin_option, plugin_data))
         except CommandExecutionError as e:
             raise SiteError("plugin setup failed")
     else:
         try:
             WOShellExec.cmd_exec(self, "php {0} "
-                                 .format(WOVariables.wo_wpcli_path)
-                                 + "--allow-root network meta update 1 "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "--allow-root network meta update 1 "
                                  "{0} \'{1}\' --format=json"
                                  .format(plugin_option, plugin_data
                                          ))
@@ -730,7 +731,8 @@ def site_package_check(self, stype):
             else:
                 apt_packages = apt_packages + WOVariables.wo_php
 
-    if self.app.pargs.php73 and stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if self.app.pargs.php73 and stype in ['mysql', 'wp',
+                                          'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
@@ -799,7 +801,7 @@ def site_package_check(self, stype):
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                 apt_packages = apt_packages + WOVariables.wo_php + \
-                     WOVariables.wo_php73 + WOVariables.wo_php_extra
+                    WOVariables.wo_php73 + WOVariables.wo_php_extra
             else:
                 apt_packages = apt_packages + WOVariables.wo_php73
 
@@ -1146,8 +1148,8 @@ def deleteDB(self, dbname, dbuser, dbhost, exit=True):
 def deleteWebRoot(self, webroot):
     # do some preprocessing before proceeding
     webroot = webroot.strip()
-    if (webroot == "/var/www/" or webroot == "/var/www"
-            or webroot == "/var/www/.." or webroot == "/var/www/."):
+    if (webroot == "/var/www/" or webroot == "/var/www" or
+            webroot == "/var/www/.." or webroot == "/var/www/."):
         Log.debug(self, "Tried to remove {0}, but didn't remove it"
                   .format(webroot))
         return False
@@ -1200,7 +1202,8 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
 # setup letsencrypt for domain + www.domain
 def setupLetsEncrypt(self, wo_domain_name):
 
-    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"):
+    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
+                      .format(wo_domain_name)):
         if os.path.isfile("/etc/letsencrypt/"
                           "renewal/{0}_ecc/"
                           "fullchain.cer".format(wo_domain_name)):
@@ -1281,7 +1284,8 @@ def setupLetsEncrypt(self, wo_domain_name):
 
 def setupLetsEncryptSubdomain(self, wo_domain_name):
 
-    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"):
+    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
+                      .format(wo_domain_name)):
         if os.path.isfile("/etc/letsencrypt/"
                           "renewal/{0}_ecc/"
                           "fullchain.cer".format(wo_domain_name)):
@@ -1405,6 +1409,25 @@ def renewLetsEncrypt(self, wo_domain_name):
 # redirect= False to disable https redirection
 
 
+def setupHsts(self, wo_domain_name):
+    if os.path.isfile("/etc/letsencrypt/"
+                      "renewal/{0}_ecc/"
+                      "fullchain.cer".format(wo_domain_name)):
+        Log.info(
+            self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
+            .format(wo_domain_name))
+
+        hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
+                        .format(wo_domain_name),
+                        encoding='utf-8', mode='w')
+        hstsconf.write("more_set_headers "
+                       "\"Strict-Transport-Security: "
+                       "max-age=31536000; "
+                       "'includeSubDomains; "
+                       "preload\"")
+        hstsconf.close()
+
+
 def httpsRedirect(self, wo_domain_name, redirect=True):
     if redirect:
         if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
@@ -1426,23 +1449,30 @@ def httpsRedirect(self, wo_domain_name, redirect=True):
                 sslconf.write("server {\n"
                               "\tlisten 80;\n" +
                               "\tlisten [::]:80;\n" +
-                              "\tserver_name www.{0} {0};\n".format(wo_domain_name) +
-                              "\treturn 301 https://{0}".format(wo_domain_name)+"$request_uri;\n}")
+                              "\tserver_name www.{0} {0};\n"
+                              .format(wo_domain_name) +
+                              "\treturn 301 https://{0}"
+                              .format(wo_domain_name)+"$request_uri;\n}")
                 sslconf.close()
                 # Nginx Configation into GIT
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.debug(self, "Error occured while generating "
-                          "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
+                          "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                          .format(wo_domain_name))
 
         Log.info(self, "Added HTTPS Force Redirection for Site "
                  " http://{0}".format(wo_domain_name))
         WOGit.add(self,
-                  ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name))
+                  ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
+                  "force-ssl-{0}.conf".format(wo_domain_name))
     else:
-        if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name)):
-            WOFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf".format(wo_domain_name),
-                               "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(wo_domain_name))
+        if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                          .format(wo_domain_name)):
+            WOFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                               .format(wo_domain_name),
+                               "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
+                               .format(wo_domain_name))
             Log.info(self, "Disabled HTTPS Force Redirection for Site "
                      " http://{0}".format(wo_domain_name))
 
@@ -1478,7 +1508,8 @@ def archivedCertificateHandle(self, domain):
                                    "{0}/{1}/fullchain.pem "
                                    "--reloadcmd "
                                    "\"service nginx restart\" "
-                                         .format(WOVariables.wo_ssl_live, domain))
+                                   .format(WOVariables.wo_ssl_live,
+                                           domain))
         if ssl:
 
             try:
@@ -1525,7 +1556,7 @@ def archivedCertificateHandle(self, domain):
                                    "'/etc/letsencrypt/config' "
                                    "--renew -d {0} --ecc "
                                    "--force"
-                                         .format(domain))
+                                   .format(domain))
 
         if ssl:
 

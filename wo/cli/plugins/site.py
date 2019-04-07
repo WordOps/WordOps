@@ -753,6 +753,11 @@ class WOSiteUpdateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
+            (['--hsts'],
+             dict(help="configure hsts on site secured with letsencrypt",
+                  action='store' or 'store_const',
+                  choices=('on', 'off'),
+                  const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1073,6 +1078,16 @@ class WOSiteUpdateController(CementBaseController):
             elif pargs.letsencrypt == 'off':
                 data['letsencrypt'] = False
                 letsencrypt = False
+                data['hsts'] = False
+                hsts = False
+
+        if pargs.hsts:
+            if pargs.hsts == 'on':
+                data['hsts'] = True
+                hsts = True
+            elif pargs.hsts == 'off':
+                data['hsts'] = False
+                hsts = False
 
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
@@ -1170,12 +1185,23 @@ class WOSiteUpdateController(CementBaseController):
                                        .format(wo_site_webroot))
 
                 httpsRedirect(self, wo_domain)
+                if data['hsts'] is True:
+                    if not os.path.isfile(("{0}/conf/nginx/hsts.conf.disabled")
+                                          .format(wo_site_webroot)):
+                        setupHsts(self, wo_domain)
+                    else:
+                        WOFileUtils.mvfile(self, "{0}/conf/nginx/"
+                                           "hsts.conf.disabled"
+                                           .format(wo_site_webroot),
+                                           '{0}/conf/nginx/hsts.conf'
+                                           .format(wo_site_webroot))
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
 
-                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                Log.info(self, "Congratulations! Successfully "
+                         "Configured SSl for Site "
                          " https://{0}".format(wo_domain))
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
@@ -1194,6 +1220,12 @@ class WOSiteUpdateController(CementBaseController):
                                        '{0}/conf/nginx/ssl.conf.disabled'
                                        .format(wo_site_webroot))
                     httpsRedirect(self, wo_domain, False)
+                    if os.path.isfile("{0}/conf/nginx/hsts.conf"
+                                      .format(wo_site_webroot)):
+                        WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
+                                           .format(wo_site_webroot),
+                                           '{0}/conf/nginx/hsts.conf.disabled'
+                                           .format(wo_site_webroot))
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
                                   "check issues with `nginx -t` command")
@@ -1217,6 +1249,16 @@ class WOSiteUpdateController(CementBaseController):
                                        .format(wo_site_webroot))
 
                 httpsRedirect(self, wo_domain)
+                if data['hsts'] is True:
+                    if not os.path.isfile(("{0}/conf/nginx/hsts.conf.disabled")
+                                          .format(wo_site_webroot)):
+                        setupHsts(self, wo_domain)
+                    else:
+                        WOFileUtils.mvfile(self, "{0}/conf/nginx/"
+                                           "hsts.conf.disabled"
+                                           .format(wo_site_webroot),
+                                           '{0}/conf/nginx/hsts.conf'
+                                           .format(wo_site_webroot))
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1243,6 +1285,14 @@ class WOSiteUpdateController(CementBaseController):
                                        '{0}/conf/nginx/ssl.conf.disabled'
                                        .format(wo_site_webroot))
                     httpsRedirect(self, wo_domain, False)
+                    if os.path.isfile(("{0}/conf/nginx/hsts.conf")
+                                      .format(wo_site_webroot)):
+                        WOFileUtils.mvfile(self, "{0}/conf/nginx/"
+                                           "hsts.conf"
+                                           .format(wo_site_webroot),
+                                           '{0}/conf/nginx/hsts.conf.disabled'
+                                           .format(wo_site_webroot))
+
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
                                   "check issues with `nginx -t` command")
@@ -1269,7 +1319,8 @@ class WOSiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False, php_version=check_php_version)
+                           ssl=True if check_site.is_ssl else False,
+                           php_version=check_php_version)
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
@@ -1327,44 +1378,94 @@ class WOSiteUpdateController(CementBaseController):
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update site failed. "
                              "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` and please try again")
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
                     return 1
 
             if ((oldcachetype in ['wpsc', 'basic', 'wpredis'] and
                  (data['wpfc'])) or (oldsitetype == 'wp' and data['multisite'] and data['wpfc'])):
                 try:
-                    plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_fastcgi","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+                    plugin_data = '{"log_level":"INFO","log_filesize":5,'
+                    '"enable_purge":1,"enable_map":0,"enable_log":0,'
+                    '"enable_stamp":0,"purge_homepage_on_new":1,'
+                    '"purge_homepage_on_edit":1,"purge_homepage_on_del":1,'
+                    '"purge_archive_on_new":1,"purge_archive_on_edit":0,'
+                    '"purge_archive_on_del":0,"purge_archive_on_new_comment":0,'
+                    '"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,'
+                    '"purge_page_on_new_comment":1,'
+                    '"purge_page_on_deleted_comment":1,'
+                    '"cache_method":"enable_fastcgi",'
+                    '"purge_method":"get_request",'
+                    '"redis_hostname":"127.0.0.1","redis_port":"6379",'
+                    '"redis_prefix":"nginx-cache:"}'
                     setupwp_plugin(
-                        self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+                        self, 'nginx-helper',
+                        'rt_wp_nginx_helper_options', plugin_data, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL + "Update nginx-helper settings failed. "
+                    Log.info(self, Log.FAIL + "Update nginx-helper "
+                             "settings failed. "
                              "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` and please try again")
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
                     return 1
 
             elif ((oldcachetype in ['wpsc', 'basic', 'wpfc'] and
-                   (data['wpredis'])) or (oldsitetype == 'wp' and data['multisite'] and data['wpredis'])):
+                   (data['wpredis'])) or (oldsitetype == 'wp' and
+                                          data['multisite'] and data['wpredis'])):
                 try:
-                    plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+                    plugin_data = '{"log_level":"INFO","log_filesize":5,'
+                    '"enable_purge":1,"enable_map":0,"enable_log":0,'
+                    '"enable_stamp":0,"purge_homepage_on_new":1,'
+                    '"purge_homepage_on_edit":1,"purge_homepage_on_del":1,'
+                    '"purge_archive_on_new":1,"purge_archive_on_edit":0,'
+                    '"purge_archive_on_del":0,'
+                    '"purge_archive_on_new_comment":0,'
+                    '"purge_archive_on_deleted_comment":0,'
+                    '"purge_page_on_mod":1,'
+                    '"purge_page_on_new_comment":1,'
+                    '"purge_page_on_deleted_comment":1,'
+                    '"cache_method":"enable_redis",'
+                    '"purge_method":"get_request",'
+                    '"redis_hostname":"127.0.0.1","redis_port":"6379",'
+                    '"redis_prefix":"nginx-cache:"}'
                     setupwp_plugin(
-                        self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+                        self, 'nginx-helper',
+                        'rt_wp_nginx_helper_options', plugin_data, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL + "Update nginx-helper settings failed. "
+                    Log.info(self, Log.FAIL + "Update nginx-helper "
+                             "settings failed. "
                              "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` and please try again")
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
                     return 1
             else:
                 try:
-                    plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":0,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+                    plugin_data = '{"log_level":"INFO","log_filesize":5,'
+                    '"enable_purge":0,"enable_map":0,"enable_log":0,'
+                    '"enable_stamp":0,"purge_homepage_on_new":1,'
+                    '"purge_homepage_on_edit":1,"purge_homepage_on_del":1,'
+                    '"purge_archive_on_new":1,"purge_archive_on_edit":0,'
+                    '"purge_archive_on_del":0,'
+                    '"purge_archive_on_new_comment":0,'
+                    '"purge_archive_on_deleted_comment":0,'
+                    '"purge_page_on_mod":1,"purge_page_on_new_comment":1,'
+                    '"purge_page_on_deleted_comment":1,'
+                    '"cache_method":"enable_redis",'
+                    '"purge_method":"get_request",'
+                    '"redis_hostname":"127.0.0.1",'
+                    '"redis_port":"6379","redis_prefix":"nginx-cache:"}'
                     setupwp_plugin(
-                        self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+                        self, 'nginx-helper',
+                        'rt_wp_nginx_helper_options', plugin_data, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL + "Update nginx-helper settings failed. "
+                    Log.info(self, Log.FAIL + "Update nginx-helper "
+                             "settings failed. "
                              "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` and please try again")
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
                     return 1
 
             if oldcachetype == 'wpsc' and not data['wpsc']:
@@ -1374,7 +1475,8 @@ class WOSiteUpdateController(CementBaseController):
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update site failed."
                              "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` and please try again")
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
                     return 1
 
             if oldcachetype == 'wpredis' and not data['wpredis']:
@@ -1384,7 +1486,8 @@ class WOSiteUpdateController(CementBaseController):
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update site failed."
                              "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` and please try again")
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
                     return 1
 
         if oldcachetype != 'wpsc' and data['wpsc']:
@@ -1401,10 +1504,12 @@ class WOSiteUpdateController(CementBaseController):
             try:
                 if installwp_plugin(self, 'redis-cache', data):
                     # search for wp-config.php
-                    if WOFileUtils.isexist(self, "{0}/wp-config.php".format(wo_site_webroot)):
+                    if WOFileUtils.isexist(self, "{0}/wp-config.php"
+                                           .format(wo_site_webroot)):
                         config_path = '{0}/wp-config.php'.format(
                             wo_site_webroot)
-                    elif WOFileUtils.isexist(self, "{0}/htdocs/wp-config.php".format(wo_site_webroot)):
+                    elif WOFileUtils.isexist(self, "{0}/htdocs/wp-config.php"
+                                             .format(wo_site_webroot)):
                         config_path = '{0}/htdocs/wp-config.php'.format(
                             wo_site_webroot)
                     else:

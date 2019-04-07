@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5 - 2019-04-03
+# Version 3.9.5 - 2019-04-05
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.4.3"
+readonly wo_version_new="3.9.4.4"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -81,7 +81,11 @@ fi
 ###
 # 1 - Define variables for later use
 ###
-wo_branch="$1"
+if [ -n "$1" ]; then
+    wo_branch="$1"
+else
+    wo_branch="master"
+fi
 readonly wo_log_dir=/var/log/wo/
 readonly wo_backup_dir=/var/lib/wo-backup/
 readonly wo_install_log=/var/log/wo/install.log
@@ -380,10 +384,6 @@ wo_install() {
     {
         rm -rf /tmp/easyengine
         rm -rf /tmp/wordops
-
-        [ -z "$wo_branch" ] && {
-            wo_branch=master
-        }
 
         git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet
 

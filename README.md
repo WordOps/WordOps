@@ -1,7 +1,7 @@
-<h1 align="center" style="font-size:54px;"><a href="https://wordops.net">
-  WordOps</a>
+<p align="center"><img src="https://docs.wordops.net/images/logo.png" width="400" alt="Wordops" /><a href="https://wordops.net">
+
   <br>
-</h1>
+</p>
 
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
