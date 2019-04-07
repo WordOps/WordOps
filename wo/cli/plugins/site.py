@@ -163,7 +163,8 @@ class WOSiteController(CementBaseController):
                 sslexpiry = ''
             data = dict(domain=wo_domain, webroot=wo_site_webroot,
                         accesslog=access_log, errorlog=error_log,
-                        dbname=wo_db_name, dbuser=wo_db_user, php_version=php_version,
+                        dbname=wo_db_name, dbuser=wo_db_user,
+                        php_version=php_version,
                         dbpass=wo_db_pass,
                         ssl=ssl, sslprovider=sslprovider,  sslexpiry=sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
@@ -279,7 +280,8 @@ class WOSiteEditController(CementBaseController):
             except CommandExecutionError as e:
                 Log.error(self, "Failed invoke editor")
             if (WOGit.checkfilestatus(self, "/etc/nginx",
-                                      '/etc/nginx/sites-available/{0}'.format(wo_domain))):
+                                      '/etc/nginx/sites-available/{0}'
+                                      .format(wo_domain))):
                 WOGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
                           .format(wo_domain))
                 # Reload NGINX
@@ -334,6 +336,8 @@ class WOSiteCreateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
+            (['--hsts'],
+                dict(help="enable HSTS for site secured with letsencrypt")),
             (['--user'],
                 dict(help="provide user for WordPress site")),
             (['--email'],
@@ -493,7 +497,8 @@ class WOSiteCreateController(CementBaseController):
                                 webroot=data['webroot'])
                 Log.debug(self, str(e))
                 Log.error(self, "Check the log for details: "
-                          "`tail /var/log/wo/wordops.log` and please try again")
+                          "`tail /var/log/wo/wordops.log` "
+                          "and please try again")
 
             if 'proxy' in data.keys() and data['proxy']:
                 addNewSite(self, wo_domain, stype, cache, wo_site_webroot)
@@ -507,7 +512,8 @@ class WOSiteCreateController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
                     Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` and please try again")
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
                 if wo_auth and len(wo_auth):
                     for msg in wo_auth:
                         Log.info(self, Log.ENDC + msg, log=False)
@@ -545,7 +551,8 @@ class WOSiteCreateController(CementBaseController):
                                     dbhost=data['wo_db_host'])
                     deleteSiteInfo(self, wo_domain)
                     Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` and please try again")
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
 
                 try:
                     wodbconfig = open("{0}/wo-config.php"
@@ -575,7 +582,8 @@ class WOSiteCreateController(CementBaseController):
                                     dbhost=data['wo_db_host'])
                     deleteSiteInfo(self, wo_domain)
                     Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` and please try again")
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
 
             # Setup WordPress if Wordpress site
             if data['wp']:
@@ -599,7 +607,8 @@ class WOSiteCreateController(CementBaseController):
                                     dbhost=data['wo_mysql_grant_host'])
                     deleteSiteInfo(self, wo_domain)
                     Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` and please try again")
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
 
             # Service Nginx Reload call cleanup if failed to reload nginx
             if not WOService.reload_service(self, 'nginx'):
@@ -617,7 +626,8 @@ class WOSiteCreateController(CementBaseController):
                 Log.info(self, Log.FAIL + "service nginx reload failed."
                          " check issues with `nginx -t` command.")
                 Log.error(self, "Check the log for details: "
-                          "`tail /var/log/wo/wordops.log` and please try again")
+                          "`tail /var/log/wo/wordops.log` "
+                          "and please try again")
 
             WOGit.add(self, ["/etc/nginx"],
                       msg="{0} created with {1} {2}"
@@ -640,7 +650,8 @@ class WOSiteCreateController(CementBaseController):
                                     dbhost=data['wo_mysql_grant_host'])
                 deleteSiteInfo(self, wo_domain)
                 Log.error(self, "Check the log for details: "
-                          "`tail /var/log/wo/wordops.log` and please try again")
+                          "`tail /var/log/wo/wordops.log` and "
+                          "please try again")
 
             if wo_auth and len(wo_auth):
                 for msg in wo_auth:
@@ -664,15 +675,23 @@ class WOSiteCreateController(CementBaseController):
             data['letsencrypt'] = True
             letsencrypt = True
 
+            if self.app.pargs.hsts == 'on':
+                data['hsts'] = True
+                hsts = True
+
             if data['letsencrypt'] is True:
                 setupLetsEncrypt(self, wo_domain)
                 httpsRedirect(self, wo_domain)
+
+                if data['hsts'] is True:
+                    setupHsts(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
 
-                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                Log.info(self, "Congratulations! Successfully Configured "
+                         "SSl for Site "
                          " https://{0}".format(wo_domain))
 
                 # Add nginx conf folder into GIT
@@ -689,15 +708,23 @@ class WOSiteCreateController(CementBaseController):
             data['letsencrypt'] = True
             letsencrypt = True
 
+            if self.app.pargs.hsts == 'on':
+                data['hsts'] = True
+                hsts = True
+
             if data['letsencrypt'] is True:
                 setupLetsEncryptSubdomain(self, wo_domain)
                 httpsRedirect(self, wo_domain)
+
+                if data['hsts'] is True:
+                    setupHsts(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
 
-                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                Log.info(self, "Congratulations! Successfully Configured "
+                         "SSl for Site "
                          " https://{0}".format(wo_domain))
 
                 # Add nginx conf folder into GIT
@@ -1014,7 +1041,8 @@ class WOSiteUpdateController(CementBaseController):
                            " https://{0}".format(wo_domain))
             if (SSL.getExpirationDays(self, wo_domain) > 0):
                 Log.info(self, "Your cert will expire within " +
-                         str(SSL.getExpirationDays(self, wo_domain)) + " days.")
+                         str(SSL.getExpirationDays(self, wo_domain)) +
+                         " days.")
                 Log.info(self, "Expiration date: " +
                          str(SSL.getExpirationDate(self, wo_domain)))
 
@@ -1045,12 +1073,14 @@ class WOSiteUpdateController(CementBaseController):
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) + " days.")
+                             str(SSL.getExpirationDays(self, wo_domain)) +
+                             " days.")
                     Log.info(self, "Expiration date: \n\n" +
                              str(SSL.getExpirationDate(self, wo_domain)))
                 return 0
                 # else:
-                #       Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+                #       Log.warn(self, "Your cert already EXPIRED !
+                #  .PLEASE renew soon . ")
             else:
                 Log.info(
                     self, "SSL not configured for "
@@ -1206,10 +1236,12 @@ class WOSiteUpdateController(CementBaseController):
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) + " days.")
+                             str(SSL.getExpirationDays(self, wo_domain)) +
+                             " days.")
                 else:
                     Log.warn(
-                        self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+                        self, "Your cert already EXPIRED ! "
+                        ".PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
                 if os.path.isfile("{0}/conf/nginx/ssl.conf"
@@ -1270,7 +1302,8 @@ class WOSiteUpdateController(CementBaseController):
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) + " days.")
+                             str(SSL.getExpirationDays(self, wo_domain)) +
+                             " days.")
                 else:
                     Log.warn(
                         self, "Your cert already EXPIRED !"
@@ -1383,15 +1416,18 @@ class WOSiteUpdateController(CementBaseController):
                     return 1
 
             if ((oldcachetype in ['wpsc', 'basic', 'wpredis'] and
-                 (data['wpfc'])) or (oldsitetype == 'wp' and data['multisite'] and data['wpfc'])):
+                 (data['wpfc'])) or (oldsitetype == 'wp' and
+                                     data['multisite'] and data['wpfc'])):
                 try:
                     plugin_data = '{"log_level":"INFO","log_filesize":5,'
                     '"enable_purge":1,"enable_map":0,"enable_log":0,'
                     '"enable_stamp":0,"purge_homepage_on_new":1,'
                     '"purge_homepage_on_edit":1,"purge_homepage_on_del":1,'
                     '"purge_archive_on_new":1,"purge_archive_on_edit":0,'
-                    '"purge_archive_on_del":0,"purge_archive_on_new_comment":0,'
-                    '"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,'
+                    '"purge_archive_on_del":0,'
+                    '"purge_archive_on_new_comment":0,'
+                    '"purge_archive_on_deleted_comment":0,'
+                    '"purge_page_on_mod":1,'
                     '"purge_page_on_new_comment":1,'
                     '"purge_page_on_deleted_comment":1,'
                     '"cache_method":"enable_fastcgi",'
@@ -1412,7 +1448,8 @@ class WOSiteUpdateController(CementBaseController):
 
             elif ((oldcachetype in ['wpsc', 'basic', 'wpfc'] and
                    (data['wpredis'])) or (oldsitetype == 'wp' and
-                                          data['multisite'] and data['wpredis'])):
+                                          data['multisite'] and
+                                          data['wpredis'])):
                 try:
                     plugin_data = '{"log_level":"INFO","log_filesize":5,'
                     '"enable_purge":1,"enable_map":0,"enable_log":0,'
@@ -1520,14 +1557,16 @@ class WOSiteUpdateController(CementBaseController):
                             self, "wp-config.php could not be located !!")
                         raise SiteError
 
-                    if WOShellExec.cmd_exec(self, "grep -q \"WP_CACHE_KEY_SALT\" {0}"
+                    if WOShellExec.cmd_exec(self, "grep -q "
+                                            "\"WP_CACHE_KEY_SALT\" {0}"
                                                   .format(config_path)):
                         pass
                     else:
                         try:
                             wpconfig = open("{0}".format(config_path),
                                             encoding='utf-8', mode='a')
-                            wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
+                            wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\',"
+                                           " \'{0}:\' );"
                                            .format(wo_domain))
                             wpconfig.close()
                         except IOError as e:
@@ -1535,7 +1574,8 @@ class WOSiteUpdateController(CementBaseController):
                             Log.debug(self, "Updating wp-config.php failed.")
                             Log.warn(self, "Updating wp-config.php failed. "
                                            "Could not append:"
-                                           "\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );".format(wo_domain) +
+                                           "\ndefine( \'WP_CACHE_KEY_SALT\', "
+                                     "\'{0}:\' );".format(wo_domain) +
                                            "\nPlease add manually")
             except SiteError as e:
                 Log.debug(self, str(e))
@@ -1578,10 +1618,12 @@ class WOSiteUpdateController(CementBaseController):
                            db_user=data['wo_db_user'],
                            db_password=data['wo_db_pass'],
                            db_host=data['wo_db_host'],
-                           ssl=True if check_site.is_ssl else False, php_version=check_php_version)
+                           ssl=True if check_site.is_ssl else False,
+                           php_version=check_php_version)
         else:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False, php_version=check_php_version)
+                           ssl=True if check_site.is_ssl else False,
+                           php_version=check_php_version)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(wo_domain))
         return 0
@@ -1713,9 +1755,11 @@ class WOSiteDeleteController(CementBaseController):
                 deleteSiteInfo(self, wo_domain)
                 Log.info(self, "Deleted site {0}".format(wo_domain))
                 # else:
-                # Log.error(self, " site {0} does not exists".format(wo_domain))
+                # Log.error(self, " site {0} does
+                # not exists".format(wo_domain))
         else:
-            if (mark_db_delete_prompt or mark_webroot_delete_prompt or (mark_webroot_deleted and mark_db_deleted)):
+            if (mark_db_delete_prompt or mark_webroot_delete_prompt or
+                    (mark_webroot_deleted and mark_db_deleted)):
                 # TODO Delete nginx conf
                 removeNginxConf(self, wo_domain)
                 deleteSiteInfo(self, wo_domain)
