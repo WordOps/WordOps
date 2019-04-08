@@ -53,7 +53,6 @@ class WOShellExec():
                 Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
                 raise CommandExecutionError
 
-
     def cmd_exec_stdout(self, command, errormsg='', log=True):
         """Run shell command from Python"""
         try:

@@ -1410,22 +1410,19 @@ def renewLetsEncrypt(self, wo_domain_name):
 
 
 def setupHsts(self, wo_domain_name):
-    if os.path.isfile("/etc/letsencrypt/"
-                      "renewal/{0}_ecc/"
-                      "fullchain.cer".format(wo_domain_name)):
-        Log.info(
-            self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
-            .format(wo_domain_name))
+    Log.info(
+        self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
+        .format(wo_domain_name))
 
-        hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
-                        .format(wo_domain_name),
-                        encoding='utf-8', mode='w')
-        hstsconf.write("more_set_headers "
-                       "\"Strict-Transport-Security: "
-                       "max-age=31536000; "
-                       "'includeSubDomains; "
-                       "preload\";")
-        hstsconf.close()
+    hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
+                    .format(wo_domain_name),
+                    encoding='utf-8', mode='w')
+    hstsconf.write("more_set_headers "
+                   "\"Strict-Transport-Security: "
+                   "max-age=31536000; "
+                   "'includeSubDomains; "
+                   "preload\";")
+    hstsconf.close()
 
 
 def httpsRedirect(self, wo_domain_name, redirect=True):

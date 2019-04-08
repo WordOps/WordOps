@@ -783,10 +783,8 @@ class WOSiteUpdateController(CementBaseController):
                      choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
             (['--hsts'],
-             dict(help="configure HSTS on site secured with letsencrypt",
-                  action='store' or 'store_const',
-                  choices=('on', 'off'),
-                  const='on', nargs='?')),
+                dict(help="configure HSTS on site secured with letsencrypt",
+                     action='store_true')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1110,8 +1108,6 @@ class WOSiteUpdateController(CementBaseController):
             elif pargs.letsencrypt == 'off':
                 data['letsencrypt'] = False
                 letsencrypt = False
-                data['hsts'] = False
-                hsts = False
 
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
@@ -1123,12 +1119,6 @@ class WOSiteUpdateController(CementBaseController):
                 pargs.letsencrypt = False
 
             if pargs.hsts:
-                if pargs.hsts == 'on':
-                    data['hsts'] = True
-                    hsts = True
-                elif pargs.hsts == 'off':
-                    data['hsts'] = False
-                    hsts = False
 
         if data and (not pargs.php73):
             if old_php73 is True:
@@ -1217,16 +1207,6 @@ class WOSiteUpdateController(CementBaseController):
                                        .format(wo_site_webroot))
 
                 httpsRedirect(self, wo_domain)
-                if data['hsts'] is True:
-                    if not os.path.isfile(("{0}/conf/nginx/hsts.conf.disabled")
-                                          .format(wo_site_webroot)):
-                        setupHsts(self, wo_domain)
-                    else:
-                        WOFileUtils.mvfile(self, "{0}/conf/nginx/"
-                                           "hsts.conf.disabled"
-                                           .format(wo_site_webroot),
-                                           '{0}/conf/nginx/hsts.conf'
-                                           .format(wo_site_webroot))
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1283,16 +1263,6 @@ class WOSiteUpdateController(CementBaseController):
                                        .format(wo_site_webroot))
 
                 httpsRedirect(self, wo_domain)
-                if data['hsts'] is True:
-                    if not os.path.isfile(("{0}/conf/nginx/hsts.conf.disabled")
-                                          .format(wo_site_webroot)):
-                        setupHsts(self, wo_domain)
-                    else:
-                        WOFileUtils.mvfile(self, "{0}/conf/nginx/"
-                                           "hsts.conf.disabled"
-                                           .format(wo_site_webroot),
-                                           '{0}/conf/nginx/hsts.conf'
-                                           .format(wo_site_webroot))
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1346,7 +1316,7 @@ class WOSiteUpdateController(CementBaseController):
             updateSiteInfo(self, wo_domain, ssl=letsencrypt)
             return 0
 
-        if pargs.htsts == "on":
+        if pargs.hsts:
             if check_ssl:
                 if not os.path.isfile(("{0}/conf/nginx/hsts.conf.disabled")
                                       .format(wo_site_webroot)):
@@ -1360,23 +1330,7 @@ class WOSiteUpdateController(CementBaseController):
             else:
                 Log.error(self, "HTTPS is not configured for given "
                           "site")
-                return 0
-
-        if pargs.htsts == "off":
-            if os.path.isfile(("{0}/conf/nginx/hsts.conf")
-                              .format(wo_site_webroot)):
-                WOFileUtils.mvfile(self, "{0}/conf/nginx/"
-                                   "hsts.conf"
-                                   .format(wo_site_webroot),
-                                   '{0}/conf/nginx/hsts.conf.disabled'
-                                   .format(wo_site_webroot))
-
-                if not WOService.reload_service(self, 'nginx'):
-                    Log.error(self, "service nginx reload failed. "
-                              "check issues with `nginx -t` command")
-            else:
-                Log.error(self, "HSTS is not configured for given "
-                          "site")
+            return 0
 
         if stype == oldsitetype and cache == oldcachetype:
 
