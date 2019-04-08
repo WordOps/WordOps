@@ -1118,8 +1118,6 @@ class WOSiteUpdateController(CementBaseController):
                               "site")
                 pargs.letsencrypt = False
 
-            if pargs.hsts:
-
         if data and (not pargs.php73):
             if old_php73 is True:
                 data['php73'] = True
