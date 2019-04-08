@@ -9,8 +9,8 @@ class SSL:
         # check if exist
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            Log.error(self, 'File Not Found: "
-                      "/etc/letsencrypt/live/{0}/cert.pem'"
+            Log.error(self, 'File Not Found: '
+                      '/etc/letsencrypt/live/{0}/cert.pem'
                       .format(domain), False)
             if returnonerror:
                 return -1
@@ -38,8 +38,8 @@ class SSL:
         # check if exist
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            Log.error(self, 'File Not Found: "/etc/letsencrypt/"
-                      "live/{0}/cert.pem'"
+            Log.error(self, 'File Not Found: /etc/letsencrypt/'
+                      'live/{0}/cert.pem'
                       .format(domain), False)
             Log.error(self, "Check the WordOps log for more details "
                       "`tail /var/log/wo/wordops.log` and please try again...")
