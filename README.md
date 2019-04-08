@@ -63,7 +63,7 @@
 ## Getting Started
 
 ```bash
-wget -qO wo wordops.io/install && sudo bash wo     # Install WordOps
+wget -qO wo wops.cc && sudo bash wo     # Install WordOps
 sudo wo site create example.com --wp     # Install required packages & setup WordPress on example.com
 ```
 
