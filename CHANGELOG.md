@@ -28,7 +28,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Netdata on backend : https://server.hostname:22222/netdata/
 - New Stacks : composer and netdata
 - additional argument for letsencrypt : --hsts
-- refactor install script
 
 #### Changed
 
@@ -39,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Increase MySQL root password size to 16 characters
 - Increase MySQL users password size to 16 characters
 - Nginx locations template is the same for php7.2 & 7.3
+- refactor install script
 
 #### Fixed
 
