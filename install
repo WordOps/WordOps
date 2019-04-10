@@ -382,12 +382,8 @@ wo_install_acme_sh() {
 # Now, finally, let's install WordOps
 wo_install() {
     {
-        rm -rf /tmp/easyengine
-        rm -rf /tmp/wordops
 
-        git clone -b "$wo_branch" https://github.com/WordOps/WordOps.git /tmp/wordops --quiet
-
-        cd /tmp/wordops || exit 1
+        cd /tmp/WordOps || exit 1
     } >> "$wo_install_log" 2>&1
     python3 setup.py install
 

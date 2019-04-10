@@ -23,14 +23,20 @@ fi
     apt-get update -qq && apt-get install git -qq
 } > /dev/null 2>&1
 
+if [ "${#}" = "0" ]; then
+    wo_branch=master
+else
+    wo_branch="$@"
+fi
+
 # update or clone wordops repositoru
 if [ -d /tmp/WordOps/.git ]; then
     git -C /tmp/WordOps pull origin master -q
 else
     rm -rf /tmp/WordOps
-    git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$@" -q
+    git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch" -q
 fi
 
 if [ -x /tmp/WordOps/install ]; then
-/tmp/WordOps/install "$@"
+    /tmp/WordOps/install "$wo_branch"
 fi
