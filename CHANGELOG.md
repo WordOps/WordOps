@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Netdata on backend : https://server.hostname:22222/netdata/
 - New Stacks : composer and netdata
 - additional argument for letsencrypt : --hsts
-- wo.sh installer downloader script
+- refactor install script
 
 #### Changed
 

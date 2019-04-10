@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5 - 2019-04-05
+# Version 3.9.5 - 2019-04-10
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.4.4"
+readonly wo_version_new="3.9.4.5"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -81,11 +81,6 @@ fi
 ###
 # 1 - Define variables for later use
 ###
-if [ -n "$1" ]; then
-    wo_branch="$1"
-else
-    wo_branch="master"
-fi
 readonly wo_log_dir=/var/log/wo/
 readonly wo_backup_dir=/var/lib/wo-backup/
 readonly wo_install_log=/var/log/wo/install.log
@@ -99,9 +94,9 @@ EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
 WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
 
 if [ -x /usr/local/bin/ee ]; then
-    migration=1
-else
-    migration=0
+    ee_migration=1
+elif [ -x /usr/local/bin/wo ]; then
+    wo_upgrade=1
 fi
 
 ###
@@ -158,20 +153,20 @@ wo_install_dep() {
         locale-gen en
     } >> "$wo_install_log" 2>&1
     # Support PFS
-    if [ -f /etc/nginx/nginx.conf ]; then
-        # Replace previous ciphers
-        new_ciphers="EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES"
-        sed -i "s/ssl_ciphers\ \(\"\|.\|'\)\(.*\)\(\"\|.\|'\);/ssl_ciphers \"$new_ciphers\";/" /etc/nginx/nginx.conf
-        # Change the TLS protocols
-        sed -i "s/ssl_protocols\ \(.*\);/ssl_protocols TLSv1.2;/" /etc/nginx/nginx.conf
-    fi
+    # if [ -f /etc/nginx/nginx.conf ]; then
+    #     # Replace previous ciphers
+    #     new_ciphers="EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES"
+    #     sed -i "s/ssl_ciphers\ \(\"\|.\|'\)\(.*\)\(\"\|.\|'\);/ssl_ciphers \"$new_ciphers\";/" /etc/nginx/nginx.conf
+    #     # Change the TLS protocols
+    #     sed -i "s/ssl_protocols\ \(.*\);/ssl_protocols TLSv1.2;/" /etc/nginx/nginx.conf
+    # fi
 
-    # Let's Encrypt .well-known folder setup
-    if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
-        mkdir -p /var/www/html/.well-known/acme-challenge
-        chown -R www-data:www-data /var/www/html /var/www/html/.well-known
-        chmod 750 /var/www/html /var/www/html/.well-known
-    fi
+    # # Let's Encrypt .well-known folder setup
+    # if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
+    #     mkdir -p /var/www/html/.well-known/acme-challenge
+    #     chown -R www-data:www-data /var/www/html /var/www/html/.well-known
+    #     chmod 750 /var/www/html /var/www/html/.well-known
+    # fi
 }
 
 ###
@@ -382,7 +377,6 @@ wo_install_acme_sh() {
 # Now, finally, let's install WordOps
 wo_install() {
     {
-
         cd /tmp/WordOps || exit 1
     } >> "$wo_install_log" 2>&1
     python3 setup.py install
@@ -687,22 +681,19 @@ fi
 
 wo sync | tee -ai $wo_install_log
 
-if [ "$migration" -eq "1" ]; then
+if [ "$ee_migration" -eq "1" ]; then
     echo
     wo_lib_echo "The migration from EasyEngine to WordOps was succesfull!"
     wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo-backup/ee-backup.tgz"
     echo
-    wo_lib_echo_info "For autocompletion, run the following command:"
-    wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
-    echo
-    wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
-    wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
-    echo
-    wo_lib_echo "For WordOps (wo) auto completion, run the following command"
-    echo
-    wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
-    echo
-    wo_lib_echo "Yay! WordOps (wo) installed/updated successfully"
-    wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
-    wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
+elif [ "$wo_upgrade" = "1" ]; then
+    wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
+else
+    wo_lib_echo "WordOps (wo) installed successfully"
 fi
+wo_lib_echo_info "For autocompletion, run the following command:"
+wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
+echo
+wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
+wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
+echo
