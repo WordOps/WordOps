@@ -402,9 +402,12 @@ wo_upgrade_nginx() {
             rm -rf /var/lib/wo-backup/nginx
         fi
         # backup nginx conf
-        /usr/bin/rsync -az /etc/nginx/ /var/lib/wo-backup/nginx/
-        /usr/bin/rsync -az /etc/php/ /var/lib/wo-backup/php/
-
+        if [ -d /etc/nginx ]; then
+            /usr/bin/rsync -az /etc/nginx/ /var/lib/wo-backup/nginx/
+        fi
+        if [ -d /etc/php ]; then
+            /usr/bin/rsync -az /etc/php/ /var/lib/wo-backup/php/
+        fi
         # chec if the package nginx-ee is installed
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
         CHECK_NGINX_WO=$(dpkg --list | grep nginx-wo)
@@ -462,10 +465,13 @@ wo_upgrade_nginx() {
                     rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                 fi
                 if [ -n "$CHECK_PHP73" ]; then
+                    WO_STACK_INSTALL_ARGS="--php73"
                     apt-get remove php7.3-fpm -y -qq --purge
                     rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+                else
+                    WO WO_STACK_INSTALL_ARGS=""
                 fi
-                /usr/local/bin/wo stack install --nginx --php --php73
+                /usr/local/bin/wo stack install --nginx --php $WO_STACK_INSTALL_ARGS
                 echo "$wo_version_new" > /etc/nginx/common/release
                 rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf}
             fi
@@ -693,13 +699,14 @@ if [ "$migration" -eq "1" ]; then
     wo_lib_echo_info "For autocompletion, run the following command:"
     wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
-    wo_lib_echo "WordOps (wo) help: https://docs.wordops.net"
-else
+    wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
+    wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
     echo
     wo_lib_echo "For WordOps (wo) auto completion, run the following command"
     echo
     wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
     wo_lib_echo "Yay! WordOps (wo) installed/updated successfully"
-    wo_lib_echo "WordOps (wo) help: https://docs.wordops.net"
+    wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
+    wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
 fi

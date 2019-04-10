@@ -21,7 +21,7 @@ script:
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
   - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt ccze tree
-  - sudo bash install $TRAVIS_BRANCH
+  - sudo bash wo.sh $TRAVIS_BRANCH
   - sudo wo --help
 
   - sudo wo site create wp-php73.net --wp --php73 || sudo tail -n50 /var/log/wo/wordops.log
