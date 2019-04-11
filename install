@@ -56,7 +56,7 @@ wo_lib_error() {
 ###
 if [[ $EUID -ne 0 ]]; then
     wo_lib_echo_fail "Sudo privilege required..."
-    wo_lib_echo_fail "Use: wget -qO wo wordops.se/tup && sudo bash wo"
+    wo_lib_echo_fail "Use: curl -sL wops.cc | sudo bash"
     exit 100
 fi
 
@@ -81,6 +81,11 @@ fi
 ###
 # 1 - Define variables for later use
 ###
+if [ -z "$1" ]; then
+    wo_branch=master
+else
+    wo_branch="$1"
+fi
 readonly wo_log_dir=/var/log/wo/
 readonly wo_backup_dir=/var/lib/wo-backup/
 readonly wo_install_log=/var/log/wo/install.log
@@ -227,8 +232,8 @@ wo_sync_db() {
 
                 wo_site_current_type=$(grep "common/" /etc/nginx/sites-available/$site | awk -F "/" '{print $2}')
 
-                if [ "$(echo "$wo_site_current_type" | grep php)" ]; then
-                    if [ "$(echo "$wo_site_current_type" | grep php7)" ]; then
+                if [ "$(echo $wo_site_current_type | grep php)" ]; then
+                    if [ "$(echo $wo_site_current_type | grep php7)" ]; then
                         wo_php_version="7.0"
                     else
                         wo_php_version="5.6"
@@ -237,28 +242,28 @@ wo_sync_db() {
                     wo_php_version=""
                 fi
 
-                if [ "$(echo "$wo_site_current_type" | grep redis)" ]; then
+                if [ "$(echo $wo_site_current_type | grep redis)" ]; then
                     wo_site_current_cache="wpredis"
-                elif [ -z "$(echo "$wo_site_current_type" | grep wpsc)" ]; then
+                elif [ -z "$(echo $wo_site_current_type | grep wpsc)" ]; then
                     wo_site_current_cache="wpsc"
-                elif [ -z "$(echo "$wo_site_current_type" | grep wpfc)" ]; then
+                elif [ -z "$(echo $wo_site_current_type | grep wpfc)" ]; then
                     wo_site_current_cache="wpfc"
                 else
                     wo_site_current_cache="basic"
                 fi
 
-                if [ "$(echo "$wo_site_current_type" | grep wp)" ]; then
-                    if [ -z "$(echo "$wo_site_current_type" | grep wpsubdir)" ]; then
+                if [ "$(echo $wo_site_current_type | grep wp)" ]; then
+                    if [ -z "$(echo $wo_site_current_type | grep wpsubdir)" ]; then
                         wo_site_current="wpsubdir"
-                    elif [ -z "$(echo "$wo_site_current_type" | grep wpsudomain)" ]; then
+                    elif [ -z "$(echo $wo_site_current_type | grep wpsudomain)" ]; then
                         wo_site_current="wpsubdomain"
                     else
                         wo_site_current="wp"
                     fi
                 else
-                    if [ -z "$(echo "$wo_site_current_type" | grep location)" ]; then
+                    if [ -z "$(echo $wo_site_current_type | grep location)" ]; then
                         wo_site_current="proxy"
-                    elif [ -z "$(echo "$wo_site_current_type" | grep php)" ]; then
+                    elif [ -z "$(echo $wo_site_current_type | grep php)" ]; then
                         wo_site_current="html"
                     else
                         if [ -f /var/www/${site}/ee-config.php ] || [ -f /var/www/${site}/wo-config.php ]; then
@@ -377,10 +382,12 @@ wo_install_acme_sh() {
 # Now, finally, let's install WordOps
 wo_install() {
     {
+        if [ ! -d /tmp/WordOps ]; then
+            git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch"
+        fi
         cd /tmp/WordOps || exit 1
     } >> "$wo_install_log" 2>&1
     python3 setup.py install
-
 }
 
 wo_upgrade_nginx() {

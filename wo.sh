@@ -15,7 +15,7 @@
 ###
 if [[ $EUID -ne 0 ]]; then
     wo_lib_echo_fail "Sudo privilege required..."
-    wo_lib_echo_fail "Use: wget -qO wo wops.cc && sudo bash wo"
+    wo_lib_echo_fail "Use: curl -sL wops.cc | sudo bash"
     exit 100
 fi
 
