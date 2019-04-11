@@ -24,10 +24,10 @@ script:
   - sudo bash wo.sh $TRAVIS_BRANCH
   - sudo wo --help
 
-  - sudo wo site create wp-php73.net --wp --php73 || sudo tail -n50 /var/log/wo/wordops.log
-
   - sudo wo stack install || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo stack install --admin || sudo tail -n50 /var/log/wo/wordops.log
+
+  - sudo wo site create wp-php73.net --wp --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create proxy.com --proxy=127.0.0.1:3000 || sudo tail -n50 /var/log/wo/wordops.log
@@ -62,5 +62,4 @@ script:
   - sudo wo info || sudo tail -n50 /var/log/wo/wordops.log
   - sudo bash -c 'nginx -T 2>&1 > /var/log/wo/nginx.log 2>&1' || sudo tail -n50 /var/log/wo/wordops.log
   - sudo bash -c 'tar -I pigz -cf wordops.tar.gz /var/log/wo'
-  - sudo curl --progress-bar --upload-file "wordops.tar.gz" https://transfer.vtbox.net/$(basename wordops.tar.gz) && echo "" || sudo echo "transfer.sh is down"
   - sudo tree -L 2 /etc/nginx

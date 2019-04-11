@@ -90,7 +90,8 @@ class WOStackController(CementBaseController):
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for MySQL, please wait...")
-            mysql_pref = ("Package: *\nPin: origin sfo1.mirrors.digitalocean.com"
+            mysql_pref = ("Package: *\nPin: origin "
+                          "sfo1.mirrors.digitalocean.com"
                           "\nPin-Priority: 1000\n")
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
@@ -487,7 +488,8 @@ class WOStackController(CementBaseController):
 
                     except CommandExecutionError as e:
                         Log.error(
-                            self, "Failed to generate HTTPS certificate for 22222")
+                            self, "Failed to generate HTTPS "
+                            "certificate for 22222")
 
                     # Nginx Configation into GIT
                     WOGit.add(self,
@@ -541,7 +543,8 @@ class WOStackController(CementBaseController):
                                                  "    keepalive 10;\n}\n")
 
                     if (os.path.isfile("/etc/nginx/nginx.conf") and
-                            not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                            not os.path.isfile("/etc/nginx/conf.d"
+                                               "/redis.conf")):
                         with open("/etc/nginx/conf.d/"
                                   "redis.conf", "a") as redis_file:
                             redis_file.write("# Log format Settings\n"
@@ -841,7 +844,8 @@ class WOStackController(CementBaseController):
                     config.write(configfile)
 
                 # Parse /etc/php/7.3/fpm/php-fpm.conf
-                data = dict(pid="/run/php/php7.3-fpm.pid", error_log="/var/log/php7.3-fpm.log",
+                data = dict(pid="/run/php/php7.3-fpm.pid",
+                            error_log="/var/log/php7.3-fpm.log",
                             include="/etc/php/7.3/fpm/pool.d/*.conf")
                 Log.debug(self, "writting php 7.3 configuration into "
                           "/etc/php/7.3/fpm/php-fpm.conf")
@@ -1011,28 +1015,38 @@ class WOStackController(CementBaseController):
                     shutil.move('/tmp/phpmyadmin-STABLE/',
                                 '{0}22222/htdocs/db/pma/'
                                 .format(WOVariables.wo_webroot))
-                    shutil.copyfile('{0}22222/htdocs/db/pma/config.sample.inc.php'
+                    shutil.copyfile('{0}22222/htdocs/db/pma'
+                                    '/config.sample.inc.php'
                                     .format(WOVariables.wo_webroot),
                                     '{0}22222/htdocs/db/pma/config.inc.php'
                                     .format(WOVariables.wo_webroot))
-                    Log.debug(self, 'Setting Blowfish Secret Key FOR COOKIE AUTH to  '
+                    Log.debug(self, 'Setting Blowfish Secret Key '
+                              'FOR COOKIE AUTH to  '
                               '{0}22222/htdocs/db/pma/config.inc.php file '
                               .format(WOVariables.wo_webroot))
                     blowfish_key = ''.join([random.choice
-                                            (string.ascii_letters + string.digits)
+                                            (string.ascii_letters +
+                                             string.digits)
                                             for n in range(25)])
                     WOFileUtils.searchreplace(self,
-                                              '{0}22222/htdocs/db/pma/config.inc.php'
+                                              '{0}22222/htdocs/db/pma'
+                                              '/config.inc.php'
                                               .format(WOVariables.wo_webroot),
-                                              "$cfg[\'blowfish_secret\'] = \'\';", "$cfg[\'blowfish_secret\'] = \'{0}\';"
+                                              "$cfg[\'blowfish_secret\']"
+                                              " = \'\';",
+                                              "$cfg[\'blowfish_secret\']"
+                                              " = \'{0}\';"
                                               .format(blowfish_key))
                     Log.debug(self, 'Setting HOST Server For Mysql to  '
                               '{0}22222/htdocs/db/pma/config.inc.php file '
                               .format(WOVariables.wo_webroot))
                     WOFileUtils.searchreplace(self,
-                                              '{0}22222/htdocs/db/pma/config.inc.php'
+                                              '{0}22222/htdocs/db/pma'
+                                              '/config.inc.php'
                                               .format(WOVariables.wo_webroot),
-                                              "$cfg[\'Servers\'][$i][\'host\'] = \'localhost\';", "$cfg[\'Servers\'][$i][\'host\'] = \'{0}\';"
+                                              "$cfg[\'Servers\'][$i][\'host\']"
+                                              " = \'localhost\';", "$cfg"
+                                              "[\'Servers\'][$i][\'host\'] = \'{0}\';"
                                               .format(WOVariables.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
@@ -1045,11 +1059,13 @@ class WOStackController(CementBaseController):
             # composer install and phpmyadmin update
             if any('/tmp/composer-install' == x[1]
                    for x in packages):
+                Log.info(self, "Installing composer, please wait...")
                 WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
                                      "--install-dir=/tmp/")
                 shutil.copyfile('/tmp/composer.phar',
                                 '/usr/local/bin/composer')
                 WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+                Log.info(self, "Updating phpMyAdmin, please wait...")
                 WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
                                      "update --no-dev -d "
                                      "/var/www/22222/htdocs/db/pma/")
@@ -1057,6 +1073,7 @@ class WOStackController(CementBaseController):
             if any('/tmp/kickstart.sh' == x[1]
                    for x in packages):
                 if not os.path.exists('/etc/netdata'):
+                    Log.info(self, "Installing Netdata, please wait...")
                     WOShellExec.cmd_exec(self, "bash /tmp/kickstart.sh "
                                          "--dont-wait --no-updates")
                 WOFileUtils.searchreplace(self, "/usr/lib/netdata/conf.d/"
@@ -1160,7 +1177,8 @@ class WOStackController(CementBaseController):
                                     ' BY \'{1}\''.format(self.app.config.get(
                                         'mysql', 'grant-host'),
                                         chars),
-                                    errormsg="cannot grant priviledges", log=False)
+                                    errormsg="cannot grant priviledges",
+                                    log=False)
 
                     # Custom Anemometer configuration
                     Log.debug(self, "configration Anemometer")
@@ -1451,24 +1469,36 @@ class WOStackController(CementBaseController):
                 WOShellExec.cmd_exec(self, "systemctl enable redis-server")
                 if os.path.isfile("/etc/redis/redis.conf"):
                     if WOVariables.wo_ram < 512:
-                        Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
+                        Log.debug(self, "Setting maxmemory variable to "
+                                  "{0} in redis.conf"
                                   .format(int(WOVariables.wo_ram*1024*1024*0.1)))
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory <bytes>/maxmemory {0}/' /etc/redis/redis.conf"
+                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory"
+                                             " <bytes>/maxmemory {0}/'"
+                                             " /etc/redis/redis.conf"
                                              .format(int(WOVariables.wo_ram*1024*1024*0.1)))
                         Log.debug(
-                            self, "Setting maxmemory-policy variable to allkeys-lru in redis.conf")
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy allkeys-lru/' "
+                            self, "Setting maxmemory-policy variable to "
+                            "allkeys-lru in redis.conf")
+                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory-"
+                                             "policy.*/maxmemory-policy "
+                                             "allkeys-lru/' "
                                                    "/etc/redis/redis.conf")
 
                         WOService.restart_service(self, 'redis-server')
                     else:
-                        Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
+                        Log.debug(self, "Setting maxmemory variable to {0} "
+                                  "in redis.conf"
                                   .format(int(WOVariables.wo_ram*1024*1024*0.2)))
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory <bytes>/maxmemory {0}/' /etc/redis/redis.conf"
+                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory "
+                                             "<bytes>/maxmemory {0}/' "
+                                             "/etc/redis/redis.conf"
                                              .format(int(WOVariables.wo_ram*1024*1024*0.2)))
                         Log.debug(
-                            self, "Setting maxmemory-policy variable to allkeys-lru in redis.conf")
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy allkeys-lru/' "
+                            self, "Setting maxmemory-policy variable "
+                            "to allkeys-lru in redis.conf")
+                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory-"
+                                             "policy.*/maxmemory-policy "
+                                             "allkeys-lru/' "
                                                    "/etc/redis/redis.conf")
                         WOService.restart_service(self, 'redis-server')
             if disp_msg:
@@ -1518,7 +1548,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Removing apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
-                Log.error(self, "Cannot Remove! Nginx Stable version not found.")
+                Log.error(self, "Cannot Remove! Nginx Stable "
+                          "version not found.")
         # PHP 7.2
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
@@ -1662,7 +1693,8 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Purge apt_packages variable PHP")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
-                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php + \
+                        WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
             else:
@@ -1673,7 +1705,8 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVariables.wo_php73 + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php73 + \
+                        WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
             else:
