@@ -688,7 +688,7 @@ fi
 
 wo sync | tee -ai $wo_install_log
 
-if [ "$ee_migration" -eq "1" ]; then
+if [ "$ee_migration" = "1" ]; then
     echo
     wo_lib_echo "The migration from EasyEngine to WordOps was succesfull!"
     wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo-backup/ee-backup.tgz"
