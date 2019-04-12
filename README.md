@@ -1,4 +1,4 @@
-<p align="center"><img src="https://docs.wordops.net/images/logo.png" width="400" alt="Wordops" /><a href="https://wordops.net">
+<p align="center"><img src="https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/logo.png" width="400" alt="Wordops" /><a href="https://wordops.net">
 
   <br>
 </p>
@@ -140,8 +140,8 @@ wo update
 
 ## Support
 
-If you feel there is a bug directly related to WordOps, feel free to open an issue.
-For any other questions/suggestions about WordOps or if you need support, please use the [WordOps Community Forum](https://community.wordops.net/).
+If you feel there is a bug directly related to WordOps, or if you want to suggest new features for WordOps, feel free to open an issue.
+For any other questions about WordOps or if you need support, please use the [Community Forum](https://community.wordops.net/).
 
 # Contributing
 

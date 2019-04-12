@@ -442,6 +442,14 @@ class WOStackController(CementBaseController):
                         os.makedirs('{0}22222/cert'
                                     .format(WOVariables.wo_webroot))
 
+                    if not os.path.exists('{0}22222/conf/nginx'
+                                          .format(WOVariables.wo_webroot)):
+                        Log.debug(self, "Creating directory "
+                                  "{0}22222/conf/nginx"
+                                  .format(WOVariables.wo_webroot))
+                        os.makedirs('{0}22222/conf/nginx'
+                                    .format(WOVariables.wo_webroot))
+
                     WOFileUtils.create_symlink(self, ['/var/log/nginx/'
                                                       '22222.access.log',
                                                       '{0}22222/'
@@ -490,6 +498,15 @@ class WOStackController(CementBaseController):
                         Log.error(
                             self, "Failed to generate HTTPS "
                             "certificate for 22222")
+
+                    if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
+                                          .format(WOVariables.wo_webroot)):
+                        with open("/etc/nginx/conf.d/"
+                                  "upstream.conf", "a") as php_file:
+                            php_file.write("ssl_certificate "
+                                           "/var/www/22222/cert/22222.crt;\n"
+                                           "ssl_certificate_key "
+                                           "/var/www/22222/cert/22222.key;\n")
 
                     # Nginx Configation into GIT
                     WOGit.add(self,
