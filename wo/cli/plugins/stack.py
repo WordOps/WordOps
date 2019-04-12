@@ -1084,7 +1084,7 @@ class WOStackController(CementBaseController):
                 WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
                 Log.info(self, "Updating phpMyAdmin, please wait...")
                 WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
-                                     "update --no-dev -d "
+                                     "update -n --no-dev -d "
                                      "/var/www/22222/htdocs/db/pma/")
             # netdata install
             if any('/tmp/kickstart.sh' == x[1]
@@ -1215,9 +1215,6 @@ class WOStackController(CementBaseController):
 
             if any('/tmp/pra.tar.gz' == x[1]
                     for x in packages):
-                Log.debug(self, 'Extracting file /tmp/pra.tar.gz to '
-                          'loaction /tmp/')
-                WOExtract.extract(self, '/tmp/pra.tar.gz', '/tmp/')
                 if not os.path.exists('{0}22222/htdocs/cache/redis'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating new directory "
@@ -1225,23 +1222,15 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/cache/redis'
                                 .format(WOVariables.wo_webroot))
-                if not os.path.exists('{0}22222/htdocs/cache/'
-                                      'redis/phpRedisAdmin'
-                                      .format(WOVariables.wo_webroot)):
-                    shutil.move('/tmp/phpRedisAdmin-master/',
-                                '{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                                .format(WOVariables.wo_webroot))
-
-                    Log.debug(self, 'Extracting file /tmp/predis.tar.gz to '
-                              'loaction /tmp/')
-                    WOExtract.extract(self, '/tmp/predis.tar.gz', '/tmp/')
-                    shutil.move('/tmp/predis-1.0.1/',
-                                '{0}22222/htdocs/cache/redis/'
-                                'phpRedisAdmin/vendor'
-                                .format(WOVariables.wo_webroot))
-
+                    if os.path.isfile("/usr/local/bin/composer"):
+                        WOShellExec.cmd_exec(self, "sudo -u www-data -H "
+                                             "composer "
+                                             "create-project -n -s dev "
+                                             "erik-dubbelboer/php-redis-admin "
+                                             "/var/www/22222/htdocs/cache"
+                                             "/redis/phpRedisAdmin/ ")
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
-                          '{0}22222/htdocs/cache/ file '
+                          '{0}22222/htdocs/cache/file '
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222'
                                   .format(WOVariables.wo_webroot),
