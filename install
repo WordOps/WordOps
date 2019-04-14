@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5 - 2019-04-10
+# Version 3.9.5 - 2019-04-14
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.4.5"
@@ -379,11 +379,14 @@ wo_install_acme_sh() {
     fi
 }
 
-# Now, finally, let's install WordOps
+# Clone Github repository if it doesn't exist
 wo_install() {
     {
-        if [ ! -d /tmp/WordOps ]; then
+        if [ ! -d /tmp/WordOps/.git ]; then
+            rm -rf /tmp/WordOps
             git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch"
+        else
+            git -C /tmp/WordOps pull
         fi
         cd /tmp/WordOps || exit 1
     } >> "$wo_install_log" 2>&1
@@ -597,7 +600,7 @@ wo_backup_ee() {
 }
 
 wo_backup_wo() {
-    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo >> /var/log/wo/install.log 2>&1
+    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo /var/lib/wo >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean_ee() {
