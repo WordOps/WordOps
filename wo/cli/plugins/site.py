@@ -1156,6 +1156,13 @@ class WOSiteUpdateController(CementBaseController):
                                      cache == oldcachetype):
             return 1
 
+        if pargs.hsts:
+            if not data:
+                data = dict(site_name=wo_domain, www_domain=wo_www_domain,
+                            currsitetype=oldsitetype,
+                            currcachetype=oldcachetype,
+                            webroot=wo_site_webroot)
+
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
                       .format(wo_domain))
