@@ -785,7 +785,7 @@ class WOSiteUpdateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
-            (['-hsts'],
+            (['--hsts'],
                 dict(help="configure hsts for the site",
                      action='store' or 'store_const',
                      choices=('on', 'off'),
@@ -1337,8 +1337,8 @@ class WOSiteUpdateController(CementBaseController):
             if data['hsts'] is True:
                 if os.path.isfile(("{0}/conf/nginx/ssl.conf")
                                   .format(wo_site_webroot)):
-                    if (not os.path.isfile("{0}/conf/nginx/hsts.conf"
-                                           .format(wo_site_webroot))):
+                    if not os.path.isfile("{0}/conf/nginx/hsts.conf"
+                                          .format(wo_site_webroot)):
                         setupHsts(self, wo_domain)
                     else:
                         Log.error(self, "HSTS is already configured for given "
