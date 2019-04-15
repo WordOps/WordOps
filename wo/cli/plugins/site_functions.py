@@ -1467,6 +1467,7 @@ def setupHsts(self, wo_domain, hsts=True):
                    "'includeSubDomains; "
                    "preload\";")
     hstsconf.close()
+    return 0
 
 
 def httpsRedirect(self, wo_domain_name, redirect=True):
