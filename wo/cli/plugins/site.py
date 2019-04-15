@@ -1174,7 +1174,7 @@ class WOSiteUpdateController(CementBaseController):
         data['wo_db_pass'] = check_site.db_password
         data['wo_db_host'] = check_site.db_host
 
-        if not pargs.letsencrypt:
+        if not pargs.letsencrypt or pargs.hsts:
             try:
                 pre_run_checks(self)
             except SiteError as e:
