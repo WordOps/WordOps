@@ -1157,11 +1157,6 @@ class WOSiteUpdateController(CementBaseController):
             return 1
 
         if pargs.hsts:
-            if not data:
-                data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                            currsitetype=oldsitetype,
-                            currcachetype=oldcachetype,
-                            webroot=wo_site_webroot)
             if pargs.hsts == "on":
                 data['hsts'] = True
                 hsts = True
