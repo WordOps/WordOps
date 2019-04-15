@@ -673,13 +673,16 @@ class WOSiteCreateController(CementBaseController):
                       "`tail /var/log/wo/wordops.log` and please try again")
 
         if self.app.pargs.letsencrypt == "on":
-            data['letsencrypt'] = True
-            letsencrypt = True
-
             if self.app.pargs.hsts:
-                if self.app.pargs.hsts == "on":
-                    data['hsts'] = True
-                    hsts = True
+                data['letsencrypt'] = True
+                letsencrypt = True
+                data['hsts'] = True
+                hsts = True
+            else:
+                data['letsencrypt'] = True
+                letsencrypt = True
+                data['hsts'] = False
+                hsts = False
 
             if data['letsencrypt'] is True:
                 setupLetsEncrypt(self, wo_domain)
@@ -808,7 +811,7 @@ class WOSiteUpdateController(CementBaseController):
             if not (pargs.php or pargs.php73 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
-                    pargs.wpredis or pargs.letsencrypt):
+                    pargs.wpredis or pargs.letsencrypt or pargs.hsts):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -1315,16 +1318,21 @@ class WOSiteUpdateController(CementBaseController):
             return 0
 
         if pargs.hsts:
-            if check_ssl:
-                if not os.path.isfile(("{0}/conf/nginx/hsts.conf.disabled")
-                                      .format(wo_site_webroot)):
+            if os.path.isfile(("{0}/conf/nginx/ssl.conf")
+                              .format(wo_site_webroot)):
+                if (not os.path.isfile("{0}/conf/nginx/hsts.conf.disabled"
+                                       .format(wo_site_webroot))):
                     setupHsts(self, wo_domain)
+
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/"
                                        "hsts.conf.disabled"
                                        .format(wo_site_webroot),
                                        '{0}/conf/nginx/hsts.conf'
                                        .format(wo_site_webroot))
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
             else:
                 Log.error(self, "HTTPS is not configured for given "
                           "site")
@@ -1552,15 +1560,14 @@ class WOSiteUpdateController(CementBaseController):
                             wpconfig = open("{0}".format(config_path),
                                             encoding='utf-8', mode='a')
                             wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\',"
-                                           " \'{0}:\' );"
-                                           .format(wo_domain))
+                                           " \'{0}:\' );".format(wo_domain))
                             wpconfig.close()
                         except IOError as e:
                             Log.debug(self, str(e))
                             Log.debug(self, "Updating wp-config.php failed.")
                             Log.warn(self, "Updating wp-config.php failed. "
-                                           "Could not append:"
-                                           "\ndefine( \'WP_CACHE_KEY_SALT\', "
+                                     "Could not append:"
+                                     "\ndefine( \'WP_CACHE_KEY_SALT\', "
                                      "\'{0}:\' );".format(wo_domain) +
                                            "\nPlease add manually")
             except SiteError as e:

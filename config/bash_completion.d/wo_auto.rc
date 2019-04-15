@@ -74,7 +74,7 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --redis --phpredisadmin --composer --netdata" \
+                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --redis --phpredisadmin --composer --netdata --fail2ban" \
                               -- $cur) )
                 ;;
             "upgrade" )
@@ -84,7 +84,7 @@ _wo_complete()
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --php73 --mysql --memcache --redis" \
+                              -W "--nginx --php --php73 --mysql --memcache --redis --fail2ban --netdata" \
                               -- $cur) )
                 ;;
             "migrate")
@@ -213,7 +213,7 @@ _wo_complete()
                 if [ ${COMP_WORDS[2]} == "create" ]; then
                     retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --letsencrypt --php73"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew"
+                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew --le --le=subdomain --le=off "
                 else
                     retlist=""
                 fi
@@ -363,7 +363,7 @@ _wo_complete()
         case "$mprev" in
             "--user" | "--email" | "--pass")
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt"
+                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain"
                 fi
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \

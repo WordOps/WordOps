@@ -141,7 +141,8 @@ def setupdomain(self, data):
 def setupdatabase(self, data):
     wo_domain_name = data['site_name']
     wo_random = (''.join(random.sample(string.ascii_uppercase +
-                                       string.ascii_lowercase + string.digits, 24)))
+                                       string.ascii_lowercase +
+                                       string.digits, 24)))
     wo_replace_dot = wo_domain_name.replace('.', '_')
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
@@ -242,7 +243,8 @@ def setupwordpress(self, data):
     wo_wp_email = self.app.config.get('wordpress', 'email')
     # Random characters
     wo_random = (''.join(random.sample(string.ascii_uppercase +
-                                       string.ascii_lowercase + string.digits, 15)))
+                                       string.ascii_lowercase +
+                                       string.digits, 15)))
     wo_wp_prefix = ''
     # wo_wp_user = ''
     # wo_wp_pass = ''
@@ -375,13 +377,15 @@ def setupwordpress(self, data):
         import shutil
 
         Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd(
-        )+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))))
+        )+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(),
+                                                         os.pardir))))
         shutil.move(os.getcwd()+'/wp-config.php',
                     os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
     except Exception as e:
         Log.error(self, 'Unable to move file from {0} to {1}'
                   .format(os.getcwd()+'/wp-config.php',
-                          os.path.abspath(os.path.join(os.getcwd(), os.pardir))), False)
+                          os.path.abspath(os.path.join(os.getcwd(),
+                                                       os.pardir))), False)
         raise SiteError("Unable to move wp-config.php")
 
     if not wo_wp_user:
@@ -488,11 +492,47 @@ def setupwordpress(self, data):
     """Install nginx-helper plugin """
     installwp_plugin(self, 'nginx-helper', data)
     if data['wpfc']:
-        plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_fastcgi","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+        plugin_data = '{"log_level":"INFO","log_filesize":5,'
+        '"enable_purge":1,"enable_map":0,'
+        '"enable_log":0,"enable_stamp":0,'
+        '"purge_homepage_on_new":1,'
+        '"purge_homepage_on_edit":1,'
+        '"purge_homepage_on_del":1,'
+        '"purge_archive_on_new":1,'
+        '"purge_archive_on_edit":0,'
+        '"purge_archive_on_del":0,'
+        '"purge_archive_on_new_comment":0,'
+        '"purge_archive_on_deleted_comment":0,'
+        '"purge_page_on_mod":1,'
+        '"purge_page_on_new_comment":1,'
+        '"purge_page_on_deleted_comment":1,'
+        '"cache_method":"enable_fastcgi",'
+        '"purge_method":"get_request",'
+        '"redis_hostname":"127.0.0.1",'
+        '"redis_port":"6379",'
+        '"redis_prefix":"nginx-cache:"}'
         setupwp_plugin(self, 'nginx-helper',
                        'rt_wp_nginx_helper_options', plugin_data, data)
     elif data['wpredis']:
-        plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+        plugin_data = '{"log_level":"INFO","log_filesize":5,'
+        '"enable_purge":1,"enable_map":0,'
+        '"enable_log":0,"enable_stamp":0,'
+        '"purge_homepage_on_new":1,'
+        '"purge_homepage_on_edit":1,'
+        '"purge_homepage_on_del":1,'
+        '"purge_archive_on_new":1,'
+        '"purge_archive_on_edit":0,'
+        '"purge_archive_on_del":0,'
+        '"purge_archive_on_new_comment":0,'
+        '"purge_archive_on_deleted_comment":0,'
+        '"purge_page_on_mod":1,'
+        '"purge_page_on_new_comment":1,'
+        '"purge_page_on_deleted_comment":1,'
+        '"cache_method":"enable_redis",'
+        '"purge_method":"get_request",'
+        '"redis_hostname":"127.0.0.1",'
+        '"redis_port":"6379",'
+        '"redis_prefix":"nginx-cache:"}'
         setupwp_plugin(self, 'nginx-helper',
                        'rt_wp_nginx_helper_options', plugin_data, data)
 
@@ -722,7 +762,8 @@ def site_package_check(self, stype):
             self, "Error: two different PHP versions cannot be "
                   "combined within the same WordOps site")
 
-    if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir',
+                                              'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.2")
         if not WOAptGet.is_installed(self, 'php7.2-fpm'):
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):
@@ -1105,7 +1146,8 @@ def detSitePar(opts):
 
 def generate_random():
     wo_random10 = (''.join(random.sample(string.ascii_uppercase +
-                                         string.ascii_lowercase + string.digits, 16)))
+                                         string.ascii_lowercase +
+                                         string.digits, 16)))
     return wo_random10
 
 
@@ -1375,10 +1417,12 @@ def renewLetsEncrypt(self, wo_domain_name):
 
     mail_list = ''
     if not ssl:
-        Log.error(self, "ERROR : Let's Encrypt certificate renewal FAILED!", False)
+        Log.error(self, "ERROR : Let's Encrypt certificate renewal FAILED!",
+                  False)
         if (SSL.getExpirationDays(self, wo_domain_name) > 0):
             Log.error(self, "Your current certificate will expire within " +
-                      str(SSL.getExpirationDays(self, wo_domain_name)) + " days.", False)
+                      str(SSL.getExpirationDays(self, wo_domain_name)) +
+                      " days.", False)
         else:
             Log.error(self, "Your current certificate already expired!", False)
 
@@ -1523,7 +1567,8 @@ def archivedCertificateHandle(self, domain):
                     sslconf.write("listen 443 ssl http2;\n"
                                   "listen [::]:443 ssl http2;\n"
                                   "ssl on;\n"
-                                  "ssl_certificate     {0}/{1}/fullchain.pem;\n"
+                                  "ssl_certificate     "
+                                  "{0}/{1}/fullchain.pem;\n"
                                   "ssl_certificate_key     {0}/{1}/key.pem;\n"
                                   .format(WOVariables.wo_ssl_live, domain))
                     sslconf.close()
