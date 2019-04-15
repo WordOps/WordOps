@@ -888,7 +888,8 @@ class WOSiteUpdateController(CementBaseController):
         if (pargs.password and not (pargs.html or
                                     pargs.php or pargs.php73 or pargs.mysql or
                                     pargs.wp or pargs.wpfc or pargs.wpsc or
-                                    pargs.wpsubdir or pargs.wpsubdomain)):
+                                    pargs.wpsubdir or pargs.wpsubdomain or
+                                    pargs.hsts)):
             try:
                 updatewpuserpassword(self, wo_domain, wo_site_webroot)
             except SiteError as e:
@@ -1320,16 +1321,13 @@ class WOSiteUpdateController(CementBaseController):
         if pargs.hsts:
             if os.path.isfile(("{0}/conf/nginx/ssl.conf")
                               .format(wo_site_webroot)):
-                if (not os.path.isfile("{0}/conf/nginx/hsts.conf.disabled"
+                if (not os.path.isfile("{0}/conf/nginx/hsts.conf"
                                        .format(wo_site_webroot))):
-                    setupHsts(self, wo_domain)
+                    setupHsts(self, wo_domain, True)
 
                 else:
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/"
-                                       "hsts.conf.disabled"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/hsts.conf'
-                                       .format(wo_site_webroot))
+                    Log.error(self, "HSTS is already configured for given "
+                              "site")
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")

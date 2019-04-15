@@ -1453,13 +1453,13 @@ def renewLetsEncrypt(self, wo_domain_name):
 # redirect= False to disable https redirection
 
 
-def setupHsts(self, wo_domain_name):
+def setupHsts(self, wo_domain, hsts=True):
     Log.info(
-        self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
-        .format(wo_domain_name))
+        self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
+        .format(wo_domain))
 
     hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
-                    .format(wo_domain_name),
+                    .format(wo_domain),
                     encoding='utf-8', mode='w')
     hstsconf.write("more_set_headers "
                    "\"Strict-Transport-Security: "
