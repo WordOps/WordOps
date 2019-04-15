@@ -785,9 +785,11 @@ class WOSiteUpdateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
-            (['--hsts'],
-                dict(help="configure HSTS on site secured with letsencrypt",
-                     action='store_true')),
+            (['-hsts'],
+                dict(help="configure hsts for the site",
+                     action='store' or 'store_const',
+                     choices=('on', 'off'),
+                     const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1319,22 +1321,37 @@ class WOSiteUpdateController(CementBaseController):
             return 0
 
         if pargs.hsts:
-            if os.path.isfile(("{0}/conf/nginx/ssl.conf")
-                              .format(wo_site_webroot)):
-                if (not os.path.isfile("{0}/conf/nginx/hsts.conf"
-                                       .format(wo_site_webroot))):
-                    setupHsts(self, wo_domain, True)
-
+            if pargs.hsts == 'on':
+                if os.path.isfile(("{0}/conf/nginx/ssl.conf")
+                                  .format(wo_site_webroot)):
+                    if (not os.path.isfile("{0}/conf/nginx/hsts.conf"
+                                           .format(wo_site_webroot))):
+                        setupHsts(self, wo_domain, True)
+                    else:
+                        Log.error(self, "HSTS is already configured for given "
+                                        "site")
+                    if not WOService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                                  "check issues with `nginx -t` command")
                 else:
-                    Log.error(self, "HSTS is already configured for given "
+                    Log.error(self, "HTTPS is not configured for given "
                               "site")
-                if not WOService.reload_service(self, 'nginx'):
-                    Log.error(self, "service nginx reload failed. "
-                              "check issues with `nginx -t` command")
-            else:
-                Log.error(self, "HTTPS is not configured for given "
-                          "site")
-            return 0
+                return 0
+
+            elif pargs.hsts == 'off':
+                if os.path.isfile(("{0}/conf/nginx/hsts.conf")
+                                  .format(wo_site_webroot)):
+                    WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
+                                       .format(wo_site_webroot),
+                                       '{0}/conf/nginx/hsts.conf.disabled'
+                                       .format(wo_site_webroot))
+                    if not WOService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                                  "check issues with `nginx -t` command")
+                else:
+                    Log.error(self, "HSTS is not configured for given "
+                              "site")
+                return 0
 
         if stype == oldsitetype and cache == oldcachetype:
 
