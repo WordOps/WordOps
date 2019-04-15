@@ -1162,6 +1162,12 @@ class WOSiteUpdateController(CementBaseController):
                             currsitetype=oldsitetype,
                             currcachetype=oldcachetype,
                             webroot=wo_site_webroot)
+            if pargs.hsts == "on":
+                data['hsts'] = True
+                hsts = True
+            elif pargs.hsts == "off":
+                data['hsts'] = False
+                hsts = False
 
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
@@ -1328,12 +1334,12 @@ class WOSiteUpdateController(CementBaseController):
             return 0
 
         if pargs.hsts:
-            if pargs.hsts == 'on':
+            if data['hsts'] is True:
                 if os.path.isfile(("{0}/conf/nginx/ssl.conf")
                                   .format(wo_site_webroot)):
                     if (not os.path.isfile("{0}/conf/nginx/hsts.conf"
                                            .format(wo_site_webroot))):
-                        setupHsts(self, wo_domain, True)
+                        setupHsts(self, wo_domain)
                     else:
                         Log.error(self, "HSTS is already configured for given "
                                         "site")
@@ -1345,7 +1351,7 @@ class WOSiteUpdateController(CementBaseController):
                               "site")
                 return 0
 
-            elif pargs.hsts == 'off':
+            elif data['hsts'] is False:
                 if os.path.isfile(("{0}/conf/nginx/hsts.conf")
                                   .format(wo_site_webroot)):
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
