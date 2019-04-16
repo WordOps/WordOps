@@ -1387,11 +1387,19 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["https://www.adminer.org/static/"
                                         "download/{0}/adminer-{0}.php"
-                                        "".format(WOVariables.wo_adminer),
+                                        .format(WOVariables.wo_adminer),
                                         "{0}22222/"
                                         "htdocs/db/adminer/index.php"
                                         .format(WOVariables.wo_webroot),
-                                        "Adminer"]]
+                                        "Adminer"],
+                                       ["https://raw.githubusercontent.com"
+                                        "/vrana/adminer/master/designs/"
+                                        "pepa-linha/adminer.css",
+                                        "{0}22222/"
+                                        "htdocs/db/adminer/adminer.css"
+                                        .format(WOVariables.wo_webroot),
+                                        "Adminer theme"]]
+
             # Netdata
             if self.app.pargs.netdata:
                 Log.debug(self, "Setting packages variable for Netdata")
