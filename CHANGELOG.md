@@ -28,6 +28,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Netdata on backend : https://server.hostname:22222/netdata/
 - New Stacks : composer and netdata
 - additional argument for letsencrypt : --hsts
+- Theme for adminer
+- Credits for tools shipped with WordOps
 
 #### Changed
 
@@ -40,7 +42,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Nginx locations template is the same for php7.2 & 7.3
 - refactor install script
 - backend SSL configuration now stored in /var/www/22222/conf/nginx/ssl.conf
-
 
 #### Fixed
 

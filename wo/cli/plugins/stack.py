@@ -523,6 +523,7 @@ class WOStackController(CementBaseController):
                 else:
                     WOService.restart_service(self, 'nginx')
 
+                # create redis conf is redis is installed
                 if WOAptGet.is_installed(self, 'redis-server'):
                     if (os.path.isfile("/etc/nginx/nginx.conf") and
                             not os.path.isfile("/etc/nginx/common/"
@@ -549,6 +550,7 @@ class WOStackController(CementBaseController):
                                         out=wo_nginx)
                         wo_nginx.close()
 
+                    # add redis upstream if not available in upstream.conf
                     if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                         if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
                                                 "upstream.conf",
@@ -559,6 +561,7 @@ class WOStackController(CementBaseController):
                                                  "    server 127.0.0.1:6379;\n"
                                                  "    keepalive 10;\n}\n")
 
+                    # add redis cache format if not already done
                     if (os.path.isfile("/etc/nginx/nginx.conf") and
                             not os.path.isfile("/etc/nginx/conf.d"
                                                "/redis.conf")):
