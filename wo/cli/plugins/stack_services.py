@@ -14,7 +14,8 @@ class WOStackStatusController(CementBaseController):
         description = 'Check the stack status'
         arguments = [
             (['--memcached'],
-                dict(help='start/stop/restart memcached', action='store_true')),
+                dict(help='start/stop/restart memcached',
+                     action='store_true')),
         ]
 
     @expose(help="Start stack services")
@@ -186,7 +187,8 @@ class WOStackStatusController(CementBaseController):
             if ((WOVariables.wo_mysql_host is "localhost") or
                     (WOVariables.wo_mysql_host is "127.0.0.1")):
                 if ((WOAptGet.is_installed(self, 'mysql-server') or
-                     WOAptGet.is_installed(self, 'percona-server-server-5.6') or
+                     WOAptGet.is_installed(self,
+                                           'percona-server-server-5.6') or
                         WOAptGet.is_installed(self, 'mariadb-server'))):
                     services = services + ['mysql']
                 else:

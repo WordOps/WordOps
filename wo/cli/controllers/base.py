@@ -13,12 +13,11 @@ Copyright (c) 2019 WordOps.
 class WOBaseController(CementBaseController):
     class Meta:
         label = 'base'
-        description = ("WordOps is the commandline tool to manage your"
-                       " websites based on WordPress and Nginx with easy to"
-                       " use commands")
+        description = ("An essential toolset that eases WordPress "
+                       "site and server administration with Nginx")
         arguments = [
             (['-v', '--version'], dict(action='version', version=BANNER)),
-            ]
+        ]
 
     @expose(hide=True)
     def default(self):

@@ -152,6 +152,8 @@ class WOVariables():
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]
 
+    wo_fail2ban = "fail2ban"
+
     # Redis repo details
     if wo_platform_distro == 'ubuntu':
         wo_redis_repo = ("ppa:chris-lea/redis-server")

@@ -1,7 +1,7 @@
-<h1 align="center" style="font-size:54px;"><a href="https://wordops.net">
-  WordOps</a>
+<p align="center"><img src="https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/logo.png" width="400" alt="Wordops" /><a href="https://wordops.net">
+
   <br>
-</h1>
+</p>
 
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
@@ -19,7 +19,6 @@
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
-  <a href="#getting-started">Getting Started</a> •
   <a href="#usage">Usage</a> •
   <a href="https://github.com/WordOps/WordOps/projects">RoadMap</a> •
   <a href="https://github.com/WordOps/WordOps/blob/master/CHANGELOG.md">Changelog</a> •
@@ -28,8 +27,10 @@
 </p>
 <p align="center">
 <a href="https://wordops.net"> WordOps site</a> •
+<a href="https://docs.wordops.net">Documentation</a> •
 <a href="https://community.wordops.net">Community forum</a> •
-<a href="https://docs.wordops.net">Documentation</a>
+<a href="https://community.wordops.io/slack">Slack</a>
+
 </p>
 
 ---
@@ -41,8 +42,9 @@
 - **Up-to-date** : Nginx 1.14.2 with Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
-- **SSL** : Let's Encrypt SSL certificates handled by Acme.sh
-- **Modern** : Secured SSL/TLS encryption with strong ciphers_suite and modern TLS protocols
+- **SSL** : Let's Encrypt SSL certificates handled by acme.sh
+- **Modern** : Secured SSL/TLS encryption with strong ciphers_suite, modern TLS protocols and HSTS support
+- **Monitoring** : Live Nginx vhost traffic with ngx_vts_module and server monitoring with Netdata
 
 ## Requirements
 
@@ -63,7 +65,7 @@
 ## Getting Started
 
 ```bash
-wget -qO wo wops.cc && sudo bash wo     # Install WordOps
+curl -sL wops.cc | sudo bash             # Install WordOps
 sudo wo site create example.com --wp     # Install required packages & setup WordPress on example.com
 ```
 
@@ -75,6 +77,7 @@ WordOps made some fundamental changes:
 - Support for w3tc is dropped as a security precaution.
 - PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 has been replaced by PHP 7.3.
 - Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.14.2 with Brolti support)
+- HHVM stack has been removed
 - Let's Encrypt stack isn't based on letsencrypt-auto anymore, we use acme.sh to handle SSL certificates
 
 If you are going to migrate from EasyEngine v3, here some important informations :
@@ -129,15 +132,6 @@ wo site create example.com --wp --letsencrypt # install wordpress & secure site 
 wo site create sub.example.com --wp --letsencrypt=subdomain # install wordpress and secure subdomain with letsencrypt
 ```
 
-## Cheatsheet
-
-|                    |  single site  |   multisite w/ subdir  |  multisite w/ subdom     |
-|--------------------|---------------|-----------------------|--------------------------|
-| **NO Cache**       |  --wp         |  --wpsubdir           |  --wpsubdomain           |
-| **WP Super Cache** |  --wpsc       |  -wpsubdir --wpsc    |  --wpsubdomain --wpsc    |
-| **Nginx fastcgi_cache**    |  --wpfc       |  --wpsubdir --wpfc    |  --wpsubdomain --wpfc    |
-| **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
-
 ## Update WordOps
 
 ```bash
@@ -146,8 +140,8 @@ wo update
 
 ## Support
 
-If you feel there is a bug directly related to WordOps, feel free to open an issue.
-For any other questions/suggestions about WordOps or if you need support, please use the [WordOps Community Forum](https://community.wordops.net/).
+If you feel there is a bug directly related to WordOps, or if you want to suggest new features for WordOps, feel free to open an issue.
+For any other questions about WordOps or if you need support, please use the [Community Forum](https://community.wordops.net/).
 
 # Contributing
 
@@ -156,9 +150,18 @@ There is no need to be a developer or a system administrator to contribute to Wo
 
 ## Credits
 
-- Main source : [EasyEngine](https://github.com/easyengine/easyengine)
+- Source : [EasyEngine](https://github.com/easyengine/easyengine)
+
+Shipped with WordOps
+
 - Acme client : [Acme.sh](https://github.com/Neilpang/acme.sh)
 - WordPress deployment : [WP-CLI](https://github.com/wp-cli/wp-cli)
+- Monitoring : [Netdata](https://github.com/netdata/netdata)
+- [phpMyAdmin](https://www.phpmyadmin.net/)
+- [Adminer](https://www.adminer.org/)
+- [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
+- [PHPMemcachedAdmin](https://github.com/elijaa/phpmemcachedadmin)
+- [opcacheGUI](https://github.com/amnuts/opcache-gui)
 
 ## License
 

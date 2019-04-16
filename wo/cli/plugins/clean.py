@@ -89,11 +89,12 @@ class WOCleanController(CementBaseController):
         try:
             Log.info(self, "Cleaning opcache")
             wp = urllib.request.urlopen(" https://127.0.0.1:22222/cache"
-                                        "/opcache/opgui.php?page=reset").read()
+                                        "/opcache/opgui.php?reset=1").read()
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             Log.debug(self, "Unable hit url, "
-                      " https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset,"
+                      " https://127.0.0.1:22222/cache/opcache/"
+                      "opgui.php?reset=1,"
                       " please check you have admin tools installed")
             Log.debug(self, "please check you have admin tools installed,"
                       " or install them with `wo stack install --admin`")
