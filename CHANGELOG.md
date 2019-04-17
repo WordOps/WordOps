@@ -40,7 +40,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Increase MySQL root password size to 16 characters
 - Increase MySQL users password size to 16 characters
 - Nginx locations template is the same for php7.2 & 7.3
-- refactor install script
 - backend SSL configuration now stored in /var/www/22222/conf/nginx/ssl.conf
 
 #### Fixed
@@ -58,6 +57,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - fix command "wo info"
 - phpmyadmin install with composer
 - command "wo clean --memcached"
+- phpredisadmin setup
+- --hsts flag with basic html site
 
 ### v3.9.4 - 2019-03-15
 
