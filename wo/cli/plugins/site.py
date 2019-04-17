@@ -899,6 +899,17 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "\nPassword Unchanged.")
             return 0
 
+        if (pargs.hsts and not (pargs.html or
+                                pargs.php or pargs.php73 or pargs.mysql or
+                                pargs.wp or pargs.wpfc or pargs.wpsc or
+                                pargs.wpsubdir or pargs.wpsubdomain)):
+            try:
+                setupHsts(self, wo_domain)
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.info(self, "\nFail to enable HSTS")
+            return 0
+
         if ((stype == 'php' and
              oldsitetype not in ['html', 'proxy', 'php73']) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
