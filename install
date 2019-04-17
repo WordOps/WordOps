@@ -52,6 +52,31 @@ wo_lib_error() {
 }
 
 ###
+# 1 - script argument parsing
+###
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+    -b | --branch)
+        wo_branch="$2"
+        shift
+        ;;
+    -p | --preserve)
+        wo_preserve_config="y"
+        ;;
+    --force)
+        wo_force_install="y"
+        ;;
+    --travis)
+        wo_travis="y"
+        ;;
+    *) # positional args
+        ;;
+    esac
+    shift
+done
+
+###
 # 1 - Check whether the installation is called with elevated rights
 ###
 if [[ $EUID -ne 0 ]]; then
@@ -67,8 +92,10 @@ echo ""
 ###
 # 1- Update the apt sewers with fresh info
 ###
+[ -z "$wo_travis" ] && {
 wo_lib_echo "Updating apt-get repository info"
 apt-get update -qq
+}
 
 ###
 # 1- Check whether lsb_release is installed, and if not, install it
@@ -77,24 +104,6 @@ if [ -z "$(command -v lsb_release)" ]; then
     wo_lib_echo "Installing lsb-release, please wait..."
     apt-get -y install lsb-release -qq
 fi
-
-while [ "$#" -gt 0 ]; do
-    case "$1" in
-    -b | --branch)
-        wo_branch="$2"
-        shift
-        ;;
-    -p | --preserve)
-        wo_preserve_config="y"
-        ;;
-    --force)
-        wo_force_install="y"
-        ;;
-    *) # positional args
-        ;;
-    esac
-    shift
-done
 
 ###
 # 1 - Define variables for later use
@@ -124,18 +133,18 @@ fi
 # 1 - Checking linux distro
 ###
 if [ -z "$wo_force_install" ]; then
-if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ]; then
-    wo_lib_echo_fail "WordOps (wo) only supports Ubuntu and Debian at the moment."
-    wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
-    wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
-    exit 100
-else
-    check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|jessie|stretch")
-    if [ -z "$check_wo_linux_distro" ]; then
-        wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
+    if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ]; then
+        wo_lib_echo_fail "WordOps (wo) only supports Ubuntu and Debian at the moment."
+        wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
+        wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
         exit 100
+    else
+        check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|jessie|stretch")
+        if [ -z "$check_wo_linux_distro" ]; then
+            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04, Debian 8.x and Debian 9.x"
+            exit 100
+        fi
     fi
-fi
 fi
 
 ###
