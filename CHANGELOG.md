@@ -58,6 +58,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - phpmyadmin install with composer
 - command "wo clean --memcached"
 - phpredisadmin setup
+- --hsts flag with basic html site
 
 ### v3.9.4 - 2019-03-15
 

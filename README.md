@@ -130,6 +130,7 @@ wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with ngi
 ```bash
 wo site create example.com --wp --letsencrypt # install wordpress & secure site with letsencrypt
 wo site create sub.example.com --wp --letsencrypt=subdomain # install wordpress and secure subdomain with letsencrypt
+wo site create site.tld --wp --letsencrypt --hsts # install wordpress & secure site with letsencrypt with HSTS
 ```
 
 ## Update WordOps
