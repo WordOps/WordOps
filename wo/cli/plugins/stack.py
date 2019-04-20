@@ -501,8 +501,8 @@ class WOStackController(CementBaseController):
 
                     if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                           .format(WOVariables.wo_webroot)):
-                        with open("/etc/nginx/conf.d/"
-                                  "upstream.conf", "a") as php_file:
+                        with open("/var/www/22222/conf/nginx/"
+                                  "ssl.conf", "a") as php_file:
                             php_file.write("ssl_certificate "
                                            "/var/www/22222/cert/22222.crt;\n"
                                            "ssl_certificate_key "
@@ -1118,6 +1118,7 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
+            # webgrind
             if any('/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
@@ -1159,7 +1160,7 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
-
+            # anemometer
             if any('/tmp/anemometer.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file anemometer.tar.gz to "
@@ -1370,7 +1371,9 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting packages variable for phpMyAdmin ")
                 packages = packages + [["https://github.com/phpmyadmin/"
                                         "phpmyadmin/archive/STABLE.tar.gz",
-                                        "/tmp/pma.tar.gz", "phpMyAdmin"]]
+                                        "/tmp/pma.tar.gz", "phpMyAdmin"],
+                                       ["https://getcomposer.org/installer",
+                                        "/tmp/composer-install", "Composer"]]
             # Composer
             if self.app.pargs.composer:
                 Log.debug(self, "Setting packages variable for Composer ")
