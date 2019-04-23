@@ -1149,14 +1149,14 @@ class WOStackController(CementBaseController):
                    for x in packages):
                 if not os.path.exists('{0}22222/htdocs/files'
                                       .format(WOVariables.wo_webroot)):
-                    os.makedirs('{0}22222/htdocs/files'
-                                .format(WOVariables.wo_webroot))
                     Log.debug(self, "Extracting explorer.tar.gz "
-                              "to location {0}22222/htdocs/"
+                              "to location {0}22222/htdocs/files"
                               .format(WOVariables.wo_webroot))
                     WOExtract.extract(self, '/tmp/extplorer.tar.gz',
-                                      '{0}22222/htdocs/files'
-                                      .format(WOVariables.wo_webroot))
+                                      '/tmp/')
+                    shutil.move('/tmp/extplorer-2.1.11/',
+                                '{0}22222/htdocs/files'
+                                .format(WOVariables.wo_webroot))
                     Log.debug(self, "Setting Privileges to "
                               "{0}22222/htdocs/files"
                               .format(WOVariables.wo_webroot))
@@ -1439,11 +1439,16 @@ class WOStackController(CementBaseController):
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
                 Log.debug(self, "Setting packages variable for phpMyAdmin ")
-                packages = packages + [["https://github.com/phpmyadmin/"
-                                        "phpmyadmin/archive/STABLE.tar.gz",
-                                        "/tmp/pma.tar.gz", "phpMyAdmin"],
-                                       ["https://getcomposer.org/installer",
-                                        "/tmp/composer-install", "Composer"]]
+                if (not self.app.pargs.composer):
+                    packages = packages + [["https://github.com/phpmyadmin/"
+                                            "phpmyadmin/archive/STABLE.tar.gz",
+                                            "/tmp/pma.tar.gz", "phpMyAdmin"],
+                                           ["https://getcomposer.org/installer",
+                                            "/tmp/composer-install", "Composer"]]
+                else:
+                    packages = packages + [["https://github.com/phpmyadmin/"
+                                            "phpmyadmin/archive/STABLE.tar.gz",
+                                            "/tmp/pma.tar.gz", "phpMyAdmin"]]
             # Composer
             if self.app.pargs.composer:
                 Log.debug(self, "Setting packages variable for Composer ")
