@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5 - 2019-04-14
+# Version 3.9.5 - 2019-04-22
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.4.5"
+readonly wo_version_new="3.9.4.6"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -93,8 +93,8 @@ echo ""
 # 1- Update the apt sewers with fresh info
 ###
 [ -z "$wo_travis" ] && {
-wo_lib_echo "Updating apt-get repository info"
-apt-get update -qq
+    wo_lib_echo "Updating apt-get repository info"
+    apt-get update -qq
 }
 
 ###

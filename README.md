@@ -153,12 +153,13 @@ There is no need to be a developer or a system administrator to contribute to Wo
 
 - Source : [EasyEngine](https://github.com/easyengine/easyengine)
 
-Shipped with WordOps
+Apps & Tools shipped with WordOps
 
-- Acme client : [Acme.sh](https://github.com/Neilpang/acme.sh)
-- WordPress deployment : [WP-CLI](https://github.com/wp-cli/wp-cli)
-- Monitoring : [Netdata](https://github.com/netdata/netdata)
+- [Acme.sh](https://github.com/Neilpang/acme.sh)
+- [WP-CLI](https://github.com/wp-cli/wp-cli)
+- [Netdata](https://github.com/netdata/netdata)
 - [phpMyAdmin](https://www.phpmyadmin.net/)
+- [Composer](https://github.com/composer/composer)
 - [Adminer](https://www.adminer.org/)
 - [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
 - [PHPMemcachedAdmin](https://github.com/elijaa/phpmemcachedadmin)

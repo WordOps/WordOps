@@ -68,6 +68,8 @@ class WOStackController(CementBaseController):
             (['--netdata'],
                 dict(help='Install Netdata monitoring suite',
                      action='store_true')),
+            (['--dashboard'],
+                dict(help='Install WordOps dashboard', action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
@@ -519,7 +521,8 @@ class WOStackController(CementBaseController):
                     else:
                         self.msg = (self.msg + ["HTTP Auth User "
                                                 "Name: WordOps"] +
-                                    ["HTTP Auth Password : {0}".format(passwd)])
+                                    ["HTTP Auth Password : {0}"
+                                     .format(passwd)])
                 else:
                     WOService.restart_service(self, 'nginx')
 
@@ -1014,7 +1017,8 @@ class WOStackController(CementBaseController):
 
         if len(packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
-                Log.debug(self, "Setting Privileges to /usr/local/bin/wp file ")
+                Log.debug(self, "Setting Privileges"
+                          " to /usr/local/bin/wp file ")
                 WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
             if any('/tmp/pma.tar.gz' == x[1]
@@ -1029,8 +1033,7 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     os.makedirs('{0}22222/htdocs/db'
                                 .format(WOVariables.wo_webroot))
-                if not os.path.exists('{0}22222/htdocs/db/'
-                                      'pma/phpmyadmin-STABLE'
+                if not os.path.exists('{0}22222/htdocs/db/pma/'
                                       .format(WOVariables.wo_webroot)):
                     shutil.move('/tmp/phpmyadmin-STABLE/',
                                 '{0}22222/htdocs/db/pma/'
@@ -1069,13 +1072,12 @@ class WOStackController(CementBaseController):
                                               "[\'Servers\'][$i][\'host\'] = \'{0}\';"
                                               .format(WOVariables.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
-                          '{0}22222/htdocs/db/pma file '
-                          .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222'
-                                  .format(WOVariables.wo_webroot),
+                          '{0}22222/htdocs/db/pma file '.format(WOVariables.wo_webroot))
+                WOFileUtils.chown(self, '{0}22222'.format(WOVariables.wo_webroot),
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
+
             # composer install and phpmyadmin update
             if any('/tmp/composer-install' == x[1]
                    for x in packages):
@@ -1092,16 +1094,79 @@ class WOStackController(CementBaseController):
             # netdata install
             if any('/tmp/kickstart.sh' == x[1]
                    for x in packages):
-                if not os.path.exists('/etc/netdata'):
+                if ((not os.path.exists('/opt/netdata')) and
+                        (not os.path.exists('/etc/netdata'))):
                     Log.info(self, "Installing Netdata, please wait...")
                     WOShellExec.cmd_exec(self, "bash /tmp/kickstart.sh "
-                                         "--dont-wait --no-updates")
-                WOFileUtils.searchreplace(self, "/usr/lib/netdata/conf.d/"
-                                          "health_alarm_notify.conf",
-                                          'SEND_EMAIL="YES"',
-                                          'SEND_EMAIL="NO"')
-                WOService.restart_service(self, 'netdata')
+                                         "--dont-wait")
+                    # disable mail notifications
+                    WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
+                                              "lib/netdata/conf.d/"
+                                              "health_alarm_notify.conf",
+                                              'SEND_EMAIL="YES"',
+                                              'SEND_EMAIL="NO"')
+                    # check if mysql credentials are available
+                    if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
+                        try:
+                            WOMysql.execute(self,
+                                            "create user "
+                                            "'netdata'@'localhost';",
+                                            log=False)
+                            WOMysql.execute(self,
+                                            "grant usage on *.* to "
+                                            "'netdata'@'localhost';",
+                                            log=False)
+                            WOMysql.execute(self,
+                                            "flush privileges;",
+                                            log=False)
+                        except StatementExcecutionError as e:
+                            Log.info(
+                                self, "fail to setup mysql user for netdata")
+                    WOService.restart_service(self, 'netdata')
 
+            # WordOps Dashboard
+            if any('/tmp/wo-dashboard.tar.gz' == x[1]
+                   for x in packages):
+                if not os.path.isfile('{0}22222/htdocs/index.php'
+                                      .format(WOVariables.wo_webroot)):
+                    Log.debug(self, "Extracting wo-dashboard.tar.gz "
+                              "to location {0}22222/htdocs/"
+                              .format(WOVariables.wo_webroot))
+                    WOExtract.extract(self, '/tmp/wo-dashboard.tar.gz',
+                                      '{0}22222/htdocs'
+                                      .format(WOVariables.wo_webroot))
+                    Log.debug(self, "Setting Privileges to "
+                              "{0}22222/htdocs"
+                              .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, '{0}22222'
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user,
+                                      recursive=True)
+
+            # Extplorer FileManager
+            if any('/tmp/extplorer.tar.gz' == x[1]
+                   for x in packages):
+                if not os.path.exists('{0}22222/htdocs/files'
+                                      .format(WOVariables.wo_webroot)):
+                    os.makedirs('{0}22222/htdocs/files'
+                                .format(WOVariables.wo_webroot))
+                    Log.debug(self, "Extracting explorer.tar.gz "
+                              "to location {0}22222/htdocs/"
+                              .format(WOVariables.wo_webroot))
+                    WOExtract.extract(self, '/tmp/extplorer.tar.gz',
+                                      '{0}22222/htdocs/files'
+                                      .format(WOVariables.wo_webroot))
+                    Log.debug(self, "Setting Privileges to "
+                              "{0}22222/htdocs/files"
+                              .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, '{0}22222'
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user,
+                                      recursive=True)
+
+            # phpmemcachedadmin
             if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting memcached.tar.gz to location"
@@ -1188,7 +1253,8 @@ class WOStackController(CementBaseController):
                                     ' *.* to \'anemometer\''
                                     '@\'{0}\' IDENTIFIED'
                                     ' BY \'{1}\''.format(self.app.config.get
-                                                         ('mysql', 'grant-host'),
+                                                         ('mysql',
+                                                          'grant-host'),
                                                          chars))
                     Log.debug(self, "grant all on slow-query-log.*"
                               " to anemometer@root_user"
@@ -1216,7 +1282,7 @@ class WOStackController(CementBaseController):
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
                 WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
-
+            # ph
             if any('/tmp/pra.tar.gz' == x[1]
                     for x in packages):
                 if not os.path.exists('{0}22222/htdocs/cache/redis'
@@ -1254,6 +1320,7 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.phpmyadmin) and
                 (not self.app.pargs.composer) and
                 (not self.app.pargs.netdata) and
+                (not self.app.pargs.dashboard) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin) and
@@ -1280,7 +1347,9 @@ class WOStackController(CementBaseController):
                 self.app.pargs.composer = True
                 self.app.pargs.utils = True
                 self.app.pargs.netdata = True
+                self.app.pargs.dashboard = True
 
+            # Redis
             if self.app.pargs.redis:
                 if not WOAptGet.is_installed(self, 'redis-server'):
                     apt_packages = apt_packages + WOVariables.wo_redis
@@ -1288,6 +1357,7 @@ class WOStackController(CementBaseController):
                 else:
                     Log.info(self, "Redis already installed")
 
+            # Nginx
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
@@ -1411,9 +1481,23 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting packages variable for Netdata")
                 if not os.path.exists('/opt/netdata'):
                     packages = packages + [['https://my-netdata.io/'
-                                            'kickstart.sh',
+                                            'kickstart-static64.sh',
                                             '/tmp/kickstart.sh',
                                             'Netdata']]
+
+            # WordOps Dashboard
+            if self.app.pargs.dashboard:
+                Log.debug(self, "Setting packages variable for WO-Dashboard")
+                packages = packages + \
+                    [["https://github.com/WordOps/"
+                      "wordops-dashboard/releases/"
+                      "download/v1.0/wo-dashboard.tar.gz",
+                      "/tmp/wo-dashboard.tar.gz",
+                      "WordOps Dashboard"],
+                     ["https://github.com/soerennb/"
+                      "extplorer/archive/v2.1.11.tar.gz",
+                      "/tmp/extplorer.tar.gz",
+                      "Extplorer"]]
 
             # UTILS
             if self.app.pargs.utils:
@@ -1706,7 +1790,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Purge apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
-                Log.error(self, "Cannot Purge! Nginx Stable version not found.")
+                Log.error(self, "Cannot Purge! "
+                          "Nginx Stable version not found.")
 
         # PHP
         if self.app.pargs.php:
