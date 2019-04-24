@@ -1135,6 +1135,12 @@ class WOStackController(CementBaseController):
                     WOExtract.extract(self, '/tmp/wo-dashboard.tar.gz',
                                       '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot))
+                if WOVariables.wo_wan_interface != 'eth0':
+                    WOFileUtils.searchreplace(self, "{0}22222/htdocs/index.php"
+                                              .format(WOVariables.wo_webroot),
+                                              "eth0",
+                                              "{0}".format(WOVariables.wo_wan_interface))
+
                     Log.debug(self, "Setting Privileges to "
                               "{0}22222/htdocs"
                               .format(WOVariables.wo_webroot))

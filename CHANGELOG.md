@@ -47,6 +47,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Nginx locations template is the same for php7.2 & 7.3
 - backend SSL configuration now stored in /var/www/22222/conf/nginx/ssl.conf
 - Install Netdata with static pre-built binaries instead of having to compile it from source
+- Nginx updated to new stable release (1.16.0)
 
 #### Fixed
 
