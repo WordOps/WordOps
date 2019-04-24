@@ -28,10 +28,12 @@ class WOMysql():
     """Method for MySQL connection"""
 
     def connect(self):
-        """Makes connection with MySQL server"""
+        # Makes connection with MySQL server
         try:
             if os.path.exists('/etc/mysql/conf.d/my.cnf'):
-                connection = pymysql.connect(read_default_file='/etc/mysql/conf.d/my.cnf')
+                connection = \
+                    pymysql.connect(read_default_file='/etc/mysql/'
+                                    'conf.d/my.cnf')
             else:
                 connection = pymysql.connect(read_default_file='~/.my.cnf')
             return connection
@@ -45,9 +47,11 @@ class WOMysql():
     def dbConnection(self, db_name):
         try:
             if os.path.exists('/etc/mysql/conf.d/my.cnf'):
-                connection = pymysql.connect(db=db_name,read_default_file='/etc/mysql/conf.d/my.cnf')
+                connection = pymysql.connect(
+                    db=db_name, read_default_file='/etc/mysql/conf.d/my.cnf')
             else:
-                connection = pymysql.connect(db=db_name,read_default_file='~/.my.cnf')
+                connection = pymysql.connect(
+                    db=db_name, read_default_file='~/.my.cnf')
 
             return connection
         except DatabaseError as e:
@@ -58,12 +62,13 @@ class WOMysql():
         except pymysql.err.InternalError as e:
             Log.debug(self, str(e))
             raise MySQLConnectionError
-        except Exception as e :
+        except Exception as e:
             Log.debug(self, "[Error]Setting up database: \'" + str(e) + "\'")
             raise MySQLConnectionError
 
     def execute(self, statement, errormsg='', log=True):
-        """Get login details from /etc/mysql/conf.d/my.cnf & Execute MySQL query"""
+        # Get login details from /etc/mysql/conf.d/my.cnf
+        # & Execute MySQL query
         connection = WOMysql.connect(self)
         log and Log.debug(self, "Exceuting MySQL Statement : {0}"
                           .format(statement))

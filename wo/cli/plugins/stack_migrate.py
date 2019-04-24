@@ -100,8 +100,8 @@ class WOStackMigrateController(CementBaseController):
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
 
-            if WOShellExec.cmd_exec(self, "mysqladmin ping") and (not
-                                                                  WOAptGet.is_installed(self, 'mariadb-server')):
+            if (WOShellExec.cmd_exec(self, "mysqladmin ping") and
+                    (not WOAptGet.is_installed(self, 'mariadb-server'))):
 
                 Log.info(self, "If your database size is big, "
                          "migration may take some time.")

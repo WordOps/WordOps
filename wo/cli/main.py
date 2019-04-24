@@ -86,7 +86,8 @@ def main():
 
         # if not root...kick out
         if not os.geteuid() == 0:
-            print("\nNon-privileged users cant use WordOps. Switch to root or invoke sudo.\n")
+            print("\nNon-privileged users cant use WordOps. "
+                  "Switch to root or invoke sudo.\n")
             app.close(1)
 
         # Setup the application
@@ -129,6 +130,7 @@ def main():
 def get_test_app(**kw):
     app = WOApp(**kw)
     return app
+
 
 if __name__ == '__main__':
     main()

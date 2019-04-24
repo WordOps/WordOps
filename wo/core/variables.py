@@ -3,7 +3,6 @@ import platform
 import socket
 import configparser
 import os
-import sys
 import psutil
 import datetime
 
@@ -149,11 +148,13 @@ class WOVariables():
 
     # MySQL repo and packages
     if wo_platform_distro == 'ubuntu':
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/ubuntu {codename} main"
                          .format(codename=wo_platform_codename))
     elif wo_platform_distro == 'debian':
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
