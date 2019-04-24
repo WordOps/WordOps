@@ -71,6 +71,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install WordOps dashboard', action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
+            (['--fail2ban'],
+                dict(help='Install Fail2ban stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
             (['--redis'],
@@ -1014,6 +1016,23 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 WOService.reload_service(self, 'mysql')
 
+        if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
+            if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                data = dict()
+                Log.debug(self, "Setting up fail2ban jails configuration")
+                wo_fail2ban = open('/etc/fail2ban/jail.d/custom.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'fail2ban.mustache',
+                                out=wo_fail2ban)
+                wo_fail2ban.close()
+
+                Log.debug(self, "Setting up fail2ban wp filter")
+                wo_fail2ban = open('/etc/fail2ban/filter.d/wo-wordpress.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'fail2ban-wp.mustache',
+                                out=wo_fail2ban)
+                wo_fail2ban.close()
+
         if len(packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
                 Log.debug(self, "Setting Privileges"
@@ -1440,6 +1459,15 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "WP-CLI is already installed")
                     Log.info(self, "WP-CLI is already installed")
+
+            # fail2ban
+            if self.app.pargs.fail2ban:
+                Log.debug(self, "Setting apt_packages variable for Fail2ban")
+                if not WOAptGet.is_installed(self, 'fail2ban'):
+                    apt_packages = apt_packages + WOVariables.wo_fail2ban
+                else:
+                    Log.debug(self, "Fail2ban already installed")
+                    Log.info(self, "Fail2ban already installed")
 
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
