@@ -1,7 +1,7 @@
 """Stack Plugin for WordOps"""
 
 from cement.core.controller import CementBaseController, expose
-from cement.core import handler
+from cement.core import handler, hook
 from wo.cli.plugins.site_functions import *
 from wo.core.variables import WOVariables
 from wo.core.aptget import WOAptGet
