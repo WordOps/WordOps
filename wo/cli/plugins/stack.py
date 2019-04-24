@@ -1508,7 +1508,7 @@ class WOStackController(CementBaseController):
                      ["https://github.com/soerennb/"
                       "extplorer/archive/v2.1.11.tar.gz",
                       "/tmp/extplorer.tar.gz",
-                      "Extplorer"]]
+                      "eXtplorer"]]
 
             # UTILS
             if self.app.pargs.utils:
