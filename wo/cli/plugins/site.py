@@ -673,22 +673,14 @@ class WOSiteCreateController(CementBaseController):
                       "`tail /var/log/wo/wordops.log` and please try again")
 
         if self.app.pargs.letsencrypt == "on":
-            if self.app.pargs.hsts:
-                data['letsencrypt'] = True
-                letsencrypt = True
-                data['hsts'] = True
-                hsts = True
-            else:
-                data['letsencrypt'] = True
-                letsencrypt = True
-                data['hsts'] = False
-                hsts = False
+            data['letsencrypt'] = True
+            letsencrypt = True
 
             if data['letsencrypt'] is True:
                 setupLetsEncrypt(self, wo_domain)
                 httpsRedirect(self, wo_domain)
 
-                if data['hsts'] is True:
+                if self.app.pargs.hsts:
                     setupHsts(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
@@ -713,15 +705,11 @@ class WOSiteCreateController(CementBaseController):
             data['letsencrypt'] = True
             letsencrypt = True
 
-            if self.app.pargs.hsts == 'on':
-                data['hsts'] = True
-                hsts = True
-
             if data['letsencrypt'] is True:
                 setupLetsEncryptSubdomain(self, wo_domain)
                 httpsRedirect(self, wo_domain)
 
-                if data['hsts'] is True:
+                if self.app.pargs.hsts:
                     setupHsts(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
@@ -902,7 +890,8 @@ class WOSiteUpdateController(CementBaseController):
         if (pargs.hsts and not (pargs.html or
                                 pargs.php or pargs.php73 or pargs.mysql or
                                 pargs.wp or pargs.wpfc or pargs.wpsc or
-                                pargs.wpsubdir or pargs.wpsubdomain)):
+                                pargs.wpsubdir or pargs.wpsubdomain or
+                                pargs.password)):
             try:
                 setupHsts(self, wo_domain)
             except SiteError as e:
@@ -918,8 +907,8 @@ class WOSiteUpdateController(CementBaseController):
                                                    'proxy', 'wp', 'php73']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
-            (stype == oldsitetype and cache == oldcachetype) and
-                not pargs.php73 or pargs.hsts):
+            (stype == oldsitetype and cache == oldcachetype) and not
+                (pargs.php73 or pargs.hsts or pargs.letsencrypt)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1

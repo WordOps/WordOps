@@ -39,7 +39,7 @@
 
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Up-to-date** : Nginx 1.14.2 with Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- **Up-to-date** : Nginx 1.16.0 with Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Let's Encrypt SSL certificates handled by acme.sh
@@ -76,7 +76,7 @@ WordOps made some fundamental changes:
 - We've deprecated the mail stack. As an alternative, you can take a look at [Mail-in-a-Box](https://github.com/mail-in-a-box/mailinabox), [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). As Roundcube alternative, there is [Rainloop](https://www.rainloop.net/) or [Afterlogic WebMail](https://github.com/afterlogic/webmail-lite-8)
 - Support for w3tc is dropped as a security precaution.
 - PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 has been replaced by PHP 7.3.
-- Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.14.2 with Brotli support)
+- Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.16.0 with Brotli support)
 - HHVM stack has been removed
 - Let's Encrypt stack isn't based on letsencrypt-auto anymore, we use acme.sh to handle SSL certificates
 
@@ -153,16 +153,18 @@ There is no need to be a developer or a system administrator to contribute to Wo
 
 - Source : [EasyEngine](https://github.com/easyengine/easyengine)
 
-Shipped with WordOps
+Apps & Tools shipped with WordOps
 
-- Acme client : [Acme.sh](https://github.com/Neilpang/acme.sh)
-- WordPress deployment : [WP-CLI](https://github.com/wp-cli/wp-cli)
-- Monitoring : [Netdata](https://github.com/netdata/netdata)
+- [Acme.sh](https://github.com/Neilpang/acme.sh)
+- [WP-CLI](https://github.com/wp-cli/wp-cli)
+- [Netdata](https://github.com/netdata/netdata)
 - [phpMyAdmin](https://www.phpmyadmin.net/)
+- [Composer](https://github.com/composer/composer)
 - [Adminer](https://www.adminer.org/)
 - [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
 - [PHPMemcachedAdmin](https://github.com/elijaa/phpmemcachedadmin)
 - [opcacheGUI](https://github.com/amnuts/opcache-gui)
+- [eXtplorer](https://github.com/soerennb/extplorer)
 
 ## License
 

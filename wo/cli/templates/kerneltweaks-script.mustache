@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Kernel tweak script launched by kerneltweak systemd service
+# script path after installation /opt/kerneltweaks.sh
+
+echo 1 >/sys/kernel/mm/ksm/run
+echo 1000 >/sys/kernel/mm/ksm/sleep_millisecs
+echo never > /sys/kernel/mm/transparent_hugepage/enabled

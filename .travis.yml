@@ -27,7 +27,7 @@ script:
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
   - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt ccze tree
   - sudo bash install -b $TRAVIS_BRANCH --travis
-  - sudo wo --help && sudo wo stack install && sudo wo stack install --admin
+  - sudo wo --help && sudo wo stack install
 
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create proxy.com --proxy=127.0.0.1:3000 || sudo tail -n50 /var/log/wo/wordops.log
@@ -49,15 +49,10 @@ script:
 
   - sudo wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc && sudo wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc && sudo wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain  || sudo tail -n50 /var/log/wo/wordops.log
 
-  - sudo wo site create 1.com --html || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create 2.com --php || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site create 3.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
-
-  - sudo wo site update 1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update 2.com --php73 || sudo tail -n50 /var/log/wo/wordops.log
-  - sudo wo site update 3.com --php73 || sudo tail -n50 /var/log/wo/wordops.log
-
+  - sudo wo site create 1.com --html && sudo wo site create 2.com --php && sudo wo site create 3.com --mysql  || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo site update 1.com --wp && sudo wo site update 2.com --php73 && sudo wo site update 3.com --php73 && sudo wo site update 1.com --wpfc && sudo wo site update 1.com --wpsc && sudo wo site update 1.com --wpredis || sudo tail -n50 /var/log/wo/wordops.log
   - sudo ls /var/www/
+  - sudo ls /var/www/22222/htdocs/
   - sudo wp --allow-root --info
   - sudo wo info || sudo tail -n50 /var/log/wo/wordops.log
   - sudo tree -L 2 /etc/nginx

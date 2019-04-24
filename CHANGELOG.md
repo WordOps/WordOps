@@ -30,6 +30,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - additional argument for letsencrypt : --hsts
 - Theme for adminer
 - Credits for tools shipped with WordOps
+- Cache exception for Easy Digital Download
+- Additional cache exception for Woocommerce
+- MySQL monitoring with Netdata
+- WordOps-dashboard on 22222
+- Extplorer filemanager
 
 #### Changed
 
@@ -41,6 +46,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Increase MySQL users password size to 16 characters
 - Nginx locations template is the same for php7.2 & 7.3
 - backend SSL configuration now stored in /var/www/22222/conf/nginx/ssl.conf
+- Install Netdata with static pre-built binaries instead of having to compile it from source
+- Nginx updated to new stable release (1.16.0)
 
 #### Fixed
 
@@ -59,6 +66,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - command "wo clean --memcached"
 - phpredisadmin setup
 - --hsts flag with basic html site
+- hsts flag on site not secure with letsencrypt
 
 ### v3.9.4 - 2019-03-15
 

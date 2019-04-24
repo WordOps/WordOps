@@ -50,7 +50,7 @@ class WOSecureController(CementBaseController):
         """This function secures authentication"""
         passwd = ''.join([random.choice
                           (string.ascii_letters + string.digits)
-                          for n in range(16)])
+                          for n in range(24)])
         if not self.app.pargs.user_input:
             username = input("Provide HTTP authentication user "
                              "name [{0}] :".format(WOVariables.wo_user))
@@ -93,16 +93,10 @@ class WOSecureController(CementBaseController):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("WordOps admin port [22222]:")
             self.app.pargs.user_input = port
-        if WOVariables.wo_platform_distro == 'ubuntu':
-            WOShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
-                                 "{port} default_server ssl http2;/\" "
-                                 "/etc/nginx/sites-available/22222"
-                                 .format(port=self.app.pargs.user_input))
-        if WOVariables.wo_platform_distro == 'debian':
-            WOShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
-                                 "{port} default_server ssl http2;/\" "
-                                 "/etc/nginx/sites-available/22222"
-                                 .format(port=self.app.pargs.user_input))
+        WOShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
+                             "{port} default_server ssl http2;/\" "
+                             "/etc/nginx/sites-available/22222"
+                             .format(port=self.app.pargs.user_input))
         WOGit.add(self, ["/etc/nginx"],
                   msg="Adding changed secure port into Git")
         if not WOService.reload_service(self, 'nginx'):
