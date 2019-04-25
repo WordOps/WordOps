@@ -1522,10 +1522,6 @@ class WOStackController(CementBaseController):
                                             'kickstart-static64.sh',
                                             '/tmp/kickstart.sh',
                                             'Netdata']]
-                if not WOAptGet.is_installed(self, 'python3-mysqldb'):
-                    Log.debug(
-                        self, "Setting apt_packages variable for Fail2ban")
-                    apt_packages = apt_packages + WOVariables.wo_netdata
 
             # WordOps Dashboard
             if self.app.pargs.dashboard:

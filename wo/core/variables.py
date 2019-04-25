@@ -158,11 +158,9 @@ class WOVariables():
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
-    wo_mysql = ["mariadb-server", "percona-toolkit"]
+    wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
 
     wo_fail2ban = "fail2ban"
-
-    wo_netdata = "python3-mysqldb"
 
     # Redis repo details
     if wo_platform_distro == 'ubuntu':
