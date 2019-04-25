@@ -162,6 +162,8 @@ class WOVariables():
 
     wo_fail2ban = "fail2ban"
 
+    wo_netdata = "python3-mysqldb"
+
     # Redis repo details
     if wo_platform_distro == 'ubuntu':
         wo_redis_repo = ("ppa:chris-lea/redis-server")
