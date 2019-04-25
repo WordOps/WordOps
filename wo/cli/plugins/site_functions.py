@@ -1287,6 +1287,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                                             "--key-file {0}/{1}/key.pem "
                                             "--fullchain-file "
                                             "{0}/{1}/fullchain.pem "
+                                            "--ca-file {0}/{1}/ca.pem "
                                             "--reloadcmd "
                                             "\"service nginx restart\" "
                                             .format(WOVariables.wo_ssl_live,
@@ -1300,9 +1301,10 @@ def setupLetsEncrypt(self, wo_domain_name):
                            encoding='utf-8', mode='w')
             sslconf.write("listen 443 ssl http2;\n"
                           "listen [::]:443 ssl http2;\n"
-                          "ssl on;\n"
                           "ssl_certificate     {0}/{1}/fullchain.pem;\n"
                           "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                          "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                          "ssl_stapling_verify on;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
             updateSiteInfo(self, wo_domain_name, ssl=True)
@@ -1368,6 +1370,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                                             "--key-file {0}/{1}/key.pem "
                                             "--fullchain-file "
                                             "{0}/{1}/fullchain.pem "
+                                            "--ca-file {0}/{1}/ca.pem "
                                             "--reloadcmd "
                                             "\"service nginx restart\" "
                                             .format(WOVariables.wo_ssl_live,
@@ -1382,9 +1385,10 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                            encoding='utf-8', mode='w')
             sslconf.write("listen 443 ssl http2;\n"
                           "listen [::]:443 ssl http2;\n"
-                          "ssl on;\n"
                           "ssl_certificate     {0}/{1}/fullchain.pem;\n"
                           "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                          "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                          "ssl_stapling_verify on;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
             updateSiteInfo(self, wo_domain_name, ssl=True)
@@ -1548,6 +1552,7 @@ def archivedCertificateHandle(self, domain):
                                    "--key-file {0}/{1}/key.pem "
                                    "--fullchain-file "
                                    "{0}/{1}/fullchain.pem "
+                                   "--ca-file {0}/{1}/ca.pem "
                                    "--reloadcmd "
                                    "\"service nginx restart\" "
                                    .format(WOVariables.wo_ssl_live,
@@ -1567,10 +1572,11 @@ def archivedCertificateHandle(self, domain):
                                    encoding='utf-8', mode='w')
                     sslconf.write("listen 443 ssl http2;\n"
                                   "listen [::]:443 ssl http2;\n"
-                                  "ssl on;\n"
                                   "ssl_certificate     "
                                   "{0}/{1}/fullchain.pem;\n"
                                   "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                                  "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                                  "ssl_stapling_verify on;\n"
                                   .format(WOVariables.wo_ssl_live, domain))
                     sslconf.close()
 
@@ -1614,6 +1620,8 @@ def archivedCertificateHandle(self, domain):
                                      "--key-file {0}/{1}/key.pem "
                                      "--fullchain-file "
                                      "{0}/{1}/fullchain.pem "
+                                     "ssl_trusted_certificate "
+                                     "{0}/{1}/ca.pem;\n"
                                      "--reloadcmd "
                                      "\"service nginx restart\" "
                                      .format(WOVariables.wo_ssl_live, domain))
