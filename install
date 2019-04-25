@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5 - 2019-04-22
+# Version 3.9.5 - 2019-04-25
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.4.6"
+readonly wo_version_new="3.9.5"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -380,15 +380,6 @@ wo_install_acme_sh() {
             # enable auto-upgrade
             /etc/letsencrypt/acme.sh --config-home /etc/letsencrypt/config --upgrade --auto-upgrade
 
-            # Let's Encrypt .well-known folder setup
-            if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
-                mkdir -p /var/www/html/.well-known/acme-challenge
-                chown -R www-data:www-data /var/www/html /var/www/html/.well-known
-                chmod 750 /var/www/html /var/www/html/.well-known
-            else
-                chmod 750 /var/www/html /var/www/html/.well-known
-            fi
-
         } >> "$wo_install_log" 2>&1
     fi
     if [ -d "$HOME/.acme.sh" ]; then
@@ -405,6 +396,14 @@ wo_install_acme_sh() {
                 /etc/letsencrypt/renewal/
 
         } >> "$wo_install_log" 2>&1
+    fi
+    # Let's Encrypt .well-known folder setup
+    if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
+        mkdir -p /var/www/html/.well-known/acme-challenge
+        chown -R www-data:www-data /var/www/html /var/www/html/.well-known
+        chmod 750 /var/www/html /var/www/html/.well-known
+    else
+        chmod 750 /var/www/html /var/www/html/.well-known
     fi
 }
 
@@ -642,8 +641,9 @@ wo_clean_ee() {
 
 # 1 - WO already installed
 if [ -x /usr/local/bin/wo ]; then
-    wo -v 2>&1 | grep $wo_version_new
-    if [[ $? -ne 0 ]]; then
+    if ! {
+        wo -v 2>&1 | grep $wo_version_new
+    }; then
         read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
         if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
