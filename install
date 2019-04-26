@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5 - 2019-04-25
+# Version 3.9.5 - 2019-04-26
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.5"
@@ -216,9 +216,6 @@ wo_sync_db() {
             # Copy the EasyEngine database
             cp /var/lib/ee/ee.db /var/lib/wo/dbase-ee.db
 
-            # Set the migration variable for the closing text
-            migration=1
-
             ###
             # Clean WO installation
             ###
@@ -327,9 +324,9 @@ wo_sync_db() {
 secure_wo_db() {
 
     # The owner is root
-    chown -R root:root /var/lib/wo/
+    chown -R root:root /var/lib/wo
     # Only allow access by root, block others
-    chmod -R 600 /var/lib/wo/
+    chmod -R 600 /var/lib/wo
 
 }
 
@@ -634,6 +631,12 @@ wo_backup_wo() {
 wo_clean_ee() {
     rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
 }
+
+# wo_tweak_kernel() {
+#     if [ ! -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf ]; then
+
+#     fi
+# }
 
 ###
 # 4 - WO MAIN SETUP

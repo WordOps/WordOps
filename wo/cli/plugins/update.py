@@ -1,9 +1,10 @@
-from cement.core.controller import CementBaseController, expose
+import os
+import time
+
 from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
 from wo.core.download import WODownload
 from wo.core.logging import Log
-import time
-import os
 
 
 def wo_update_hook(app):
