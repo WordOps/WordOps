@@ -378,10 +378,12 @@ class WOStackController(CementBaseController):
                     self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
+
                 if not os.path.isfile("/etc/nginx/common/release"):
                     with open("/etc/nginx/common/release",
                               "a") as release_file:
-                        release_file.write("v3.9.5")
+                        release_file.write("v{0}"
+                                           .format(WOVariables.wo_version))
                     release_file.close()
 
                     # Nginx-Plus does not have nginx
