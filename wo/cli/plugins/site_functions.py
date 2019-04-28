@@ -1147,7 +1147,7 @@ def detSitePar(opts):
 def generate_random():
     wo_random10 = (''.join(random.sample(string.ascii_uppercase +
                                          string.ascii_lowercase +
-                                         string.digits, 16)))
+                                         string.digits, 24)))
     return wo_random10
 
 
@@ -1408,8 +1408,6 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                   "\n to allow it to verify the site automatically.")
 
 # letsencrypt cert renewal
-
-
 def renewLetsEncrypt(self, wo_domain_name):
 
     ssl = WOShellExec.cmd_exec(
@@ -1642,4 +1640,4 @@ def archivedCertificateHandle(self, domain):
                            '/var/www/{0}/conf/nginx/ssl.conf.bak'
                            .format(domain))
 
-        return ssl
+    return ssl
