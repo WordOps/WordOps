@@ -697,7 +697,9 @@ def sitebackup(self, data):
     if data['wo_db_name']:
         Log.info(self, 'Backing up database \t\t', end='')
         try:
-            if not WOShellExec.cmd_exec(self, "mysqldump --single-transaction {0} | pigz -9 -p\"$(nproc)\" > {1}/{0}.gz"
+            if not WOShellExec.cmd_exec(self, "mysqldump --single-transaction "
+                                        "{0} | pigz -9 -p\"$(nproc)\" "
+                                        "> {1}/{0}.gz"
                                         .format(data['wo_db_name'],
                                                 backup_path)):
                 Log.info(self,

@@ -1159,7 +1159,7 @@ class WOStackController(CementBaseController):
                     WOFileUtils.searchreplace(self, "{0}22222/htdocs/index.php"
                                               .format(WOVariables.wo_webroot),
                                               "eth0",
-                                              "{0}".format(WOVariables.wo_wan_interface))
+                                              "{0}".format(WOVariables.wo_wan))
 
                     Log.debug(self, "Setting Privileges to "
                               "{0}22222/htdocs"

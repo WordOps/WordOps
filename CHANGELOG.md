@@ -35,6 +35,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - MySQL monitoring with Netdata
 - WordOps-dashboard on 22222
 - Extplorer filemanager
+- Enable OSCP Stapling with Let's Encrypt
+- Compress database backup with pigz before updating sites
 
 #### Changed
 

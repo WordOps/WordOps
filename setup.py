@@ -38,7 +38,7 @@ except Exception as e:
     print("Your informations will ONLY be stored locally")
 
     wo_user = input("Enter your name: ")
-    while wo_user is "":
+    while wo_user == "":
         print("Unfortunately, this can't be left blank")
         wo_user = input("Enter your name: ")
 

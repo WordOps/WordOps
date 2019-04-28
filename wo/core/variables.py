@@ -22,11 +22,11 @@ class WOVariables():
         wo_wpcli_path = '/usr/local/bin/wp '
 
     # get wan network interface name
-    wo_wan_interface = os.popen("ip -4 route get 8.8.8.8 | "
-                                "grep -oP \"dev [^[:space:]]+ \" "
-                                "| cut -d ' ' -f 2").read()
-    if wo_wan_interface == '':
-        wo_wan_interface = 'eth0'
+    wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
+                      "grep -oP \"dev [^[:space:]]+ \" "
+                      "| cut -d ' ' -f 2").read()
+    if wo_wan == '':
+        wo_wan = 'eth0'
 
     # Current date and time of System
     wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
