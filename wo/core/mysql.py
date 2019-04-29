@@ -112,7 +112,7 @@ class WOMysql():
                                       " --single-transaction".format(dbs),
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE, shell=True)
-                p2 = subprocess.Popen("gzip -c > /var/wo-mysqlbackup/{0}{1}.s"
+                p2 = subprocess.Popen("pigz -c > /var/wo-mysqlbackup/{0}{1}.s"
                                       "ql.gz".format(dbs, WOVariables.wo_date),
                                       stdin=p1.stdout,
                                       shell=True)
