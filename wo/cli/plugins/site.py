@@ -147,10 +147,6 @@ class WOSiteController(CementBaseController):
             wo_db_user = siteinfo.db_user
             wo_db_pass = siteinfo.db_password
             wo_db_host = siteinfo.db_host
-            if sitetype == "proxy":
-                access_log = "/var/log/nginx/{0}.access.log".format(wo_domain)
-                error_log = "/var/log/nginx/{0}.error.log".format(wo_domain)
-                wo_site_webroot = ''
 
             php_version = siteinfo.php_version
 
