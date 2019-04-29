@@ -13,7 +13,7 @@ class WOVariables():
     # WordOps version
     wo_version = "3.9.5"
     # WordOps packages versions
-    wo_wp_cli = "2.1.0"
+    wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.1"
 
     # Get WPCLI path
@@ -102,6 +102,9 @@ class WOVariables():
     elif wo_platform_codename == 'bionic':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/virtubox:/WordOps/xUbuntu_18.04/ /")
+    elif wo_platform_codename == 'disco':
+        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
+                         "/virtubox:/WordOps/xUbuntu_19.04/ /")
     elif wo_platform_codename == 'jessie':
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/virtubox:/WordOps/Debian_8.0/ /")

@@ -92,21 +92,22 @@ class WOStackController(CementBaseController):
         """Pre settings to do before installation packages"""
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for MySQL, please wait...")
-            mysql_pref = ("Package: *\nPin: origin "
-                          "sfo1.mirrors.digitalocean.com"
-                          "\nPin-Priority: 1000\n")
-            with open('/etc/apt/preferences.d/'
-                      'MariaDB.pref', 'w') as mysql_pref_file:
-                mysql_pref_file.write(mysql_pref)
-            WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
-            Log.debug(self, 'Adding key for {0}'
-                      .format(WOVariables.wo_mysql_repo))
-            WORepo.add_key(self, '0xcbcb082a1bb943db',
-                           keyserver="keyserver.ubuntu.com")
-            WORepo.add_key(self, '0xF1656F24C74CD1D8',
-                           keyserver="keyserver.ubuntu.com")
-            chars = ''.join(random.sample(string.ascii_letters, 16))
+            if (WOVariables.wo_platform_codename != 'disco'):
+                Log.info(self, "Adding repository for MySQL, please wait...")
+                mysql_pref = ("Package: *\nPin: origin "
+                              "sfo1.mirrors.digitalocean.com"
+                              "\nPin-Priority: 1000\n")
+                with open('/etc/apt/preferences.d/'
+                          'MariaDB.pref', 'w') as mysql_pref_file:
+                    mysql_pref_file.write(mysql_pref)
+                WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
+                Log.debug(self, 'Adding key for {0}'
+                          .format(WOVariables.wo_mysql_repo))
+                WORepo.add_key(self, '0xcbcb082a1bb943db',
+                               keyserver="keyserver.ubuntu.com")
+                WORepo.add_key(self, '0xF1656F24C74CD1D8',
+                               keyserver="keyserver.ubuntu.com")
+            chars = ''.join(random.sample(string.ascii_letters, 24))
             Log.debug(self, "Pre-seeding MySQL")
             Log.debug(self, "echo \"mariadb-server-10.3 "
                       "mysql-server/root_password "

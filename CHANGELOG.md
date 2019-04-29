@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Extplorer filemanager
 - Enable OSCP Stapling with Let's Encrypt
 - Compress database backup with pigz before updating sites
+- Add support for Ubuntu 19.04 disco
 
 #### Changed
 
