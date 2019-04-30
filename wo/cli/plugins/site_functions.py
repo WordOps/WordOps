@@ -1245,6 +1245,10 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(domain)):
             removeNginxConf(self, domain)
+        if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
+                         .format(domain)):
+            removeAcmeConf(self, domain)
+
     if webroot:
         deleteWebRoot(self, webroot)
 
@@ -1423,6 +1427,8 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                   "\n to allow it to verify the site automatically.")
 
 # letsencrypt cert renewal
+
+
 def renewLetsEncrypt(self, wo_domain_name):
 
     ssl = WOShellExec.cmd_exec(
