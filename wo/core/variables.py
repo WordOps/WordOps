@@ -94,24 +94,35 @@ class WOVariables():
 
     # WordOps stack installation variables
     # Nginx repo and packages
-    if wo_platform_codename == 'trusty':
+    if wo_platform_distro == 'ubuntu':
+        if wo_platform_codename == 'trusty':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_14.04/ /")
+        elif wo_platform_codename == 'xenial':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_16.04/ /")
+        elif wo_platform_codename == 'bionic':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_18.04/ /")
+        else:
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_19.04/ /")
+    elif wo_platform_distro == 'debian':
+        if wo_platform_codename == 'jessie':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/Debian_8.0/ /")
+        elif wo_platform_codename == 'stretch':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/Debian_9.0/ /")
+    else:
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/xUbuntu_14.04/ /")
-    elif wo_platform_codename == 'xenial':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/xUbuntu_16.04/ /")
-    elif wo_platform_codename == 'bionic':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/xUbuntu_18.04/ /")
-    elif wo_platform_codename == 'disco':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/xUbuntu_19.04/ /")
-    elif wo_platform_codename == 'jessie':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/Debian_8.0/ /")
-    elif wo_platform_codename == 'stretch':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/Debian_9.0/ /")
+                         "/virtubox:/WordOps/Raspbian_9.0/ /")
 
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
@@ -161,7 +172,6 @@ class WOVariables():
                          "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
-
     wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
 
     wo_fail2ban = "fail2ban"

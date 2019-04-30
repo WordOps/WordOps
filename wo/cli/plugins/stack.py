@@ -111,34 +111,64 @@ class WOStackController(CementBaseController):
             # generate random 24 characters root password
             chars = ''.join(random.sample(string.ascii_letters, 24))
             # configure MySQL non-interactive install
-            Log.debug(self, "Pre-seeding MySQL")
-            Log.debug(self, "echo \"mariadb-server-10.3 "
-                      "mysql-server/root_password "
-                      "password \" | "
-                      "debconf-set-selections")
-            try:
-                WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
-                                     "mysql-server/root_password "
-                                     "password {chars}\" | "
-                                     "debconf-set-selections"
-                                     .format(chars=chars),
-                                     log=False)
-            except CommandExecutionError as e:
-                Log.error("Failed to initialize MySQL package")
+            if (not WOVariables.wo_platform_distro == 'raspbian'):
+                Log.debug(self, "Pre-seeding MySQL")
+                Log.debug(self, "echo \"mariadb-server-10.3 "
+                          "mysql-server/root_password "
+                          "password \" | "
+                          "debconf-set-selections")
+                try:
+                    WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
+                                         "mysql-server/root_password "
+                                         "password {chars}\" | "
+                                         "debconf-set-selections"
+                                         .format(chars=chars),
+                                         log=False)
+                except CommandExecutionError as e:
+                    Log.error("Failed to initialize MySQL package")
 
-            Log.debug(self, "echo \"mariadb-server-10.3 "
-                      "mysql-server/root_password_again "
-                      "password \" | "
-                      "debconf-set-selections")
-            try:
-                WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
-                                     "mysql-server/root_password_again "
-                                     "password {chars}\" | "
-                                     "debconf-set-selections"
-                                     .format(chars=chars),
-                                     log=False)
-            except CommandExecutionError as e:
-                Log.error("Failed to initialize MySQL package")
+                Log.debug(self, "echo \"mariadb-server-10.3 "
+                          "mysql-server/root_password_again "
+                          "password \" | "
+                          "debconf-set-selections")
+                try:
+                    WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
+                                         "mysql-server/root_password_again "
+                                         "password {chars}\" | "
+                                         "debconf-set-selections"
+                                         .format(chars=chars),
+                                         log=False)
+                except CommandExecutionError as e:
+                    Log.error("Failed to initialize MySQL package")
+            else:
+                Log.debug(self, "Pre-seeding MySQL")
+                Log.debug(self, "echo \"mariadb-server-10.1 "
+                          "mysql-server/root_password "
+                          "password \" | "
+                          "debconf-set-selections")
+                try:
+                    WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
+                                         "mysql-server/root_password "
+                                         "password {chars}\" | "
+                                         "debconf-set-selections"
+                                         .format(chars=chars),
+                                         log=False)
+                except CommandExecutionError as e:
+                    Log.error("Failed to initialize MySQL package")
+
+                Log.debug(self, "echo \"mariadb-server-10.1 "
+                          "mysql-server/root_password_again "
+                          "password \" | "
+                          "debconf-set-selections")
+                try:
+                    WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
+                                         "mysql-server/root_password_again "
+                                         "password {chars}\" | "
+                                         "debconf-set-selections"
+                                         .format(chars=chars),
+                                         log=False)
+                except CommandExecutionError as e:
+                    Log.error("Failed to initialize MySQL package")
             # generate my.cnf root credentials
             mysql_config = """
             [client]
