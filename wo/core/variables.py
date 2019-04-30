@@ -144,7 +144,7 @@ class WOVariables():
         wo_php_extra = ["php-memcached", "php-imagick", "memcached",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
         wo_php_key = ''
-    elif wo_platform_distro == 'debian':
+    else:
         wo_php_repo = (
             "deb https://packages.sury.org/php/ {codename} main"
             .format(codename=wo_platform_codename))
@@ -160,6 +160,7 @@ class WOVariables():
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
         wo_php_extra = ["php-memcached", "php-imagick", "memcached",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+
         wo_php_key = 'AC0E47584A7A714D'
 
     # MySQL repo and packages
