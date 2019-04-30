@@ -354,7 +354,7 @@ wo_update_wp_cli() {
 
 wo_install_acme_sh() {
     # check if acme.sh is already installed
-    if [ ! -d /opt/acme.sh ]; then
+    if [ ! -x /etc/letsencrypt/acme.sh ]; then
         {
             # clone the git repository
             git clone https://github.com/Neilpang/acme.sh.git /opt/acme.sh -q
@@ -388,7 +388,6 @@ wo_install_acme_sh() {
                 --exclude="dnsapi" \
                 --exclude="http.header" \
                 --exclude="ca" \
-                --del \
                 "$HOME/.acme.sh/" \
                 /etc/letsencrypt/renewal/
 
@@ -621,11 +620,11 @@ wo_git_init() {
 }
 
 wo_backup_ee() {
-    tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
+    tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_backup_wo() {
-    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo /var/lib/wo >> /var/log/wo/install.log 2>&1
+    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean_ee() {
