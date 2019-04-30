@@ -93,8 +93,8 @@ class WOStackController(CementBaseController):
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
             # add mariadb repository excepted on raspbian and ubuntu 19.04
-            if (not WOVariables.wo_platform_codename == 'disco') and
-            (not WOVariables.wo_platform_distro == 'raspbian'):
+            if ((not WOVariables.wo_platform_codename == 'disco') and
+                    (not WOVariables.wo_platform_distro == 'raspbian')):
                 Log.info(self, "Adding repository for MySQL, please wait...")
                 mysql_pref = ("Package: *\nPin: origin "
                               "sfo1.mirrors.digitalocean.com"
