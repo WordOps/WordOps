@@ -16,7 +16,6 @@ from wo.core.git import WOGit
 from wo.core.checkfqdn import check_fqdn
 from pynginxconfig import NginxConfig
 from wo.core.services import WOService
-from wo.core.variables import WOVariables
 import random
 import string
 import configparser
