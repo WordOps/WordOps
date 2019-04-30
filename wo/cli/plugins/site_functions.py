@@ -1221,6 +1221,19 @@ def removeNginxConf(self, domain):
                   .format(domain))
 
 
+def removeAcmeConf(self, domain):
+    if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
+                     .format(domain)):
+        Log.debug(self, "Removing Acme configuration")
+        WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
+                       .format(domain))
+        WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
+                       .format(domain))
+        WOGit.add(self, ["/etc/letsencrypt"],
+                  msg="Deleted {0} "
+                  .format(domain))
+
+
 def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                     dbhost=''):
     """
