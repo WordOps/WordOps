@@ -1200,7 +1200,7 @@ class WOStackController(CementBaseController):
                           " {0}22222/htdocs/cache/memcached "
                           .format(WOVariables.wo_webroot))
                 WOExtract.extract(self, '/tmp/memcached.tar.gz',
-                                  '{0}22222/htdocs/cache/memcached'
+                                  '{0}22222/htdocs/cache/memcached/'
                                   .format(WOVariables.wo_webroot))
                 Log.debug(self, "Setting Privileges to "
                           "{0}22222/htdocs/cache/memcached file"
