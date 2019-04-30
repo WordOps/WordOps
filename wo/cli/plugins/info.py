@@ -41,7 +41,8 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_nginx(self):
         """Display Nginx information"""
-        version = os.popen("/usr/sbin/nginx -v 2>&1 | awk -F '/' '{print $2}' | "
+        version = os.popen("/usr/sbin/nginx -v 2>&1 | "
+                           "awk -F '/' '{print $2}' | "
                            "awk -F ' ' '{print $1}' | tr '\n' ' '").read()
         allow = os.popen("grep ^allow /etc/nginx/common/acl.conf | "
                          "cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' '").read()
@@ -66,7 +67,8 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_php(self):
         """Display PHP information"""
-        version = os.popen("/usr/bin/php7.2 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
+        version = os.popen("/usr/bin/php7.2 -v 2>/dev/null | "
+                           "head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
         config.read('/etc/{0}/fpm/php.ini'.format("php/7.2"))
@@ -140,7 +142,8 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_php73(self):
         """Display PHP information"""
-        version = os.popen("/usr/bin/php7.3 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
+        version = os.popen("/usr/bin/php7.3 -v 2>/dev/null | "
+                           "head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
         config.read('/etc/php/7.3/fpm/php.ini')
@@ -214,23 +217,29 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_mysql(self):
         """Display MySQL information"""
-        version = os.popen("/usr/bin/mysql -V | awk '{print($5)}' | cut -d ',' "
+        version = os.popen("/usr/bin/mysql -V | awk '{print($5)}' | "
+                           "cut -d ',' "
                            "-f1 | tr -d '\n'").read()
         host = "localhost"
-        port = os.popen("/usr/bin/mysql -e \"show variables\" | grep ^port | awk "
+        port = os.popen("/usr/bin/mysql -e \"show variables\" | "
+                        "grep ^port | awk "
                         "'{print($2)}' | tr -d '\n'").read()
         wait_timeout = os.popen("/usr/bin/mysql -e \"show variables\" | grep "
                                 "^wait_timeout | awk '{print($2)}' | "
                                 "tr -d '\n'").read()
-        interactive_timeout = os.popen("/usr/bin/mysql -e \"show variables\" | grep "
+        interactive_timeout = os.popen("/usr/bin/mysql -e "
+                                       "\"show variables\" | grep "
                                        "^interactive_timeout | awk "
                                        "'{print($2)}' | tr -d '\n'").read()
-        max_used_connections = os.popen("/usr/bin/mysql -e \"show global status\" | "
+        max_used_connections = os.popen("/usr/bin/mysql -e "
+                                        "\"show global status\" | "
                                         "grep Max_used_connections | awk "
                                         "'{print($2)}' | tr -d '\n'").read()
-        datadir = os.popen("/usr/bin/mysql -e \"show variables\" | grep datadir | awk"
+        datadir = os.popen("/usr/bin/mysql -e \"show variables\" | "
+                           "grep datadir | awk"
                            " '{print($2)}' | tr -d '\n'").read()
-        socket = os.popen("/usr/bin/mysql -e \"show variables\" | grep \"^socket\" | "
+        socket = os.popen("/usr/bin/mysql -e \"show variables\" | "
+                          "grep \"^socket\" | "
                           "awk '{print($2)}' | tr -d '\n'").read()
         data = dict(version=version, host=host, port=port,
                     wait_timeout=wait_timeout,

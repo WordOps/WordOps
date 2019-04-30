@@ -51,7 +51,8 @@ class WOAptGet():
                     Log.info(self, Log.FAIL +
                              "Whoops, something went wrong...")
                     Log.error(self, "Check the WordOps log for more details "
-                              "`tail /var/log/wo/wordops.log` and please try again...")
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again...")
 
         except Exception as e:
             Log.error(self, "apt-get update exited with error")
@@ -98,7 +99,8 @@ class WOAptGet():
                 Log.info(self, Log.FAIL + "Oops Something went "
                          "wrong!!")
                 Log.error(self, "Check the WordOps log for more details "
-                          "`tail /var/log/wo/wordops.log` and please try again...")
+                          "`tail /var/log/wo/wordops.log` "
+                          "and please try again...")
         except Exception as e:
             Log.error(self, "Error while installing packages, "
                       "apt-get exited with error")
@@ -124,13 +126,15 @@ class WOAptGet():
                 Log.info(self, Log.FAIL + "Oops Something went "
                          "wrong!!")
                 Log.error(self, "Check the WordOps log for more details "
-                          "`tail /var/log/wo/wordops.log` and please try again...")
+                          "`tail /var/log/wo/wordops.log` "
+                          "and please try again...")
 
         except Exception as e:
             Log.info(self, Log.FAIL + "Oops Something went "
                      "wrong!!")
             Log.error(self, "Check the WordOps log for more details "
-                      "`tail /var/log/wo/wordops.log` and please try again...")
+                      "`tail /var/log/wo/wordops.log` "
+                      "and please try again...")
 
     def remove(self, packages, auto=False, purge=False):
         all_packages = ' '.join(packages)
@@ -153,7 +157,8 @@ class WOAptGet():
                 Log.info(self, Log.FAIL + "Oops Something went "
                          "wrong!!")
                 Log.error(self, "Check the WordOps log for more details "
-                          "`tail /var/log/wo/wordops.log` and please try again...")
+                          "`tail /var/log/wo/wordops.log` "
+                          "and please try again...")
 
         except Exception as e:
             Log.error(self, "Error while installing packages, "
@@ -186,7 +191,8 @@ class WOAptGet():
 
     def is_installed(self, package_name):
         """
-        Checks if package is available in cache and is installed or not
+        Checks if package is available in cache "
+        "and is installed or not
         returns True if installed otherwise returns False
         """
         apt_cache = apt.cache.Cache()
@@ -209,7 +215,8 @@ class WOAptGet():
                     WORepo.add(self, repo_url=repo_url)
                 if repo_key is not None:
                     WORepo.add_key(self, repo_key)
-                proc = subprocess.Popen("apt-get update && DEBIAN_FRONTEND=noninteractive "
+                proc = subprocess.Popen("apt-get update && "
+                                        "DEBIAN_FRONTEND=noninteractive "
                                         "apt-get install -o "
                                         "Dpkg::Options::=\"--force-confdef\""
                                         " -o "
@@ -224,7 +231,8 @@ class WOAptGet():
                 return True
             else:
                 Log.error(
-                    self, "Error in fetching dpkg package.\nReverting changes ..", False)
+                    self, "Error in fetching dpkg package.\n"
+                    "Reverting changes ..", False)
                 if repo_url is not None:
                     WORepo.remove(self, repo_url=repo_url)
                 return False

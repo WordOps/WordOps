@@ -23,8 +23,8 @@ class WORepo():
         """
 
         if repo_url is not None:
-            repo_file_path = ("/etc/apt/sources.list.d/"
-                              + WOVariables().wo_repo_file)
+            repo_file_path = ("/etc/apt/sources.list.d/" +
+                              WOVariables().wo_repo_file)
             try:
                 if not os.path.isfile(repo_file_path):
                     with open(repo_file_path,
@@ -62,8 +62,8 @@ class WORepo():
                                  "--remove '{ppa_name}'"
                                  .format(ppa_name=ppa))
         elif repo_url:
-            repo_file_path = ("/etc/apt/sources.list.d/"
-                              + WOVariables().wo_repo_file)
+            repo_file_path = ("/etc/apt/sources.list.d/" +
+                              WOVariables().wo_repo_file)
 
             try:
                 repofile = open(repo_file_path, "w+")
@@ -84,8 +84,8 @@ class WORepo():
         """
         WOShellExec.cmd_exec(self, "gpg --keyserver {serv}"
                              .format(serv=(keyserver or
-                                           "hkp://keyserver.ubuntu.com"))
-                             + " --recv-keys {key}".format(key=keyids))
+                                           "hkp://keyserver.ubuntu.com")) +
+                             " --recv-keys {key}".format(key=keyids))
         WOShellExec.cmd_exec(self, "gpg -a --export --armor {0}"
-                             .format(keyids)
-                             + " | apt-key add - ")
+                             .format(keyids) +
+                             " | apt-key add - ")

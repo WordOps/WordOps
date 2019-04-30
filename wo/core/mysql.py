@@ -100,20 +100,22 @@ class WOMysql():
                           '/var/wo-mysqlbackup')
                 os.makedirs('/var/wo-mysqlbackup')
 
-            db = subprocess.check_output(["mysql -Bse \'show databases\'"],
+            db = subprocess.check_output(["/usr/bin/mysql "
+                                          "-Bse \'show databases\'"],
                                          universal_newlines=True,
                                          shell=True).split('\n')
             for dbs in db:
                 if dbs == "":
                     continue
                 Log.info(self, "Backing up {0} database".format(dbs))
-                p1 = subprocess.Popen("mysqldump {0}"
+                p1 = subprocess.Popen("/usr/bin/mysqldump {0}"
                                       " --max_allowed_packet=1024M"
                                       " --single-transaction".format(dbs),
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE, shell=True)
-                p2 = subprocess.Popen("pigz -c > /var/wo-mysqlbackup/{0}{1}.s"
-                                      "ql.gz".format(dbs, WOVariables.wo_date),
+                p2 = subprocess.Popen("/usr/bin/pigz -c > "
+                                      "/var/wo-mysqlbackup/{0}{1}.sql.gz"
+                                      .format(dbs, WOVariables.wo_date),
                                       stdin=p1.stdout,
                                       shell=True)
 

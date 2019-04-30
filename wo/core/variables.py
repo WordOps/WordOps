@@ -69,8 +69,9 @@ class WOVariables():
     except Exception as e:
         wo_user = input("Enter your name: ")
         wo_email = input("Enter your email: ")
-        os.system("git config --global user.name {0}".format(wo_user))
-        os.system("git config --global user.email {0}".format(wo_email))
+        os.system("/usr/bin/git config --global user.name {0}".format(wo_user))
+        os.system(
+            "/usr/bin/git config --global user.email {0}".format(wo_email))
 
     # Get System RAM and SWAP details
     wo_ram = psutil.virtual_memory().total / (1024 * 1024)
