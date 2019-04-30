@@ -133,15 +133,15 @@ fi
 # 1 - Checking linux distro
 ###
 if [ -z "$wo_force_install" ]; then
-    if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ]; then
-        wo_lib_echo_fail "WordOps (wo) only supports Ubuntu and Debian at the moment."
+    if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ] && [ "$wo_linux_distro" != "Raspbian" ]; then
+        wo_lib_echo_fail "WordOps (wo) only supports Ubuntu, Debian & Raspbian at the moment."
         wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
         wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
         exit 100
     else
         check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|disco|jessie|stretch")
         if [ -z "$check_wo_linux_distro" ]; then
-            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04/19.04 LTS, Debian 8.x and Debian 9.x"
+            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04/19.04 LTS, Debian 8.x, Debian 9.x and Raspbian 9.x"
             exit 100
         fi
     fi
@@ -357,7 +357,11 @@ wo_install_acme_sh() {
     if [ ! -x /etc/letsencrypt/acme.sh ]; then
         {
             # clone the git repository
-            git clone https://github.com/Neilpang/acme.sh.git /opt/acme.sh -q
+            if [ -d /opt/acme.sh/.git ]; then
+                git -C /opt/acme.sh pull origin master
+            else
+                git clone https://github.com/Neilpang/acme.sh.git /opt/acme.sh -q
+            fi
             cd /opt/acme.sh || exit 1
             # create conf directories
             [ ! -d /etc/letsencrypt/config ] && {
@@ -379,8 +383,11 @@ wo_install_acme_sh() {
 
         } >> "$wo_install_log" 2>&1
     fi
-    if [ -d "$HOME/.acme.sh" ]; then
+    if [ -x "$HOME/.acme.sh/acme.sh" ]; then
         {
+            # backup acme.sh folder
+            /bin/tar -I pigz -cf /var/lib/wo-backup/acme.sh.tar.gz "$HOME/.acme.sh"
+            # rsync previous certificates to new acme.sh location
             /usr/bin/rsync -rltgoDpz --exclude="account.conf" \
                 --exclude="acme.sh" \
                 --exclude="acme.sh.env" \
@@ -390,6 +397,11 @@ wo_install_acme_sh() {
                 --exclude="ca" \
                 "$HOME/.acme.sh/" \
                 /etc/letsencrypt/renewal/
+            # remove previous acme.sh folder
+            rm -rf "$HOME/.acme.sh"
+            # create acme.sh.env file inlcuded in .bashrc to avoid error when logging in
+            mkdir -p "$HOME/.acme.sh"
+            echo '' > "$HOME/.acme.sh/acme.sh.env"
 
         } >> "$wo_install_log" 2>&1
     fi
@@ -546,7 +558,7 @@ wo_update_latest() {
 
     if [ -f /etc/ImageMagick/policy.xml ]; then
         if [ ! -f /etc/ImageMagick/patch.txt ]; then
-            echo -e "\t<policy domain="coder" rights="none" pattern="EPHEMERAL" />\n\t<policy domain="coder" rights="none" pattern="URL" />\n\t<policy domain="coder" rights="none" pattern="HTTPS" />\n\t<policy domain="coder" rights="none" pattern="MVG" />\n\t<policy domain="coder" rights="none" pattern="MSL" />" >> /etc/ImageMagick/patch.txt
+            echo -e "\t<policy domain=\"coder\" rights=\"none\" pattern=\"EPHEMERAL\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"URL\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"HTTPS\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"MVG\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"MSL\" />" >> /etc/ImageMagick/patch.txt
             sed -i '/<policymap>/r /etc/ImageMagick/patch.txt' /etc/ImageMagick/policy.xml
         fi
     fi
@@ -576,10 +588,10 @@ wo_update_latest() {
     # Fix Redis-server security issue
     # http://redis.io/topics/security
     if [ -f /etc/redis/redis.conf ]; then
-        grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' >> /dev/null 2>&1
+        CHECK_REDIS_BIND=$(grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' >> /dev/null 2>&1)
 
-        if [ "$?" -ne 0 ]; then
-            sed -i '$ a bind 127.0.0.1' /etc/redis/redis.conf &
+        if [ -z "$CHECK_REDIS_BIND" ]; then
+            echo 'bind 127.0.0.1 ::1' >> /etc/redis/redis.conf
 
             service redis-server restart > /dev/null 2>&1
 
@@ -593,9 +605,9 @@ wo_git_init() {
     # Nginx under git version control
     [ -d /etc/nginx ] && {
         cd /etc/nginx || exit 1
-        if [ ! -d /etc/nginx/.git ]; then
+        [ ! -d /etc/nginx/.git ] && {
             git init
-        fi
+        }
         git add -A .
         git commit -am "Updated Nginx"
     } >> /var/log/wo/install.log 2>&1
@@ -611,20 +623,20 @@ wo_git_init() {
     # PHP under git version control
     [ -d /etc/php ] && {
         cd /etc/php || exit 1
-        if [ ! -d /etc/php/.git ]; then
+        [ ! -d /etc/php/.git ] && {
             git init
-        fi
+        }
         git add -A .
         git commit -am "Updated PHP"
     } >> /var/log/wo/install.log 2>&1
 }
 
 wo_backup_ee() {
-    tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt >> /var/log/wo/install.log 2>&1
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_backup_wo() {
-    tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx/ /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean_ee() {
@@ -655,7 +667,11 @@ if [ -x /usr/local/bin/wo ]; then
             wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            wo_install >> wo_install_log 2>&1
+            if [ -f "$HOME/.gitconfig" ]; then
+                wo_install >> wo_install_log 2>&1
+            else
+                wo_install | tee -ai $wo_install_log
+            fi
             if [ -x "$(command -v nginx)" ]; then
                 wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
                 wo_upgrade_nginx | tee -ai $wo_install_log
@@ -685,7 +701,11 @@ else
             wo_sync_db | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            wo_install >> wo_install_log 2>&1
+            if [ -f "$HOME/.gitconfig" ]; then
+                wo_install >> wo_install_log 2>&1
+            else
+                wo_install | tee -ai $wo_install_log
+            fi
             if [ -x "$(command -v nginx)" ]; then
                 wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
                 wo_upgrade_nginx | tee -ai $wo_install_log

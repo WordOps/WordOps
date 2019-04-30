@@ -92,7 +92,9 @@ class WOStackController(CementBaseController):
         """Pre settings to do before installation packages"""
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
-            if (WOVariables.wo_platform_codename != 'disco'):
+            # add mariadb repository excepted on raspbian and ubuntu 19.04
+            if (not WOVariables.wo_platform_codename == 'disco') and
+            (not WOVariables.wo_platform_distro == 'raspbian'):
                 Log.info(self, "Adding repository for MySQL, please wait...")
                 mysql_pref = ("Package: *\nPin: origin "
                               "sfo1.mirrors.digitalocean.com"
@@ -107,7 +109,9 @@ class WOStackController(CementBaseController):
                                keyserver="keyserver.ubuntu.com")
                 WORepo.add_key(self, '0xF1656F24C74CD1D8',
                                keyserver="keyserver.ubuntu.com")
+            # generate random 24 characters root password
             chars = ''.join(random.sample(string.ascii_letters, 24))
+            # configure MySQL non-interactive install
             Log.debug(self, "Pre-seeding MySQL")
             Log.debug(self, "echo \"mariadb-server-10.3 "
                       "mysql-server/root_password "
@@ -136,7 +140,7 @@ class WOStackController(CementBaseController):
                                      log=False)
             except CommandExecutionError as e:
                 Log.error("Failed to initialize MySQL package")
-
+            # generate my.cnf root credentials
             mysql_config = """
             [client]
             user = root
@@ -153,12 +157,14 @@ class WOStackController(CementBaseController):
             Log.debug(self, 'Setting my.cnf permission')
             WOFileUtils.chmod(self, "/etc/mysql/conf.d/my.cnf", 0o600)
 
+        # add nginx repository
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for NGINX, please wait...")
             WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
             WORepo.add_key(self, WOVariables.wo_nginx_key)
 
+        # add php repository
         if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
                 set(WOVariables.wo_php).issubset(set(apt_packages))):
             if (WOVariables.wo_platform_distro == 'ubuntu'):
@@ -172,7 +178,7 @@ class WOStackController(CementBaseController):
                 WORepo.add(self, repo_url=WOVariables.wo_php_repo)
                 Log.debug(self, 'Adding deb.sury GPG key')
                 WORepo.add_key(self, WOVariables.wo_php_key)
-
+        # add redis repository
         if set(WOVariables.wo_redis).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for Redis, please wait...")
             if WOVariables.wo_platform_distro == 'ubuntu':
@@ -644,7 +650,7 @@ class WOStackController(CementBaseController):
                                            "/var/run/php/php73-fpm.sock;\n}\n"
                                            "upstream debug73 {\nserver "
                                            "127.0.0.1:9173;\n}\n")
-
+            # create nginx configuration for redis
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
                 if (os.path.isfile("/etc/nginx/nginx.conf") and
                         not os.path.isfile("/etc/nginx/common/"
@@ -994,6 +1000,7 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 WOService.restart_service(self, 'php7.3-fpm')
 
+            # create mysql config if it doesn't exist
             if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
                 if not os.path.isfile("/etc/mysql/my.cnf"):
                     config = ("[mysqld]\nwait_timeout = 30\n"
@@ -1019,6 +1026,7 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 WOService.reload_service(self, 'mysql')
 
+        # create fail2ban configuration files
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 data = dict()
@@ -1197,13 +1205,13 @@ class WOStackController(CementBaseController):
             if any('/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting memcached.tar.gz to location"
-                          " {0}22222/htdocs/cache/memcached "
+                          " {0}22222/htdocs/cache/memcache "
                           .format(WOVariables.wo_webroot))
                 WOExtract.extract(self, '/tmp/memcached.tar.gz',
-                                  '{0}22222/htdocs/cache/memcached/'
+                                  '{0}22222/htdocs/cache/memcache/'
                                   .format(WOVariables.wo_webroot))
                 Log.debug(self, "Setting Privileges to "
-                          "{0}22222/htdocs/cache/memcached file"
+                          "{0}22222/htdocs/cache/memcache file"
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222'
                                   .format(WOVariables.wo_webroot),
@@ -1309,7 +1317,7 @@ class WOStackController(CementBaseController):
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
                 WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
-            # ph
+            # phpredisadmin
             if any('/tmp/pra.tar.gz' == x[1]
                     for x in packages):
                 if not os.path.exists('{0}22222/htdocs/cache/redis'
@@ -1479,8 +1487,10 @@ class WOStackController(CementBaseController):
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
                                             "/tmp/pma.tar.gz", "phpMyAdmin"],
-                                           ["https://getcomposer.org/installer",
-                                            "/tmp/composer-install", "Composer"]]
+                                           ["https://getcomposer.org/"
+                                            "installer",
+                                            "/tmp/composer-install",
+                                            "Composer"]]
                 else:
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
@@ -1759,7 +1769,7 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcached'
+                                   '{0}22222/htdocs/cache/memcache'
                                    .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
@@ -1891,7 +1901,7 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcached'
+                                   '{0}22222/htdocs/cache/memcache'
                                    .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
