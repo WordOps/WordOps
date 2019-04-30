@@ -38,6 +38,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Enable OSCP Stapling with Let's Encrypt
 - Compress database backup with pigz before updating sites
 - Add support for Ubuntu 19.04 disco
+- Add support for Raspbian
+- backup letsencrypt certificate before upgrade
 
 #### Changed
 
@@ -70,6 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - phpredisadmin setup
 - --hsts flag with basic html site
 - hsts flag on site not secure with letsencrypt
+- fix import of previous acme.sh certificate
 
 ### v3.9.4 - 2019-03-15
 
