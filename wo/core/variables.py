@@ -32,7 +32,8 @@ class WOVariables():
     wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # WordOps core variables
-    wo_platform_distro = platform.linux_distribution()[0].lower()
+    wo_platform_distro = os.popen("lsb_release -si "
+                                  "| tr -d \'\\n\'").read().lower()
     wo_platform_version = platform.linux_distribution()[1]
     wo_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
 
