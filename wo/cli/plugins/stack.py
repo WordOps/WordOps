@@ -190,7 +190,7 @@ class WOStackController(CementBaseController):
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
         """Post activity after installation of packages"""
-        if len(apt_packages):
+        if (apt_packages):
 
             if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
                 if set(["nginx"]).issubset(set(apt_packages)):
@@ -1044,7 +1044,7 @@ class WOStackController(CementBaseController):
                                 out=wo_fail2ban)
                 wo_fail2ban.close()
 
-        if len(packages):
+        if (packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
                 Log.debug(self, "Setting Privileges"
                           " to /usr/local/bin/wp file ")
@@ -1601,16 +1601,16 @@ class WOStackController(CementBaseController):
         except Exception as e:
             pass
 
-        if len(apt_packages) or len(packages):
+        if (apt_packages) or (packages):
             Log.debug(self, "Calling pre_pref")
             self.pre_pref(apt_packages)
-            if len(apt_packages):
+            if (apt_packages):
                 WOSwap.add(self)
                 Log.info(self, "Updating apt-cache, please wait...")
                 WOAptGet.update(self)
                 Log.info(self, "Installing packages, please wait...")
                 WOAptGet.install(self, apt_packages)
-            if len(packages):
+            if (packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
             Log.debug(self, "Calling post_pref")
@@ -1657,7 +1657,7 @@ class WOStackController(CementBaseController):
                                                    "/etc/redis/redis.conf")
                         WOService.restart_service(self, 'redis-server')
             if disp_msg:
-                if len(self.msg):
+                if (self.msg):
                     for msg in self.msg:
                         Log.info(self, Log.ENDC + msg)
                 Log.info(self, "Successfully installed packages")
@@ -1775,7 +1775,7 @@ class WOStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVariables.wo_webroot)]
 
-        if len(packages) or len(apt_packages):
+        if (packages) or (apt_packages):
             wo_prompt = input('Are you sure you to want to'
                               ' remove from server.'
                               '\nPackage configuration will remain'
@@ -1789,11 +1789,11 @@ class WOStackController(CementBaseController):
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
 
-                if len(packages):
+                if (packages):
                     WOFileUtils.remove(self, packages)
                     WOAptGet.auto_remove(self)
 
-                if len(apt_packages):
+                if (apt_packages):
                     Log.debug(self, "Removing apt_packages")
                     Log.info(self, "Removing packages, please wait...")
                     WOAptGet.remove(self, apt_packages)
@@ -1908,7 +1908,7 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)
                                    ]
 
-        if len(packages) or len(apt_packages):
+        if (packages) or (apt_packages):
             wo_prompt = input('Are you sure you to want to purge '
                               'from server '
                               'along with their configuration'
@@ -1921,12 +1921,12 @@ class WOStackController(CementBaseController):
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
 
-                if len(apt_packages):
+                if (apt_packages):
                     Log.info(self, "Purging packages, please wait...")
                     WOAptGet.remove(self, apt_packages, purge=True)
                     WOAptGet.auto_remove(self)
 
-                if len(packages):
+                if (packages):
                     WOFileUtils.remove(self, packages)
                     WOAptGet.auto_remove(self)
 
