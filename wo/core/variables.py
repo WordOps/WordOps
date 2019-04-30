@@ -169,7 +169,7 @@ class WOVariables():
                          "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/ubuntu {codename} main"
                          .format(codename=wo_platform_codename))
-    elif wo_platform_distro == 'debian':
+    else:
         wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
                          "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/debian {codename} main"
