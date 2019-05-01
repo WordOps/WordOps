@@ -151,15 +151,15 @@ fi
 ###
 # 1 - To prevent errors or unexpected behaviour, create the log and ACL it
 ###
-if [ ! -d "$wo_log_dir" ]; then
+if [ ! -d "$wo_log_dir" ] || [ ! -d "$wo_backup_dir" ] || [ ! -d "$wo_tmp_dir" ]; then
 
     wo_lib_echo "Creating WordOps backup, tmp & log directory, just a second..."
-    mkdir -p  "$wo_backup_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
+    mkdir -p "$wo_backup_dir" "$wo_log_dir" "$wo_tmp_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
 
     # create wordops log files
     touch /var/log/wo/{wordops.log,install.log}
 
-    chmod -R 600 "$wo_log_dir" "$wo_backup_dir" "$wo_tmp_dir" || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
+    chmod -R 700 "$wo_log_dir" "$wo_backup_dir" "$wo_tmp_dir" || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
 fi
 
 ###
@@ -670,7 +670,7 @@ if [ -x /usr/local/bin/wo ]; then
                 wo_upgrade_nginx | tee -ai $wo_install_log
             fi
             wo_update_latest | tee -ai $wo_install_log
-            wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+            wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
