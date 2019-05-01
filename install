@@ -651,8 +651,8 @@ if [ -x /usr/local/bin/wo ]; then
     if ! {
         wo -v 2>&1 | grep $wo_version_new
     }; then
-        read -p "Update WordOps to $wo_version_new (y/n): " wo_ans
-        if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
+       echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
+        if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
             wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
@@ -684,8 +684,8 @@ if [ -x /usr/local/bin/wo ]; then
 else
     # 2 - Migration from EEv3
     if [ -x /usr/local/bin/ee ]; then
-        read -p "Migrate from EasyEngine to WordOps (y/n): " wo_ans
-        if [ "$wo_ans" = "y" ] || [ "$wo_ans" = "Y" ]; then
+        echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
+        if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
             wo_lib_echo "Backing-up EE install" | tee -ai $wo_install_log
