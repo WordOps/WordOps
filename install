@@ -113,6 +113,7 @@ if [ -z "$wo_branch" ]; then
 fi
 readonly wo_log_dir=/var/log/wo/
 readonly wo_backup_dir=/var/lib/wo-backup/
+readonly wo_tmp_dir=/var/lib/wo/tmp
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -is)
 readonly wo_distro_version=$(lsb_release -sc)
@@ -152,21 +153,13 @@ fi
 ###
 if [ ! -d "$wo_log_dir" ]; then
 
-    wo_lib_echo "Creating WordOps log directory, just a second..."
-    mkdir -p "$wo_log_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
+    wo_lib_echo "Creating WordOps backup, tmp & log directory, just a second..."
+    mkdir -p  "$wo_backup_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
 
     # create wordops log files
     touch /var/log/wo/{wordops.log,install.log}
 
-    chmod -R 700 /var/log/wo || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
-fi
-
-if [ ! -d "$wo_backup_dir" ]; then
-
-    wo_lib_echo "Creating WordOps backup directory, just a second..."
-    mkdir -p "$wo_backup_dir" || wo_lib_error "Whoops - seems we are unable to create the backup directory $wo_backup_dir, exit status " $?
-    chmod -R 600 "$wo_backup_dir"
-
+    chmod -R 600 "$wo_log_dir" "$wo_backup_dir" "$wo_tmp_dir" || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
 fi
 
 ###

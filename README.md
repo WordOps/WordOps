@@ -58,6 +58,7 @@
 - Ubuntu 19.04 (Disco)
 - Debian 8 (Jessie)
 - Debian 9 (Stretch)
+- Raspbian 9 (Stretch)
 
 ### Ports requirements
 

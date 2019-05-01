@@ -1079,11 +1079,11 @@ class WOStackController(CementBaseController):
                           " to /usr/local/bin/wp file ")
                 WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
-            if any('/tmp/pma.tar.gz' == x[1]
+            if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
                     for x in packages):
-                WOExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
-                Log.debug(self, 'Extracting file /tmp/pma.tar.gz to '
-                          'location /tmp/')
+                WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
+                Log.debug(self, 'Extracting file /var/lib/wo/tmp/pma.tar.gz to '
+                          'location /var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/db'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating new  directory "
@@ -1093,7 +1093,7 @@ class WOStackController(CementBaseController):
                                 .format(WOVariables.wo_webroot))
                 if not os.path.exists('{0}22222/htdocs/db/pma/'
                                       .format(WOVariables.wo_webroot)):
-                    shutil.move('/tmp/phpmyadmin-STABLE/',
+                    shutil.move('/var/lib/wo/tmp/phpmyadmin-STABLE/',
                                 '{0}22222/htdocs/db/pma/'
                                 .format(WOVariables.wo_webroot))
                     shutil.copyfile('{0}22222/htdocs/db/pma'
@@ -1137,12 +1137,12 @@ class WOStackController(CementBaseController):
                                   recursive=True)
 
             # composer install and phpmyadmin update
-            if any('/tmp/composer-install' == x[1]
+            if any('/var/lib/wo/tmp/composer-install' == x[1]
                    for x in packages):
                 Log.info(self, "Installing composer, please wait...")
-                WOShellExec.cmd_exec(self, "php -q /tmp/composer-install "
-                                     "--install-dir=/tmp/")
-                shutil.copyfile('/tmp/composer.phar',
+                WOShellExec.cmd_exec(self, "php -q /var/lib/wo/tmp/composer-install "
+                                     "--install-dir=/var/lib/wo/tmp/")
+                shutil.copyfile('/var/lib/wo/tmp/composer.phar',
                                 '/usr/local/bin/composer')
                 WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
                 Log.info(self, "Updating phpMyAdmin, please wait...")
@@ -1150,12 +1150,12 @@ class WOStackController(CementBaseController):
                                      "update -n --no-dev -d "
                                      "/var/www/22222/htdocs/db/pma/")
             # netdata install
-            if any('/tmp/kickstart.sh' == x[1]
+            if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
                    for x in packages):
                 if ((not os.path.exists('/opt/netdata')) and
                         (not os.path.exists('/etc/netdata'))):
                     Log.info(self, "Installing Netdata, please wait...")
-                    WOShellExec.cmd_exec(self, "bash /tmp/kickstart.sh "
+                    WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/kickstart.sh "
                                          "--dont-wait")
                     # disable mail notifications
                     WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
@@ -1183,14 +1183,14 @@ class WOStackController(CementBaseController):
                     WOService.restart_service(self, 'netdata')
 
             # WordOps Dashboard
-            if any('/tmp/wo-dashboard.tar.gz' == x[1]
+            if any('/var/lib/wo/tmp/wo-dashboard.tar.gz' == x[1]
                    for x in packages):
                 if not os.path.isfile('{0}22222/htdocs/index.php'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Extracting wo-dashboard.tar.gz "
                               "to location {0}22222/htdocs/"
                               .format(WOVariables.wo_webroot))
-                    WOExtract.extract(self, '/tmp/wo-dashboard.tar.gz',
+                    WOExtract.extract(self, '/var/lib/wo/tmp/wo-dashboard.tar.gz',
                                       '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot))
                 if WOVariables.wo_wan != 'eth0':
@@ -1209,16 +1209,16 @@ class WOStackController(CementBaseController):
                                       recursive=True)
 
             # Extplorer FileManager
-            if any('/tmp/extplorer.tar.gz' == x[1]
+            if any('/var/lib/wo/tmp/extplorer.tar.gz' == x[1]
                    for x in packages):
                 if not os.path.exists('{0}22222/htdocs/files'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Extracting explorer.tar.gz "
                               "to location {0}22222/htdocs/files"
                               .format(WOVariables.wo_webroot))
-                    WOExtract.extract(self, '/tmp/extplorer.tar.gz',
-                                      '/tmp/')
-                    shutil.move('/tmp/extplorer-2.1.11/',
+                    WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
+                                      '/var/lib/wo/tmp/')
+                    shutil.move('/var/lib/wo/tmp/extplorer-2.1.11/',
                                 '{0}22222/htdocs/files'
                                 .format(WOVariables.wo_webroot))
                     Log.debug(self, "Setting Privileges to "
@@ -1231,12 +1231,12 @@ class WOStackController(CementBaseController):
                                       recursive=True)
 
             # phpmemcachedadmin
-            if any('/tmp/memcached.tar.gz' == x[1]
+            if any('/var/lib/wo/tmp/memcached.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting memcached.tar.gz to location"
                           " {0}22222/htdocs/cache/memcache "
                           .format(WOVariables.wo_webroot))
-                WOExtract.extract(self, '/tmp/memcached.tar.gz',
+                WOExtract.extract(self, '/var/lib/wo/tmp/memcached.tar.gz',
                                   '{0}22222/htdocs/cache/memcache/'
                                   .format(WOVariables.wo_webroot))
                 Log.debug(self, "Setting Privileges to "
@@ -1248,11 +1248,11 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   recursive=True)
             # webgrind
-            if any('/tmp/webgrind.tar.gz' == x[1]
+            if any('/var/lib/wo/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
-                          "location /tmp/ ")
-                WOExtract.extract(self, '/tmp/webgrind.tar.gz', '/tmp/')
+                          "location /var/lib/wo/tmp/ ")
+                WOExtract.extract(self, '/var/lib/wo/tmp/webgrind.tar.gz', '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/php'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directroy "
@@ -1262,7 +1262,7 @@ class WOStackController(CementBaseController):
                                 .format(WOVariables.wo_webroot))
                 if not os.path.exists('{0}22222/htdocs/php/webgrind'
                                       .format(WOVariables.wo_webroot)):
-                    shutil.move('/tmp/webgrind-master/',
+                    shutil.move('/var/lib/wo/tmp/webgrind-master/',
                                 '{0}22222/htdocs/php/webgrind'
                                 .format(WOVariables.wo_webroot))
 
@@ -1290,11 +1290,11 @@ class WOStackController(CementBaseController):
                                   WOVariables.wo_php_user,
                                   recursive=True)
             # anemometer
-            if any('/tmp/anemometer.tar.gz' == x[1]
+            if any('/var/lib/wo/tmp/anemometer.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file anemometer.tar.gz to "
-                          "location /tmp/ ")
-                WOExtract.extract(self, '/tmp/anemometer.tar.gz', '/tmp/')
+                          "location /var/lib/wo/tmp/ ")
+                WOExtract.extract(self, '/var/lib/wo/tmp/anemometer.tar.gz', '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/db/'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directory")
@@ -1302,7 +1302,7 @@ class WOStackController(CementBaseController):
                                 .format(WOVariables.wo_webroot))
                 if not os.path.exists('{0}22222/htdocs/db/anemometer'
                                       .format(WOVariables.wo_webroot)):
-                    shutil.move('/tmp/Anemometer-master',
+                    shutil.move('/var/lib/wo/tmp/Anemometer-master',
                                 '{0}22222/htdocs/db/anemometer'
                                 .format(WOVariables.wo_webroot))
                     chars = ''.join(random.sample(string.ascii_letters, 8))
@@ -1347,7 +1347,7 @@ class WOStackController(CementBaseController):
                     for x in packages):
                 WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
             # phpredisadmin
-            if any('/tmp/pra.tar.gz' == x[1]
+            if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
                     for x in packages):
                 if not os.path.exists('{0}22222/htdocs/cache/redis'
                                       .format(WOVariables.wo_webroot)):
@@ -1515,29 +1515,29 @@ class WOStackController(CementBaseController):
                 if (not self.app.pargs.composer):
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/tmp/pma.tar.gz", "phpMyAdmin"],
+                                            "/var/lib/wo/tmp/pma.tar.gz", "phpMyAdmin"],
                                            ["https://getcomposer.org/"
                                             "installer",
-                                            "/tmp/composer-install",
+                                            "/var/lib/wo/tmp/composer-install",
                                             "Composer"]]
                 else:
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/tmp/pma.tar.gz", "phpMyAdmin"]]
+                                            "/var/lib/wo/tmp/pma.tar.gz", "phpMyAdmin"]]
             # Composer
             if self.app.pargs.composer:
                 Log.debug(self, "Setting packages variable for Composer ")
                 packages = packages + [["https://getcomposer.org/installer",
-                                        "/tmp/composer-install", "Composer"]]
+                                        "/var/lib/wo/tmp/composer-install", "Composer"]]
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages variable for phpRedisAdmin")
                 packages = packages + [["https://github.com/ErikDubbelboer/"
                                         "phpRedisAdmin/archive/master.tar.gz",
-                                        "/tmp/pra.tar.gz", "phpRedisAdmin"],
+                                        "/var/lib/wo/tmp/pra.tar.gz", "phpRedisAdmin"],
                                        ["https://github.com/nrk/predis/"
                                         "archive/v1.1.1.tar.gz",
-                                        "/tmp/predis.tar.gz", "Predis"]]
+                                        "/var/lib/wo/tmp/predis.tar.gz", "Predis"]]
             # ADMINER
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
@@ -1562,7 +1562,7 @@ class WOStackController(CementBaseController):
                 if not os.path.exists('/opt/netdata'):
                     packages = packages + [['https://my-netdata.io/'
                                             'kickstart-static64.sh',
-                                            '/tmp/kickstart.sh',
+                                            '/var/lib/wo/tmp/kickstart.sh',
                                             'Netdata']]
 
             # WordOps Dashboard
@@ -1572,11 +1572,11 @@ class WOStackController(CementBaseController):
                     [["https://github.com/WordOps/"
                       "wordops-dashboard/releases/"
                       "download/v1.0/wo-dashboard.tar.gz",
-                      "/tmp/wo-dashboard.tar.gz",
+                      "/var/lib/wo/tmp/wo-dashboard.tar.gz",
                       "WordOps Dashboard"],
                      ["https://github.com/soerennb/"
                       "extplorer/archive/v2.1.11.tar.gz",
-                      "/tmp/extplorer.tar.gz",
+                      "/var/lib/wo/tmp/extplorer.tar.gz",
                       "eXtplorer"]]
 
             # UTILS
@@ -1585,7 +1585,7 @@ class WOStackController(CementBaseController):
                 packages = packages + [["https://github.com/elijaa/"
                                         "phpmemcachedadmin/archive/"
                                         "1.3.0.tar.gz",
-                                        '/tmp/memcached.tar.gz',
+                                        '/var/lib/wo/tmp/memcached.tar.gz',
                                         'phpMemcachedAdmin'],
                                        ["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
@@ -1615,7 +1615,7 @@ class WOStackController(CementBaseController):
                                         "OCP.php"],
                                        ["https://github.com/jokkedk/webgrind/"
                                         "archive/master.tar.gz",
-                                        '/tmp/webgrind.tar.gz', 'Webgrind'],
+                                        '/var/lib/wo/tmp/webgrind.tar.gz', 'Webgrind'],
                                        ["http://bazaar.launchpad.net/~"
                                         "percona-toolkit-dev/percona-toolkit/"
                                         "2.1/download/head:/ptquerydigest-"
@@ -1625,7 +1625,7 @@ class WOStackController(CementBaseController):
                                         "pt-query-advisor"],
                                        ["https://github.com/box/Anemometer/"
                                         "archive/master.tar.gz",
-                                        '/tmp/anemometer.tar.gz', 'Anemometer']
+                                        '/var/lib/wo/tmp/anemometer.tar.gz', 'Anemometer']
                                        ]
         except Exception as e:
             pass
