@@ -59,7 +59,7 @@ def setupdomain(self, data):
     #     print (key, value)
 
     wo_domain_name = data['site_name']
-    wo_site_webroot = data['webroot'] if 'webroot' in data.keys() else ''
+    wo_site_webroot = data['webroot']
 
     # Check if nginx configuration already exists
     # if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -312,10 +312,12 @@ def setupwordpress(self, data):
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbuser=\'{2}\' --dbhost=\'{3}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
-                                            data['wo_db_user'], data['wo_db_host']
+                                            data['wo_db_user'],
+                                            data['wo_db_host']
                                             ) +
                                     "--dbpass=\'{0}\' "
-                                    "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
+                                    "--extra-php<<PHP \n"
+                                    "{1} {redissalt}\nPHP\""
                                     .format(data['wo_db_pass'],
                                             "\n\ndefine(\'WP_DEBUG\', false);",
                                             redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
