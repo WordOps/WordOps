@@ -404,12 +404,14 @@ class WOSiteCreateController(CementBaseController):
                       "{0} already exists".format(wo_domain))
 
         if stype == 'proxy':
-            data['site_name'] = wo_domain
-            data['www_domain'] = wo_www_domain
+            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
+                        static=True,  basic=False, php73=False, wp=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False, webroot=wo_site_webroot)
             data['proxy'] = True
             data['host'] = host
             data['port'] = port
-            wo_site_webroot = WOVariables.wo_webroot + wo_domain
+            data['basic'] = True
 
         if self.app.pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
@@ -417,6 +419,9 @@ class WOSiteCreateController(CementBaseController):
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
+
+        if self.app.pargs.vhostonly:
+            data['vhostonly'] = True
 
         if stype in ['html', 'php']:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
@@ -583,11 +588,12 @@ class WOSiteCreateController(CementBaseController):
                               "and please try again")
 
             # Setup WordPress if Wordpress site
-            if data['wp']:
+            if (data['wp'] and (not data['vhostonly'])):
                 try:
                     wo_wp_creds = setupwordpress(self, data)
                     # Add database information for site into database
-                    updateSiteInfo(self, wo_domain, db_name=data['wo_db_name'],
+                    updateSiteInfo(self, wo_domain,
+                                   db_name=data['wo_db_name'],
                                    db_user=data['wo_db_user'],
                                    db_password=data['wo_db_pass'],
                                    db_host=data['wo_db_host'])

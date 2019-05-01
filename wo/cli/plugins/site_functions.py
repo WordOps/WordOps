@@ -49,8 +49,7 @@ def pre_run_checks(self):
 def check_domain_exists(self, domain):
     if getSiteInfo(self, domain):
         return True
-    else:
-        return False
+    return False
 
 
 def setupdomain(self, data):
@@ -1202,9 +1201,8 @@ def deleteWebRoot(self, webroot):
         Log.debug(self, "Removing {0}".format(webroot))
         WOFileUtils.rm(self, webroot)
         return True
-    else:
-        Log.debug(self, "{0} does not exist".format(webroot))
-        return False
+    Log.debug(self, "{0} does not exist".format(webroot))
+    return False
 
 
 def removeNginxConf(self, domain):
