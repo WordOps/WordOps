@@ -420,9 +420,6 @@ class WOSiteCreateController(CementBaseController):
                         wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
 
-        if self.app.pargs.vhostonly:
-            data['vhostonly'] = True
-
         if stype in ['html', 'php']:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=True,  basic=False, php73=False, wp=False,
