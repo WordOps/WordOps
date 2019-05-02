@@ -357,15 +357,7 @@ wo_install_acme_sh() {
             fi
             cd /opt/acme.sh || exit 1
             # create conf directories
-            [ ! -d /etc/letsencrypt/config ] && {
-                mkdir -p /etc/letsencrypt/config
-            }
-            [ ! -d /etc/letsencrypt/live ] && {
-                mkdir -p /etc/letsencrypt/live
-            }
-            [ ! -d /etc/letsencrypt/renewal ] && {
-                mkdir -p /etc/letsencrypt/renewal
-            }
+            mkdir -p /etc/letsencrypt/{config,live,renewal}
             # install acme.sh
             ./acme.sh --install \
                 --home /etc/letsencrypt \

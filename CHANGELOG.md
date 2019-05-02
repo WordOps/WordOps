@@ -37,9 +37,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Extplorer filemanager
 - Enable OSCP Stapling with Let's Encrypt
 - Compress database backup with pigz before updating sites
-- Add support for Ubuntu 19.04 disco
-- Add support for Raspbian
+- Support for Ubuntu 19.04 (disco) - few php extensions missing
+- Support for Raspbian 9 (stretch) - tested on Raspberry Pi 3b+
 - backup letsencrypt certificate before upgrade
+- directives emergency_restart_threshold & emergency_restart_interval to restart php-fpm in case of failure
 
 #### Changed
 
@@ -73,6 +74,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - --hsts flag with basic html site
 - hsts flag on site not secure with letsencrypt
 - fix import of previous acme.sh certificate
+- fix proxy webroot folder creation
 
 ### v3.9.4 - 2019-03-15
 

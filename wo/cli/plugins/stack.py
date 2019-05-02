@@ -787,6 +787,11 @@ class WOStackController(CementBaseController):
                               "/etc/php/7.2/fpm/pool.d/www.conf")
                     config.write(configfile)
 
+                with open("/etc/php/7.2/fpm/pool.d/www.conf",
+                          encoding='utf-8', mode='a') as myfile:
+                    myfile.write("\nphp_admin_value[open_basedir] "
+                                 "= \"/var/www:/tmp/:/var/run/nginx-cache\"\n")
+
                 # Generate /etc/php/7.2/fpm/pool.d/www-two.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
                                      "/etc/php/7.2/fpm/pool.d/www-two.conf")
@@ -942,6 +947,11 @@ class WOStackController(CementBaseController):
                               "/etc/php/7.3/fpm/pool.d/www.conf")
                     config.write(configfile)
 
+                with open("/etc/php/7.3/fpm/pool.d/www.conf",
+                          encoding='utf-8', mode='a') as myfile:
+                    myfile.write("\nphp_admin_value[open_basedir] "
+                                 "= \"/var/www:/tmp/:/var/run/nginx-cache\"\n")
+
                 # Generate /etc/php/7.3/fpm/pool.d/www-two.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
                                      "/etc/php/7.3/fpm/pool.d/www-two.conf")
@@ -1081,7 +1091,8 @@ class WOStackController(CementBaseController):
 
             if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
                     for x in packages):
-                WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
+                WOExtract.extract(
+                    self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
                 Log.debug(self, 'Extracting file /var/lib/wo/tmp/pma.tar.gz to '
                           'location /var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/db'
@@ -1252,7 +1263,8 @@ class WOStackController(CementBaseController):
                     for x in packages):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
                           "location /var/lib/wo/tmp/ ")
-                WOExtract.extract(self, '/var/lib/wo/tmp/webgrind.tar.gz', '/var/lib/wo/tmp/')
+                WOExtract.extract(
+                    self, '/var/lib/wo/tmp/webgrind.tar.gz', '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/php'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directroy "
@@ -1294,7 +1306,8 @@ class WOStackController(CementBaseController):
                     for x in packages):
                 Log.debug(self, "Extracting file anemometer.tar.gz to "
                           "location /var/lib/wo/tmp/ ")
-                WOExtract.extract(self, '/var/lib/wo/tmp/anemometer.tar.gz', '/var/lib/wo/tmp/')
+                WOExtract.extract(
+                    self, '/var/lib/wo/tmp/anemometer.tar.gz', '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/db/'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directory")
