@@ -3,6 +3,7 @@
 
 class WOError(Exception):
     """Generic errors."""
+
     def __init__(self, msg):
         Exception.__init__(self)
         self.msg = msg

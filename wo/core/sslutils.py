@@ -19,7 +19,8 @@ class SSL:
 
         current_date = WOShellExec.cmd_exec_stdout(self, "date -d \"now\" +%s")
         expiration_date = WOShellExec.cmd_exec_stdout(self, "date -d \""
-                                                      "`openssl x509 -in "
+                                                      "`/usr/bin/openssl "
+                                                      "x509 -in "
                                                       "/etc/letsencrypt/live/"
                                                       "{0}/cert.pem"
                                                       " -text -noout|grep "
@@ -45,7 +46,8 @@ class SSL:
                       "`tail /var/log/wo/wordops.log` and please try again...")
 
         expiration_date = WOShellExec.cmd_exec_stdout(self, "date -d "
-                                                      "\"`openssl x509 -in "
+                                                      "\"`/usr/bin/openssl "
+                                                      "x509 -in "
                                                       "/etc/letsencrypt/live/"
                                                       "{0}/cert.pem"
                                                       " -text -noout|grep "

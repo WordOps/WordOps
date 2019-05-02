@@ -107,7 +107,8 @@ class WOStackUpgradeController(CementBaseController):
         if self.app.pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php + WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVariables.wo_php + \
+                        WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
             else:

@@ -191,22 +191,22 @@ class WODebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
-                WOFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php/7.2") +
+                WOFileUtils.searchreplace(self, "/etc/{0}/"
+                                          "mods-available/".format("php/7.2") +
                                           "xdebug.ini",
                                           ";zend_extension",
                                           "zend_extension")
 
                 # Fix slow log is not enabled default in PHP5.6
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/pool.d/debug.conf'.format(
-                    "php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
-                config['debug']['slowlog'] = '/var/log/{0}/slow.log'.format("php/7.2" if (
-                    WOVariables.wo_platform_distro == 'ubuntu') else "php5")
+                config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2"))
+                config['debug']['slowlog'] = '/var/log/{0}/slow.log'.format(
+                    "php/7.2")
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"),
+                with open('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2"),
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "Writting debug.conf configuration into "
-                              "/etc/{0}/fpm/pool.d/debug.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
+                              "/etc/{0}/fpm/pool.d/debug.conf".format("php/7.2"))
                     config.write(confifile)
 
                 self.trigger_php = True
@@ -214,8 +214,7 @@ class WODebugController(CementBaseController):
             else:
                 Log.info(self, "PHP debug is already enabled")
 
-            self.msg = self.msg + ['/var/log/{0}/slow.log'.format("php/7.2" if (
-                WOVariables.wo_platform_distro == 'ubuntu') else "php5")]
+            self.msg = self.msg + ['/var/log/{0}/slow.log'.format("php/7.2")]
 
         # PHP global debug stop
         elif (self.app.pargs.php == 'off' and not self.app.pargs.site_name):
@@ -231,7 +230,8 @@ class WODebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                WOFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5") +
+                WOFileUtils.searchreplace(self, "/etc/{0}/"
+                                          "mods-available/".format("php/7.2") +
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -247,43 +247,41 @@ class WODebugController(CementBaseController):
         # PHP5-FPM start global debug
         if (self.app.pargs.fpm == 'on' and not self.app.pargs.site_name):
             if not WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5")):
+                                              "/etc/{0}/"
+                                              "fpm/php-fpm.conf".format("php/7.2")):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (
-                    WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'debug'
-                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/7.2" if (
-                    WOVariables.wo_platform_distro == 'ubuntu') else "php5")
-                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"),
+                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format(
+                    "php/7.2")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php5-FPM configuration into "
-                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2"))
                     config.write(configfile)
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP5-FPM log_level = debug already setup")
 
-            self.msg = self.msg + ['/var/log/{0}/fpm.log'.format("php/7.2" if (
-                WOVariables.wo_platform_distro == 'ubuntu') else "php5")]
+            self.msg = self.msg + ['/var/log/{0}/fpm.log'.format("php/7.2")]
 
         # PHP5-FPM stop global debug
         elif (self.app.pargs.fpm == 'off' and not self.app.pargs.site_name):
             if WOShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                          "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5")):
+                                          "/etc/{0}/fpm/php-fpm.conf".format("php/7.2")):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (
-                    WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/7.2" if (
-                    WOVariables.wo_platform_distro == 'ubuntu') else "php5")
-                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"),
+                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format(
+                    "php/7.2")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/7.2"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
-                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2" if (WOVariables.wo_platform_distro == 'ubuntu') else "php5"))
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/7.2"))
                     config.write(configfile)
 
                 self.trigger_php = True
@@ -335,7 +333,8 @@ class WODebugController(CementBaseController):
 
         # PHP global debug stop
         elif (self.app.pargs.php73 == 'off' and not self.app.pargs.site_name):
-            if WOShellExec.cmd_exec(self, " sed -n \"/upstream php72 {/,/}/p\" "
+            if WOShellExec.cmd_exec(self, " sed -n \"/upstream "
+                                    "php72 {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
                                           "| grep 9172"):
                 Log.info(self, "Disabling PHP 7.2 debug")
@@ -399,7 +398,8 @@ class WODebugController(CementBaseController):
                     config.write(configfile)
                 self.trigger_php = True
             else:
-                Log.info(self, "PHP7.3-FPM log_level = debug  already disabled")
+                Log.info(self, "PHP7.3-FPM log_level "
+                         "= debug  already disabled")
 
     @expose(hide=True)
     def debug_mysql(self):
@@ -536,8 +536,8 @@ class WODebugController(CementBaseController):
                 self.msg = self.msg + ['/var/log/nginx/*.error.log']
 
         # Stop Nginx rewrite debug globally
-        elif (self.app.pargs.rewrite == 'off'
-              and not self.app.pargs.site_name):
+        elif (self.app.pargs.rewrite == 'off' and
+              not self.app.pargs.site_name):
             if WOShellExec.cmd_exec(self, "grep \"rewrite_log on;\" "
                                     "/etc/nginx/nginx.conf"):
                 Log.info(self, "Disabling Nginx rewrite logs")
@@ -644,10 +644,10 @@ class WODebugController(CementBaseController):
             (not self.app.pargs.fpm73) and (not self.app.pargs.mysql) and
             (not self.app.pargs.wp) and (not self.app.pargs.rewrite) and
             (not self.app.pargs.all) and (not self.app.pargs.site_name) and
-            (not self.app.pargs.import_slow_log)
-                and (not self.app.pargs.interval)):
+            (not self.app.pargs.import_slow_log) and
+                (not self.app.pargs.interval)):
             if self.app.pargs.stop or self.app.pargs.start:
-                print("--start/stop option is deprecated since ee v3.0.5")
+                print("--start/stop option is deprecated since wo v3.0.5")
                 self.app.args.print_help()
             else:
                 self.app.args.print_help()
@@ -778,8 +778,8 @@ class WODebugController(CementBaseController):
         if len(self.msg) > 0:
             if not self.app.pargs.interactive:
                 disp_msg = ' '.join(self.msg)
-                Log.info(self, "Use following command to check debug logs:\n"
-                         + Log.ENDC + "tail -f {0}".format(disp_msg))
+                Log.info(self, "Use following command to check debug logs:\n" +
+                         Log.ENDC + "tail -f {0}".format(disp_msg))
             else:
                 signal.signal(signal.SIGINT, self.signal_handler)
                 watch_list = []
@@ -797,18 +797,18 @@ class WODebugController(CementBaseController):
                 # Get Anemometer user name and password
                 Log.info(self, "Importing MySQL slow log to Anemometer")
                 host = os.popen("grep -e \"\'host\'\" {0}22222/htdocs/"
-                                .format(WOVariables.wo_webroot)
-                                + "db/anemometer/conf/config.inc.php  "
+                                .format(WOVariables.wo_webroot) +
+                                "db/anemometer/conf/config.inc.php  "
                                 "| head -1 | cut -d\\\' -f4 | "
                                 "tr -d '\n'").read()
                 user = os.popen("grep -e \"\'user\'\" {0}22222/htdocs/"
-                                .format(WOVariables.wo_webroot)
-                                + "db/anemometer/conf/config.inc.php  "
+                                .format(WOVariables.wo_webroot) +
+                                "db/anemometer/conf/config.inc.php  "
                                 "| head -1 | cut -d\\\' -f4 | "
                                 "tr -d '\n'").read()
                 password = os.popen("grep -e \"\'password\'\" {0}22222/"
-                                    .format(WOVariables.wo_webroot)
-                                    + "htdocs/db/anemometer/conf"
+                                    .format(WOVariables.wo_webroot) +
+                                    "htdocs/db/anemometer/conf"
                                     "/config.inc.php "
                                     "| head -1 | cut -d\\\' -f4 | "
                                     "tr -d '\n'").read()
@@ -836,9 +836,9 @@ class WODebugController(CementBaseController):
                           " so not imported slow logs")
         else:
             Log.error(self, "Anemometer is not installed." +
-                      Log.ENDC + "\n Install Anemometer with:"
-                      + Log.BOLD + "\n `wo stack install --utils`"
-                      + Log.ENDC)
+                      Log.ENDC + "\n Install Anemometer with:" +
+                      Log.BOLD + "\n `wo stack install --utils`" +
+                      Log.ENDC)
 
 
 def load(app):

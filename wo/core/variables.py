@@ -3,7 +3,6 @@ import platform
 import socket
 import configparser
 import os
-import sys
 import psutil
 import datetime
 
@@ -12,9 +11,9 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.4"
+    wo_version = "3.9.5"
     # WordOps packages versions
-    wo_wp_cli = "2.1.0"
+    wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.1"
 
     # Get WPCLI path
@@ -23,17 +22,18 @@ class WOVariables():
         wo_wpcli_path = '/usr/local/bin/wp '
 
     # get wan network interface name
-    wo_wan_interface = os.popen("ip -4 route get 8.8.8.8 | "
-                                "grep -oP \"dev [^[:space:]]+ \" "
-                                "| cut -d ' ' -f 2").read()
-    if wo_wan_interface == '':
-        wo_wan_interface = 'eth0'
+    wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
+                      "grep -oP \"dev [^[:space:]]+ \" "
+                      "| cut -d ' ' -f 2").read()
+    if wo_wan == '':
+        wo_wan = 'eth0'
 
     # Current date and time of System
     wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # WordOps core variables
-    wo_platform_distro = platform.linux_distribution()[0].lower()
+    wo_platform_distro = os.popen("lsb_release -si "
+                                  "| tr -d \'\\n\'").read().lower()
     wo_platform_version = platform.linux_distribution()[1]
     wo_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
 
@@ -70,8 +70,9 @@ class WOVariables():
     except Exception as e:
         wo_user = input("Enter your name: ")
         wo_email = input("Enter your email: ")
-        os.system("git config --global user.name {0}".format(wo_user))
-        os.system("git config --global user.email {0}".format(wo_email))
+        os.system("/usr/bin/git config --global user.name {0}".format(wo_user))
+        os.system(
+            "/usr/bin/git config --global user.email {0}".format(wo_email))
 
     # Get System RAM and SWAP details
     wo_ram = psutil.virtual_memory().total / (1024 * 1024)
@@ -94,21 +95,35 @@ class WOVariables():
 
     # WordOps stack installation variables
     # Nginx repo and packages
-    if wo_platform_codename == 'trusty':
+    if wo_platform_distro == 'ubuntu':
+        if wo_platform_codename == 'trusty':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_14.04/ /")
+        elif wo_platform_codename == 'xenial':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_16.04/ /")
+        elif wo_platform_codename == 'bionic':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_18.04/ /")
+        else:
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/xUbuntu_19.04/ /")
+    elif wo_platform_distro == 'debian':
+        if wo_platform_codename == 'jessie':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/Debian_8.0/ /")
+        elif wo_platform_codename == 'stretch':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/Debian_9.0/ /")
+    else:
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/xUbuntu_14.04/ /")
-    elif wo_platform_codename == 'xenial':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/xUbuntu_16.04/ /")
-    elif wo_platform_codename == 'bionic':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/xUbuntu_18.04/ /")
-    elif wo_platform_codename == 'jessie':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/Debian_8.0/ /")
-    elif wo_platform_codename == 'stretch':
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/Debian_9.0/ /")
+                         "/virtubox:/WordOps/Raspbian_9.0/ /")
 
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
@@ -129,7 +144,7 @@ class WOVariables():
         wo_php_extra = ["php-memcached", "php-imagick", "memcached",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
         wo_php_key = ''
-    elif wo_platform_distro == 'debian':
+    else:
         wo_php_repo = (
             "deb https://packages.sury.org/php/ {codename} main"
             .format(codename=wo_platform_codename))
@@ -145,19 +160,21 @@ class WOVariables():
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
         wo_php_extra = ["php-memcached", "php-imagick", "memcached",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+
         wo_php_key = 'AC0E47584A7A714D'
 
     # MySQL repo and packages
     if wo_platform_distro == 'ubuntu':
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/ubuntu {codename} main"
                          .format(codename=wo_platform_codename))
-    elif wo_platform_distro == 'debian':
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+    else:
+        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
-
-    wo_mysql = ["mariadb-server", "percona-toolkit"]
+    wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
 
     wo_fail2ban = "fail2ban"
 

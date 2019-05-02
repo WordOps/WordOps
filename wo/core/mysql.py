@@ -28,10 +28,12 @@ class WOMysql():
     """Method for MySQL connection"""
 
     def connect(self):
-        """Makes connection with MySQL server"""
+        # Makes connection with MySQL server
         try:
             if os.path.exists('/etc/mysql/conf.d/my.cnf'):
-                connection = pymysql.connect(read_default_file='/etc/mysql/conf.d/my.cnf')
+                connection = \
+                    pymysql.connect(read_default_file='/etc/mysql/'
+                                    'conf.d/my.cnf')
             else:
                 connection = pymysql.connect(read_default_file='~/.my.cnf')
             return connection
@@ -45,9 +47,11 @@ class WOMysql():
     def dbConnection(self, db_name):
         try:
             if os.path.exists('/etc/mysql/conf.d/my.cnf'):
-                connection = pymysql.connect(db=db_name,read_default_file='/etc/mysql/conf.d/my.cnf')
+                connection = pymysql.connect(
+                    db=db_name, read_default_file='/etc/mysql/conf.d/my.cnf')
             else:
-                connection = pymysql.connect(db=db_name,read_default_file='~/.my.cnf')
+                connection = pymysql.connect(
+                    db=db_name, read_default_file='~/.my.cnf')
 
             return connection
         except DatabaseError as e:
@@ -58,12 +62,13 @@ class WOMysql():
         except pymysql.err.InternalError as e:
             Log.debug(self, str(e))
             raise MySQLConnectionError
-        except Exception as e :
+        except Exception as e:
             Log.debug(self, "[Error]Setting up database: \'" + str(e) + "\'")
             raise MySQLConnectionError
 
     def execute(self, statement, errormsg='', log=True):
-        """Get login details from /etc/mysql/conf.d/my.cnf & Execute MySQL query"""
+        # Get login details from /etc/mysql/conf.d/my.cnf
+        # & Execute MySQL query
         connection = WOMysql.connect(self)
         log and Log.debug(self, "Exceuting MySQL Statement : {0}"
                           .format(statement))
@@ -95,20 +100,22 @@ class WOMysql():
                           '/var/wo-mysqlbackup')
                 os.makedirs('/var/wo-mysqlbackup')
 
-            db = subprocess.check_output(["mysql -Bse \'show databases\'"],
+            db = subprocess.check_output(["/usr/bin/mysql "
+                                          "-Bse \'show databases\'"],
                                          universal_newlines=True,
                                          shell=True).split('\n')
             for dbs in db:
                 if dbs == "":
                     continue
                 Log.info(self, "Backing up {0} database".format(dbs))
-                p1 = subprocess.Popen("mysqldump {0}"
+                p1 = subprocess.Popen("/usr/bin/mysqldump {0}"
                                       " --max_allowed_packet=1024M"
                                       " --single-transaction".format(dbs),
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE, shell=True)
-                p2 = subprocess.Popen("gzip -c > /var/wo-mysqlbackup/{0}{1}.s"
-                                      "ql.gz".format(dbs, WOVariables.wo_date),
+                p2 = subprocess.Popen("/usr/bin/pigz -c > "
+                                      "/var/wo-mysqlbackup/{0}{1}.sql.gz"
+                                      .format(dbs, WOVariables.wo_date),
                                       stdin=p1.stdout,
                                       shell=True)
 

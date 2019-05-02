@@ -38,7 +38,7 @@ except Exception as e:
     print("Your informations will ONLY be stored locally")
 
     wo_user = input("Enter your name: ")
-    while wo_user is "":
+    while wo_user == "":
         print("Unfortunately, this can't be left blank")
         wo_user = input("Enter your name: ")
 
@@ -57,7 +57,7 @@ if not os.path.isfile('/root/.gitconfig'):
     shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
 
 setup(name='wo',
-      version='3.9.4',
+      version='3.9.5',
       description=long_description,
       long_description=long_description,
       classifiers=[],

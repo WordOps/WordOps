@@ -26,7 +26,9 @@ class WOStackStatusController(CementBaseController):
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
                 self.app.pargs.memcached or
-                self.app.pargs.redis):
+                self.app.pargs.redis or
+                self.app.pargs.fail2ban or
+                self.app.pargs.netdata):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -77,6 +79,12 @@ class WOStackStatusController(CementBaseController):
                 services = services + ['redis-server']
             else:
                 Log.info(self, "Redis server is not installed")
+
+        if self.app.pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                services = services + ['fail2ban-client']
+            else:
+                Log.info(self, "fail2ban is not installed")
 
         for service in services:
             Log.debug(self, "Starting service: {0}".format(service))
@@ -143,6 +151,12 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.info(self, "Redis server is not installed")
 
+        if self.app.pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                services = services + ['fail2ban-client']
+            else:
+                Log.info(self, "fail2ban is not installed")
+
         for service in services:
             Log.debug(self, "Stopping service: {0}".format(service))
             WOService.stop_service(self, service)
@@ -155,7 +169,8 @@ class WOStackStatusController(CementBaseController):
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
                 self.app.pargs.memcached or
-                self.app.pargs.redis):
+                self.app.pargs.redis or
+                self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -209,6 +224,12 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.info(self, "Redis server is not installed")
 
+        if self.app.pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                services = services + ['fail2ban-client']
+            else:
+                Log.info(self, "fail2ban is not installed")
+
         for service in services:
             Log.debug(self, "Restarting service: {0}".format(service))
             WOService.restart_service(self, service)
@@ -221,7 +242,8 @@ class WOStackStatusController(CementBaseController):
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
                 self.app.pargs.memcached or
-                self.app.pargs.redis):
+                self.app.pargs.redis or
+                self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -274,6 +296,12 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.info(self, "Redis server is not installed")
 
+        if self.app.pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                services = services + ['fail2ban-client']
+            else:
+                Log.info(self, "fail2ban is not installed")
+
         for service in services:
             if WOService.get_service_status(self, service):
                 Log.info(self, "{0:10}:  {1}".format(service, "Running"))
@@ -286,7 +314,8 @@ class WOStackStatusController(CementBaseController):
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
                 self.app.pargs.memcached or
-                self.app.pargs.redis):
+                self.app.pargs.redis or
+                self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -339,6 +368,12 @@ class WOStackStatusController(CementBaseController):
                 services = services + ['redis-server']
             else:
                 Log.info(self, "Redis server is not installed")
+
+        if self.app.pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                services = services + ['fail2ban-client']
+            else:
+                Log.info(self, "fail2ban is not installed")
 
         for service in services:
             Log.debug(self, "Reloading service: {0}".format(service))

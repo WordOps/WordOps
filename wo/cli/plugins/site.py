@@ -147,10 +147,6 @@ class WOSiteController(CementBaseController):
             wo_db_user = siteinfo.db_user
             wo_db_pass = siteinfo.db_password
             wo_db_host = siteinfo.db_host
-            if sitetype == "proxy":
-                access_log = "/var/log/nginx/{0}.access.log".format(wo_domain)
-                error_log = "/var/log/nginx/{0}.error.log".format(wo_domain)
-                wo_site_webroot = ''
 
             php_version = siteinfo.php_version
 
@@ -408,12 +404,14 @@ class WOSiteCreateController(CementBaseController):
                       "{0} already exists".format(wo_domain))
 
         if stype == 'proxy':
-            data['site_name'] = wo_domain
-            data['www_domain'] = wo_www_domain
+            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
+                        static=True,  basic=False, php73=False, wp=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False, webroot=wo_site_webroot)
             data['proxy'] = True
             data['host'] = host
             data['port'] = port
-            wo_site_webroot = WOVariables.wo_webroot + wo_domain
+            data['basic'] = True
 
         if self.app.pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
@@ -587,9 +585,34 @@ class WOSiteCreateController(CementBaseController):
                               "and please try again")
 
             # Setup WordPress if Wordpress site
-            if data['wp']:
+            if (data['wp'] and (not self.app.pargs.vhostonly)):
                 try:
                     wo_wp_creds = setupwordpress(self, data)
+                    # Add database information for site into database
+                    updateSiteInfo(self, wo_domain,
+                                   db_name=data['wo_db_name'],
+                                   db_user=data['wo_db_user'],
+                                   db_password=data['wo_db_pass'],
+                                   db_host=data['wo_db_host'])
+                except SiteError as e:
+                    # call cleanup actions on failure
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['wo_db_name'],
+                                    dbuser=data['wo_db_user'],
+                                    dbhost=data['wo_mysql_grant_host'])
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
+
+            if (data['wp'] and (self.app.pargs.vhostonly)):
+                try:
+                    data = setupdatabase(self, data)
                     # Add database information for site into database
                     updateSiteInfo(self, wo_domain, db_name=data['wo_db_name'],
                                    db_user=data['wo_db_user'],
@@ -605,7 +628,37 @@ class WOSiteCreateController(CementBaseController):
                                     webroot=data['webroot'],
                                     dbname=data['wo_db_name'],
                                     dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_mysql_grant_host'])
+                                    dbhost=data['wo_db_host'])
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
+                try:
+                    wodbconfig = open("{0}/wo-config.php"
+                                      .format(wo_site_webroot),
+                                      encoding='utf-8', mode='w')
+                    wodbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
+                                     "\ndefine('DB_USER', '{1}'); "
+                                     "\ndefine('DB_PASSWORD', '{2}');"
+                                     "\ndefine('DB_HOST', '{3}');\n?>"
+                                     .format(data['wo_db_name'],
+                                             data['wo_db_user'],
+                                             data['wo_db_pass'],
+                                             data['wo_db_host']))
+                    wodbconfig.close()
+
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while generating "
+                              "wo-config.php")
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['wo_db_name'],
+                                    dbuser=data['wo_db_user'],
+                                    dbhost=data['wo_db_host'])
                     deleteSiteInfo(self, wo_domain)
                     Log.error(self, "Check the log for details: "
                               "`tail /var/log/wo/wordops.log` "
@@ -658,7 +711,7 @@ class WOSiteCreateController(CementBaseController):
                 for msg in wo_auth:
                     Log.info(self, Log.ENDC + msg, log=False)
 
-            if data['wp']:
+            if data['wp'] and (not self.app.pargs.vhostonly):
                 Log.info(self, Log.ENDC + "WordPress admin user :"
                          " {0}".format(wo_wp_creds['wp_user']), log=False)
                 Log.info(self, Log.ENDC + "WordPress admin user password : {0}"

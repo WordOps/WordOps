@@ -49,8 +49,7 @@ def pre_run_checks(self):
 def check_domain_exists(self, domain):
     if getSiteInfo(self, domain):
         return True
-    else:
-        return False
+    return False
 
 
 def setupdomain(self, data):
@@ -60,7 +59,7 @@ def setupdomain(self, data):
     #     print (key, value)
 
     wo_domain_name = data['site_name']
-    wo_site_webroot = data['webroot'] if 'webroot' in data.keys() else ''
+    wo_site_webroot = data['webroot']
 
     # Check if nginx configuration already exists
     # if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -313,10 +312,12 @@ def setupwordpress(self, data):
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbuser=\'{2}\' --dbhost=\'{3}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
-                                            data['wo_db_user'], data['wo_db_host']
+                                            data['wo_db_user'],
+                                            data['wo_db_host']
                                             ) +
                                     "--dbpass=\'{0}\' "
-                                    "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
+                                    "--extra-php<<PHP \n"
+                                    "{1} {redissalt}\nPHP\""
                                     .format(data['wo_db_pass'],
                                             "\n\ndefine(\'WP_DEBUG\', false);",
                                             redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
@@ -697,7 +698,9 @@ def sitebackup(self, data):
     if data['wo_db_name']:
         Log.info(self, 'Backing up database \t\t', end='')
         try:
-            if not WOShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
+            if not WOShellExec.cmd_exec(self, "mysqldump --single-transaction "
+                                        "{0} | pigz -9 -p\"$(nproc)\" "
+                                        "> {1}/{0}.gz"
                                         .format(data['wo_db_name'],
                                                 backup_path)):
                 Log.info(self,
@@ -1147,7 +1150,7 @@ def detSitePar(opts):
 def generate_random():
     wo_random10 = (''.join(random.sample(string.ascii_uppercase +
                                          string.ascii_lowercase +
-                                         string.digits, 16)))
+                                         string.digits, 24)))
     return wo_random10
 
 
@@ -1200,9 +1203,8 @@ def deleteWebRoot(self, webroot):
         Log.debug(self, "Removing {0}".format(webroot))
         WOFileUtils.rm(self, webroot)
         return True
-    else:
-        Log.debug(self, "{0} does not exist".format(webroot))
-        return False
+    Log.debug(self, "{0} does not exist".format(webroot))
+    return False
 
 
 def removeNginxConf(self, domain):
@@ -1219,6 +1221,19 @@ def removeNginxConf(self, domain):
                   .format(domain))
 
 
+def removeAcmeConf(self, domain):
+    if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
+                     .format(domain)):
+        Log.debug(self, "Removing Acme configuration")
+        WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
+                       .format(domain))
+        WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
+                       .format(domain))
+        WOGit.add(self, ["/etc/letsencrypt"],
+                  msg="Deleted {0} "
+                  .format(domain))
+
+
 def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                     dbhost=''):
     """
@@ -1230,6 +1245,10 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(domain)):
             removeNginxConf(self, domain)
+        if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
+                         .format(domain)):
+            removeAcmeConf(self, domain)
+
     if webroot:
         deleteWebRoot(self, webroot)
 
@@ -1287,6 +1306,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                                             "--key-file {0}/{1}/key.pem "
                                             "--fullchain-file "
                                             "{0}/{1}/fullchain.pem "
+                                            "--ca-file {0}/{1}/ca.pem "
                                             "--reloadcmd "
                                             "\"service nginx restart\" "
                                             .format(WOVariables.wo_ssl_live,
@@ -1300,9 +1320,10 @@ def setupLetsEncrypt(self, wo_domain_name):
                            encoding='utf-8', mode='w')
             sslconf.write("listen 443 ssl http2;\n"
                           "listen [::]:443 ssl http2;\n"
-                          "ssl on;\n"
                           "ssl_certificate     {0}/{1}/fullchain.pem;\n"
                           "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                          "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                          "ssl_stapling_verify on;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
             updateSiteInfo(self, wo_domain_name, ssl=True)
@@ -1368,6 +1389,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                                             "--key-file {0}/{1}/key.pem "
                                             "--fullchain-file "
                                             "{0}/{1}/fullchain.pem "
+                                            "--ca-file {0}/{1}/ca.pem "
                                             "--reloadcmd "
                                             "\"service nginx restart\" "
                                             .format(WOVariables.wo_ssl_live,
@@ -1382,9 +1404,10 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                            encoding='utf-8', mode='w')
             sslconf.write("listen 443 ssl http2;\n"
                           "listen [::]:443 ssl http2;\n"
-                          "ssl on;\n"
                           "ssl_certificate     {0}/{1}/fullchain.pem;\n"
                           "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                          "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                          "ssl_stapling_verify on;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
             updateSiteInfo(self, wo_domain_name, ssl=True)
@@ -1548,6 +1571,7 @@ def archivedCertificateHandle(self, domain):
                                    "--key-file {0}/{1}/key.pem "
                                    "--fullchain-file "
                                    "{0}/{1}/fullchain.pem "
+                                   "--ca-file {0}/{1}/ca.pem "
                                    "--reloadcmd "
                                    "\"service nginx restart\" "
                                    .format(WOVariables.wo_ssl_live,
@@ -1567,10 +1591,11 @@ def archivedCertificateHandle(self, domain):
                                    encoding='utf-8', mode='w')
                     sslconf.write("listen 443 ssl http2;\n"
                                   "listen [::]:443 ssl http2;\n"
-                                  "ssl on;\n"
                                   "ssl_certificate     "
                                   "{0}/{1}/fullchain.pem;\n"
                                   "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                                  "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                                  "ssl_stapling_verify on;\n"
                                   .format(WOVariables.wo_ssl_live, domain))
                     sslconf.close()
 
@@ -1614,6 +1639,8 @@ def archivedCertificateHandle(self, domain):
                                      "--key-file {0}/{1}/key.pem "
                                      "--fullchain-file "
                                      "{0}/{1}/fullchain.pem "
+                                     "ssl_trusted_certificate "
+                                     "{0}/{1}/ca.pem;\n"
                                      "--reloadcmd "
                                      "\"service nginx restart\" "
                                      .format(WOVariables.wo_ssl_live, domain))
@@ -1634,4 +1661,4 @@ def archivedCertificateHandle(self, domain):
                            '/var/www/{0}/conf/nginx/ssl.conf.bak'
                            .format(domain))
 
-        return ssl
+    return ssl
