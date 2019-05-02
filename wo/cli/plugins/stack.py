@@ -1229,7 +1229,7 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
                                       '/var/lib/wo/tmp/')
-                    shutil.move('/var/lib/wo/tmp/extplorer-2.1.11/',
+                    shutil.move('/var/lib/wo/tmp/extplorer-2.1.11',
                                 '{0}22222/htdocs/files'
                                 .format(WOVariables.wo_webroot))
                     Log.debug(self, "Setting Privileges to "
@@ -1248,7 +1248,7 @@ class WOStackController(CementBaseController):
                           " {0}22222/htdocs/cache/memcache "
                           .format(WOVariables.wo_webroot))
                 WOExtract.extract(self, '/var/lib/wo/tmp/memcached.tar.gz',
-                                  '{0}22222/htdocs/cache/memcache/'
+                                  '{0}22222/htdocs/cache/memcache'
                                   .format(WOVariables.wo_webroot))
                 Log.debug(self, "Setting Privileges to "
                           "{0}22222/htdocs/cache/memcache file"
@@ -1528,7 +1528,8 @@ class WOStackController(CementBaseController):
                 if (not self.app.pargs.composer):
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz", "phpMyAdmin"],
+                                            "/var/lib/wo/tmp/pma.tar.gz",
+                                            "phpMyAdmin"],
                                            ["https://getcomposer.org/"
                                             "installer",
                                             "/var/lib/wo/tmp/composer-install",
@@ -1536,21 +1537,25 @@ class WOStackController(CementBaseController):
                 else:
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz", "phpMyAdmin"]]
+                                            "/var/lib/wo/tmp/pma.tar.gz",
+                                            "phpMyAdmin"]]
             # Composer
             if self.app.pargs.composer:
                 Log.debug(self, "Setting packages variable for Composer ")
                 packages = packages + [["https://getcomposer.org/installer",
-                                        "/var/lib/wo/tmp/composer-install", "Composer"]]
+                                        "/var/lib/wo/tmp/composer-install",
+                                        "Composer"]]
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages variable for phpRedisAdmin")
                 packages = packages + [["https://github.com/ErikDubbelboer/"
                                         "phpRedisAdmin/archive/master.tar.gz",
-                                        "/var/lib/wo/tmp/pra.tar.gz", "phpRedisAdmin"],
+                                        "/var/lib/wo/tmp/pra.tar.gz",
+                                        "phpRedisAdmin"],
                                        ["https://github.com/nrk/predis/"
                                         "archive/v1.1.1.tar.gz",
-                                        "/var/lib/wo/tmp/predis.tar.gz", "Predis"]]
+                                        "/var/lib/wo/tmp/predis.tar.gz",
+                                        "Predis"]]
             # ADMINER
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
@@ -1628,7 +1633,8 @@ class WOStackController(CementBaseController):
                                         "OCP.php"],
                                        ["https://github.com/jokkedk/webgrind/"
                                         "archive/master.tar.gz",
-                                        '/var/lib/wo/tmp/webgrind.tar.gz', 'Webgrind'],
+                                        '/var/lib/wo/tmp/webgrind.tar.gz',
+                                        'Webgrind'],
                                        ["http://bazaar.launchpad.net/~"
                                         "percona-toolkit-dev/percona-toolkit/"
                                         "2.1/download/head:/ptquerydigest-"
@@ -1638,7 +1644,8 @@ class WOStackController(CementBaseController):
                                         "pt-query-advisor"],
                                        ["https://github.com/box/Anemometer/"
                                         "archive/master.tar.gz",
-                                        '/var/lib/wo/tmp/anemometer.tar.gz', 'Anemometer']
+                                        '/var/lib/wo/tmp/anemometer.tar.gz',
+                                        'Anemometer']
                                        ]
         except Exception as e:
             pass
