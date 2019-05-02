@@ -585,7 +585,7 @@ class WOSiteCreateController(CementBaseController):
                               "and please try again")
 
             # Setup WordPress if Wordpress site
-            if (data['wp'] and (not data['vhostonly'])):
+            if (data['wp'] and (not self.app.pargs.vhostonly)):
                 try:
                     wo_wp_creds = setupwordpress(self, data)
                     # Add database information for site into database
