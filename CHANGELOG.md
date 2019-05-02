@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-### v3.9.5 - [Unreleased]
+### v3.9.6 - [Unreleased]
+
+### v3.9.5 - 2019-05-02
 
 #### Added
 
@@ -28,21 +30,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Netdata on backend : https://server.hostname:22222/netdata/
 - New Stacks : composer and netdata
 - additional argument for letsencrypt : --hsts
-- Theme for adminer
+- Clean Theme for adminer
 - Credits for tools shipped with WordOps
 - Cache exception for Easy Digital Download
-- Additional cache exception for Woocommerce
+- Additional cache exceptions for Woocommerce
 - MySQL monitoring with Netdata
-- WordOps-dashboard on 22222
-- Extplorer filemanager
+- WordOps-dashboard on 22222, can be installed with `wo stack install`
+- Extplorer filemanager in WordOps backend
 - Enable OSCP Stapling with Let's Encrypt
-- Compress database backup with pigz before updating sites
+- Compress database backup with pigz (faster than gzip) before updating sites
 - Support for Ubuntu 19.04 (disco) - few php extensions missing
 - Support for Raspbian 9 (stretch) - tested on Raspberry Pi 3b+
 - backup letsencrypt certificate before upgrade
 - directives emergency_restart_threshold & emergency_restart_interval to restart php-fpm in case of failure
 - EasyEngine cronjob removal during install
 - Kernel tweaks via systctl.conf
+- open_basedir on php-fpm process to forbid access with php outside of /var/www & /run/nginx-cache
 
 #### Changed
 
@@ -56,6 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - backend SSL configuration now stored in /var/www/22222/conf/nginx/ssl.conf
 - Install Netdata with static pre-built binaries instead of having to compile it from source
 - Nginx updated to new stable release (1.16.0)
+- New packages (phpmyadmin, adminer, composer) are not download in /tmp anymore
 
 #### Fixed
 
