@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5 - 2019-04-26
+# Version 3.9.5 - 2019-05-02
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.5"
@@ -123,6 +123,7 @@ TIME=$(date +"$TIME_FORMAT")
 NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
 EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
 WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
+WO_ARCH="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
     ee_migration=1
@@ -628,11 +629,34 @@ wo_clean_ee() {
     rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
 }
 
-# wo_tweak_kernel() {
-#     if [ ! -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf ]; then
+wo_remove_ee_cron() {
 
-#     fi
-# }
+    crontab -l | sed '/ee site update --le=renew --all 2> \/dev\/null/d' | crontab -
+
+}
+
+wo_tweak_kernel() {
+
+    if [ ! -f /etc/sysctl.d/60-wo-tweaks.conf ]; then
+        if [ "$WO_ARCH" = "x86_64" ]; then
+            rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
+            wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/sysctl.mustache
+            if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ]; then
+                modprobe tcp_bbr && echo 'tcp_bbr' >> /etc/modules-load.d/bbr.conf
+                echo -e '\nnet.ipv4.tcp_congestion_control = bbr\nnet.ipv4.tcp_notsent_lowat = 16384' >> /etc/sysctl.d/60-wo-tweaks.conf
+            else
+                modprobe tcp_htcp && echo 'tcp_htcp' >> /etc/modules-load.d/htcp.conf
+                echo 'net.ipv4.tcp_congestion_control = htcp' >> /etc/sysctl.d/60-wo-tweaks.conf
+            fi
+
+        fi
+        LIMIT_CHECK=$(grep "500000" /etc/security/limits.conf)
+        if [ -z "$LIMIT_CHECK" ]; then
+            echo -e "*         hard    nofile      500000\n*         soft    nofile      500000\nroot      hard    nofile      500000\nroot      soft    nofile      500000\n" >> /etc/security/limits.conf
+        fi
+    fi
+
+}
 
 ###
 # 4 - WO MAIN SETUP
@@ -643,7 +667,7 @@ if [ -x /usr/local/bin/wo ]; then
     if ! {
         wo -v 2>&1 | grep $wo_version_new
     }; then
-       echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
+        echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
         if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
@@ -664,6 +688,8 @@ if [ -x /usr/local/bin/wo ]; then
             wo_update_latest | tee -ai $wo_install_log
             wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh | tee -ai $wo_install_log
+            wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
+            wo_tweak_kernel | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
@@ -682,6 +708,8 @@ else
             wo_install_dep | tee -ai $wo_install_log
             wo_lib_echo "Backing-up EE install" | tee -ai $wo_install_log
             wo_backup_ee | tee -ai $wo_install_log
+            wo_lib_echo "Removing EasyEngine cronjob" | tee -ai $wo_install_log
+            wo_remove_ee_cron | tee -ai $wo_install_log
             wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
             wo_sync_db | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
@@ -698,6 +726,8 @@ else
             wo_update_latest | tee -ai $wo_install_log
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh | tee -ai $wo_install_log
+            wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
+            wo_tweak_kernel | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
@@ -712,6 +742,8 @@ else
         wo_install_dep | tee -ai $wo_install_log
         wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
         wo_install | tee -ai $wo_install_log
+        wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
+        wo_tweak_kernel | tee -ai $wo_install_log
         wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
         wo_install_acme_sh | tee -ai $wo_install_log
         wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log

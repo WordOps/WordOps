@@ -41,6 +41,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Raspbian 9 (stretch) - tested on Raspberry Pi 3b+
 - backup letsencrypt certificate before upgrade
 - directives emergency_restart_threshold & emergency_restart_interval to restart php-fpm in case of failure
+- EasyEngine cronjob removal during install
+- Kernel tweaks via systctl.conf
 
 #### Changed
 
