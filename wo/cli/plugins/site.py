@@ -610,6 +610,60 @@ class WOSiteCreateController(CementBaseController):
                               "`tail /var/log/wo/wordops.log` "
                               "and please try again")
 
+            if (data['wp'] and (self.app.pargs.vhostonly)):
+                try:
+                    data = setupdatabase(self, data)
+                    # Add database information for site into database
+                    updateSiteInfo(self, wo_domain, db_name=data['wo_db_name'],
+                                   db_user=data['wo_db_user'],
+                                   db_password=data['wo_db_pass'],
+                                   db_host=data['wo_db_host'])
+                except SiteError as e:
+                    # call cleanup actions on failure
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['wo_db_name'],
+                                    dbuser=data['wo_db_user'],
+                                    dbhost=data['wo_db_host'])
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
+                try:
+                    wodbconfig = open("{0}/wo-config.php"
+                                      .format(wo_site_webroot),
+                                      encoding='utf-8', mode='w')
+                    wodbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
+                                     "\ndefine('DB_USER', '{1}'); "
+                                     "\ndefine('DB_PASSWORD', '{2}');"
+                                     "\ndefine('DB_HOST', '{3}');\n?>"
+                                     .format(data['wo_db_name'],
+                                             data['wo_db_user'],
+                                             data['wo_db_pass'],
+                                             data['wo_db_host']))
+                    wodbconfig.close()
+
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while generating "
+                              "wo-config.php")
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['wo_db_name'],
+                                    dbuser=data['wo_db_user'],
+                                    dbhost=data['wo_db_host'])
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
+
             # Service Nginx Reload call cleanup if failed to reload nginx
             if not WOService.reload_service(self, 'nginx'):
                 Log.info(self, Log.FAIL +
