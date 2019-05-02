@@ -790,7 +790,8 @@ class WOStackController(CementBaseController):
                 with open("/etc/php/7.2/fpm/pool.d/www.conf",
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("\nphp_admin_value[open_basedir] "
-                                 "= \"/var/www:/tmp/:/var/run/nginx-cache\"\n")
+                                 "= \"/var/www/:/usr/share/php/:"
+                                 "/tmp/:/var/run/nginx-cache/\"\n")
 
                 # Generate /etc/php/7.2/fpm/pool.d/www-two.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
@@ -950,7 +951,8 @@ class WOStackController(CementBaseController):
                 with open("/etc/php/7.3/fpm/pool.d/www.conf",
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("\nphp_admin_value[open_basedir] "
-                                 "= \"/var/www:/tmp/:/var/run/nginx-cache\"\n")
+                                 "= \"/var/www/:/usr/share/php/:"
+                                 "/tmp/:/var/run/nginx-cache/\"\n")
 
                 # Generate /etc/php/7.3/fpm/pool.d/www-two.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
