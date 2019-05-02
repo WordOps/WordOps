@@ -657,7 +657,7 @@ class WOSiteCreateController(CementBaseController):
                 for msg in wo_auth:
                     Log.info(self, Log.ENDC + msg, log=False)
 
-            if data['wp']:
+            if data['wp'] and (not self.app.pargs.vhostonly):
                 Log.info(self, Log.ENDC + "WordPress admin user :"
                          " {0}".format(wo_wp_creds['wp_user']), log=False)
                 Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
