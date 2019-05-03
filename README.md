@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/logo.png" width="400" alt="Wordops" /><a href="https://wordops.net">
+<p align="center"><img src="https://raw.githubusercontent.com/WordOps/WordOps/master/logo.png" width="400" alt="Wordops" /><a href="https://wordops.net">
 
   <br>
 </p>
@@ -32,7 +32,8 @@
 <p align="center">
 <a href="https://wordops.net" target="_blank"> WordOps.net</a> •
 <a href="https://docs.wordops.net" target="_blank">Documentation</a> •
-<a href="https://community.wordops.net" target="_blank">Community forum</a>
+<a href="https://community.wordops.net" target="_blank">Community forum</a> •
+<a href="https://demo.wordops.eu" target="_blank">Dashboard demo</a>
 </p>
 
 ---
@@ -157,7 +158,7 @@ There is no need to be a developer or a system administrator to contribute to Wo
 
 - Source : [EasyEngine](https://github.com/easyengine/easyengine)
 
-Apps & Tools shipped with WordOps
+Apps & Tools shipped with WordOps :
 
 - [Acme.sh](https://github.com/Neilpang/acme.sh)
 - [WP-CLI](https://github.com/wp-cli/wp-cli)
@@ -169,6 +170,9 @@ Apps & Tools shipped with WordOps
 - [PHPMemcachedAdmin](https://github.com/elijaa/phpmemcachedadmin)
 - [opcacheGUI](https://github.com/amnuts/opcache-gui)
 - [eXtplorer](https://github.com/soerennb/extplorer)
+- [MySQLTuner](https://github.com/major/MySQLTuner-perl/)
+- [Webgrind](https://github.com/jokkedk/webgrind)
+
 
 ## License
 
