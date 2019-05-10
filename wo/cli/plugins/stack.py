@@ -1153,7 +1153,8 @@ class WOStackController(CementBaseController):
             if any('/var/lib/wo/tmp/composer-install' == x[1]
                    for x in packages):
                 Log.info(self, "Installing composer, please wait...")
-                WOShellExec.cmd_exec(self, "php -q /var/lib/wo/tmp/composer-install "
+                WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
+                                     "/tmp/composer-install "
                                      "--install-dir=/var/lib/wo/tmp/")
                 shutil.copyfile('/var/lib/wo/tmp/composer.phar',
                                 '/usr/local/bin/composer')
@@ -1168,7 +1169,8 @@ class WOStackController(CementBaseController):
                 if ((not os.path.exists('/opt/netdata')) and
                         (not os.path.exists('/etc/netdata'))):
                     Log.info(self, "Installing Netdata, please wait...")
-                    WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/kickstart.sh "
+                    WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
+                                         "kickstart.sh "
                                          "--dont-wait")
                     # disable mail notifications
                     WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
@@ -1561,8 +1563,9 @@ class WOStackController(CementBaseController):
             # ADMINER
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["https://www.adminer.org/static/"
-                                        "download/{0}/adminer-{0}.php"
+                packages = packages + [["https://github.com/vrana/adminer/"
+                                        "releases/download/v{0}"
+                                        "/adminer-{0}.php"
                                         .format(WOVariables.wo_adminer),
                                         "{0}22222/"
                                         "htdocs/db/adminer/index.php"
