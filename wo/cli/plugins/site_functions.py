@@ -317,12 +317,10 @@ def setupwordpress(self, data):
                                             ) +
                                     "--dbpass=\'{0}\' "
                                     "--extra-php<<PHP \n"
-                                    "{1} {redissalt}\nPHP\""
+                                    "{1}\nPHP\""
                                     .format(data['wo_db_pass'],
-                                            "\n\ndefine(\'WP_DEBUG\', false);",
-                                            redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
-                                                      .format(wo_domain_name) if data['wpredis']
-                                                      else ''),
+                                            "\n\ndefine(\'WP_DEBUG\',"
+                                            " false);"),
                                     log=False
                                     ):
                 pass
@@ -354,15 +352,13 @@ def setupwordpress(self, data):
                                     .format(data['wo_db_name'], wo_wp_prefix,
                                             data['wo_db_host']) +
                                     "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                                    "--extra-php<<PHP \n {2} {3} {redissalt}\nPHP\""
+                                    "--extra-php<<PHP \n {2} {3}\nPHP\""
                                     .format(data['wo_db_user'],
                                             data['wo_db_pass'],
                                             "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                                             " true);",
-                                            "\n\ndefine(\'WP_DEBUG\', false);",
-                                            redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
-                                            .format(wo_domain_name) if data['wpredis']
-                                            else ''),
+                                            "\n\ndefine(\'WP_DEBUG\',"
+                                            " false);"),
                                     log=False
                                     ):
                 pass
@@ -544,6 +540,42 @@ def setupwordpress(self, data):
     """Install Redis Cache"""
     if data['wpredis']:
         installwp_plugin(self, 'redis-cache', data)
+        if installwp_plugin(self, 'redis-cache', data):
+            if WOFileUtils.isexist(self, "{0}/wp-config.php"
+                                   .format(wo_site_webroot)):
+                config_path = '{0}/wp-config.php'.format(
+                    wo_site_webroot)
+            elif WOFileUtils.isexist(self, "{0}/htdocs/wp-config.php"
+                                     .format(wo_site_webroot)):
+                config_path = '{0}/htdocs/wp-config.php'.format(
+                    wo_site_webroot)
+            else:
+                Log.debug(
+                    self, "Updating wp-config.php failed. "
+                    "File could not be located.")
+                Log.error(
+                    self, "wp-config.php could not be located !!")
+                raise SiteError
+
+            if WOShellExec.cmd_exec(self, "grep -q "
+                                    "\"WP_CACHE_KEY_SALT\" {0}"
+                                    .format(config_path)):
+                pass
+            else:
+                try:
+                    wpconfig = open("{0}".format(config_path),
+                                    encoding='utf-8', mode='a')
+                    wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\',"
+                                   " \'{0}:\' );".format(wo_domain))
+                    wpconfig.close()
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Updating wp-config.php failed.")
+                    Log.warn(self, "Updating wp-config.php failed. "
+                             "Could not append:"
+                             "\ndefine( \'WP_CACHE_KEY_SALT\', "
+                             "\'{0}:\' );".format(wo_domain) +
+                             "\nPlease add manually")
 
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
