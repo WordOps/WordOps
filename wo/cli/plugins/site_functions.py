@@ -328,6 +328,11 @@ def setupwordpress(self, data):
         except CommandExecutionError as e:
             raise SiteError("generate wp-config failed for wp single site")
 
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set WP_CACHE_KEY_SALT "
+                             "\'{0}:\'".format(wo_domain_name))
+
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php {0} --allow-root "
@@ -367,10 +372,10 @@ def setupwordpress(self, data):
         except CommandExecutionError as e:
             raise SiteError("generate wp-config failed for wp multi site")
 
-    WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                         .format(WOVariables.wo_wpcli_path) +
-                         "config set WP_CACHE_KEY_SALT "
-                         "\'{0}:\'".format(wo_domain_name))
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set WP_CACHE_KEY_SALT "
+                             "\'{0}:\'".format(wo_domain_name))
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
