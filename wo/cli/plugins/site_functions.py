@@ -317,10 +317,9 @@ def setupwordpress(self, data):
                                             ) +
                                     "--dbpass=\'{0}\' "
                                     "--extra-php<<PHP \n"
-                                    "{1}\nPHP\""
+                                    "\n{1}\nPHP\""
                                     .format(data['wo_db_pass'],
-                                            "\n\ndefine(\'WP_DEBUG\',"
-                                            " false);"),
+                                            "\ndefine(\'WP_DEBUG\', false);"),
                                     log=False
                                     ):
                 pass
@@ -328,6 +327,7 @@ def setupwordpress(self, data):
                 raise SiteError("generate wp-config failed for wp single site")
         except CommandExecutionError as e:
             raise SiteError("generate wp-config failed for wp single site")
+
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php {0} --allow-root "
@@ -352,13 +352,13 @@ def setupwordpress(self, data):
                                     .format(data['wo_db_name'], wo_wp_prefix,
                                             data['wo_db_host']) +
                                     "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                                    "--extra-php<<PHP \n {2} {3}\nPHP\""
+                                    "--extra-php<<PHP \n "
+                                    "\n{2} {3}\nPHP\""
                                     .format(data['wo_db_user'],
                                             data['wo_db_pass'],
                                             "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                                             " true);",
-                                            "\n\ndefine(\'WP_DEBUG\',"
-                                            " false);"),
+                                            "\ndefine(\'WP_DEBUG\', false);"),
                                     log=False
                                     ):
                 pass
@@ -366,6 +366,11 @@ def setupwordpress(self, data):
                 raise SiteError("generate wp-config failed for wp multi site")
         except CommandExecutionError as e:
             raise SiteError("generate wp-config failed for wp multi site")
+
+    WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                         .format(WOVariables.wo_wpcli_path) +
+                         "config set WP_CACHE_KEY_SALT "
+                         "\'{0}:\'".format(wo_domain_name))
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
@@ -540,42 +545,6 @@ def setupwordpress(self, data):
     """Install Redis Cache"""
     if data['wpredis']:
         installwp_plugin(self, 'redis-cache', data)
-        if installwp_plugin(self, 'redis-cache', data):
-            if WOFileUtils.isexist(self, "{0}/wp-config.php"
-                                   .format(wo_site_webroot)):
-                config_path = '{0}/wp-config.php'.format(
-                    wo_site_webroot)
-            elif WOFileUtils.isexist(self, "{0}/htdocs/wp-config.php"
-                                     .format(wo_site_webroot)):
-                config_path = '{0}/htdocs/wp-config.php'.format(
-                    wo_site_webroot)
-            else:
-                Log.debug(
-                    self, "Updating wp-config.php failed. "
-                    "File could not be located.")
-                Log.error(
-                    self, "wp-config.php could not be located !!")
-                raise SiteError
-
-            if WOShellExec.cmd_exec(self, "grep -q "
-                                    "\"WP_CACHE_KEY_SALT\" {0}"
-                                    .format(config_path)):
-                pass
-            else:
-                try:
-                    wpconfig = open("{0}".format(config_path),
-                                    encoding='utf-8', mode='a')
-                    wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\',"
-                                   " \'{0}:\' );".format(wo_domain))
-                    wpconfig.close()
-                except IOError as e:
-                    Log.debug(self, str(e))
-                    Log.debug(self, "Updating wp-config.php failed.")
-                    Log.warn(self, "Updating wp-config.php failed. "
-                             "Could not append:"
-                             "\ndefine( \'WP_CACHE_KEY_SALT\', "
-                             "\'{0}:\' );".format(wo_domain) +
-                             "\nPlease add manually")
 
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
@@ -1311,7 +1280,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                                        "'/etc/letsencrypt/config' "
                                        "--issue "
                                        "-d {0} -d www.{0} -w /var/www/html "
-                                       "-k ec-384 --force"
+                                       "-k ec-384 -f"
                                        .format(wo_domain_name))
     else:
         Log.info(self, "Issuing SSL cert with acme.sh")
@@ -1320,7 +1289,7 @@ def setupLetsEncrypt(self, wo_domain_name):
                                    "'/etc/letsencrypt/config' "
                                    "--issue "
                                    "-d {0} -d www.{0} -w /var/www/html "
-                                   "-k ec-384"
+                                   "-k ec-384 -f"
                                    .format(wo_domain_name))
 
     if ssl:
@@ -1340,7 +1309,8 @@ def setupLetsEncrypt(self, wo_domain_name):
                                             "{0}/{1}/fullchain.pem "
                                             "--ca-file {0}/{1}/ca.pem "
                                             "--reloadcmd "
-                                            "\"service nginx restart\" "
+                                            "\"nginx -t && "
+                                            "service nginx restart\" "
                                             .format(WOVariables.wo_ssl_live,
                                                     wo_domain_name))
             Log.info(
@@ -1395,7 +1365,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                                        "'/etc/letsencrypt/config' "
                                        "--issue "
                                        "-d {0} -w /var/www/html "
-                                       "-k ec-384 --force"
+                                       "-k ec-384 -f"
                                        .format(wo_domain_name))
     else:
         Log.info(self, "Issuing SSL cert with acme.sh")
@@ -1404,7 +1374,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                                    "'/etc/letsencrypt/config' "
                                    "--issue "
                                    "-d {0} -w /var/www/html "
-                                   "-k ec-384"
+                                   "-k ec-384 -f"
                                    .format(wo_domain_name))
     if ssl:
 
@@ -1423,7 +1393,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
                                             "{0}/{1}/fullchain.pem "
                                             "--ca-file {0}/{1}/ca.pem "
                                             "--reloadcmd "
-                                            "\"service nginx restart\" "
+                                            "\"nginx -t && service nginx restart\" "
                                             .format(WOVariables.wo_ssl_live,
                                                     wo_domain_name))
 
