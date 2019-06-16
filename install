@@ -10,7 +10,7 @@
 # Version 3.9.5.1 - 2019-05-10
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.5.1"
+readonly wo_version_new="3.9.5.2"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -380,7 +380,7 @@ wo_install_acme_sh() {
                 --config-home /etc/letsencrypt/config \
                 --cert-home /etc/letsencrypt/renewal
             # enable auto-upgrade
-            /etc/letsencrypt/acme.sh --config-home /etc/letsencrypt/config --upgrade --auto-upgrade
+            /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
 
         } >> "$wo_install_log" 2>&1
     fi
@@ -508,7 +508,7 @@ wo_upgrade_nginx() {
                 else
                     WO WO_STACK_INSTALL_ARGS=""
                 fi
-                /usr/local/bin/wo stack install --nginx --php $WO_STACK_INSTALL_ARGS
+                /usr/local/bin/wo stack install --nginx --php "$WO_STACK_INSTALL_ARGS"
                 echo "$wo_version_new" > /etc/nginx/common/release
                 rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf}
             fi

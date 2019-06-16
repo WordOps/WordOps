@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.6 - [Unreleased]
 
+### v3.9.5.2 - 2019-06-16
+
 #### Fixed
 
 - WP_CACHE_KEY_SALT set twice
