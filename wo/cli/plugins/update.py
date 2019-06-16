@@ -19,18 +19,42 @@ class WOUpdateController(CementBaseController):
         aliases_only = True
         stacked_type = 'nested'
         description = ('update WordOps to latest version')
-        usage = "wo update"
+        arguments = [
+            (['--force'],
+             dict(help='Force WordOps update', action='store_true')),
+        ]
+        usage = "wo update [options]"
 
     @expose(hide=True)
     def default(self):
+        if (not (self.app.pargs.force)):
+            self.update_wordops
+        if (self.app.pargs.force):
+            self.force_update_wordops
+
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
         WODownload.download(self, [["https://raw.githubusercontent.com/"
                                     "WordOps/WordOps/master/install",
                                     "/tmp/{0}".format(filename),
                                     "update script"]])
+
+    @expose(hide=True)
+    def update_wordops(self):
         try:
             Log.info(self, "updating WordOps, please wait...")
             os.system("bash /tmp/{0}".format(filename))
+        except OSError as e:
+            Log.debug(self, str(e))
+            Log.error(self, "WordOps update failed !")
+        except Exception as e:
+            Log.debug(self, str(e))
+            Log.error(self, "WordOps update failed !")
+
+    @expose(hide=True)
+    def force_update_wordops(self):
+        try:
+            Log.info(self, "updating WordOps, please wait...")
+            os.system("bash /tmp/{0} --force".format(filename))
         except OSError as e:
             Log.debug(self, str(e))
             Log.error(self, "WordOps update failed !")
