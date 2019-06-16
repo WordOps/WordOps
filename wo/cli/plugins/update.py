@@ -16,7 +16,6 @@ class WOUpdateController(CementBaseController):
         label = 'wo_update'
         stacked_on = 'base'
         aliases = ['update']
-        aliases_only = True
         stacked_type = 'nested'
         description = ('update WordOps to latest version')
         arguments = [
