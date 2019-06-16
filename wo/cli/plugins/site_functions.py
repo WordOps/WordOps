@@ -296,7 +296,7 @@ def setupwordpress(self, data):
         Log.debug(self, "Generating wp-config for WordPress Single site")
         Log.debug(self, "bash -c \"php {0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
-                  "core config " +
+                  "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
                   "--dbhost=\'{3}\' "
                   .format(data['wo_db_name'], wo_wp_prefix,
@@ -308,7 +308,7 @@ def setupwordpress(self, data):
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
                                     .format(WOVariables.wo_wpcli_path) +
-                                    " core config " +
+                                    " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbuser=\'{2}\' --dbhost=\'{3}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
@@ -331,13 +331,13 @@ def setupwordpress(self, data):
         WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_CACHE_KEY_SALT "
-                             "\'{0}:\'".format(wo_domain_name))
+                             "\'{0}:\'\"".format(wo_domain_name))
 
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php {0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
-                  "core config " +
+                  "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host']) +
                   "--dbuser=\'{0}\' --dbpass=\'{1}\' "
@@ -351,7 +351,7 @@ def setupwordpress(self, data):
         try:
             if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
                                     .format(WOVariables.wo_wpcli_path) +
-                                    " core config " +
+                                    " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbhost=\'{2}\' "
                                     .format(data['wo_db_name'], wo_wp_prefix,
@@ -375,7 +375,7 @@ def setupwordpress(self, data):
         WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_CACHE_KEY_SALT "
-                             "\'{0}:\'".format(wo_domain_name))
+                             "\'{0}:\'\"".format(wo_domain_name))
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
