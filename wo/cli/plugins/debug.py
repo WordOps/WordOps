@@ -100,7 +100,8 @@ class WODebugController(CementBaseController):
 
             for ip_addr in debug_address:
                 if not ("debug_connection "+ip_addr in open('/etc/nginx/'
-                                                            'nginx.conf', encoding='utf-8').read()):
+                                                            'nginx.conf',
+                                                            encoding='utf-8').read()):
                     Log.info(self, "Setting up Nginx debug connection"
                              " for "+ip_addr)
                     WOShellExec.cmd_exec(self, "sed -i \"/events {{/a\\ \\ \\ "

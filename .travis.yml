@@ -54,4 +54,4 @@ script:
   - sudo wp --allow-root --info
   - sudo wo info || sudo tail -n50 /var/log/wo/wordops.log
   - sudo tree -L 2 /etc/nginx
-  - sudo tree -L 3 /var/www/22222/htdocs/
+  - sudo cat /var/www/wpredis.net/wp-config.php
