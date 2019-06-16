@@ -27,18 +27,18 @@ class WOUpdateController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        if self.app.pargs.force:
+            self.force_update_wordops
+        else:
+            self.update_wordops
+
+    @expose(hide=True)
+    def update_wordops(self):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
         WODownload.download(self, [["https://raw.githubusercontent.com/"
                                     "WordOps/WordOps/master/install",
                                     "/tmp/{0}".format(filename),
                                     "update script"]])
-        if (not (self.app.pargs.force)):
-            self.update_wordops
-        if (self.app.pargs.force):
-            self.force_update_wordops
-
-    @expose(hide=True)
-    def update_wordops(self):
         try:
             Log.info(self, "updating WordOps, please wait...")
             os.system("bash /tmp/{0}".format(filename))
@@ -51,6 +51,11 @@ class WOUpdateController(CementBaseController):
 
     @expose(hide=True)
     def force_update_wordops(self):
+        filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
+        WODownload.download(self, [["https://raw.githubusercontent.com/"
+                                    "WordOps/WordOps/master/install",
+                                    "/tmp/{0}".format(filename),
+                                    "update script"]])
         try:
             Log.info(self, "updating WordOps, please wait...")
             os.system("bash /tmp/{0} --force".format(filename))
