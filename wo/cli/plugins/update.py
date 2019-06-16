@@ -16,10 +16,13 @@ class WOUpdateController(CementBaseController):
         label = 'wo_update'
         stacked_on = 'base'
         aliases = ['update']
-        aliases_only = True
         stacked_type = 'nested'
         description = ('update WordOps to latest version')
-        usage = "wo update"
+        arguments = [
+            (['--force'],
+             dict(help='Force WordOps update', action='store_true')),
+        ]
+        usage = "wo update [options]"
 
     @expose(hide=True)
     def default(self):
@@ -28,15 +31,20 @@ class WOUpdateController(CementBaseController):
                                     "WordOps/WordOps/master/install",
                                     "/tmp/{0}".format(filename),
                                     "update script"]])
-        try:
-            Log.info(self, "updating WordOps, please wait...")
-            os.system("bash /tmp/{0}".format(filename))
-        except OSError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "WordOps update failed !")
-        except Exception as e:
-            Log.debug(self, str(e))
-            Log.error(self, "WordOps update failed !")
+        if self.app.pargs.force:
+            try:
+                Log.info(self, "updating WordOps, please wait...")
+                os.system("bash /tmp/{0} --force".format(filename))
+            except OSError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "WordOps update failed !")
+        else:
+            try:
+                Log.info(self, "updating WordOps, please wait...")
+                os.system("bash /tmp/{0}".format(filename))
+            except OSError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "WordOps update failed !")
 
 
 def load(app):

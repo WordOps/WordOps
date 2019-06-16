@@ -4,6 +4,7 @@ from cement.core import handler, hook
 from wo.core.cron import WOCron
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables
+from wo.core.shellexec import WOShellExec
 from wo.core.domainvalidate import ValidateDomain
 from wo.core.fileutils import WOFileUtils
 from wo.cli.plugins.site_functions import *
@@ -1610,42 +1611,25 @@ class WOSiteUpdateController(CementBaseController):
         if oldcachetype != 'wpredis' and data['wpredis']:
             try:
                 if installwp_plugin(self, 'redis-cache', data):
-                    # search for wp-config.php
-                    if WOFileUtils.isexist(self, "{0}/wp-config.php"
-                                           .format(wo_site_webroot)):
-                        config_path = '{0}/wp-config.php'.format(
-                            wo_site_webroot)
-                    elif WOFileUtils.isexist(self, "{0}/htdocs/wp-config.php"
-                                             .format(wo_site_webroot)):
-                        config_path = '{0}/htdocs/wp-config.php'.format(
-                            wo_site_webroot)
-                    else:
-                        Log.debug(
-                            self, "Updating wp-config.php failed. "
-                            "File could not be located.")
-                        Log.error(
-                            self, "wp-config.php could not be located !!")
-                        raise SiteError
-
-                    if WOShellExec.cmd_exec(self, "grep -q "
-                                            "\"WP_CACHE_KEY_SALT\" {0}"
-                                                  .format(config_path)):
-                        pass
-                    else:
-                        try:
-                            wpconfig = open("{0}".format(config_path),
-                                            encoding='utf-8', mode='a')
-                            wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\',"
-                                           " \'{0}:\' );".format(wo_domain))
-                            wpconfig.close()
-                        except IOError as e:
-                            Log.debug(self, str(e))
-                            Log.debug(self, "Updating wp-config.php failed.")
-                            Log.warn(self, "Updating wp-config.php failed. "
-                                     "Could not append:"
-                                     "\ndefine( \'WP_CACHE_KEY_SALT\', "
-                                     "\'{0}:\' );".format(wo_domain) +
-                                           "\nPlease add manually")
+                    # add WP_CACHE_KEY_SALT if not already set
+                    try:
+                        Log.debug(self, "Updating wp-config.php.")
+                        WOShellExec.cmd_exec(self,
+                                             "bash -c \"php {0} --allow-root "
+                                             .format(WOVariables.wo_wpcli_path) +
+                                             "config set --add "
+                                             "WP_CACHE_KEY_SALT "
+                                             "\'{0}:\' --path={1}\""
+                                             .format(wo_domain,
+                                                     wo_site_webroot))
+                    except IOError as e:
+                        Log.debug(self, str(e))
+                        Log.debug(self, "Updating wp-config.php failed.")
+                        Log.warn(self, "Updating wp-config.php failed. "
+                                 "Could not append:"
+                                 "\ndefine( \'WP_CACHE_KEY_SALT\', "
+                                 "\'{0}:\' );".format(wo_domain) +
+                                       "\nPlease add manually")
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, Log.FAIL + "Update site failed."

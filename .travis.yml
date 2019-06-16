@@ -55,3 +55,5 @@ script:
   - sudo wo info || sudo tail -n50 /var/log/wo/wordops.log
   - sudo tree -L 2 /etc/nginx
   - sudo cat /var/www/wpredis.net/wp-config.php
+  - echo "127.0.0.1 wpredis.net" | sudo tee -a /etc/hosts
+  - curl -sL http://wpredis.net/robots.txt

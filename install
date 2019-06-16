@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5.1 - 2019-05-10
+# Version 3.9.5.2 - 2019-06-17
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.5.1"
+readonly wo_version_new="3.9.5.2"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -69,6 +69,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     --travis)
         wo_travis="y"
+        ;;
+    -s | --silent)
+        wo_silent="y"
         ;;
     *) # positional args
         ;;
@@ -193,21 +196,7 @@ wo_install_dep() {
 
         locale-gen en
     } >> "$wo_install_log" 2>&1
-    # Support PFS
-    # if [ -f /etc/nginx/nginx.conf ]; then
-    #     # Replace previous ciphers
-    #     new_ciphers="EECDH+CHACHA20:EECDH+AESGCM:EECDH+AES"
-    #     sed -i "s/ssl_ciphers\ \(\"\|.\|'\)\(.*\)\(\"\|.\|'\);/ssl_ciphers \"$new_ciphers\";/" /etc/nginx/nginx.conf
-    #     # Change the TLS protocols
-    #     sed -i "s/ssl_protocols\ \(.*\);/ssl_protocols TLSv1.2;/" /etc/nginx/nginx.conf
-    # fi
 
-    # # Let's Encrypt .well-known folder setup
-    # if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
-    #     mkdir -p /var/www/html/.well-known/acme-challenge
-    #     chown -R www-data:www-data /var/www/html /var/www/html/.well-known
-    #     chmod 750 /var/www/html /var/www/html/.well-known
-    # fi
 }
 
 ###
@@ -380,7 +369,7 @@ wo_install_acme_sh() {
                 --config-home /etc/letsencrypt/config \
                 --cert-home /etc/letsencrypt/renewal
             # enable auto-upgrade
-            /etc/letsencrypt/acme.sh --config-home /etc/letsencrypt/config --upgrade --auto-upgrade
+            /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
 
         } >> "$wo_install_log" 2>&1
     fi
@@ -427,6 +416,9 @@ wo_install() {
         fi
         cd /tmp/WordOps || exit 1
     } >> "$wo_install_log" 2>&1
+    if [ "$wo_silent" = "y" ] || [ "$wo_force_install" = "y" ]; then
+        [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
+    fi
     python3 setup.py install
 }
 
@@ -435,7 +427,7 @@ wo_upgrade_nginx() {
     {
 
         if [ -d /var/lib/wo-backup/nginx ]; then
-            tar -I pigz "$NGINX_BACKUP_FILE" /var/lib/wo-backup/nginx
+            /bin/tar -I pigz "$NGINX_BACKUP_FILE" /var/lib/wo-backup/nginx
             rm -rf /var/lib/wo-backup/nginx
         fi
         # backup nginx conf
@@ -464,7 +456,7 @@ wo_upgrade_nginx() {
         # import the respository key for updates
         apt-key add - < /tmp/nginx-wo.key
         rm -f /tmp/nginx-wo.key
-        sudo apt-get update
+        sudo apt-get update -qq
 
         if [ -f /etc/nginx/common/release ]; then
             CHECK_NGINX_UPSTREAM_VERSION=$(grep "$wo_version_new" /etc/nginx/common/release)
@@ -508,7 +500,7 @@ wo_upgrade_nginx() {
                 else
                     WO WO_STACK_INSTALL_ARGS=""
                 fi
-                /usr/local/bin/wo stack install --nginx --php $WO_STACK_INSTALL_ARGS
+                /usr/local/bin/wo stack install --nginx --php "$WO_STACK_INSTALL_ARGS"
                 echo "$wo_version_new" > /etc/nginx/common/release
                 rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf}
             fi
@@ -681,8 +673,12 @@ wo_tweak_kernel() {
 if [ -x /usr/local/bin/wo ]; then
     if ! {
         wo -v 2>&1 | grep $wo_version_new
-    }; then
-        echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
+    } || [ "$wo_force_install" = "y" ]; then
+        if [ -z "$wo_silent" ] && [ -z "$wo_force_install" ]; then
+            echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
+        else
+            WO_ANSWER="y"
+        fi
         if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
@@ -717,7 +713,11 @@ if [ -x /usr/local/bin/wo ]; then
 else
     # 2 - Migration from EEv3
     if [ -x /usr/local/bin/ee ]; then
-        echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
+        if [ -z "$wo_silent" ] && [ -z "$wo_force_install" ]; then
+            echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
+        else
+            WO_ANSWER="y"
+        fi
         if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log

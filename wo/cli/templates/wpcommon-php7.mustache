@@ -12,6 +12,17 @@ location = /wp-config.txt {
     access_log off;
     log_not_found off;
 }
+location = /robots.txt {
+# Some WordPress plugin gererate robots.txt file
+# Refer #340 issue
+    try_files $uri $uri/ /index.php?$args @robots;
+    access_log off;
+    log_not_found off;
+}
+# fallback for robots.txt with default wordpress rules
+location @robots {
+   return 200 "User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n";
+}
 # webp rewrite rules for jpg and png images
 # try to load alternative image.png.webp before image.png
 location /wp-content/uploads {
