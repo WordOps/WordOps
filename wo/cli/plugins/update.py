@@ -28,7 +28,7 @@ class WOUpdateController(CementBaseController):
     def default(self):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
         WODownload.download(self, [["https://raw.githubusercontent.com/"
-                                    "WordOps/WordOps/updating-configuration/install",
+                                    "WordOps/WordOps/master/install",
                                     "/tmp/{0}".format(filename),
                                     "update script"]])
         if self.app.pargs.force:

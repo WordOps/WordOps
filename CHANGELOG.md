@@ -10,15 +10,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.6 - [Unreleased]
 
-### v3.9.5.2 - 2019-06-16
+### v3.9.5.2 - 2019-06-17
 
 #### Added
 
 - Non-interactive install/upgrade
+- Argument `--force` with the command `wo update`
+- Argument `-s|--silent` to perform non interactive installation
+
+#### Changed
+
+- robots.txt location block moved from locations-wo.conf to wpcommon.php
 
 #### Fixed
 
-- WP_CACHE_KEY_SALT set twice
+- WP_CACHE_KEY_SALT set twice with wpredis
+- WordOps version check when using `wo update`
+- robots.txt file download if not created
 
 ### v3.9.5.1 - 2019-05-10
 
