@@ -21,6 +21,9 @@ class WOUpdateController(CementBaseController):
         arguments = [
             (['--force'],
              dict(help='Force WordOps update', action='store_true')),
+            (['--travis'],
+             dict(help='Argument used only for WordOps development',
+                  action='store_true')),
         ]
         usage = "wo update [options]"
 
@@ -28,7 +31,7 @@ class WOUpdateController(CementBaseController):
     def default(self):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
         WODownload.download(self, [["https://raw.githubusercontent.com/"
-                                    "WordOps/WordOps/master/install",
+                                    "WordOps/WordOps/updating-configuration/install",
                                     "/tmp/{0}".format(filename),
                                     "update script"]])
         if self.app.pargs.force:
@@ -45,6 +48,10 @@ class WOUpdateController(CementBaseController):
             except OSError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "WordOps update failed !")
+        if self.app.pargs.travis:
+            try:
+                Log.info(self, "updating WordOps, please wait...")
+                os.system("bash /tmp/{0} --travis --force".format(filename))
 
 
 def load(app):
