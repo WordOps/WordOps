@@ -30,28 +30,37 @@ class WOUpdateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
-        WODownload.download(self, [["https://raw.githubusercontent.com/"
-                                    "WordOps/WordOps/updating-configuration/install",
-                                    "/tmp/{0}".format(filename),
-                                    "update script"]])
-        if self.app.pargs.force:
+
+        if self.app.pargs.travis:
+            WODownload.download(self, [["https://raw.githubusercontent.com/"
+                                        "WordOps/WordOps/updating-configuration/install",
+                                        "/tmp/{0}".format(filename),
+                                        "update script"]])
             try:
                 Log.info(self, "updating WordOps, please wait...")
-                os.system("bash /tmp/{0} --force".format(filename))
+                os.system("bash /tmp/{0} --travis --force".format(filename))
             except OSError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "WordOps update failed !")
         else:
-            try:
-                Log.info(self, "updating WordOps, please wait...")
-                os.system("bash /tmp/{0}".format(filename))
-            except OSError as e:
-                Log.debug(self, str(e))
-                Log.error(self, "WordOps update failed !")
-        if self.app.pargs.travis:
-            try:
-                Log.info(self, "updating WordOps, please wait...")
-                os.system("bash /tmp/{0} --travis --force".format(filename))
+            WODownload.download(self, [["https://raw.githubusercontent.com/"
+                                        "WordOps/WordOps/master/install",
+                                        "/tmp/{0}".format(filename),
+                                        "update script"]])
+            if self.app.pargs.force:
+                try:
+                    Log.info(self, "updating WordOps, please wait...")
+                    os.system("bash /tmp/{0} --force".format(filename))
+                except OSError as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "WordOps update failed !")
+            else:
+                try:
+                    Log.info(self, "updating WordOps, please wait...")
+                    os.system("bash /tmp/{0}".format(filename))
+                except OSError as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "WordOps update failed !")
 
 
 def load(app):
