@@ -254,7 +254,7 @@ wo_sync_db() {
 
                 wo_site_current_type=$(grep "common/" /etc/nginx/sites-available/$site | awk -F "/" '{print $2}')
 
-                if [ "$(echo $wo_site_current_type | grep php)" ]; then
+                if [ -n "$(echo $wo_site_current_type | grep php)" ]; then
                     if [ "$(echo $wo_site_current_type | grep php7)" ]; then
                         wo_php_version="7.0"
                     else
@@ -488,17 +488,19 @@ wo_upgrade_nginx() {
                 if [ -d /etc/nginx ]; then
                     rm -rf /etc/nginx
                 fi
-                # remove previous php-fpm pool configuration
-                if [ -n "$CHECK_PHP72" ]; then
-                    apt-get remove php7.2-fpm -y -qq --purge
-                    rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                fi
-                if [ -n "$CHECK_PHP73" ]; then
-                    WO_STACK_INSTALL_ARGS="--php73"
-                    apt-get remove php7.3-fpm -y -qq --purge
-                    rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                else
-                    WO WO_STACK_INSTALL_ARGS=""
+                if [ -z "$(/usr/local/bin/wo -v | grep 3.9.5)" ]; then
+                    # remove previous php-fpm pool configuration
+                    if [ -n "$CHECK_PHP72" ]; then
+                        apt-get remove php7.2-fpm -y -qq --purge
+                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+                    fi
+                    if [ -n "$CHECK_PHP73" ]; then
+                        WO_STACK_INSTALL_ARGS="--php73"
+                        apt-get remove php7.3-fpm -y -qq --purge
+                        rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+                    else
+                        WO_STACK_INSTALL_ARGS=""
+                    fi
                 fi
                 /usr/local/bin/wo stack install --nginx --php "$WO_STACK_INSTALL_ARGS"
                 echo "$wo_version_new" > /etc/nginx/common/release
