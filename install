@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5.2 - 2019-06-17
+# Version 3.9.5.3 - 2019-06-18
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.5.2"
+readonly wo_version_new="3.9.5.3"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -71,7 +71,7 @@ while [ "$#" -gt 0 ]; do
         wo_travis="y"
         ;;
     -s | --silent)
-        wo_silent="y"
+        wo_force_install="y"
         ;;
     *) # positional args
         ;;
@@ -408,17 +408,16 @@ wo_install_acme_sh() {
 # Clone Github repository if it doesn't exist
 wo_install() {
     {
-        if [ ! -d /tmp/WordOps/.git ]; then
-            rm -rf /tmp/WordOps
-            git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch"
-        else
-            git -C /tmp/WordOps pull origin "$wo_branch"
-        fi
+        rm -rf /tmp/WordOps
+        git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch"
         cd /tmp/WordOps || exit 1
+
     } >> "$wo_install_log" 2>&1
-    if [ "$wo_silent" = "y" ] || [ "$wo_force_install" = "y" ]; then
+
+    if [ "$wo_force_install" = "y" ]; then
         [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
     fi
+
     python3 setup.py install
 }
 
@@ -441,7 +440,6 @@ wo_upgrade_nginx() {
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
         CHECK_NGINX_WO=$(dpkg --list | grep nginx-wo)
         CHECK_PHP72=$(command -v php-fpm7.2)
-        CHECK_PHP73=$(command -v php-fpm7.3)
 
         # add new Nginx repository
         if [ "$wo_linux_distro" = "Ubuntu" ]; then
@@ -458,84 +456,68 @@ wo_upgrade_nginx() {
         rm -f /tmp/nginx-wo.key
         sudo apt-get update -qq
 
-        if [ -f /etc/nginx/common/release ]; then
-            CHECK_NGINX_UPSTREAM_VERSION=$(grep "$wo_version_new" /etc/nginx/common/release)
+        # stop nginx
+        service nginx stop
+
+        # prevent apt preference to block install
+        [ -f /etc/apt/preferences.d/nginx-block ] && {
+            mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
+        }
+
+        # install new nginx package
+        if [ -x /usr/local/bin/wo ]; then
+
+            if [ -n "$CHECK_NGINX_EE" ]; then
+                # remove previous package
+                apt-mark unhold nginx-ee nginx-common nginx-custom
+                apt-get -y purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
+            elif [ -n "$CHECK_NGINX_WO" ]; then
+                apt-mark unhold nginx-wo nginx-common nginx-custom
+                apt-get -y purge nginx-wo nginx-common nginx-custom --allow-change-held-packages
+
+            fi
+            if [ -d /etc/nginx ]; then
+                rm -rf /etc/nginx
+            fi
+            # remove previous php-fpm pool configuration
+            if [ -n "$CHECK_PHP72" ]; then
+                apt-get purge php7.2-fpm -y -qq
+
+                rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+            fi
+            /usr/local/bin/wo stack install --nginx --php
+            rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf}
+        fi
+
+        # restore sites and configuration
+        /usr/bin/rsync -auz /var/lib/wo-backup/nginx/ /etc/nginx/
+
+        # update redis.conf headers
+        if [ -f /etc/nginx/common/redis.conf ]; then
+            sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf
+            sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf
+
+        fi
+
+        VERIFY_NGINX_CONFIG=$(nginx -t 2>&1 | grep failed)
+        # check if nginx -t do not return errors
+        if [ -z "$VERIFY_NGINX_CONFIG" ]; then
+            systemctl stop nginx
+            systemctl start nginx
         else
-            CHECK_NGINX_UPSTREAM_VERSION=$(grep "$wo_version_new" /etc/nginx/conf.d/fastcgi.conf)
+            VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
+            if [ -n "$VERIFY_NGINX_BUCKET" ]; then
+                sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+            fi
+            systemctl stop nginx
+            systemctl start nginx
         fi
-        if [ -z "$CHECK_NGINX_UPSTREAM_VERSION" ]; then
 
-            # stop nginx
-            service nginx stop
+        # set back apt preference
+        [ -f "$HOME/nginx-block" ] && {
+            mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
+        }
 
-            # prevent apt preference to block install
-            [ -f /etc/apt/preferences.d/nginx-block ] && {
-                mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
-            }
-
-            # install new nginx package
-            if [ -x /usr/local/bin/wo ]; then
-
-                if [ -n "$CHECK_NGINX_EE" ]; then
-                    # remove previous package
-                    apt-mark unhold nginx-ee nginx-common nginx-custom
-                    apt-get -y -qq autoremove nginx-ee nginx-common nginx-custom --purge
-                elif [ -n "$CHECK_NGINX_WO" ]; then
-                    apt-mark unhold nginx-wo nginx-common nginx-custom
-                    apt-get -y -qq autoremove nginx-wo nginx-common nginx-custom --purge
-
-                fi
-                if [ -d /etc/nginx ]; then
-                    rm -rf /etc/nginx
-                fi
-                if [ -z "$(/usr/local/bin/wo -v | grep 3.9.5)" ]; then
-                    # remove previous php-fpm pool configuration
-                    if [ -n "$CHECK_PHP72" ]; then
-                        apt-get remove php7.2-fpm -y -qq --purge
-                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                    fi
-                    if [ -n "$CHECK_PHP73" ]; then
-                        WO_STACK_INSTALL_ARGS="--php73"
-                        apt-get remove php7.3-fpm -y -qq --purge
-                        rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                    else
-                        WO_STACK_INSTALL_ARGS=""
-                    fi
-                fi
-                /usr/local/bin/wo stack install --nginx --php "$WO_STACK_INSTALL_ARGS"
-                echo "$wo_version_new" > /etc/nginx/common/release
-                rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf}
-            fi
-
-            # restore sites and configuration
-            /usr/bin/rsync -auz /var/lib/wo-backup/nginx/ /etc/nginx/
-
-            # update redis.conf headers
-            if [ -f /etc/nginx/common/redis.conf ]; then
-                sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf
-                sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf
-
-            fi
-
-            VERIFY_NGINX_CONFIG=$(nginx -t 2>&1 | grep failed)
-            # check if nginx -t do not return errors
-            if [ -z "$VERIFY_NGINX_CONFIG" ]; then
-                systemctl stop nginx
-                systemctl start nginx
-            else
-                VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
-                if [ -n "$VERIFY_NGINX_BUCKET" ]; then
-                    sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
-                fi
-                systemctl stop nginx
-                systemctl start nginx
-            fi
-
-            # set back apt preference
-            [ -f "$HOME/nginx-block" ] && {
-                mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
-            }
-        fi
     } >> "$wo_install_log" 2>&1
 
 }
@@ -676,7 +658,7 @@ if [ -x /usr/local/bin/wo ]; then
     if ! {
         wo -v 2>&1 | grep $wo_version_new
     } || [ "$wo_force_install" = "y" ]; then
-        if [ -z "$wo_silent" ] && [ -z "$wo_force_install" ]; then
+        if [ -z "$wo_force_install" ]; then
             echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
         else
             WO_ANSWER="y"
@@ -690,13 +672,15 @@ if [ -x /usr/local/bin/wo ]; then
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             if [ -f "$HOME/.gitconfig" ]; then
-                wo_install >> wo_install_log 2>&1
+                wo_install >> $wo_install_log 2>&1
             else
                 wo_install | tee -ai $wo_install_log
             fi
-            if [ -n "$(command -v nginx)" ]; then
-                wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                wo_upgrade_nginx | tee -ai $wo_install_log
+            if [ -z "$wo_preserve_config" ]; then
+                if [ -n "$(command -v nginx)" ]; then
+                    wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+                    wo_upgrade_nginx | tee -ai $wo_install_log
+                fi
             fi
             wo_update_latest | tee -ai $wo_install_log
             wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
@@ -715,7 +699,7 @@ if [ -x /usr/local/bin/wo ]; then
 else
     # 2 - Migration from EEv3
     if [ -x /usr/local/bin/ee ]; then
-        if [ -z "$wo_silent" ] && [ -z "$wo_force_install" ]; then
+        if [ -z "$wo_force_install" ]; then
             echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
         else
             WO_ANSWER="y"
@@ -732,7 +716,7 @@ else
             secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             if [ -f "$HOME/.gitconfig" ]; then
-                wo_install >> wo_install_log 2>&1
+                wo_install >> $wo_install_log 2>&1
             else
                 wo_install | tee -ai $wo_install_log
             fi

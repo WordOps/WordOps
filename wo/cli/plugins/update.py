@@ -22,6 +22,9 @@ class WOUpdateController(CementBaseController):
         arguments = [
             (['--force'],
              dict(help='Force WordOps update', action='store_true')),
+            (['--preserve'],
+             dict(help='Preserve current Nginx configuration',
+                  action='store_true')),
             (['--travis'],
              dict(help='Argument used only for WordOps development',
                   action='store_true')),
@@ -52,6 +55,13 @@ class WOUpdateController(CementBaseController):
                 try:
                     Log.info(self, "updating WordOps, please wait...")
                     os.system("bash /tmp/{0} --force".format(filename))
+                except OSError as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "WordOps update failed !")
+            elif self.app.pargs.preserve:
+                try:
+                    Log.info(self, "updating WordOps, please wait...")
+                    os.system("bash /tmp/{0} --preserve".format(filename))
                 except OSError as e:
                     Log.debug(self, str(e))
                     Log.error(self, "WordOps update failed !")
