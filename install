@@ -485,14 +485,6 @@ wo_upgrade_nginx() {
 
                 rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
             fi
-            if [ -n "$CHECK_PHP73" ]; then
-                WO_STACK_INSTALL_ARGS="--php73"
-                apt-get remove php7.3-fpm -y -qq --purge
-                rm -f /etc/php/7.3/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-            else
-                WO_STACK_INSTALL_ARGS=""
-            fi
-
             /usr/local/bin/wo stack install --nginx --php
             rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf}
         fi
