@@ -74,10 +74,6 @@ class WOVariables():
         os.system(
             "/usr/bin/git config --global user.email {0}".format(wo_email))
 
-    # Get System RAM and SWAP details
-    wo_ram = psutil.virtual_memory().total / (1024 * 1024)
-    wo_swap = psutil.swap_memory().total / (1024 * 1024)
-
     # MySQL hostname
     wo_mysql_host = ""
     config = configparser.RawConfigParser()
