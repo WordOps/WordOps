@@ -25,6 +25,7 @@ import pwd
 import grp
 import codecs
 import platform
+import psutil
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
@@ -1683,14 +1684,16 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Enabling redis systemd service")
                 WOShellExec.cmd_exec(self, "systemctl enable redis-server")
                 if os.path.isfile("/etc/redis/redis.conf"):
-                    if WOVariables.wo_ram < 512:
+                    wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+                    wo_swap = psutil.swap_memory().total / (1024 * 1024)
+                    if wo_ram < 512:
                         Log.debug(self, "Setting maxmemory variable to "
                                   "{0} in redis.conf"
-                                  .format(int(WOVariables.wo_ram*1024*1024*0.1)))
+                                  .format(int(wo_ram*1024*1024*0.1)))
                         WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory"
                                              " <bytes>/maxmemory {0}/'"
                                              " /etc/redis/redis.conf"
-                                             .format(int(WOVariables.wo_ram*1024*1024*0.1)))
+                                             .format(int(wo_ram*1024*1024*0.1)))
                         Log.debug(
                             self, "Setting maxmemory-policy variable to "
                             "allkeys-lru in redis.conf")
@@ -1703,11 +1706,11 @@ class WOStackController(CementBaseController):
                     else:
                         Log.debug(self, "Setting maxmemory variable to {0} "
                                   "in redis.conf"
-                                  .format(int(WOVariables.wo_ram*1024*1024*0.2)))
+                                  .format(int(wo_ram*1024*1024*0.2)))
                         WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory "
                                              "<bytes>/maxmemory {0}/' "
                                              "/etc/redis/redis.conf"
-                                             .format(int(WOVariables.wo_ram*1024*1024*0.2)))
+                                             .format(int(wo_ram*1024*1024*0.2)))
                         Log.debug(
                             self, "Setting maxmemory-policy variable "
                             "to allkeys-lru in redis.conf")
