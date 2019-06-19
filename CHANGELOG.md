@@ -10,6 +10,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.6 - [Unreleased]
 
+#### Changed
+
+- phpRedisAdmin is now installed with the stack "--admin"
+
+#### Fixed
+
+- phpRedisAdmin installation
+
+### v3.9.5.3 - 2019-06-18
+
+#### Added
+
+- Argument `--preserve` with the command `wo update` to keep current Nginx configuration
+
+#### Fixed
+
+- Nginx upgrade failure when running wo update
+
 ### v3.9.5.2 - 2019-06-17
 
 #### Added

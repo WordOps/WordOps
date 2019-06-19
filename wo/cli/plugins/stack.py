@@ -1371,15 +1371,20 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Creating new directory "
                               "{0}22222/htdocs/cache/redis"
                               .format(WOVariables.wo_webroot))
-                    os.makedirs('{0}22222/htdocs/cache/redis'
+                    os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
                                 .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, '{0}22222'
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user,
+                                      recursive=True)
                     if os.path.isfile("/usr/local/bin/composer"):
                         WOShellExec.cmd_exec(self, "sudo -u www-data -H "
                                              "composer "
                                              "create-project -n -s dev "
                                              "erik-dubbelboer/php-redis-admin "
                                              "/var/www/22222/htdocs/cache"
-                                             "/redis/phpRedisAdmin/ ")
+                                             "/redis/phpRedisAdmin ")
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/cache/file '
                           .format(WOVariables.wo_webroot))
@@ -1429,6 +1434,7 @@ class WOStackController(CementBaseController):
                 self.app.pargs.utils = True
                 self.app.pargs.netdata = True
                 self.app.pargs.dashboard = True
+                self.app.pargs.phpredisadmin = True
 
             # Redis
             if self.app.pargs.redis:
@@ -1552,8 +1558,8 @@ class WOStackController(CementBaseController):
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages variable for phpRedisAdmin")
-                packages = packages + [["https://github.com/ErikDubbelboer/"
-                                        "phpRedisAdmin/archive/master.tar.gz",
+                packages = packages + [["https://github.com/erikdubbelboer/"
+                                        "phpRedisAdmin/archive/v1.11.3.tar.gz",
                                         "/var/lib/wo/tmp/pra.tar.gz",
                                         "phpRedisAdmin"],
                                        ["https://github.com/nrk/predis/"
