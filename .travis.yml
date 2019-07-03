@@ -1,9 +1,20 @@
+sudo: required
+dist: xenial
+
 language: bash
 
 notifications:
   slack: wordops:MyZBNbI7JfhbAi3YyFckMdaa
 
-dist: xenial
+addons:
+  apt:
+    update: true
+
+git:
+  quiet: true
+
+cache:
+  apt: true
 
 before_install:
   - rm -rf ~/.gnupg
@@ -13,12 +24,6 @@ before_script:
   - sudo bash -c 'echo example.com > /etc/hostname'
   - sudo apt-get -qq purge mysql* graphviz*
   - sudo apt-get -qq autoremove --purge
-addons:
-  apt:
-    update: true
-
-git:
-  quiet: true
 
 script:
   - lsb_release -a
@@ -29,8 +34,10 @@ script:
   - sudo bash install -b $TRAVIS_BRANCH --travis
   - sudo wo --help && sudo wo stack install
 
+  - echo -e "-------------------------------\n basic sites\n-------------------------------"
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site create proxy.com --proxy=127.0.0.1:3000 || sudo tail -n50 /var/log/wo/wordops.log
+  - echo -e "-------------------------------\n wp sites\n-------------------------------"
   - sudo wo site create wp1.com --wp || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc || sudo tail -n50 /var/log/wo/wordops.log
@@ -38,7 +45,7 @@ script:
   - sudo wo site create wpsc-php73.net --wpsc --php73 && sudo wo site create wpfc-php73.net --wpfc --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create wpredis.net --wpredis && sudo wo site create wpredis-php73.net --wpredis --php73 || sudo tail -n50 /var/log/wo/wordops.log
-
+  - echo -e "-------------------------------\n wp multi sites\n-------------------------------"
   - sudo wo site create wpsubdir1.com --wpsubdir && sudo wo site create wpsubdir-php73.com --wpsubdir --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create wpsubdirwpsc1.com --wpsubdir --wpsc &&  sudo wo site create wpsubdirwpsc2.com --wpsubdir --wpfc || sudo tail -n50 /var/log/wo/wordops.log
@@ -48,12 +55,11 @@ script:
   - sudo wo site create wpsubdomain1.com --wpsubdomain && sudo wo site create wpsubdomain1-php73.com --wpsubdomain --php73 || sudo tail -n50 /var/log/wo/wordops.log
 
   - sudo wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc && sudo wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc && sudo wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain  || sudo tail -n50 /var/log/wo/wordops.log
-
+  - echo -e "-------------------------------\n wo site update\n-------------------------------"
   - sudo wo site create 1.com --html && sudo wo site create 2.com --php && sudo wo site create 3.com --mysql  || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo site update 1.com --wp && sudo wo site update 2.com --php73 && sudo wo site update 3.com --php73 && sudo wo site update 1.com --wpfc && sudo wo site update 1.com --wpsc && sudo wo site update 1.com --wpredis || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wp --allow-root --info
   - sudo wo info || sudo tail -n50 /var/log/wo/wordops.log
   - sudo tree -L 2 /etc/nginx
-  - sudo cat /var/www/wpredis.net/wp-config.php
   - sudo wo update --travis || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo stack status
