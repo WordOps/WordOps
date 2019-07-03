@@ -58,6 +58,9 @@ class WOUpdateController(CementBaseController):
                 except OSError as e:
                     Log.debug(self, str(e))
                     Log.error(self, "WordOps update failed !")
+                except Exception as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "WordOps update failed !")
             elif self.app.pargs.preserve:
                 try:
                     Log.info(self, "updating WordOps, please wait...")
@@ -65,11 +68,17 @@ class WOUpdateController(CementBaseController):
                 except OSError as e:
                     Log.debug(self, str(e))
                     Log.error(self, "WordOps update failed !")
+                except Exception as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "WordOps update failed !")
             else:
                 try:
                     Log.info(self, "updating WordOps, please wait...")
                     os.system("bash /tmp/{0}".format(filename))
                 except OSError as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "WordOps update failed !")
+                except Exception as e:
                     Log.debug(self, str(e))
                     Log.error(self, "WordOps update failed !")
 

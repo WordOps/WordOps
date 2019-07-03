@@ -839,6 +839,9 @@ class WOSiteUpdateController(CementBaseController):
                      action='store_true')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
+            (['--force'],
+                dict(help="force letsencrypt certificate renewal",
+                     action='store_true')),
         ]
 
     @expose(help="Update site type or cache")
@@ -1082,7 +1085,7 @@ class WOSiteUpdateController(CementBaseController):
             expiry_days = SSL.getExpirationDays(self, wo_domain)
             min_expiry_days = 30
             if check_ssl:
-                if (expiry_days <= min_expiry_days):
+                if (expiry_days <= min_expiry_days) or pargs.force:
                     renewLetsEncrypt(self, wo_domain)
                 else:
                     Log.error(
@@ -1119,7 +1122,8 @@ class WOSiteUpdateController(CementBaseController):
                 if expiry_days < 0:
                     return 0
                 min_expiry_days = 30
-                if (expiry_days <= min_expiry_days):
+                if (expiry_days <= min_expiry_days) or pargs.force:
+                    renewLetsEncrypt(self, ee_domain)
                     Log.info(self, "Certificate was successfully renewed")
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "

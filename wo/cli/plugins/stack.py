@@ -1193,7 +1193,7 @@ class WOStackController(CementBaseController):
                             WOMysql.execute(self,
                                             "flush privileges;",
                                             log=False)
-                        except StatementExcecutionError as e:
+                        except CommandExecutionError as e:
                             Log.info(
                                 self, "fail to setup mysql user for netdata")
                     WOService.restart_service(self, 'netdata')
@@ -1312,7 +1312,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Extracting file anemometer.tar.gz to "
                           "location /var/lib/wo/tmp/ ")
                 WOExtract.extract(
-                    self, '/var/lib/wo/tmp/anemometer.tar.gz', '/var/lib/wo/tmp/')
+                    self, '/var/lib/wo/tmp/anemometer.tar.gz',
+                    '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/db/'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directory")
