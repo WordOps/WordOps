@@ -189,10 +189,14 @@ class WOStackController(CementBaseController):
 
         # add nginx repository
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for NGINX, please wait...")
-            WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
-            Log.debug(self, 'Adding repository for Nginx')
-            WORepo.add_key(self, WOVariables.wo_nginx_key)
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
+                Log.info(self, "Adding repository for NGINX, please wait...")
+                WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
+                Log.debug(self, 'Adding ppa for Nginx')
+            else:
+                WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
+                Log.debug(self, 'Adding repository for Nginx')
+                WORepo.add_key(self, WOVariables.wo_nginx_key)
 
         # add php repository
         if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
@@ -1269,7 +1273,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
                           "location /var/lib/wo/tmp/ ")
                 WOExtract.extract(
-                    self, '/var/lib/wo/tmp/webgrind.tar.gz', '/var/lib/wo/tmp/')
+                    self, '/var/lib/wo/tmp/webgrind.tar.gz',
+                    '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/php'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directroy "

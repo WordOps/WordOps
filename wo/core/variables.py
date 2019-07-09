@@ -96,18 +96,8 @@ class WOVariables():
             wo_nginx_repo = ("deb http://download.opensuse.org"
                              "/repositories/home:"
                              "/virtubox:/WordOps/xUbuntu_14.04/ /")
-        elif wo_platform_codename == 'xenial':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/xUbuntu_16.04/ /")
-        elif wo_platform_codename == 'bionic':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/xUbuntu_18.04/ /")
         else:
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/xUbuntu_19.04/ /")
+            wo_nginx_repo = "ppa:wordops/nginx-wo"
     elif wo_platform_distro == 'debian':
         if wo_platform_codename == 'jessie':
             wo_nginx_repo = ("deb http://download.opensuse.org"
