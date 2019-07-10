@@ -1072,23 +1072,24 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 WOService.reload_service(self, 'mysql')
 
-        # create fail2ban configuration files
-        if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
-            if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
-                data = dict()
-                Log.debug(self, "Setting up fail2ban jails configuration")
-                wo_fail2ban = open('/etc/fail2ban/jail.d/custom.conf',
-                                   encoding='utf-8', mode='w')
-                self.app.render((data), 'fail2ban.mustache',
-                                out=wo_fail2ban)
-                wo_fail2ban.close()
+            # create fail2ban configuration files
+            if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
+                if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                    data = dict()
+                    Log.debug(self, "Setting up fail2ban jails configuration")
+                    wo_fail2ban = open('/etc/fail2ban/jail.d/custom.conf',
+                                       encoding='utf-8', mode='w')
+                    self.app.render((data), 'fail2ban.mustache',
+                                    out=wo_fail2ban)
+                    wo_fail2ban.close()
 
-                Log.debug(self, "Setting up fail2ban wp filter")
-                wo_fail2ban = open('/etc/fail2ban/filter.d/wo-wordpress.conf',
-                                   encoding='utf-8', mode='w')
-                self.app.render((data), 'fail2ban-wp.mustache',
-                                out=wo_fail2ban)
-                wo_fail2ban.close()
+                    Log.debug(self, "Setting up fail2ban wp filter")
+                    wo_fail2ban = open('/etc/fail2ban/filter.d/'
+                                       'wo-wordpress.conf',
+                                       encoding='utf-8', mode='w')
+                    self.app.render((data), 'fail2ban-wp.mustache',
+                                    out=wo_fail2ban)
+                    wo_fail2ban.close()
 
         if (packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
@@ -1424,6 +1425,7 @@ class WOStackController(CementBaseController):
             if self.app.pargs.all:
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
+                self.app.pargs.php73 = True
 
             if self.app.pargs.web:
                 self.app.pargs.nginx = True
@@ -1766,6 +1768,8 @@ class WOStackController(CementBaseController):
             self.app.pargs.phpmyadmin = True
             self.app.pargs.composer = True
             self.app.pargs.utils = True
+            self.app.pargs.netdata = True
+
         # NGINX
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):

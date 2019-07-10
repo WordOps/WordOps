@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.6 - [Unreleased]
 
+#### Added
+
+- New Nginx package on Ubuntu with TLS v1.3 support (OpenSSL 1.1.1c)
+
 #### Changed
 
 - phpRedisAdmin is now installed with the stack "--admin"
@@ -17,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Fixed
 
 - phpRedisAdmin installation
+- Duplicated locations /robots.txt after upgrade to v3.9.5.3
 
 ### v3.9.5.3 - 2019-06-18
 
