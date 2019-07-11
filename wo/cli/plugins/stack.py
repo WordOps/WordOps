@@ -1169,39 +1169,6 @@ class WOStackController(CementBaseController):
                 WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
                                      "update -n --no-dev -d "
                                      "/var/www/22222/htdocs/db/pma/")
-            # netdata install
-            if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
-                   for x in packages):
-                if ((not os.path.exists('/opt/netdata')) and
-                        (not os.path.exists('/etc/netdata'))):
-                    Log.info(self, "Installing Netdata, please wait...")
-                    WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
-                                         "kickstart.sh "
-                                         "--dont-wait")
-                    # disable mail notifications
-                    WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
-                                              "lib/netdata/conf.d/"
-                                              "health_alarm_notify.conf",
-                                              'SEND_EMAIL="YES"',
-                                              'SEND_EMAIL="NO"')
-                    # check if mysql credentials are available
-                    if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
-                        try:
-                            WOMysql.execute(self,
-                                            "create user "
-                                            "'netdata'@'localhost';",
-                                            log=False)
-                            WOMysql.execute(self,
-                                            "grant usage on *.* to "
-                                            "'netdata'@'localhost';",
-                                            log=False)
-                            WOMysql.execute(self,
-                                            "flush privileges;",
-                                            log=False)
-                        except CommandExecutionError as e:
-                            Log.info(
-                                self, "fail to setup mysql user for netdata")
-                    WOService.restart_service(self, 'netdata')
 
             # WordOps Dashboard
             if any('/var/lib/wo/tmp/wo-dashboard.tar.gz' == x[1]
@@ -1211,7 +1178,8 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Extracting wo-dashboard.tar.gz "
                               "to location {0}22222/htdocs/"
                               .format(WOVariables.wo_webroot))
-                    WOExtract.extract(self, '/var/lib/wo/tmp/wo-dashboard.tar.gz',
+                    WOExtract.extract(self, '/var/lib/wo/tmp/'
+                                      'wo-dashboard.tar.gz',
                                       '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot))
                 if WOVariables.wo_wan != 'eth0':
@@ -1727,6 +1695,43 @@ class WOStackController(CementBaseController):
                                              "allkeys-lru/' "
                                                    "/etc/redis/redis.conf")
                         WOService.restart_service(self, 'redis-server')
+
+            if 'Netdata' in packages:
+                if ((not os.path.exists('/opt/netdata')) and
+                        (not os.path.exists('/etc/netdata'))):
+                    if os.path.isfile("/var/lib/wo/tmp/kickstart.sh"):
+                        Log.info(self, "Installing Netdata, please wait...")
+                        WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
+                                             "kickstart.sh "
+                                             "--dont-wait")
+
+                        # disable mail notifications
+                        WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
+                                                  "lib/netdata/conf.d/"
+                                                  "health_alarm_notify.conf",
+                                                  'SEND_EMAIL="YES"',
+                                                  'SEND_EMAIL="NO"')
+
+                        # check if mysql credentials are available
+                        if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
+                            try:
+                                WOMysql.execute(self,
+                                                "create user "
+                                                "'netdata'@'localhost';",
+                                                log=False)
+                                WOMysql.execute(self,
+                                                "grant usage on *.* to "
+                                                "'netdata'@'localhost';",
+                                                log=False)
+                                WOMysql.execute(self,
+                                                "flush privileges;",
+                                                log=False)
+                            except CommandExecutionError as e:
+                                Log.info(
+                                    self, "fail to setup mysql user "
+                                    "for netdata")
+                        WOService.restart_service(self, 'netdata')
+
             if disp_msg:
                 if (self.msg):
                     for msg in self.msg:
