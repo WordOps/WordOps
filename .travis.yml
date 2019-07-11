@@ -62,4 +62,5 @@ script:
   - sudo wo info || sudo tail -n50 /var/log/wo/wordops.log
   - sudo tree -L 2 /etc/nginx
   - sudo wo update --travis || sudo tail -n50 /var/log/wo/wordops.log
+  - sudo wo stack remove --netdata || sudo tail -n50 /var/log/wo/wordops.log
   - sudo wo stack status

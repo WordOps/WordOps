@@ -1824,6 +1824,14 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
                                    .format(WOVariables.wo_webroot)]
+        # Composer
+        if self.app.pargs.composer:
+            Log.debug(self, "Removing package variable of Composer ")
+            if os.path.isfile('/usr/local/bin/composer'):
+                packages = packages + ['/usr/local/bin/composer']
+            else:
+                Log.warn(self, "Composer is not installed with WordOps")
+
         # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
@@ -1848,6 +1856,12 @@ class WOStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVariables.wo_webroot)]
 
+        if self.app.pargs.netdata:
+            Log.debug(self, "Removing Netdata")
+            if os.path.isfile('/opt/netdata/usr/'
+                              'libexec/netdata-uninstaller.sh'):
+                packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
+
         if (packages) or (apt_packages):
             wo_prompt = input('Are you sure you to want to'
                               ' remove from server.'
@@ -1861,6 +1875,13 @@ class WOStackController(CementBaseController):
 
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
+
+                # Netdata uninstaller
+                if (set(['/var/lib/wo/tmp/'
+                         'kickstart.sh']).issubset(set(packages))):
+                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
 
                 if (packages):
                     WOFileUtils.remove(self, packages)
@@ -1907,6 +1928,8 @@ class WOStackController(CementBaseController):
             self.app.pargs.adminer = True
             self.app.pargs.phpmyadmin = True
             self.app.pargs.utils = True
+            self.app.pargs.composer = True
+            self.app.pargs.netdata = True
 
         # NGINX
         if self.app.pargs.nginx:
@@ -1955,6 +1978,14 @@ class WOStackController(CementBaseController):
                                    format(WOVariables.wo_webroot)]
             Log.debug(self, "Purge package variable phpMyAdmin")
 
+        # Composer
+        if self.app.pargs.composer:
+            Log.debug(self, "Removing package variable of Composer ")
+            if os.path.isfile('/usr/local/bin/composer'):
+                packages = packages + ['/usr/local/bin/composer']
+            else:
+                Log.warn(self, "Composer is not installed with WordOps")
+
         # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
@@ -1981,6 +2012,12 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)
                                    ]
 
+        if self.app.pargs.netdata:
+            Log.debug(self, "Removing Netdata")
+            if os.path.isfile('/opt/netdata/usr/'
+                              'libexec/netdata-uninstaller.sh'):
+                packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
+
         if (packages) or (apt_packages):
             wo_prompt = input('Are you sure you to want to purge '
                               'from server '
@@ -1993,6 +2030,13 @@ class WOStackController(CementBaseController):
 
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
+
+                # Netdata uninstaller
+                if (set(['/var/lib/wo/tmp/'
+                         'kickstart.sh']).issubset(set(packages))):
+                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
 
                 if (apt_packages):
                     Log.info(self, "Purging packages, please wait...")
