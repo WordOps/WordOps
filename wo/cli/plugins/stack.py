@@ -1185,6 +1185,11 @@ class WOStackController(CementBaseController):
                                               "health_alarm_notify.conf",
                                               'SEND_EMAIL="YES"',
                                               'SEND_EMAIL="NO"')
+                    WOFileUtils.copyfile(self, "/opt/netdata/usr/"
+                                         "lib/netdata/conf.d/"
+                                         "health_alarm_notify.conf",
+                                         "/opt/netdata/etc/netdata/"
+                                         "health_alarm_notify.conf")
                     # check if mysql credentials are available
                     if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
                         try:
@@ -1546,20 +1551,11 @@ class WOStackController(CementBaseController):
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
                 Log.debug(self, "Setting packages variable for phpMyAdmin ")
-                if (not self.app.pargs.composer):
-                    packages = packages + [["https://github.com/phpmyadmin/"
-                                            "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz",
-                                            "phpMyAdmin"],
-                                           ["https://getcomposer.org/"
-                                            "installer",
-                                            "/var/lib/wo/tmp/composer-install",
-                                            "Composer"]]
-                else:
-                    packages = packages + [["https://github.com/phpmyadmin/"
-                                            "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz",
-                                            "phpMyAdmin"]]
+                self.app.pargs.composer = True
+                packages = packages + [["https://github.com/phpmyadmin/"
+                                        "phpmyadmin/archive/STABLE.tar.gz",
+                                        "/var/lib/wo/tmp/pma.tar.gz",
+                                        "phpMyAdmin"]]
             # Composer
             if self.app.pargs.composer:
                 Log.debug(self, "Setting packages variable for Composer ")
@@ -1569,6 +1565,7 @@ class WOStackController(CementBaseController):
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages variable for phpRedisAdmin")
+                self.app.pargs.composer = True
                 packages = packages + [["https://github.com/erikdubbelboer/"
                                         "phpRedisAdmin/archive/v1.11.3.tar.gz",
                                         "/var/lib/wo/tmp/pra.tar.gz",
@@ -1771,6 +1768,8 @@ class WOStackController(CementBaseController):
             self.app.pargs.composer = True
             self.app.pargs.utils = True
             self.app.pargs.netdata = True
+            self.app.pargs.dashboard = True
+            self.app.pargs.phpredisadmin = True
 
         # NGINX
         if self.app.pargs.nginx:
@@ -1837,8 +1836,11 @@ class WOStackController(CementBaseController):
         # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
-            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                                   .format(WOVariables.wo_webroot)]
+            if os.path.isdir('{0}22222/htdocs/cache/redis'
+                             .format(WOVariables.wo_webroot)):
+                packages = packages + ['{0}22222/htdocs/'
+                                       'cache/redis/phpRedisAdmin'
+                                       .format(WOVariables.wo_webroot)]
         # ADMINER
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
@@ -1863,6 +1865,13 @@ class WOStackController(CementBaseController):
             if os.path.isfile('/opt/netdata/usr/'
                               'libexec/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
+
+        if self.app.pargs.dashboard:
+            Log.debug(self, "Removing Wo-Dashboard")
+            packages = packages + ['{0}22222/htdocs/assets/'
+                                   .format(WOVariables.wo_webroot),
+                                   '{0}22222/htdocs/index.php'
+                                   .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
             wo_prompt = input('Are you sure you to want to'
@@ -1932,6 +1941,8 @@ class WOStackController(CementBaseController):
             self.app.pargs.utils = True
             self.app.pargs.composer = True
             self.app.pargs.netdata = True
+            self.app.pargs.dashboard = True
+            self.app.pargs.phpredisadmin = True
 
         # NGINX
         if self.app.pargs.nginx:
@@ -1991,8 +2002,11 @@ class WOStackController(CementBaseController):
         # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
-            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                                   .format(WOVariables.wo_webroot)]
+            if os.path.isdir('{0}22222/htdocs/cache/redis'
+                             .format(WOVariables.wo_webroot)):
+                packages = packages + ['{0}22222/htdocs/'
+                                       'cache/redis/phpRedisAdmin'
+                                       .format(WOVariables.wo_webroot)]
         # Adminer
         if self.app.pargs.adminer:
             Log.debug(self, "Purge  package variable Adminer")
@@ -2019,6 +2033,13 @@ class WOStackController(CementBaseController):
             if os.path.isfile('/opt/netdata/usr/'
                               'libexec/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
+
+        if self.app.pargs.dashboard:
+            Log.debug(self, "Removing Wo-Dashboard")
+            packages = packages + ['{0}22222/htdocs/assets/'
+                                   .format(WOVariables.wo_webroot),
+                                   '{0}22222/htdocs/index.php'
+                                   .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
             wo_prompt = input('Are you sure you to want to purge '
