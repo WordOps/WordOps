@@ -1586,7 +1586,7 @@ def setupHsts(self, wo_domain_name):
     return 0
 
 
-def httpsRedirect(self, wo_domain_name, redirect=True):
+def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
     if redirect:
         if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
                           .format(wo_domain_name)):
@@ -1596,31 +1596,54 @@ def httpsRedirect(self, wo_domain_name, redirect=True):
                                "/etc/nginx/conf.d/force-ssl-{0}.conf"
                                .format(wo_domain_name))
         else:
-            try:
-                Log.info(
-                    self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
-                          .format(wo_domain_name))
+            if wildcard:
+                try:
+                    Log.info(
+                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name))
+                    sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                   .format(wo_domain_name),
+                                   encoding='utf-8', mode='w')
+                    sslconf.write("server {\n"
+                                  "\tlisten 80;\n" +
+                                  "\tlisten [::]:80;\n" +
+                                  "\tserver_name *.{0} {0};\n"
+                                  .format(wo_domain_name) +
+                                  "\treturn 301 https://$host"
+                                  "$request_uri;\n}")
+                    sslconf.close()
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while generating "
+                              "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                              .format(wo_domain_name))
+            else:
+                try:
+                    Log.info(
+                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name))
 
-                sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
-                               .format(wo_domain_name),
-                               encoding='utf-8', mode='w')
-                sslconf.write("server {\n"
-                              "\tlisten 80;\n" +
-                              "\tlisten [::]:80;\n" +
-                              "\tserver_name www.{0} {0};\n"
-                              .format(wo_domain_name) +
-                              "\treturn 301 https://{0}"
-                              .format(wo_domain_name)+"$request_uri;\n}")
-                sslconf.close()
-                # Nginx Configation into GIT
-            except IOError as e:
-                Log.debug(self, str(e))
-                Log.debug(self, "Error occured while generating "
-                          "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                          .format(wo_domain_name))
+                    sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                   .format(wo_domain_name),
+                                   encoding='utf-8', mode='w')
+                    sslconf.write("server {\n"
+                                  "\tlisten 80;\n" +
+                                  "\tlisten [::]:80;\n" +
+                                  "\tserver_name www.{0} {0};\n"
+                                  .format(wo_domain_name) +
+                                  "\treturn 301 https://{0}"
+                                  .format(wo_domain_name)+"$request_uri;\n}")
+                    sslconf.close()
+
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while generating "
+                              "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                              .format(wo_domain_name))
 
         Log.info(self, "Added HTTPS Force Redirection for Site "
                  " http://{0}".format(wo_domain_name))
+        # Nginx Configation into GIT
         WOGit.add(self,
                   ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
                   "force-ssl-{0}.conf".format(wo_domain_name))

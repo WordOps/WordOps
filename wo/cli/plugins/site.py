@@ -737,12 +737,14 @@ class WOSiteCreateController(CementBaseController):
             if data['letsencrypt'] is True:
                 if self.app.pargs.letsencrypt == "on":
                     setupLetsEncrypt(self, wo_domain)
+                    httpsRedirect(self, wo_domain)
                 elif self.app.pargs.letsencrypt == "subodmain":
                     setupLetsEncryptSubdomain(self, wo_domain)
+                    httpsRedirect(self, wo_domain)
                 elif self.app.pargs.letsencrypt == "wildcard":
                     setupLetsEncryptWildcard(self, wo_domain)
+                    httpsRedirect(self, wo_domain, True, True)
 
-                httpsRedirect(self, wo_domain)
                 if self.app.pargs.hsts:
                     setupHsts(self, wo_domain)
 
@@ -1269,17 +1271,18 @@ class WOSiteUpdateController(CementBaseController):
                                       .format(wo_site_webroot)):
                     if self.app.pargs.letsencrypt == "on":
                         setupLetsEncrypt(self, wo_domain)
+                        httpsRedirect(self, wo_domain)
                     elif self.app.pargs.letsencrypt == "subodmain":
                         setupLetsEncryptSubdomain(self, wo_domain)
+                        httpsRedirect(self, wo_domain)
                     elif self.app.pargs.letsencrypt == "wildcard":
                         setupLetsEncryptWildcard(self, wo_domain, dns_cf)
+                        httpsRedirect(self, wo_domain, True, True)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
                                        '{0}/conf/nginx/ssl.conf'
                                        .format(wo_site_webroot))
-
-                httpsRedirect(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
