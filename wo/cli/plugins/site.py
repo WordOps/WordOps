@@ -1277,8 +1277,10 @@ class WOSiteUpdateController(CementBaseController):
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
-                    setupLetsEncrypt(self, wo_domain)
-
+                    if not pargs.letsencrypt == "subdomain":
+                        setupLetsEncrypt(self, wo_domain)
+                    else:
+                        setupLetsEncryptSubdomain(self, wo_domain)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
@@ -1329,65 +1331,6 @@ class WOSiteUpdateController(CementBaseController):
                     Log.info(self, "Successfully Disabled SSl for Site "
                              " http://{0}".format(wo_domain))
 
-        if pargs.letsencrypt == "subdomain":
-            if data['letsencrypt'] is True:
-                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
-                                      .format(wo_site_webroot)):
-                    setupLetsEncryptSubdomain(self, wo_domain)
-
-                else:
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf'
-                                       .format(wo_site_webroot))
-
-                httpsRedirect(self, wo_domain)
-
-                if not WOService.reload_service(self, 'nginx'):
-                    Log.error(self, "service nginx reload failed. "
-                              "check issues with `nginx -t` command")
-
-                Log.info(self, "Congratulations! Successfully"
-                         " Configured SSL for Site "
-                         " https://{0}".format(wo_domain))
-
-                if (SSL.getExpirationDays(self, wo_domain) > 0):
-                    Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) +
-                             " days.")
-                else:
-                    Log.warn(
-                        self, "Your cert already EXPIRED !"
-                              " PLEASE renew soon . ")
-
-            elif data['letsencrypt'] is False:
-                if os.path.isfile("{0}/conf/nginx/ssl.conf"
-                                  .format(wo_site_webroot)):
-                    Log.info(self, 'Setting Nginx configuration')
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf.disabled'
-                                       .format(wo_site_webroot))
-                    httpsRedirect(self, wo_domain, False)
-                    if os.path.isfile(("{0}/conf/nginx/hsts.conf")
-                                      .format(wo_site_webroot)):
-                        WOFileUtils.mvfile(self, "{0}/conf/nginx/"
-                                           "hsts.conf"
-                                           .format(wo_site_webroot),
-                                           '{0}/conf/nginx/hsts.conf.disabled'
-                                           .format(wo_site_webroot))
-
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                    # Log.info(self,"Removing Cron Job set for
-                    # cert auto-renewal")
-                    # WOCron.remove_cron(self,'wo site update {0}
-                    # --le=renew --min_expiry_limit 30 2> \/dev\/null'
-                    # .format(wo_domain))
-                    Log.info(self, "Successfully Disabled SSl for Site "
-                             " http://{0}".format(wo_domain))
-
             # Add nginx conf folder into GIT
             WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],
                       msg="Adding letsencrypts config of site: {0}"
@@ -1411,7 +1354,6 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, "HTTPS is not configured for given "
                               "site")
-                return 0
 
             elif data['hsts'] is False:
                 if os.path.isfile(("{0}/conf/nginx/hsts.conf")
@@ -1426,7 +1368,6 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, "HSTS is not configured for given "
                               "site")
-                return 0
 
         if stype == oldsitetype and cache == oldcachetype:
 
