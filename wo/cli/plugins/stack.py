@@ -1361,6 +1361,7 @@ class WOStackController(CementBaseController):
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
                 WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
+
             # phpredisadmin
             if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
                     for x in packages):
@@ -1632,11 +1633,8 @@ class WOStackController(CementBaseController):
                                         "archive/master.tar.gz",
                                         '/var/lib/wo/tmp/webgrind.tar.gz',
                                         'Webgrind'],
-                                       ["http://bazaar.launchpad.net/~"
-                                        "percona-toolkit-dev/percona-toolkit/"
-                                        "2.1/download/head:/ptquerydigest-"
-                                        "20110624220137-or26tn4"
-                                        "expb9ul2a-16/pt-query-digest",
+                                       ["https://www.percona.com/"
+                                        "get/pt-query-digest",
                                         "/usr/bin/pt-query-advisor",
                                         "pt-query-advisor"],
                                        ["https://github.com/box/Anemometer/"
