@@ -6,9 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
+### v3.9.x - [Unreleased]
+
 ---
 
-### v3.9.6 - [Unreleased]
+### v3.9.5.4 - 2019-07-13
+
+#### Added
+
+- New Nginx package on Ubuntu with TLS v1.3 support (OpenSSL 1.1.1c)
+- Netdata upgrade with `wo stack upgrade --netdata`
+- Netdata stack remove/purge
+
+#### Changed
+
+- phpRedisAdmin is now installed with the stack "--admin"
+- Remove memcached - not required anymore
+
+#### Fixed
+
+- phpRedisAdmin installation
+- Duplicated locations /robots.txt after upgrade to v3.9.5.3
+- Let's Encrypt stack "wo site update --letsencrypt/--letsencrypt=off"
+- pt-query-advisor dead link
+- Netdata persistant configuration
+
+### v3.9.5.3 - 2019-06-18
+
+#### Added
+
+- Argument `--preserve` with the command `wo update` to keep current Nginx configuration
+
+#### Fixed
+
+- Nginx upgrade failure when running wo update
 
 ### v3.9.5.2 - 2019-06-17
 

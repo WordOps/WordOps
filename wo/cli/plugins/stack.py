@@ -25,6 +25,7 @@ import pwd
 import grp
 import codecs
 import platform
+import psutil
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
@@ -188,10 +189,14 @@ class WOStackController(CementBaseController):
 
         # add nginx repository
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for NGINX, please wait...")
-            WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
-            Log.debug(self, 'Adding repository for Nginx')
-            WORepo.add_key(self, WOVariables.wo_nginx_key)
+            if (WOVariables.wo_platform_distro == 'ubuntu'):
+                Log.info(self, "Adding repository for NGINX, please wait...")
+                WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
+                Log.debug(self, 'Adding ppa for Nginx')
+            else:
+                WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
+                Log.debug(self, 'Adding repository for Nginx')
+                WORepo.add_key(self, WOVariables.wo_nginx_key)
 
         # add php repository
         if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
@@ -1067,23 +1072,24 @@ class WOStackController(CementBaseController):
                 WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 WOService.reload_service(self, 'mysql')
 
-        # create fail2ban configuration files
-        if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
-            if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
-                data = dict()
-                Log.debug(self, "Setting up fail2ban jails configuration")
-                wo_fail2ban = open('/etc/fail2ban/jail.d/custom.conf',
-                                   encoding='utf-8', mode='w')
-                self.app.render((data), 'fail2ban.mustache',
-                                out=wo_fail2ban)
-                wo_fail2ban.close()
+            # create fail2ban configuration files
+            if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
+                if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                    data = dict()
+                    Log.debug(self, "Setting up fail2ban jails configuration")
+                    wo_fail2ban = open('/etc/fail2ban/jail.d/custom.conf',
+                                       encoding='utf-8', mode='w')
+                    self.app.render((data), 'fail2ban.mustache',
+                                    out=wo_fail2ban)
+                    wo_fail2ban.close()
 
-                Log.debug(self, "Setting up fail2ban wp filter")
-                wo_fail2ban = open('/etc/fail2ban/filter.d/wo-wordpress.conf',
-                                   encoding='utf-8', mode='w')
-                self.app.render((data), 'fail2ban-wp.mustache',
-                                out=wo_fail2ban)
-                wo_fail2ban.close()
+                    Log.debug(self, "Setting up fail2ban wp filter")
+                    wo_fail2ban = open('/etc/fail2ban/filter.d/'
+                                       'wo-wordpress.conf',
+                                       encoding='utf-8', mode='w')
+                    self.app.render((data), 'fail2ban-wp.mustache',
+                                    out=wo_fail2ban)
+                    wo_fail2ban.close()
 
         if (packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
@@ -1163,6 +1169,7 @@ class WOStackController(CementBaseController):
                 WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
                                      "update -n --no-dev -d "
                                      "/var/www/22222/htdocs/db/pma/")
+
             # netdata install
             if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
                    for x in packages):
@@ -1178,6 +1185,12 @@ class WOStackController(CementBaseController):
                                               "health_alarm_notify.conf",
                                               'SEND_EMAIL="YES"',
                                               'SEND_EMAIL="NO"')
+                    # make changes persistant
+                    WOFileUtils.copyfile(self, "/opt/netdata/usr/"
+                                         "lib/netdata/conf.d/"
+                                         "health_alarm_notify.conf",
+                                         "/opt/netdata/etc/netdata/"
+                                         "health_alarm_notify.conf")
                     # check if mysql credentials are available
                     if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
                         try:
@@ -1192,7 +1205,7 @@ class WOStackController(CementBaseController):
                             WOMysql.execute(self,
                                             "flush privileges;",
                                             log=False)
-                        except StatementExcecutionError as e:
+                        except CommandExecutionError as e:
                             Log.info(
                                 self, "fail to setup mysql user for netdata")
                     WOService.restart_service(self, 'netdata')
@@ -1205,7 +1218,8 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Extracting wo-dashboard.tar.gz "
                               "to location {0}22222/htdocs/"
                               .format(WOVariables.wo_webroot))
-                    WOExtract.extract(self, '/var/lib/wo/tmp/wo-dashboard.tar.gz',
+                    WOExtract.extract(self, '/var/lib/wo/tmp/'
+                                      'wo-dashboard.tar.gz',
                                       '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot))
                 if WOVariables.wo_wan != 'eth0':
@@ -1245,30 +1259,14 @@ class WOStackController(CementBaseController):
                                       WOVariables.wo_php_user,
                                       recursive=True)
 
-            # phpmemcachedadmin
-            if any('/var/lib/wo/tmp/memcached.tar.gz' == x[1]
-                    for x in packages):
-                Log.debug(self, "Extracting memcached.tar.gz to location"
-                          " {0}22222/htdocs/cache/memcache "
-                          .format(WOVariables.wo_webroot))
-                WOExtract.extract(self, '/var/lib/wo/tmp/memcached.tar.gz',
-                                  '{0}22222/htdocs/cache/memcache'
-                                  .format(WOVariables.wo_webroot))
-                Log.debug(self, "Setting Privileges to "
-                          "{0}22222/htdocs/cache/memcache file"
-                          .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222'
-                                  .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
-                                  recursive=True)
             # webgrind
             if any('/var/lib/wo/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
                           "location /var/lib/wo/tmp/ ")
                 WOExtract.extract(
-                    self, '/var/lib/wo/tmp/webgrind.tar.gz', '/var/lib/wo/tmp/')
+                    self, '/var/lib/wo/tmp/webgrind.tar.gz',
+                    '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/php'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directroy "
@@ -1311,7 +1309,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Extracting file anemometer.tar.gz to "
                           "location /var/lib/wo/tmp/ ")
                 WOExtract.extract(
-                    self, '/var/lib/wo/tmp/anemometer.tar.gz', '/var/lib/wo/tmp/')
+                    self, '/var/lib/wo/tmp/anemometer.tar.gz',
+                    '/var/lib/wo/tmp/')
                 if not os.path.exists('{0}22222/htdocs/db/'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating directory")
@@ -1363,6 +1362,7 @@ class WOStackController(CementBaseController):
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
                 WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
+
             # phpredisadmin
             if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
                     for x in packages):
@@ -1371,15 +1371,20 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Creating new directory "
                               "{0}22222/htdocs/cache/redis"
                               .format(WOVariables.wo_webroot))
-                    os.makedirs('{0}22222/htdocs/cache/redis'
+                    os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
                                 .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, '{0}22222'
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user,
+                                      recursive=True)
                     if os.path.isfile("/usr/local/bin/composer"):
                         WOShellExec.cmd_exec(self, "sudo -u www-data -H "
                                              "composer "
                                              "create-project -n -s dev "
                                              "erik-dubbelboer/php-redis-admin "
                                              "/var/www/22222/htdocs/cache"
-                                             "/redis/phpRedisAdmin/ ")
+                                             "/redis/phpRedisAdmin ")
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/cache/file '
                           .format(WOVariables.wo_webroot))
@@ -1412,6 +1417,7 @@ class WOStackController(CementBaseController):
             if self.app.pargs.all:
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
+                self.app.pargs.php73 = True
 
             if self.app.pargs.web:
                 self.app.pargs.nginx = True
@@ -1429,6 +1435,7 @@ class WOStackController(CementBaseController):
                 self.app.pargs.utils = True
                 self.app.pargs.netdata = True
                 self.app.pargs.dashboard = True
+                self.app.pargs.phpredisadmin = True
 
             # Redis
             if self.app.pargs.redis:
@@ -1529,20 +1536,11 @@ class WOStackController(CementBaseController):
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
                 Log.debug(self, "Setting packages variable for phpMyAdmin ")
-                if (not self.app.pargs.composer):
-                    packages = packages + [["https://github.com/phpmyadmin/"
-                                            "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz",
-                                            "phpMyAdmin"],
-                                           ["https://getcomposer.org/"
-                                            "installer",
-                                            "/var/lib/wo/tmp/composer-install",
-                                            "Composer"]]
-                else:
-                    packages = packages + [["https://github.com/phpmyadmin/"
-                                            "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz",
-                                            "phpMyAdmin"]]
+                self.app.pargs.composer = True
+                packages = packages + [["https://github.com/phpmyadmin/"
+                                        "phpmyadmin/archive/STABLE.tar.gz",
+                                        "/var/lib/wo/tmp/pma.tar.gz",
+                                        "phpMyAdmin"]]
             # Composer
             if self.app.pargs.composer:
                 Log.debug(self, "Setting packages variable for Composer ")
@@ -1552,8 +1550,9 @@ class WOStackController(CementBaseController):
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages variable for phpRedisAdmin")
-                packages = packages + [["https://github.com/ErikDubbelboer/"
-                                        "phpRedisAdmin/archive/master.tar.gz",
+                self.app.pargs.composer = True
+                packages = packages + [["https://github.com/erikdubbelboer/"
+                                        "phpRedisAdmin/archive/v1.11.3.tar.gz",
                                         "/var/lib/wo/tmp/pra.tar.gz",
                                         "phpRedisAdmin"],
                                        ["https://github.com/nrk/predis/"
@@ -1605,12 +1604,7 @@ class WOStackController(CementBaseController):
             # UTILS
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
-                packages = packages + [["https://github.com/elijaa/"
-                                        "phpmemcachedadmin/archive/"
-                                        "1.3.0.tar.gz",
-                                        '/var/lib/wo/tmp/memcached.tar.gz',
-                                        'phpMemcachedAdmin'],
-                                       ["https://raw.githubusercontent.com"
+                packages = packages + [["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
                                         "clean.php",
                                         "{0}22222/htdocs/cache/"
@@ -1640,11 +1634,8 @@ class WOStackController(CementBaseController):
                                         "archive/master.tar.gz",
                                         '/var/lib/wo/tmp/webgrind.tar.gz',
                                         'Webgrind'],
-                                       ["http://bazaar.launchpad.net/~"
-                                        "percona-toolkit-dev/percona-toolkit/"
-                                        "2.1/download/head:/ptquerydigest-"
-                                        "20110624220137-or26tn4"
-                                        "expb9ul2a-16/pt-query-digest",
+                                       ["https://www.percona.com/"
+                                        "get/pt-query-digest",
                                         "/usr/bin/pt-query-advisor",
                                         "pt-query-advisor"],
                                        ["https://github.com/box/Anemometer/"
@@ -1677,14 +1668,16 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Enabling redis systemd service")
                 WOShellExec.cmd_exec(self, "systemctl enable redis-server")
                 if os.path.isfile("/etc/redis/redis.conf"):
-                    if WOVariables.wo_ram < 512:
+                    wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+                    wo_swap = psutil.swap_memory().total / (1024 * 1024)
+                    if wo_ram < 512:
                         Log.debug(self, "Setting maxmemory variable to "
                                   "{0} in redis.conf"
-                                  .format(int(WOVariables.wo_ram*1024*1024*0.1)))
+                                  .format(int(wo_ram*1024*1024*0.1)))
                         WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory"
                                              " <bytes>/maxmemory {0}/'"
                                              " /etc/redis/redis.conf"
-                                             .format(int(WOVariables.wo_ram*1024*1024*0.1)))
+                                             .format(int(wo_ram*1024*1024*0.1)))
                         Log.debug(
                             self, "Setting maxmemory-policy variable to "
                             "allkeys-lru in redis.conf")
@@ -1697,11 +1690,11 @@ class WOStackController(CementBaseController):
                     else:
                         Log.debug(self, "Setting maxmemory variable to {0} "
                                   "in redis.conf"
-                                  .format(int(WOVariables.wo_ram*1024*1024*0.2)))
+                                  .format(int(wo_ram*1024*1024*0.2)))
                         WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory "
                                              "<bytes>/maxmemory {0}/' "
                                              "/etc/redis/redis.conf"
-                                             .format(int(WOVariables.wo_ram*1024*1024*0.2)))
+                                             .format(int(wo_ram*1024*1024*0.2)))
                         Log.debug(
                             self, "Setting maxmemory-policy variable "
                             "to allkeys-lru in redis.conf")
@@ -1751,6 +1744,10 @@ class WOStackController(CementBaseController):
             self.app.pargs.phpmyadmin = True
             self.app.pargs.composer = True
             self.app.pargs.utils = True
+            self.app.pargs.netdata = True
+            self.app.pargs.dashboard = True
+            self.app.pargs.phpredisadmin = True
+
         # NGINX
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
@@ -1805,11 +1802,22 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
                                    .format(WOVariables.wo_webroot)]
+        # Composer
+        if self.app.pargs.composer:
+            Log.debug(self, "Removing package variable of Composer ")
+            if os.path.isfile('/usr/local/bin/composer'):
+                packages = packages + ['/usr/local/bin/composer']
+            else:
+                Log.warn(self, "Composer is not installed with WordOps")
+
         # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
-            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                                   .format(WOVariables.wo_webroot)]
+            if os.path.isdir('{0}22222/htdocs/cache/redis'
+                             .format(WOVariables.wo_webroot)):
+                packages = packages + ['{0}22222/htdocs/'
+                                       'cache/redis/phpRedisAdmin'
+                                       .format(WOVariables.wo_webroot)]
         # ADMINER
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
@@ -1823,10 +1831,21 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcache'
-                                   .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
+                                   .format(WOVariables.wo_webroot)]
+
+        if self.app.pargs.netdata:
+            Log.debug(self, "Removing Netdata")
+            if os.path.isfile('/opt/netdata/usr/'
+                              'libexec/netdata-uninstaller.sh'):
+                packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
+
+        if self.app.pargs.dashboard:
+            Log.debug(self, "Removing Wo-Dashboard")
+            packages = packages + ['{0}22222/htdocs/assets/'
+                                   .format(WOVariables.wo_webroot),
+                                   '{0}22222/htdocs/index.php'
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
@@ -1842,6 +1861,13 @@ class WOStackController(CementBaseController):
 
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
+
+                # Netdata uninstaller
+                if (set(['/var/lib/wo/tmp/'
+                         'kickstart.sh']).issubset(set(packages))):
+                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
 
                 if (packages):
                     WOFileUtils.remove(self, packages)
@@ -1888,6 +1914,10 @@ class WOStackController(CementBaseController):
             self.app.pargs.adminer = True
             self.app.pargs.phpmyadmin = True
             self.app.pargs.utils = True
+            self.app.pargs.composer = True
+            self.app.pargs.netdata = True
+            self.app.pargs.dashboard = True
+            self.app.pargs.phpredisadmin = True
 
         # NGINX
         if self.app.pargs.nginx:
@@ -1936,11 +1966,22 @@ class WOStackController(CementBaseController):
                                    format(WOVariables.wo_webroot)]
             Log.debug(self, "Purge package variable phpMyAdmin")
 
+        # Composer
+        if self.app.pargs.composer:
+            Log.debug(self, "Removing package variable of Composer ")
+            if os.path.isfile('/usr/local/bin/composer'):
+                packages = packages + ['/usr/local/bin/composer']
+            else:
+                Log.warn(self, "Composer is not installed with WordOps")
+
         # PHPREDISADMIN
         if self.app.pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
-            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                                   .format(WOVariables.wo_webroot)]
+            if os.path.isdir('{0}22222/htdocs/cache/redis'
+                             .format(WOVariables.wo_webroot)):
+                packages = packages + ['{0}22222/htdocs/'
+                                       'cache/redis/phpRedisAdmin'
+                                       .format(WOVariables.wo_webroot)]
         # Adminer
         if self.app.pargs.adminer:
             Log.debug(self, "Purge  package variable Adminer")
@@ -1955,12 +1996,23 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcache'
-                                   .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVariables.wo_webroot)
                                    ]
+
+        if self.app.pargs.netdata:
+            Log.debug(self, "Removing Netdata")
+            if os.path.isfile('/opt/netdata/usr/'
+                              'libexec/netdata-uninstaller.sh'):
+                packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
+
+        if self.app.pargs.dashboard:
+            Log.debug(self, "Removing Wo-Dashboard")
+            packages = packages + ['{0}22222/htdocs/assets/'
+                                   .format(WOVariables.wo_webroot),
+                                   '{0}22222/htdocs/index.php'
+                                   .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
             wo_prompt = input('Are you sure you to want to purge '
@@ -1974,6 +2026,13 @@ class WOStackController(CementBaseController):
 
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
+
+                # Netdata uninstaller
+                if (set(['/var/lib/wo/tmp/'
+                         'kickstart.sh']).issubset(set(packages))):
+                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
 
                 if (apt_packages):
                     Log.info(self, "Purging packages, please wait...")

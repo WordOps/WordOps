@@ -5,6 +5,7 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.aptget import WOAptGet
 from wo.core.logging import Log
 import os
+import psutil
 
 
 class WOSwap():
@@ -16,8 +17,11 @@ class WOSwap():
 
     def add(self):
         """Swap addition with WordOps"""
-        if WOVariables.wo_ram < 512:
-            if WOVariables.wo_swap < 1000:
+        # Get System RAM and SWAP details
+        wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+        wo_swap = psutil.swap_memory().total / (1024 * 1024)
+        if wo_ram < 512:
+            if wo_swap < 1000:
                 Log.info(self, "Adding SWAP file, please wait...")
 
                 # Install dphys-swapfile

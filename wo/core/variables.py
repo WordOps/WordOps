@@ -11,7 +11,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.5.3"
+    wo_version = "3.9.5.4"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.1"
@@ -74,10 +74,6 @@ class WOVariables():
         os.system(
             "/usr/bin/git config --global user.email {0}".format(wo_email))
 
-    # Get System RAM and SWAP details
-    wo_ram = psutil.virtual_memory().total / (1024 * 1024)
-    wo_swap = psutil.swap_memory().total / (1024 * 1024)
-
     # MySQL hostname
     wo_mysql_host = ""
     config = configparser.RawConfigParser()
@@ -100,18 +96,8 @@ class WOVariables():
             wo_nginx_repo = ("deb http://download.opensuse.org"
                              "/repositories/home:"
                              "/virtubox:/WordOps/xUbuntu_14.04/ /")
-        elif wo_platform_codename == 'xenial':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/xUbuntu_16.04/ /")
-        elif wo_platform_codename == 'bionic':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/xUbuntu_18.04/ /")
         else:
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/xUbuntu_19.04/ /")
+            wo_nginx_repo = "ppa:wordops/nginx-wo"
     elif wo_platform_distro == 'debian':
         if wo_platform_codename == 'jessie':
             wo_nginx_repo = ("deb http://download.opensuse.org"
@@ -141,7 +127,7 @@ class WOVariables():
                     "php7.3-cli", "php7.3-mbstring",
                     "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
-        wo_php_extra = ["php-memcached", "php-imagick", "memcached",
+        wo_php_extra = ["php-memcached", "php-imagick",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
         wo_php_key = ''
     else:
@@ -158,7 +144,7 @@ class WOVariables():
                     "php7.3-cli", "php7.3-mbstring",
                     "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
-        wo_php_extra = ["php-memcached", "php-imagick", "memcached",
+        wo_php_extra = ["php-memcached", "php-imagick",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 
         wo_php_key = 'AC0E47584A7A714D'

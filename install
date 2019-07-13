@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5.3 - 2019-06-18
+# Version 3.9.5.4 - 2019-07-09
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.5.3"
+readonly wo_version_new="3.9.5.4"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -178,14 +178,10 @@ wo_install_dep() {
             DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y dist-upgrade
         } > /dev/null 2>&1
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
-            # add nginx repository gpg key
-            wget https://download.opensuse.org/repositories/home:virtubox:WordOps/xUbuntu_"$wo_distro_id"/Release.key -O Release.key
-            apt-key add - < Release.key
-            rm -f Release.key
             # install dependencies
             DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz gnupg2 cron ccze rsync tree haveged ufw > /dev/null 2>&1
         else
-            # add nginx repository gpg ke
+            # add nginx repository gpg key
             wget https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key -O Release.key
             apt-key add - < Release.key
             rm -f Release.key
@@ -334,17 +330,14 @@ wo_update_wp_cli() {
         WP_CLI_PATH=$(command -v wp)
         if [ -n "$WP_CLI_PATH" ]; then
             rm -rf "$WP_CLI_PATH"
-            # Update WP-CLI to the most recent version
-            wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-            chmod +x /usr/local/bin/wp
-        else
-            wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-            chmod +x /usr/local/bin/wp
         fi
+        # Update WP-CLI to the most recent version
+        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        chmod +x /usr/local/bin/wp
         [ ! -h /usr/bin/wp ] && {
             ln -s /usr/local/bin/wp /usr/bin/
         }
-        [ ! -f /etc/bash_completion.d/wp-completion.bash ] && {
+        [ -d /etc/bash_completion.d ] && {
             wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
         }
     } >> "$wo_install_log" 2>&1
@@ -414,11 +407,15 @@ wo_install() {
 
     } >> "$wo_install_log" 2>&1
 
-    if [ "$wo_force_install" = "y" ]; then
-        [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
+    if [ -f $HOME/.gitconfig ]; then
+        python3 setup.py install >> $wo_install_log 2>&1
+    else
+        if [ "$wo_force_install" = "y" ]; then
+            [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
+        fi
+        python3 setup.py install
     fi
 
-    python3 setup.py install
 }
 
 wo_upgrade_nginx() {
@@ -443,18 +440,18 @@ wo_upgrade_nginx() {
 
         # add new Nginx repository
         if [ "$wo_linux_distro" = "Ubuntu" ]; then
-            wget -qO /tmp/nginx-wo.key "https://download.opensuse.org/repositories/home:virtubox:WordOps/xUbuntu_${wo_distro_id}/Release.key"
+            add-apt-repository ppa:wordops/nginx-wo -y -u
         else
             if [ "$wo_distro_version" == "jessie" ]; then
                 wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key
             else
                 wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key
             fi
+            # import the respository key for updates
+            apt-key add - < /tmp/nginx-wo.key
+            rm -f /tmp/nginx-wo.key
+            sudo apt-get update -qq
         fi
-        # import the respository key for updates
-        apt-key add - < /tmp/nginx-wo.key
-        rm -f /tmp/nginx-wo.key
-        sudo apt-get update -qq
 
         # stop nginx
         service nginx stop
@@ -491,6 +488,10 @@ wo_upgrade_nginx() {
 
         # restore sites and configuration
         /usr/bin/rsync -auz /var/lib/wo-backup/nginx/ /etc/nginx/
+        sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
 
         # update redis.conf headers
         if [ -f /etc/nginx/common/redis.conf ]; then

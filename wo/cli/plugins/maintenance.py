@@ -7,10 +7,8 @@ from wo.core.variables import WOVariables
 from wo.core.aptget import WOAptGet
 from wo.core.apt_repo import WORepo
 from wo.core.services import WOService
-from wo.core.fileutils import WOFileUtils
 from wo.core.shellexec import WOShellExec
-from wo.core.git import WOGit
-from wo.core.download import WODownload
+
 
 
 def wo_maintenance_hook(app):

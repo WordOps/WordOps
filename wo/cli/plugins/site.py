@@ -839,6 +839,9 @@ class WOSiteUpdateController(CementBaseController):
                      action='store_true')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
+            (['--force'],
+                dict(help="force letsencrypt certificate renewal",
+                     action='store_true')),
         ]
 
     @expose(help="Update site type or cache")
@@ -1080,9 +1083,11 @@ class WOSiteUpdateController(CementBaseController):
         # --letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
             expiry_days = SSL.getExpirationDays(self, wo_domain)
-            min_expiry_days = 30
+            min_expiry_days = 45
             if check_ssl:
                 if (expiry_days <= min_expiry_days):
+                    renewLetsEncrypt(self, wo_domain)
+                elif pargs.force:
                     renewLetsEncrypt(self, wo_domain)
                 else:
                     Log.error(
@@ -1118,8 +1123,16 @@ class WOSiteUpdateController(CementBaseController):
                 expiry_days = SSL.getExpirationDays(self, wo_domain, True)
                 if expiry_days < 0:
                     return 0
-                min_expiry_days = 30
+                min_expiry_days = 45
                 if (expiry_days <= min_expiry_days):
+                    renewLetsEncrypt(self, ee_domain)
+                    if not WOService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                                  "check issues with `nginx -t` command")
+                    Log.info(self, "SUCCESS: Certificate was successfully "
+                             "renewed For https://{0}".format(wo_domain))
+                elif pargs.force:
+                    renewLetsEncrypt(self, ee_domain)
                     Log.info(self, "Certificate was successfully renewed")
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
@@ -1128,7 +1141,7 @@ class WOSiteUpdateController(CementBaseController):
                              "renewed For https://{0}".format(wo_domain))
                 else:
                     Log.info(
-                        self, "You have more than 30 days with the current "
+                        self, "You have more than 45 days with the current "
                         "certificate - refusing to run.\n")
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
@@ -1260,12 +1273,14 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if pargs.letsencrypt == "on":
+        if pargs.letsencrypt:
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
-                    setupLetsEncrypt(self, wo_domain)
-
+                    if not pargs.letsencrypt == "subdomain":
+                        setupLetsEncrypt(self, wo_domain)
+                    else:
+                        setupLetsEncryptSubdomain(self, wo_domain)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
@@ -1316,65 +1331,6 @@ class WOSiteUpdateController(CementBaseController):
                     Log.info(self, "Successfully Disabled SSl for Site "
                              " http://{0}".format(wo_domain))
 
-        if pargs.letsencrypt == "subdomain":
-            if data['letsencrypt'] is True:
-                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
-                                      .format(wo_site_webroot)):
-                    setupLetsEncryptSubdomain(self, wo_domain)
-
-                else:
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf'
-                                       .format(wo_site_webroot))
-
-                httpsRedirect(self, wo_domain)
-
-                if not WOService.reload_service(self, 'nginx'):
-                    Log.error(self, "service nginx reload failed. "
-                              "check issues with `nginx -t` command")
-
-                Log.info(self, "Congratulations! Successfully"
-                         " Configured SSL for Site "
-                         " https://{0}".format(wo_domain))
-
-                if (SSL.getExpirationDays(self, wo_domain) > 0):
-                    Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) +
-                             " days.")
-                else:
-                    Log.warn(
-                        self, "Your cert already EXPIRED !"
-                              " PLEASE renew soon . ")
-
-            elif data['letsencrypt'] is False:
-                if os.path.isfile("{0}/conf/nginx/ssl.conf"
-                                  .format(wo_site_webroot)):
-                    Log.info(self, 'Setting Nginx configuration')
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf.disabled'
-                                       .format(wo_site_webroot))
-                    httpsRedirect(self, wo_domain, False)
-                    if os.path.isfile(("{0}/conf/nginx/hsts.conf")
-                                      .format(wo_site_webroot)):
-                        WOFileUtils.mvfile(self, "{0}/conf/nginx/"
-                                           "hsts.conf"
-                                           .format(wo_site_webroot),
-                                           '{0}/conf/nginx/hsts.conf.disabled'
-                                           .format(wo_site_webroot))
-
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                    # Log.info(self,"Removing Cron Job set for
-                    # cert auto-renewal")
-                    # WOCron.remove_cron(self,'wo site update {0}
-                    # --le=renew --min_expiry_limit 30 2> \/dev\/null'
-                    # .format(wo_domain))
-                    Log.info(self, "Successfully Disabled SSl for Site "
-                             " http://{0}".format(wo_domain))
-
             # Add nginx conf folder into GIT
             WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],
                       msg="Adding letsencrypts config of site: {0}"
@@ -1398,7 +1354,6 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, "HTTPS is not configured for given "
                               "site")
-                return 0
 
             elif data['hsts'] is False:
                 if os.path.isfile(("{0}/conf/nginx/hsts.conf")
@@ -1413,7 +1368,6 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, "HSTS is not configured for given "
                               "site")
-                return 0
 
         if stype == oldsitetype and cache == oldcachetype:
 
