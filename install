@@ -330,13 +330,10 @@ wo_update_wp_cli() {
         WP_CLI_PATH=$(command -v wp)
         if [ -n "$WP_CLI_PATH" ]; then
             rm -rf "$WP_CLI_PATH"
-            # Update WP-CLI to the most recent version
-            wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-            chmod +x /usr/local/bin/wp
-        else
-            wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-            chmod +x /usr/local/bin/wp
         fi
+        # Update WP-CLI to the most recent version
+        wget -qO /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        chmod +x /usr/local/bin/wp
         [ ! -h /usr/bin/wp ] && {
             ln -s /usr/local/bin/wp /usr/bin/
         }
@@ -410,11 +407,15 @@ wo_install() {
 
     } >> "$wo_install_log" 2>&1
 
-    if [ "$wo_force_install" = "y" ]; then
-        [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
+    if [ -f $HOME/.gitconfig ]; then
+        python3 setup.py install >> $wo_install_log 2>&1
+    else
+        if [ "$wo_force_install" = "y" ]; then
+            [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
+        fi
+        python3 setup.py install
     fi
 
-    python3 setup.py install
 }
 
 wo_upgrade_nginx() {
@@ -439,18 +440,18 @@ wo_upgrade_nginx() {
 
         # add new Nginx repository
         if [ "$wo_linux_distro" = "Ubuntu" ]; then
-            wget -qO /tmp/nginx-wo.key "https://download.opensuse.org/repositories/home:virtubox:WordOps/xUbuntu_${wo_distro_id}/Release.key"
+            add-apt-repository ppa:wordops/nginx-wo -y -u
         else
             if [ "$wo_distro_version" == "jessie" ]; then
                 wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key
             else
                 wget -qO /tmp/nginx-wo.key https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key
             fi
+            # import the respository key for updates
+            apt-key add - < /tmp/nginx-wo.key
+            rm -f /tmp/nginx-wo.key
+            sudo apt-get update -qq
         fi
-        # import the respository key for updates
-        apt-key add - < /tmp/nginx-wo.key
-        rm -f /tmp/nginx-wo.key
-        sudo apt-get update -qq
 
         # stop nginx
         service nginx stop

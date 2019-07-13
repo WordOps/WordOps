@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - phpRedisAdmin installation
 - Duplicated locations /robots.txt after upgrade to v3.9.5.3
 - Site update with flag "--le=off"
+- pt-query-advisor dead link
 
 ### v3.9.5.3 - 2019-06-18
 
