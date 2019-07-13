@@ -28,8 +28,6 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade admin tools stack', action='store_true')),
             (['--nginx'],
                 dict(help='Upgrade Nginx stack', action='store_true')),
-            (['--nginxmainline'],
-                dict(help='Upgrade Nginx Mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Upgrade PHP stack', action='store_true')),
             (['--mysql'],
@@ -38,6 +36,8 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade WPCLI', action='store_true')),
             (['--redis'],
                 dict(help='Upgrade Redis', action='store_true')),
+            (['--netdata'],
+                dict(help='Upgrade Netdata', action='store_true')),
             (['--no-prompt'],
                 dict(help="Upgrade Packages without any prompt",
                      action='store_true')),
@@ -137,6 +137,13 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.info(self, "WPCLI is not installed with WordOps")
 
+        if self.app.pargs.netdata:
+            if os.path.isdir('/opt/netdata'):
+                packages = packages + [['https://my-netdata.io/'
+                                        'kickstart-static64.sh',
+                                        '/var/lib/wo/tmp/kickstart.sh',
+                                        'Netdata']]
+
         if len(packages) or len(apt_packages):
 
             Log.info(self, "During package update process non nginx-cached"
@@ -168,11 +175,20 @@ class WOStackUpgradeController(CementBaseController):
                 if self.app.pargs.wpcli:
                     WOFileUtils.remove(self, ['/usr/local/bin/wp'])
 
+                if self.app.pargs.netdata:
+                    WOFileUtils.remove(self, ['/var/lib/wo/tmp/kickstart.sh'])
+
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
 
                 if self.app.pargs.wpcli:
                     WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
+
+                if self.app.pargs.netdata:
+                    Log.info(self, "Upgrading Netdata, please wait...")
+                    WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
+                                         "kickstart.sh "
+                                         "--dont-wait")
 
             Log.info(self, "Successfully updated packages")
         else:

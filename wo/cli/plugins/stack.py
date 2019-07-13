@@ -1185,6 +1185,7 @@ class WOStackController(CementBaseController):
                                               "health_alarm_notify.conf",
                                               'SEND_EMAIL="YES"',
                                               'SEND_EMAIL="NO"')
+                    # make changes persistant
                     WOFileUtils.copyfile(self, "/opt/netdata/usr/"
                                          "lib/netdata/conf.d/"
                                          "health_alarm_notify.conf",
