@@ -333,6 +333,11 @@ class WOSiteCreateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
+            (['--dns'],
+                dict(help="choose dns provider api for letsencrypt",
+                     action='store' or 'store_const',
+                     choices=('cf', 'do'),
+                     const='cf', nargs='?')),
             (['--hsts'],
                 dict(help="enable HSTS for site secured with letsencrypt",
                      action='store_true')),
@@ -726,43 +731,18 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if self.app.pargs.letsencrypt == "on":
+        if self.app.pargs.letsencrypt:
             data['letsencrypt'] = True
             letsencrypt = True
-
             if data['letsencrypt'] is True:
-                setupLetsEncrypt(self, wo_domain)
+                if self.app.pargs.letsencrypt == "on":
+                    setupLetsEncrypt(self, wo_domain)
+                elif self.app.pargs.letsencrypt == "subodmain":
+                    setupLetsEncryptSubdomain(self, wo_domain)
+                elif self.app.pargs.letsencrypt == "wildcard":
+                    setupLetsEncryptWildcard(self, wo_domain)
+
                 httpsRedirect(self, wo_domain)
-
-                if self.app.pargs.hsts:
-                    setupHsts(self, wo_domain)
-
-                if not WOService.reload_service(self, 'nginx'):
-                    Log.error(self, "service nginx reload failed. "
-                              "check issues with `nginx -t` command")
-
-                Log.info(self, "Congratulations! Successfully Configured "
-                         "SSl for Site "
-                         " https://{0}".format(wo_domain))
-
-                # Add nginx conf folder into GIT
-                WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],
-                          msg="Adding letsencrypts config of site: {0}"
-                          .format(wo_domain))
-                updateSiteInfo(self, wo_domain, ssl=letsencrypt)
-
-            elif data['letsencrypt'] is False:
-                Log.info(self, "Not using Let\'s encrypt for Site "
-                         " http://{0}".format(wo_domain))
-
-        if self.app.pargs.letsencrypt == "subdomain":
-            data['letsencrypt'] = True
-            letsencrypt = True
-
-            if data['letsencrypt'] is True:
-                setupLetsEncryptSubdomain(self, wo_domain)
-                httpsRedirect(self, wo_domain)
-
                 if self.app.pargs.hsts:
                     setupHsts(self, wo_domain)
 
