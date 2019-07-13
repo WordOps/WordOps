@@ -83,7 +83,7 @@ class WOStackUpgradeController(CementBaseController):
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
             (not self.app.pargs.php) and (not self.app.pargs.mysql) and
             (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
-                (not self.app.pargs.redis)):
+                (not self.app.pargs.netdata) and (not self.app.pargs.redis)):
             self.app.pargs.web = True
 
         if self.app.pargs.all:
@@ -97,6 +97,7 @@ class WOStackUpgradeController(CementBaseController):
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
+            self.app.pargs.netdata = True
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
