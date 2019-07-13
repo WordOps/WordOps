@@ -33,7 +33,7 @@ script:
   - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt ccze tree
   - sudo bash install -b $TRAVIS_BRANCH --travis
   - sudo wo --help && sudo wo stack install
-  - sudo wo stack upgrade --netdata
+  - sudo wo stack upgrade --netdata --no-prompt
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql && sudo wo site create proxy.com --proxy=127.0.0.1:3000
   - sudo wo site create wp1.com --wp && sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc
   - sudo wo site create wpsc-php73.net --wpsc --php73 && sudo wo site create wpfc-php73.net --wpfc --php73
