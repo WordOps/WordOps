@@ -807,6 +807,11 @@ class WOSiteUpdateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
+            (['--dns'],
+                dict(help="choose dns provider api for letsencrypt",
+                     action='store' or 'store_const',
+                     choices=('cf', 'do'),
+                     const='cf', nargs='?')),
             (['--hsts'],
                 dict(help="configure hsts for the site",
                      action='store' or 'store_const',
@@ -1199,6 +1204,11 @@ class WOSiteUpdateController(CementBaseController):
             data['basic'] = False
             cache = 'wpredis'
 
+        if pargs.dns == "do":
+            dns_cf = False
+        else:
+            dns_cf = True
+
         if (php73 is old_php73) and (stype == oldsitetype and
                                      cache == oldcachetype):
             return 1
@@ -1257,10 +1267,12 @@ class WOSiteUpdateController(CementBaseController):
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
-                    if not pargs.letsencrypt == "subdomain":
+                    if self.app.pargs.letsencrypt == "on":
                         setupLetsEncrypt(self, wo_domain)
-                    else:
+                    elif self.app.pargs.letsencrypt == "subodmain":
                         setupLetsEncryptSubdomain(self, wo_domain)
+                    elif self.app.pargs.letsencrypt == "wildcard":
+                        setupLetsEncryptWildcard(self, wo_domain, dns_cf)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),

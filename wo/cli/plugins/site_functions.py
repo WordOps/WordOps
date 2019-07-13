@@ -1436,7 +1436,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
 # setup letsencrypt for domain + www.domain
 
 
-def setupLetsEncryptWildcard(self, wo_domain_name):
+def setupLetsEncryptWildcard(self, wo_domain_name, dns_cf=True):
 
     if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
                       .format(wo_domain_name)):
