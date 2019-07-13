@@ -1258,23 +1258,6 @@ class WOStackController(CementBaseController):
                                       WOVariables.wo_php_user,
                                       recursive=True)
 
-            # phpmemcachedadmin
-            if any('/var/lib/wo/tmp/memcached.tar.gz' == x[1]
-                    for x in packages):
-                Log.debug(self, "Extracting memcached.tar.gz to location"
-                          " {0}22222/htdocs/cache/memcache "
-                          .format(WOVariables.wo_webroot))
-                WOExtract.extract(self, '/var/lib/wo/tmp/memcached.tar.gz',
-                                  '{0}22222/htdocs/cache/memcache'
-                                  .format(WOVariables.wo_webroot))
-                Log.debug(self, "Setting Privileges to "
-                          "{0}22222/htdocs/cache/memcache file"
-                          .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222'
-                                  .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
-                                  recursive=True)
             # webgrind
             if any('/var/lib/wo/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
@@ -1619,12 +1602,7 @@ class WOStackController(CementBaseController):
             # UTILS
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
-                packages = packages + [["https://github.com/elijaa/"
-                                        "phpmemcachedadmin/archive/"
-                                        "1.3.0.tar.gz",
-                                        '/var/lib/wo/tmp/memcached.tar.gz',
-                                        'phpMemcachedAdmin'],
-                                       ["https://raw.githubusercontent.com"
+                packages = packages + [["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
                                         "clean.php",
                                         "{0}22222/htdocs/cache/"
@@ -1854,8 +1832,6 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcache'
-                                   .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVariables.wo_webroot)]
@@ -2021,8 +1997,6 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/memcache'
-                                   .format(WOVariables.wo_webroot),
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVariables.wo_webroot)

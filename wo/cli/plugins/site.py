@@ -1083,9 +1083,11 @@ class WOSiteUpdateController(CementBaseController):
         # --letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
             expiry_days = SSL.getExpirationDays(self, wo_domain)
-            min_expiry_days = 30
+            min_expiry_days = 45
             if check_ssl:
-                if (expiry_days <= min_expiry_days) or pargs.force:
+                if (expiry_days <= min_expiry_days):
+                    renewLetsEncrypt(self, wo_domain)
+                elif pargs.force:
                     renewLetsEncrypt(self, wo_domain)
                 else:
                     Log.error(
@@ -1121,8 +1123,15 @@ class WOSiteUpdateController(CementBaseController):
                 expiry_days = SSL.getExpirationDays(self, wo_domain, True)
                 if expiry_days < 0:
                     return 0
-                min_expiry_days = 30
-                if (expiry_days <= min_expiry_days) or pargs.force:
+                min_expiry_days = 45
+                if (expiry_days <= min_expiry_days):
+                    renewLetsEncrypt(self, ee_domain)
+                    if not WOService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                                  "check issues with `nginx -t` command")
+                    Log.info(self, "SUCCESS: Certificate was successfully "
+                             "renewed For https://{0}".format(wo_domain))
+                elif pargs.force:
                     renewLetsEncrypt(self, ee_domain)
                     Log.info(self, "Certificate was successfully renewed")
                     if not WOService.reload_service(self, 'nginx'):
@@ -1132,7 +1141,7 @@ class WOSiteUpdateController(CementBaseController):
                              "renewed For https://{0}".format(wo_domain))
                 else:
                     Log.info(
-                        self, "You have more than 30 days with the current "
+                        self, "You have more than 45 days with the current "
                         "certificate - refusing to run.\n")
 
                 if (SSL.getExpirationDays(self, wo_domain) > 0):
@@ -1264,7 +1273,7 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if pargs.letsencrypt == "on":
+        if pargs.letsencrypt:
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):

@@ -127,7 +127,7 @@ class WOVariables():
                     "php7.3-cli", "php7.3-mbstring",
                     "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
-        wo_php_extra = ["php-memcached", "php-imagick", "memcached",
+        wo_php_extra = ["php-memcached", "php-imagick",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
         wo_php_key = ''
     else:
@@ -144,7 +144,7 @@ class WOVariables():
                     "php7.3-cli", "php7.3-mbstring",
                     "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
-        wo_php_extra = ["php-memcached", "php-imagick", "memcached",
+        wo_php_extra = ["php-memcached", "php-imagick",
                         "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 
         wo_php_key = 'AC0E47584A7A714D'

@@ -66,3 +66,7 @@ local/
 man/
 
 \.pytest_cache/
+
+\.vscode/
+
+\.noseids

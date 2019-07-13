@@ -17,11 +17,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - phpRedisAdmin is now installed with the stack "--admin"
+- Remove memcached - not required anymore
 
 #### Fixed
 
 - phpRedisAdmin installation
 - Duplicated locations /robots.txt after upgrade to v3.9.5.3
+- Site update with flag "--le=off"
 
 ### v3.9.5.3 - 2019-06-18
 
