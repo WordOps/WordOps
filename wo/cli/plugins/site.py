@@ -1210,11 +1210,6 @@ class WOSiteUpdateController(CementBaseController):
             data['basic'] = False
             cache = 'wpredis'
 
-        if pargs.dns == "do":
-            dns_cf = False
-        else:
-            dns_cf = True
-
         if (php73 is old_php73) and (stype == oldsitetype and
                                      cache == oldcachetype):
             return 1
