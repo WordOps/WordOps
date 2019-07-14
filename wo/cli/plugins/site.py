@@ -812,7 +812,6 @@ class WOSiteUpdateController(CementBaseController):
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
                      action='store' or 'store_const',
-                     choices=('cf', 'do'),
                      const='cf', nargs='?')),
             (['--hsts'],
                 dict(help="configure hsts for the site",
@@ -941,6 +940,11 @@ class WOSiteUpdateController(CementBaseController):
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, "\nFail to enable HSTS")
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
+                Log.info(self, "HSTS is enabled for "
+                         "https://{0}".format(wo_domain))
             return 0
 
         if ((stype == 'php' and
@@ -1276,7 +1280,8 @@ class WOSiteUpdateController(CementBaseController):
                         setupLetsEncryptSubdomain(self, wo_domain)
                         httpsRedirect(self, wo_domain)
                     elif self.app.pargs.letsencrypt == "wildcard":
-                        setupLetsEncryptWildcard(self, wo_domain, dns_cf)
+                        wo_acme_dns = pargs.dns
+                        setupLetsEncryptWildcard(self, wo_domain, wo_acme_dns)
                         httpsRedirect(self, wo_domain, True, True)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"

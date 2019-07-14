@@ -1436,7 +1436,7 @@ def setupLetsEncryptSubdomain(self, wo_domain_name):
 # setup letsencrypt for domain + www.domain
 
 
-def setupLetsEncryptWildcard(self, wo_domain_name, dns_cf=True):
+def setupLetsEncryptWildcard(self, wo_domain_name, wo_acme_dns=dns_cf):
 
     if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
                       .format(wo_domain_name)):
@@ -1453,18 +1453,18 @@ def setupLetsEncryptWildcard(self, wo_domain_name, dns_cf=True):
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
                                        "--issue "
-                                       "-d {0} -d *.{0} --dns dns_cf "
+                                       "-d {0} -d *.{0} --dns {1} "
                                        "-k ec-384 -f"
-                                       .format(wo_domain_name))
+                                       .format(wo_domain_name, wo_acme_dns))
     else:
         Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                    "--config-home "
                                    "'/etc/letsencrypt/config' "
                                    "--issue "
-                                   "-d {0} -d *.{0} --dns dns_cf "
+                                   "-d {0} -d *.{0} --dns {1} "
                                    "-k ec-384 -f"
-                                   .format(wo_domain_name))
+                                   .format(wo_domain_name, wo_acme_dns))
 
     if ssl:
 
