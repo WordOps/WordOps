@@ -812,7 +812,7 @@ class WOSiteUpdateController(CementBaseController):
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
                      action='store' or 'store_const',
-                     const='cf', nargs='?')),
+                     const='dns_cf', nargs='?')),
             (['--hsts'],
                 dict(help="configure hsts for the site",
                      action='store' or 'store_const',
