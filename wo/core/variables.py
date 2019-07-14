@@ -15,6 +15,7 @@ class WOVariables():
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.1"
+    wo_phpmyadmin = "4.9.0.1"
 
     # Get WPCLI path
     wo_wpcli_path = os.popen('command -v wp | tr "\n" " "').read()

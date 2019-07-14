@@ -79,7 +79,7 @@ _wo_complete()
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --nginx --php --php73 --mysql --all --netdata --no-prompt --wpcli" \
+                              -W "--web --nginx --php --php73 --mysql --all --netdata --composer --phpmyadmin --no-prompt --wpcli" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
@@ -310,7 +310,7 @@ _wo_complete()
 
         "--all")
           if [ ${COMP_WORDS[1]} == "clean" ]; then
-                  retlist="--memcache --opcache --fastcgi --redis"
+                  retlist="--opcache --fastcgi --redis"
           elif [ ${COMP_WORDS[2]} == "delete" ]; then
               retlist="--db --files --force"
           elif [ ${COMP_WORDS[2]} == "update" ]; then

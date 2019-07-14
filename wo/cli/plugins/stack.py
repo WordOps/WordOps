@@ -370,7 +370,7 @@ class WOStackController(CementBaseController):
 
                     # php73 conf
                 if not os.path.isfile("/etc/nginx/common/php73.conf"):
-                        # data = dict()
+                    # data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
                     wo_nginx = open('/etc/nginx/common/php73.conf',
@@ -1418,6 +1418,7 @@ class WOStackController(CementBaseController):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
                 self.app.pargs.php73 = True
+                self.app.pargs.redis = True
 
             if self.app.pargs.web:
                 self.app.pargs.nginx = True

@@ -38,6 +38,8 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade Redis', action='store_true')),
             (['--netdata'],
                 dict(help='Upgrade Netdata', action='store_true')),
+            (['--phpmyadmin'],
+             dict(help='Upgrade phpMyAdmin', action='store_true')),
             (['--no-prompt'],
                 dict(help="Upgrade Packages without any prompt",
                      action='store_true')),
@@ -83,7 +85,9 @@ class WOStackUpgradeController(CementBaseController):
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
             (not self.app.pargs.php) and (not self.app.pargs.mysql) and
             (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
-                (not self.app.pargs.netdata) and (not self.app.pargs.redis)):
+            (not self.app.pargs.netdata) and
+            (not self.app.pargs.phpmyadmin) and
+                (not self.app.pargs.redis)):
             self.app.pargs.web = True
 
         if self.app.pargs.all:
@@ -144,6 +148,18 @@ class WOStackUpgradeController(CementBaseController):
                                         'kickstart-static64.sh',
                                         '/var/lib/wo/tmp/kickstart.sh',
                                         'Netdata']]
+        if self.app.pargs.phpmyadmin:
+            if os.path.isdir('/var/www/22222/htdocs/db/pma'):
+                packages = packages + \
+                    [["https://files.phpmyadmin.net"
+                      "/phpMyAdmin/{0}/"
+                      "phpMyAdmin-{0}-"
+                      "all-languages"
+                      ".zip".format(WOVariables.wo_phpmyadmin),
+                      "/var/lib/wo/tmp/pma.tar.gz",
+                      "PHPMyAdmin"]]
+            else:
+                Log.error(self, "phpMyAdmin isn't installed")
 
         if len(packages) or len(apt_packages):
 
@@ -190,6 +206,24 @@ class WOStackUpgradeController(CementBaseController):
                     WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
                                          "kickstart.sh "
                                          "--dont-wait")
+                if self.app.pargs.phpmyadmin:
+                    Log.info(self, "Upgrading phpMyAdmin, please wait...")
+                    WOExtract.extract(
+                        self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
+                    shutil.copyfile('{0}22222/htdocs/db/pma'
+                                    '/config.inc.php'
+                                    .format(WOVariables.wo_webroot),
+                                    '/var/lib/wo/tmp/phpMyAdmin-{0}'
+                                    '-all-languages/config.inc.php'
+                                    .format(WOVariables.wo_phpmyadmin)
+                                    )
+                    WOFileUtils.remove('{0}22222/htdocs/db/pma'
+                                       .format(WOVariables.wo_webroot))
+                    shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
+                                '-all-languages/'
+                                .format(WOVariables.wo_phpmyadmin),
+                                '{0}22222/htdocs/db/pma/'
+                                .format(WOVariables.wo_webroot))
 
             Log.info(self, "Successfully updated packages")
         else:
