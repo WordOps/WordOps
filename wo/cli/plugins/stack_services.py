@@ -12,11 +12,6 @@ class WOStackStatusController(CementBaseController):
         stacked_on = 'stack'
         stacked_type = 'embedded'
         description = 'Check the stack status'
-        arguments = [
-            (['--memcached'],
-                dict(help='start/stop/restart memcached',
-                     action='store_true')),
-        ]
 
     @expose(help="Start stack services")
     def start(self):
@@ -25,7 +20,6 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
                 self.app.pargs.redis or
                 self.app.pargs.fail2ban or
                 self.app.pargs.netdata):
@@ -68,12 +62,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
@@ -97,7 +85,6 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
                 self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -138,12 +125,6 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
-
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
 
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
@@ -212,12 +193,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
@@ -241,7 +216,6 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
                 self.app.pargs.redis or
                 self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
@@ -284,12 +258,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
@@ -313,7 +281,6 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
                 self.app.pargs.redis or
                 self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
@@ -356,12 +323,6 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
-
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
 
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
