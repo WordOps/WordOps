@@ -731,10 +731,9 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if self.app.pargs.dns:
-            wo_acme_dns = pargs.dns
-
         if self.app.pargs.letsencrypt:
+            if self.app.pargs.dns:
+                wo_acme_dns = pargs.dns
             data['letsencrypt'] = True
             letsencrypt = True
             if data['letsencrypt'] is True:
@@ -1277,10 +1276,9 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if pargs.letsencrypt:
+        if self.app.pargs.letsencrypt:
             if self.app.pargs.dns:
                 wo_acme_dns = pargs.dns
-
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
