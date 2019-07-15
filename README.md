@@ -42,11 +42,12 @@
 
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Up-to-date** : Nginx 1.16.0 with TLS v1.3 & Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- **Custom Nginx build** : Nginx 1.16.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
+- **Up-to-date** : PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
-- **SSL** : Let's Encrypt SSL certificates handled by acme.sh
-- **Modern** : Secured SSL/TLS encryption with strong ciphers_suite, modern TLS protocols and HSTS support
+- **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates handled by acme.sh
+- **Modern** : Strong ciphers_suite, modern TLS protocols and HSTS support (Grade A+ on ssllabs)
 - **Monitoring** : Live Nginx vhost traffic with ngx_vts_module and server monitoring with Netdata
 
 ## Requirements
@@ -167,12 +168,11 @@ Apps & Tools shipped with WordOps :
 - [Composer](https://github.com/composer/composer)
 - [Adminer](https://www.adminer.org/)
 - [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
-- [PHPMemcachedAdmin](https://github.com/elijaa/phpmemcachedadmin)
 - [opcacheGUI](https://github.com/amnuts/opcache-gui)
 - [eXtplorer](https://github.com/soerennb/extplorer)
 - [MySQLTuner](https://github.com/major/MySQLTuner-perl/)
 - [Webgrind](https://github.com/jokkedk/webgrind)
-
+- [MySQLTuner](https://github.com/major/MySQLTuner-perl)
 
 ## License
 

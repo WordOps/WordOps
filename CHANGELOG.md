@@ -6,9 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.9.x - [Unreleased]
+### v3.9.6 - [Unreleased]
 
----
+#### Added
+
+- New Nginx package on Ubuntu with Cloudflare HTTP/2 HPACK and Dynamic TLS records
+- phpMyAdmin upgrade with `wo stack upgrade --phpmyadmin`
+- Wildcard SSL Certificates support with DNS validation
+
+#### Fixed
+
+- Nginx was not reloaded after enabling HSTS
 
 ### v3.9.5.4 - 2019-07-13
 

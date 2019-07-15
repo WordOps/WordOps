@@ -1264,19 +1264,30 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
+        if self.app.pargs.dns:
+            wo_acme_dns = pargs.dns
+
         if pargs.letsencrypt:
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
                     if self.app.pargs.letsencrypt == "on":
-                        setupLetsEncrypt(self, wo_domain)
+                        if self.app.pargs.dns:
+                            setupLetsEncrypt(self, wo_domain, False,
+                                             False, True, wo_acme_dns)
+                        else:
+                            setupLetsEncrypt(self, wo_domain)
                         httpsRedirect(self, wo_domain)
                     elif self.app.pargs.letsencrypt == "subdomain":
-                        setupLetsEncryptSubdomain(self, wo_domain)
+                        if self.app.pargs.dns:
+                            setupLetsEncrypt(self, wo_domain, True, False,
+                                             True, wo_acme_dns)
+                        else:
+                            setupLetsEncrypt(self, wo_domain, True)
                         httpsRedirect(self, wo_domain)
                     elif self.app.pargs.letsencrypt == "wildcard":
-                        wo_acme_dns = pargs.dns
-                        setupLetsEncryptWildcard(self, wo_domain, wo_acme_dns)
+                        setupLetsEncrypt(self, wo_domain, false, True,
+                                         True, wo_acme_dns)
                         httpsRedirect(self, wo_domain, True, True)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
