@@ -329,7 +329,7 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create WordPress single/multi site "
                      "with redis cache",
                      action='store_true')),
-            (['--le', '--letsencrypt'],
+            (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
                      choices=('on', 'subdomain', 'wildcard'),
@@ -732,19 +732,12 @@ class WOSiteCreateController(CementBaseController):
                       "`tail /var/log/wo/wordops.log` and please try again")
 
         if self.app.pargs.letsencrypt:
-            if self.app.pargs.dns:
-                wo_acme_dns = pargs.dns
             data['letsencrypt'] = True
             letsencrypt = True
+            if self.app.pargs.dns:
+                wo_acme_dns = pargs.dns
             if data['letsencrypt'] is True:
-                if self.app.pargs.letsencrypt == "on":
-                    if self.app.pargs.dns:
-                        setupLetsEncrypt(self, wo_domain, False,
-                                         False, True, wo_acme_dns)
-                    else:
-                        setupLetsEncrypt(self, wo_domain)
-                    httpsRedirect(self, wo_domain)
-                elif self.app.pargs.letsencrypt == "subdomain":
+                if self.app.pargs.letsencrypt == "subdomain":
                     if self.app.pargs.dns:
                         setupLetsEncrypt(self, wo_domain, True, False,
                                          True, wo_acme_dns)
@@ -755,6 +748,13 @@ class WOSiteCreateController(CementBaseController):
                     setupLetsEncrypt(self, wo_domain, False, True,
                                      True, wo_acme_dns)
                     httpsRedirect(self, wo_domain, True, True)
+                else:
+                    if self.app.pargs.dns:
+                        setupLetsEncrypt(self, wo_domain, False,
+                                         False, True, wo_acme_dns)
+                    else:
+                        setupLetsEncrypt(self, wo_domain)
+                    httpsRedirect(self, wo_domain)
 
                 if self.app.pargs.hsts:
                     setupHsts(self, wo_domain)
@@ -815,7 +815,7 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to wpsc cache", action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
-            (['--le', '--letsencrypt'],
+            (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
