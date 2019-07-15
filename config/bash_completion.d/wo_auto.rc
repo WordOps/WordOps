@@ -165,7 +165,7 @@ _wo_complete()
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc  --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le --le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do" \
+                                    -W "--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc  --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le -le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do" \
                                  -- $cur) )
                 ;;
             "delete")
