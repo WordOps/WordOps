@@ -1271,7 +1271,7 @@ class WOSiteUpdateController(CementBaseController):
                     if self.app.pargs.letsencrypt == "on":
                         setupLetsEncrypt(self, wo_domain)
                         httpsRedirect(self, wo_domain)
-                    elif self.app.pargs.letsencrypt == "subodmain":
+                    elif self.app.pargs.letsencrypt == "subdomain":
                         setupLetsEncryptSubdomain(self, wo_domain)
                         httpsRedirect(self, wo_domain)
                     elif self.app.pargs.letsencrypt == "wildcard":
