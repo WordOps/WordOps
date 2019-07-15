@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - New Nginx package on Ubuntu with Cloudflare HTTP/2 HPACK and Dynamic TLS records
 - phpMyAdmin upgrade with `wo stack upgrade --phpmyadmin`
 - Wildcard SSL Certificates support with DNS validation
+- Acme challenge validation with DNS API (Cloudflare, DigitalOcean, etc ..) on domain, subdomain, and wildcard
+- Flag `--letsencrypt=clean` to purge a previous SSL configuration
 
 #### Fixed
 

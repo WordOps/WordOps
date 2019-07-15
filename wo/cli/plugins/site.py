@@ -818,7 +818,8 @@ class WOSiteUpdateController(CementBaseController):
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
+                     choices=('on', 'off', 'renew', 'subdomain',
+                              'wildcard', 'clean'),
                      const='on', nargs='?')),
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
@@ -1184,6 +1185,9 @@ class WOSiteUpdateController(CementBaseController):
             elif pargs.letsencrypt == 'off':
                 data['letsencrypt'] = False
                 letsencrypt = False
+            elif pargs.letsencrypt == 'clean':
+                data['letsencrypt'] = False
+                letsencrypt = False
 
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
@@ -1324,23 +1328,35 @@ class WOSiteUpdateController(CementBaseController):
                         ".PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
-                if os.path.isfile("{0}/conf/nginx/ssl.conf"
-                                  .format(wo_site_webroot)):
-                    Log.info(self, 'Setting Nginx configuration')
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf.disabled'
-                                       .format(wo_site_webroot))
-                    httpsRedirect(self, wo_domain, False)
-                    if os.path.isfile("{0}/conf/nginx/hsts.conf"
+                if self.app.pargs.letsencrypt == "off":
+                    if os.path.isfile("{0}/conf/nginx/ssl.conf"
                                       .format(wo_site_webroot)):
-                        WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
+                        Log.info(self, 'Setting Nginx configuration')
+                        WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
                                            .format(wo_site_webroot),
-                                           '{0}/conf/nginx/hsts.conf.disabled'
+                                           '{0}/conf/nginx/ssl.conf.disabled'
                                            .format(wo_site_webroot))
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
+                        httpsRedirect(self, wo_domain, False)
+                        if os.path.isfile("{0}/conf/nginx/hsts.conf"
+                                          .format(wo_site_webroot)):
+                            WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
+                                               .format(wo_site_webroot),
+                                               '{0}/conf/nginx/'
+                                               'hsts.conf.disabled'
+                                               .format(wo_site_webroot))
+                if self.app.pargs.letsencrypt == "clean":
+                    if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                                      .format(wo_site_webroot)):
+                        WOFileUtils.remove("{0}/conf/nginx/ssl.conf"
+                                           .format(wo_site_webroot))
+                        WOFileUtils.remove("/etc/letsencrypt/live"
+                                           "/{0}".format(wo_domain))
+                        WOFileUtils.remove("/etc/nginx/conf.d/"
+                                           "force-ssl-{0}.conf"
+                                           .format(wo_domain_name))
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
                     # Log.info(self,"Removing Cron Job set for cert
                     # auto-renewal") WOCron.remove_cron(self,'wo site
                     # update {0} --le=renew --min_expiry_limit 30
