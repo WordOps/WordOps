@@ -195,6 +195,7 @@ class WOStackController(CementBaseController):
                 WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
                 Log.debug(self, 'Adding ppa for Nginx')
             else:
+                Log.info(self, "Adding repository for NGINX, please wait...")
                 WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
                 Log.debug(self, 'Adding repository for Nginx')
                 WORepo.add_key(self, WOVariables.wo_nginx_key)
