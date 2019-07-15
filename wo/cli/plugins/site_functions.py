@@ -1268,8 +1268,8 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
 
 
 # setup letsencrypt for domain + www.domain
-def setupLetsEncrypt(self, wo_domain_name, subdomain=false, wildcard=false,
-                     wo_dns=false, wo_acme_dns='dns_cf'):
+def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
+                     wo_dns=False, wo_acme_dns='dns_cf'):
 
     if os.path.isfile("/etc/letsencrypt/"
                       "renewal/{0}_ecc/"

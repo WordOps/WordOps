@@ -1286,7 +1286,7 @@ class WOSiteUpdateController(CementBaseController):
                             setupLetsEncrypt(self, wo_domain, True)
                         httpsRedirect(self, wo_domain)
                     elif self.app.pargs.letsencrypt == "wildcard":
-                        setupLetsEncrypt(self, wo_domain, false, True,
+                        setupLetsEncrypt(self, wo_domain, False, True,
                                          True, wo_acme_dns)
                         httpsRedirect(self, wo_domain, True, True)
                 else:
