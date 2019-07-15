@@ -319,7 +319,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create WordPress multisite with subdomain setup",
                      action='store_true')),
             (['--wpfc'],
-                dict(help="create WordPress single/multi site with wpfc cache",
+                dict(help="create WordPress single/multi site with "
+                     "Nginx fastcgi_cache",
                      action='store_true')),
             (['--wpsc'],
                 dict(help="create WordPress single/multi site with wpsc cache",
@@ -328,7 +329,7 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create WordPress single/multi site "
                      "with redis cache",
                      action='store_true')),
-            (['-le', '--letsencrypt'],
+            (['--le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
                      choices=('on', 'subdomain', 'wildcard'),
@@ -336,8 +337,7 @@ class WOSiteCreateController(CementBaseController):
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
                      action='store' or 'store_const',
-                     choices=('cf', 'do'),
-                     const='cf', nargs='?')),
+                     const='dns_cf', nargs='?')),
             (['--hsts'],
                 dict(help="enable HSTS for site secured with letsencrypt",
                      action='store_true')),
@@ -731,18 +731,30 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
+        if self.app.pargs.dns:
+            wo_acme_dns = pargs.dns
+
         if self.app.pargs.letsencrypt:
             data['letsencrypt'] = True
             letsencrypt = True
             if data['letsencrypt'] is True:
                 if self.app.pargs.letsencrypt == "on":
-                    setupLetsEncrypt(self, wo_domain)
+                    if self.app.pargs.dns:
+                        setupLetsEncrypt(self, wo_domain, False,
+                                         False, True, wo_acme_dns)
+                    else:
+                        setupLetsEncrypt(self, wo_domain)
                     httpsRedirect(self, wo_domain)
-                elif self.app.pargs.letsencrypt == "subodmain":
-                    setupLetsEncryptSubdomain(self, wo_domain)
+                elif self.app.pargs.letsencrypt == "subdomain":
+                    if self.app.pargs.dns:
+                        setupLetsEncrypt(self, wo_domain, True, False,
+                                         True, wo_acme_dns)
+                    else:
+                        setupLetsEncrypt(self, wo_domain, True)
                     httpsRedirect(self, wo_domain)
                 elif self.app.pargs.letsencrypt == "wildcard":
-                    setupLetsEncryptWildcard(self, wo_domain)
+                    setupLetsEncrypt(self, wo_domain, False, True,
+                                     True, wo_acme_dns)
                     httpsRedirect(self, wo_domain, True, True)
 
                 if self.app.pargs.hsts:
@@ -804,7 +816,7 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to wpsc cache", action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
-            (['-le', '--letsencrypt'],
+            (['--le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
@@ -844,7 +856,8 @@ class WOSiteUpdateController(CementBaseController):
             if not (pargs.php or pargs.php73 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
-                    pargs.wpredis or pargs.letsencrypt or pargs.hsts):
+                    pargs.wpredis or pargs.letsencrypt or pargs.hsts or
+                    pargs.dns):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -1264,10 +1277,10 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if self.app.pargs.dns:
-            wo_acme_dns = pargs.dns
-
         if pargs.letsencrypt:
+            if self.app.pargs.dns:
+                wo_acme_dns = pargs.dns
+
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):

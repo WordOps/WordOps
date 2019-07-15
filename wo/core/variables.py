@@ -108,6 +108,10 @@ class WOVariables():
             wo_nginx_repo = ("deb http://download.opensuse.org"
                              "/repositories/home:"
                              "/virtubox:/WordOps/Debian_9.0/ /")
+        elif wo_platform_codename == 'buster':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/Debian_10/ /")
     else:
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/virtubox:/WordOps/Raspbian_9.0/ /")
