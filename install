@@ -401,9 +401,11 @@ wo_install_acme_sh() {
 # Clone Github repository if it doesn't exist
 wo_install() {
     {
+        rm -f /etc/bash_completion.d/wo_auto.rc
         rm -rf /tmp/WordOps
         git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch"
         cd /tmp/WordOps || exit 1
+
 
     } >> "$wo_install_log" 2>&1
 

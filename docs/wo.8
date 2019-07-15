@@ -11,9 +11,9 @@ wo stack [ status | start | stop | reload | restart ] [--all | --nginx | --php |
 .TP
 wo site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-wo site create example.com [ --html | --php | --php73 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --letsencrypt/--le/--letsencrypt=subdomain/wildcard]]
+wo site create example.com [ --html | --php | --php73 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --letsencrypt/-le/--letsencrypt=subdomain/wildcard][--dns=dns_cf/dns_do]]
 .TP
-wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ] [--password] [--le/--letsencrypt=on/off/subdomain/renew]]
+wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ] [--password] [-le/--letsencrypt=on/off/subdomain/renew/wildcard] [--dns=dns_cf/dns_do]]
 .TP
 wo site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
 .TP

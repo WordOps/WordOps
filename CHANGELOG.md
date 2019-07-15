@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Wildcard SSL Certificates support with DNS validation
 - Acme challenge validation with DNS API (Cloudflare, DigitalOcean, etc ..) on domain, subdomain, and wildcard
 - Flag `--letsencrypt=clean` to purge a previous SSL configuration
+- Support for Debian 10 (buster) in beta
 
 #### Fixed
 
