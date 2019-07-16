@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5.4 - 2019-07-09
+# Version 3.9.6 - 2019-07-16
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.5.4"
+readonly wo_version_new="3.9.6"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -406,8 +406,8 @@ wo_install() {
         git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch"
         cd /tmp/WordOps || exit 1
 
-
-    } >> "$wo_install_log" 2>&1
+    } \
+        >> "$wo_install_log" 2>&1
 
     if [ -f $HOME/.gitconfig ]; then
         python3 setup.py install >> $wo_install_log 2>&1
