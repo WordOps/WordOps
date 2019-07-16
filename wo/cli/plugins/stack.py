@@ -1538,12 +1538,14 @@ class WOStackController(CementBaseController):
 
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
-                Log.debug(self, "Setting packages variable for phpMyAdmin ")
-                self.app.pargs.composer = True
-                packages = packages + [["https://github.com/phpmyadmin/"
-                                        "phpmyadmin/archive/STABLE.tar.gz",
-                                        "/var/lib/wo/tmp/pma.tar.gz",
-                                        "phpMyAdmin"]]
+                if not os.path.isdir('/var/www/22222/htdocs/db/pma'):
+                    Log.debug(self, "Setting packages variable "
+                              "for phpMyAdmin ")
+                    self.app.pargs.composer = True
+                    packages = packages + [["https://github.com/phpmyadmin/"
+                                            "phpmyadmin/archive/STABLE.tar.gz",
+                                            "/var/lib/wo/tmp/pma.tar.gz",
+                                            "phpMyAdmin"]]
             # Composer
             if self.app.pargs.composer:
                 Log.debug(self, "Setting packages variable for Composer ")
@@ -1552,16 +1554,16 @@ class WOStackController(CementBaseController):
                                         "Composer"]]
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
-                Log.debug(self, "Setting packages variable for phpRedisAdmin")
-                self.app.pargs.composer = True
-                packages = packages + [["https://github.com/erikdubbelboer/"
-                                        "phpRedisAdmin/archive/v1.11.3.tar.gz",
-                                        "/var/lib/wo/tmp/pra.tar.gz",
-                                        "phpRedisAdmin"],
-                                       ["https://github.com/nrk/predis/"
-                                        "archive/v1.1.1.tar.gz",
-                                        "/var/lib/wo/tmp/predis.tar.gz",
-                                        "Predis"]]
+                if not os.path.isdir('/var/www/22222/htdocs/cache/redis'):
+                    Log.debug(
+                        self, "Setting packages variable for phpRedisAdmin")
+                    self.app.pargs.composer = True
+                    packages = packages + [["https://github.com/"
+                                            "erikdubbelboer/"
+                                            "phpRedisAdmin/archive"
+                                            "/ v1.11.3.tar.gz",
+                                            "/var/lib/wo/tmp/pra.tar.gz",
+                                            "phpRedisAdmin"]]
             # ADMINER
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
@@ -1592,17 +1594,19 @@ class WOStackController(CementBaseController):
 
             # WordOps Dashboard
             if self.app.pargs.dashboard:
-                Log.debug(self, "Setting packages variable for WO-Dashboard")
-                packages = packages + \
-                    [["https://github.com/WordOps/"
-                      "wordops-dashboard/releases/"
-                      "download/v1.0/wo-dashboard.tar.gz",
-                      "/var/lib/wo/tmp/wo-dashboard.tar.gz",
-                      "WordOps Dashboard"],
-                     ["https://github.com/soerennb/"
-                      "extplorer/archive/v2.1.11.tar.gz",
-                      "/var/lib/wo/tmp/extplorer.tar.gz",
-                      "eXtplorer"]]
+                if not os.path.isfile('/var/www/22222/htdocs/index.php'):
+                    Log.debug(
+                        self, "Setting packages variable for WO-Dashboard")
+                    packages = packages + \
+                        [["https://github.com/WordOps/"
+                          "wordops-dashboard/releases/"
+                          "download/v1.0/wo-dashboard.tar.gz",
+                          "/var/lib/wo/tmp/wo-dashboard.tar.gz",
+                          "WordOps Dashboard"],
+                         ["https://github.com/soerennb/"
+                            "extplorer/archive/v2.1.11.tar.gz",
+                            "/var/lib/wo/tmp/extplorer.tar.gz",
+                            "eXtplorer"]]
 
             # UTILS
             if self.app.pargs.utils:

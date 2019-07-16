@@ -360,6 +360,7 @@ class WOSiteCreateController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        pargs = self.app.pargs
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()

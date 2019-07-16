@@ -85,7 +85,7 @@ class WOStackUpgradeController(CementBaseController):
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
             (not self.app.pargs.php) and (not self.app.pargs.mysql) and
             (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
-            (not self.app.pargs.netdata) and
+            (not self.app.pargs.netdata) and (not self.app.pargs.composer)
             (not self.app.pargs.phpmyadmin) and
                 (not self.app.pargs.redis)):
             self.app.pargs.web = True
@@ -161,6 +161,14 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.error(self, "phpMyAdmin isn't installed")
 
+        if self.app.pargs.composer:
+            if os.path.isfile('/usr/local/bin/composer'):
+                packages = packages + [["https://getcomposer.org/installer",
+                                        "/var/lib/wo/tmp/composer-install",
+                                        "Composer"]]
+            else:
+                Log.error(self, "Composer isn't installed")
+
         if len(packages) or len(apt_packages):
 
             Log.info(self, "During package update process non nginx-cached"
@@ -206,6 +214,16 @@ class WOStackUpgradeController(CementBaseController):
                     WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
                                          "kickstart.sh "
                                          "--dont-wait")
+
+                if self.app.pargs.composer:
+                    Log.info(self, "Upgrading Composer, please wait...")
+                    WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
+                                         "/tmp/composer-install "
+                                         "--install-dir=/var/lib/wo/tmp/")
+                    shutil.copyfile('/var/lib/wo/tmp/composer.phar',
+                                    '/usr/local/bin/composer')
+                    WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+
                 if self.app.pargs.phpmyadmin:
                     Log.info(self, "Upgrading phpMyAdmin, please wait...")
                     WOExtract.extract(
