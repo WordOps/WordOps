@@ -38,6 +38,8 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade Redis', action='store_true')),
             (['--netdata'],
                 dict(help='Upgrade Netdata', action='store_true')),
+            (['--composer'],
+             dict(help='Upgrade Composer', action='store_true')),
             (['--phpmyadmin'],
              dict(help='Upgrade phpMyAdmin', action='store_true')),
             (['--no-prompt'],
@@ -85,7 +87,7 @@ class WOStackUpgradeController(CementBaseController):
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
             (not self.app.pargs.php) and (not self.app.pargs.mysql) and
             (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
-            (not self.app.pargs.netdata) and (not self.app.pargs.composer)
+            (not self.app.pargs.netdata) and (not self.app.pargs.composer) and
             (not self.app.pargs.phpmyadmin) and
                 (not self.app.pargs.redis)):
             self.app.pargs.web = True
