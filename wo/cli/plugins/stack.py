@@ -1654,23 +1654,19 @@ class WOStackController(CementBaseController):
             pass
 
         if (apt_packages) or (packages):
+            Log.debug(self, "Calling pre_pref")
+            self.pre_pref(apt_packages)
             if (apt_packages):
-                Log.debug(self, "Calling pre_pref")
-                self.pre_pref(apt_packages)
                 WOSwap.add(self)
                 Log.info(self, "Updating apt-cache, please wait...")
                 WOAptGet.update(self)
                 Log.info(self, "Installing packages, please wait...")
-                OAptGet.install(self, apt_packages)
-                Log.debug(self, "Calling post_pref")
-                self.post_pref(apt_packages)
-
+                WOAptGet.install(self, apt_packages)
             if (packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
-                Log.debug(self, "Calling post_pref")
-                self.post_pref(packages)
-
+            Log.debug(self, "Calling post_pref")
+            self.post_pref(apt_packages, packages)
             if 'redis-server' in apt_packages:
                 # set redis.conf parameter
                 # set maxmemory 10% for ram below 512MB and 20% for others
