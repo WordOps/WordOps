@@ -681,8 +681,10 @@ if [ -x /usr/local/bin/wo ]; then
             fi
             if [ -z "$wo_preserve_config" ]; then
                 if [ -n "$(command -v nginx)" ]; then
-                    wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                    wo_upgrade_nginx | tee -ai $wo_install_log
+                    if [ ! -f /etc/nginx/common/release ] || [[ -z $(grep "v3.9.5." /etc/nginx/common/release) && -z $(grep "v3.9.6" /etc/nginx/common/release) ]]; then
+                        wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+                        wo_upgrade_nginx | tee -ai $wo_install_log
+                    fi
                 fi
             fi
             wo_update_latest | tee -ai $wo_install_log

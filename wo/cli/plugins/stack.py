@@ -1520,7 +1520,6 @@ class WOStackController(CementBaseController):
                                             "/master/mysqltuner.pl",
                                             "/usr/bin/mysqltuner",
                                             "MySQLTuner"]]
-
                 else:
                     Log.debug(self, "MySQL connection is already alive")
                     Log.info(self, "MySQL connection is already alive")
@@ -2066,6 +2065,9 @@ class WOStackController(CementBaseController):
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata-"
                                          "uninstaller.sh -y -f")
+
+                if (set(["fail2ban"]).issubset(set(apt_packages))):
+                    WOService.stop_service(self, 'fail2ban')
 
                 if (apt_packages):
                     Log.info(self, "Purging packages, please wait...")
