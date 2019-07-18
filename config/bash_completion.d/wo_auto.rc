@@ -211,9 +211,9 @@ _wo_complete()
         "--wp")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --letsencrypt -le --php73"
+                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --letsencrypt -le --letsencrypt=subdomain --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_do --php73"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le -le=subdomain -le=off -le=wildcard --dns --dns=dns_cf --dns=dns_do"
+                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard --letsencrypt=off --letsencrypt=renew -le -le=off -le=wildcard --dns --dns=dns_cf --dns=dns_do"
                 else
                     retlist=""
                 fi
@@ -230,9 +230,9 @@ _wo_complete()
         "--wpsubdir" | "--wpsubdomain")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wpsc --wpfc --user --email --pass --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le -le=subdomain -le=wildcard --php73 --dns --dns=dns_cf --dns=dns_do"
+                    retlist="--wpsc --wpfc --user --email --pass --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le --php73 --dns --dns=dns_cf --dns=dns_do"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le -le=off -le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do"
+                    retlist="--wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard --letsencrypt=off --letsencrypt=renew -le --dns --dns=dns_cf --dns=dns_do"
                 else
                     retlist=""
                 fi
@@ -248,7 +248,7 @@ _wo_complete()
 
         "--wpredis" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
             if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --php73 --letsencrypt --letsencrypt=subdomain -le -le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do"
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --php73 --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le --dns --dns=dns_cf --dns=dns_do"
             else
                 retlist=""
             fi
@@ -261,7 +261,7 @@ _wo_complete()
 
         "--wpredis" | "--wpfc")
             if [ ${COMP_WORDS[2]} == "update" ]; then
-                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le -le=off -le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do"
+                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le --dns --dns=dns_cf --dns=dns_do"
             else
                 retlist=""
             fi
@@ -272,9 +272,9 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--redis | --phpredisadmin | --netdata")
+        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--redis | --phpredisadmin | --netdata")
             if [[ ${COMP_WORDS[2]} == "install" || ${COMP_WORDS[2]} == "purge" || ${COMP_WORDS[2]} == "remove" ]]; then
-                retlist="--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --netdata"
+                retlist="--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --phpredisadmin --netdata"
             elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
                     retlist="--nginx --php --php73 --mysql --redis --netdata"
             elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
@@ -363,7 +363,7 @@ _wo_complete()
         case "$mprev" in
             "--user" | "--email" | "--pass")
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le -le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do"
+                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le --dns --dns=dns_cf --dns=dns_do"
                 fi
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
