@@ -70,7 +70,7 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
 
@@ -134,7 +134,7 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
 
@@ -201,7 +201,7 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
 
@@ -266,7 +266,7 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
 
@@ -332,7 +332,7 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
 

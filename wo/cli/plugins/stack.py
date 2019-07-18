@@ -1093,6 +1093,17 @@ class WOStackController(CementBaseController):
                                     out=wo_fail2ban)
                     wo_fail2ban.close()
 
+                    Log.debug(self, "Setting up fail2ban wp filter")
+                    wo_fail2ban = open('/etc/fail2ban/filter.d/'
+                                       'nginx-forbidden.conf',
+                                       encoding='utf-8', mode='w')
+                    self.app.render((data), 'fail2ban-forbidden.mustache',
+                                    out=wo_fail2ban)
+                    wo_fail2ban.close()
+                WOGit.add(self, ["/etc/fail2ban"],
+                          msg="Adding Fail2ban into Git")
+                WOService.reload_service(self, 'fail2ban')
+
         if (packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
                 Log.debug(self, "Setting Privileges"
