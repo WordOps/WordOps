@@ -250,8 +250,8 @@ wo_sync_db() {
 
                 wo_site_current_type=$(grep "common/" /etc/nginx/sites-available/$site | awk -F "/" '{print $2}')
 
-                if [ -n "$(echo $wo_site_current_type | grep php)" ]; then
-                    if [ "$(echo $wo_site_current_type | grep php7)" ]; then
+                if echo "$wo_site_current_type" | grep -q "php"; then
+                    if echo "$wo_site_current_type" | grep -q "php7"; then
                         wo_php_version="7.0"
                     else
                         wo_php_version="5.6"
@@ -260,31 +260,31 @@ wo_sync_db() {
                     wo_php_version=""
                 fi
 
-                if [ "$(echo $wo_site_current_type | grep redis)" ]; then
+                if echo "$wo_site_current_type" | grep -q "redis"; then
                     wo_site_current_cache="wpredis"
-                elif [ -z "$(echo $wo_site_current_type | grep wpsc)" ]; then
+                elif echo "$wo_site_current_type" | grep -q wpsc; then
                     wo_site_current_cache="wpsc"
-                elif [ -z "$(echo $wo_site_current_type | grep wpfc)" ]; then
+                elif echo "$wo_site_current_type" | grep -q wpfc; then
                     wo_site_current_cache="wpfc"
                 else
                     wo_site_current_cache="basic"
                 fi
 
-                if [ "$(echo $wo_site_current_type | grep wp)" ]; then
-                    if [ -z "$(echo $wo_site_current_type | grep wpsubdir)" ]; then
+                if echo "$wo_site_current_type" | grep -q wp; then
+                    if echo "$wo_site_current_type" | grep -q wpsubdir; then
                         wo_site_current="wpsubdir"
-                    elif [ -z "$(echo $wo_site_current_type | grep wpsudomain)" ]; then
+                    elif echo "$wo_site_current_type" | grep -q wpsudomain; then
                         wo_site_current="wpsubdomain"
                     else
                         wo_site_current="wp"
                     fi
                 else
-                    if [ -z "$(echo $wo_site_current_type | grep location)" ]; then
+                    if echo "$wo_site_current_type" | grep -q location; then
                         wo_site_current="proxy"
-                    elif [ -z "$(echo $wo_site_current_type | grep php)" ]; then
+                    elif echo "$wo_site_current_type" | grep -q php; then
                         wo_site_current="html"
                     else
-                        if [ -f /var/www/${site}/ee-config.php ] || [ -f /var/www/${site}/wo-config.php ]; then
+                        if [ -f "/var/www/${site}/ee-config.php" ] || [ -f "/var/www/${site}/wo-config.php" ]; then
                             wo_site_current="mysql"
                         else
                             wo_site_current="php"
@@ -409,11 +409,11 @@ wo_install() {
     } \
         >> "$wo_install_log" 2>&1
 
-    if [ -f $HOME/.gitconfig ]; then
+    if [ -f "$HOME/.gitconfig" ]; then
         python3 setup.py install >> $wo_install_log 2>&1
     else
         if [ "$wo_force_install" = "y" ]; then
-            [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
+            [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
         fi
         python3 setup.py install
     fi
@@ -550,8 +550,8 @@ wo_update_latest() {
             mkdir -p /etc/mysql/conf.d
             chmod 755 /etc/mysql/conf.d
         }
-        if [ -f $HOME/.my.cnf ]; then
-            cp -f $HOME/.my.cnf /etc/mysql/conf.d/my.cnf
+        if [ -f "$HOME/.my.cnf" ]; then
+            cp -f "$HOME/.my.cnf" /etc/mysql/conf.d/my.cnf
             chmod 600 /etc/mysql/conf.d/my.cnf
 
         elif [ -f /root/.my.cnf ]; then
@@ -681,7 +681,7 @@ if [ -x /usr/local/bin/wo ]; then
             fi
             if [ -z "$wo_preserve_config" ]; then
                 if [ -n "$(command -v nginx)" ]; then
-                    if [ ! -f /etc/nginx/common/release ] || [[ -z $(grep "v3.9.5." /etc/nginx/common/release) && -z $(grep "v3.9.6" /etc/nginx/common/release) ]]; then
+                    if ! grep -q "v3.9.5." /etc/nginx/common/release; then
                         wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
                         wo_upgrade_nginx | tee -ai $wo_install_log
                     fi
