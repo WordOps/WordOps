@@ -85,6 +85,7 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
+                self.app.pargs.fail2ban or
                 self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
