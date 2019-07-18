@@ -1079,25 +1079,25 @@ class WOStackController(CementBaseController):
                 if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                     Log.debug(self, "Setting up fail2ban jails configuration")
                     fail2ban_config = open('/etc/fail2ban/jail.d/custom.conf',
-                                       encoding='utf-8', mode='w')
+                                           encoding='utf-8', mode='w')
                     self.app.render((data), 'fail2ban.mustache',
-                                    out=wo_fail2ban)
+                                    out=fail2ban_config)
                     fail2ban_config.close()
 
                     Log.debug(self, "Setting up fail2ban wp filter")
                     fail2ban_config = open('/etc/fail2ban/filter.d/'
-                                       'wo-wordpress.conf',
-                                       encoding='utf-8', mode='w')
+                                           'wo-wordpress.conf',
+                                           encoding='utf-8', mode='w')
                     self.app.render((data), 'fail2ban-wp.mustache',
-                                    out=wo_fail2ban)
+                                    out=fail2ban_config)
                     fail2ban_config.close()
 
                     Log.debug(self, "Setting up fail2ban wp filter")
                     fail2ban_config = open('/etc/fail2ban/filter.d/'
-                                       'nginx-forbidden.conf',
-                                       encoding='utf-8', mode='w')
+                                           'nginx-forbidden.conf',
+                                           encoding='utf-8', mode='w')
                     self.app.render((data), 'fail2ban-forbidden.mustache',
-                                    out=wo_fail2ban)
+                                    out=fail2ban_config)
                     fail2ban_config.close()
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
@@ -1813,7 +1813,7 @@ class WOStackController(CementBaseController):
             packages = packages + ['/usr/bin/mysqltuner']
 
         # fail2ban
-        if self.app.pargs.redis:
+        if self.app.pargs.fail2ban:
             Log.debug(self, "Remove apt_packages variable of Fail2ban")
             apt_packages = apt_packages + WOVariables.wo_fail2ban
 
@@ -1981,7 +1981,7 @@ class WOStackController(CementBaseController):
                 Log.error(self, "Cannot Purge PHP 7.3. not found.")
 
         # fail2ban
-        if self.app.pargs.redis:
+        if self.app.pargs.fail2ban:
             Log.debug(self, "Remove apt_packages variable of Fail2ban")
             apt_packages = apt_packages + WOVariables.wo_fail2ban
 
