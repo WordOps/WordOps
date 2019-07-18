@@ -168,7 +168,7 @@ class WOVariables():
                          .format(codename=wo_platform_codename))
     wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
 
-    wo_fail2ban = "fail2ban"
+    wo_fail2ban = ["fail2ban", "python3-pyinotify"]
 
     # Redis repo details
     if wo_platform_distro == 'ubuntu':
