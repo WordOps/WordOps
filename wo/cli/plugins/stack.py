@@ -1420,6 +1420,7 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.composer) and
                 (not self.app.pargs.netdata) and
                 (not self.app.pargs.dashboard) and
+                (not self.app.pargs.fail2ban) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin) and
@@ -1450,6 +1451,7 @@ class WOStackController(CementBaseController):
                 self.app.pargs.netdata = True
                 self.app.pargs.dashboard = True
                 self.app.pargs.phpredisadmin = True
+                self.app.pargs.fail2ban = True
 
             # Redis
             if self.app.pargs.redis:
@@ -1741,6 +1743,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
+            (not self.app.pargs.fail2ban) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
@@ -1765,6 +1768,7 @@ class WOStackController(CementBaseController):
             self.app.pargs.netdata = True
             self.app.pargs.dashboard = True
             self.app.pargs.phpredisadmin = True
+            self.app.pargs.fail2ban = True
 
         # NGINX
         if self.app.pargs.nginx:
@@ -1808,6 +1812,12 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + WOVariables.wo_mysql
             packages = packages + ['/usr/bin/mysqltuner']
+
+        # fail2ban
+        if self.app.pargs.redis:
+            Log.debug(self, "Remove apt_packages variable of Fail2ban")
+            apt_packages = apt_packages + WOVariables.wo_fail2ban
+
         # WPCLI
         if self.app.pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
@@ -1912,6 +1922,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
+            (not self.app.pargs.fail2ban) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
@@ -1969,6 +1980,11 @@ class WOStackController(CementBaseController):
                     apt_packages = apt_packages + WOVariables.wo_php73
             else:
                 Log.error(self, "Cannot Purge PHP 7.3. not found.")
+
+        # fail2ban
+        if self.app.pargs.redis:
+            Log.debug(self, "Remove apt_packages variable of Fail2ban")
+            apt_packages = apt_packages + WOVariables.wo_fail2ban
 
         # WP-CLI
         if self.app.pargs.wpcli:
