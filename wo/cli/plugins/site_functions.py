@@ -1266,8 +1266,9 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
-
 # setup letsencrypt for domain + www.domain
+
+
 def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                      wo_dns=False, wo_acme_dns='dns_cf'):
 
@@ -1279,54 +1280,42 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                   .format(wo_domain_name))
         ssl = archivedCertificateHandle(self, wo_domain_name)
     else:
+        keylenght = "{0}".format(self.app.config.get('letsencrypt',
+                                                     'keylength'))
+        if wo_dns:
+            acme_mode = "--dns {0}".format(wo_acme_dns)
+        else:
+            acme_mode = "-w /var/www/html"
         Log.info(self, "Issuing SSL cert with acme.sh")
         if subdomain:
-            if wo_dns:
-                ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                           "--config-home "
-                                           "'/etc/letsencrypt/config' "
-                                           "--issue "
-                                           "-d {0} --dns {1} "
-                                           "-k ec-384 -f"
-                                           .format(wo_domain_name,
-                                                   wo_acme_dns))
-            else:
-                ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                           "--config-home "
-                                           "'/etc/letsencrypt/config' "
-                                           "--issue "
-                                           "-d {0} -w /var/www/html "
-                                           "-k ec-384 -f"
-                                           .format(wo_domain_name))
+            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--issue "
+                                       "-d {0} {1}"
+                                       "-k {3} -f"
+                                       .format(wo_domain_name,
+                                               acme_mode,
+                                               keylenght))
         elif wildcard:
-            if wo_dns:
-                ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                           "--config-home "
-                                           "'/etc/letsencrypt/config' "
-                                           "--issue "
-                                           "-d {0} -d *.{0} --dns {1} "
-                                           "-k ec-384 -f"
-                                           .format(wo_domain_name,
-                                                   wo_acme_dns))
+            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--issue "
+                                       "-d {0} -d *.{0} --dns {1} "
+                                       "-k {2} -f"
+                                       .format(wo_domain_name,
+                                               wo_acme_dns,
+                                               keylenght))
         else:
-            if wo_dns:
-                ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                           "--config-home "
-                                           "'/etc/letsencrypt/config' "
-                                           "--issue "
-                                           "-d {0} -d www.{0} --dns {1} "
-                                           "-k ec-384 -f"
-                                           .format(wo_domain_name,
-                                                   wo_acme_dns))
-            else:
-                ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                           "--config-home "
-                                           "'/etc/letsencrypt/config' "
-                                           "--issue "
-                                           "-d {0} -d www.{0} "
-                                           "-w /var/www/html "
-                                           "-k ec-384 -f"
-                                           .format(wo_domain_name))
+            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--issue "
+                                       "-d {0} -d www.{0} {1} "
+                                       "-k {2} -f"
+                                       .format(wo_domain_name,
+                                               acme_mode, keylenght))
     if ssl:
         try:
             Log.info(self, "Deploying SSL cert with acme.sh")

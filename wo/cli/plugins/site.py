@@ -1348,11 +1348,11 @@ class WOSiteUpdateController(CementBaseController):
                 if self.app.pargs.letsencrypt == "clean":
                     if os.path.isfile("{0}/conf/nginx/ssl.conf"
                                       .format(wo_site_webroot)):
-                        WOFileUtils.remove("{0}/conf/nginx/ssl.conf"
+                        WOFileUtils.remove(self, "{0}/conf/nginx/ssl.conf"
                                            .format(wo_site_webroot))
-                        WOFileUtils.remove("/etc/letsencrypt/live"
+                        WOFileUtils.remove(self, "/etc/letsencrypt/live"
                                            "/{0}".format(wo_domain))
-                        WOFileUtils.remove("/etc/nginx/conf.d/"
+                        WOFileUtils.remove(self, "/etc/nginx/conf.d/"
                                            "force-ssl-{0}.conf"
                                            .format(wo_domain_name))
                 if not WOService.reload_service(self, 'nginx'):

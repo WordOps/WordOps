@@ -237,7 +237,7 @@ class WOStackUpgradeController(CementBaseController):
                                     '-all-languages/config.inc.php'
                                     .format(WOVariables.wo_phpmyadmin)
                                     )
-                    WOFileUtils.remove('{0}22222/htdocs/db/pma'
+                    WOFileUtils.remove(self, '{0}22222/htdocs/db/pma'
                                        .format(WOVariables.wo_webroot))
                     shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
                                 '-all-languages/'
