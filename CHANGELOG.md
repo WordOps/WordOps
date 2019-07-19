@@ -18,10 +18,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Debian 10 buster (testing - not ready for production)
 - Fail2ban with custom jails to secure WordPress & SSH
 - Variable `keylength` in /etc/wo/wo.conf to define letsencrypt certificate keylenght
+- ProFTPd stack
+- Beta branch and command `wo update --beta` for beta releases
 
 #### Fixed
 
 - Nginx was not reloaded after enabling HSTS
+- Netdata, Composer & Fail2Ban stack remove and purge
 
 ### v3.9.5.4 - 2019-07-13
 
