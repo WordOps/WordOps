@@ -4,6 +4,7 @@ from wo.core.services import WOService
 from wo.core.logging import Log
 from wo.core.variables import WOVariables
 from wo.core.aptget import WOAptGet
+import os
 
 
 class WOStackStatusController(CementBaseController):
@@ -12,11 +13,6 @@ class WOStackStatusController(CementBaseController):
         stacked_on = 'stack'
         stacked_type = 'embedded'
         description = 'Check the stack status'
-        arguments = [
-            (['--memcached'],
-                dict(help='start/stop/restart memcached',
-                     action='store_true')),
-        ]
 
     @expose(help="Start stack services")
     def start(self):
@@ -25,9 +21,9 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
                 self.app.pargs.redis or
                 self.app.pargs.fail2ban or
+                self.app.pargs.proftpd or
                 self.app.pargs.netdata):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -68,12 +64,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
@@ -82,9 +72,23 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                services = services + ['proftpd']
+            else:
+                Log.info(self, "ProFTPd is not installed")
+
+        # netdata
+        if self.app.pargs.netdata:
+            if os.path.isdir("/opt/netdata"):
+                services = services + ['netdata']
+            else:
+                Log.info(self, "Netdata is not installed")
 
         for service in services:
             Log.debug(self, "Starting service: {0}".format(service))
@@ -97,18 +101,22 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
+                self.app.pargs.fail2ban or
+                self.app.pargs.netdata or
+                self.app.pargs.proftpd or
                 self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
 
+        # nginx
         if self.app.pargs.nginx:
             if (WOAptGet.is_installed(self, 'nginx-custom')):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
 
+        # php7.2
         if self.app.pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 services = services + ['php7.2-fpm']
@@ -120,12 +128,14 @@ class WOStackStatusController(CementBaseController):
             else:
                 Log.info(self, "PHP7.3-FPM is not installed")
 
+        # php7.3
         if self.app.pargs.php73:
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 services = services + ['php7.3-fpm']
             else:
                 Log.info(self, "PHP7.3-FPM is not installed")
 
+        # mysql
         if self.app.pargs.mysql:
             if ((WOVariables.wo_mysql_host is "localhost") or
                     (WOVariables.wo_mysql_host is "127.0.0.1")):
@@ -139,23 +149,33 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
+        # redis
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
             else:
                 Log.info(self, "Redis server is not installed")
 
+        # fail2ban
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                services = services + ['proftpd']
+            else:
+                Log.info(self, "ProFTPd is not installed")
+
+        # netdata
+        if self.app.pargs.netdata:
+            if os.path.isdir("/opt/netdata"):
+                services = services + ['netdata']
+            else:
+                Log.info(self, "Netdata is not installed")
 
         for service in services:
             Log.debug(self, "Stopping service: {0}".format(service))
@@ -168,7 +188,8 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
+                self.app.pargs.netdata or
+                self.app.pargs.proftpd or
                 self.app.pargs.redis or
                 self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
@@ -212,12 +233,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
@@ -226,9 +241,23 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                services = services + ['proftpd']
+            else:
+                Log.info(self, "ProFTPd is not installed")
+
+        # netdata
+        if self.app.pargs.netdata:
+            if os.path.isdir("/opt/netdata"):
+                services = services + ['netdata']
+            else:
+                Log.info(self, "Netdata is not installed")
 
         for service in services:
             Log.debug(self, "Restarting service: {0}".format(service))
@@ -241,7 +270,8 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
+                self.app.pargs.netdata or
+                self.app.pargs.proftpd or
                 self.app.pargs.redis or
                 self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
@@ -284,12 +314,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
@@ -298,9 +322,23 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                services = services + ['proftpd']
+            else:
+                Log.info(self, "ProFTPd is not installed")
+
+        # netdata
+        if self.app.pargs.netdata:
+            if os.path.isdir("/opt/netdata"):
+                services = services + ['netdata']
+            else:
+                Log.info(self, "Netdata is not installed")
 
         for service in services:
             if WOService.get_service_status(self, service):
@@ -313,7 +351,8 @@ class WOStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php or
                 self.app.pargs.php73 or
                 self.app.pargs.mysql or
-                self.app.pargs.memcached or
+                self.app.pargs.netdata or
+                self.app.pargs.proftpd or
                 self.app.pargs.redis or
                 self.app.pargs.fail2ban):
             self.app.pargs.nginx = True
@@ -357,12 +396,6 @@ class WOStackStatusController(CementBaseController):
                 Log.warn(self, "Remote MySQL found, "
                          "Unable to check MySQL service status")
 
-        if self.app.pargs.memcached:
-            if WOAptGet.is_installed(self, 'memcached'):
-                services = services + ['memcached']
-            else:
-                Log.info(self, "Memcached is not installed")
-
         if self.app.pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 services = services + ['redis-server']
@@ -371,9 +404,23 @@ class WOStackStatusController(CementBaseController):
 
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                services = services + ['fail2ban-client']
+                services = services + ['fail2ban']
             else:
                 Log.info(self, "fail2ban is not installed")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                services = services + ['proftpd']
+            else:
+                Log.info(self, "ProFTPd is not installed")
+
+        # netdata
+        if self.app.pargs.netdata:
+            if os.path.isdir("/opt/netdata"):
+                services = services + ['netdata']
+            else:
+                Log.info(self, "Netdata is not installed")
 
         for service in services:
             Log.debug(self, "Reloading service: {0}".format(service))

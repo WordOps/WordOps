@@ -50,6 +50,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install web stack', action='store_true')),
             (['--admin'],
                 dict(help='Install admin tools stack', action='store_true')),
+            (['--security'],
+             dict(help='Install security tools stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
             (['--php'],
@@ -79,6 +81,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install Redis', action='store_true')),
             (['--phpredisadmin'],
                 dict(help='Install phpRedisAdmin', action='store_true')),
+            (['--proftpd'],
+                dict(help='Install ProFTPd', action='store_true')),
         ]
         usage = "wo stack (command) [options]"
 
@@ -93,8 +97,7 @@ class WOStackController(CementBaseController):
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
             # add mariadb repository excepted on raspbian and ubuntu 19.04
-            if ((not WOVariables.wo_platform_codename == 'disco') and
-                    (not WOVariables.wo_platform_distro == 'raspbian')):
+            if (not WOVariables.wo_platform_distro == 'raspbian'):
                 Log.info(self, "Adding repository for MySQL, please wait...")
                 mysql_pref = ("Package: *\nPin: origin "
                               "sfo1.mirrors.digitalocean.com"
@@ -194,6 +197,7 @@ class WOStackController(CementBaseController):
                 WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
                 Log.debug(self, 'Adding ppa for Nginx')
             else:
+                Log.info(self, "Adding repository for NGINX, please wait...")
                 WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
                 Log.debug(self, 'Adding repository for Nginx')
                 WORepo.add_key(self, WOVariables.wo_nginx_key)
@@ -208,6 +212,13 @@ class WOStackController(CementBaseController):
             else:
                 Log.info(self, "Adding repository for PHP, please wait...")
                 # Add repository for php
+                if (WOVariables.wo_platform_codename == 'buster'):
+                    php_pref = ("Package: *\nPin: origin "
+                                "packages.sury.org"
+                                "\nPin-Priority: 1000\n")
+                    with open('/etc/apt/preferences.d/'
+                              'PHP.pref', 'w') as php_pref_file:
+                        php_pref_file.write(php_pref)
                 Log.debug(self, 'Adding repo_url of php for debian')
                 WORepo.add(self, repo_url=WOVariables.wo_php_repo)
                 Log.debug(self, 'Adding deb.sury GPG key')
@@ -370,7 +381,7 @@ class WOStackController(CementBaseController):
 
                     # php73 conf
                 if not os.path.isfile("/etc/nginx/common/php73.conf"):
-                        # data = dict()
+                    # data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
                     wo_nginx = open('/etc/nginx/common/php73.conf',
@@ -1075,21 +1086,69 @@ class WOStackController(CementBaseController):
             # create fail2ban configuration files
             if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
                 if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
-                    data = dict()
                     Log.debug(self, "Setting up fail2ban jails configuration")
-                    wo_fail2ban = open('/etc/fail2ban/jail.d/custom.conf',
-                                       encoding='utf-8', mode='w')
+                    fail2ban_config = open('/etc/fail2ban/jail.d/custom.conf',
+                                           encoding='utf-8', mode='w')
                     self.app.render((data), 'fail2ban.mustache',
-                                    out=wo_fail2ban)
-                    wo_fail2ban.close()
+                                    out=fail2ban_config)
+                    fail2ban_config.close()
 
                     Log.debug(self, "Setting up fail2ban wp filter")
-                    wo_fail2ban = open('/etc/fail2ban/filter.d/'
-                                       'wo-wordpress.conf',
-                                       encoding='utf-8', mode='w')
+                    fail2ban_config = open('/etc/fail2ban/filter.d/'
+                                           'wo-wordpress.conf',
+                                           encoding='utf-8', mode='w')
                     self.app.render((data), 'fail2ban-wp.mustache',
-                                    out=wo_fail2ban)
-                    wo_fail2ban.close()
+                                    out=fail2ban_config)
+                    fail2ban_config.close()
+
+                    Log.debug(self, "Setting up fail2ban wp filter")
+                    fail2ban_config = open('/etc/fail2ban/filter.d/'
+                                           'nginx-forbidden.conf',
+                                           encoding='utf-8', mode='w')
+                    self.app.render((data), 'fail2ban-forbidden.mustache',
+                                    out=fail2ban_config)
+                    fail2ban_config.close()
+                WOGit.add(self, ["/etc/fail2ban"],
+                          msg="Adding Fail2ban into Git")
+                WOService.reload_service(self, 'fail2ban')
+
+        # Proftpd configuration
+        if set(["proftpd-basic"]).issubset(set(apt_packages)):
+            if os.path.isfile("/etc/proftpd/proftpd.conf"):
+                Log.debug(self, "Setting up Proftpd configuration")
+                WOFileUtils.searchreplace(self, "/etc/proftpd/"
+                                          "proftpd.conf",
+                                          "# DefaultRoot",
+                                          "DefaultRoot")
+                WOFileUtils.searchreplace(self, "/etc/proftpd/"
+                                          "proftpd.conf",
+                                          "# RequireValidShell",
+                                          "RequireValidShell")
+                WOFileUtils.searchreplace(self, "/etc/proftpd/"
+                                          "proftpd.conf",
+                                          "# PassivePorts "
+                                          "                 "
+                                          "49152 65534",
+                                          "PassivePorts "
+                                          "             "
+                                          "    49000 50000")
+            # add rule for proftpd with UFW
+            if WOAptGet.is_installed(self, 'ufw'):
+                try:
+                    WOShellExec.cmd_exec(self, "ufw allow "
+                                         "49000:50000/tcp")
+                except CommandExecutionError as e:
+                    Log.error(self, "Unable to add UFW rule")
+
+            if os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                with open("/etc/fail2ban/jail.d/custom.conf",
+                          encoding='utf-8', mode='a') as f2bproftpd:
+                    f2bproftpd.write("\n\n[proftpd]\nenabled = true\n")
+                WOService.reload_service(self, 'fail2ban')
+
+            WOGit.add(self, ["/etc/proftpd"],
+                      msg="Adding ProFTPd into Git")
+            WOService.reload_service(self, 'proftpd')
 
         if (packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
@@ -1407,17 +1466,22 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.composer) and
                 (not self.app.pargs.netdata) and
                 (not self.app.pargs.dashboard) and
+                (not self.app.pargs.fail2ban) and
+                (not self.app.pargs.security) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-                (not self.app.pargs.redis) and
+                (not self.app.pargs.redis) and (not self.app.pargs.proftpd) and
                 (not self.app.pargs.phpredisadmin) and
                     (not self.app.pargs.php73)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
+                self.app.pargs.security = True
 
             if self.app.pargs.all:
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
                 self.app.pargs.php73 = True
+                self.app.pargs.redis = True
+                self.app.pargs.proftpd = True
 
             if self.app.pargs.web:
                 self.app.pargs.nginx = True
@@ -1436,6 +1500,9 @@ class WOStackController(CementBaseController):
                 self.app.pargs.netdata = True
                 self.app.pargs.dashboard = True
                 self.app.pargs.phpredisadmin = True
+
+            if self.app.pargs.security:
+                self.app.pargs.fail2ban = True
 
             # Redis
             if self.app.pargs.redis:
@@ -1505,7 +1572,6 @@ class WOStackController(CementBaseController):
                                             "/master/mysqltuner.pl",
                                             "/usr/bin/mysqltuner",
                                             "MySQLTuner"]]
-
                 else:
                     Log.debug(self, "MySQL connection is already alive")
                     Log.info(self, "MySQL connection is already alive")
@@ -1533,37 +1599,64 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Fail2ban already installed")
                     Log.info(self, "Fail2ban already installed")
 
+            # proftpd
+            if self.app.pargs.proftpd:
+                Log.debug(self, "Setting apt_packages variable for ProFTPd")
+                if not WOAptGet.is_installed(self, 'proftpd-basic'):
+                    apt_packages = apt_packages + ["proftpd-basic"]
+                else:
+                    Log.debug(self, "ProFTPd already installed")
+                    Log.info(self, "ProFTPd already installed")
+
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
-                Log.debug(self, "Setting packages variable for phpMyAdmin ")
-                self.app.pargs.composer = True
-                packages = packages + [["https://github.com/phpmyadmin/"
-                                        "phpmyadmin/archive/STABLE.tar.gz",
-                                        "/var/lib/wo/tmp/pma.tar.gz",
-                                        "phpMyAdmin"]]
+                if not os.path.isdir('/var/www/22222/htdocs/db/pma'):
+                    Log.debug(self, "Setting packages variable "
+                              "for phpMyAdmin ")
+                    self.app.pargs.composer = True
+                    packages = packages + [["https://github.com/phpmyadmin/"
+                                            "phpmyadmin/archive/STABLE.tar.gz",
+                                            "/var/lib/wo/tmp/pma.tar.gz",
+                                            "phpMyAdmin"]]
+                else:
+                    Log.debug(self, "phpMyAdmin already installed")
+                    Log.info(self, "phpMyAdmin already installed")
+
             # Composer
             if self.app.pargs.composer:
-                Log.debug(self, "Setting packages variable for Composer ")
-                packages = packages + [["https://getcomposer.org/installer",
-                                        "/var/lib/wo/tmp/composer-install",
-                                        "Composer"]]
+                if not os.path.isfile('/usr/local/bin/composer'):
+                    Log.debug(self, "Setting packages variable for Composer ")
+                    packages = packages + [["https://getcomposer.org/"
+                                            "installer",
+                                            "/var/lib/wo/tmp/composer-install",
+                                            "Composer"]]
+                else:
+                    Log.debug(self, "Composer already installed")
+                    Log.info(self, "Composer already installed")
+
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
-                Log.debug(self, "Setting packages variable for phpRedisAdmin")
-                self.app.pargs.composer = True
-                packages = packages + [["https://github.com/erikdubbelboer/"
-                                        "phpRedisAdmin/archive/v1.11.3.tar.gz",
-                                        "/var/lib/wo/tmp/pra.tar.gz",
-                                        "phpRedisAdmin"],
-                                       ["https://github.com/nrk/predis/"
-                                        "archive/v1.1.1.tar.gz",
-                                        "/var/lib/wo/tmp/predis.tar.gz",
-                                        "Predis"]]
+                if not os.path.isdir('/var/www/22222/htdocs/cache/redis'):
+                    Log.debug(
+                        self, "Setting packages variable for phpRedisAdmin")
+                    self.app.pargs.composer = True
+                    packages = packages + [["https://github.com/"
+                                            "erikdubbelboer/"
+                                            "phpRedisAdmin/archive"
+                                            "/v1.11.3.tar.gz",
+                                            "/var/lib/wo/tmp/pra.tar.gz",
+                                            "phpRedisAdmin"]]
+                else:
+                    Log.debug(self, "phpRedisAdmin already installed")
+                    Log.info(self, "phpRedisAdmin already installed")
+
             # ADMINER
             if self.app.pargs.adminer:
-                Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["https://github.com/vrana/adminer/"
-                                        "releases/download/v{0}"
+                if not os.path.isdir('{0}22222/htdocs/db/adminer'
+                                     .format(WOVariables.wo_webroot)):
+                    Log.debug(self, "Setting packages variable for Adminer ")
+                    packages = packages + [["https://github.com/vrana/adminer/"
+                                            "releases/download/v{0}"
                                         "/adminer-{0}.php"
                                         .format(WOVariables.wo_adminer),
                                         "{0}22222/"
@@ -1574,9 +1667,12 @@ class WOStackController(CementBaseController):
                                         "/vrana/adminer/master/designs/"
                                         "pepa-linha/adminer.css",
                                         "{0}22222/"
-                                        "htdocs/db/adminer/adminer.css"
-                                        .format(WOVariables.wo_webroot),
-                                        "Adminer theme"]]
+                                            "htdocs/db/adminer/adminer.css"
+                                            .format(WOVariables.wo_webroot),
+                                            "Adminer theme"]]
+                else:
+                    Log.debug(self, "Adminer already installed")
+                    Log.info(self, "Adminer already installed")
 
             # Netdata
             if self.app.pargs.netdata:
@@ -1586,20 +1682,28 @@ class WOStackController(CementBaseController):
                                             'kickstart-static64.sh',
                                             '/var/lib/wo/tmp/kickstart.sh',
                                             'Netdata']]
+                else:
+                    Log.debug(self, "Netdata already installed")
+                    Log.info(self, "Netdata already installed")
 
             # WordOps Dashboard
             if self.app.pargs.dashboard:
-                Log.debug(self, "Setting packages variable for WO-Dashboard")
-                packages = packages + \
-                    [["https://github.com/WordOps/"
-                      "wordops-dashboard/releases/"
-                      "download/v1.0/wo-dashboard.tar.gz",
-                      "/var/lib/wo/tmp/wo-dashboard.tar.gz",
-                      "WordOps Dashboard"],
-                     ["https://github.com/soerennb/"
-                      "extplorer/archive/v2.1.11.tar.gz",
-                      "/var/lib/wo/tmp/extplorer.tar.gz",
-                      "eXtplorer"]]
+                if not os.path.isfile('/var/www/22222/htdocs/index.php'):
+                    Log.debug(
+                        self, "Setting packages variable for WO-Dashboard")
+                    packages = packages + \
+                        [["https://github.com/WordOps/"
+                          "wordops-dashboard/releases/"
+                          "download/v1.0/wo-dashboard.tar.gz",
+                          "/var/lib/wo/tmp/wo-dashboard.tar.gz",
+                          "WordOps Dashboard"],
+                         ["https://github.com/soerennb/"
+                            "extplorer/archive/v2.1.11.tar.gz",
+                            "/var/lib/wo/tmp/extplorer.tar.gz",
+                            "eXtplorer"]]
+                else:
+                    Log.debug(self, "WordOps dashboard already installed")
+                    Log.info(self, "WordOps dashboard already installed")
 
             # UTILS
             if self.app.pargs.utils:
@@ -1723,10 +1827,13 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
+            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd) and
+            (not self.app.pargs.security) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
+            self.app.pargs.security = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
@@ -1747,6 +1854,9 @@ class WOStackController(CementBaseController):
             self.app.pargs.netdata = True
             self.app.pargs.dashboard = True
             self.app.pargs.phpredisadmin = True
+
+        if self.app.pargs.security:
+            self.app.pargs.fail2ban = True
 
         # NGINX
         if self.app.pargs.nginx:
@@ -1790,6 +1900,23 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + WOVariables.wo_mysql
             packages = packages + ['/usr/bin/mysqltuner']
+
+        # fail2ban
+        if self.app.pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                Log.debug(self, "Remove apt_packages variable of Fail2ban")
+                apt_packages = apt_packages + WOVariables.wo_fail2ban
+            else:
+                Log.error(self, "Fail2ban not found")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                Log.debug(self, "Remove apt_packages variable for ProFTPd")
+                apt_packages = apt_packages + ["proftpd-basic"]
+            else:
+                Log.error(self, "ProFTPd not found")
+
         # WPCLI
         if self.app.pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
@@ -1894,10 +2021,13 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
+            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd) and
+            (not self.app.pargs.security) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
+            self.app.pargs.security = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
@@ -1919,6 +2049,8 @@ class WOStackController(CementBaseController):
             self.app.pargs.dashboard = True
             self.app.pargs.phpredisadmin = True
 
+        if self.app.pargs.security:
+            self.app.pargs.fail2ban = True
         # NGINX
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
@@ -1951,6 +2083,22 @@ class WOStackController(CementBaseController):
                     apt_packages = apt_packages + WOVariables.wo_php73
             else:
                 Log.error(self, "Cannot Purge PHP 7.3. not found.")
+
+        # fail2ban
+        if self.app.pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                Log.debug(self, "Purge apt_packages variable of Fail2ban")
+                apt_packages = apt_packages + WOVariables.wo_fail2ban
+            else:
+                Log.error(self, "Fail2ban not found")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                Log.debug(self, "Purge apt_packages variable for ProFTPd")
+                apt_packages = apt_packages + ["proftpd-basic"]
+            else:
+                Log.error(self, "ProFTPd not found")
 
         # WP-CLI
         if self.app.pargs.wpcli:
@@ -2033,6 +2181,9 @@ class WOStackController(CementBaseController):
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata-"
                                          "uninstaller.sh -y -f")
+
+                if (set(["fail2ban"]).issubset(set(apt_packages))):
+                    WOService.stop_service(self, 'fail2ban')
 
                 if (apt_packages):
                     Log.info(self, "Purging packages, please wait...")

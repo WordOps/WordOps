@@ -21,7 +21,7 @@ location = /robots.txt {
 }
 # fallback for robots.txt with default wordpress rules
 location @robots {
-   return 200 "User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n";
+    return 200 "User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n";
 }
 # webp rewrite rules for jpg and png images
 # try to load alternative image.png.webp before image.png
@@ -36,7 +36,23 @@ location /wp-content/uploads {
         try_files $uri$webp_suffix $uri =404;
     }
     location ~ \.php$ {
-        #Prevent Direct Access Of PHP Files From Web Browsers
+#Prevent Direct Access Of PHP Files From Web Browsers
+        deny all;
+    }
+}
+# webp rewrite rules for EWWW testing image
+location /wp-content/plugins/ewww-image-optimizer/images {
+    location ~ \.(png|jpe?g)$ {
+        add_header Vary "Accept-Encoding";
+        add_header "Access-Control-Allow-Origin" "*";
+        add_header Cache-Control "public, no-transform";
+        access_log off;
+        log_not_found off;
+        expires max;
+        try_files $uri$webp_suffix $uri =404;
+    }
+    location ~ \.php$ {
+#Prevent Direct Access Of PHP Files From Web Browsers
         deny all;
     }
 }

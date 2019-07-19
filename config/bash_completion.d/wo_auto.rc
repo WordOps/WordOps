@@ -22,7 +22,7 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE SECOND LEVEL NAMESPACE
             "clean")
                 COMPREPLY=( $(compgen \
-                              -W "--memcache --opcache --fastcgi --redis --all" \
+                              -W "--opcache --fastcgi --redis --all" \
                               -- $cur) )
                 ;;
 
@@ -74,17 +74,17 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --redis --phpredisadmin --composer --netdata --fail2ban --dashboard" \
+                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --redis --phpredisadmin --composer --netdata --fail2ban --dashboard --proftpd" \
                               -- $cur) )
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --nginx --php --php73 --mysql --all --php56 --no-prompt --wpcli" \
+                              -W "--web --nginx --php --php73 --mysql --all --netdata --composer --phpmyadmin --no-prompt --wpcli" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --php73 --mysql --memcache --redis --fail2ban --netdata" \
+                              -W "--nginx --php --php73 --mysql --redis --fail2ban --netdata -proftpd" \
                               -- $cur) )
                 ;;
             "migrate")
@@ -159,13 +159,13 @@ _wo_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --wpredis --letsencrypt --letsencrypt=subdomain -le" \
+                                    -W "--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le -le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc  --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew" \
+                                    -W "--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc  --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le -le=subdomain -le=wildcard --dns --dns=dns_cf --dns=dns_do" \
                                  -- $cur) )
                 ;;
             "delete")
@@ -211,9 +211,9 @@ _wo_complete()
         "--wp")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --letsencrypt --php73"
+                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --letsencrypt -le --letsencrypt=subdomain --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_do --php73"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew --le --le=subdomain --le=off "
+                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard --letsencrypt=off --letsencrypt=renew -le -le=off -le=wildcard --dns --dns=dns_cf --dns=dns_do"
                 else
                     retlist=""
                 fi
@@ -230,9 +230,9 @@ _wo_complete()
         "--wpsubdir" | "--wpsubdomain")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wpsc --wpfc --user --email --pass --wpredis --letsencrypt --letsencrypt=subdomain --php73"
+                    retlist="--wpsc --wpfc --user --email --pass --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le --php73 --dns --dns=dns_cf --dns=dns_do"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew"
+                    retlist="--wpfc --wpsc --php73 --php73=off --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard --letsencrypt=off --letsencrypt=renew -le --dns --dns=dns_cf --dns=dns_do"
                 else
                     retlist=""
                 fi
@@ -248,7 +248,7 @@ _wo_complete()
 
         "--wpredis" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
             if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --php73 --letsencrypt --letsencrypt=subdomain"
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --php73 --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le --dns --dns=dns_cf --dns=dns_do"
             else
                 retlist=""
             fi
@@ -261,7 +261,7 @@ _wo_complete()
 
         "--wpredis" | "--wpfc")
             if [ ${COMP_WORDS[2]} == "update" ]; then
-                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew"
+                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=off --letsencrypt=renew -le --dns --dns=dns_cf --dns=dns_do"
             else
                 retlist=""
             fi
@@ -272,11 +272,11 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcached" | "--redis | --phpredisadmin")
+        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--redis | --phpredisadmin | --netdata")
             if [[ ${COMP_WORDS[2]} == "install" || ${COMP_WORDS[2]} == "purge" || ${COMP_WORDS[2]} == "remove" ]]; then
-                retlist="--web --admin --nginx --php --php73 --mysql--wpcli --phpmyadmin --adminer --utils --memcache --redis --phpredisadmin"
+                retlist="--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --phpredisadmin --netdata"
             elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
-                    retlist="--nginx --php --php73 --mysql --memcache --redis"
+                    retlist="--nginx --php --php73 --mysql --redis --netdata"
             elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
                     retlist="--start --nginx --php --php73 --fpm --fpm7 --mysql -i --interactive -stop --import-slow-log --import-slow-log-interval= -"
                     if [[ $prev == '--mysql' ]]; then
@@ -310,7 +310,7 @@ _wo_complete()
 
         "--all")
           if [ ${COMP_WORDS[1]} == "clean" ]; then
-                  retlist="--memcache --opcache --fastcgi --redis"
+                  retlist="--opcache --fastcgi --redis"
           elif [ ${COMP_WORDS[2]} == "delete" ]; then
               retlist="--db --files --force"
           elif [ ${COMP_WORDS[2]} == "update" ]; then
@@ -324,8 +324,8 @@ _wo_complete()
                             -- $cur) )
           ;;
 
-        "--memcached" | "--opcache" | "--fastcgi" | "--all" | "--redis")
-            retlist="--memcached --opcache --fastcgi --redis --all"
+        "--opcache" | "--fastcgi" | "--all" | "--redis")
+            retlist="--opcache --fastcgi --redis --all"
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
                           -W "$(echo $ret)" \
@@ -363,7 +363,7 @@ _wo_complete()
         case "$mprev" in
             "--user" | "--email" | "--pass")
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain"
+                    retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --letsencrypt --letsencrypt=subdomain --letsencrypt=wildcard -le --dns --dns=dns_cf --dns=dns_do"
                 fi
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \

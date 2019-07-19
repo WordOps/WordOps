@@ -25,6 +25,9 @@ class WOUpdateController(CementBaseController):
             (['--preserve'],
              dict(help='Preserve current Nginx configuration',
                   action='store_true')),
+            (['--beta'],
+             dict(help='Update WordOps to latest beta release',
+                  action='store_true')),
             (['--travis'],
              dict(help='Argument used only for WordOps development',
                   action='store_true')),
@@ -36,51 +39,33 @@ class WOUpdateController(CementBaseController):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
 
         if self.app.pargs.travis:
-            WODownload.download(self, [["https://raw.githubusercontent.com/"
-                                        "WordOps/WordOps/updating-configuration/install",
-                                        "/tmp/{0}".format(filename),
-                                        "update script"]])
-            try:
-                Log.info(self, "updating WordOps, please wait...")
-                os.system("bash /tmp/{0} --travis --force".format(filename))
-            except OSError as e:
-                Log.debug(self, str(e))
-                Log.error(self, "WordOps update failed !")
+            wo_branch = "updating-configuration"
+            install_args = "--travis --force "
+        elif self.app.pargs.beta:
+            wo_branch = "beta"
+            install_args = ""
         else:
-            WODownload.download(self, [["https://raw.githubusercontent.com/"
-                                        "WordOps/WordOps/master/install",
-                                        "/tmp/{0}".format(filename),
-                                        "update script"]])
-            if self.app.pargs.force:
-                try:
-                    Log.info(self, "updating WordOps, please wait...")
-                    os.system("bash /tmp/{0} --force".format(filename))
-                except OSError as e:
-                    Log.debug(self, str(e))
-                    Log.error(self, "WordOps update failed !")
-                except Exception as e:
-                    Log.debug(self, str(e))
-                    Log.error(self, "WordOps update failed !")
-            elif self.app.pargs.preserve:
-                try:
-                    Log.info(self, "updating WordOps, please wait...")
-                    os.system("bash /tmp/{0} --preserve".format(filename))
-                except OSError as e:
-                    Log.debug(self, str(e))
-                    Log.error(self, "WordOps update failed !")
-                except Exception as e:
-                    Log.debug(self, str(e))
-                    Log.error(self, "WordOps update failed !")
-            else:
-                try:
-                    Log.info(self, "updating WordOps, please wait...")
-                    os.system("bash /tmp/{0}".format(filename))
-                except OSError as e:
-                    Log.debug(self, str(e))
-                    Log.error(self, "WordOps update failed !")
-                except Exception as e:
-                    Log.debug(self, str(e))
-                    Log.error(self, "WordOps update failed !")
+            wo_branch = "master "
+            install_args = ""
+        if self.app.pargs.force:
+            install_args = install_args + "--force "
+        if self.app.pargs.preserve:
+            install_args = install_args + "--preserve "
+
+        WODownload.download(self, [["https://raw.githubusercontent.com/"
+                                    "WordOps/WordOps/{0}/install"
+                                    .format(wo_branch),
+                                    "/var/lib/wo/tmp/{0}".format(filename),
+                                    "update script"]])
+
+        try:
+            Log.info(self, "updating WordOps, please wait...")
+            os.system("/bin/bash /var/lib/wo/tmp/{0} "
+                      "-b {1} {2}".format(filename,
+                                          wo_branch, install_args))
+        except OSError as e:
+            Log.debug(self, str(e))
+            Log.error(self, "WordOps update failed !")
 
 
 def load(app):

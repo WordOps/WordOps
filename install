@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.5.4 - 2019-07-09
+# Version 3.9.6 - 2019-07-20
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.5.4"
+readonly wo_version_new="3.9.6"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -144,9 +144,9 @@ if [ -z "$wo_force_install" ]; then
         wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
         exit 100
     else
-        check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|disco|jessie|stretch")
+        check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|disco|jessie|stretch|buster")
         if [ -z "$check_wo_linux_distro" ]; then
-            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04/19.04 LTS, Debian 8.x, Debian 9.x and Raspbian 9.x"
+            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04/19.04 LTS, Debian 8.x/9.x/10.x and Raspbian 9.x"
             exit 100
         fi
     fi
@@ -185,9 +185,9 @@ wo_install_dep() {
             wget https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key -O Release.key
             apt-key add - < Release.key
             rm -f Release.key
-            [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
             # install dependencies
             DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-dev ca-certificates sqlite3 git tar software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw > /dev/null 2>&1
+            [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
         fi
 
         locale-gen en
@@ -250,8 +250,8 @@ wo_sync_db() {
 
                 wo_site_current_type=$(grep "common/" /etc/nginx/sites-available/$site | awk -F "/" '{print $2}')
 
-                if [ -n "$(echo $wo_site_current_type | grep php)" ]; then
-                    if [ "$(echo $wo_site_current_type | grep php7)" ]; then
+                if echo "$wo_site_current_type" | grep -q "php"; then
+                    if echo "$wo_site_current_type" | grep -q "php7"; then
                         wo_php_version="7.0"
                     else
                         wo_php_version="5.6"
@@ -260,31 +260,31 @@ wo_sync_db() {
                     wo_php_version=""
                 fi
 
-                if [ "$(echo $wo_site_current_type | grep redis)" ]; then
+                if echo "$wo_site_current_type" | grep -q "redis"; then
                     wo_site_current_cache="wpredis"
-                elif [ -z "$(echo $wo_site_current_type | grep wpsc)" ]; then
+                elif echo "$wo_site_current_type" | grep -q wpsc; then
                     wo_site_current_cache="wpsc"
-                elif [ -z "$(echo $wo_site_current_type | grep wpfc)" ]; then
+                elif echo "$wo_site_current_type" | grep -q wpfc; then
                     wo_site_current_cache="wpfc"
                 else
                     wo_site_current_cache="basic"
                 fi
 
-                if [ "$(echo $wo_site_current_type | grep wp)" ]; then
-                    if [ -z "$(echo $wo_site_current_type | grep wpsubdir)" ]; then
+                if echo "$wo_site_current_type" | grep -q wp; then
+                    if echo "$wo_site_current_type" | grep -q wpsubdir; then
                         wo_site_current="wpsubdir"
-                    elif [ -z "$(echo $wo_site_current_type | grep wpsudomain)" ]; then
+                    elif echo "$wo_site_current_type" | grep -q wpsudomain; then
                         wo_site_current="wpsubdomain"
                     else
                         wo_site_current="wp"
                     fi
                 else
-                    if [ -z "$(echo $wo_site_current_type | grep location)" ]; then
+                    if echo "$wo_site_current_type" | grep -q location; then
                         wo_site_current="proxy"
-                    elif [ -z "$(echo $wo_site_current_type | grep php)" ]; then
+                    elif echo "$wo_site_current_type" | grep -q php; then
                         wo_site_current="html"
                     else
-                        if [ -f /var/www/${site}/ee-config.php ] || [ -f /var/www/${site}/wo-config.php ]; then
+                        if [ -f "/var/www/${site}/ee-config.php" ] || [ -f "/var/www/${site}/wo-config.php" ]; then
                             wo_site_current="mysql"
                         else
                             wo_site_current="php"
@@ -401,17 +401,19 @@ wo_install_acme_sh() {
 # Clone Github repository if it doesn't exist
 wo_install() {
     {
+        rm -f /etc/bash_completion.d/wo_auto.rc
         rm -rf /tmp/WordOps
         git clone https://github.com/WordOps/WordOps.git /tmp/WordOps -b "$wo_branch"
         cd /tmp/WordOps || exit 1
 
-    } >> "$wo_install_log" 2>&1
+    } \
+        >> "$wo_install_log" 2>&1
 
-    if [ -f $HOME/.gitconfig ]; then
+    if [ -f "$HOME/.gitconfig" ]; then
         python3 setup.py install >> $wo_install_log 2>&1
     else
         if [ "$wo_force_install" = "y" ]; then
-            [ ! -f $HOME/.gitconfig ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
+            [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME" > $HOME/.gitconfig'; }
         fi
         python3 setup.py install
     fi
@@ -548,8 +550,8 @@ wo_update_latest() {
             mkdir -p /etc/mysql/conf.d
             chmod 755 /etc/mysql/conf.d
         }
-        if [ -f $HOME/.my.cnf ]; then
-            cp -f $HOME/.my.cnf /etc/mysql/conf.d/my.cnf
+        if [ -f "$HOME/.my.cnf" ]; then
+            cp -f "$HOME/.my.cnf" /etc/mysql/conf.d/my.cnf
             chmod 600 /etc/mysql/conf.d/my.cnf
 
         elif [ -f /root/.my.cnf ]; then
@@ -633,7 +635,7 @@ wo_tweak_kernel() {
         if [ "$WO_ARCH" = "x86_64" ]; then
             rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
             wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/sysctl.mustache
-            if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ]; then
+            if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ] || [ "$wo_distro_version" = "buster" ]; then
                 modprobe tcp_bbr && echo 'tcp_bbr' >> /etc/modules-load.d/bbr.conf
                 echo -e '\nnet.ipv4.tcp_congestion_control = bbr\nnet.ipv4.tcp_notsent_lowat = 16384' >> /etc/sysctl.d/60-wo-tweaks.conf
             else
@@ -679,8 +681,10 @@ if [ -x /usr/local/bin/wo ]; then
             fi
             if [ -z "$wo_preserve_config" ]; then
                 if [ -n "$(command -v nginx)" ]; then
-                    wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                    wo_upgrade_nginx | tee -ai $wo_install_log
+                    if ! grep -q "v3.9.5." /etc/nginx/common/release; then
+                        wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+                        wo_upgrade_nginx | tee -ai $wo_install_log
+                    fi
                 fi
             fi
             wo_update_latest | tee -ai $wo_install_log

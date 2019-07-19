@@ -327,11 +327,44 @@ def setupwordpress(self, data):
                 raise SiteError("generate wp-config failed for wp single site")
         except CommandExecutionError as e:
             raise SiteError("generate wp-config failed for wp single site")
+        try:
 
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
-                             "config set WP_CACHE_KEY_SALT "
-                             "\'{0}:\'\"".format(wo_domain_name))
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_CACHE_KEY_SALT "
+                                 "\'{0}:\'\"".format(wo_domain_name))
+
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_MEMORY_LIMIT "
+                                 "\'128M\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_MAX_MEMORY_LIMIT "
+                                 "\'256M\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set CONCATENATE_SCRIPTS "
+                                 "false\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_POST_REVISIONS "
+                                 "\'10\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set MEDIA_TRASH "
+                                 "true\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set EMPTY_TRASH_DAYS "
+                                 "\'15\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_AUTO_UPDATE_CORE "
+                                 "minor\"")
+
+        except CommandExecutionError as e:
+            Log.error(self, "Unable to define extra variable in wp-config.php")
 
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
@@ -339,7 +372,8 @@ def setupwordpress(self, data):
                   .format(WOVariables.wo_wpcli_path) +
                   "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
-                  .format(data['wo_db_name'], wo_wp_prefix, data['wo_db_host']) +
+                  .format(data['wo_db_name'],
+                          wo_wp_prefix, data['wo_db_host']) +
                   "--dbuser=\'{0}\' --dbpass=\'{1}\' "
                   "--extra-php<<PHP \n {2} {3} {4} \nPHP\""
                   .format(data['wo_db_user'], data['wo_db_pass'],
@@ -372,10 +406,44 @@ def setupwordpress(self, data):
         except CommandExecutionError as e:
             raise SiteError("generate wp-config failed for wp multi site")
 
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
-                             "config set WP_CACHE_KEY_SALT "
-                             "\'{0}:\'\"".format(wo_domain_name))
+        try:
+
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_CACHE_KEY_SALT "
+                                 "\'{0}:\'\"".format(wo_domain_name))
+
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_MEMORY_LIMIT "
+                                 "\'128M\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_MAX_MEMORY_LIMIT "
+                                 "\'256M\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set CONCATENATE_SCRIPTS "
+                                 "false\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_POST_REVISIONS "
+                                 "\'10\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set MEDIA_TRASH "
+                                 "true\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set EMPTY_TRASH_DAYS "
+                                 "\'15\'\"")
+            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "config set WP_AUTO_UPDATE_CORE "
+                                 "minor\"")
+
+        except CommandExecutionError as e:
+            Log.error(self, "Unable to define extra variable in wp-config.php")
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
@@ -856,7 +924,7 @@ def site_package_check(self, stype):
                 apt_packages = apt_packages + WOVariables.wo_php73
 
         if (os.path.isdir("/etc/nginx/common") and
-                not os.path.isfile("/etc/nginx/common/php73.conf")):
+                not os.path.isfile("/etc/nginx/common/locations-wo.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/locations-wo.conf')
@@ -1231,9 +1299,18 @@ def removeAcmeConf(self, domain):
     if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
                      .format(domain)):
         Log.debug(self, "Removing Acme configuration")
-        WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
+        try:
+            WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--remove "
+                                       "-d {0} --ecc"
+                                       .format(domain))
+        except CommandExecutionError as e:
+                Log.error(self, "Cert removal failed")
+        WOFileUtils.remove(self, '/etc/letsencrypt/renewal/{0}_ecc'
                        .format(domain))
-        WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
+        WOFileUtils.remove(self, '/etc/letsencrypt/live/{0}'
                        .format(domain))
         WOGit.add(self, ["/etc/letsencrypt"],
                   msg="Deleted {0} "
@@ -1265,40 +1342,57 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
-
 # setup letsencrypt for domain + www.domain
-def setupLetsEncrypt(self, wo_domain_name):
 
-    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
-                      .format(wo_domain_name)):
-        if os.path.isfile("/etc/letsencrypt/"
-                          "renewal/{0}_ecc/"
-                          "fullchain.cer".format(wo_domain_name)):
-            Log.debug(self, "Let's Encrypt certificate "
-                      "found for the domain: {0}"
-                      .format(wo_domain_name))
-            ssl = archivedCertificateHandle(self, wo_domain_name)
+
+def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
+                     wo_dns=False, wo_acme_dns='dns_cf'):
+
+    if os.path.isfile("/etc/letsencrypt/"
+                      "renewal/{0}_ecc/"
+                      "fullchain.cer".format(wo_domain_name)):
+        Log.debug(self, "Let's Encrypt certificate "
+                  "found for the domain: {0}"
+                  .format(wo_domain_name))
+        ssl = archivedCertificateHandle(self, wo_domain_name)
+    else:
+        keylenght = "{0}".format(self.app.config.get('letsencrypt',
+                                                     'keylength'))
+        if wo_dns:
+            acme_mode = "--dns {0}".format(wo_acme_dns)
         else:
-            Log.info(self, "Issuing SSL cert with acme.sh")
+            acme_mode = "-w /var/www/html"
+        Log.info(self, "Issuing SSL cert with acme.sh")
+        if subdomain:
             ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
                                        "--issue "
-                                       "-d {0} -d www.{0} -w /var/www/html "
-                                       "-k ec-384 -f"
-                                       .format(wo_domain_name))
-    else:
-        Log.info(self, "Issuing SSL cert with acme.sh")
-        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                   "--config-home "
-                                   "'/etc/letsencrypt/config' "
-                                   "--issue "
-                                   "-d {0} -d www.{0} -w /var/www/html "
-                                   "-k ec-384 -f"
-                                   .format(wo_domain_name))
-
+                                       "-d {0} {1}"
+                                       "-k {3} -f"
+                                       .format(wo_domain_name,
+                                               acme_mode,
+                                               keylenght))
+        elif wildcard:
+            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--issue "
+                                       "-d {0} -d *.{0} --dns {1} "
+                                       "-k {2} -f"
+                                       .format(wo_domain_name,
+                                               wo_acme_dns,
+                                               keylenght))
+        else:
+            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--issue "
+                                       "-d {0} -d www.{0} {1} "
+                                       "-k {2} -f"
+                                       .format(wo_domain_name,
+                                               acme_mode, keylenght))
     if ssl:
-
         try:
             Log.info(self, "Deploying SSL cert with acme.sh")
             Log.debug(self, "Cert deployment for domain: {0}"
@@ -1344,90 +1438,6 @@ def setupLetsEncrypt(self, wo_domain_name):
                       "ssl.conf")
     else:
         Log.error(self, "Unable to install certificate", False)
-        Log.error(self, "Please make sure that your site is pointed to \n"
-                  "same server on which "
-                  "you are running Let\'s Encrypt Client "
-                  "\n to allow it to verify the site automatically.")
-
-# setup letsencrypt for a subdomain
-
-
-def setupLetsEncryptSubdomain(self, wo_domain_name):
-
-    if os.path.isfile("/etc/letsencrypt/renewal/{0}_ecc/{0}.conf"
-                      .format(wo_domain_name)):
-        if os.path.isfile("/etc/letsencrypt/"
-                          "renewal/{0}_ecc/"
-                          "fullchain.cer".format(wo_domain_name)):
-            Log.debug(self, "Let's Encrypt certificate "
-                      "found for the domain: {0}"
-                      .format(wo_domain_name))
-            ssl = archivedCertificateHandle(self, wo_domain_name)
-        else:
-            Log.info(self, "Issuing SSL cert with acme.sh")
-            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
-                                       "--issue "
-                                       "-d {0} -w /var/www/html "
-                                       "-k ec-384 -f"
-                                       .format(wo_domain_name))
-    else:
-        Log.info(self, "Issuing SSL cert with acme.sh")
-        ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                   "--config-home "
-                                   "'/etc/letsencrypt/config' "
-                                   "--issue "
-                                   "-d {0} -w /var/www/html "
-                                   "-k ec-384 -f"
-                                   .format(wo_domain_name))
-    if ssl:
-
-        try:
-            Log.info(self, "Deploying SSL cert with acme.sh")
-            Log.debug(self, "Deploying cert for domain: {0}"
-                      .format(wo_domain_name))
-            sslsetup = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
-                                            "/etc/letsencrypt/acme.sh "
-                                            "--config-home "
-                                            "'/etc/letsencrypt/config' "
-                                            "--install-cert -d {1} --ecc "
-                                            "--cert-file {0}/{1}/cert.pem "
-                                            "--key-file {0}/{1}/key.pem "
-                                            "--fullchain-file "
-                                            "{0}/{1}/fullchain.pem "
-                                            "--ca-file {0}/{1}/ca.pem "
-                                            "--reloadcmd "
-                                            "\"nginx -t && service nginx restart\" "
-                                            .format(WOVariables.wo_ssl_live,
-                                                    wo_domain_name))
-
-            Log.info(
-                self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
-                .format(wo_domain_name))
-
-            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
-                           .format(wo_domain_name),
-                           encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl http2;\n"
-                          "listen [::]:443 ssl http2;\n"
-                          "ssl_certificate     {0}/{1}/fullchain.pem;\n"
-                          "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                          "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
-                          "ssl_stapling_verify on;\n"
-                          .format(WOVariables.wo_ssl_live, wo_domain_name))
-            sslconf.close()
-            updateSiteInfo(self, wo_domain_name, ssl=True)
-
-            WOGit.add(self, ["/etc/letsencrypt"],
-                      msg="Adding letsencrypt folder")
-
-        except IOError as e:
-            Log.debug(self, str(e))
-            Log.debug(self, "Error occured while generating "
-                      "ssl.conf")
-    else:
-        Log.error(self, "Unable to create ssl.conf", False)
         Log.error(self, "Please make sure that your site is pointed to \n"
                   "same server on which "
                   "you are running Let\'s Encrypt Client "
@@ -1500,7 +1510,7 @@ def setupHsts(self, wo_domain_name):
     return 0
 
 
-def httpsRedirect(self, wo_domain_name, redirect=True):
+def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
     if redirect:
         if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
                           .format(wo_domain_name)):
@@ -1510,31 +1520,54 @@ def httpsRedirect(self, wo_domain_name, redirect=True):
                                "/etc/nginx/conf.d/force-ssl-{0}.conf"
                                .format(wo_domain_name))
         else:
-            try:
-                Log.info(
-                    self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
-                          .format(wo_domain_name))
+            if wildcard:
+                try:
+                    Log.info(
+                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name))
+                    sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                   .format(wo_domain_name),
+                                   encoding='utf-8', mode='w')
+                    sslconf.write("server {\n"
+                                  "\tlisten 80;\n" +
+                                  "\tlisten [::]:80;\n" +
+                                  "\tserver_name *.{0} {0};\n"
+                                  .format(wo_domain_name) +
+                                  "\treturn 301 https://$host"
+                                  "$request_uri;\n}")
+                    sslconf.close()
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while generating "
+                              "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                              .format(wo_domain_name))
+            else:
+                try:
+                    Log.info(
+                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name))
 
-                sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
-                               .format(wo_domain_name),
-                               encoding='utf-8', mode='w')
-                sslconf.write("server {\n"
-                              "\tlisten 80;\n" +
-                              "\tlisten [::]:80;\n" +
-                              "\tserver_name www.{0} {0};\n"
-                              .format(wo_domain_name) +
-                              "\treturn 301 https://{0}"
-                              .format(wo_domain_name)+"$request_uri;\n}")
-                sslconf.close()
-                # Nginx Configation into GIT
-            except IOError as e:
-                Log.debug(self, str(e))
-                Log.debug(self, "Error occured while generating "
-                          "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                          .format(wo_domain_name))
+                    sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                   .format(wo_domain_name),
+                                   encoding='utf-8', mode='w')
+                    sslconf.write("server {\n"
+                                  "\tlisten 80;\n" +
+                                  "\tlisten [::]:80;\n" +
+                                  "\tserver_name www.{0} {0};\n"
+                                  .format(wo_domain_name) +
+                                  "\treturn 301 https://{0}"
+                                  .format(wo_domain_name)+"$request_uri;\n}")
+                    sslconf.close()
+
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while generating "
+                              "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                              .format(wo_domain_name))
 
         Log.info(self, "Added HTTPS Force Redirection for Site "
                  " http://{0}".format(wo_domain_name))
+        # Nginx Configation into GIT
         WOGit.add(self,
                   ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
                   "force-ssl-{0}.conf".format(wo_domain_name))

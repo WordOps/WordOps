@@ -11,10 +11,11 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.5.4"
+    wo_version = "3.9.6"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.1"
+    wo_phpmyadmin = "4.9.0.1"
 
     # Get WPCLI path
     wo_wpcli_path = os.popen('command -v wp | tr "\n" " "').read()
@@ -107,6 +108,10 @@ class WOVariables():
             wo_nginx_repo = ("deb http://download.opensuse.org"
                              "/repositories/home:"
                              "/virtubox:/WordOps/Debian_9.0/ /")
+        elif wo_platform_codename == 'buster':
+            wo_nginx_repo = ("deb http://download.opensuse.org"
+                             "/repositories/home:"
+                             "/virtubox:/WordOps/Debian_10/ /")
     else:
         wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/virtubox:/WordOps/Raspbian_9.0/ /")
@@ -145,7 +150,8 @@ class WOVariables():
                     "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
                     "php7.3-zip", "php7.3-xml", "php7.3-soap"]
         wo_php_extra = ["php-memcached", "php-imagick",
-                        "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+                        "graphviz", "php-xdebug", "php-msgpack",
+                        "php-redis", "php-mysql"]
 
         wo_php_key = 'AC0E47584A7A714D'
 
@@ -162,7 +168,7 @@ class WOVariables():
                          .format(codename=wo_platform_codename))
     wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
 
-    wo_fail2ban = "fail2ban"
+    wo_fail2ban = ["fail2ban", "python3-pyinotify"]
 
     # Redis repo details
     if wo_platform_distro == 'ubuntu':

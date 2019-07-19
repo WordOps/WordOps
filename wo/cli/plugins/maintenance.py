@@ -10,7 +10,6 @@ from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 
 
-
 def wo_maintenance_hook(app):
     pass
 

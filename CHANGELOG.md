@@ -8,7 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
----
+### v3.9.6 - 2019-07-20
+
+#### Added
+
+- New Nginx package on Ubuntu with Cloudflare HTTP/2 HPACK and Dynamic TLS records
+- phpMyAdmin upgrade with `wo stack upgrade --phpmyadmin`
+- Wildcard SSL Certificates support with DNS validation
+- Let's Encrypt DNS API support (Cloudflare, DigitalOcean, etc ..) on domain, subdomain, and wildcard
+- Flag `--letsencrypt=clean` to purge a previous SSL configuration
+- Support for Debian 10 buster (testing - not ready for production)
+- Fail2ban with custom jails to secure WordPress & SSH
+- Variable `keylength` in /etc/wo/wo.conf to define letsencrypt certificate keylenght
+- ProFTPd stack with UFW & Fail2ban configurationz
+- Beta branch and command `wo update --beta` for beta releases
+- Extra directives in wp-config.php (limit posts revisions, set max_memory, enable auto-update for minor-releases)
+
+#### Fixed
+
+- Nginx was not reloaded after enabling HSTS
+- Netdata, Composer & Fail2Ban stack remove and purge
+- WordPress not installed by `wo site update` with basic php73 sites
 
 ### v3.9.5.4 - 2019-07-13
 
@@ -20,14 +40,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- phpRedisAdmin is now installed with the stack "--admin"
+- phpRedisAdmin is now installed with the stack `--admin`
 - Remove memcached - not required anymore
 
 #### Fixed
 
 - phpRedisAdmin installation
 - Duplicated locations /robots.txt after upgrade to v3.9.5.3
-- Let's Encrypt stack "wo site update --letsencrypt/--letsencrypt=off"
+- Let's Encrypt stack `wo site update --letsencrypt/--letsencrypt=off`
 - pt-query-advisor dead link
 - Netdata persistant configuration
 
@@ -76,7 +96,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Install script handle migration from EEv3
 - load-balancing on unix socket for php-fpm
 - stub_status vhost for metrics
-- "--letsencrypt=subdomain" option
+- `--letsencrypt=subdomain` option
 - opcache optimization for php-fpm
 - EasyEngine configuration backup before migration
 - EasyEngine configuration cleanup after migration

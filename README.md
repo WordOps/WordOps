@@ -42,11 +42,12 @@
 
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Up-to-date** : Nginx 1.16.0 with TLS v1.3 & Brotli support, PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- **Custom Nginx build** : Nginx 1.16.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
+- **Up-to-date** : PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
-- **SSL** : Let's Encrypt SSL certificates handled by acme.sh
-- **Modern** : Secured SSL/TLS encryption with strong ciphers_suite, modern TLS protocols and HSTS support
+- **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates handled by acme.sh
+- **Modern** : Strong ciphers_suite, modern TLS protocols and HSTS support (Grade A+ on ssllabs)
 - **Monitoring** : Live Nginx vhost traffic with ngx_vts_module and server monitoring with Netdata
 
 ## Requirements
@@ -58,6 +59,7 @@
 - Ubuntu 19.04 (Disco)
 - Debian 8 (Jessie)
 - Debian 9 (Stretch)
+- Debian 10 (Buster) - Not ready for production
 - Raspbian 9 (Stretch)
 
 ### Ports requirements
@@ -76,20 +78,7 @@ sudo wo site create example.com --wp     # Install required packages & setup Wor
 
 ## Must read
 
-WordOps made some fundamental changes:
-
-- We've deprecated the mail stack. As an alternative, you can take a look at [Mail-in-a-Box](https://github.com/mail-in-a-box/mailinabox), [iRedMail](https://www.iredmail.org/) or [Caesonia](https://github.com/vedetta-com/caesonia). As Roundcube alternative, there is [Rainloop](https://www.rainloop.net/) or [Afterlogic WebMail](https://github.com/afterlogic/webmail-lite-8)
-- Support for w3tc is dropped as a security precaution.
-- PHP 5.6 has been replaced by PHP 7.2 and PHP 7.0 has been replaced by PHP 7.3.
-- Nginx-ee package has been replaced by Nginx-wo (based on Nginx stable v1.16.0 with Brotli support)
-- HHVM stack has been removed
-- Let's Encrypt stack isn't based on letsencrypt-auto anymore, we use acme.sh to handle SSL certificates
-
-If you are going to migrate from EasyEngine v3, here some important informations :
-
-- Previous php upstreams in Nginx will not be overwritted
-- php5.6 and php7.0 will not be removed or uninstalled
-- previous Nginx common configurations will not be overwritted
+[From EasyEngine to WordOps](https://docs.wordops.net/about/from-easyengine-to-wordops/)
 
 ## Usage
 
@@ -133,9 +122,10 @@ wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with ngi
 ### Sites secured with Let's Encrypt
 
 ```bash
-wo site create example.com --wp --letsencrypt # install wordpress & secure site with letsencrypt
-wo site create sub.example.com --wp --letsencrypt=subdomain # install wordpress and secure subdomain with letsencrypt
+wo site create example.com --wp --letsencrypt #  wordpress secured with letsencrypt
+wo site create sub.example.com --wp --letsencrypt=subdomain # wordpress + letsencrypt subdomain
 wo site create site.tld --wp --letsencrypt --hsts # install wordpress & secure site with letsencrypt with HSTS
+wo site create site.tld --wp --letsencrypt=wildcard --dns=dns_cf # install wordpress & issue a wildcard SSL certificate with Cloudflare DNS API
 ```
 
 ## Update WordOps
@@ -167,12 +157,11 @@ Apps & Tools shipped with WordOps :
 - [Composer](https://github.com/composer/composer)
 - [Adminer](https://www.adminer.org/)
 - [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
-- [PHPMemcachedAdmin](https://github.com/elijaa/phpmemcachedadmin)
 - [opcacheGUI](https://github.com/amnuts/opcache-gui)
 - [eXtplorer](https://github.com/soerennb/extplorer)
 - [MySQLTuner](https://github.com/major/MySQLTuner-perl/)
 - [Webgrind](https://github.com/jokkedk/webgrind)
-
+- [MySQLTuner](https://github.com/major/MySQLTuner-perl)
 
 ## License
 

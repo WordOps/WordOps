@@ -3,17 +3,17 @@
 .B WordOps (wo)
 \- Manage Nginx Based Websites.
 .SH SYNOPSIS
-wo [ --version | --help | info | stack | site | debug | update | clean | import_slow_log | log | secure | sync | maintenance]
+wo [ --version | --help | info | stack | site | debug | update | clean | import_slow_log | log | secure | sync | maintenance ]
 .TP
 wo stack [ install | remove | purge | migrate | upgrade] [ --web | --all | --nginx | --php | --php73 | --mysql | --admin | --adminer | --redis | --phpmyadmin | --phpredisadmin | --wpcli | --utils | --dashboard | --netdata ]
 .TP
-wo stack [ status | start | stop | reload | restart ] [--all | --nginx | --php | --php73 |--mysql | --web | --memcached | --redis]
+wo stack [ status | start | stop | reload | restart ] [--all | --nginx | --php | --php73 |--mysql | --web | --redis]
 .TP
 wo site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-wo site create example.com [ --html | --php | --php73 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --letsencrypt/-le/--letsencrypt=subdomain]]
+wo site create example.com [ --html | --php | --php73 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --letsencrypt/-le/--letsencrypt=subdomain/wildcard][--dns=dns_cf/dns_do]]
 .TP
-wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ] [--password] [--letsencrypt=on/off/subdomain/renew]]
+wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ] [--password] [-le/--letsencrypt=on/off/subdomain/renew/wildcard] [--dns=dns_cf/dns_do]]
 .TP
 wo site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
 .TP
@@ -46,19 +46,19 @@ Display WordOps (wo) help.
 .TP
 .B stack
 .TP
-.B install [ --all | --web | --nginx | --php | --php73 |--mysql | --redis | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
+.B install [ --all | --web | --nginx | --php | --php73 |--mysql | --redis | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils | --netdata | --dashboard ]
 .br
 Install Nginx PHP5 MySQL Postfix stack Packages if not used with
 .br
 any options.Installs specific package if used with option.
 .TP
-.B remove [ --all | --web | --nginx | --php | --php73 |--mysql | --redis | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
+.B remove [ --all | --web | --nginx | --php | --php73 |--mysql | --redis | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils | --netdata | --dashboard ]
 .br
 Remove Nginx PHP5 MySQL Postfix stack Packages if not used with
 .br
 any options. Remove specific package if used with option.
 .TP
-.B purge [ --all | --web | --nginx | --php | --php73 |--mysql | --redis | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils ]
+.B purge [ --all | --web | --nginx | --php | --php73 |--mysql | --redis | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils | --netdata | --dashboard ]
 .br
 Purge Nginx PHP5 MySQL Postfix stack Packages if not used with any
 .br
@@ -163,7 +163,7 @@ if used with --all=off argument.
 .br
 Update security settings.
 .TP
-.B clean [ --fastcgi | --opcache | --memcached | --redis | --all ]
+.B clean [ --fastcgi | --opcache | --redis | --all ]
 .br
 Clean NGINX fastCGI cache, Opcache, memcached, Redis cache.
 .br

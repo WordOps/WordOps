@@ -319,7 +319,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create WordPress multisite with subdomain setup",
                      action='store_true')),
             (['--wpfc'],
-                dict(help="create WordPress single/multi site with wpfc cache",
+                dict(help="create WordPress single/multi site with "
+                     "Nginx fastcgi_cache",
                      action='store_true')),
             (['--wpsc'],
                 dict(help="create WordPress single/multi site with wpsc cache",
@@ -333,6 +334,10 @@ class WOSiteCreateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
+            (['--dns'],
+                dict(help="choose dns provider api for letsencrypt",
+                     action='store' or 'store_const',
+                     const='dns_cf', nargs='?')),
             (['--hsts'],
                 dict(help="enable HSTS for site secured with letsencrypt",
                      action='store_true')),
@@ -355,6 +360,7 @@ class WOSiteCreateController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        pargs = self.app.pargs
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
@@ -726,42 +732,30 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if self.app.pargs.letsencrypt == "on":
+        if self.app.pargs.letsencrypt:
             data['letsencrypt'] = True
             letsencrypt = True
-
+            if self.app.pargs.dns:
+                wo_acme_dns = pargs.dns
             if data['letsencrypt'] is True:
-                setupLetsEncrypt(self, wo_domain)
-                httpsRedirect(self, wo_domain)
-
-                if self.app.pargs.hsts:
-                    setupHsts(self, wo_domain)
-
-                if not WOService.reload_service(self, 'nginx'):
-                    Log.error(self, "service nginx reload failed. "
-                              "check issues with `nginx -t` command")
-
-                Log.info(self, "Congratulations! Successfully Configured "
-                         "SSl for Site "
-                         " https://{0}".format(wo_domain))
-
-                # Add nginx conf folder into GIT
-                WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],
-                          msg="Adding letsencrypts config of site: {0}"
-                          .format(wo_domain))
-                updateSiteInfo(self, wo_domain, ssl=letsencrypt)
-
-            elif data['letsencrypt'] is False:
-                Log.info(self, "Not using Let\'s encrypt for Site "
-                         " http://{0}".format(wo_domain))
-
-        if self.app.pargs.letsencrypt == "subdomain":
-            data['letsencrypt'] = True
-            letsencrypt = True
-
-            if data['letsencrypt'] is True:
-                setupLetsEncryptSubdomain(self, wo_domain)
-                httpsRedirect(self, wo_domain)
+                if self.app.pargs.letsencrypt == "subdomain":
+                    if self.app.pargs.dns:
+                        setupLetsEncrypt(self, wo_domain, True, False,
+                                         True, wo_acme_dns)
+                    else:
+                        setupLetsEncrypt(self, wo_domain, True)
+                    httpsRedirect(self, wo_domain)
+                elif self.app.pargs.letsencrypt == "wildcard":
+                    setupLetsEncrypt(self, wo_domain, False, True,
+                                     True, wo_acme_dns)
+                    httpsRedirect(self, wo_domain, True, True)
+                else:
+                    if self.app.pargs.dns:
+                        setupLetsEncrypt(self, wo_domain, False,
+                                         False, True, wo_acme_dns)
+                    else:
+                        setupLetsEncrypt(self, wo_domain)
+                    httpsRedirect(self, wo_domain)
 
                 if self.app.pargs.hsts:
                     setupHsts(self, wo_domain)
@@ -825,8 +819,13 @@ class WOSiteUpdateController(CementBaseController):
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off', 'renew', 'subdomain', 'wildcard'),
+                     choices=('on', 'off', 'renew', 'subdomain',
+                              'wildcard', 'clean'),
                      const='on', nargs='?')),
+            (['--dns'],
+                dict(help="choose dns provider api for letsencrypt",
+                     action='store' or 'store_const',
+                     const='dns_cf', nargs='?')),
             (['--hsts'],
                 dict(help="configure hsts for the site",
                      action='store' or 'store_const',
@@ -834,9 +833,6 @@ class WOSiteUpdateController(CementBaseController):
                      const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
-            (['--experimental'],
-                dict(help="Enable Experimenal packages without prompt",
-                     action='store_true')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
             (['--force'],
@@ -858,7 +854,8 @@ class WOSiteUpdateController(CementBaseController):
             if not (pargs.php or pargs.php73 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
-                    pargs.wpredis or pargs.letsencrypt or pargs.hsts):
+                    pargs.wpredis or pargs.letsencrypt or pargs.hsts or
+                    pargs.dns or pargs.force):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -954,6 +951,11 @@ class WOSiteUpdateController(CementBaseController):
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, "\nFail to enable HSTS")
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
+                Log.info(self, "HSTS is enabled for "
+                         "https://{0}".format(wo_domain))
             return 0
 
         if ((stype == 'php' and
@@ -965,7 +967,7 @@ class WOSiteUpdateController(CementBaseController):
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
             (stype == oldsitetype and cache == oldcachetype) and not
-                (pargs.php73 or pargs.hsts or pargs.letsencrypt)):
+                pargs.php73):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -1181,6 +1183,9 @@ class WOSiteUpdateController(CementBaseController):
             elif pargs.letsencrypt == 'off':
                 data['letsencrypt'] = False
                 letsencrypt = False
+            elif pargs.letsencrypt == 'clean':
+                data['letsencrypt'] = False
+                letsencrypt = False
 
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
@@ -1203,12 +1208,15 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.php73 == "on":
                 data['php73'] = True
                 php73 = True
+            else:
+                data['php73'] = False
+                php73 = False
 
             if pargs.letsencrypt == "on":
                 if oldsitetype in ['wpsubdomain']:
                     data['letsencrypt'] = True
                     letsencrypt = True
-                    wildcard = True
+                    pargs.letsencrypt == 'wildcard'
                 else:
                     data['letsencrypt'] = True
                     letsencrypt = True
@@ -1273,21 +1281,35 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if pargs.letsencrypt:
+        if self.app.pargs.letsencrypt:
+            if self.app.pargs.dns:
+                wo_acme_dns = pargs.dns
             if data['letsencrypt'] is True:
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
-                    if not pargs.letsencrypt == "subdomain":
-                        setupLetsEncrypt(self, wo_domain)
-                    else:
-                        setupLetsEncryptSubdomain(self, wo_domain)
+                    if self.app.pargs.letsencrypt == "on":
+                        if self.app.pargs.dns:
+                            setupLetsEncrypt(self, wo_domain, False,
+                                             False, True, wo_acme_dns)
+                        else:
+                            setupLetsEncrypt(self, wo_domain)
+                        httpsRedirect(self, wo_domain)
+                    elif self.app.pargs.letsencrypt == "subdomain":
+                        if self.app.pargs.dns:
+                            setupLetsEncrypt(self, wo_domain, True, False,
+                                             True, wo_acme_dns)
+                        else:
+                            setupLetsEncrypt(self, wo_domain, True)
+                        httpsRedirect(self, wo_domain)
+                    elif self.app.pargs.letsencrypt == "wildcard":
+                        setupLetsEncrypt(self, wo_domain, False, True,
+                                         True, wo_acme_dns)
+                        httpsRedirect(self, wo_domain, True, True)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
                                        '{0}/conf/nginx/ssl.conf'
                                        .format(wo_site_webroot))
-
-                httpsRedirect(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1307,23 +1329,35 @@ class WOSiteUpdateController(CementBaseController):
                         ".PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
-                if os.path.isfile("{0}/conf/nginx/ssl.conf"
-                                  .format(wo_site_webroot)):
-                    Log.info(self, 'Setting Nginx configuration')
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf.disabled'
-                                       .format(wo_site_webroot))
-                    httpsRedirect(self, wo_domain, False)
-                    if os.path.isfile("{0}/conf/nginx/hsts.conf"
+                if self.app.pargs.letsencrypt == "off":
+                    if os.path.isfile("{0}/conf/nginx/ssl.conf"
                                       .format(wo_site_webroot)):
-                        WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
+                        Log.info(self, 'Setting Nginx configuration')
+                        WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
                                            .format(wo_site_webroot),
-                                           '{0}/conf/nginx/hsts.conf.disabled'
+                                           '{0}/conf/nginx/ssl.conf.disabled'
                                            .format(wo_site_webroot))
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
+                        httpsRedirect(self, wo_domain, False)
+                        if os.path.isfile("{0}/conf/nginx/hsts.conf"
+                                          .format(wo_site_webroot)):
+                            WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
+                                               .format(wo_site_webroot),
+                                               '{0}/conf/nginx/'
+                                               'hsts.conf.disabled'
+                                               .format(wo_site_webroot))
+                if self.app.pargs.letsencrypt == "clean":
+                    if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                                      .format(wo_site_webroot)):
+                        WOFileUtils.remove(self, "{0}/conf/nginx/ssl.conf"
+                                           .format(wo_site_webroot))
+                        WOFileUtils.remove(self, "/etc/letsencrypt/live"
+                                           "/{0}".format(wo_domain))
+                        WOFileUtils.remove(self, "/etc/nginx/conf.d/"
+                                           "force-ssl-{0}.conf"
+                                           .format(wo_domain_name))
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
                     # Log.info(self,"Removing Cron Job set for cert
                     # auto-renewal") WOCron.remove_cron(self,'wo site
                     # update {0} --le=renew --min_expiry_limit 30
@@ -1415,7 +1449,8 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         # Setup WordPress if old sites are html/php/mysql sites
-        if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'mysql']:
+        if data['wp'] and oldsitetype in ['html', 'proxy', 'php',
+                                          'mysql', 'php73']:
             try:
                 wo_wp_creds = setupwordpress(self, data)
             except SiteError as e:
