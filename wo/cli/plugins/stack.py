@@ -79,6 +79,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install Redis', action='store_true')),
             (['--phpredisadmin'],
                 dict(help='Install phpRedisAdmin', action='store_true')),
+            (['--proftpd'],
+                dict(help='Install ProFTPd', action='store_true')),
         ]
         usage = "wo stack (command) [options]"
 
@@ -1103,6 +1105,37 @@ class WOStackController(CementBaseController):
                           msg="Adding Fail2ban into Git")
                 WOService.reload_service(self, 'fail2ban')
 
+        if set(["proftpd-basic"]).issubset(set(apt_packages)):
+            if os.path.isfile("/etc/proftpd/proftpd.conf"):
+                Log.debug(self, "Setting up Proftpd configuration")
+                WOFileUtils.searchreplace(self, "/etc/proftpd/"
+                                          "proftpd.conf",
+                                          "# DefaultRoot",
+                                          "DefaultRoot")
+                WOFileUtils.searchreplace(self, "/etc/proftpd/"
+                                          "proftpd.conf",
+                                          "# RequireValidShell",
+                                          "RequireValidShell")
+                WOFileUtils.searchreplace(self, "/etc/proftpd/"
+                                          "proftpd.conf",
+                                          "# PassivePorts "
+                                          "                 "
+                                          "49152 65534",
+                                          "PassivePorts "
+                                          "             "
+                                          "    49000 50000")
+
+            if WOAptGet.is_installed(self, 'ufw'):
+                try:
+                    WOShellExec.cmd_exec(self, "ufw allow "
+                                         "49000:50000/tcp")
+                except CommandExecutionError as e:
+                    Log.error(self, "Unable to add UFW rules")
+
+            WOGit.add(self, ["/etc/proftpd"],
+                      msg="Adding ProFTPd into Git")
+            WOService.reload_service(self, 'proftpd')
+
         if (packages):
             if any('/usr/local/bin/wp' == x[1] for x in packages):
                 Log.debug(self, "Setting Privileges"
@@ -1421,7 +1454,7 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.dashboard) and
                 (not self.app.pargs.fail2ban) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-                (not self.app.pargs.redis) and
+                (not self.app.pargs.redis) and (not self.app.pargs.proftpd) and
                 (not self.app.pargs.phpredisadmin) and
                     (not self.app.pargs.php73)):
                 self.app.pargs.web = True
@@ -1432,6 +1465,7 @@ class WOStackController(CementBaseController):
                 self.app.pargs.admin = True
                 self.app.pargs.php73 = True
                 self.app.pargs.redis = True
+                self.app.pargs.proftpd = True
 
             if self.app.pargs.web:
                 self.app.pargs.nginx = True
@@ -1546,6 +1580,15 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "Fail2ban already installed")
                     Log.info(self, "Fail2ban already installed")
+
+            # proftpd
+            if self.app.pargs.proftpd:
+                Log.debug(self, "Setting apt_packages variable for ProFTPd")
+                if not WOAptGet.is_installed(self, 'proftpd-basic'):
+                    apt_packages = apt_packages + ["proftpd-basic"]
+                else:
+                    Log.debug(self, "ProFTPd already installed")
+                    Log.info(self, "ProFTPd already installed")
 
             # PHPMYADMIN
             if self.app.pargs.phpmyadmin:
@@ -1741,7 +1784,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
-            (not self.app.pargs.fail2ban) and
+            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
@@ -1813,8 +1856,19 @@ class WOStackController(CementBaseController):
 
         # fail2ban
         if self.app.pargs.fail2ban:
-            Log.debug(self, "Remove apt_packages variable of Fail2ban")
-            apt_packages = apt_packages + WOVariables.wo_fail2ban
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                Log.debug(self, "Remove apt_packages variable of Fail2ban")
+                apt_packages = apt_packages + WOVariables.wo_fail2ban
+            else:
+                Log.error(self, "Fail2ban not found")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                Log.debug(self, "Remove apt_packages variable for ProFTPd")
+                apt_packages = apt_packages + ["proftpd-basic"]
+            else:
+                Log.error(self, "ProFTPd not found")
 
         # WPCLI
         if self.app.pargs.wpcli:
@@ -1920,7 +1974,7 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
-            (not self.app.pargs.fail2ban) and
+            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd)
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
@@ -1981,8 +2035,19 @@ class WOStackController(CementBaseController):
 
         # fail2ban
         if self.app.pargs.fail2ban:
-            Log.debug(self, "Remove apt_packages variable of Fail2ban")
-            apt_packages = apt_packages + WOVariables.wo_fail2ban
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                Log.debug(self, "Purge apt_packages variable of Fail2ban")
+                apt_packages = apt_packages + WOVariables.wo_fail2ban
+            else:
+                Log.error(self, "Fail2ban not found")
+
+        # proftpd
+        if self.app.pargs.proftpd:
+            if WOAptGet.is_installed(self, 'proftpd-basic'):
+                Log.debug(self, "Purge apt_packages variable for ProFTPd")
+                apt_packages = apt_packages + ["proftpd-basic"]
+            else:
+                Log.error(self, "ProFTPd not found")
 
         # WP-CLI
         if self.app.pargs.wpcli:
