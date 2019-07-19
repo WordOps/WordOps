@@ -50,5 +50,4 @@ script:
   - sudo tree -L 2 /etc/nginx
   - sudo cat /var/www/wp1.com/wp-config.php
   - sudo wo update --travis
-  - sudo wo stack remove --all
   - sudo wo stack status
