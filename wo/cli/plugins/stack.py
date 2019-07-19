@@ -1613,12 +1613,22 @@ class WOStackController(CementBaseController):
                                             "phpmyadmin/archive/STABLE.tar.gz",
                                             "/var/lib/wo/tmp/pma.tar.gz",
                                             "phpMyAdmin"]]
+                else:
+                    Log.debug(self, "phpMyAdmin already installed")
+                    Log.info(self, "phpMyAdmin already installed")
+
             # Composer
             if self.app.pargs.composer:
-                Log.debug(self, "Setting packages variable for Composer ")
-                packages = packages + [["https://getcomposer.org/installer",
-                                        "/var/lib/wo/tmp/composer-install",
-                                        "Composer"]]
+                if not os.path.isfile('/usr/local/bin/composer'):
+                    Log.debug(self, "Setting packages variable for Composer ")
+                    packages = packages + [["https://getcomposer.org/"
+                                            "installer",
+                                            "/var/lib/wo/tmp/composer-install",
+                                            "Composer"]]
+                else:
+                    Log.debug(self, "Composer already installed")
+                    Log.info(self, "Composer already installed")
+
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
                 if not os.path.isdir('/var/www/22222/htdocs/cache/redis'):
@@ -1631,11 +1641,17 @@ class WOStackController(CementBaseController):
                                             "/v1.11.3.tar.gz",
                                             "/var/lib/wo/tmp/pra.tar.gz",
                                             "phpRedisAdmin"]]
+                else:
+                    Log.debug(self, "phpRedisAdmin already installed")
+                    Log.info(self, "phpRedisAdmin already installed")
+
             # ADMINER
             if self.app.pargs.adminer:
-                Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["https://github.com/vrana/adminer/"
-                                        "releases/download/v{0}"
+                if not os.path.isdir('{0}22222/htdocs/db/adminer'
+                                     .format(WOVariables.wo_webroot)):
+                    Log.debug(self, "Setting packages variable for Adminer ")
+                    packages = packages + [["https://github.com/vrana/adminer/"
+                                            "releases/download/v{0}"
                                         "/adminer-{0}.php"
                                         .format(WOVariables.wo_adminer),
                                         "{0}22222/"
@@ -1646,9 +1662,12 @@ class WOStackController(CementBaseController):
                                         "/vrana/adminer/master/designs/"
                                         "pepa-linha/adminer.css",
                                         "{0}22222/"
-                                        "htdocs/db/adminer/adminer.css"
-                                        .format(WOVariables.wo_webroot),
-                                        "Adminer theme"]]
+                                            "htdocs/db/adminer/adminer.css"
+                                            .format(WOVariables.wo_webroot),
+                                            "Adminer theme"]]
+                else:
+                    Log.debug(self, "Adminer already installed")
+                    Log.info(self, "Adminer already installed")
 
             # Netdata
             if self.app.pargs.netdata:
@@ -1658,6 +1677,9 @@ class WOStackController(CementBaseController):
                                             'kickstart-static64.sh',
                                             '/var/lib/wo/tmp/kickstart.sh',
                                             'Netdata']]
+                else:
+                    Log.debug(self, "Netdata already installed")
+                    Log.info(self, "Netdata already installed")
 
             # WordOps Dashboard
             if self.app.pargs.dashboard:
@@ -1674,6 +1696,9 @@ class WOStackController(CementBaseController):
                             "extplorer/archive/v2.1.11.tar.gz",
                             "/var/lib/wo/tmp/extplorer.tar.gz",
                             "eXtplorer"]]
+                else:
+                    Log.debug(self, "WordOps dashboard already installed")
+                    Log.info(self, "WordOps dashboard already installed")
 
             # UTILS
             if self.app.pargs.utils:

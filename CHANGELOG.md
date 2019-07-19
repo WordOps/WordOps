@@ -18,8 +18,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Debian 10 buster (testing - not ready for production)
 - Fail2ban with custom jails to secure WordPress & SSH
 - Variable `keylength` in /etc/wo/wo.conf to define letsencrypt certificate keylenght
-- ProFTPd stack with UFW & Fail2ban configuration
+- ProFTPd stack with UFW & Fail2ban configurationz
 - Beta branch and command `wo update --beta` for beta releases
+- Extra directives in wp-config.php (limit posts revisions, set max_memory, enable auto-update for minor-releases)
 
 #### Fixed
 
