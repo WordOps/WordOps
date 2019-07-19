@@ -833,9 +833,6 @@ class WOSiteUpdateController(CementBaseController):
                      const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
-            (['--experimental'],
-                dict(help="Enable Experimenal packages without prompt",
-                     action='store_true')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
             (['--force'],
@@ -858,7 +855,7 @@ class WOSiteUpdateController(CementBaseController):
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
                     pargs.wpredis or pargs.letsencrypt or pargs.hsts or
-                    pargs.dns):
+                    pargs.dns or pargs.force):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -970,7 +967,7 @@ class WOSiteUpdateController(CementBaseController):
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
             (stype == oldsitetype and cache == oldcachetype) and not
-                (pargs.php73 or pargs.hsts or pargs.letsencrypt)):
+                pargs.php73):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -1211,12 +1208,15 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.php73 == "on":
                 data['php73'] = True
                 php73 = True
+            else:
+                data['php73'] = False
+                php73 = False
 
             if pargs.letsencrypt == "on":
                 if oldsitetype in ['wpsubdomain']:
                     data['letsencrypt'] = True
                     letsencrypt = True
-                    wildcard = True
+                    pargs.letsencrypt == 'wildcard'
                 else:
                     data['letsencrypt'] = True
                     letsencrypt = True
@@ -1449,7 +1449,8 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         # Setup WordPress if old sites are html/php/mysql sites
-        if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'mysql']:
+        if data['wp'] and oldsitetype in ['html', 'proxy', 'php',
+                                          'mysql', 'php73']:
             try:
                 wo_wp_creds = setupwordpress(self, data)
             except SiteError as e:
