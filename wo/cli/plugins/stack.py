@@ -50,6 +50,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install web stack', action='store_true')),
             (['--admin'],
                 dict(help='Install admin tools stack', action='store_true')),
+            (['--security'],
+             dict(help='Install security tools stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
             (['--php'],
@@ -1105,6 +1107,7 @@ class WOStackController(CementBaseController):
                           msg="Adding Fail2ban into Git")
                 WOService.reload_service(self, 'fail2ban')
 
+        # Proftpd configuration
         if set(["proftpd-basic"]).issubset(set(apt_packages)):
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
                 Log.debug(self, "Setting up Proftpd configuration")
@@ -1124,13 +1127,19 @@ class WOStackController(CementBaseController):
                                           "PassivePorts "
                                           "             "
                                           "    49000 50000")
-
+            # add rule for proftpd with UFW
             if WOAptGet.is_installed(self, 'ufw'):
                 try:
                     WOShellExec.cmd_exec(self, "ufw allow "
                                          "49000:50000/tcp")
                 except CommandExecutionError as e:
-                    Log.error(self, "Unable to add UFW rules")
+                    Log.error(self, "Unable to add UFW rule")
+
+            if os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                with open("/etc/fail2ban/jail.d/custom.conf",
+                          encoding='utf-8', mode='a') as f2bproftpd:
+                    f2bproftpd.write("\n\n[proftpd]\nenabled = true\n")
+                WOService.reload_service(self, 'fail2ban')
 
             WOGit.add(self, ["/etc/proftpd"],
                       msg="Adding ProFTPd into Git")
@@ -1453,12 +1462,14 @@ class WOStackController(CementBaseController):
                 (not self.app.pargs.netdata) and
                 (not self.app.pargs.dashboard) and
                 (not self.app.pargs.fail2ban) and
+                (not self.app.pargs.security) and
                 (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                 (not self.app.pargs.redis) and (not self.app.pargs.proftpd) and
                 (not self.app.pargs.phpredisadmin) and
                     (not self.app.pargs.php73)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
+                self.app.pargs.security = True
 
             if self.app.pargs.all:
                 self.app.pargs.web = True
@@ -1484,6 +1495,8 @@ class WOStackController(CementBaseController):
                 self.app.pargs.netdata = True
                 self.app.pargs.dashboard = True
                 self.app.pargs.phpredisadmin = True
+
+            if self.app.pargs.security:
                 self.app.pargs.fail2ban = True
 
             # Redis
@@ -1785,10 +1798,12 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
             (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd) and
+            (not self.app.pargs.security) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
+            self.app.pargs.security = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
@@ -1809,6 +1824,8 @@ class WOStackController(CementBaseController):
             self.app.pargs.netdata = True
             self.app.pargs.dashboard = True
             self.app.pargs.phpredisadmin = True
+
+        if self.app.pargs.security:
             self.app.pargs.fail2ban = True
 
         # NGINX
@@ -1974,11 +1991,13 @@ class WOStackController(CementBaseController):
             (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
             (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
             (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
-            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd)
+            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd) and
+            (not self.app.pargs.security) and
             (not self.app.pargs.all) and (not self.app.pargs.redis) and
                 (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
+            self.app.pargs.security = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
@@ -2000,6 +2019,8 @@ class WOStackController(CementBaseController):
             self.app.pargs.dashboard = True
             self.app.pargs.phpredisadmin = True
 
+        if self.app.pargs.security:
+            self.app.pargs.fail2ban = True
         # NGINX
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):

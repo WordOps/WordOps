@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support for Debian 10 buster (testing - not ready for production)
 - Fail2ban with custom jails to secure WordPress & SSH
 - Variable `keylength` in /etc/wo/wo.conf to define letsencrypt certificate keylenght
-- ProFTPd stack
+- ProFTPd stack with UFW & Fail2ban configuration
 - Beta branch and command `wo update --beta` for beta releases
 
 #### Fixed
@@ -36,14 +36,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- phpRedisAdmin is now installed with the stack "--admin"
+- phpRedisAdmin is now installed with the stack `--admin`
 - Remove memcached - not required anymore
 
 #### Fixed
 
 - phpRedisAdmin installation
 - Duplicated locations /robots.txt after upgrade to v3.9.5.3
-- Let's Encrypt stack "wo site update --letsencrypt/--letsencrypt=off"
+- Let's Encrypt stack `wo site update --letsencrypt/--letsencrypt=off`
 - pt-query-advisor dead link
 - Netdata persistant configuration
 
@@ -92,7 +92,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Install script handle migration from EEv3
 - load-balancing on unix socket for php-fpm
 - stub_status vhost for metrics
-- "--letsencrypt=subdomain" option
+- `--letsencrypt=subdomain` option
 - opcache optimization for php-fpm
 - EasyEngine configuration backup before migration
 - EasyEngine configuration cleanup after migration
