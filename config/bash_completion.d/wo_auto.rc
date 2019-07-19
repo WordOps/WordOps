@@ -74,7 +74,7 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --redis --phpredisadmin --composer --netdata --fail2ban --dashboard" \
+                              -W "--web --admin --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --all --redis --phpredisadmin --composer --netdata --fail2ban --dashboard --proftpd" \
                               -- $cur) )
                 ;;
             "upgrade" )
@@ -84,7 +84,7 @@ _wo_complete()
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --php73 --mysql --redis --fail2ban --netdata" \
+                              -W "--nginx --php --php73 --mysql --redis --fail2ban --netdata -proftpd" \
                               -- $cur) )
                 ;;
             "migrate")
