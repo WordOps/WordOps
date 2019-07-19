@@ -97,9 +97,7 @@ class WOStackController(CementBaseController):
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
             # add mariadb repository excepted on raspbian and ubuntu 19.04
-            if ((not WOVariables.wo_platform_codename == 'disco') and
-                    (not WOVariables.wo_platform_distro == 'raspbian') and
-                    (not WOVariables.wo_platform_codename == 'buster')):
+            if (not WOVariables.wo_platform_distro == 'raspbian'):
                 Log.info(self, "Adding repository for MySQL, please wait...")
                 mysql_pref = ("Package: *\nPin: origin "
                               "sfo1.mirrors.digitalocean.com"
@@ -214,6 +212,13 @@ class WOStackController(CementBaseController):
             else:
                 Log.info(self, "Adding repository for PHP, please wait...")
                 # Add repository for php
+                if (WOVariables.wo_platform_codename == 'buster'):
+                    php_pref = ("Package: *\nPin: origin "
+                                "packages.sury.org"
+                                "\nPin-Priority: 1000\n")
+                    with open('/etc/apt/preferences.d/'
+                              'PHP.pref', 'w') as php_pref_file:
+                        php_pref_file.write(php_pref)
                 Log.debug(self, 'Adding repo_url of php for debian')
                 WORepo.add(self, repo_url=WOVariables.wo_php_repo)
                 Log.debug(self, 'Adding deb.sury GPG key')

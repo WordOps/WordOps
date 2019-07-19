@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.9.6 - [Unreleased]
+### v3.9.x - [Unreleased]
+
+### v3.9.6 - 2019-07-20
 
 #### Added
 
@@ -26,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Nginx was not reloaded after enabling HSTS
 - Netdata, Composer & Fail2Ban stack remove and purge
+- WordPress not installed by `wo site update` with basic php73 sites
 
 ### v3.9.5.4 - 2019-07-13
 

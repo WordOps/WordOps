@@ -924,7 +924,7 @@ def site_package_check(self, stype):
                 apt_packages = apt_packages + WOVariables.wo_php73
 
         if (os.path.isdir("/etc/nginx/common") and
-                not os.path.isfile("/etc/nginx/common/php73.conf")):
+                not os.path.isfile("/etc/nginx/common/locations-wo.conf")):
             data = dict()
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/locations-wo.conf')
@@ -1299,9 +1299,18 @@ def removeAcmeConf(self, domain):
     if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
                      .format(domain)):
         Log.debug(self, "Removing Acme configuration")
-        WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
+        try:
+            WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
+                                       "--config-home "
+                                       "'/etc/letsencrypt/config' "
+                                       "--remove "
+                                       "-d {0} --ecc"
+                                       .format(domain))
+        except CommandExecutionError as e:
+                Log.error(self, "Cert removal failed")
+        WOFileUtils.remove(self, '/etc/letsencrypt/renewal/{0}_ecc'
                        .format(domain))
-        WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
+        WOFileUtils.remove(self, '/etc/letsencrypt/live/{0}'
                        .format(domain))
         WOGit.add(self, ["/etc/letsencrypt"],
                   msg="Deleted {0} "
