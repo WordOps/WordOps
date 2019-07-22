@@ -10,7 +10,7 @@
 # Version 3.9.6 - 2019-07-20
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.6"
+readonly wo_version_new="3.9.6.1"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -385,6 +385,8 @@ wo_install_acme_sh() {
             # create acme.sh.env file inlcuded in .bashrc to avoid error when logging in
             mkdir -p "$HOME/.acme.sh"
             echo '' > "$HOME/.acme.sh/acme.sh.env"
+            # removing previous cronjob
+            crontab -l | sed '/41 0 \* \* \* "\/root\/\.acme\.sh"\/acme.sh --cron --home "\/root\/\.acme\.sh" > \/dev\/null/d' | crontab -
 
         } >> "$wo_install_log" 2>&1
     fi
@@ -430,10 +432,10 @@ wo_upgrade_nginx() {
         fi
         # backup nginx conf
         if [ -d /etc/nginx ]; then
-            /usr/bin/rsync -az /etc/nginx/ /var/lib/wo-backup/nginx/
+            /usr/bin/rsync -a --noatime /etc/nginx/ /var/lib/wo-backup/nginx/
         fi
         if [ -d /etc/php ]; then
-            /usr/bin/rsync -az /etc/php/ /var/lib/wo-backup/php/
+            /usr/bin/rsync -a --noatime /etc/php/ /var/lib/wo-backup/php/
         fi
         # chec if the package nginx-ee is installed
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
@@ -452,7 +454,7 @@ wo_upgrade_nginx() {
             # import the respository key for updates
             apt-key add - < /tmp/nginx-wo.key
             rm -f /tmp/nginx-wo.key
-            sudo apt-get update -qq
+            apt-get update -qq
         fi
 
         # stop nginx
@@ -470,6 +472,11 @@ wo_upgrade_nginx() {
                 # remove previous package
                 apt-mark unhold nginx-ee nginx-common nginx-custom
                 apt-get -y purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
+                # remove previous php-fpm pool configuration
+                if [ -n "$CHECK_PHP72" ]; then
+                    apt-get purge php7.2-fpm -y -qq
+                    rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+                fi
             elif [ -n "$CHECK_NGINX_WO" ]; then
                 apt-mark unhold nginx-wo nginx-common nginx-custom
                 apt-get -y purge nginx-wo nginx-common nginx-custom --allow-change-held-packages
@@ -478,18 +485,14 @@ wo_upgrade_nginx() {
             if [ -d /etc/nginx ]; then
                 rm -rf /etc/nginx
             fi
-            # remove previous php-fpm pool configuration
-            if [ -n "$CHECK_PHP72" ]; then
-                apt-get purge php7.2-fpm -y -qq
 
-                rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-            fi
             /usr/local/bin/wo stack install --nginx --php
-            rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf}
+            rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf} /etc/nginx/htpasswd-wo
         fi
 
         # restore sites and configuration
-        /usr/bin/rsync -auz /var/lib/wo-backup/nginx/ /etc/nginx/
+        /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
+        [ -f /etc/nginx/htpasswd-ee ] && { mv /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
         sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
