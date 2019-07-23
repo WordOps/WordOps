@@ -1369,7 +1369,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                        "'/etc/letsencrypt/config' "
                                        "--issue "
                                        "-d {0} {1}"
-                                       "-k {3} -f"
+                                       "-k {2} -f"
                                        .format(wo_domain_name,
                                                acme_mode,
                                                keylenght))
