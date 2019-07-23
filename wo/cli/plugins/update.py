@@ -45,7 +45,7 @@ class WOUpdateController(CementBaseController):
             wo_branch = "beta"
             install_args = ""
         else:
-            wo_branch = "master "
+            wo_branch = "master"
             install_args = ""
         if self.app.pargs.force:
             install_args = install_args + "--force "
