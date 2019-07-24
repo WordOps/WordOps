@@ -16,7 +16,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Arguments `--letsencrypt=clean/purge`
 - Incorrect directory removal during stack upgrade
 
-
 ### v3.9.6.1 - 2019-07-23
 
 #### Fixed
