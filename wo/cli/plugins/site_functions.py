@@ -1307,11 +1307,19 @@ def removeAcmeConf(self, domain):
                                        "-d {0} --ecc"
                                        .format(domain))
         except CommandExecutionError as e:
-                Log.error(self, "Cert removal failed")
-        WOFileUtils.remove(self, '/etc/letsencrypt/renewal/{0}_ecc'
+            Log.error(self, "Cert removal failed")
+        WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
                        .format(domain))
-        WOFileUtils.remove(self, '/etc/letsencrypt/live/{0}'
+        WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
                        .format(domain))
+        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf'.format(domain))
+        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf.disabled'
+                       .format(domain))
+        WOFileUtils.rm(
+            self, '/etc/nginx/conf.d/force-ssl-{0}.conf'.format(domain))
+        WOFileUtils.rm(
+            self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'.format(domain))
+
         WOGit.add(self, ["/etc/letsencrypt"],
                   msg="Deleted {0} "
                   .format(domain))
