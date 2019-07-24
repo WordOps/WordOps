@@ -158,7 +158,7 @@ class WOStackUpgradeController(CementBaseController):
                       "/phpMyAdmin/{0}/"
                       "phpMyAdmin-{0}-"
                       "all-languages"
-                      ".zip".format(WOVariables.wo_phpmyadmin),
+                      ".tar.gz".format(WOVariables.wo_phpmyadmin),
                       "/var/lib/wo/tmp/pma.tar.gz",
                       "PHPMyAdmin"]]
             else:

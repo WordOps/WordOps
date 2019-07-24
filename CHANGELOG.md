@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Typo in  `--letsencrypt=subdomain`
 - phpMyAdmin upgrade archive extraction
+- Error in the command `wo update`. Please `wo update --beta` as workaround
 
 ### v3.9.6 - 2019-07-20
 
