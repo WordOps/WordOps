@@ -8,14 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
-### v3.9.6.2 - 2019-07-23
+### v3.9.6.2 - 2019-07-24
+
+#### Changed
+
+- Improve `wo update` process duration
+- Improve package install/upgrade/remove process
 
 #### Fixed
 
 - phpMyAdmin archive download link archive
 - Arguments `--letsencrypt=clean/purge`
 - Incorrect directory removal during stack upgrade
-
 
 ### v3.9.6.1 - 2019-07-23
 

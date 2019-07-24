@@ -1298,6 +1298,7 @@ def removeNginxConf(self, domain):
 def removeAcmeConf(self, domain):
     if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
                      .format(domain)):
+        Log.info(self, "Removing Acme configuration")
         Log.debug(self, "Removing Acme configuration")
         try:
             WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
@@ -1308,17 +1309,20 @@ def removeAcmeConf(self, domain):
                                        .format(domain))
         except CommandExecutionError as e:
             Log.error(self, "Cert removal failed")
+
         WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
                        .format(domain))
         WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
                        .format(domain))
-        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf'.format(domain))
+        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf'
+                       .format(domain))
         WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf.disabled'
                        .format(domain))
-        WOFileUtils.rm(
-            self, '/etc/nginx/conf.d/force-ssl-{0}.conf'.format(domain))
-        WOFileUtils.rm(
-            self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'.format(domain))
+        WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf'
+                       .format(domain))
+        WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'
+                       .format(domain))
+
 
         WOGit.add(self, ["/etc/letsencrypt"],
                   msg="Deleted {0} "
@@ -1435,7 +1439,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                           "ssl_stapling_verify on;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
-            updateSiteInfo(self, wo_domain_name, ssl=True)
+            #updateSiteInfo(self, wo_domain_name, ssl=True)
 
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
