@@ -158,7 +158,7 @@ class WOStackUpgradeController(CementBaseController):
                       "/phpMyAdmin/{0}/"
                       "phpMyAdmin-{0}-"
                       "all-languages"
-                      ".zip".format(WOVariables.wo_phpmyadmin),
+                      ".tar.gz".format(WOVariables.wo_phpmyadmin),
                       "/var/lib/wo/tmp/pma.tar.gz",
                       "PHPMyAdmin"]]
             else:
@@ -229,17 +229,17 @@ class WOStackUpgradeController(CementBaseController):
 
                 if self.app.pargs.phpmyadmin:
                     Log.info(self, "Upgrading phpMyAdmin, please wait...")
-                    WOExtract.extract(
-                        self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
-                    shutil.copyfile('{0}22222/htdocs/db/pma'
-                                    '/config.inc.php'
-                                    .format(WOVariables.wo_webroot),
-                                    '/var/lib/wo/tmp/phpMyAdmin-{0}'
-                                    '-all-languages/config.inc.php'
-                                    .format(WOVariables.wo_phpmyadmin)
+                    WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz',
+                                      '/var/lib/wo/tmp/')
+                    shutil.copyfile(('{0}22222/htdocs/db/pma'
+                                     '/config.inc.php'
+                                     .format(WOVariables.wo_webroot)),
+                                    ('/var/lib/wo/tmp/phpMyAdmin-{0}'
+                                     '-all-languages/config.inc.php'
+                                     .format(WOVariables.wo_phpmyadmin))
                                     )
-                    WOFileUtils.remove(self, '{0}22222/htdocs/db/pma'
-                                       .format(WOVariables.wo_webroot))
+                    WOFileUtils.rm(self, '{0}22222/htdocs/db/pma'
+                                   .format(WOVariables.wo_webroot))
                     shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
                                 '-all-languages/'
                                 .format(WOVariables.wo_phpmyadmin),

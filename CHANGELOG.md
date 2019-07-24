@@ -8,12 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.6.2 - 2019-07-23
+
+#### Fixed
+
+- phpMyAdmin archive download link archive
+- Arguments `--letsencrypt=clean/purge`
+- Incorrect directory removal during stack upgrade
+
+
 ### v3.9.6.1 - 2019-07-23
 
 #### Fixed
 
 - Typo in  `--letsencrypt=subdomain`
 - phpMyAdmin upgrade archive extraction
+- Error in the command `wo update`. Please `wo update --beta` as workaround
 
 ### v3.9.6 - 2019-07-20
 

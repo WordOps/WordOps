@@ -27,12 +27,6 @@ class CliTestCaseClean(test.WOTestCase):
         self.app.run()
         self.app.close()
 
-    def test_wo_cli_clean_memcache(self):
-        self.app = get_test_app(argv=['clean', '--memcache'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
-
     def test_wo_cli_clean_opcache(self):
         self.app = get_test_app(argv=['clean', '--opcache'])
         self.app.setup()

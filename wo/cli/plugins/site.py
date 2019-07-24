@@ -820,7 +820,7 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew', 'subdomain',
-                              'wildcard', 'clean'),
+                              'wildcard', 'clean', 'purge'),
                      const='on', nargs='?')),
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
@@ -1186,6 +1186,9 @@ class WOSiteUpdateController(CementBaseController):
             elif pargs.letsencrypt == 'clean':
                 data['letsencrypt'] = False
                 letsencrypt = False
+            elif pargs.letsencrypt == 'purge':
+                data['letsencrypt'] = False
+                letsencrypt = False
 
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
@@ -1214,13 +1217,16 @@ class WOSiteUpdateController(CementBaseController):
 
             if pargs.letsencrypt == "on":
                 if oldsitetype in ['wpsubdomain']:
-                    data['letsencrypt'] = True
-                    letsencrypt = True
-                    pargs.letsencrypt == 'wildcard'
+                    if pargs.dns:
+                        data['letsencrypt'] = True
+                        letsencrypt = True
+                        pargs.letsencrypt == 'wildcard'
+                    else:
+                        data['letsencrypt'] = True
+                        letsencrypt = True
                 else:
                     data['letsencrypt'] = True
                     letsencrypt = True
-                    wildcard = False
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             data['wpredis'] = True
@@ -1345,16 +1351,9 @@ class WOSiteUpdateController(CementBaseController):
                                                '{0}/conf/nginx/'
                                                'hsts.conf.disabled'
                                                .format(wo_site_webroot))
-                if self.app.pargs.letsencrypt == "clean":
-                    if os.path.isfile("{0}/conf/nginx/ssl.conf"
-                                      .format(wo_site_webroot)):
-                        WOFileUtils.remove(self, "{0}/conf/nginx/ssl.conf"
-                                           .format(wo_site_webroot))
-                        WOFileUtils.remove(self, "/etc/letsencrypt/live"
-                                           "/{0}".format(wo_domain))
-                        WOFileUtils.remove(self, "/etc/nginx/conf.d/"
-                                           "force-ssl-{0}.conf"
-                                           .format(wo_domain_name))
+                elif (self.app.pargs.letsencrypt == "clean" or
+                      self.app.pargs.letsencrypt == "purge"):
+                    removeAcmeConf(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")

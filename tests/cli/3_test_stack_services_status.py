@@ -15,7 +15,7 @@ class CliTestCaseStack(test.WOTestCase):
         self.app.run()
         self.app.close()
 
-    def test_wo_cli_stack_services_status_php5_fpm(self):
+    def test_wo_cli_stack_services_status_php_fpm(self):
         self.app = get_test_app(argv=['stack', 'status', '--php'])
         self.app.setup()
         self.app.run()
