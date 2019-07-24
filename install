@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.6 - 2019-07-20
+# Version 3.9.6 - 2019-07-24
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.6.1"
+readonly wo_version_new="3.9.6.2"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -487,7 +487,7 @@ wo_upgrade_nginx() {
             fi
 
             /usr/local/bin/wo stack install --nginx --php
-            rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf} /etc/nginx/htpasswd-wo
+            rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf,blockips.conf} /etc/nginx/htpasswd-wo
         fi
 
         # restore sites and configuration
