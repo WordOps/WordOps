@@ -1323,7 +1323,7 @@ def removeAcmeConf(self, domain):
         WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'
                        .format(domain))
 
-        updateSiteInfo(self, wo_domain, ssl=False)
+
         WOGit.add(self, ["/etc/letsencrypt"],
                   msg="Deleted {0} "
                   .format(domain))
@@ -1439,7 +1439,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                           "ssl_stapling_verify on;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
-            updateSiteInfo(self, wo_domain_name, ssl=True)
+            #updateSiteInfo(self, wo_domain_name, ssl=True)
 
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
