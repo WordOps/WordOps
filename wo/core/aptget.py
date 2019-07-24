@@ -83,11 +83,14 @@ class WOAptGet():
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
                 proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
-                                        "apt-get dist-upgrade -o "
-                                        "Dpkg::Options::=\"--force-confdef\""
-                                        " -o "
-                                        "Dpkg::Options::=\"--force-confold\""
-                                        " -y ",
+                                        "apt-get dist-upgrade "
+                                        "--option=Dpkg::options::="
+                                        "--force-confdef "
+                                        "--option=Dpkg::options::="
+                                        "--force-unsafe-io "
+                                        "--option=Dpkg::options::="
+                                        "--force-confold "
+                                        "--assume-yes --quiet ",
                                         shell=True, stdin=None,
                                         stdout=f, stderr=f,
                                         executable="/bin/bash")
@@ -110,11 +113,13 @@ class WOAptGet():
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
                 proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
-                                        "apt-get install -o "
-                                        "Dpkg::Options::=\"--force-confdef\""
-                                        " -o "
-                                        "Dpkg::Options::=\"--force-confold\""
-                                        " -y --allow-unauthenticated {0}"
+                                        "apt-get install "
+                                        "--option=Dpkg::options::="
+                                        "--force-confdef "
+                                        "--option=Dpkg::options::="
+                                        "--force-confold "
+                                        "--assume-yes "
+                                        "--allow-unauthenticated {0}"
                                         .format(all_packages), shell=True,
                                         stdin=None, stdout=f, stderr=f,
                                         executable="/bin/bash")
@@ -141,12 +146,14 @@ class WOAptGet():
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
                 if purge:
-                    proc = subprocess.Popen('apt-get purge -y {0}'
+                    proc = subprocess.Popen('apt-get autoremove --purge '
+                                            '--assume-yes {0}'
                                             .format(all_packages), shell=True,
                                             stdin=None, stdout=f, stderr=f,
                                             executable="/bin/bash")
                 else:
-                    proc = subprocess.Popen('apt-get remove -y {0}'
+                    proc = subprocess.Popen('apt-get autoremove '
+                                            '--assume-yes {0}'
                                             .format(all_packages), shell=True,
                                             stdin=None, stdout=f, stderr=f,
                                             executable="/bin/bash")
