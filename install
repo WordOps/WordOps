@@ -651,7 +651,7 @@ wo_tweak_kernel() {
                 echo 'net.ipv4.tcp_congestion_control = htcp' >> /etc/sysctl.d/60-wo-tweaks.conf
             fi
             # apply sysctl tweaks
-            sysctl -e -p /etc/sysctl.d/60-wo-tweaks.conf
+            sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
             if [ ! -x /opt/wo-kernel.sh ]; then
             {
                 # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
