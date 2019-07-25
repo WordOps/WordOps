@@ -453,11 +453,12 @@ wo_upgrade_nginx() {
             fi
         else
             if [ "$wo_distro_version" == "jessie" ]; then
+                # import the respository key for updates
                 curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key | apt-key add -
             else
                 curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key | apt-key add -
             fi
-            # import the respository key for updates
+
         fi
 
         # stop nginx
@@ -648,6 +649,16 @@ wo_tweak_kernel() {
             else
                 modprobe tcp_htcp && echo 'tcp_htcp' >> /etc/modules-load.d/htcp.conf
                 echo 'net.ipv4.tcp_congestion_control = htcp' >> /etc/sysctl.d/60-wo-tweaks.conf
+            fi
+            # apply sysctl tweaks
+            sysctl -e -p /etc/sysctl.d/60-wo-tweaks.conf
+            if [ ! -x /opt/wo-kernel.sh ]; then
+                # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
+                wget -qO /opt/wo-kernel.sh https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-script.mustache
+                chmod +x /opt/wo-kernel.sh
+                wget -qO /lib/systemd/system/wo-kernel.service https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-service.mustache
+                systemctl enable wo-kernel.service
+                systemctl start wo-kernel.service
             fi
 
         fi
