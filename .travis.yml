@@ -47,7 +47,7 @@ script:
   - sudo wp --allow-root --info
   - sudo wo info
   - sudo tree -L 2 /etc/nginx
-  - sudo cat /var/www/wp1.com/wp-config.php
+  - sudo cat /etc/mysql/my.cnf
   - sudo wo stack upgrade --netdata --no-prompt
   - sudo wo stack upgrade --phpmyadmin --no-prompt
   - sudo wo stack upgrade --composer --no-prompt
