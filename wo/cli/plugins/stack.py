@@ -24,7 +24,6 @@ from wo.core.addswap import WOSwap
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
-from wo.core.checkfqdn import check_fqdn
 from wo.core.download import WODownload
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
@@ -244,6 +243,7 @@ class WOStackController(CementBaseController):
         """Post activity after installation of packages"""
         if (apt_packages):
 
+            # Nginx configuration
             if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
                 if set(["nginx"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
@@ -254,16 +254,18 @@ class WOStackController(CementBaseController):
                             wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
 
-                if not (os.path.isfile('/etc/nginx/common/wpfc-php72.conf')):
-                    # Change WordOpsVersion in nginx.conf file
-                    WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                              "# add_header",
-                                              "add_header")
+                if os.path.isfile('/etc/nginx/nginx.conf'):
+                    if WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                        '# add_header'):
+                        # Change WordOpsVersion in nginx.conf file
+                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                                  "# add_header",
+                                                  "add_header")
 
-                    WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                              "\"WordOps\"",
-                                              "\"WordOps v{0}\""
-                                              .format(WOVariables.wo_version))
+                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                                  "\"WordOps\"",
+                                                  "\"WordOps v{0}\""
+                                                  .format(WOVariables.wo_version))
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
@@ -291,7 +293,6 @@ class WOStackController(CementBaseController):
                         (data), 'upstream.mustache', out=wo_nginx)
                     wo_nginx.close()
 
-                if not (os.path.isfile('/etc/nginx/conf.d/stub_status.conf')):
                     data = dict(phpconf=True if
                                 WOAptGet.is_installed(self, 'php7.2-fpm')
                                 else False)
@@ -303,7 +304,6 @@ class WOStackController(CementBaseController):
                         (data), 'stub_status.mustache', out=wo_nginx)
                     wo_nginx.close()
 
-                if not (os.path.isfile('/etc/nginx/conf.d/webp.conf')):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/webp.conf')
@@ -329,15 +329,8 @@ class WOStackController(CementBaseController):
                               '/etc/nginx/common')
                     os.makedirs('/etc/nginx/common')
 
+                if os.path.exists('/etc/nginx/common'):
                     data = dict(webroot=WOVariables.wo_webroot)
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/acl.conf')
-                    wo_nginx = open('/etc/nginx/common/acl.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'acl.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/locations-wo.conf')
                     wo_nginx = open('/etc/nginx/common/locations-wo.conf',
@@ -387,7 +380,6 @@ class WOStackController(CementBaseController):
                     wo_nginx.close()
 
                     # php73 conf
-                if not os.path.isfile("/etc/nginx/common/php73.conf"):
                     # data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
@@ -429,21 +421,59 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                if not os.path.isfile("/etc/nginx/common/locations-wo.conf"):
+                    # create redis conf
+                    data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-wo.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-wo.conf',
+                              'file /etc/nginx/common/redis-php72.conf')
+                    wo_nginx = open('/etc/nginx/common/redis-php72.conf',
                                     encoding='utf-8', mode='w')
-                    self.app.render((data), 'locations.mustache',
+                    self.app.render((data), 'redis.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                if not os.path.isfile("/etc/nginx/common/release"):
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/redis-php73.conf')
+                    wo_nginx = open('/etc/nginx/common/redis-php73.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis-php7.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
+
                     with open("/etc/nginx/common/release",
                               "a") as release_file:
                         release_file.write("v{0}"
                                            .format(WOVariables.wo_version))
                     release_file.close()
+
+                # Following files should not be overwrited
+
+                if not os.path.isfile('/etc/nginx/common/acl.conf'):
+                    data = dict(webroot=WOVariables.wo_webroot)
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/acl.conf')
+                    wo_nginx = open('/etc/nginx/common/acl.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'acl.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
+
+                # add redis cache format if not already done
+                if (os.path.isfile("/etc/nginx/nginx.conf") and
+                    not os.path.isfile("/etc/nginx/conf.d"
+                                       "/redis.conf")):
+                    with open("/etc/nginx/conf.d/"
+                              "redis.conf", "a") as redis_file:
+                        redis_file.write("# Log format Settings\n"
+                                         "log_format rt_cache_redis "
+                                         "'$remote_addr "
+                                         "$upstream_response_time "
+                                         "$srcache_fetch_status "
+                                         "[$time_local] '\n"
+                                         "'$http_host \"$request\" $status"
+                                         " $body_bytes_sent '\n"
+                                         "'\"$http_referer\" "
+                                         "\"$http_user_agent\"';\n")
 
                     # Nginx-Plus does not have nginx
                     # package structure like this
@@ -590,64 +620,9 @@ class WOStackController(CementBaseController):
                 else:
                     WOService.restart_service(self, 'nginx')
 
-                # create redis conf is redis is installed
-                if WOAptGet.is_installed(self, 'redis-server'):
-                    if (os.path.isfile("/etc/nginx/nginx.conf") and
-                            not os.path.isfile("/etc/nginx/common/"
-                                               "redis-php72.conf")):
-
-                        data = dict()
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/redis-php72.conf')
-                        wo_nginx = open('/etc/nginx/common/redis-php72.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'redis.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
-
-                    if (os.path.isfile("/etc/nginx/nginx.conf") and
-                            not os.path.isfile("/etc/nginx/common/"
-                                               "redis-php73.conf")):
-                        data = dict()
-                        Log.debug(self, 'Writting the nginx configuration to '
-                                  'file /etc/nginx/common/redis-php73.conf')
-                        wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                                        encoding='utf-8', mode='w')
-                        self.app.render((data), 'redis-php7.mustache',
-                                        out=wo_nginx)
-                        wo_nginx.close()
-
-                    # add redis upstream if not available in upstream.conf
-                    if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-                        if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                                "upstream.conf",
-                                                "redis"):
-                            with open("/etc/nginx/conf.d/upstream.conf",
-                                      "a") as redis_file:
-                                redis_file.write("upstream redis {\n"
-                                                 "    server 127.0.0.1:6379;\n"
-                                                 "    keepalive 10;\n}\n")
-
-                    # add redis cache format if not already done
-                    if (os.path.isfile("/etc/nginx/nginx.conf") and
-                            not os.path.isfile("/etc/nginx/conf.d"
-                                               "/redis.conf")):
-                        with open("/etc/nginx/conf.d/"
-                                  "redis.conf", "a") as redis_file:
-                            redis_file.write("# Log format Settings\n"
-                                             "log_format rt_cache_redis "
-                                             "'$remote_addr "
-                                             "$upstream_response_time "
-                                             "$srcache_fetch_status "
-                                             "[$time_local] '\n"
-                                             "'$http_host \"$request\" $status"
-                                             " $body_bytes_sent '\n"
-                                             "'\"$http_referer\" "
-                                             "\"$http_user_agent\"';\n")
             # setup nginx common folder for php7
             if self.app.pargs.php73:
-                if (os.path.isdir("/etc/nginx/common") and
-                        not os.path.isfile("/etc/nginx/common/php73.conf")):
+                if os.path.isdir("/etc/nginx/common"):
                     data = dict()
 
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -682,9 +657,6 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                if (os.path.isdir("/etc/nginx/common") and
-                        not os.path.isfile("/etc/nginx/common/"
-                                           "redis-php73.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/redis-php73.conf')
@@ -694,22 +666,9 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-                    if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                            "upstream.conf",
-                                            "php73"):
-                        with open("/etc/nginx/conf.d/"
-                                  "upstream.conf", "a") as php_file:
-                            php_file.write("upstream php73 {\nserver unix:"
-                                           "/var/run/php/php73-fpm.sock;\n}\n"
-                                           "upstream debug73 {\nserver "
-                                           "127.0.0.1:9173;\n}\n")
             # create nginx configuration for redis
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
-                if (os.path.isfile("/etc/nginx/nginx.conf") and
-                        not os.path.isfile("/etc/nginx/common/"
-                                           "redis-php72.conf")):
-
+                if os.path.isdir('/etc/nginx/common'):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/redis-php72.conf')
@@ -1076,17 +1035,6 @@ class WOStackController(CementBaseController):
                                        encoding='utf-8', mode='w')
                     config_file.write(config)
                     config_file.close()
-                else:
-                    try:
-                        WOShellExec.cmd_exec(self, "sed -i \"/#max_conn"
-                                             "ections/a wait_timeout = 30 \\n"
-                                             "interactive_timeout = 60 \\n"
-                                             "performance_schema = 0\\n"
-                                             "query_cache_type = 1 \" "
-                                             "/etc/mysql/my.cnf")
-                    except CommandExecutionError as e:
-                        Log.debug(self, "{0}".format(e))
-                        Log.error(self, "Unable to update MySQL file")
 
                 WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
                 WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
@@ -1789,7 +1737,6 @@ class WOStackController(CementBaseController):
                 WOShellExec.cmd_exec(self, "systemctl enable redis-server")
                 if os.path.isfile("/etc/redis/redis.conf"):
                     wo_ram = psutil.virtual_memory().total / (1024 * 1024)
-                    wo_swap = psutil.swap_memory().total / (1024 * 1024)
                     if wo_ram < 512:
                         Log.debug(self, "Setting maxmemory variable to "
                                   "{0} in redis.conf"
@@ -1823,6 +1770,61 @@ class WOStackController(CementBaseController):
                                              "allkeys-lru/' "
                                                    "/etc/redis/redis.conf")
                         WOService.restart_service(self, 'redis-server')
+        if 'mariadb-server' in apt_packages:
+            # setting innodb memory usage
+            wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+            wo_ram_innodb = int(wo_ram*0.3)
+            wo_ram_log_buffer = int(wo_ram_innodb*0.25)
+            wo_ram_log_size = int(wo_ram_log_buffer*0.5)
+            # replacing default values
+            if os.path.isfile("/etc/mysql/my.cnf"):
+                Log.debug(self, "Tuning MySQL configuration")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "innodb_buffer_pool_size = 256M",
+                                          "innodb_buffer_pool_size = {0}M"
+                                          .format(wo_ram_innodb))
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "innodb_log_buffer_size = 8M",
+                                          "innodb_log_buffer_size = {0}M"
+                                          .format(wo_ram_log_buffer))
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "#innodb_log_file_size   = 50M",
+                                          "innodb_log_file_size   = {0}M"
+                                          .format(wo_ram_log_size))
+                WOFileUtils.searchreplace(self,
+                                          "/etc/mysql/my.cnf",
+                                          "wait_timeout      "
+                                          "      = 600",
+                                          "wait_timeout       "
+                                          "     = 120")
+                # disabling mariadb binlog
+                WOFileUtils.searchreplace(self,
+                                          "/etc/mysql/my.cnf",
+                                          "log_bin           "
+                                          "      = /var/log/"
+                                          "mysql/mariadb-bin",
+                                          "#log_bin          "
+                                          "      = /var/log/"
+                                          "mysql/mariadb-bin")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "log_bin_index           "
+                                          "= /var/log/mysql/"
+                                          "mariadb-bin.index",
+                                          "#log_bin_index           "
+                                          "= /var/log/mysql/"
+                                          "mariadb-bin.index")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "expire_logs_days        "
+                                          "= 10",
+                                          "#expire_logs_days        "
+                                          "= 10")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "max_binlog_size         "
+                                          "= 100M",
+                                          "#max_binlog_size         "
+                                          "= 100M")
+                WOService.restart_service(self, 'mysql')
+
             if disp_msg:
                 if (self.msg):
                     for msg in self.msg:

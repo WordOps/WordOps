@@ -74,3 +74,13 @@ upstream netdata {
     server 127.0.0.1:19999;
     keepalive 64;
 }
+
+#-------------------------------
+# Redis
+#-------------------------------
+
+# Redis cache upstream
+upstream redis {
+    server 127.0.0.1:6379;
+    keepalive 10;
+}

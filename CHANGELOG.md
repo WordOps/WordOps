@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- MySQL configuration tuning
+- Cronjob to optimize MySQL databases weekly
+
+#### Changed
+
+- `wo maintenance` refactored
+- Improved debug log
+- Updated Nginx configuration process to not overwrite files with custom data (htpasswd-wo, acl.conf etc..)
+
 ### v3.9.6.2 - 2019-07-24
 
 #### Changed
