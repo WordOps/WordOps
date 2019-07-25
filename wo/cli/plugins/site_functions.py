@@ -676,6 +676,31 @@ def installwp_plugin(self, plugin_name, data):
     return 1
 
 
+def site_url_https(self, site_webroot='', wo_domain=''):
+    Log.info(self, "Checking if site url already use https, please wait...")
+    WOFileUtils.chdir(self, '{0}/htdocs/'.format(site_webroot))
+    test_site_url = WOShellExec.cmd_exec(self, "php {0} option get siteurl "
+                                         .format(WOVariables.wo_wpcli_path) +
+                                         "--allow-root --quiet").split(":")
+    if not test_site_url[0] == "https":
+        try:
+            WOShellExec.cmd_exec(self, "php {0} option update siteurl "
+                                 "\"https://{1}\" --allow-root".format(
+                                     WOVariables.wo_wpcli_path, wo_domain))
+            WOShellExec.cmd_exec(self, "php {0} option update home "
+                                 "\"https://{1}\" --allow-root".format(
+                                     WOVariables.wo_wpcli_path, wo_domain))
+        except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
+            raise SiteError("plugin activation failed")
+        Log.info(
+            self, "Site address updated "
+            "successfully to https://{0}".format(wo_domain))
+    else:
+        Log.info(
+            self, "Site address was already using https")
+
+
 def uninstallwp_plugin(self, plugin_name, data):
     wo_site_webroot = data['webroot']
     Log.debug(self, "Uninstalling plugin {0}, please wait..."
@@ -1331,7 +1356,6 @@ def removeAcmeConf(self, domain):
         WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'
                        .format(domain))
 
-
         WOGit.add(self, ["/etc/letsencrypt"],
                   msg="Deleted {0} "
                   .format(domain))
@@ -1380,10 +1404,13 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                      'keylength'))
         if wo_dns:
             acme_mode = "--dns {0}".format(wo_acme_dns)
+            Log.debug(
+                self, "Validation : DNS mode with {0}".format(wo_acme_dns))
         else:
             acme_mode = "-w /var/www/html"
-        Log.info(self, "Issuing SSL cert with acme.sh")
+            Log.debug(self, "Validation : Webroot mode")
         if subdomain:
+            Log.info(self, "Issuing subdomain SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
@@ -1394,6 +1421,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                acme_mode,
                                                keylenght))
         elif wildcard:
+            Log.info(self, "Issuing Wildcard SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
@@ -1404,6 +1432,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                wo_acme_dns,
                                                keylenght))
         else:
+            Log.info(self, "Issuing domain SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
@@ -1413,25 +1442,26 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                        .format(wo_domain_name,
                                                acme_mode, keylenght))
     if ssl:
+        Log.info(self, "Deploying SSL cert with acme.sh")
+        Log.debug(self, "Cert deployment for domain: {0}"
+                  .format(wo_domain_name))
         try:
-            Log.info(self, "Deploying SSL cert with acme.sh")
-            Log.debug(self, "Cert deployment for domain: {0}"
-                      .format(wo_domain_name))
-            sslsetup = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
-                                            "/etc/letsencrypt/acme.sh "
-                                            "--config-home "
-                                            "'/etc/letsencrypt/config' "
-                                            "--install-cert -d {1} --ecc "
-                                            "--cert-file {0}/{1}/cert.pem "
-                                            "--key-file {0}/{1}/key.pem "
-                                            "--fullchain-file "
-                                            "{0}/{1}/fullchain.pem "
-                                            "--ca-file {0}/{1}/ca.pem "
-                                            "--reloadcmd "
-                                            "\"nginx -t && "
-                                            "service nginx restart\" "
-                                            .format(WOVariables.wo_ssl_live,
-                                                    wo_domain_name))
+
+            WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
+                                 "/etc/letsencrypt/acme.sh "
+                                 "--config-home "
+                                 "'/etc/letsencrypt/config' "
+                                 "--install-cert -d {1} --ecc "
+                                 "--cert-file {0}/{1}/cert.pem "
+                                 "--key-file {0}/{1}/key.pem "
+                                 "--fullchain-file "
+                                 "{0}/{1}/fullchain.pem "
+                                 "--ca-file {0}/{1}/ca.pem "
+                                 "--reloadcmd "
+                                 "\"nginx -t && "
+                                 "service nginx restart\" "
+                                 .format(WOVariables.wo_ssl_live,
+                                         wo_domain_name))
             Log.info(
                 self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
                 .format(wo_domain_name))
@@ -1447,7 +1477,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                           "ssl_stapling_verify on;\n"
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
-            #updateSiteInfo(self, wo_domain_name, ssl=True)
+            # updateSiteInfo(self, wo_domain_name, ssl=True)
 
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
@@ -1475,7 +1505,7 @@ def renewLetsEncrypt(self, wo_domain_name):
               "--renew -d {0} --ecc --force"
         .format(wo_domain_name))
 
-    mail_list = ''
+    # mail_list = ''
     if not ssl:
         Log.error(self, "ERROR : Let's Encrypt certificate renewal FAILED!",
                   False)
@@ -1609,11 +1639,10 @@ def archivedCertificateHandle(self, domain):
              "{1}_ecc/{1}.conf)".format(WOVariables.wo_ssl_archive, domain) +
              "\nPlease select an option from below?"
              "\n\t1: Reinstall existing certificate"
-             "\n\t2: Keep the existing certificate for now"
-             "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
+             "\n\t2: Renew & replace the certificate (limit ~5 per 7 days)"
              "")
     check_prompt = input(
-        "\nType the appropriate number [1-3] or any other key to cancel: ")
+        "\nType the appropriate number [1-2] or any other key to cancel: ")
     if not os.path.isfile("{0}/{1}/fullchain.pem"
                           .format(WOVariables.wo_ssl_live, domain)):
         Log.error(
@@ -1621,7 +1650,7 @@ def archivedCertificateHandle(self, domain):
                   .format(WOVariables.wo_ssl_live, domain))
 
     if check_prompt == "1":
-        Log.info(self, "Issuing SSL cert with acme.sh")
+        Log.info(self, "Reinstalling SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "mkdir -p {0}/{1} && "
                                    "/etc/letsencrypt/acme.sh "
                                    "--config-home "
@@ -1633,7 +1662,7 @@ def archivedCertificateHandle(self, domain):
                                    "{0}/{1}/fullchain.pem "
                                    "--ca-file {0}/{1}/ca.pem "
                                    "--reloadcmd "
-                                   "\"service nginx restart\" "
+                                   "\"nginx -t && service nginx restart\" "
                                    .format(WOVariables.wo_ssl_live,
                                            domain))
         if ssl:
@@ -1665,15 +1694,6 @@ def archivedCertificateHandle(self, domain):
                           "ssl.conf")
 
     elif (check_prompt == "2"):
-        Log.info(self, "Using Existing Certificate files")
-        if not os.path.isfile("{0}/{1}/fullchain.pem"
-                              .format(WOVariables.wo_ssl_live, domain)):
-            Log.error(self, "Certificate files not found. Skipping.\n"
-                            "Please check if following file exist"
-                            "\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
-                            "/etc/letsencrypt/live/{0}/key.pem".format(domain))
-
-    elif (check_prompt == "3"):
         Log.info(self, "Issuing SSL cert with acme.sh")
         ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                    "--config-home "
@@ -1698,7 +1718,7 @@ def archivedCertificateHandle(self, domain):
                                      "ssl_trusted_certificate "
                                      "{0}/{1}/ca.pem;\n"
                                      "--reloadcmd "
-                                     "\"service nginx restart\" "
+                                     "\"nginx -t && service nginx restart\" "
                                      .format(WOVariables.wo_ssl_live, domain))
 
             except IOError as e:
