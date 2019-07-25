@@ -1794,9 +1794,9 @@ class WOStackController(CementBaseController):
                     WOFileUtils.searchreplace(self,
                                               "/etc/mysql/my.cnf",
                                               "wait_timeout		"
-                                              "      = 600",
+                                              "= 600",
                                               "wait_timeout		"
-                                              "     = 120")
+                                              "= 120")
                     # disabling mariadb binlog
                     WOFileUtils.searchreplace(self,
                                               "/etc/mysql/my.cnf",
@@ -1822,6 +1822,16 @@ class WOStackController(CementBaseController):
                                               "= 100M",
                                               "#max_binlog_size         "
                                               "= 100M")
+                    WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                              "innodb_open_files	="
+                                              " 400",
+                                              "innodb_open_files	="
+                                              " 16000")
+                    WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                              "innodb_io_capacity	="
+                                              " 400",
+                                              "innodb_io_capacity	="
+                                              " 16000")
                     WOService.stop_service(self, 'mysql')
                     WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
                                        '/var/lib/mysql/ib_logfile0.bak')
