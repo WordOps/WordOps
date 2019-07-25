@@ -1780,43 +1780,42 @@ class WOStackController(CementBaseController):
                 if os.path.isfile("/etc/mysql/my.cnf"):
                     Log.debug(self, "Tuning MySQL configuration")
                     WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                              "innodb_buffer_pool_size = 256M",
-                                              "innodb_buffer_pool_size = {0}M"
+                                              "innodb_buffer_pool_size	= 256M",
+                                              "innodb_buffer_pool_size	= {0}M"
                                               .format(wo_ram_innodb))
                     WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                              "innodb_log_buffer_size = 8M",
-                                              "innodb_log_buffer_size = {0}M"
+                                              "innodb_log_buffer_size	= 8M",
+                                              "innodb_log_buffer_size	= {0}M"
                                               .format(wo_ram_log_buffer))
                     WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                              "#innodb_log_file_size   = 50M",
-                                              "innodb_log_file_size   = {0}M"
+                                              "#innodb_log_file_size	= 50M",
+                                              "innodb_log_file_size		= {0}M"
                                               .format(wo_ram_log_size))
                     WOFileUtils.searchreplace(self,
                                               "/etc/mysql/my.cnf",
-                                              "wait_timeout      "
+                                              "wait_timeout		"
                                               "      = 600",
-                                              "wait_timeout       "
+                                              "wait_timeout		"
                                               "     = 120")
                     # disabling mariadb binlog
                     WOFileUtils.searchreplace(self,
                                               "/etc/mysql/my.cnf",
-                                              "log_bin           "
-                                              "      = /var/log/"
-                                              "mysql/mariadb-bin",
+                                              "log_bin			"
+                                              "= /var/log/mysql/"
+                                              "mariadb-bin",
                                               "#log_bin          "
                                               "      = /var/log/"
                                               "mysql/mariadb-bin")
                     WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                              "log_bin_index           "
+                                              'log_bin_index		'
                                               "= /var/log/mysql/"
                                               "mariadb-bin.index",
-                                              "#log_bin_index           "
+                                              "#log_bin_index "
                                               "= /var/log/mysql/"
                                               "mariadb-bin.index")
                     WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                              "expire_logs_days        "
-                                              "= 10",
-                                              "#expire_logs_days        "
+                                              "expire_logs_days	= 10",
+                                              "#expire_logs_days	"
                                               "= 10")
                     WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                               "max_binlog_size         "
