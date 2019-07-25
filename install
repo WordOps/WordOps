@@ -413,7 +413,7 @@ wo_install() {
         >> "$wo_install_log" 2>&1
 
     if [ "$wo_force_install" = "y" ]; then
-            [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
+        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
     fi
 
     if [ -f "$HOME/.gitconfig" ]; then
@@ -449,7 +449,7 @@ wo_upgrade_nginx() {
         # add new Nginx repository
         if [ "$wo_linux_distro" = "Ubuntu" ]; then
             if [ ! -f /etc/apt/sources.list.d/wordops-ubuntu-nginx-wo-"$(lsb_release -sc)".list ]; then
-            add-apt-repository ppa:wordops/nginx-wo -y -u
+                add-apt-repository ppa:wordops/nginx-wo -y -u
             fi
         else
             if [ "$wo_distro_version" == "jessie" ]; then
@@ -469,28 +469,29 @@ wo_upgrade_nginx() {
         }
 
         # install new nginx package
-        if [ -x /usr/local/bin/wo ]; then
+        if [ -n "$CHECK_NGINX_EE" ] || [ -n "$CHECK_NGINX_WO" ]; then
+            if [ -x /usr/local/bin/wo ]; then
+                if [ -n "$CHECK_NGINX_EE" ]; then
+                    # remove previous package
+                    apt-mark unhold nginx-ee nginx-common nginx-custom
+                    apt-get --assume-yes purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
+                    # remove previous php-fpm pool configuration
+                    if [ -n "$CHECK_PHP72" ]; then
+                        apt-get purge php7.2-fpm -y -qq
+                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+                    fi
+                elif [ -n "$CHECK_NGINX_WO" ]; then
+                    apt-mark unhold nginx-wo nginx-common nginx-custom
+                    apt-get --assume-yes purge nginx-wo nginx-common nginx-custom --allow-change-held-packages
 
-            if [ -n "$CHECK_NGINX_EE" ]; then
-                # remove previous package
-                apt-mark unhold nginx-ee nginx-common nginx-custom
-                apt-get -y purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
-                # remove previous php-fpm pool configuration
-                if [ -n "$CHECK_PHP72" ]; then
-                    apt-get purge php7.2-fpm -y -qq
-                    rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                 fi
-            elif [ -n "$CHECK_NGINX_WO" ]; then
-                apt-mark unhold nginx-wo nginx-common nginx-custom
-                apt-get -y purge nginx-wo nginx-common nginx-custom --allow-change-held-packages
+                if [ -d /etc/nginx ]; then
+                    rm -rf /etc/nginx
+                fi
 
+                /usr/local/bin/wo stack install --nginx --php
+                rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf,blockips.conf} /etc/nginx/htpasswd-wo
             fi
-            if [ -d /etc/nginx ]; then
-                rm -rf /etc/nginx
-            fi
-
-            /usr/local/bin/wo stack install --nginx --php
-            rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf,blockips.conf} /etc/nginx/htpasswd-wo
         fi
 
         # restore sites and configuration

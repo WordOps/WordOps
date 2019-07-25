@@ -1,7 +1,7 @@
 from wo.cli.plugins.stack import WOStackController
 from wo.core.fileutils import WOFileUtils
 from wo.core.mysql import *
-from wo.core.shellexec import *
+from wo.core.shellexec import WOShellExec, CommandExecutionError
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables
 from wo.cli.plugins.sitedb import *
@@ -670,6 +670,7 @@ def installwp_plugin(self, plugin_name, data):
                                      else ''
                                      ))
     except CommandExecutionError as e:
+        Log.debug(self, "{0}".format(e))
         raise SiteError("plugin activation failed")
 
     return 1
@@ -693,6 +694,7 @@ def uninstallwp_plugin(self, plugin_name, data):
                              "--allow-root uninstall "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
+        Log.debug(self, "{0}".format(e))
         raise SiteError("plugin uninstall failed")
 
 
@@ -710,6 +712,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
                                  "{0} \'{1}\' --format=json"
                                  .format(plugin_option, plugin_data))
         except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
     else:
         try:
@@ -720,6 +723,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
                                  .format(plugin_option, plugin_data
                                          ))
         except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
 
 
@@ -1001,6 +1005,7 @@ def updatewpuserpassword(self, wo_domain, wo_site_webroot):
         is_wp = WOShellExec.cmd_exec(self, "wp --allow-root core"
                                      " version")
     except CommandExecutionError as e:
+        Log.debug(self, "{0}".format(e))
         raise SiteError("is WordPress site? check command failed ")
 
     # Exit if wo_domain is not wordpress install
@@ -1020,6 +1025,7 @@ def updatewpuserpassword(self, wo_domain, wo_site_webroot):
             WOShellExec.cmd_exec(self, "wp --allow-root user list "
                                  "--fields=user_login | grep -v user_login")
         except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
             raise SiteError("fetch wp userlist command failed")
 
     if not wo_wp_user:
@@ -1030,6 +1036,7 @@ def updatewpuserpassword(self, wo_domain, wo_site_webroot):
                                              "--fields=user_login | grep {0}$ "
                                              .format(wo_wp_user))
     except CommandExecutionError as e:
+        Log.debug(self, "{0}".format(e))
         raise SiteError("if wp user exists check command failed")
 
     if is_user_exist:
@@ -1308,6 +1315,7 @@ def removeAcmeConf(self, domain):
                                        "-d {0} --ecc"
                                        .format(domain))
         except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, "Cert removal failed")
 
         WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
@@ -1651,8 +1659,6 @@ def archivedCertificateHandle(self, domain):
                                   .format(WOVariables.wo_ssl_live, domain))
                     sslconf.close()
 
-                    updateSiteInfo(self, domain, ssl=True)
-
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.debug(self, "Error occured while generating "
@@ -1666,8 +1672,6 @@ def archivedCertificateHandle(self, domain):
                             "Please check if following file exist"
                             "\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
                             "/etc/letsencrypt/live/{0}/key.pem".format(domain))
-
-            updateSiteInfo(self, domain, ssl=True)
 
     elif (check_prompt == "3"):
         Log.info(self, "Issuing SSL cert with acme.sh")

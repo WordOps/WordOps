@@ -619,7 +619,7 @@ class WOSiteCreateController(CementBaseController):
 
             if (data['wp'] and (self.app.pargs.vhostonly)):
                 try:
-                    data = setupdatabase(self, data)
+                    wo_wp_creds = setupwordpress(self, data)
                     # Add database information for site into database
                     updateSiteInfo(self, wo_domain, db_name=data['wo_db_name'],
                                    db_user=data['wo_db_user'],

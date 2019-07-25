@@ -1,36 +1,39 @@
 """Stack Plugin for WordOps"""
 
-from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.cli.plugins.site_functions import *
-from wo.core.variables import WOVariables
-from wo.core.aptget import WOAptGet
-from wo.core.download import WODownload
-from wo.core.shellexec import WOShellExec, CommandExecutionError
-from wo.core.fileutils import WOFileUtils
-from wo.core.apt_repo import WORepo
-from wo.core.extract import WOExtract
-from wo.core.mysql import WOMysql
-from wo.core.addswap import WOSwap
-from wo.core.git import WOGit
-from wo.core.checkfqdn import check_fqdn
-from pynginxconfig import NginxConfig
-from wo.core.services import WOService
-import random
-import string
-import configparser
-import shutil
-import os
-import pwd
-import grp
+from cement.core.controller import CementBaseController, expose
+
 import codecs
+import configparser
+import grp
+import os
 import platform
+import pwd
+import random
+import shutil
+import string
+
 import psutil
-from wo.cli.plugins.stack_services import WOStackStatusController
-from wo.cli.plugins.stack_migrate import WOStackMigrateController
-from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
-from wo.core.logging import Log
+# from pynginxconfig import NginxConfig
+from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import *
+from wo.cli.plugins.stack_migrate import WOStackMigrateController
+from wo.cli.plugins.stack_services import WOStackStatusController
+from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
+from wo.core.addswap import WOSwap
+from wo.core.apt_repo import WORepo
+from wo.core.aptget import WOAptGet
+from wo.core.cron import WOCron
+from wo.core.checkfqdn import check_fqdn
+from wo.core.download import WODownload
+from wo.core.extract import WOExtract
+from wo.core.fileutils import WOFileUtils
+from wo.core.git import WOGit
+from wo.core.logging import Log
+from wo.core.mysql import WOMysql
+from wo.core.services import WOService
+from wo.core.shellexec import CommandExecutionError, WOShellExec
+from wo.core.variables import WOVariables
 
 
 def wo_stack_hook(app):
@@ -129,6 +132,7 @@ class WOStackController(CementBaseController):
                                          .format(chars=chars),
                                          log=False)
                 except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
                     Log.error("Failed to initialize MySQL package")
 
                 Log.debug(self, "echo \"mariadb-server-10.3 "
@@ -143,6 +147,7 @@ class WOStackController(CementBaseController):
                                          .format(chars=chars),
                                          log=False)
                 except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
                     Log.error("Failed to initialize MySQL package")
             else:
                 Log.debug(self, "Pre-seeding MySQL")
@@ -158,6 +163,7 @@ class WOStackController(CementBaseController):
                                          .format(chars=chars),
                                          log=False)
                 except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
                     Log.error("Failed to initialize MySQL package")
 
                 Log.debug(self, "echo \"mariadb-server-10.1 "
@@ -172,6 +178,7 @@ class WOStackController(CementBaseController):
                                          .format(chars=chars),
                                          log=False)
                 except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
                     Log.error("Failed to initialize MySQL package")
             # generate my.cnf root credentials
             mysql_config = """
@@ -473,6 +480,7 @@ class WOStackController(CementBaseController):
                                              "2>/dev/null"
                                              .format(password=passwd))
                     except CommandExecutionError as e:
+                        Log.debug(self, "{0}".format(e))
                         Log.error(self, "Failed to save HTTP Auth")
 
                     # Create Symbolic link for 22222
@@ -552,6 +560,7 @@ class WOStackController(CementBaseController):
                                              .format(WOVariables.wo_webroot))
 
                     except CommandExecutionError as e:
+                        Log.debug(self, "{0}".format(e))
                         Log.error(
                             self, "Failed to generate HTTPS "
                             "certificate for 22222")
@@ -1076,10 +1085,14 @@ class WOStackController(CementBaseController):
                                              "query_cache_type = 1 \" "
                                              "/etc/mysql/my.cnf")
                     except CommandExecutionError as e:
+                        Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to update MySQL file")
 
                 WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
-
+                WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
+                                      '> /dev/null 2>&1',
+                                      comment='MySQL optimization cronjob '
+                                      'added by WordOps')
                 WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 WOService.reload_service(self, 'mysql')
 
@@ -1138,6 +1151,7 @@ class WOStackController(CementBaseController):
                     WOShellExec.cmd_exec(self, "ufw allow "
                                          "49000:50000/tcp")
                 except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
                     Log.error(self, "Unable to add UFW rule")
 
             if os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
@@ -1265,6 +1279,7 @@ class WOStackController(CementBaseController):
                                             "flush privileges;",
                                             log=False)
                         except CommandExecutionError as e:
+                            Log.debug(self, "{0}".format(e))
                             Log.info(
                                 self, "fail to setup mysql user for netdata")
                     WOService.restart_service(self, 'netdata')
@@ -1386,6 +1401,7 @@ class WOStackController(CementBaseController):
                                              '/anemometer/install.sql'
                                              .format(WOVariables.wo_webroot))
                     except CommandExecutionError as e:
+                        Log.debug(self, "{0}".format(e))
                         raise SiteError("Unable to import Anemometer database")
 
                     WOMysql.execute(self, 'grant select on'
@@ -1657,16 +1673,16 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Setting packages variable for Adminer ")
                     packages = packages + [["https://github.com/vrana/adminer/"
                                             "releases/download/v{0}"
-                                        "/adminer-{0}.php"
-                                        .format(WOVariables.wo_adminer),
-                                        "{0}22222/"
-                                        "htdocs/db/adminer/index.php"
-                                        .format(WOVariables.wo_webroot),
-                                        "Adminer"],
-                                       ["https://raw.githubusercontent.com"
-                                        "/vrana/adminer/master/designs/"
-                                        "pepa-linha/adminer.css",
-                                        "{0}22222/"
+                                            "/adminer-{0}.php"
+                                            .format(WOVariables.wo_adminer),
+                                            "{0}22222/"
+                                            "htdocs/db/adminer/index.php"
+                                            .format(WOVariables.wo_webroot),
+                                            "Adminer"],
+                                           ["https://raw.githubusercontent.com"
+                                            "/vrana/adminer/master/designs/"
+                                            "pepa-linha/adminer.css",
+                                            "{0}22222/"
                                             "htdocs/db/adminer/adminer.css"
                                             .format(WOVariables.wo_webroot),
                                             "Adminer theme"]]

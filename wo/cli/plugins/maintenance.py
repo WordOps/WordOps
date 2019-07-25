@@ -3,11 +3,7 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from wo.core.logging import Log
-from wo.core.variables import WOVariables
 from wo.core.aptget import WOAptGet
-from wo.core.apt_repo import WORepo
-from wo.core.services import WOService
-from wo.core.shellexec import WOShellExec
 
 
 def wo_maintenance_hook(app):
@@ -27,16 +23,12 @@ class WOMaintenanceController(CementBaseController):
 
         try:
             Log.info(self, "updating apt-cache, please wait...")
-            WOShellExec.cmd_exec(self, "apt-get update")
+            WOAptGet.update(self)
             Log.info(self, "updating packages, please wait...")
-            WOShellExec.cmd_exec(self,  "DEBIAN_FRONTEND=noninteractive "
-                                 "apt-get -o "
-                                 "Dpkg::Options::='--force-confmiss' "
-                                 "-o Dpkg::Options::='--force-confold' "
-                                 "-y dist-upgrade")
+            WOAptGet.dist_upgrade(self)
             Log.info(self, "cleaning-up packages, please wait...")
-            WOShellExec.cmd_exec(self, "apt-get -y --purge autoremove")
-            WOShellExec.cmd_exec(self, "apt-get -y autoclean")
+            WOAptGet.auto_remove(self)
+            WOAptGet.auto_clean(self)
         except OSError as e:
             Log.debug(self, str(e))
             Log.error(self, "Package updates failed !")
