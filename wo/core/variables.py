@@ -3,7 +3,6 @@ import platform
 import socket
 import configparser
 import os
-import psutil
 import datetime
 
 
@@ -18,9 +17,7 @@ class WOVariables():
     wo_phpmyadmin = "4.9.0.1"
 
     # Get WPCLI path
-    wo_wpcli_path = os.popen('command -v wp | tr "\n" " "').read()
-    if wo_wpcli_path == '':
-        wo_wpcli_path = '/usr/local/bin/wp '
+    wo_wpcli_path = '/usr/local/bin/wp'
 
     # get wan network interface name
     wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
@@ -33,10 +30,11 @@ class WOVariables():
     wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # WordOps core variables
-    wo_platform_distro = os.popen("lsb_release -si "
+    wo_platform_distro = os.popen("/usr/bin/lsb_release -si "
                                   "| tr -d \'\\n\'").read().lower()
     wo_platform_version = platform.linux_distribution()[1]
-    wo_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
+    wo_platform_codename = os.popen(
+        "/usr/bin/lsb_release -sc | tr -d \'\\n\'").read()
 
     # Get timezone of system
     if os.path.isfile('/etc/timezone'):
@@ -68,7 +66,7 @@ class WOVariables():
     try:
         wo_user = config['user']['name']
         wo_email = config['user']['email']
-    except Exception as e:
+    except Exception:
         wo_user = input("Enter your name: ")
         wo_email = input("Enter your email: ")
         os.system("/usr/bin/git config --global user.name {0}".format(wo_user))
@@ -85,7 +83,7 @@ class WOVariables():
     if [cnfpath] == config.read(cnfpath):
         try:
             wo_mysql_host = config.get('client', 'host')
-        except configparser.NoOptionError as e:
+        except configparser.NoOptionError:
             wo_mysql_host = "localhost"
     else:
         wo_mysql_host = "localhost"
@@ -168,7 +166,7 @@ class WOVariables():
                          .format(codename=wo_platform_codename))
     wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
 
-    wo_fail2ban = ["fail2ban", "python3-pyinotify"]
+    wo_fail2ban = ["fail2ban"]
 
     # Redis repo details
     if wo_platform_distro == 'ubuntu':
