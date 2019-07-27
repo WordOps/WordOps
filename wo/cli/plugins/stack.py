@@ -255,34 +255,6 @@ class WOStackController(CementBaseController):
                                            '\t$request_filename;\n')
 
                 if os.path.isfile('/etc/nginx/nginx.conf'):
-                    if WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
-                                        '# add_header'):
-                        # Change WordOpsVersion in nginx.conf file
-                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                                  "# add_header",
-                                                  "add_header")
-
-                        WOFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                                  "\"WordOps\"",
-                                                  "\"WordOps v{0}\""
-                                                  .format(WOVariables.wo_version))
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/blockips.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render(
-                        (data), 'blockips.mustache', out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/fastcgi.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render(
-                        (data), 'fastcgi.mustache', out=wo_nginx)
-                    wo_nginx.close()
-
                     data = dict(php="9000", debug="9001",
                                     php7="9070", debug7="9170")
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -323,7 +295,7 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                    # Setup Nginx common directory
+                # Setup Nginx common directory
                 if not os.path.exists('/etc/nginx/common'):
                     Log.debug(self, 'Creating directory'
                               '/etc/nginx/common')
@@ -331,6 +303,8 @@ class WOStackController(CementBaseController):
 
                 if os.path.exists('/etc/nginx/common'):
                     data = dict(webroot=WOVariables.wo_webroot)
+
+                    # Common Configuration
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/locations-wo.conf')
                     wo_nginx = open('/etc/nginx/common/locations-wo.conf',
@@ -339,6 +313,15 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsubdir.conf')
+                    wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsubdir.mustache',
+                                    out=wo_nginx)
+                    wo_nginx.close()
+
+                    # PHP 7.2 conf
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php72.conf')
                     wo_nginx = open('/etc/nginx/common/php72.conf',
@@ -371,16 +354,10 @@ class WOStackController(CementBaseController):
                                     out=wo_nginx)
                     wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsubdir.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsubdir.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                # PHP 7.3 conf
+                if os.path.isdir("/etc/nginx/common"):
+                    data = dict()
 
-                    # php73 conf
-                    # data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php73.conf')
                     wo_nginx = open('/etc/nginx/common/php73.conf',
@@ -410,14 +387,6 @@ class WOStackController(CementBaseController):
                     wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'wpsc-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/redis-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'redis-php7.mustache',
                                     out=wo_nginx)
                     wo_nginx.close()
 
@@ -456,6 +425,23 @@ class WOStackController(CementBaseController):
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'acl.mustache',
                                     out=wo_nginx)
+                    wo_nginx.close()
+                if not os.path.isfile('/etc/nginx/conf.d/blockips.conf'):
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/blockips.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'blockips.mustache', out=wo_nginx)
+                    wo_nginx.close()
+
+                if not os.path.isfile('/etc/nginx/conf.d/fastcgi.conf'):
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/fastcgi.conf')
+                    wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'fastcgi.mustache', out=wo_nginx)
                     wo_nginx.close()
 
                 # add redis cache format if not already done
@@ -619,52 +605,6 @@ class WOStackController(CementBaseController):
                                      .format(passwd)])
                 else:
                     WOService.restart_service(self, 'nginx')
-
-            # setup nginx common folder for php7
-            if self.app.pargs.php73:
-                if os.path.isdir("/etc/nginx/common"):
-                    data = dict()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php73.conf')
-                    wo_nginx = open('/etc/nginx/common/php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpcommon-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpcommon-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/redis-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'redis-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
 
             # create nginx configuration for redis
             if set(WOVariables.wo_redis).issubset(set(apt_packages)):
@@ -1616,27 +1556,22 @@ class WOStackController(CementBaseController):
 
             # ADMINER
             if self.app.pargs.adminer:
-                if not os.path.isdir('{0}22222/htdocs/db/adminer'
-                                     .format(WOVariables.wo_webroot)):
-                    Log.debug(self, "Setting packages variable for Adminer ")
-                    packages = packages + [["https://github.com/vrana/adminer/"
-                                            "releases/download/v{0}"
-                                            "/adminer-{0}.php"
-                                            .format(WOVariables.wo_adminer),
-                                            "{0}22222/"
-                                            "htdocs/db/adminer/index.php"
-                                            .format(WOVariables.wo_webroot),
-                                            "Adminer"],
-                                           ["https://raw.githubusercontent.com"
-                                            "/vrana/adminer/master/designs/"
-                                            "pepa-linha/adminer.css",
-                                            "{0}22222/"
-                                            "htdocs/db/adminer/adminer.css"
-                                            .format(WOVariables.wo_webroot),
-                                            "Adminer theme"]]
-                else:
-                    Log.debug(self, "Adminer already installed")
-                    Log.info(self, "Adminer already installed")
+                Log.debug(self, "Setting packages variable for Adminer ")
+                packages = packages + [["https://github.com/vrana/adminer/"
+                                        "releases/download/v{0}"
+                                        "/adminer-{0}.php"
+                                        .format(WOVariables.wo_adminer),
+                                        "{0}22222/"
+                                        "htdocs/db/adminer/index.php"
+                                        .format(WOVariables.wo_webroot),
+                                        "Adminer"],
+                                       ["https://raw.githubusercontent.com"
+                                        "/vrana/adminer/master/designs/"
+                                        "pepa-linha/adminer.css",
+                                        "{0}22222/"
+                                        "htdocs/db/adminer/adminer.css"
+                                        .format(WOVariables.wo_webroot),
+                                        "Adminer theme"]]
 
             # Netdata
             if self.app.pargs.netdata:
@@ -1662,7 +1597,8 @@ class WOStackController(CementBaseController):
                           "/var/lib/wo/tmp/wo-dashboard.tar.gz",
                           "WordOps Dashboard"],
                          ["https://github.com/soerennb/"
-                            "extplorer/archive/v2.1.11.tar.gz",
+                          "extplorer/archive/v{0}.tar.gz"
+                          .format(WOVariables.wo_extplorer),
                             "/var/lib/wo/tmp/extplorer.tar.gz",
                             "eXtplorer"]]
                 else:
