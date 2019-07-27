@@ -12,13 +12,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - MySQL configuration tuning
 - Cronjob to optimize MySQL databases weekly
-- wo-kernel systemd service to apply kernel tweaks on server startup
+- WO-kernel systemd service to automatically apply kernel tweaks on server startup
 
 #### Changed
 
 - `wo maintenance` refactored
 - Improved debug log
 - Updated Nginx configuration process to not overwrite files with custom data (htpasswd-wo, acl.conf etc..)
+- Adminer updated to v4.7.2
+- eXtplorer updated to v2.1.13
+- Removed WordOps version from the Nginx header X-Powered-By to avoid possible security issues
 
 #### Fixed
 

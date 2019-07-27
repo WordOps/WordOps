@@ -676,26 +676,28 @@ def installwp_plugin(self, plugin_name, data):
     return 1
 
 
-def site_url_https(self, site_webroot='', wo_domain=''):
+def site_url_https(self, data):
+    wo_site_webroot = data['webroot']
+    wo_domain_name = data['site_name']
     Log.info(self, "Checking if site url already use https, please wait...")
-    WOFileUtils.chdir(self, '{0}/htdocs/'.format(site_webroot))
+    WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     test_site_url = WOShellExec.cmd_exec(self, "php {0} option get siteurl "
                                          .format(WOVariables.wo_wpcli_path) +
-                                         "--allow-root --quiet").split(":")
+                                         "--allow-root --quiet").split("://")
     if not test_site_url[0] == "https":
         try:
             WOShellExec.cmd_exec(self, "php {0} option update siteurl "
                                  "\"https://{1}\" --allow-root".format(
-                                     WOVariables.wo_wpcli_path, wo_domain))
+                                     WOVariables.wo_wpcli_path, wo_domain_name))
             WOShellExec.cmd_exec(self, "php {0} option update home "
                                  "\"https://{1}\" --allow-root".format(
-                                     WOVariables.wo_wpcli_path, wo_domain))
+                                     WOVariables.wo_wpcli_path, wo_domain_name))
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
             raise SiteError("plugin activation failed")
         Log.info(
             self, "Site address updated "
-            "successfully to https://{0}".format(wo_domain))
+            "successfully to https://{0}".format(wo_domain_name))
     else:
         Log.info(
             self, "Site address was already using https")

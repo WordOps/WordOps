@@ -10,11 +10,12 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.6.2"
+    wo_version = "3.9.6.3"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
-    wo_adminer = "4.7.1"
+    wo_adminer = "4.7.2"
     wo_phpmyadmin = "4.9.0.1"
+    wo_extplorer = "2.1.13"
 
     # Get WPCLI path
     wo_wpcli_path = '/usr/local/bin/wp'
