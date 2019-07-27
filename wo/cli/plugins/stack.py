@@ -1209,7 +1209,8 @@ class WOStackController(CementBaseController):
                               .format(WOVariables.wo_webroot))
                     WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
                                       '/var/lib/wo/tmp/')
-                    shutil.move('/var/lib/wo/tmp/extplorer-2.1.11',
+                    shutil.move('/var/lib/wo/tmp/extplorer-{0}'
+                                .format(WOVariables.wo_extplorer),
                                 '{0}22222/htdocs/files'
                                 .format(WOVariables.wo_webroot))
                     Log.debug(self, "Setting Privileges to "
