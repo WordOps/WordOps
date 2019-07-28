@@ -987,6 +987,7 @@ class WOStackController(CementBaseController):
             # create fail2ban configuration files
             if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
                 if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                    data = dict()
                     Log.debug(self, "Setting up fail2ban jails configuration")
                     fail2ban_config = open('/etc/fail2ban/jail.d/custom.conf',
                                            encoding='utf-8', mode='w')
