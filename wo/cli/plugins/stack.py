@@ -245,14 +245,24 @@ class WOStackController(CementBaseController):
 
             # Nginx configuration
             if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-                if set(["nginx"]).issubset(set(apt_packages)):
-                    # Fix for white screen death with NGINX PLUS
-                    if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
-                                            'SCRIPT_FILENAME'):
-                        with open('/etc/nginx/fastcgi_params',
-                                  encoding='utf-8', mode='a') as wo_nginx:
-                            wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
-                                           '\t$request_filename;\n')
+                # Nginx main configuration
+                if os.path.isfile('/etc/nginx/nginx.conf'):
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/nginx.conf')
+                    wo_nginx = open('/etc/nginx/nginx.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'nginx-core.mustache', out=wo_nginx)
+                    wo_nginx.close()
+
+                # Fix for white screen death with NGINX PLUS
+                if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                        'SCRIPT_FILENAME'):
+                    with open('/etc/nginx/fastcgi_params',
+                              encoding='utf-8', mode='a') as wo_nginx:
+                        wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
+                                       '\t$request_filename;\n')
 
                 if os.path.isfile('/etc/nginx/nginx.conf'):
                     data = dict(php="9000", debug="9001",

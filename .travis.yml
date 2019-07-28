@@ -46,11 +46,10 @@ script:
   - sudo wo site update 1.com --wp && sudo wo site update 2.com --php73 && sudo wo site update 3.com --php73 && sudo wo site update 1.com --wpfc && sudo wo site update 1.com --wpsc && sudo wo site update 1.com --wpredis
   - sudo wp --allow-root --info
   - sudo wo info
-  - sudo tree -L 2 /etc/nginx
+  - sudo cat /etc/nginx/nginx.conf
   - sudo cat /etc/mysql/my.cnf
   - sudo wo stack upgrade --netdata --no-prompt
   - sudo wo stack upgrade --phpmyadmin --no-prompt
   - sudo wo stack upgrade --composer --no-prompt
   - sudo wo update --travis
   - sudo wo stack status
-  - sudo wo maintenance

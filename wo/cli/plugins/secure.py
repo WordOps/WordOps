@@ -8,8 +8,6 @@ from wo.core.git import WOGit
 from wo.core.services import WOService
 import string
 import random
-import sys
-import hashlib
 import getpass
 
 

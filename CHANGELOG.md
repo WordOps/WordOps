@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Fixed
 
 - Kernel tweaks were not applied without server reboot
+- Fail2ban standalone install
 
 ### v3.9.6.2 - 2019-07-24
 
