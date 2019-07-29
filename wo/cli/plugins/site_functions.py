@@ -650,7 +650,7 @@ def site_url_https(self, data):
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     test_site_url = WOShellExec.cmd_exec(self, "php {0} option get siteurl "
                                          .format(WOVariables.wo_wpcli_path) +
-                                         "--allow-root --quiet").split("://")
+                                         "--allow-root --quiet").split(":")
     if not test_site_url[0] == "https":
         try:
             WOShellExec.cmd_exec(self, "php {0} option update siteurl "

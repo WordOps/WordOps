@@ -778,7 +778,7 @@ class WOSiteCreateController(CementBaseController):
                           msg="Adding letsencrypts config of site: {0}"
                           .format(wo_domain))
                 updateSiteInfo(self, wo_domain, ssl=letsencrypt)
-                site_url_https(self, wo_domain, wo_site_webroot)
+                site_url_https(self, data)
             elif data['letsencrypt'] is False:
                 Log.info(self, "Not using Let\'s encrypt for Site "
                          " http://{0}".format(wo_domain))
