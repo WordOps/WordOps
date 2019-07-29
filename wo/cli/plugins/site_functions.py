@@ -519,6 +519,7 @@ def setupwordpress(self, data):
                 raise SiteError(
                     "setup WordPress tables failed for single site")
         except CommandExecutionError as e:
+            Log.debug(self, str(e))
             raise SiteError("setup WordPress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
@@ -551,6 +552,7 @@ def setupwordpress(self, data):
                 raise SiteError(
                     "setup WordPress tables failed for wp multi site")
         except CommandExecutionError as e:
+            Log.debug(self, str(e))
             raise SiteError("setup WordPress tables failed for wp multi site")
 
     Log.debug(self, "Updating WordPress permalink")
@@ -560,6 +562,7 @@ def setupwordpress(self, data):
                              "rewrite structure "
                              "/%year%/%monthnum%/%day%/%postname%/")
     except CommandExecutionError as e:
+        Log.debug(self, str(e))
         raise SiteError("Update wordpress permalinks failed")
 
     """Install nginx-helper plugin """
@@ -640,6 +643,7 @@ def setupwordpressnetwork(self, data):
             raise SiteError("setup WordPress network failed")
 
     except CommandExecutionError as e:
+        Log.debug(self, str(e))
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
         raise SiteError("setup WordPress network failed")
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -656,6 +660,7 @@ def installwp_plugin(self, plugin_name, data):
                              "--allow-root install "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
+        Log.debug(self, str(e))
         raise SiteError("plugin installation failed")
 
     try:
@@ -810,6 +815,7 @@ def sitebackup(self, data):
                          "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
                 raise SiteError("mysqldump failed to backup database")
         except CommandExecutionError as e:
+            Log.debug(self, str(e))
             Log.info(self, "[" + Log.ENDC + "Fail" + Log.OKBLUE + "]")
             raise SiteError("mysqldump failed to backup database")
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -1083,6 +1089,7 @@ def updatewpuserpassword(self, wo_domain, wo_site_webroot):
                                  "  --user_pass={1}"
                                  .format(wo_wp_user, wo_wp_pass))
         except CommandExecutionError as e:
+            Log.debug(self, str(e))
             raise SiteError("wp user password update command failed")
         Log.info(self, "Password updated successfully")
 
@@ -1132,6 +1139,7 @@ def logwatch(self, logfiles):
                     print(data[0], data[1],
                           zlib.decompress(base64.decodestring(data[2])))
                 except Exception as e:
+                    Log.debug(self, str(e))
                     Log.info(time.time(),
                              'caught exception rendering a new log line in %s'
                              % filename)
@@ -1272,10 +1280,12 @@ def deleteDB(self, dbname, dbuser, dbhost, exit=True):
                                 errormsg='Unable to drop database {0}'
                                 .format(dbname))
         except StatementExcecutionError as e:
+            Log.debug(self, str(e))
             Log.debug(self, "drop database failed")
             Log.info(self, "Database {0} not dropped".format(dbname))
 
         except MySQLConnectionError as e:
+            Log.debug(self, str(e))
             Log.debug(self, "Mysql Connection problem occured")
 
         if dbuser != 'root':
@@ -1285,14 +1295,17 @@ def deleteDB(self, dbname, dbuser, dbhost, exit=True):
                                 "drop user `{0}`@`{1}`"
                                 .format(dbuser, dbhost))
             except StatementExcecutionError as e:
+                Log.debug(self, str(e))
                 Log.debug(self, "drop database user failed")
                 Log.info(self, "Database {0} not dropped".format(dbuser))
             try:
                 WOMysql.execute(self, "flush privileges")
             except StatementExcecutionError as e:
+                Log.debug(self, str(e))
                 Log.debug(self, "drop database failed")
                 Log.info(self, "Database {0} not dropped".format(dbname))
     except Exception as e:
+        Log.debug(self, str(e))
         Log.error(self, "Error occured while deleting database", exit)
 
 

@@ -48,6 +48,7 @@ class WOSiteController(CementBaseController):
                     self.app.pargs.site_name = (input('Enter site name : ')
                                                 .strip())
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
 
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
@@ -86,6 +87,7 @@ class WOSiteController(CementBaseController):
                                                 .strip())
 
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -125,6 +127,7 @@ class WOSiteController(CementBaseController):
                     self.app.pargs.site_name = (input('Enter site name : ')
                                                 .strip())
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -191,6 +194,7 @@ class WOSiteController(CementBaseController):
                     self.app.pargs.site_name = (input('Enter site name : ')
                                                 .strip())
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         # TODO Write code for wo site edit command here
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
@@ -220,6 +224,7 @@ class WOSiteController(CementBaseController):
                     self.app.pargs.site_name = (input('Enter site name : ')
                                                 .strip())
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'Unable to read input, please try again')
 
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
@@ -258,6 +263,7 @@ class WOSiteEditController(CementBaseController):
                     self.app.pargs.site_name = (input('Enter site name : ')
                                                 .strip())
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'Unable to read input, Please try again')
 
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
@@ -274,6 +280,7 @@ class WOSiteEditController(CementBaseController):
                 WOShellExec.invoke_editor(self, '/etc/nginx/sites-availa'
                                           'ble/{0}'.format(wo_domain))
             except CommandExecutionError as e:
+                Log.debug(self, str(e))
                 Log.error(self, "Failed invoke editor")
             if (WOGit.checkfilestatus(self, "/etc/nginx",
                                       '/etc/nginx/sites-available/{0}'
