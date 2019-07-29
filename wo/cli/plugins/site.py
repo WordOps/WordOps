@@ -1624,35 +1624,6 @@ class WOSiteUpdateController(CementBaseController):
                          "`tail /var/log/wo/wordops.log` and please try again")
                 return 1
 
-        if oldcachetype != 'wpredis' and data['wpredis']:
-            try:
-                if installwp_plugin(self, 'redis-cache', data):
-                    # add WP_CACHE_KEY_SALT if not already set
-                    try:
-                        Log.debug(self, "Updating wp-config.php.")
-                        WOShellExec.cmd_exec(self,
-                                             "bash -c \"php {0} --allow-root "
-                                             .format(WOVariables.wo_wpcli_path) +
-                                             "config set --add "
-                                             "WP_CACHE_KEY_SALT "
-                                             "\'{0}:\' --path={1}\""
-                                             .format(wo_domain,
-                                                     wo_site_webroot))
-                    except IOError as e:
-                        Log.debug(self, str(e))
-                        Log.debug(self, "Updating wp-config.php failed.")
-                        Log.warn(self, "Updating wp-config.php failed. "
-                                 "Could not append:"
-                                 "\ndefine( \'WP_CACHE_KEY_SALT\', "
-                                 "\'{0}:\' );".format(wo_domain) +
-                                       "\nPlease add manually")
-            except SiteError as e:
-                Log.debug(self, str(e))
-                Log.info(self, Log.FAIL + "Update site failed."
-                         "Check the log for details: "
-                         "`tail /var/log/wo/wordops.log` and please try again")
-                return 1
-
         # Service Nginx Reload
         if not WOService.reload_service(self, 'nginx'):
             Log.error(self, "service nginx reload failed. "
