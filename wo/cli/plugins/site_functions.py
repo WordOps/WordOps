@@ -2,6 +2,7 @@ import getpass
 import glob
 import os
 import random
+import json
 import re
 import string
 import subprocess
@@ -568,42 +569,55 @@ def setupwordpress(self, data):
     """Install nginx-helper plugin """
     installwp_plugin(self, 'nginx-helper', data)
     if data['wpfc']:
-        plugin_data = "{\"log_level\":\"INFO\",\"log_filesize\":5,"
-        "\"enable_purge\":1,\"enable_map\":0,"
-        "\"enable_log\":0,\"enable_stamp\":0,"
-        "\"purge_homepage_on_new\":1,"
-        "\"purge_homepage_on_edit\":1,"
-        "\"purge_homepage_on_del\":1,"
-        "\"purge_archive_on_new\":1,"
-        "\"purge_archive_on_edit\":0,"
-        "\"purge_archive_on_del\":0,"
-        "\"purge_archive_on_new_comment\":0,"
-        "\"purge_archive_on_deleted_comment\":0,"
-        "\"purge_page_on_mod\":1,"
-        "\"purge_page_on_new_comment\":1,"
-        "\"purge_page_on_deleted_comment\":1,"
-        "\"cache_method\":\"enable_fastcgi\","
-        "\"purge_method\":\"get_request\","
-        "\"redis_hostname\":\"127.0.0.1\","
-        "\"redis_port\":\"6379\","
-        "\"redis_prefix\":\"nginx-cache:\"}"
+        plugin_data_object = {"log_level": "INFO",
+                              "log_filesize": 5,
+                              "enable_purge": 1,
+                              "enable_map": "0",
+                              "enable_log": 0,
+                              "enable_stamp": 0,
+                              "purge_homepage_on_new": 1,
+                              "purge_homepage_on_edit": 1,
+                              "purge_homepage_on_del": 1,
+                              "purge_archive_on_new": 1,
+                              "purge_archive_on_edit": 0,
+                              "purge_archive_on_del": 0,
+                              "purge_archive_on_new_comment": 0,
+                              "purge_archive_on_deleted_comment": 0,
+                              "purge_page_on_mod": 1,
+                              "purge_page_on_new_comment": 1,
+                              "purge_page_on_deleted_comment": 1,
+                              "cache_method": "enable_fastcgi",
+                              "purge_method": "get_request",
+                              "redis_hostname": "127.0.0.1",
+                              "redis_port": "6379",
+                              "redis_prefix": "nginx-cache:"}
+        plugin_data = json.dumps(plugin_data_object)
         setupwp_plugin(self, "nginx-helper",
                        "rt_wp_nginx_helper_options", plugin_data, data)
     elif data['wpredis']:
-        plugin_data = ('{"enable_purge":"1","cache_method":"enable_redis",'
-                       '"purge_method":"get_request","enable_map":null,'
-                       '"enable_log":null,"log_level":"INFO","log_filesize":'
-                       '"5","enable_stamp":"1","purge_homepage_on_edit":"1",'
-                       '"purge_homepage_on_del":"1","purge_archive_on_edit":'
-                       '"1","purge_archive_on_del":"1","purge_archive_on_'
-                       'new_comment":null,"purge_archive_on_deleted_comment"'
-                       ':null,"purge_page_on_mod":"1",'
-                       '"purge_page_on_new_comment"'
-                       ':"1","purge_page_on_deleted_comment":"1",'
-                       '"redis_hostname":"127.0.0.1",'
-                       '"redis_port":"6379","redis_prefix":'
-                       '"nginx-cache:","purge_url":"",'
-                       '"redis_enabled_by_constant":0}')
+        plugin_data_object = {"log_level": "INFO",
+                              "log_filesize": 5,
+                              "enable_purge": 1,
+                              "enable_map": "0",
+                              "enable_log": 0,
+                              "enable_stamp": 0,
+                              "purge_homepage_on_new": 1,
+                              "purge_homepage_on_edit": 1,
+                              "purge_homepage_on_del": 1,
+                              "purge_archive_on_new": 1,
+                              "purge_archive_on_edit": 0,
+                              "purge_archive_on_del": 0,
+                              "purge_archive_on_new_comment": 0,
+                              "purge_archive_on_deleted_comment": 0,
+                              "purge_page_on_mod": 1,
+                              "purge_page_on_new_comment": 1,
+                              "purge_page_on_deleted_comment": 1,
+                              "cache_method": "enable_redis",
+                              "purge_method": "get_request",
+                              "redis_hostname": "127.0.0.1",
+                              "redis_port": "6379",
+                              "redis_prefix": "nginx-cache:"}
+        plugin_data = json.dumps(plugin_data_object)
         setupwp_plugin(self, 'nginx-helper',
                        'rt_wp_nginx_helper_options', plugin_data, data)
 
