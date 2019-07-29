@@ -766,6 +766,7 @@ class WOSiteCreateController(CementBaseController):
                 if self.app.pargs.hsts:
                     setupHsts(self, wo_domain)
 
+                site_url_https(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
@@ -778,7 +779,6 @@ class WOSiteCreateController(CementBaseController):
                           msg="Adding letsencrypts config of site: {0}"
                           .format(wo_domain))
                 updateSiteInfo(self, wo_domain, ssl=letsencrypt)
-                site_url_https(self, data)
             elif data['letsencrypt'] is False:
                 Log.info(self, "Not using Let\'s encrypt for Site "
                          " http://{0}".format(wo_domain))
@@ -1219,18 +1219,6 @@ class WOSiteUpdateController(CementBaseController):
                 data['php73'] = False
                 php73 = False
 
-            if pargs.letsencrypt == "on":
-                if oldsitetype in ['wpsubdomain']:
-                    if pargs.dns:
-                        data['letsencrypt'] = True
-                        letsencrypt = True
-                    else:
-                        data['letsencrypt'] = True
-                        letsencrypt = True
-                else:
-                    data['letsencrypt'] = True
-                    letsencrypt = True
-
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             data['wpredis'] = True
             data['basic'] = False
@@ -1318,6 +1306,7 @@ class WOSiteUpdateController(CementBaseController):
                                        '{0}/conf/nginx/ssl.conf'
                                        .format(wo_site_webroot))
 
+                site_url_https(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
@@ -1333,9 +1322,6 @@ class WOSiteUpdateController(CementBaseController):
                     Log.warn(
                         self, "Your cert already EXPIRED ! "
                         ".PLEASE renew soon . ")
-                # change site url to https
-                if data['wp'] is True:
-                    site_url_https(self, data)
 
             elif data['letsencrypt'] is False:
                 if self.app.pargs.letsencrypt == "off":

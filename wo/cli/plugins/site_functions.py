@@ -643,33 +643,6 @@ def installwp_plugin(self, plugin_name, data):
     return 1
 
 
-def site_url_https(self, data):
-    wo_site_webroot = data['webroot']
-    wo_domain_name = data['site_name']
-    Log.info(self, "Checking if site url already use https, please wait...")
-    WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
-    test_site_url = WOShellExec.cmd_exec(self, "php {0} option get siteurl "
-                                         .format(WOVariables.wo_wpcli_path) +
-                                         "--allow-root --quiet").split(":")
-    if not test_site_url[0] == "https":
-        try:
-            WOShellExec.cmd_exec(self, "php {0} option update siteurl "
-                                 "\"https://{1}\" --allow-root".format(
-                                     WOVariables.wo_wpcli_path, wo_domain_name))
-            WOShellExec.cmd_exec(self, "php {0} option update home "
-                                 "\"https://{1}\" --allow-root".format(
-                                     WOVariables.wo_wpcli_path, wo_domain_name))
-        except CommandExecutionError as e:
-            Log.debug(self, "{0}".format(e))
-            raise SiteError("plugin activation failed")
-        Log.info(
-            self, "Site address updated "
-            "successfully to https://{0}".format(wo_domain_name))
-    else:
-        Log.info(
-            self, "Site address was already using https")
-
-
 def uninstallwp_plugin(self, plugin_name, data):
     wo_site_webroot = data['webroot']
     Log.debug(self, "Uninstalling plugin {0}, please wait..."
@@ -1338,6 +1311,35 @@ def removeAcmeConf(self, domain):
                   .format(domain))
 
 
+def site_url_https(self, wo_domain):
+    if os.path.isfile('/var/www/{0}/wp-config.php'):
+        wo_site_webroot = ('/var/www/{0}'.format(wo_domain))
+        Log.info(self, "Checking if site url already use https, please wait...")
+        WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
+        siteurl = WOShellExec.cmd_exec(self,
+                                       "php {0} option get siteurl "
+                                       .format(WOVariables.wo_wpcli_path) +
+                                       "--allow-root --quiet")
+        test_https = re.split(":", siteurl)
+    if not test_https[0] == 'https':
+        try:
+            WOShellExec.cmd_exec(self, "php {0} option update siteurl "
+                                 "\"https://{1}\" --allow-root".format(
+                                     WOVariables.wo_wpcli_path, wo_domain))
+            WOShellExec.cmd_exec(self, "php {0} option update home "
+                                 "\"https://{1}\" --allow-root".format(
+                                     WOVariables.wo_wpcli_path, wo_domain))
+        except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
+            raise SiteError("plugin activation failed")
+        Log.info(
+            self, "Site address updated "
+            "successfully to https://{0}".format(wo_domain))
+    else:
+        Log.info(
+            self, "Site address was already using https")
+
+
 def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                     dbhost=''):
     """
@@ -1568,6 +1570,7 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                     Log.debug(self, "Error occured while generating "
                               "/etc/nginx/conf.d/force-ssl-{0}.conf"
                               .format(wo_domain_name))
+
             else:
                 try:
                     Log.info(
