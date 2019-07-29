@@ -113,6 +113,7 @@ class WOSecureController(CementBaseController):
         try:
             user_ip = self.app.pargs.user_input.split(',')
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             user_ip = ['127.0.0.1']
         for ip_addr in user_ip:
             if not ("exist_ip_address "+ip_addr in open('/etc/nginx/common/'

@@ -73,6 +73,7 @@ class WOAptGet():
                              stdout=sys.stdout).communicate()
 
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to check for packages upgrades")
 
     def dist_upgrade(self):
@@ -104,6 +105,7 @@ class WOAptGet():
                           "`tail /var/log/wo/wordops.log` "
                           "and please try again...")
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, "Error while installing packages, "
                       "apt-get exited with error")
 
@@ -134,6 +136,7 @@ class WOAptGet():
                           "and please try again...")
 
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             Log.info(self, Log.FAIL + "Oops Something went "
                      "wrong!!")
             Log.error(self, "Check the WordOps log for more details "
@@ -167,6 +170,7 @@ class WOAptGet():
                           "and please try again...")
 
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, "Error while installing packages, "
                       "apt-get exited with error")
 
@@ -243,5 +247,6 @@ class WOAptGet():
                     WORepo.remove(self, repo_url=repo_url)
                 return False
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, "Error while downloading packages, "
                       "apt-get exited with error")

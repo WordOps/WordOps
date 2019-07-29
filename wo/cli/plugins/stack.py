@@ -176,7 +176,7 @@ class WOStackController(CementBaseController):
                                          log=False)
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
-                    Log.error("Failed to initialize MySQL package")
+                    Log.error(self, "Failed to initialize MySQL package")
             # generate my.cnf root credentials
             mysql_config = """
             [client]
@@ -1659,6 +1659,7 @@ class WOStackController(CementBaseController):
                                         'Anemometer']
                                        ]
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             pass
 
         if (apt_packages) or (packages):
