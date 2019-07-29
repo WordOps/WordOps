@@ -1,6 +1,5 @@
 """WordOps package installation using apt-get module."""
 import apt
-import apt_pkg
 import sys
 import subprocess
 from wo.core.logging import Log

@@ -1,7 +1,6 @@
 # """WordOps site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.core.cron import WOCron
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables
 from wo.core.shellexec import WOShellExec
@@ -1219,7 +1218,6 @@ class WOSiteUpdateController(CementBaseController):
                     if pargs.dns:
                         data['letsencrypt'] = True
                         letsencrypt = True
-                        pargs.letsencrypt == 'wildcard'
                     else:
                         data['letsencrypt'] = True
                         letsencrypt = True
@@ -1239,10 +1237,8 @@ class WOSiteUpdateController(CementBaseController):
         if pargs.hsts:
             if pargs.hsts == "on":
                 data['hsts'] = True
-                hsts = True
             elif pargs.hsts == "off":
                 data['hsts'] = False
-                hsts = False
 
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"

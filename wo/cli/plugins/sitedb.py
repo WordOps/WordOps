@@ -5,8 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from wo.core.logging import Log
 from wo.core.database import db_session
 from wo.cli.plugins.models import SiteDB
-import sys
-import glob
+
 
 
 def addNewSite(self, site, stype, cache, path,

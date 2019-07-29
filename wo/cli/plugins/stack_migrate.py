@@ -6,7 +6,6 @@ from wo.core.variables import WOVariables
 from wo.core.aptget import WOAptGet
 from wo.core.shellexec import WOShellExec
 from wo.core.apt_repo import WORepo
-from wo.core.services import WOService
 import configparser
 import os
 

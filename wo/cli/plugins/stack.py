@@ -5,9 +5,7 @@ from cement.core.controller import CementBaseController, expose
 
 import codecs
 import configparser
-import grp
 import os
-import platform
 import pwd
 import random
 import shutil

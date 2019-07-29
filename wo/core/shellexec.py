@@ -1,7 +1,5 @@
 """WordOps Shell Functions"""
 from wo.core.logging import Log
-import os
-import sys
 import subprocess
 
 

@@ -1,6 +1,5 @@
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
-import os
 
 
 def check_fqdn(self, wo_host):
