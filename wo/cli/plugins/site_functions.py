@@ -323,46 +323,6 @@ def setupwordpress(self, data):
                 raise SiteError("generate wp-config failed for wp single site")
         except CommandExecutionError:
             raise SiteError("generate wp-config failed for wp single site")
-        try:
-
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_CACHE_KEY_SALT "
-                                 "\'{0}:\'\"".format(wo_domain_name))
-
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_MEMORY_LIMIT "
-                                 "\'128M\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_MAX_MEMORY_LIMIT "
-                                 "\'256M\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set CONCATENATE_SCRIPTS "
-                                 "false --raw\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_POST_REVISIONS "
-                                 "\'10\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set MEDIA_TRASH "
-                                 "true --raw\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set EMPTY_TRASH_DAYS "
-                                 "\'15\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_AUTO_UPDATE_CORE "
-                                 "minor\"")
-
-        except CommandExecutionError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "Unable to define extra variable in wp-config.php")
-
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php {0} --allow-root "
@@ -400,48 +360,48 @@ def setupwordpress(self, data):
                 pass
             else:
                 raise SiteError("generate wp-config failed for wp multi site")
-        except CommandExecutionError as e:
+        except CommandExecutionError:
             raise SiteError("generate wp-config failed for wp multi site")
 
-        try:
+    try:
 
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_CACHE_KEY_SALT "
-                                 "\'{0}:\'\"".format(wo_domain_name))
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set WP_CACHE_KEY_SALT "
+                             "\'{0}:\'\"".format(wo_domain_name))
 
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_MEMORY_LIMIT "
-                                 "\'128M\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_MAX_MEMORY_LIMIT "
-                                 "\'256M\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set CONCATENATE_SCRIPTS "
-                                 "false --raw\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_POST_REVISIONS "
-                                 "\'10\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set MEDIA_TRASH "
-                                 "true --raw\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set EMPTY_TRASH_DAYS "
-                                 "\'15\'\"")
-            WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
-                                 "config set WP_AUTO_UPDATE_CORE "
-                                 "minor\"")
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set WP_MEMORY_LIMIT "
+                             "\'128M\'\"")
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set WP_MAX_MEMORY_LIMIT "
+                             "\'256M\'\"")
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set CONCATENATE_SCRIPTS "
+                             "false --raw\"")
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set WP_POST_REVISIONS "
+                             "\'10\'\"")
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set MEDIA_TRASH "
+                             "true --raw\"")
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set EMPTY_TRASH_DAYS "
+                             "\'15\'\"")
+        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+                             .format(WOVariables.wo_wpcli_path) +
+                             "config set WP_AUTO_UPDATE_CORE "
+                             "minor\"")
 
-        except CommandExecutionError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "Unable to define extra variable in wp-config.php")
+    except CommandExecutionError as e:
+        Log.debug(self, str(e))
+        Log.error(self, "Unable to define extra variable in wp-config.php")
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
