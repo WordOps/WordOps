@@ -1,6 +1,5 @@
 
 from setuptools import setup, find_packages
-import sys
 import os
 import glob
 import configparser
@@ -32,7 +31,7 @@ config.read(os.path.expanduser("~")+'/.gitconfig')
 try:
     wo_user = config['user']['name']
     wo_email = config['user']['email']
-except Exception as e:
+except Exception:
     print("WordOps (wo) require an username & and an email "
           "address to configure Git (used to save server configurations)")
     print("Your informations will ONLY be stored locally")
