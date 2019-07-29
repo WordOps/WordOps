@@ -1,11 +1,6 @@
-from sqlalchemy import Column, DateTime, String, Integer, Boolean
-from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 from wo.core.logging import Log
 from wo.core.database import db_session
 from wo.cli.plugins.models import SiteDB
-
 
 
 def addNewSite(self, site, stype, cache, path,

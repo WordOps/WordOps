@@ -12,7 +12,6 @@ from wo.cli.plugins.sitedb import *
 from wo.core.git import WOGit
 from subprocess import Popen
 from wo.core.nginxhashbucket import hashbucket
-import sys
 import os
 import glob
 import subprocess

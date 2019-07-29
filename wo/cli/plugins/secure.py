@@ -1,6 +1,5 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.core.aptget import WOAptGet
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
 from wo.core.logging import Log

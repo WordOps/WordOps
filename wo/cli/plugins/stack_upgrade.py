@@ -9,7 +9,6 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.shellexec import WOShellExec
 from wo.core.extract import WOExtract
 from wo.core.download import WODownload
-import configparser
 import os
 import shutil
 
