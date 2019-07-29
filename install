@@ -683,7 +683,7 @@ wo_uninstall() {
 # 4 - WO MAIN SETUP
 ###
 
-if [ $wo_purge = "y" ]; then
+if [ "$wo_purge" = "y" ]; then
     wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
     wo_backup_wo | tee -ai $wo_install_log
     wo_lib_echo "Uninstalling WordOps" | tee -ai $wo_install_log
