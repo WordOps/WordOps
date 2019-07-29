@@ -341,7 +341,7 @@ def setupwordpress(self, data):
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set CONCATENATE_SCRIPTS "
-                                 "false\"")
+                                 "false --raw\"")
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set WP_POST_REVISIONS "
@@ -349,7 +349,7 @@ def setupwordpress(self, data):
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set MEDIA_TRASH "
-                                 "true\"")
+                                 "true --raw\"")
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set EMPTY_TRASH_DAYS "
