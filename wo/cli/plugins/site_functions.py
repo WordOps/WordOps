@@ -153,8 +153,7 @@ def setupdatabase(self, data):
         try:
             wo_db_name = input('Enter the MySQL database name [{0}]: '
                                .format(wo_replace_dot))
-        except EOFError as e:
-            Log.debug(self, "{0}".format(e))
+        except EOFError:
             raise SiteError("Unable to input database name")
 
     if not wo_db_name:
@@ -167,8 +166,7 @@ def setupdatabase(self, data):
             wo_db_password = getpass.getpass(prompt='Enter the MySQL database'
                                              ' password [{0}]: '
                                              .format(wo_random))
-        except EOFError as e:
-            Log.debug(self, "{0}".format(e))
+        except EOFError:
             raise SiteError("Unable to input database credentials")
 
     if not wo_db_username:
@@ -189,13 +187,13 @@ def setupdatabase(self, data):
             Log.debug(self, "Database already exists, Updating DB_NAME .. ")
             wo_db_name = (wo_db_name[0:6] + generate_random())
             wo_db_username = (wo_db_name[0:6] + generate_random())
-    except MySQLConnectionError as e:
+    except MySQLConnectionError:
         raise SiteError("MySQL Connectivity problem occured")
 
     try:
         WOMysql.execute(self, "create database `{0}`"
                         .format(wo_db_name))
-    except StatementExcecutionError as e:
+    except StatementExcecutionError:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Failed" + Log.OKBLUE + "]")
         raise SiteError("create database execution failed")
     # Create MySQL User
@@ -207,7 +205,7 @@ def setupdatabase(self, data):
                         "create user `{0}`@`{1}` identified by '{2}'"
                         .format(wo_db_username, wo_mysql_grant_host,
                                 wo_db_password), log=False)
-    except StatementExcecutionError as e:
+    except StatementExcecutionError:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Failed" + Log.OKBLUE + "]")
         raise SiteError("creating user failed for database")
 
@@ -218,7 +216,7 @@ def setupdatabase(self, data):
                         "grant all privileges on `{0}`.* to `{1}`@`{2}`"
                         .format(wo_db_name,
                                 wo_db_username, wo_mysql_grant_host))
-    except StatementExcecutionError as e:
+    except StatementExcecutionError:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Failed" + Log.OKBLUE + "]")
         SiteError("grant privileges to user failed for database ")
 
@@ -264,7 +262,7 @@ def setupwordpress(self, data):
             Log.info(self, "[" + Log.ENDC + Log.FAIL +
                      "Fail" + Log.OKBLUE + "]")
             raise SiteError("download WordPress core failed")
-    except CommandExecutionError as e:
+    except CommandExecutionError:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
         raise SiteError(self, "download WordPress core failed")
 
@@ -280,8 +278,7 @@ def setupwordpress(self, data):
                          "contain numbers, letters, and underscores")
                 wo_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
                                      )
-        except EOFError as e:
-            Log.debug(self, "{0}".format(e))
+        except EOFError:
             raise SiteError("input table prefix failed")
 
     if not wo_wp_prefix:
@@ -324,7 +321,7 @@ def setupwordpress(self, data):
                 pass
             else:
                 raise SiteError("generate wp-config failed for wp single site")
-        except CommandExecutionError as e:
+        except CommandExecutionError:
             raise SiteError("generate wp-config failed for wp single site")
         try:
 
@@ -363,6 +360,7 @@ def setupwordpress(self, data):
                                  "minor\"")
 
         except CommandExecutionError as e:
+            Log.debug(self, str(e))
             Log.error(self, "Unable to define extra variable in wp-config.php")
 
     else:
@@ -423,7 +421,7 @@ def setupwordpress(self, data):
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set CONCATENATE_SCRIPTS "
-                                 "false\"")
+                                 "false --raw\"")
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set WP_POST_REVISIONS "
@@ -431,7 +429,7 @@ def setupwordpress(self, data):
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set MEDIA_TRASH "
-                                 "true\"")
+                                 "true --raw\"")
             WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "config set EMPTY_TRASH_DAYS "
@@ -442,6 +440,7 @@ def setupwordpress(self, data):
                                  "minor\"")
 
         except CommandExecutionError as e:
+            Log.debug(self, str(e))
             Log.error(self, "Unable to define extra variable in wp-config.php")
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
@@ -456,6 +455,7 @@ def setupwordpress(self, data):
         shutil.move(os.getcwd()+'/wp-config.php',
                     os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
     except Exception as e:
+        Log.debug(self, str(e))
         Log.error(self, 'Unable to move file from {0} to {1}'
                   .format(os.getcwd()+'/wp-config.php',
                           os.path.abspath(os.path.join(os.getcwd(),
@@ -470,8 +470,7 @@ def setupwordpress(self, data):
                      "periods and the @ symbol.")
             try:
                 wo_wp_user = input('Enter WordPress username: ')
-            except EOFError as e:
-                Log.debug(self, "{0}".format(e))
+            except EOFError:
                 raise SiteError("input WordPress username failed")
     if not wo_wp_pass:
         wo_wp_pass = wo_random
@@ -481,8 +480,7 @@ def setupwordpress(self, data):
         while not wo_wp_email:
             try:
                 wo_wp_email = input('Enter WordPress email: ')
-            except EOFError as e:
-                Log.debug(self, "{0}".format(e))
+            except EOFError:
                 raise SiteError("input WordPress username failed")
 
     try:
@@ -491,8 +489,7 @@ def setupwordpress(self, data):
             Log.info(self, "EMail not Valid in config, "
                      "Please provide valid email id")
             wo_wp_email = input("Enter your email: ")
-    except EOFError as e:
-        Log.debug(self, "{0}".format(e))
+    except EOFError:
         raise SiteError("input WordPress user email failed")
 
     Log.debug(self, "Setting up WordPress tables")
@@ -519,8 +516,7 @@ def setupwordpress(self, data):
             else:
                 raise SiteError(
                     "setup WordPress tables failed for single site")
-        except CommandExecutionError as e:
-            Log.debug(self, str(e))
+        except CommandExecutionError:
             raise SiteError("setup WordPress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
@@ -552,8 +548,7 @@ def setupwordpress(self, data):
             else:
                 raise SiteError(
                     "setup WordPress tables failed for wp multi site")
-        except CommandExecutionError as e:
-            Log.debug(self, str(e))
+        except CommandExecutionError:
             raise SiteError("setup WordPress tables failed for wp multi site")
 
     Log.debug(self, "Updating WordPress permalink")
