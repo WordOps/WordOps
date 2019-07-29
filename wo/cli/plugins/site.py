@@ -1173,7 +1173,6 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "HTTPS is not configured for given "
                               "site", False)
                     return 0
-            pass
 
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':

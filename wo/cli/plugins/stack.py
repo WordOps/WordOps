@@ -2059,24 +2059,18 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
-            else:
-                Log.error(self, "Cannot Purge PHP 7.3. not found.")
 
         # fail2ban
         if self.app.pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
                 Log.debug(self, "Purge apt_packages variable of Fail2ban")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
-            else:
-                Log.error(self, "Fail2ban not found")
 
         # proftpd
         if self.app.pargs.proftpd:
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Purge apt_packages variable for ProFTPd")
                 apt_packages = apt_packages + ["proftpd-basic"]
-            else:
-                Log.error(self, "ProFTPd not found")
 
         # WP-CLI
         if self.app.pargs.wpcli:
