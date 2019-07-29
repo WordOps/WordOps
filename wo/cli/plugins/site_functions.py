@@ -1,25 +1,23 @@
-from wo.cli.plugins.stack import WOStackController
-from wo.core.fileutils import WOFileUtils
-from wo.core.mysql import *
-from wo.core.shellexec import WOShellExec, CommandExecutionError
-from wo.core.sslutils import SSL
-from wo.core.variables import WOVariables
-from wo.cli.plugins.sitedb import *
-from wo.core.aptget import WOAptGet
-from wo.core.git import WOGit
-from wo.core.logging import Log
-from wo.core.sendmail import WOSendMail
-from wo.core.services import WOService
-import subprocess
-from subprocess import CalledProcessError
-import os
-import random
-import string
-import sys
 import getpass
 import glob
+import os
+import random
 import re
-import platform
+import string
+import subprocess
+from subprocess import CalledProcessError
+
+from wo.cli.plugins.sitedb import *
+from wo.cli.plugins.stack import WOStackController
+from wo.core.aptget import WOAptGet
+from wo.core.fileutils import WOFileUtils
+from wo.core.git import WOGit
+from wo.core.logging import Log
+from wo.core.mysql import *
+from wo.core.services import WOService
+from wo.core.shellexec import CommandExecutionError, WOShellExec
+from wo.core.sslutils import SSL
+from wo.core.variables import WOVariables
 
 
 class SiteError(Exception):

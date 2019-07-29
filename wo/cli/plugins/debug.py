@@ -753,7 +753,7 @@ class WODebugController(CementBaseController):
             self.debug_fpm73()
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host is "localhost":
+            if WOVariables.wo_mysql_host == "localhost":
                 self.debug_mysql()
             else:
                 Log.warn(self, "Remote MySQL found, WordOps does not support "

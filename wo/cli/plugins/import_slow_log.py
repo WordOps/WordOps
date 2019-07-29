@@ -1,9 +1,6 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.core.shellexec import WOShellExec
 from wo.core.logging import Log
-from wo.core.variables import WOVariables
-import os
 
 
 def wo_import_slow_log_hook(app):

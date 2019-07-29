@@ -2,7 +2,6 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.core.variables import WOVariables
 from pynginxconfig import NginxConfig
 from wo.core.aptget import WOAptGet
 from wo.core.shellexec import WOShellExec
@@ -279,7 +278,7 @@ class WOInfoController(CementBaseController):
                 Log.error(self, "PHP 7.3 is not installed")
 
         if self.app.pargs.mysql:
-            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+            if WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
                 self.info_mysql()
             else:
                 Log.error(self, "MySQL is not installed")
