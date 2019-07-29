@@ -54,3 +54,4 @@ script:
   - sudo wo update --travis
   - sudo wo stack status
   - echo "yes" | sudo wo stack purge --all
+  - sudo bash install --purge

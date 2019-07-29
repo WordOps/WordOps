@@ -7,7 +7,7 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.6.3 - 2019-07-25
+# Version 3.9.6.3 - 2019-07-29
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
 readonly wo_version_new="3.9.6.3"
@@ -72,6 +72,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     -s | --silent)
         wo_force_install="y"
+        ;;
+    --purge | --uninstall)
+        wo_purge="y"
         ;;
     *) # positional args
         ;;
@@ -620,15 +623,15 @@ wo_git_init() {
 }
 
 wo_backup_ee() {
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt >> /var/log/wo/install.log 2>&1
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /usr/local/lib/python3.6/dist-packages/wo-*.egg /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /usr/local/lib/python3.*/dist-packages/wo-*.egg /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean_ee() {
-    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.6/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
+    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
 }
 
 wo_remove_ee_cron() {
@@ -653,14 +656,14 @@ wo_tweak_kernel() {
             # apply sysctl tweaks
             sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
             if [ ! -x /opt/wo-kernel.sh ]; then
-            {
-                # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
-                wget -qO /opt/wo-kernel.sh https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-script.mustache
-                chmod +x /opt/wo-kernel.sh
-                wget -qO /lib/systemd/system/wo-kernel.service https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-service.mustache
-                systemctl enable wo-kernel.service
-                systemctl start wo-kernel.service
-            } >> /var/log/wo/install.log 2>&1
+                {
+                    # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
+                    wget -qO /opt/wo-kernel.sh https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-script.mustache
+                    chmod +x /opt/wo-kernel.sh
+                    wget -qO /lib/systemd/system/wo-kernel.service https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-service.mustache
+                    systemctl enable wo-kernel.service
+                    systemctl start wo-kernel.service
+                } >> /var/log/wo/install.log 2>&1
             fi
 
         fi
@@ -672,128 +675,141 @@ wo_tweak_kernel() {
 
 }
 
+wo_uninstall() {
+    rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates >> /var/log/wo/install.log 2>&1
+}
+
 ###
 # 4 - WO MAIN SETUP
 ###
 
-# 1 - WO already installed
-if [ -x /usr/local/bin/wo ]; then
-    if ! {
-        wo -v 2>&1 | grep $wo_version_new
-    } || [ "$wo_force_install" = "y" ]; then
-        if [ -z "$wo_force_install" ]; then
-            echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
-        else
-            WO_ANSWER="y"
-        fi
-        if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
-            wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
-            wo_install_dep | tee -ai $wo_install_log
-            wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
-            wo_backup_wo | tee -ai $wo_install_log
-            wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
-            secure_wo_db | tee -ai $wo_install_log
-            wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            if [ -f "$HOME/.gitconfig" ]; then
-                wo_install >> $wo_install_log 2>&1
+if [ $wo_purge = "y" ]; then
+    wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
+    wo_backup_wo | tee -ai $wo_install_log
+    wo_lib_echo "Uninstalling WordOps" | tee -ai $wo_install_log
+    wo_uninstall | tee -ai $wo_install_log
+    wo_lib_echo "The WordOps backup files can be found in $WO_BACKUP_FILE"
+else
+    # 1 - WO already installed
+    if [ -x /usr/local/bin/wo ]; then
+        if ! {
+            wo -v 2>&1 | grep $wo_version_new
+        } || [ "$wo_force_install" = "y" ]; then
+            if [ -z "$wo_force_install" ]; then
+                echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
             else
-                wo_install | tee -ai $wo_install_log
+                WO_ANSWER="y"
             fi
-            if [ -z "$wo_preserve_config" ]; then
-                if [ -n "$(command -v nginx)" ]; then
-                    if [ ! -f /etc/nginx/common/release ] || ! grep -q "v3.9.6" /etc/nginx/common/release; then
-                        wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                        wo_upgrade_nginx | tee -ai $wo_install_log
+            if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
+                wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
+                wo_install_dep | tee -ai $wo_install_log
+                wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
+                wo_backup_wo | tee -ai $wo_install_log
+                wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
+                secure_wo_db | tee -ai $wo_install_log
+                wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
+                if [ -f "$HOME/.gitconfig" ]; then
+                    wo_install >> $wo_install_log 2>&1
+                else
+                    wo_install | tee -ai $wo_install_log
+                fi
+                if [ -z "$wo_preserve_config" ]; then
+                    if [ -n "$(command -v nginx)" ]; then
+                        if [ ! -f /etc/nginx/common/release ] || ! grep -q "v3.9.6" /etc/nginx/common/release; then
+                            wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+                            wo_upgrade_nginx | tee -ai $wo_install_log
+                        fi
                     fi
                 fi
+                wo_update_latest | tee -ai $wo_install_log
+                wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
+                wo_install_acme_sh | tee -ai $wo_install_log
+                wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
+                wo_tweak_kernel | tee -ai $wo_install_log
+                wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
+                wo_update_wp_cli | tee -ai $wo_install_log
+            else
+                wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
             fi
-            wo_update_latest | tee -ai $wo_install_log
-            wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
-            wo_install_acme_sh | tee -ai $wo_install_log
-            wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
-            wo_tweak_kernel | tee -ai $wo_install_log
-            wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
-            wo_update_wp_cli | tee -ai $wo_install_log
         else
-            wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
+            wo_lib_error "You already have WordOps $wo_version_new, exit status = " 1
         fi
     else
-        wo_lib_error "You already have WordOps $wo_version_new, exit status = " 1
-    fi
-else
-    # 2 - Migration from EEv3
-    if [ -x /usr/local/bin/ee ]; then
-        if [ -z "$wo_force_install" ]; then
-            echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
+        # 2 - Migration from EEv3
+        if [ -x /usr/local/bin/ee ]; then
+            if [ -z "$wo_force_install" ]; then
+                echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
+            else
+                WO_ANSWER="y"
+            fi
+            if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
+                wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
+                wo_install_dep | tee -ai $wo_install_log
+                wo_lib_echo "Backing-up EE install" | tee -ai $wo_install_log
+                wo_backup_ee | tee -ai $wo_install_log
+                wo_lib_echo "Removing EasyEngine cronjob" | tee -ai $wo_install_log
+                wo_remove_ee_cron | tee -ai $wo_install_log
+                wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
+                wo_sync_db | tee -ai $wo_install_log
+                secure_wo_db | tee -ai $wo_install_log
+                wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
+                if [ -f "$HOME/.gitconfig" ]; then
+                    wo_install >> $wo_install_log 2>&1
+                else
+                    wo_install | tee -ai $wo_install_log
+                fi
+                if [ -n "$(command -v nginx)" ]; then
+                    wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+                    wo_upgrade_nginx | tee -ai $wo_install_log
+                fi
+                wo_update_latest | tee -ai $wo_install_log
+                wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+                wo_install_acme_sh | tee -ai $wo_install_log
+                wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
+                wo_tweak_kernel | tee -ai $wo_install_log
+                wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
+                wo_git_init | tee -ai $wo_install_log
+                wo_update_wp_cli | tee -ai $wo_install_log
+                wo_lib_echo "Cleaning-up EE previous install" | tee -ai $wo_install_log
+                wo_clean_ee | tee -ai $wo_install_log
+            else
+                wo_lib_error "Not installing WordOps, exit status = " 1
+            fi
         else
-            WO_ANSWER="y"
-        fi
-        if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
+            # 3 - Fresh WO setup
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
-            wo_lib_echo "Backing-up EE install" | tee -ai $wo_install_log
-            wo_backup_ee | tee -ai $wo_install_log
-            wo_lib_echo "Removing EasyEngine cronjob" | tee -ai $wo_install_log
-            wo_remove_ee_cron | tee -ai $wo_install_log
-            wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
-            wo_sync_db | tee -ai $wo_install_log
-            secure_wo_db | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            if [ -f "$HOME/.gitconfig" ]; then
-                wo_install >> $wo_install_log 2>&1
-            else
-                wo_install | tee -ai $wo_install_log
-            fi
-            if [ -n "$(command -v nginx)" ]; then
-                wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                wo_upgrade_nginx | tee -ai $wo_install_log
-            fi
-            wo_update_latest | tee -ai $wo_install_log
-            wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
-            wo_install_acme_sh | tee -ai $wo_install_log
+            wo_install | tee -ai $wo_install_log
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
             wo_tweak_kernel | tee -ai $wo_install_log
+            wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+            wo_install_acme_sh | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
+            secure_wo_db | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
-            wo_lib_echo "Cleaning-up EE previous install" | tee -ai $wo_install_log
-            wo_clean_ee | tee -ai $wo_install_log
-        else
-            wo_lib_error "Not installing WordOps, exit status = " 1
         fi
-    else
-        # 3 - Fresh WO setup
-        wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
-        wo_install_dep | tee -ai $wo_install_log
-        wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-        wo_install | tee -ai $wo_install_log
-        wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
-        wo_tweak_kernel | tee -ai $wo_install_log
-        wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
-        wo_install_acme_sh | tee -ai $wo_install_log
-        wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
-        secure_wo_db | tee -ai $wo_install_log
-        wo_git_init | tee -ai $wo_install_log
-        wo_update_wp_cli | tee -ai $wo_install_log
     fi
-fi
 
-wo sync | tee -ai $wo_install_log
+    wo sync | tee -ai $wo_install_log
 
-if [ "$ee_migration" = "1" ]; then
+    if [ "$ee_migration" = "1" ]; then
+        echo
+        wo_lib_echo "The migration from EasyEngine to WordOps was succesfull!"
+        wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo-backup/ee-backup.tgz"
+        echo
+    elif [ "$wo_upgrade" = "1" ]; then
+        wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
+    else
+        wo_lib_echo "WordOps (wo) installed successfully"
+    fi
     echo
-    wo_lib_echo "The migration from EasyEngine to WordOps was succesfull!"
-    wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo-backup/ee-backup.tgz"
+    wo_lib_echo_info "For autocompletion, run the following command:"
+    wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
-elif [ "$wo_upgrade" = "1" ]; then
-    wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
-else
-    wo_lib_echo "WordOps (wo) installed successfully"
+    wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
+    wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
+    echo
+
 fi
-echo
-wo_lib_echo_info "For autocompletion, run the following command:"
-wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
-echo
-wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
-wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
-echo

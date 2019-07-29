@@ -1486,6 +1486,7 @@ class WOStackController(CementBaseController):
                                             "/master/mysqltuner.pl",
                                             "/usr/bin/mysqltuner",
                                             "MySQLTuner"]]
+
                 else:
                     Log.debug(self, "MySQL connection is already alive")
                     Log.info(self, "MySQL connection is already alive")
