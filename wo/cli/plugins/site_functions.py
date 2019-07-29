@@ -1314,30 +1314,31 @@ def removeAcmeConf(self, domain):
 def site_url_https(self, wo_domain):
     if os.path.isfile('/var/www/{0}/wp-config.php'):
         wo_site_webroot = ('/var/www/{0}'.format(wo_domain))
-        Log.info(self, "Checking if site url already use https, please wait...")
+        Log.info(self, "Checking if site url already "
+                 "use https, please wait...")
         WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
-        siteurl = WOShellExec.cmd_exec(self,
-                                       "php {0} option get siteurl "
-                                       .format(WOVariables.wo_wpcli_path) +
-                                       "--allow-root --quiet")
-        test_https = re.split(":", siteurl)
-    if not test_https[0] == 'https':
-        try:
-            WOShellExec.cmd_exec(self, "php {0} option update siteurl "
-                                 "\"https://{1}\" --allow-root".format(
-                                     WOVariables.wo_wpcli_path, wo_domain))
-            WOShellExec.cmd_exec(self, "php {0} option update home "
-                                 "\"https://{1}\" --allow-root".format(
-                                     WOVariables.wo_wpcli_path, wo_domain))
-        except CommandExecutionError as e:
-            Log.debug(self, "{0}".format(e))
+        wo_siteurl = WOShellExec.cmd_exec(self,
+                                          "php {0} option get siteurl "
+                                          .format(WOVariables.wo_wpcli_path) +
+                                          "--allow-root --quiet")
+        test_url = re.split(":", wo_siteurl)
+        if not (test_url[0] == 'https'):
+            try:
+                WOShellExec.cmd_exec(self, "php {0} option update siteurl "
+                                     "\"https://{1}\" --allow-root".format(
+                                         WOVariables.wo_wpcli_path, wo_domain))
+                WOShellExec.cmd_exec(self, "php {0} option update home "
+                                     "\"https://{1}\" --allow-root".format(
+                                         WOVariables.wo_wpcli_path, wo_domain))
+            except CommandExecutionError as e:
+                Log.debug(self, "{0}".format(e))
             raise SiteError("plugin activation failed")
-        Log.info(
-            self, "Site address updated "
-            "successfully to https://{0}".format(wo_domain))
-    else:
-        Log.info(
-            self, "Site address was already using https")
+            Log.info(
+                self, "Site address updated "
+                "successfully to https://{0}".format(wo_domain))
+        else:
+            Log.info(
+                self, "Site address was already using https")
 
 
 def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
