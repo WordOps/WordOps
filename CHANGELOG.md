@@ -23,11 +23,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Adminer updated to v4.7.2
 - eXtplorer updated to v2.1.13
 - Removed WordOps version from the Nginx header X-Powered-By to avoid possible security issues
+- Several code quality improvements to speed up WordOps execution
 
 #### Fixed
 
 - Kernel tweaks were not applied without server reboot
 - Fail2ban standalone install
+- `wo stack purge --all` error due to PHP7.3 check
 
 ### v3.9.6.2 - 2019-07-24
 

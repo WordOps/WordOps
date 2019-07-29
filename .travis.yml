@@ -53,3 +53,4 @@ script:
   - sudo wo stack upgrade --composer --no-prompt
   - sudo wo update --travis
   - sudo wo stack status
+  - echo "yes" | sudo wo stack purge --all

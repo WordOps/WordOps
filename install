@@ -713,7 +713,6 @@ if [ -x /usr/local/bin/wo ]; then
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
             wo_tweak_kernel | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
-            wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
         else
             wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
