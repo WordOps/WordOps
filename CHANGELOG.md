@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Kernel tweaks were not applied without server reboot
 - Fail2ban standalone install
 - `wo stack purge --all` error due to PHP7.3 check
+- Nginx helper configuration during plugin install for Nginx fastcgi_cache and redis-cache
 
 ### v3.9.6.2 - 2019-07-24
 
