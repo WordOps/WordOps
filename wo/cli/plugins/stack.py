@@ -1701,7 +1701,6 @@ class WOStackController(CementBaseController):
                                        ]
         except Exception as e:
             Log.debug(self, "{0}".format(e))
-            pass
 
         if (apt_packages) or (packages):
             Log.debug(self, "Calling pre_pref")

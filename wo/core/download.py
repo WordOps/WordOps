@@ -33,12 +33,12 @@ class WODownload():
                 Log.error(self, "Unable to download file, {0}"
                           .format(filename))
                 return False
-            except urllib.error.HTTPError as e:
+            except urllib.HTTPError.error as e:
                 Log.error(self, "Package download failed. {0}"
                           .format(pkg_name))
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 return False
-            except urllib.error.ContentTooShortError as e:
+            except urllib.ContentTooShortError.error as e:
                 Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
                 Log.error(self, "Package download failed. The amount of the"
                           " downloaded data is less than "
