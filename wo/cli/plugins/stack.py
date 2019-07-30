@@ -1056,8 +1056,7 @@ class WOStackController(CementBaseController):
                                        "/etc/proftpd/ssl/proftpd.key.org")
                     WOShellExec.cmd_exec(self, "openssl rsa -in "
                                          "/etc/proftpd/ssl/proftpd.key.org"
-                                         "-out /etc/proftpd/ssl/"
-                                         "proftpd/proftpd.key")
+                                         "-out /etc/proftpd/ssl/proftpd.key")
                     WOShellExec.cmd_exec(self, "openssl x509 -req -days "
                                          "3652 -in /etc/proftpd/ssl/"
                                          "proftpd.csr"
