@@ -243,16 +243,6 @@ class WOStackController(CementBaseController):
 
             # Nginx configuration
             if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-                # Nginx main configuration
-                if os.path.isfile('/etc/nginx/nginx.conf'):
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/nginx.conf')
-                    wo_nginx = open('/etc/nginx/nginx.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render(
-                        (data), 'nginx-core.mustache', out=wo_nginx)
-                    wo_nginx.close()
 
                 # Fix for white screen death with NGINX PLUS
                 if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
@@ -1242,7 +1232,7 @@ class WOStackController(CementBaseController):
                                               "{0}22222/htdocs/index.php"
                                               .format(WOVariables.wo_webroot),
                                               "eth0",
-                                              "{0}".format(WOVariables.wo_wan))
+                                              "{0}".format(wo_wan))
                     Log.debug(self, "Setting Privileges to "
                               "{0}22222/htdocs"
                               .format(WOVariables.wo_webroot))
