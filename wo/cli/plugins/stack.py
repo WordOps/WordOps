@@ -1042,6 +1042,49 @@ class WOStackController(CementBaseController):
                                           "PassivePorts "
                                           "             "
                                           "    49000 50000")
+            # proftpd TLS configuration
+            if not os.path.isdir("/etc/proftpd/ssl"):
+                os.makedirs("/etc/proftpd/ssl")
+                try:
+                    WOShellExec.cmd_exec(self, "openssl genrsa -out "
+                                         "/etc/proftpd/ssl/proftpd.key 2048")
+                    WOShellExec.cmd_exec(self, "openssl req -new -batch  "
+                                         "-subj /commonName=localhost/ "
+                                         "-key /etc/proftpd/ssl/proftpd.key "
+                                         "-out /etc/proftpd/ssl/proftpd.csr")
+                    WOFileUtils.mvfile(self, "/etc/proftpd/ssl/proftpd.key",
+                                       "/etc/proftpd/ssl/proftpd.key.org")
+                    WOShellExec.cmd_exec(self, "openssl rsa -in "
+                                         "/etc/proftpd/ssl/proftpd.key.org"
+                                         "-out /etc/proftpd/ssl/"
+                                         "proftpd/proftpd.key")
+                    WOShellExec.cmd_exec(self, "openssl x509 -req -days "
+                                         "3652 -in /etc/proftpd/ssl/"
+                                         "proftpd.csr"
+                                         "-signkey /etc/proftpd/ssl/"
+                                         "proftpd.key"
+                                         " -out /etc/proftpd/ssl/proftpd.crt")
+                except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(
+                        self, "Failed to generate SSL "
+                        "certificate for Proftpd")
+            WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.key", 0o600)
+            WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.crt", 0o600)
+            data = dict()
+            Log.debug(self, 'Writting the proftpd configuration to '
+                      'file /etc/proftpd/tls.conf')
+            wo_proftpdconf = open('/etc/proftpd/tls.conf',
+                                  encoding='utf-8', mode='w')
+            self.app.render((data), 'proftpd-tls.mustache',
+                                    out=wo_proftpdconf)
+            wo_proftpdconf.close()
+            WOFileUtils.searchreplace(self, "/etc/proftpd/"
+                                      "proftpd.conf",
+                                      "#Include /etc/proftpd/tls.conf",
+                                      "Include /etc/proftpd/tls.conf")
+            WOService.restart_service(self, 'proftpd')
+
             # add rule for proftpd with UFW
             if WOAptGet.is_installed(self, 'ufw'):
                 try:

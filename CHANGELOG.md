@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - MySQL configuration tuning
 - Cronjob to optimize MySQL databases weekly
 - WO-kernel systemd service to automatically apply kernel tweaks on server startup
+- Proftpd stack now secured with TLS
+- New Nginx package built with Brotli from operating system libraries
 - Brotli configuration with only well compressible MIME types
 
 #### Changed

@@ -1325,10 +1325,10 @@ def site_url_https(self, wo_domain):
         if not (test_url[0] == 'https'):
             try:
                 WOShellExec.cmd_exec(self, "php {0} option update siteurl "
-                                     "\"https://{1}\" --allow-root".format(
+                                     "\'https://{1}\' --allow-root".format(
                                          WOVariables.wo_wpcli_path, wo_domain))
                 WOShellExec.cmd_exec(self, "php {0} option update home "
-                                     "\"https://{1}\" --allow-root".format(
+                                     "\'https://{1}\' --allow-root".format(
                                          WOVariables.wo_wpcli_path, wo_domain))
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
