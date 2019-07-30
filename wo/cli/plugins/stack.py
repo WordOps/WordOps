@@ -1237,9 +1237,7 @@ class WOStackController(CementBaseController):
                 wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
                                   "grep -oP \"dev [^[:space:]]+ \" "
                                   "| cut -d ' ' -f 2").read()
-                if wo_wan == '':
-                    wo_wan = 'eth0'
-                if WOVariables.wo_wan != 'eth0':
+                if (wo_wan != 'eth0' and wo_wan != ''):
                     WOFileUtils.searchreplace(self,
                                               "{0}22222/htdocs/index.php"
                                               .format(WOVariables.wo_webroot),
