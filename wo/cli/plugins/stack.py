@@ -97,7 +97,7 @@ class WOStackController(CementBaseController):
 
         if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
             # add mariadb repository excepted on raspbian and ubuntu 19.04
-            if (not WOVariables.wo_platform_distro == 'raspbian'):
+            if (not WOVariables.wo_distro == 'raspbian'):
                 Log.info(self, "Adding repository for MySQL, please wait...")
                 mysql_pref = ("Package: *\nPin: origin "
                               "sfo1.mirrors.digitalocean.com"
@@ -115,7 +115,7 @@ class WOStackController(CementBaseController):
             # generate random 24 characters root password
             chars = ''.join(random.sample(string.ascii_letters, 24))
             # configure MySQL non-interactive install
-            if (not WOVariables.wo_platform_distro == 'raspbian'):
+            if (not WOVariables.wo_distro == 'raspbian'):
                 Log.debug(self, "Pre-seeding MySQL")
                 Log.debug(self, "echo \"mariadb-server-10.3 "
                           "mysql-server/root_password "
@@ -196,7 +196,7 @@ class WOStackController(CementBaseController):
 
         # add nginx repository
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
+            if (WOVariables.wo_distro == 'ubuntu'):
                 Log.info(self, "Adding repository for NGINX, please wait...")
                 WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
                 Log.debug(self, 'Adding ppa for Nginx')
@@ -209,7 +209,7 @@ class WOStackController(CementBaseController):
         # add php repository
         if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
                 set(WOVariables.wo_php).issubset(set(apt_packages))):
-            if (WOVariables.wo_platform_distro == 'ubuntu'):
+            if (WOVariables.wo_distro == 'ubuntu'):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 WORepo.add(self, ppa=WOVariables.wo_php_repo)
@@ -230,7 +230,7 @@ class WOStackController(CementBaseController):
         # add redis repository
         if set(WOVariables.wo_redis).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for Redis, please wait...")
-            if WOVariables.wo_platform_distro == 'ubuntu':
+            if WOVariables.wo_distro == 'ubuntu':
                 Log.debug(self, 'Adding ppa for redis')
                 WORepo.add(self, ppa=WOVariables.wo_redis_repo)
             else:
@@ -1234,12 +1234,17 @@ class WOStackController(CementBaseController):
                                       'wo-dashboard.tar.gz',
                                       '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot))
+                wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
+                                  "grep -oP \"dev [^[:space:]]+ \" "
+                                  "| cut -d ' ' -f 2").read()
+                if wo_wan == '':
+                    wo_wan = 'eth0'
                 if WOVariables.wo_wan != 'eth0':
-                    WOFileUtils.searchreplace(self, "{0}22222/htdocs/index.php"
+                    WOFileUtils.searchreplace(self,
+                                              "{0}22222/htdocs/index.php"
                                               .format(WOVariables.wo_webroot),
                                               "eth0",
                                               "{0}".format(WOVariables.wo_wan))
-
                     Log.debug(self, "Setting Privileges to "
                               "{0}22222/htdocs"
                               .format(WOVariables.wo_webroot))

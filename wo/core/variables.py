@@ -20,18 +20,11 @@ class WOVariables():
     # Get WPCLI path
     wo_wpcli_path = '/usr/local/bin/wp'
 
-    # get wan network interface name
-    wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
-                      "grep -oP \"dev [^[:space:]]+ \" "
-                      "| cut -d ' ' -f 2").read()
-    if wo_wan == '':
-        wo_wan = 'eth0'
-
     # Current date and time of System
     wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # WordOps core variables
-    wo_platform_distro = os.popen("/usr/bin/lsb_release -si "
+    wo_distro = os.popen("/usr/bin/lsb_release -si "
                                   "| tr -d \'\\n\'").read().lower()
     wo_platform_version = platform.linux_distribution()[1]
     wo_platform_codename = os.popen(
@@ -91,14 +84,14 @@ class WOVariables():
 
     # WordOps stack installation variables
     # Nginx repo and packages
-    if wo_platform_distro == 'ubuntu':
+    if wo_distro == 'ubuntu':
         if wo_platform_codename == 'trusty':
             wo_nginx_repo = ("deb http://download.opensuse.org"
                              "/repositories/home:"
                              "/virtubox:/WordOps/xUbuntu_14.04/ /")
         else:
             wo_nginx_repo = "ppa:wordops/nginx-wo"
-    elif wo_platform_distro == 'debian':
+    elif wo_distro == 'debian':
         if wo_platform_codename == 'jessie':
             wo_nginx_repo = ("deb http://download.opensuse.org"
                              "/repositories/home:"
@@ -119,7 +112,7 @@ class WOVariables():
     wo_nginx_key = '188C9FB063F0247A'
 
     # PHP repo and packages
-    if wo_platform_distro == 'ubuntu':
+    if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
         wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
                   "php7.2-readline", "php7.2-common", "php7.2-recode",
@@ -155,7 +148,7 @@ class WOVariables():
         wo_php_key = 'AC0E47584A7A714D'
 
     # MySQL repo and packages
-    if wo_platform_distro == 'ubuntu':
+    if wo_distro == 'ubuntu':
         wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
                          "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/ubuntu {codename} main"
@@ -170,7 +163,7 @@ class WOVariables():
     wo_fail2ban = ["fail2ban"]
 
     # Redis repo details
-    if wo_platform_distro == 'ubuntu':
+    if wo_distro == 'ubuntu':
         wo_redis_repo = ("ppa:chris-lea/redis-server")
 
     else:
