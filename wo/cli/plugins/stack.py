@@ -1044,10 +1044,10 @@ class WOStackController(CementBaseController):
                                           "    49000 50000")
             # proftpd TLS configuration
             if not os.path.isdir("/etc/proftpd/ssl"):
-                os.makedirs("/etc/proftpd/ssl")
-                try:
-                    WOShellExec.cmd_exec(self, "openssl genrsa -out "
-                                         "/etc/proftpd/ssl/proftpd.key 2048")
+                WOFileUtils.mkdir(self, "/etc/proftpd/ssl")
+            try:
+                WOShellExec.cmd_exec(self, "openssl genrsa -out "
+                                     "/etc/proftpd/ssl/proftpd.key 2048")
                     WOShellExec.cmd_exec(self, "openssl req -new -batch  "
                                          "-subj /commonName=localhost/ "
                                          "-key /etc/proftpd/ssl/proftpd.key "
@@ -1055,21 +1055,19 @@ class WOStackController(CementBaseController):
                     WOFileUtils.mvfile(self, "/etc/proftpd/ssl/proftpd.key",
                                        "/etc/proftpd/ssl/proftpd.key.org")
                     WOShellExec.cmd_exec(self, "openssl rsa -in "
-                                         "/etc/proftpd/ssl/proftpd.key.org"
-                                         "-out /etc/proftpd/ssl/proftpd.key")
-                    WOShellExec.cmd_exec(self, "openssl x509 -req -days "
-                                         "3652 -in /etc/proftpd/ssl/"
-                                         "proftpd.csr"
-                                         "-signkey /etc/proftpd/ssl/"
-                                         "proftpd.key"
-                                         " -out /etc/proftpd/ssl/proftpd.crt")
+                                     "/etc/proftpd/ssl/proftpd.key.org"
+                                     "-out /etc/proftpd/ssl/proftpd.key")
+                WOShellExec.cmd_exec(self, "openssl x509 -req -days "
+                                     "3652 -in /etc/proftpd/ssl/proftpd.csr"
+                                     "-signkey /etc/proftpd/ssl/proftpd.key"
+                                     " -out /etc/proftpd/ssl/proftpd.crt")
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(
                         self, "Failed to generate SSL "
                         "certificate for Proftpd")
-            WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.key", 0o600)
-            WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.crt", 0o600)
+            WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.key", 0o700)
+            WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.crt", 0o700)
             data = dict()
             Log.debug(self, 'Writting the proftpd configuration to '
                       'file /etc/proftpd/tls.conf')
@@ -1708,7 +1706,12 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Calling pre_pref")
             self.pre_pref(apt_packages)
             if (apt_packages):
-                WOSwap.add(self)
+                meminfo = (os.popen('cat /proc/meminfo '
+                                    '| grep MemTotal').read()).split("       ")
+                memsplit = (meminfo[1]).split(" ")
+                wo_mem = int(mem[0])
+                if wo_mem < 4000000:
+                    WOSwap.add(self)
                 Log.info(self, "Updating apt-cache, please wait...")
                 WOAptGet.update(self)
                 Log.info(self, "Installing packages, please wait...")
