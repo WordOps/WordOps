@@ -1707,9 +1707,9 @@ class WOStackController(CementBaseController):
             self.pre_pref(apt_packages)
             if (apt_packages):
                 meminfo = (os.popen('cat /proc/meminfo '
-                                    '| grep MemTotal').read()).split("       ")
-                memsplit = re.split(" ", meminfo[1])
-                wo_mem = int(float(memsplit[0]))
+                                    '| grep MemTotal').read()).split(":")
+                memsplit = re.split(" kB", meminfo[1])
+                wo_mem = int(list(memsplit[0]))
                 if (wo_mem < 4000000):
                     WOSwap.add(self)
                 Log.info(self, "Updating apt-cache, please wait...")
