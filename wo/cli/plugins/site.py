@@ -1300,13 +1300,14 @@ class WOSiteUpdateController(CementBaseController):
                         setupLetsEncrypt(self, wo_domain, False, True,
                                          True, wo_acme_dns)
                         httpsRedirect(self, wo_domain, True, True)
+                    site_url_https(self, wo_domain)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
                                        '{0}/conf/nginx/ssl.conf'
                                        .format(wo_site_webroot))
+                    site_url_https(self, wo_domain)
 
-                site_url_https(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")

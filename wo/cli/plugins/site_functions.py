@@ -1311,9 +1311,9 @@ def removeAcmeConf(self, domain):
                   .format(domain))
 
 
-def site_url_https(self, wo_domain):
-    if os.path.isfile('/var/www/{0}/wp-config.php'):
-        wo_site_webroot = ('/var/www/{0}'.format(wo_domain))
+def site_url_https(self, domain):
+    if os.path.isfile('/var/www/{0}/wp-config.php'.format(domain)):
+        wo_site_webroot = ('/var/www/{0}'.format(domain))
         Log.info(self, "Checking if site url already "
                  "use https, please wait...")
         WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
@@ -1326,16 +1326,16 @@ def site_url_https(self, wo_domain):
             try:
                 WOShellExec.cmd_exec(self, "php {0} option update siteurl "
                                      "\'https://{1}\' --allow-root".format(
-                                         WOVariables.wo_wpcli_path, wo_domain))
+                                         WOVariables.wo_wpcli_path, domain))
                 WOShellExec.cmd_exec(self, "php {0} option update home "
                                      "\'https://{1}\' --allow-root".format(
-                                         WOVariables.wo_wpcli_path, wo_domain))
+                                         WOVariables.wo_wpcli_path, domain))
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
             raise SiteError("plugin activation failed")
             Log.info(
                 self, "Site address updated "
-                "successfully to https://{0}".format(wo_domain))
+                "successfully to https://{0}".format(domain))
         else:
             Log.info(
                 self, "Site address was already using https")
