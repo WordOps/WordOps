@@ -1056,11 +1056,11 @@ class WOStackController(CementBaseController):
                 WOFileUtils.mvfile(self, "/etc/proftpd/ssl/proftpd.key",
                                    "/etc/proftpd/ssl/proftpd.key.org")
                 WOShellExec.cmd_exec(self, "openssl rsa -in "
-                                     "/etc/proftpd/ssl/proftpd.key.org"
+                                     "/etc/proftpd/ssl/proftpd.key.org "
                                      "-out /etc/proftpd/ssl/proftpd.key")
                 WOShellExec.cmd_exec(self, "openssl x509 -req -days "
-                                     "3652 -in /etc/proftpd/ssl/proftpd.csr"
-                                     "-signkey /etc/proftpd/ssl/proftpd.key"
+                                     "3652 -in /etc/proftpd/ssl/proftpd.csr "
+                                     "-signkey /etc/proftpd/ssl/proftpd.key "
                                      " -out /etc/proftpd/ssl/proftpd.crt")
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
