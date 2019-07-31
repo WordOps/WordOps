@@ -35,11 +35,11 @@ class WOShellExec():
                                 .format(cmd_stdout, cmd_stderr))
                 return False
         except OSError as e:
-                Log.debug(self, str(e))
-                raise CommandExecutionError
+            Log.debug(self, str(e))
+            raise CommandExecutionError
         except Exception as e:
-                Log.debug(self, str(e))
-                raise CommandExecutionError
+            Log.debug(self, str(e))
+            raise CommandExecutionError
 
     def invoke_editor(self, filepath, errormsg=''):
         """

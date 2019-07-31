@@ -1332,7 +1332,7 @@ def site_url_https(self, domain):
                                          WOVariables.wo_wpcli_path, domain))
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
-            raise SiteError("plugin activation failed")
+                raise SiteError("migration to https failed")
             Log.info(
                 self, "Site address updated "
                 "successfully to https://{0}".format(domain))
