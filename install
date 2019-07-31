@@ -429,6 +429,16 @@ wo_install() {
 
 }
 
+# Clone Github repository if it doesn't exist
+wo_install_travis() {
+
+    if [ -f "$HOME/.gitconfig" ]; then
+        # install and redirect log to not print python package install
+        python3 setup.py install >> $wo_install_log 2>&1
+    fi
+
+}
+
 wo_upgrade_nginx() {
 
     {
@@ -780,7 +790,11 @@ else
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            wo_install | tee -ai $wo_install_log
+            if [ "$wo_travis" = "y" ]; then
+                wo_install_travis | tee -ai $wo_install_log
+            else
+                wo_install | tee -ai $wo_install_log
+            fi
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
             wo_tweak_kernel | tee -ai $wo_install_log
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
