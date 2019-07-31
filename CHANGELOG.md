@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - eXtplorer updated to v2.1.13
 - Removed WordOps version from the Nginx header X-Powered-By to avoid possible security issues
 - Several code quality improvements to speed up WordOps execution
+- Few adjustements on PHP-FPM configuration (max_input_time,opcache.consistency_checks)
 
 #### Fixed
 

@@ -657,6 +657,7 @@ class WOStackController(CementBaseController):
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
+                config['PHP']['max_input_time'] = '300'
                 config['PHP']['max_input_vars'] = '20000'
                 config['Date']['date.timezone'] = WOVariables.wo_timezone
                 config['opcache']['opcache.enable'] = '1'
@@ -664,7 +665,8 @@ class WOStackController(CementBaseController):
                 config['opcache']['opcache.max_accelerated_files'] = '10000'
                 config['opcache']['opcache.memory_consumption'] = '256'
                 config['opcache']['opcache.save_comments'] = '1'
-                config['opcache']['opcache.revalidate_freq'] = '2'
+                config['opcache']['opcache.revalidate_freq'] = '5'
+                config['opcache']['opcache.consistency_checks'] = '0'
                 config['opcache']['opcache.validate_timestamps'] = '1'
                 with open('/etc/php/7.2/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
@@ -818,6 +820,7 @@ class WOStackController(CementBaseController):
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
+                config['PHP']['max_input_time'] = '300'
                 config['PHP']['max_input_vars'] = '20000'
                 config['Date']['date.timezone'] = WOVariables.wo_timezone
                 config['opcache']['opcache.enable'] = '1'
@@ -825,7 +828,8 @@ class WOStackController(CementBaseController):
                 config['opcache']['opcache.max_accelerated_files'] = '10000'
                 config['opcache']['opcache.memory_consumption'] = '256'
                 config['opcache']['opcache.save_comments'] = '1'
-                config['opcache']['opcache.revalidate_freq'] = '2'
+                config['opcache']['opcache.revalidate_freq'] = '5'
+                config['opcache']['opcache.consistency_checks'] = '0'
                 config['opcache']['opcache.validate_timestamps'] = '1'
                 with open('/etc/php/7.3/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
