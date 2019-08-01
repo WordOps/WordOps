@@ -85,12 +85,7 @@ class WOVariables():
     # WordOps stack installation variables
     # Nginx repo and packages
     if wo_distro == 'ubuntu':
-        if wo_platform_codename == 'trusty':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/xUbuntu_14.04/ /")
-        else:
-            wo_nginx_repo = "ppa:wordops/nginx-wo"
+        wo_nginx_repo = "ppa:wordops/nginx-wo"
     elif wo_distro == 'debian':
         if wo_platform_codename == 'jessie':
             wo_nginx_repo = ("deb http://download.opensuse.org"

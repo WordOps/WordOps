@@ -1377,7 +1377,8 @@ class WOStackController(CementBaseController):
             # phpredisadmin
             if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
                     for x in packages):
-                if not os.path.exists('{0}22222/htdocs/cache/redis'
+                if not os.path.exists('{0}22222/htdocs/cache/'
+                                      'redis/phpRedisAdmin'
                                       .format(WOVariables.wo_webroot)):
                     Log.debug(self, "Creating new directory "
                               "{0}22222/htdocs/cache/redis"
