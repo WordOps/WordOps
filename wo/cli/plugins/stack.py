@@ -1590,7 +1590,7 @@ class WOStackController(CementBaseController):
 
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
-                if not os.path.isdir('/var/www/22222/htdocs/cache/redis'):
+                if not os.path.isdir('/var/www/22222/htdocs/cache/redis/phpRedisAdmin'):
                     Log.debug(
                         self, "Setting packages variable for phpRedisAdmin")
                     self.app.pargs.composer = True
