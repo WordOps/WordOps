@@ -237,7 +237,7 @@ class WOSiteController(CementBaseController):
         WOFileUtils.chdir(self, wo_site_webroot)
 
         try:
-            subprocess.call(['bash'])
+            subprocess.call(['/bin/bash'])
         except OSError as e:
             Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
             Log.error(self, "unable to change directory")

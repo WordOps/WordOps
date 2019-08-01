@@ -38,7 +38,7 @@ def pre_run_checks(self):
     try:
         Log.debug(self, "checking NGINX configuration ...")
         FNULL = open('/dev/null', 'w')
-        ret = subprocess.check_call(["nginx", "-t"], stdout=FNULL,
+        subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
                                     stderr=subprocess.STDOUT)
     except CalledProcessError as e:
         Log.debug(self, "{0}".format(str(e)))
@@ -89,7 +89,7 @@ def setupdomain(self, data):
         try:
             Log.debug(self, "Checking generated nginx conf, please wait...")
             FNULL = open('/dev/null', 'w')
-            ret = subprocess.check_call(["nginx", "-t"], stdout=FNULL,
+            subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
                                         stderr=subprocess.STDOUT)
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         except CalledProcessError as e:

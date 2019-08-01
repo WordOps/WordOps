@@ -225,7 +225,7 @@ class WOInfoController(CementBaseController):
                            "-f1 | tr -d '\n'").read()
         host = "localhost"
         port = os.popen("/usr/bin/mysql -e \"show variables\" | "
-                        "grep ^port | awk "
+                        "/bin/grep ^port | awk "
                         "'{print($2)}' | tr -d '\n'").read()
         wait_timeout = os.popen("/usr/bin/mysql -e \"show variables\" | grep "
                                 "^wait_timeout | awk '{print($2)}' | "
@@ -239,10 +239,10 @@ class WOInfoController(CementBaseController):
                                         "grep Max_used_connections | awk "
                                         "'{print($2)}' | tr -d '\n'").read()
         datadir = os.popen("/usr/bin/mysql -e \"show variables\" | "
-                           "grep datadir | awk"
+                           "/bin/grep datadir | awk"
                            " '{print($2)}' | tr -d '\n'").read()
         socket = os.popen("/usr/bin/mysql -e \"show variables\" | "
-                          "grep \"^socket\" | "
+                          "/bin/grep \"^socket\" | "
                           "awk '{print($2)}' | tr -d '\n'").read()
         data = dict(version=version, host=host, port=port,
                     wait_timeout=wait_timeout,

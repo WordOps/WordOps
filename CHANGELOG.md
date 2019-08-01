@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Proftpd stack now secured with TLS
 - New Nginx package built with Brotli from operating system libraries
 - Brotli configuration with only well compressible MIME types
+- WordPress site url automatically updated to `https://domain.tld` when using `-le/--letsencrypt` flag
 
 #### Changed
 
