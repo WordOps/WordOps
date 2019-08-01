@@ -93,6 +93,7 @@ class WOInfoController(CementBaseController):
             www_xdebug = (config['www']['php_admin_flag[xdebug.profiler_enable'
                                         '_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
 
         config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2"))
@@ -111,6 +112,7 @@ class WOInfoController(CementBaseController):
             debug_xdebug = (config['debug']['php_admin_flag[xdebug.profiler_'
                                             'enable_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             debug_xdebug = 'off'
 
         data = dict(version=version, expose_php=expose_php,
@@ -168,6 +170,7 @@ class WOInfoController(CementBaseController):
             www_xdebug = (config['www']['php_admin_flag[xdebug.profiler_enable'
                                         '_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
 
         config.read('/etc/php/7.3/fpm/pool.d/debug.conf')
@@ -186,6 +189,7 @@ class WOInfoController(CementBaseController):
             debug_xdebug = (config['debug']['php_admin_flag[xdebug.profiler_'
                                             'enable_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             debug_xdebug = 'off'
 
         data = dict(version=version, expose_php=expose_php,

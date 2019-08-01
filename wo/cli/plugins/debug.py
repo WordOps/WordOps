@@ -3,7 +3,7 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from wo.core.aptget import WOAptGet
-from wo.core.shellexec import *
+from wo.core.shellexec import WOShellExec
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.logging import Log
@@ -92,6 +92,7 @@ class WODebugController(CementBaseController):
                 debug_address = (self.app.config.get('stack', 'ip-address')
                                  .split())
             except Exception as e:
+                Log.debug(self, "{0}".format(e))
                 debug_address = ['0.0.0.0/0']
 
             # Check if IP address is 127.0.0.1 then enable debug globally
@@ -660,6 +661,7 @@ class WODebugController(CementBaseController):
             try:
                 cron_time = int(self.app.pargs.interval)
             except Exception as e:
+                Log.debug(self, "{0}".format(e))
                 cron_time = 5
 
             try:
