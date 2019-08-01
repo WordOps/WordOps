@@ -10,6 +10,7 @@ import pwd
 import random
 import shutil
 import string
+import re
 
 import psutil
 # from pynginxconfig import NginxConfig
@@ -1590,7 +1591,8 @@ class WOStackController(CementBaseController):
 
             # PHPREDISADMIN
             if self.app.pargs.phpredisadmin:
-                if not os.path.isdir('/var/www/22222/htdocs/cache/redis/phpRedisAdmin'):
+                if not os.path.isdir('/var/www/22222/htdocs/'
+                                     'cache/redis/phpRedisAdmin'):
                     Log.debug(
                         self, "Setting packages variable for phpRedisAdmin")
                     self.app.pargs.composer = True
@@ -1728,38 +1730,53 @@ class WOStackController(CementBaseController):
                 WOShellExec.cmd_exec(self, "systemctl enable redis-server")
                 if os.path.isfile("/etc/redis/redis.conf"):
                     wo_ram = psutil.virtual_memory().total / (1024 * 1024)
-                    if wo_ram < 512:
+                    if wo_ram < 1024:
                         Log.debug(self, "Setting maxmemory variable to "
                                   "{0} in redis.conf"
                                   .format(int(wo_ram*1024*1024*0.1)))
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory"
-                                             " <bytes>/maxmemory {0}/'"
-                                             " /etc/redis/redis.conf"
-                                             .format(int(wo_ram*1024*1024*0.1)))
+                        WOFileUtils.searchreplace(self,
+                                                  "/etc/redis/redis.conf",
+                                                  "# maxmemory <bytes>",
+                                                  "maxmemory {0}"
+                                                  .format
+                                                  (int(wo_ram*1024*1024*0.1)))
                         Log.debug(
                             self, "Setting maxmemory-policy variable to "
                             "allkeys-lru in redis.conf")
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory-"
-                                             "policy.*/maxmemory-policy "
-                                             "allkeys-lru/' "
-                                                   "/etc/redis/redis.conf")
+                        WOFileUtils.searchreplace(self,
+                                                  "/etc/redis/redis.conf",
+                                                  "# maxmemory-policy "
+                                                  "noeviction",
+                                                  "maxmemory-policy "
+                                                  "allkeys-lru")
+                        Log.debug(
+                            self, "Setting tcp-backlog variable to "
+                            "in redis.conf")
+                        WOFileUtils.searchreplace(self,
+                                                  "/etc/redis/redis.conf",
+                                                  "tcp-backlog 511",
+                                                  "tcp-backlog 32768")
 
                         WOService.restart_service(self, 'redis-server')
                     else:
                         Log.debug(self, "Setting maxmemory variable to {0} "
                                   "in redis.conf"
                                   .format(int(wo_ram*1024*1024*0.2)))
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory "
-                                             "<bytes>/maxmemory {0}/' "
-                                             "/etc/redis/redis.conf"
-                                             .format(int(wo_ram*1024*1024*0.2)))
+                        WOFileUtils.searchreplace(self,
+                                                  "/etc/redis/redis.conf",
+                                                  "# maxmemory <bytes>",
+                                                  "maxmemory {0}"
+                                                  .format
+                                                  (int(wo_ram*1024*1024*0.1)))
                         Log.debug(
                             self, "Setting maxmemory-policy variable "
                             "to allkeys-lru in redis.conf")
-                        WOShellExec.cmd_exec(self, "sed -i 's/# maxmemory-"
-                                             "policy.*/maxmemory-policy "
-                                             "allkeys-lru/' "
-                                                   "/etc/redis/redis.conf")
+                        WOFileUtils.searchreplace(self,
+                                                  "/etc/redis/redis.conf",
+                                                  "# maxmemory-policy "
+                                                  "noeviction",
+                                                  "maxmemory-policy "
+                                                  "allkeys-lru")
                         WOService.restart_service(self, 'redis-server')
             if 'mariadb-server' in apt_packages:
                 # setting innodb memory usage

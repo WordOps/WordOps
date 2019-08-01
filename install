@@ -7,10 +7,10 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.6.3 - 2019-07-29
+# Version 3.9.7 - 2019-08-02
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.6.3"
+readonly wo_version_new="3.9.7"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
