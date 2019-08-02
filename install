@@ -666,18 +666,18 @@ wo_tweak_kernel() {
         else
             sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
         fi
-        if [ ! -x /opt/wo-kernel.sh ]; then
-            {
-                # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
-                wget -qO /opt/wo-kernel.sh https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-script.mustache
-                chmod +x /opt/wo-kernel.sh
-                wget -qO /lib/systemd/system/wo-kernel.service https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-service.mustache
-                systemctl enable wo-kernel.service
-                systemctl start wo-kernel.service
-            } >> /var/log/wo/install.log 2>&1
-        fi
-
     fi
+    if [ ! -x /opt/wo-kernel.sh ]; then
+        {
+            # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
+            wget -qO /opt/wo-kernel.sh https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-script.mustache
+            chmod +x /opt/wo-kernel.sh
+            wget -qO /lib/systemd/system/wo-kernel.service https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-service.mustache
+            systemctl enable wo-kernel.service
+            systemctl start wo-kernel.service
+        } >> /var/log/wo/install.log 2>&1
+    fi
+
     LIMIT_CHECK=$(grep "500000" /etc/security/limits.conf)
     if [ -z "$LIMIT_CHECK" ]; then
         echo -e "*         hard    nofile      500000\n*         soft    nofile      500000\nroot      hard    nofile      500000\nroot      soft    nofile      500000\n" >> /etc/security/limits.conf
