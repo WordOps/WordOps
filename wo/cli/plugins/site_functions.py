@@ -1384,13 +1384,16 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                      'keylength'))
         if wo_dns:
             acme_mode = "--dns {0}".format(wo_acme_dns)
+            validation_mode = "DNS with {0}".format(wo_acme_dns)
             Log.debug(
                 self, "Validation : DNS mode with {0}".format(wo_acme_dns))
         else:
             acme_mode = "-w /var/www/html"
+            validation_mode = "Webroot challenge"
             Log.debug(self, "Validation : Webroot mode")
         if subdomain:
             Log.info(self, "Issuing subdomain SSL cert with acme.sh")
+            Log.info(self, "Validation mode : {0}".format(validation_mode))
             ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
@@ -1402,6 +1405,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                keylenght))
         elif wildcard:
             Log.info(self, "Issuing Wildcard SSL cert with acme.sh")
+            Log.info(self, "Validation mode : {0}".format(validation_mode))
             ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
@@ -1413,6 +1417,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                keylenght))
         else:
             Log.info(self, "Issuing domain SSL cert with acme.sh")
+            Log.info(self, "Validation mode : {0}".format(validation_mode))
             ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
                                        "--config-home "
                                        "'/etc/letsencrypt/config' "
