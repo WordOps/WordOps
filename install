@@ -513,6 +513,7 @@ wo_upgrade_nginx() {
         sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
 
         # update redis.conf headers
         if [ -f /etc/nginx/common/redis.conf ]; then
@@ -529,7 +530,7 @@ wo_upgrade_nginx() {
         else
             VERIFY_NGINX_BUCKET=$(nginx -t 2>&1 | grep "server_names_hash_bucket_size")
             if [ -n "$VERIFY_NGINX_BUCKET" ]; then
-                sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+                sed -i "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 128;/g" /etc/nginx/nginx.conf
             fi
             systemctl stop nginx
             systemctl start nginx

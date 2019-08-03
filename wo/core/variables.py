@@ -25,7 +25,7 @@ class WOVariables():
 
     # WordOps core variables
     wo_distro = os.popen("/usr/bin/lsb_release -si "
-                                  "| tr -d \'\\n\'").read().lower()
+                         "| tr -d \'\\n\'").read().lower()
     wo_platform_version = platform.linux_distribution()[1]
     wo_platform_codename = os.popen(
         "/usr/bin/lsb_release -sc | tr -d \'\\n\'").read()
@@ -153,7 +153,12 @@ class WOVariables():
                          "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
-    wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
+
+    if wo_platform_codename == 'jessie':
+        wo_mysql = ["mariadb-server", "percona-toolkit",
+                    "python3-mysql.connector"]
+    else:
+        wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
 
     wo_fail2ban = ["fail2ban"]
 
