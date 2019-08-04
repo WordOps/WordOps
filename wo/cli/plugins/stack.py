@@ -609,8 +609,10 @@ class WOStackController(CementBaseController):
                                     ["HTTP Auth Password : {0}"
                                      .format(passwd)])
                         self.msg = (self.msg + ["WordOps backend is available "
-                                                "on https://{0}:22222"
-                                                .format(server_ip.text)])
+                                                "on https://{0}:22222 "
+                                                "or https://{1}:22222"
+                                                .format(server_ip.text,
+                                                        WOVariables.wo_fqdn)])
                 else:
                     WOService.restart_service(self, 'nginx')
 
