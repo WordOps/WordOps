@@ -88,8 +88,8 @@ class WOCleanController(CementBaseController):
     def clean_opcache(self):
         try:
             Log.info(self, "Cleaning opcache")
-            wp = urllib.request.urlopen(" https://127.0.0.1:22222/cache"
-                                        "/opcache/opgui.php?reset=1").read()
+            urllib.request.urlopen(" https://127.0.0.1:22222/cache"
+                                   "/opcache/opgui.php?reset=1").read()
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             Log.debug(self, "Unable hit url, "

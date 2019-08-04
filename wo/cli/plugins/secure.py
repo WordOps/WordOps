@@ -1,6 +1,5 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.core.aptget import WOAptGet
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
 from wo.core.logging import Log
@@ -8,8 +7,6 @@ from wo.core.git import WOGit
 from wo.core.services import WOService
 import string
 import random
-import sys
-import hashlib
 import getpass
 
 
@@ -116,6 +113,7 @@ class WOSecureController(CementBaseController):
         try:
             user_ip = self.app.pargs.user_input.split(',')
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             user_ip = ['127.0.0.1']
         for ip_addr in user_ip:
             if not ("exist_ip_address "+ip_addr in open('/etc/nginx/common/'

@@ -2,7 +2,6 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.core.variables import WOVariables
 from pynginxconfig import NginxConfig
 from wo.core.aptget import WOAptGet
 from wo.core.shellexec import WOShellExec
@@ -94,6 +93,7 @@ class WOInfoController(CementBaseController):
             www_xdebug = (config['www']['php_admin_flag[xdebug.profiler_enable'
                                         '_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
 
         config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/7.2"))
@@ -112,6 +112,7 @@ class WOInfoController(CementBaseController):
             debug_xdebug = (config['debug']['php_admin_flag[xdebug.profiler_'
                                             'enable_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             debug_xdebug = 'off'
 
         data = dict(version=version, expose_php=expose_php,
@@ -169,6 +170,7 @@ class WOInfoController(CementBaseController):
             www_xdebug = (config['www']['php_admin_flag[xdebug.profiler_enable'
                                         '_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
 
         config.read('/etc/php/7.3/fpm/pool.d/debug.conf')
@@ -187,6 +189,7 @@ class WOInfoController(CementBaseController):
             debug_xdebug = (config['debug']['php_admin_flag[xdebug.profiler_'
                                             'enable_trigger]'])
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             debug_xdebug = 'off'
 
         data = dict(version=version, expose_php=expose_php,
@@ -222,7 +225,7 @@ class WOInfoController(CementBaseController):
                            "-f1 | tr -d '\n'").read()
         host = "localhost"
         port = os.popen("/usr/bin/mysql -e \"show variables\" | "
-                        "grep ^port | awk "
+                        "/bin/grep ^port | awk "
                         "'{print($2)}' | tr -d '\n'").read()
         wait_timeout = os.popen("/usr/bin/mysql -e \"show variables\" | grep "
                                 "^wait_timeout | awk '{print($2)}' | "
@@ -236,10 +239,10 @@ class WOInfoController(CementBaseController):
                                         "grep Max_used_connections | awk "
                                         "'{print($2)}' | tr -d '\n'").read()
         datadir = os.popen("/usr/bin/mysql -e \"show variables\" | "
-                           "grep datadir | awk"
+                           "/bin/grep datadir | awk"
                            " '{print($2)}' | tr -d '\n'").read()
         socket = os.popen("/usr/bin/mysql -e \"show variables\" | "
-                          "grep \"^socket\" | "
+                          "/bin/grep \"^socket\" | "
                           "awk '{print($2)}' | tr -d '\n'").read()
         data = dict(version=version, host=host, port=port,
                     wait_timeout=wait_timeout,
@@ -279,7 +282,7 @@ class WOInfoController(CementBaseController):
                 Log.error(self, "PHP 7.3 is not installed")
 
         if self.app.pargs.mysql:
-            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+            if WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
                 self.info_mysql()
             else:
                 Log.error(self, "MySQL is not installed")

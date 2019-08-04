@@ -8,6 +8,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.7 - 2019-08-02
+
+#### Added
+
+- MySQL configuration tuning
+- Cronjob to optimize MySQL databases weekly
+- WO-kernel systemd service to automatically apply kernel tweaks on server startup
+- Proftpd stack now secured with TLS
+- New Nginx package built with Brotli from operating system libraries
+- Brotli configuration with only well compressible MIME types
+- WordPress site url automatically updated to `https://domain.tld` when using `-le/--letsencrypt` flag
+- More informations during certificate issuance about validation mode selected
+- `--php72` as alternative for `--php`
+- Automated removal of the deprecated variable `ssl on;` in previous Nginx ssl.conf
+- Project Contributing guidelines
+- Project Code of conduct
+
+#### Changed
+
+- `wo maintenance` refactored
+- Improved debug log
+- Updated Nginx configuration process to not overwrite files with custom data (htpasswd-wo, acl.conf etc..)
+- Adminer updated to v4.7.2
+- eXtplorer updated to v2.1.13
+- Removed WordOps version from the Nginx header X-Powered-By to avoid possible security issues
+- Several code quality improvements to speed up WordOps execution
+- Few adjustements on PHP-FPM configuration (max_input_time,opcache.consistency_checks)
+- Added /dev/urandom & /dev/shm to open_basedir in PHP-FPM configuration
+
+#### Fixed
+
+- Kernel tweaks were not applied without server reboot
+- Fail2ban standalone install
+- `wo stack purge --all` error due to PHP7.3 check
+- Nginx helper configuration during plugin install for Nginx fastcgi_cache and redis-cache
+- phpRedisAdmin stack installation
+- Fixed Travis CI build on pull requests
+- Nginx `server_names_hash_bucket_size` variable error after WordOps upgrade
+
 ### v3.9.6.2 - 2019-07-24
 
 #### Changed

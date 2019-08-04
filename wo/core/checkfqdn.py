@@ -1,6 +1,5 @@
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
-import os
 
 
 def check_fqdn(self, wo_host):
@@ -13,7 +12,7 @@ def check_fqdn(self, wo_host):
 
         WOShellExec.cmd_exec(self, "sed -i \"1i\\127.0.0.1 {0}\" /etc/hosts"
                                    .format(wo_host))
-        if WOVariables.wo_platform_distro == 'debian':
+        if WOVariables.wo_distro == 'debian':
             WOShellExec.cmd_exec(self, "/etc/init.d/hostname.sh start")
         else:
             WOShellExec.cmd_exec(self, "service hostname restart")

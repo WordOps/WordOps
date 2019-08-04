@@ -9,7 +9,6 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.shellexec import WOShellExec
 from wo.core.extract import WOExtract
 from wo.core.download import WODownload
-import configparser
 import os
 import shutil
 
@@ -50,7 +49,7 @@ class WOStackUpgradeController(CementBaseController):
 
     @expose(hide=True)
     def upgrade_php56(self):
-        if WOVariables.wo_platform_distro == "ubuntu":
+        if WOVariables.wo_distro == "ubuntu":
             if os.path.isfile("/etc/apt/sources.list.d/ondrej-php5-5_6-{0}."
                               "list".format(WOVariables.wo_platform_codename)):
                 Log.error(self, "Unable to find PHP 5.5")
@@ -69,7 +68,7 @@ class WOStackUpgradeController(CementBaseController):
             if start_upgrade != "Y" and start_upgrade != "y":
                 Log.error(self, "Not starting PHP package update")
 
-        if WOVariables.wo_platform_distro == "ubuntu":
+        if WOVariables.wo_distro == "ubuntu":
             WORepo.remove(self, ppa="ppa:ondrej/php5")
             WORepo.add(self, ppa=WOVariables.wo_php_repo)
 

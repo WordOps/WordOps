@@ -1,9 +1,6 @@
 """WordOps file utils core classes."""
 import shutil
 import os
-import sys
-import glob
-import shutil
 import pwd
 import fileinput
 from wo.core.logging import Log

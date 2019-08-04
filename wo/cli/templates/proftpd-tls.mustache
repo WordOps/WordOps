@@ -1,0 +1,12 @@
+<IfModule mod_tls.c>
+TLSEngine                  on
+TLSLog                     /var/log/proftpd/tls.log
+TLSProtocol TLSv1.2
+TLSCipherSuite AES256+EECDH:AES256+EDH
+TLSOptions                 NoCertRequest AllowClientRenegotiations NoSessionReuseRequired
+TLSRSACertificateFile      /etc/proftpd/ssl/proftpd.crt
+TLSRSACertificateKeyFile   /etc/proftpd/ssl/proftpd.key
+TLSVerifyClient            off
+TLSRequired                on
+RequireValidShell          no
+</IfModule>

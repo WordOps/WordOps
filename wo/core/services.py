@@ -1,10 +1,8 @@
 """WordOps Service Manager"""
-import os
-import sys
 import subprocess
 from subprocess import Popen
 from wo.core.logging import Log
-import pystache
+
 
 
 class WOService():

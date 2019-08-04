@@ -1,5 +1,4 @@
 """WordOps Swap Creation"""
-from wo.core.variables import WOVariables
 from wo.core.shellexec import WOShellExec
 from wo.core.fileutils import WOFileUtils
 from wo.core.aptget import WOAptGet

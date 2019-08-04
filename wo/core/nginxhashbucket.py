@@ -3,7 +3,6 @@ from wo.core.fileutils import WOFileUtils
 import math
 import os
 import fileinput
-import re
 import subprocess
 
 

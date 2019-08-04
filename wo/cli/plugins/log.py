@@ -97,7 +97,7 @@ class WOLogShowController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host is "localhost":
+            if WOVariables.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
@@ -236,7 +236,7 @@ class WOLogResetController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host is "localhost":
+            if WOVariables.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
@@ -364,7 +364,7 @@ class WOLogGzipController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host is "localhost":
+            if WOVariables.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
@@ -502,7 +502,7 @@ class WOLogMailController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host is "localhost":
+            if WOVariables.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
