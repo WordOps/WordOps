@@ -495,7 +495,10 @@ wo_upgrade_nginx() {
                 elif [ -n "$CHECK_NGINX_WO" ]; then
                     apt-mark unhold nginx-wo nginx-common nginx-custom
                     apt-get --assume-yes purge nginx-wo nginx-common nginx-custom --allow-change-held-packages
-
+                    if [ -n "$CHECK_PHP72" ]; then
+                        apt-get purge php7.2-fpm -y -qq
+                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+                    fi
                 fi
                 if [ -d /etc/nginx ]; then
                     rm -rf /etc/nginx
