@@ -11,6 +11,7 @@ import random
 import shutil
 import string
 import re
+import request
 
 import psutil
 # from pynginxconfig import NginxConfig
@@ -486,7 +487,7 @@ class WOStackController(CementBaseController):
 
                     passwd = ''.join([random.choice
                                       (string.ascii_letters + string.digits)
-                                      for n in range(6)])
+                                      for n in range(16)])
                     try:
                         WOShellExec.cmd_exec(self, "printf \"WordOps:"
                                              "$(openssl passwd -crypt "
@@ -594,6 +595,10 @@ class WOStackController(CementBaseController):
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     WOService.reload_service(self, 'nginx')
                     if set(["nginx"]).issubset(set(apt_packages)):
+                        server_ip = requests.get('http://v4.wordops.eu')
+                        print("WordOps backend configuration was successful\n" +
+                              "You can access it on : https://{0}:22222"
+                              .format(server_ip))
                         print("HTTP Auth User Name: WordOps" +
                               "\nHTTP Auth Password : {0}".format(passwd))
                         WOService.reload_service(self, 'nginx')
@@ -716,7 +721,8 @@ class WOStackController(CementBaseController):
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("\nphp_admin_value[open_basedir] "
                                  "= \"/var/www/:/usr/share/php/:"
-                                 "/tmp/:/var/run/nginx-cache/\"\n")
+                                 "/tmp/:/var/run/nginx-cache/:"
+                                 "/dev/shm:/dev/urandom\"\n")
 
                 # Generate /etc/php/7.2/fpm/pool.d/www-two.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
@@ -879,7 +885,8 @@ class WOStackController(CementBaseController):
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("\nphp_admin_value[open_basedir] "
                                  "= \"/var/www/:/usr/share/php/:"
-                                 "/tmp/:/var/run/nginx-cache/\"\n")
+                                 "/tmp/:/var/run/nginx-cache/:"
+                                 "/dev/shm:/dev/urandom\"\n")
 
                 # Generate /etc/php/7.3/fpm/pool.d/www-two.conf
                 WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
