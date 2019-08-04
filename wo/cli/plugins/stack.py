@@ -580,9 +580,11 @@ class WOStackController(CementBaseController):
                         Log.error(
                             self, "Failed to generate HTTPS "
                             "certificate for 22222")
+                    server_ip = requests.get('http://v4.wordops.eu')
 
                     if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                           .format(WOVariables.wo_webroot)):
+
                         with open("/var/www/22222/conf/nginx/"
                                   "ssl.conf", "a") as php_file:
                             php_file.write("ssl_certificate "
@@ -594,7 +596,7 @@ class WOStackController(CementBaseController):
                     WOGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     WOService.reload_service(self, 'nginx')
-                    server_ip = requests.get('http://v4.wordops.eu')
+
                     if set(["nginx"]).issubset(set(apt_packages)):
 
                         print("WordOps backend configuration was successful\n"
