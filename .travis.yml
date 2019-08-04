@@ -20,10 +20,9 @@ before_install:
   - rm -rf ~/.gnupg
 
 before_script:
-  - sudo rm -rf /etc/mysql/
+  - sudo rm -rf /etc/mysql
   - sudo bash -c 'echo example.com > /etc/hostname'
-  - sudo apt-get -qq purge mysql* graphviz* redis*
-  - sudo apt-get -qq autoremove --purge
+  - sudo apt-get -qq autoremove mysql* graphviz* redis* --purge
 
 script:
   - lsb_release -a
