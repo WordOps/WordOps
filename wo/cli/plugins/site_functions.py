@@ -39,7 +39,7 @@ def pre_run_checks(self):
         Log.debug(self, "checking NGINX configuration ...")
         FNULL = open('/dev/null', 'w')
         subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
-                                    stderr=subprocess.STDOUT)
+                              stderr=subprocess.STDOUT)
     except CalledProcessError as e:
         Log.debug(self, "{0}".format(str(e)))
         raise SiteError("nginx configuration check failed.")
@@ -90,7 +90,7 @@ def setupdomain(self, data):
             Log.debug(self, "Checking generated nginx conf, please wait...")
             FNULL = open('/dev/null', 'w')
             subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
-                                        stderr=subprocess.STDOUT)
+                                  stderr=subprocess.STDOUT)
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         except CalledProcessError as e:
             Log.debug(self, "{0}".format(str(e)))
@@ -1382,6 +1382,8 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
     else:
         keylenght = "{0}".format(self.app.config.get('letsencrypt',
                                                      'keylength'))
+        wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
+                        "'/etc/letsencrypt/config'")
         if wo_dns:
             acme_mode = "--dns {0}".format(wo_acme_dns)
             validation_mode = "DNS with {0}".format(wo_acme_dns)
@@ -1394,9 +1396,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         if subdomain:
             Log.info(self, "Issuing subdomain SSL cert with acme.sh")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
+            ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} {1} "
                                        "-k {2} -f"
@@ -1406,9 +1406,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         elif wildcard:
             Log.info(self, "Issuing Wildcard SSL cert with acme.sh")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
+            ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d *.{0} --dns {1} "
                                        "-k {2} -f"
@@ -1418,9 +1416,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         else:
             Log.info(self, "Issuing domain SSL cert with acme.sh")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
+            ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d www.{0} {1} "
                                        "-k {2} -f"
