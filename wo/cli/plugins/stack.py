@@ -11,7 +11,7 @@ import random
 import shutil
 import string
 import re
-import request
+import requests
 
 import psutil
 # from pynginxconfig import NginxConfig
