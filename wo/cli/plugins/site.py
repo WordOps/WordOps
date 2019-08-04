@@ -309,7 +309,9 @@ class WOSiteCreateController(CementBaseController):
                      nargs='?')),
             (['--html'],
                 dict(help="create html site", action='store_true')),
-            (['--php72', '--php'],
+            (['--php'],
+             dict(help="create php 7.2 site", action='store_true')),
+            (['--php72'],
                 dict(help="create php 7.2 site", action='store_true')),
             (['--php73'],
                 dict(help="create php 7.3 site", action='store_true')),
@@ -367,6 +369,8 @@ class WOSiteCreateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
+        if pargs.php72:
+            self.app.pargs.php = True
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
@@ -800,8 +804,10 @@ class WOSiteUpdateController(CementBaseController):
                      action='store_true')),
             (['--html'],
                 dict(help="update to html site", action='store_true')),
-            (['--php72', '--php'],
+            (['--php72'],
                 dict(help="update to php site", action='store_true')),
+            (['--php'],
+             dict(help="update to php site", action='store_true')),
             (['--php73'],
                 dict(help="update to php73 site",
                      action='store' or 'store_const',
@@ -848,6 +854,9 @@ class WOSiteUpdateController(CementBaseController):
     @expose(help="Update site type or cache")
     def default(self):
         pargs = self.app.pargs
+
+        if pargs.php72:
+            self.app.pargs.php = True
 
         if pargs.all:
             if pargs.site_name:
@@ -1469,27 +1478,27 @@ class WOSiteUpdateController(CementBaseController):
                                      data['multisite'] and data['wpfc'])):
                 try:
                     plugin_data_object = {"log_level": "INFO",
-                              "log_filesize": 5,
-                              "enable_purge": 1,
-                              "enable_map": "0",
-                              "enable_log": 0,
-                              "enable_stamp": 0,
-                              "purge_homepage_on_new": 1,
-                              "purge_homepage_on_edit": 1,
-                              "purge_homepage_on_del": 1,
-                              "purge_archive_on_new": 1,
-                              "purge_archive_on_edit": 0,
-                              "purge_archive_on_del": 0,
-                              "purge_archive_on_new_comment": 0,
-                              "purge_archive_on_deleted_comment": 0,
-                              "purge_page_on_mod": 1,
-                              "purge_page_on_new_comment": 1,
-                              "purge_page_on_deleted_comment": 1,
-                              "cache_method": "enable_fastcgi",
-                              "purge_method": "get_request",
-                              "redis_hostname": "127.0.0.1",
-                              "redis_port": "6379",
-                              "redis_prefix": "nginx-cache:"}
+                                          "log_filesize": 5,
+                                          "enable_purge": 1,
+                                          "enable_map": "0",
+                                          "enable_log": 0,
+                                          "enable_stamp": 0,
+                                          "purge_homepage_on_new": 1,
+                                          "purge_homepage_on_edit": 1,
+                                          "purge_homepage_on_del": 1,
+                                          "purge_archive_on_new": 1,
+                                          "purge_archive_on_edit": 0,
+                                          "purge_archive_on_del": 0,
+                                          "purge_archive_on_new_comment": 0,
+                                          "purge_archive_on_deleted_comment": 0,
+                                          "purge_page_on_mod": 1,
+                                          "purge_page_on_new_comment": 1,
+                                          "purge_page_on_deleted_comment": 1,
+                                          "cache_method": "enable_fastcgi",
+                                          "purge_method": "get_request",
+                                          "redis_hostname": "127.0.0.1",
+                                          "redis_port": "6379",
+                                          "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
                     setupwp_plugin(
                         self, 'nginx-helper',
@@ -1509,27 +1518,27 @@ class WOSiteUpdateController(CementBaseController):
                                           data['wpredis'])):
                 try:
                     plugin_data_object = {"log_level": "INFO",
-                              "log_filesize": 5,
-                              "enable_purge": 1,
-                              "enable_map": "0",
-                              "enable_log": 0,
-                              "enable_stamp": 0,
-                              "purge_homepage_on_new": 1,
-                              "purge_homepage_on_edit": 1,
-                              "purge_homepage_on_del": 1,
-                              "purge_archive_on_new": 1,
-                              "purge_archive_on_edit": 0,
-                              "purge_archive_on_del": 0,
-                              "purge_archive_on_new_comment": 0,
-                              "purge_archive_on_deleted_comment": 0,
-                              "purge_page_on_mod": 1,
-                              "purge_page_on_new_comment": 1,
-                              "purge_page_on_deleted_comment": 1,
-                              "cache_method": "enable_redis",
-                              "purge_method": "get_request",
-                              "redis_hostname": "127.0.0.1",
-                              "redis_port": "6379",
-                              "redis_prefix": "nginx-cache:"}
+                                          "log_filesize": 5,
+                                          "enable_purge": 1,
+                                          "enable_map": "0",
+                                          "enable_log": 0,
+                                          "enable_stamp": 0,
+                                          "purge_homepage_on_new": 1,
+                                          "purge_homepage_on_edit": 1,
+                                          "purge_homepage_on_del": 1,
+                                          "purge_archive_on_new": 1,
+                                          "purge_archive_on_edit": 0,
+                                          "purge_archive_on_del": 0,
+                                          "purge_archive_on_new_comment": 0,
+                                          "purge_archive_on_deleted_comment": 0,
+                                          "purge_page_on_mod": 1,
+                                          "purge_page_on_new_comment": 1,
+                                          "purge_page_on_deleted_comment": 1,
+                                          "cache_method": "enable_redis",
+                                          "purge_method": "get_request",
+                                          "redis_hostname": "127.0.0.1",
+                                          "redis_port": "6379",
+                                          "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
                     setupwp_plugin(
                         self, 'nginx-helper',
@@ -1545,27 +1554,27 @@ class WOSiteUpdateController(CementBaseController):
             else:
                 try:
                     plugin_data_object = {"log_level": "INFO",
-                              "log_filesize": 5,
-                              "enable_purge": 0,
-                              "enable_map": 0,
-                              "enable_log": 0,
-                              "enable_stamp": 0,
-                              "purge_homepage_on_new": 1,
-                              "purge_homepage_on_edit": 1,
-                              "purge_homepage_on_del": 1,
-                              "purge_archive_on_new": 1,
-                              "purge_archive_on_edit": 0,
-                              "purge_archive_on_del": 0,
-                              "purge_archive_on_new_comment": 0,
-                              "purge_archive_on_deleted_comment": 0,
-                              "purge_page_on_mod": 1,
-                              "purge_page_on_new_comment": 1,
-                              "purge_page_on_deleted_comment": 1,
-                              "cache_method": "enable_redis",
-                              "purge_method": "get_request",
-                              "redis_hostname": "127.0.0.1",
-                              "redis_port": "6379",
-                              "redis_prefix": "nginx-cache:"}
+                                          "log_filesize": 5,
+                                          "enable_purge": 0,
+                                          "enable_map": 0,
+                                          "enable_log": 0,
+                                          "enable_stamp": 0,
+                                          "purge_homepage_on_new": 1,
+                                          "purge_homepage_on_edit": 1,
+                                          "purge_homepage_on_del": 1,
+                                          "purge_archive_on_new": 1,
+                                          "purge_archive_on_edit": 0,
+                                          "purge_archive_on_del": 0,
+                                          "purge_archive_on_new_comment": 0,
+                                          "purge_archive_on_deleted_comment": 0,
+                                          "purge_page_on_mod": 1,
+                                          "purge_page_on_new_comment": 1,
+                                          "purge_page_on_deleted_comment": 1,
+                                          "cache_method": "enable_redis",
+                                          "purge_method": "get_request",
+                                          "redis_hostname": "127.0.0.1",
+                                          "redis_port": "6379",
+                                          "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
                     setupwp_plugin(
                         self, 'nginx-helper',
