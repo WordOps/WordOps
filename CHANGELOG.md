@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - More informations during certificate issuance about validation mode selected
 - `--php72` as alternative for `--php`
 - Automated removal of the deprecated variable `ssl on;` in previous Nginx ssl.conf
+- Project Contributing guidelines
+- Project Code of conduct
 
 #### Changed
 
