@@ -6,8 +6,7 @@
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
 <p align="center">
-<video id="intro" align="center" src="https://docs.wordops.net/images/wordops-intro.webm" autoplay="" loop="" width="600"></video>
-
+<img src="https://docs.wordops.net/images/wordops-intro.gif" width="600" alt="WordOps" />
 
 </p>
 
