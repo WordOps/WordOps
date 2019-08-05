@@ -190,6 +190,10 @@ class WOStackUpgradeController(CementBaseController):
                 WOAptGet.update(self)
                 # Update packages
                 WOAptGet.install(self, apt_packages)
+                if set(WOVariables.wo_php).issubset(set(apt_packages)):
+                    WOFileUtils.rm(self, "/etc/php/7.2/fpm/pool.d/www.conf")
+                    WOFileUtils.rm(self, "/etc/php/7.2/fpm/"
+                                   "pool.d/www-two.conf")
                 post_pref(self, apt_packages, empty_packages)
                 # Post Actions after package updates
                 if (set(WOVariables.wo_nginx).issubset(set(apt_packages))):
