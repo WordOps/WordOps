@@ -412,7 +412,7 @@ def post_pref(self, apt_packages, packages):
                                 out=wo_nginx)
                 wo_nginx.close()
 
-                randompass = ''.join([random.choice
+                passwd = ''.join([random.choice
                                       (string.ascii_letters + string.digits)
                                       for n in range(24)])
                 try:
@@ -421,7 +421,7 @@ def post_pref(self, apt_packages, packages):
                                          "{password} 2> /dev/null)\n\""
                                          "> /etc/nginx/htpasswd-wo "
                                          "2>/dev/null"
-                                         .format(password=randompass))
+                                         .format(password=passwd))
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Failed to save HTTP Auth")
