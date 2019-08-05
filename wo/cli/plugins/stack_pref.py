@@ -535,7 +535,6 @@ def post_pref(self, apt_packages, packages):
                         Log.error(
                             self, "Failed to generate HTTPS "
                             "certificate for 22222")
-                    server_ip = requests.get('http://v4.wordops.eu')
 
                     if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                           .format(WOVariables.wo_webroot)):
@@ -553,6 +552,7 @@ def post_pref(self, apt_packages, packages):
                 WOService.reload_service(self, 'nginx')
 
                 if set(["nginx"]).issubset(set(apt_packages)):
+                    server_ip = requests.get('http://v4.wordops.eu')
                     print("WordOps backend configuration was successful\n"
                           "You can access it on : https://{0}:22222"
                           .format(server_ip))
