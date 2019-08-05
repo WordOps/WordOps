@@ -31,7 +31,9 @@ class WOStackUpgradeController(CementBaseController):
             (['--nginx'],
                 dict(help='Upgrade Nginx stack', action='store_true')),
             (['--php'],
-                dict(help='Upgrade PHP stack', action='store_true')),
+                dict(help='Upgrade PHP 7.2 stack', action='store_true')),
+            (['--php73'],
+             dict(help='Upgrade PHP 7.3 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
             (['--wpcli'],
@@ -50,37 +52,6 @@ class WOStackUpgradeController(CementBaseController):
         ]
 
     @expose(hide=True)
-    def upgrade_php56(self):
-        if WOVariables.wo_distro == "ubuntu":
-            if os.path.isfile("/etc/apt/sources.list.d/ondrej-php5-5_6-{0}."
-                              "list".format(WOVariables.wo_platform_codename)):
-                Log.error(self, "Unable to find PHP 5.5")
-        else:
-            if not(os.path.isfile(WOVariables.wo_repo_file_path) and
-                   WOFileUtils.grep(self, WOVariables.wo_repo_file_path,
-                                    "php55")):
-                Log.error(self, "Unable to find PHP 5.5")
-
-        Log.info(self, "During PHP update process non nginx-cached"
-                 " parts of your site may remain down.")
-
-        # Check prompt
-        if (not self.app.pargs.no_prompt):
-            start_upgrade = input("Do you want to continue:[y/N]")
-            if start_upgrade != "Y" and start_upgrade != "y":
-                Log.error(self, "Not starting PHP package update")
-
-        if WOVariables.wo_distro == "ubuntu":
-            WORepo.remove(self, ppa="ppa:ondrej/php5")
-            WORepo.add(self, ppa=WOVariables.wo_php_repo)
-
-        Log.info(self, "Updating apt-cache, please wait...")
-        WOAptGet.update(self)
-        Log.info(self, "Installing packages, please wait ...")
-        WOAptGet.install(self, WOVariables.wo_php +
-                         WOVariables.wo_php_extra)
-
-    @expose(hide=True)
     def default(self):
         # All package update
         apt_packages = []
@@ -88,7 +59,8 @@ class WOStackUpgradeController(CementBaseController):
         empty_packages = []
 
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
-            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+            (not self.app.pargs.php) and (not self.app.pargs.php73) and
+            (not self.app.pargs.mysql) and
             (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
             (not self.app.pargs.netdata) and (not self.app.pargs.composer) and
             (not self.app.pargs.phpmyadmin) and
@@ -106,7 +78,6 @@ class WOStackUpgradeController(CementBaseController):
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
-            self.app.pargs.netdata = True
 
         if self.app.pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
@@ -123,6 +94,16 @@ class WOStackUpgradeController(CementBaseController):
                     apt_packages = apt_packages + WOVariables.wo_php
             else:
                 Log.info(self, "PHP 7.2 is not installed")
+
+        if self.app.pargs.php73:
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
+                    apt_packages = apt_packages + WOVariables.wo_php73 + \
+                        WOVariables.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVariables.wo_php73
+            else:
+                Log.info(self, "PHP 7.3 is not installed")
 
         if self.app.pargs.mysql:
             if WOAptGet.is_installed(self, 'mariadb-server'):
@@ -194,12 +175,18 @@ class WOStackUpgradeController(CementBaseController):
                     WOFileUtils.rm(self, "/etc/php/7.2/fpm/pool.d/www.conf")
                     WOFileUtils.rm(self, "/etc/php/7.2/fpm/"
                                    "pool.d/www-two.conf")
+                if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+                    WOFileUtils.rm(self, "/etc/php/7.3/fpm/pool.d/www.conf")
+                    WOFileUtils.rm(self, "/etc/php/7.3/fpm/"
+                                   "pool.d/www-two.conf")
                 post_pref(self, apt_packages, empty_packages)
                 # Post Actions after package updates
                 if (set(WOVariables.wo_nginx).issubset(set(apt_packages))):
                     WOService.restart_service(self, 'nginx')
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):
                     WOService.restart_service(self, 'php7.2-fpm')
+                if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+                    WOService.restart_service(self, 'php7.3-fpm')
                 if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
                     WOService.restart_service(self, 'mysql')
                 if set(WOVariables.wo_redis).issubset(set(apt_packages)):
