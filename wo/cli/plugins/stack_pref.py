@@ -173,6 +173,20 @@ def post_pref(self, apt_packages, packages):
 
         # Nginx configuration
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+            # Nginx main configuration
+            if os.path.isfile('/etc/nginx/nginx.conf'):
+                if (WOVariables.wo_distro == 'ubuntu' or
+                        WOVariables.wo_platform_codename == 'buster'):
+                    data = dict(tls13=True)
+                else:
+                    data = dict(tls13=False)
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/nginx.conf')
+                    wo_nginx = open('/etc/nginx/nginx.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render(
+                        (data), 'nginx-core.mustache', out=wo_nginx)
+                    wo_nginx.close()
 
             # Fix for white screen death with NGINX PLUS
             if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
