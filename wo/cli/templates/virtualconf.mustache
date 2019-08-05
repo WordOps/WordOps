@@ -49,7 +49,7 @@ server {
     }
     {{/static}}
 
-    {{^static}}include {{#basic}}common/php72.conf;{{/basic}}{{#wpfc}}common/wpfc-php72.conf;{{/wpfc}}{{#wpsc}}common/wpsc-php72.conf;{{/wpsc}}{{#wpredis}}common/redis-php72.conf;{{/wpredis}}{{#wprocket}}common/wprocket-php72.conf{{/wprocket}}
+    {{^static}}include {{#basic}}common/php72.conf;{{/basic}}{{#wpfc}}common/wpfc-php72.conf;{{/wpfc}}{{#wpsc}}common/wpsc-php72.conf;{{/wpsc}}{{#wpredis}}common/redis-php72.conf;{{/wpredis}}{{#wprocket}}common/wprocket-php72.conf;{{/wprocket}}
     {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}{{/static}}
     {{#wp}}include common/wpcommon-php72.conf;{{/wp}}
     include common/locations-wo.conf;{{/proxy}}

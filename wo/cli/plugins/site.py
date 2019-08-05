@@ -1502,7 +1502,7 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            if ((oldcachetype in ['wpsc', 'basic', 'wpredis'] and
+            if ((oldcachetype in ['wpsc', 'basic', 'wpredis', 'wprocket'] and
                  (data['wpfc'])) or (oldsitetype == 'wp' and
                                      data['multisite'] and data['wpfc'])):
                 try:
@@ -1541,7 +1541,7 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc'] and
+            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket'] and
                    (data['wpredis'])) or (oldsitetype == 'wp' and
                                           data['multisite'] and
                                           data['wpredis'])):
