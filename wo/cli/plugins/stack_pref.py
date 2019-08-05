@@ -949,6 +949,7 @@ def post_pref(self, apt_packages, packages):
                                           "skip-external-locking",
                                           "skip-external-locking\n"
                                           "skip-name-resolve = 1\n")
+
                 # disabling mariadb binlog
                 WOFileUtils.searchreplace(self,
                                           "/etc/mysql/my.cnf",
@@ -990,6 +991,12 @@ def post_pref(self, apt_packages, packages):
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "#query_cache_type		= DEMAND",
                                           "query_cache_type		= 0")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "#open-files-limit	= 2000",
+                                          "open-files-limit	= 10000")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "table_open_cache	= 400",
+                                          "table_open_cache	= 16000")
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "max_allowed_packet	= 16M",
                                           "max_allowed_packet	= 64M")
