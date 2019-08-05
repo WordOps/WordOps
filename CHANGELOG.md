@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - Moving package configuration in a new plugin stack_pref.py
+- Set WordOps backend password length from 16 to 24
 
 ### v3.9.7 - 2019-08-02
 
