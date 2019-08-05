@@ -897,12 +897,12 @@ def site_package_check(self, stype):
 
         if (os.path.isdir("/etc/nginx/common") and
                 not os.path.isfile("/etc/nginx/common/locations-wo.conf")):
-            data = dict()
+            data = dict(upstream="php73")
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/locations-wo.conf')
             wo_nginx = open('/etc/nginx/common/locations-wo.conf',
                             encoding='utf-8', mode='w')
-            self.app.render((data), 'locations-php7.mustache',
+            self.app.render((data), 'locations.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
 
@@ -910,7 +910,7 @@ def site_package_check(self, stype):
                       'file /etc/nginx/common/php73.conf')
             wo_nginx = open('/etc/nginx/common/php73.conf',
                             encoding='utf-8', mode='w')
-            self.app.render((data), 'php7.mustache',
+            self.app.render((data), 'php.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
@@ -918,7 +918,7 @@ def site_package_check(self, stype):
                       'file /etc/nginx/common/wpcommon-php73.conf')
             wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
                             encoding='utf-8', mode='w')
-            self.app.render((data), 'wpcommon-php7.mustache',
+            self.app.render((data), 'wpcommon.mustache',
                                     out=wo_nginx)
             wo_nginx.close()
 
@@ -926,7 +926,7 @@ def site_package_check(self, stype):
                       'file /etc/nginx/common/wpfc-php73.conf')
             wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
                             encoding='utf-8', mode='w')
-            self.app.render((data), 'wpfc-php7.mustache',
+            self.app.render((data), 'wpfc.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
@@ -934,18 +934,26 @@ def site_package_check(self, stype):
                       'file /etc/nginx/common/wpsc-php73.conf')
             wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
                             encoding='utf-8', mode='w')
-            self.app.render((data), 'wpsc-php7.mustache',
+            self.app.render((data), 'wpsc.mustache',
+                            out=wo_nginx)
+            wo_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wprocket-php73.conf')
+            wo_nginx = open('/etc/nginx/common/wprocket-php73.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wprocket.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 
         if (os.path.isfile("/etc/nginx/nginx.conf") and
                 not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
-            data = dict()
+            data = dict(upstream="php73")
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/redis-php73.conf')
             wo_nginx = open('/etc/nginx/common/redis-php73.conf',
                             encoding='utf-8', mode='w')
-            self.app.render((data), 'redis-php7.mustache',
+            self.app.render((data), 'redis.mustache',
                             out=wo_nginx)
             wo_nginx.close()
 

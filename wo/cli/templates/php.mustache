@@ -1,4 +1,4 @@
-# PHP NGINX CONFIGURATION - WO v3.9.5
+# PHP NGINX CONFIGURATION - WO v3.9.7
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 location / {
   try_files $uri $uri/ /index.php$is_args$args;
@@ -6,5 +6,5 @@ location / {
 location ~ \.php$ {
   try_files $uri =404;
   include fastcgi_params;
-  fastcgi_pass php72;
+  fastcgi_pass {{upstream}};
 }
