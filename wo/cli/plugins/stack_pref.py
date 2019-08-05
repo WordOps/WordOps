@@ -550,9 +550,8 @@ def post_pref(self, apt_packages, packages):
                 WOGit.add(self,
                           ["/etc/nginx"], msg="Adding Nginx into Git")
                 WOService.reload_service(self, 'nginx')
-
+                server_ip = requests.get('http://v4.wordops.eu')
                 if set(["nginx"]).issubset(set(apt_packages)):
-                    server_ip = requests.get('http://v4.wordops.eu')
                     print("WordOps backend configuration was successful\n"
                           "You can access it on : https://{0}:22222"
                           .format(server_ip))
