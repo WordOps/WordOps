@@ -5,6 +5,7 @@ import random
 import shutil
 import string
 import requests
+import psutil
 
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.stack_services import WOStackStatusController
@@ -413,8 +414,8 @@ def post_pref(self, apt_packages, packages):
                 wo_nginx.close()
 
                 passwd = ''.join([random.choice
-                                      (string.ascii_letters + string.digits)
-                                      for n in range(24)])
+                                  (string.ascii_letters + string.digits)
+                                  for n in range(24)])
                 try:
                     WOShellExec.cmd_exec(self, "printf \"WordOps:"
                                          "$(openssl passwd -crypt "
@@ -919,14 +920,102 @@ def post_pref(self, apt_packages, packages):
                                    encoding='utf-8', mode='w')
                 config_file.write(config)
                 config_file.close()
+            else:
+                wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+                wo_ram_innodb = int(wo_ram*0.3)
+                wo_ram_log_buffer = int(wo_ram_innodb*0.25)
+                wo_ram_log_size = int(wo_ram_log_buffer*0.5)
+                # replacing default values
+                Log.debug(self, "Tuning MySQL configuration")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "innodb_buffer_pool_size	= 256M",
+                                          "innodb_buffer_pool_size	= {0}M"
+                                          .format(wo_ram_innodb))
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "innodb_log_buffer_size	= 8M",
+                                          "innodb_log_buffer_size	= {0}M"
+                                          .format(wo_ram_log_buffer))
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "#innodb_log_file_size	= 50M",
+                                          "innodb_log_file_size		= {0}M"
+                                          .format(wo_ram_log_size))
+                WOFileUtils.searchreplace(self,
+                                          "/etc/mysql/my.cnf",
+                                          "wait_timeout		"
+                                          "= 600",
+                                          "wait_timeout		"
+                                          "= 120")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "skip-external-locking",
+                                          "skip-external-locking\n"
+                                          "skip-name-resolve = 1\n")
+                # disabling mariadb binlog
+                WOFileUtils.searchreplace(self,
+                                          "/etc/mysql/my.cnf",
+                                          "log_bin			"
+                                          "= /var/log/mysql/"
+                                          "mariadb-bin",
+                                          "#log_bin          "
+                                          "      = /var/log/"
+                                          "mysql/mariadb-bin")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          'log_bin_index		'
+                                          "= /var/log/mysql/"
+                                          "mariadb-bin.index",
+                                          "#log_bin_index "
+                                          "= /var/log/mysql/"
+                                          "mariadb-bin.index")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "expire_logs_days	= 10",
+                                          "#expire_logs_days	"
+                                          "= 10")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "max_binlog_size         "
+                                          "= 100M",
+                                          "#max_binlog_size         "
+                                          "= 100M")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "innodb_open_files	="
+                                          " 400",
+                                          "innodb_open_files	="
+                                          " 16000")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "innodb_io_capacity	="
+                                          " 400",
+                                          "innodb_io_capacity	="
+                                          " 16000")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "query_cache_size		= 64M",
+                                          "query_cache_size		= 0")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "#query_cache_type		= DEMAND",
+                                          "query_cache_type		= 0")
+                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                          "max_allowed_packet	= 16M",
+                                          "max_allowed_packet	= 64M")
+                if (wo_ram_innodb > 1000) and (wo_ram_innodb < 64000):
+                    wo_innodb_instance = int(wo_ram_innodb/1000)
+                    WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
+                                              "# * Security Features",
+                                              "innodb_buffer_pool_instances "
+                                              "= {0}\n"
+                                              .format(wo_innodb_instance) +
+                                              "# * Security Features")
 
-                WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
-                WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
-                                      '> /dev/null 2>&1',
-                                      comment='MySQL optimization cronjob '
-                                      'added by WordOps')
-                WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
-                WOService.reload_service(self, 'mysql')
+                WOService.stop_service(self, 'mysql')
+                WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
+                                   '/var/lib/mysql/ib_logfile0.bak')
+                WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile1',
+                                   '/var/lib/mysql/ib_logfile1.bak')
+                WOService.start_service(self, 'mysql')
+
+            WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
+            WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
+                                  '> /dev/null 2>&1',
+                                  comment='MySQL optimization cronjob '
+                                  'added by WordOps')
+            WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
+            WOService.restart_service(self, 'mysql')
 
         # create fail2ban configuration files
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
