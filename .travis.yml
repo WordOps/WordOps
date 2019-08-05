@@ -29,8 +29,13 @@ script:
   - unset LANG
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo apt-get install -qq --force-yes git python3-setuptools python3-dev python3-apt ccze tree
+  - sudo apt-get install -qq --force-yes git python3-setuptools python3-dev python3-apt python3-pip ccze tree
+  - export $CODACY_TOKEN
   - sudo bash install --travis
+  - python3 -m pip install coverage
+  - python3 -m pip install codacy-coverage
+  - coverage xml
+  - python-codacy-coverage -c $TRAVIS_COMMIT -d $TRAVIS_BUILD_DIR -r coverage.xml
   - sudo wo --help && sudo wo stack install && sudo wo stack install --proftpd
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql && sudo wo site create proxy.com --proxy=127.0.0.1:3000
   - sudo wo site create wp1.com --wp && sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc
