@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- APT Packages configuration step with `wo stack upgrade` to apply new configurations
+
+#### Changed
+
+- Moving package configuration in a new plugin stack_pref.py
+
 ### v3.9.7 - 2019-08-02
 
 #### Added
