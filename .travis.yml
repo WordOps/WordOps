@@ -48,6 +48,8 @@ script:
   - sudo wo info
   - sudo cat /etc/nginx/nginx.conf
   - sudo cat /etc/mysql/my.cnf
+  - sudo wo stack upgrade --nginx
+  - sudo wo stack upgrade --php
   - sudo wo stack upgrade --netdata --no-prompt
   - sudo wo stack upgrade --phpmyadmin --no-prompt
   - sudo wo stack upgrade --composer --no-prompt
