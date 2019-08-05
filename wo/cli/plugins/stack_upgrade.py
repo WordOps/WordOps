@@ -170,9 +170,11 @@ class WOStackUpgradeController(CementBaseController):
                 # apt-get update
                 WOAptGet.update(self)
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):
-                    WOAptGet.purge(self, ['php7.2-fpm'])
+                    WOAptGet.remove(self, ['php7.2-fpm'],
+                                    auto=False, purge=True)
                 if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                    WOAptGet.purge(self, ['php7.3-fpm'])
+                    WOAptGet.remove(self, ['php7.3-fpm'],
+                                    auto=False, purge=True)
                 # Update packages
                 WOAptGet.install(self, apt_packages)
                 post_pref(self, apt_packages, empty_packages)
