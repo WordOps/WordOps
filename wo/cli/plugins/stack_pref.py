@@ -9,7 +9,6 @@ import re
 import requests
 
 import psutil
-# from pynginxconfig import NginxConfig
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import *
 from wo.cli.plugins.stack_services import WOStackStatusController
