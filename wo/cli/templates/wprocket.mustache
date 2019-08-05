@@ -4,14 +4,18 @@
 
 # Use cached or actual file if they exists, Otherwise pass request to WordPress
 location / {
-  # If we add index.php?$args its break WooCommerce like plugins
-  # Ref: #330
-  try_files /wp-content/cache/supercache/$http_host/$cache_uri/index.html $uri $uri/ /index.php;
+  try_files /wp-content/cache/wp-rocket/$http_host/$cache_uri/index$https_prefix.html $uri $uri/ /index.php$is_args$args;
 }
 location ~ \.php$ {
   try_files $uri =404;
   include fastcgi_params;
   fastcgi_pass {{upstream}};
-  # Following line is needed by WP Super Cache plugin
-  fastcgi_param SERVER_NAME $http_host;
+}
+
+location ~* /cache/wp-rocket/\.html$ {
+	etag on;
+	add_header Vary "Accept-Encoding, Cookie";
+    access_log off;
+    log_not_found off;
+    expire 10h;
 }

@@ -1,4 +1,4 @@
-# NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION - WO v3.9.5
+# NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION - WO v3.9.7
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 
 # do not cache xhtml request
@@ -50,6 +50,11 @@ map $request_uri $uri_no_cache {
 map $is_args $query_no_cache {
     default 1;
     "" 0;
+}
+
+map $https $https_prefix {
+    default "";
+    on "-https"
 }
 
 # if all previous check are passed, $skip_cache = 0

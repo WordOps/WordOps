@@ -1,10 +1,10 @@
-# WordPress COMMON SETTINGS - WO v3.9.5
+# WordPress COMMON SETTINGS - WO v3.9.7
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 # Limit access to avoid brute force attack
 location = /wp-login.php {
     limit_req zone=one burst=1 nodelay;
     include fastcgi_params;
-    fastcgi_pass php72;
+    fastcgi_pass {{upstream}};
 }
 # Disable wp-config.txt
 location = /wp-config.txt {

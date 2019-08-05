@@ -230,7 +230,7 @@ def post_pref(self, apt_packages, packages):
                 os.makedirs('/etc/nginx/common')
 
             if os.path.exists('/etc/nginx/common'):
-                data = dict(webroot=WOVariables.wo_webroot)
+                data = dict()
 
                 # Common Configuration
                 Log.debug(self, 'Writting the nginx configuration to '
@@ -248,13 +248,21 @@ def post_pref(self, apt_packages, packages):
                 self.app.render((data), 'wpsubdir.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
-
+                data = dict(upstream="php72")
                 # PHP 7.2 conf
                 Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/common/php72.conf')
                 wo_nginx = open('/etc/nginx/common/php72.conf',
                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'php.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
+
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/redis-php72.conf')
+                wo_nginx = open('/etc/nginx/common/redis-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'redis.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 
@@ -282,15 +290,23 @@ def post_pref(self, apt_packages, packages):
                                 out=wo_nginx)
                 wo_nginx.close()
 
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wprocket-php72.conf')
+                wo_nginx = open('/etc/nginx/common/wprocket-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wprocket.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
+
             # PHP 7.3 conf
             if os.path.isdir("/etc/nginx/common"):
-                data = dict()
+                data = dict(upstream="php73")
 
                 Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/common/php73.conf')
                 wo_nginx = open('/etc/nginx/common/php73.conf',
                                 encoding='utf-8', mode='w')
-                self.app.render((data), 'php7.mustache',
+                self.app.render((data), 'php.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 
@@ -298,7 +314,7 @@ def post_pref(self, apt_packages, packages):
                           'file /etc/nginx/common/wpcommon-php73.conf')
                 wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
                                 encoding='utf-8', mode='w')
-                self.app.render((data), 'wpcommon-php7.mustache',
+                self.app.render((data), 'wpcommon.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 
@@ -306,7 +322,7 @@ def post_pref(self, apt_packages, packages):
                           'file /etc/nginx/common/wpfc-php73.conf')
                 wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
                                 encoding='utf-8', mode='w')
-                self.app.render((data), 'wpfc-php7.mustache',
+                self.app.render((data), 'wpfc.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 
@@ -314,26 +330,23 @@ def post_pref(self, apt_packages, packages):
                           'file /etc/nginx/common/wpsc-php73.conf')
                 wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
                                 encoding='utf-8', mode='w')
-                self.app.render((data), 'wpsc-php7.mustache',
+                self.app.render((data), 'wpsc.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 
-                # create redis conf
-                data = dict()
                 Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/redis-php72.conf')
-                wo_nginx = open('/etc/nginx/common/redis-php72.conf',
+                          'file /etc/nginx/common/wprocket-php73.conf')
+                wo_nginx = open('/etc/nginx/common/wprocket-php73.conf',
                                 encoding='utf-8', mode='w')
-                self.app.render((data), 'redis.mustache',
+                self.app.render((data), 'wprocket.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 
-                data = dict()
                 Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/common/redis-php73.conf')
                 wo_nginx = open('/etc/nginx/common/redis-php73.conf',
                                 encoding='utf-8', mode='w')
-                self.app.render((data), 'redis-php7.mustache',
+                self.app.render((data), 'redis.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 
