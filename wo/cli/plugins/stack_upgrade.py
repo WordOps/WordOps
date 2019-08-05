@@ -1,16 +1,18 @@
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-from wo.core.logging import Log
-from wo.core.variables import WOVariables
-from wo.core.aptget import WOAptGet
-from wo.core.apt_repo import WORepo
-from wo.core.services import WOService
-from wo.core.fileutils import WOFileUtils
-from wo.core.shellexec import WOShellExec
-from wo.core.extract import WOExtract
-from wo.core.download import WODownload
 import os
 import shutil
+
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+from wo.cli.plugins.stack import WOStackController
+from wo.core.apt_repo import WORepo
+from wo.core.aptget import WOAptGet
+from wo.core.download import WODownload
+from wo.core.extract import WOExtract
+from wo.core.fileutils import WOFileUtils
+from wo.core.logging import Log
+from wo.core.services import WOService
+from wo.core.shellexec import WOShellExec
+from wo.core.variables import WOVariables
 
 
 class WOStackUpgradeController(CementBaseController):
@@ -83,6 +85,9 @@ class WOStackUpgradeController(CementBaseController):
         # All package update
         apt_packages = []
         packages = []
+        empty_packages = []
+        stack = WOStackController()
+        stack.app = self.app
 
         if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
             (not self.app.pargs.php) and (not self.app.pargs.mysql) and
@@ -187,7 +192,7 @@ class WOStackUpgradeController(CementBaseController):
                 WOAptGet.update(self)
                 # Update packages
                 WOAptGet.install(self, apt_packages)
-
+                stack.post_pref(apt_packages, empty_packages)
                 # Post Actions after package updates
                 if (set(WOVariables.wo_nginx).issubset(set(apt_packages))):
                     WOService.restart_service(self, 'nginx')

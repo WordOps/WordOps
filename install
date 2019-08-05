@@ -147,9 +147,9 @@ if [ -z "$wo_force_install" ]; then
         wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
         exit 100
     else
-        check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|disco|jessie|stretch|buster")
+        check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
         if [ -z "$check_wo_linux_distro" ]; then
-            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04/19.04 LTS, Debian 8.x/9.x/10.x and Raspbian 9.x"
+            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x"
             exit 100
         fi
     fi
