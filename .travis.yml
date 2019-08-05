@@ -54,5 +54,7 @@ script:
   - sudo wo stack upgrade --composer --no-prompt
   - sudo wo update --travis
   - sudo wo stack status
+  - sudo tar -I pigz  -cf /var/log/wo
+  - curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/$(basename "$1") && echo ""; } | tee -a $HOME/.transfer.log && echo ""
   - echo "yes" | sudo wo stack purge --all
   - sudo bash install --purge

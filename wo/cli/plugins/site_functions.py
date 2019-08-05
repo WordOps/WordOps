@@ -957,15 +957,6 @@ def site_package_check(self, stype):
                             out=wo_nginx)
             wo_nginx.close()
 
-        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
-                                          "php73"):
-                with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                    php_file.write("upstream php73 {\nserver"
-                                   "unix:/var/run/php/php73-fpm.sock;\n}\n"
-                                   "upstream debug73"
-                                   " {\nserver 127.0.0.1:9173;\n}\n")
-
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
 
