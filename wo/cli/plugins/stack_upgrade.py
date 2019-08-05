@@ -169,16 +169,12 @@ class WOStackUpgradeController(CementBaseController):
             if len(apt_packages):
                 # apt-get update
                 WOAptGet.update(self)
+                if set(WOVariables.wo_php).issubset(set(apt_packages)):
+                    WOAptGet.purge(self, ['php7.2-fpm'])
+                if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+                    WOAptGet.purge(self, ['php7.3-fpm'])
                 # Update packages
                 WOAptGet.install(self, apt_packages)
-                if set(WOVariables.wo_php).issubset(set(apt_packages)):
-                    WOFileUtils.rm(self, "/etc/php/7.2/fpm/pool.d/www.conf")
-                    WOFileUtils.rm(self, "/etc/php/7.2/fpm/"
-                                   "pool.d/www-two.conf")
-                if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                    WOFileUtils.rm(self, "/etc/php/7.3/fpm/pool.d/www.conf")
-                    WOFileUtils.rm(self, "/etc/php/7.3/fpm/"
-                                   "pool.d/www-two.conf")
                 post_pref(self, apt_packages, empty_packages)
                 # Post Actions after package updates
                 if (set(WOVariables.wo_nginx).issubset(set(apt_packages))):
