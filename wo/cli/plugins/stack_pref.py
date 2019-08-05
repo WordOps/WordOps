@@ -228,241 +228,241 @@ def post_pref(self, apt_packages, packages):
                                 out=wo_nginx)
                 wo_nginx.close()
 
-                # Setup Nginx common directory
-                if not os.path.exists('/etc/nginx/common'):
-                    Log.debug(self, 'Creating directory'
-                              '/etc/nginx/common')
-                    os.makedirs('/etc/nginx/common')
+            # Setup Nginx common directory
+            if not os.path.exists('/etc/nginx/common'):
+                Log.debug(self, 'Creating directory'
+                          '/etc/nginx/common')
+                os.makedirs('/etc/nginx/common')
 
-                if os.path.exists('/etc/nginx/common'):
-                    data = dict(webroot=WOVariables.wo_webroot)
+            if os.path.exists('/etc/nginx/common'):
+                data = dict(webroot=WOVariables.wo_webroot)
 
-                    # Common Configuration
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations-wo.conf')
-                    wo_nginx = open('/etc/nginx/common/locations-wo.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'locations.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                # Common Configuration
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/locations-wo.conf')
+                wo_nginx = open('/etc/nginx/common/locations-wo.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'locations.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsubdir.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsubdir.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpsubdir.conf')
+                wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpsubdir.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    # PHP 7.2 conf
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php72.conf')
-                    wo_nginx = open('/etc/nginx/common/php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                # PHP 7.2 conf
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/php72.conf')
+                wo_nginx = open('/etc/nginx/common/php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'php.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpcommon-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/wpcommon-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpcommon.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpcommon-php72.conf')
+                wo_nginx = open('/etc/nginx/common/wpcommon-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpcommon.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/wpfc-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpfc-php72.conf')
+                wo_nginx = open('/etc/nginx/common/wpfc-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpfc.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsc-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpsc-php72.conf')
+                wo_nginx = open('/etc/nginx/common/wpsc-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpsc.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                # PHP 7.3 conf
-                if os.path.isdir("/etc/nginx/common"):
-                    data = dict()
+            # PHP 7.3 conf
+            if os.path.isdir("/etc/nginx/common"):
+                data = dict()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php73.conf')
-                    wo_nginx = open('/etc/nginx/common/php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/php73.conf')
+                wo_nginx = open('/etc/nginx/common/php73.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'php7.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpcommon-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpcommon-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpcommon-php73.conf')
+                wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpcommon-php7.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpfc-php73.conf')
+                wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpfc-php7.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpsc-php73.conf')
+                wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpsc-php7.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    # create redis conf
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/redis-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/redis-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'redis.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                # create redis conf
+                data = dict()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/redis-php72.conf')
+                wo_nginx = open('/etc/nginx/common/redis-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'redis.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/redis-php73.conf')
-                    wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'redis-php7.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                data = dict()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/redis-php73.conf')
+                wo_nginx = open('/etc/nginx/common/redis-php73.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'redis-php7.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    with open("/etc/nginx/common/release",
-                              "a") as release_file:
-                        release_file.write("v{0}"
-                                           .format(WOVariables.wo_version))
-                    release_file.close()
+                with open("/etc/nginx/common/release",
+                          "a") as release_file:
+                    release_file.write("v{0}"
+                                       .format(WOVariables.wo_version))
+                release_file.close()
 
-                # Following files should not be overwrited
+            # Following files should not be overwrited
 
-                if not os.path.isfile('/etc/nginx/common/acl.conf'):
-                    data = dict(webroot=WOVariables.wo_webroot)
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/acl.conf')
-                    wo_nginx = open('/etc/nginx/common/acl.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'acl.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
-                if not os.path.isfile('/etc/nginx/conf.d/blockips.conf'):
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/blockips.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render(
-                        (data), 'blockips.mustache', out=wo_nginx)
-                    wo_nginx.close()
+            if not os.path.isfile('/etc/nginx/common/acl.conf'):
+                data = dict(webroot=WOVariables.wo_webroot)
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/acl.conf')
+                wo_nginx = open('/etc/nginx/common/acl.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'acl.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
+            if not os.path.isfile('/etc/nginx/conf.d/blockips.conf'):
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/conf.d/blockips.conf')
+                wo_nginx = open('/etc/nginx/conf.d/blockips.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render(
+                    (data), 'blockips.mustache', out=wo_nginx)
+                wo_nginx.close()
 
-                if not os.path.isfile('/etc/nginx/conf.d/fastcgi.conf'):
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/fastcgi.conf')
-                    wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render(
-                        (data), 'fastcgi.mustache', out=wo_nginx)
-                    wo_nginx.close()
+            if not os.path.isfile('/etc/nginx/conf.d/fastcgi.conf'):
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/conf.d/fastcgi.conf')
+                wo_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render(
+                    (data), 'fastcgi.mustache', out=wo_nginx)
+                wo_nginx.close()
 
-                # add redis cache format if not already done
-                if (os.path.isfile("/etc/nginx/nginx.conf") and
-                    not os.path.isfile("/etc/nginx/conf.d"
-                                       "/redis.conf")):
-                    with open("/etc/nginx/conf.d/"
-                              "redis.conf", "a") as redis_file:
-                        redis_file.write("# Log format Settings\n"
-                                         "log_format rt_cache_redis "
-                                         "'$remote_addr "
-                                         "$upstream_response_time "
-                                         "$srcache_fetch_status "
-                                         "[$time_local] '\n"
-                                         "'$http_host \"$request\" $status"
-                                         " $body_bytes_sent '\n"
-                                         "'\"$http_referer\" "
-                                         "\"$http_user_agent\"';\n")
+            # add redis cache format if not already done
+            if (os.path.isfile("/etc/nginx/nginx.conf") and
+                not os.path.isfile("/etc/nginx/conf.d"
+                                   "/redis.conf")):
+                with open("/etc/nginx/conf.d/"
+                          "redis.conf", "a") as redis_file:
+                    redis_file.write("# Log format Settings\n"
+                                     "log_format rt_cache_redis "
+                                     "'$remote_addr "
+                                     "$upstream_response_time "
+                                     "$srcache_fetch_status "
+                                     "[$time_local] '\n"
+                                     "'$http_host \"$request\" $status"
+                                     " $body_bytes_sent '\n"
+                                     "'\"$http_referer\" "
+                                     "\"$http_user_agent\"';\n")
 
                     # Nginx-Plus does not have nginx
                     # package structure like this
                     # So creating directories
-                if not os.path.exists('/etc/nginx/sites-available'):
-                    Log.debug(self, 'Creating directory'
-                              '/etc/nginx/sites-available')
-                    os.makedirs('/etc/nginx/sites-available')
+            if not os.path.exists('/etc/nginx/sites-available'):
+                Log.debug(self, 'Creating directory'
+                          '/etc/nginx/sites-available')
+                os.makedirs('/etc/nginx/sites-available')
 
-                if not os.path.exists('/etc/nginx/sites-enabled'):
-                    Log.debug(self, 'Creating directory'
-                              '/etc/nginx/sites-available')
-                    os.makedirs('/etc/nginx/sites-enabled')
+            if not os.path.exists('/etc/nginx/sites-enabled'):
+                Log.debug(self, 'Creating directory'
+                          '/etc/nginx/sites-available')
+                os.makedirs('/etc/nginx/sites-enabled')
 
-                    # 22222 port settings
-                if not os.path.isfile("/etc/nginx/sites-available/22222"):
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/sites-available/'
-                              '22222')
-                    wo_nginx = open('/etc/nginx/sites-available/22222',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), '22222.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+                # 22222 port settings
+            if not os.path.isfile("/etc/nginx/sites-available/22222"):
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/sites-available/'
+                          '22222')
+                wo_nginx = open('/etc/nginx/sites-available/22222',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), '22222.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-                    passwd = ''.join([random.choice
-                                      (string.ascii_letters + string.digits)
-                                      for n in range(16)])
-                    try:
-                        WOShellExec.cmd_exec(self, "printf \"WordOps:"
-                                             "$(openssl passwd -crypt "
-                                             "{password} 2> /dev/null)\n\""
-                                             "> /etc/nginx/htpasswd-wo "
-                                             "2>/dev/null"
-                                             .format(password=passwd))
-                    except CommandExecutionError as e:
-                        Log.debug(self, "{0}".format(e))
-                        Log.error(self, "Failed to save HTTP Auth")
+                passwd = ''.join([random.choice
+                                  (string.ascii_letters + string.digits)
+                                  for n in range(16)])
+                try:
+                    WOShellExec.cmd_exec(self, "printf \"WordOps:"
+                                         "$(openssl passwd -crypt "
+                                         "{password} 2> /dev/null)\n\""
+                                         "> /etc/nginx/htpasswd-wo "
+                                         "2>/dev/null"
+                                         .format(password=passwd))
+                except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(self, "Failed to save HTTP Auth")
 
                     # Create Symbolic link for 22222
-                    WOFileUtils.create_symlink(self, ['/etc/nginx/'
-                                                      'sites-available/'
-                                                      '22222',
-                                                      '/etc/nginx/'
-                                                      'sites-enabled/'
-                                                      '22222'])
-                    # Create log and cert folder and softlinks
-                    if not os.path.exists('{0}22222/logs'
-                                          .format(WOVariables.wo_webroot)):
-                        Log.debug(self, "Creating directory "
-                                  "{0}22222/logs "
-                                  .format(WOVariables.wo_webroot))
-                        os.makedirs('{0}22222/logs'
-                                    .format(WOVariables.wo_webroot))
+                WOFileUtils.create_symlink(self, ['/etc/nginx/'
+                                                  'sites-available/'
+                                                  '22222',
+                                                  '/etc/nginx/'
+                                                  'sites-enabled/'
+                                                  '22222'])
+                # Create log and cert folder and softlinks
+                if not os.path.exists('{0}22222/logs'
+                                      .format(WOVariables.wo_webroot)):
+                    Log.debug(self, "Creating directory "
+                              "{0}22222/logs "
+                              .format(WOVariables.wo_webroot))
+                    os.makedirs('{0}22222/logs'
+                                .format(WOVariables.wo_webroot))
 
-                    if not os.path.exists('{0}22222/cert'
-                                          .format(WOVariables.wo_webroot)):
-                        Log.debug(self, "Creating directory "
-                                  "{0}22222/cert"
-                                  .format(WOVariables.wo_webroot))
-                        os.makedirs('{0}22222/cert'
-                                    .format(WOVariables.wo_webroot))
+                if not os.path.exists('{0}22222/cert'
+                                      .format(WOVariables.wo_webroot)):
+                    Log.debug(self, "Creating directory "
+                              "{0}22222/cert"
+                              .format(WOVariables.wo_webroot))
+                    os.makedirs('{0}22222/cert'
+                                .format(WOVariables.wo_webroot))
 
-                    if not os.path.exists('{0}22222/conf/nginx'
-                                          .format(WOVariables.wo_webroot)):
-                        Log.debug(self, "Creating directory "
-                                  "{0}22222/conf/nginx"
-                                  .format(WOVariables.wo_webroot))
-                        os.makedirs('{0}22222/conf/nginx'
-                                    .format(WOVariables.wo_webroot))
+                if not os.path.exists('{0}22222/conf/nginx'
+                                      .format(WOVariables.wo_webroot)):
+                    Log.debug(self, "Creating directory "
+                              "{0}22222/conf/nginx"
+                              .format(WOVariables.wo_webroot))
+                    os.makedirs('{0}22222/conf/nginx'
+                                .format(WOVariables.wo_webroot))
 
                     WOFileUtils.create_symlink(self, ['/var/log/nginx/'
                                                       '22222.access.log',
@@ -525,75 +525,74 @@ def post_pref(self, apt_packages, packages):
                                            "ssl_certificate_key "
                                            "/var/www/22222/cert/22222.key;\n")
 
-                    # Nginx Configation into GIT
-                    WOGit.add(self,
-                              ["/etc/nginx"], msg="Adding Nginx into Git")
-                    WOService.reload_service(self, 'nginx')
+                # Nginx Configation into GIT
+                WOGit.add(self,
+                          ["/etc/nginx"], msg="Adding Nginx into Git")
+                WOService.reload_service(self, 'nginx')
 
-                    if set(["nginx"]).issubset(set(apt_packages)):
+            if set(["nginx"]).issubset(set(apt_packages)):
+                print("WordOps backend configuration was successful\n"
+                      "You can access it on : https://{0}:22222"
+                      .format(server_ip))
+                print("HTTP Auth User Name: WordOps" +
+                      "\nHTTP Auth Password : {0}".format(passwd))
+                WOService.reload_service(self, 'nginx')
+            else:
+                self.msg = (self.msg + ["HTTP Auth User "
+                                        "Name: WordOps"] +
+                            ["HTTP Auth Password : {0}"
+                             .format(passwd)])
+                self.msg = (self.msg + ["WordOps backend is available "
+                                        "on https://{0}:22222 "
+                                        "or https://{1}:22222"
+                                        .format(server_ip.text,
+                                                WOVariables.wo_fqdn)])
+            else:
+                WOService.restart_service(self, 'nginx')
 
-                        print("WordOps backend configuration was successful\n"
-                              "You can access it on : https://{0}:22222"
-                              .format(server_ip))
-                        print("HTTP Auth User Name: WordOps" +
-                              "\nHTTP Auth Password : {0}".format(passwd))
-                        WOService.reload_service(self, 'nginx')
-                    else:
-                        self.msg = (self.msg + ["HTTP Auth User "
-                                                "Name: WordOps"] +
-                                    ["HTTP Auth Password : {0}"
-                                     .format(passwd)])
-                        self.msg = (self.msg + ["WordOps backend is available "
-                                                "on https://{0}:22222 "
-                                                "or https://{1}:22222"
-                                                .format(server_ip.text,
-                                                        WOVariables.wo_fqdn)])
-                else:
-                    WOService.restart_service(self, 'nginx')
+        # create nginx configuration for redis
+        if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+            if os.path.isdir('/etc/nginx/common'):
+                data = dict()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/redis-php72.conf')
+                wo_nginx = open('/etc/nginx/common/redis-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'redis.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
 
-            # create nginx configuration for redis
-            if set(WOVariables.wo_redis).issubset(set(apt_packages)):
-                if os.path.isdir('/etc/nginx/common'):
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/redis-php72.conf')
-                    wo_nginx = open('/etc/nginx/common/redis-php72.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'redis.mustache',
-                                    out=wo_nginx)
-                    wo_nginx.close()
+            if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                        "upstream.conf",
+                                        "redis"):
+                    with open("/etc/nginx/conf.d/upstream.conf",
+                              "a") as redis_file:
+                        redis_file.write("upstream redis {\n"
+                                         "    server 127.0.0.1:6379;\n"
+                                         "    keepalive 10;\n}\n")
 
-                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-                    if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                            "upstream.conf",
-                                            "redis"):
-                        with open("/etc/nginx/conf.d/upstream.conf",
-                                  "a") as redis_file:
-                            redis_file.write("upstream redis {\n"
-                                             "    server 127.0.0.1:6379;\n"
-                                             "    keepalive 10;\n}\n")
+            if os.path.isfile("/etc/nginx/nginx.conf"):
+                if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
+                    with open("/etc/nginx/conf.d/redis.conf",
+                              "a") as redis_file:
+                        redis_file.write("# Log format Settings\n"
+                                         "log_format rt_cache_redis "
+                                         "'$remote_addr "
+                                         "$upstream_response_time "
+                                         "$srcache_fetch_status "
+                                         "[$time_local]"
+                                         " '\n '$http_host"
+                                         " \"$request\" "
+                                         "$status $body_bytes_sent '\n"
+                                         "'\"$http_referer\" "
+                                         "\"$http_user_agent\"';\n")
 
-                if os.path.isfile("/etc/nginx/nginx.conf"):
-                    if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
-                        with open("/etc/nginx/conf.d/redis.conf",
-                                  "a") as redis_file:
-                            redis_file.write("# Log format Settings\n"
-                                             "log_format rt_cache_redis "
-                                             "'$remote_addr "
-                                             "$upstream_response_time "
-                                             "$srcache_fetch_status "
-                                             "[$time_local]"
-                                             " '\n '$http_host"
-                                             " \"$request\" "
-                                             "$status $body_bytes_sent '\n"
-                                             "'\"$http_referer\" "
-                                             "\"$http_user_agent\"';\n")
-
-            if set(WOVariables.wo_php).issubset(set(apt_packages)):
-                # Create log directories
-                if not os.path.exists('/var/log/php/7.2/'):
-                    Log.debug(self, 'Creating directory /var/log/php/7.2/')
-                    os.makedirs('/var/log/php/7.2/')
+        if set(WOVariables.wo_php).issubset(set(apt_packages)):
+            # Create log directories
+            if not os.path.exists('/var/log/php/7.2/'):
+                Log.debug(self, 'Creating directory /var/log/php/7.2/')
+                os.makedirs('/var/log/php/7.2/')
 
                 # Parse etc/php/7.2/fpm/php.ini
                 config = configparser.ConfigParser()
@@ -752,12 +751,12 @@ def post_pref(self, apt_packages, packages):
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 WOService.restart_service(self, 'php7.2-fpm')
 
-            # PHP7.3 configuration
-            if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                # Create log directories
-                if not os.path.exists('/var/log/php/7.3/'):
-                    Log.debug(self, 'Creating directory /var/log/php/7.3/')
-                    os.makedirs('/var/log/php/7.3/')
+        # PHP7.3 configuration
+        if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            # Create log directories
+            if not os.path.exists('/var/log/php/7.3/'):
+                Log.debug(self, 'Creating directory /var/log/php/7.3/')
+                os.makedirs('/var/log/php/7.3/')
 
                 # Parse etc/php/7.3/fpm/php.ini
                 config = configparser.ConfigParser()
@@ -916,16 +915,16 @@ def post_pref(self, apt_packages, packages):
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 WOService.restart_service(self, 'php7.3-fpm')
 
-            # create mysql config if it doesn't exist
-            if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
-                if not os.path.isfile("/etc/mysql/my.cnf"):
-                    config = ("[mysqld]\nwait_timeout = 30\n"
-                              "interactive_timeout=60\nperformance_schema = 0"
-                              "\nquery_cache_type = 1")
-                    config_file = open("/etc/mysql/my.cnf",
-                                       encoding='utf-8', mode='w')
-                    config_file.write(config)
-                    config_file.close()
+        # create mysql config if it doesn't exist
+        if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
+            if not os.path.isfile("/etc/mysql/my.cnf"):
+                config = ("[mysqld]\nwait_timeout = 30\n"
+                          "interactive_timeout=60\nperformance_schema = 0"
+                          "\nquery_cache_type = 1")
+                config_file = open("/etc/mysql/my.cnf",
+                                   encoding='utf-8', mode='w')
+                config_file.write(config)
+                config_file.close()
 
                 WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
                 WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
@@ -935,32 +934,32 @@ def post_pref(self, apt_packages, packages):
                 WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 WOService.reload_service(self, 'mysql')
 
-            # create fail2ban configuration files
-            if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
-                if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
-                    data = dict()
-                    Log.debug(self, "Setting up fail2ban jails configuration")
-                    fail2ban_config = open('/etc/fail2ban/jail.d/custom.conf',
-                                           encoding='utf-8', mode='w')
-                    self.app.render((data), 'fail2ban.mustache',
-                                    out=fail2ban_config)
-                    fail2ban_config.close()
+        # create fail2ban configuration files
+        if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
+            if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                data = dict()
+                Log.debug(self, "Setting up fail2ban jails configuration")
+                fail2ban_config = open('/etc/fail2ban/jail.d/custom.conf',
+                                       encoding='utf-8', mode='w')
+                self.app.render((data), 'fail2ban.mustache',
+                                out=fail2ban_config)
+                fail2ban_config.close()
 
-                    Log.debug(self, "Setting up fail2ban wp filter")
-                    fail2ban_config = open('/etc/fail2ban/filter.d/'
-                                           'wo-wordpress.conf',
-                                           encoding='utf-8', mode='w')
-                    self.app.render((data), 'fail2ban-wp.mustache',
-                                    out=fail2ban_config)
-                    fail2ban_config.close()
+                Log.debug(self, "Setting up fail2ban wp filter")
+                fail2ban_config = open('/etc/fail2ban/filter.d/'
+                                       'wo-wordpress.conf',
+                                       encoding='utf-8', mode='w')
+                self.app.render((data), 'fail2ban-wp.mustache',
+                                out=fail2ban_config)
+                fail2ban_config.close()
 
-                    Log.debug(self, "Setting up fail2ban wp filter")
-                    fail2ban_config = open('/etc/fail2ban/filter.d/'
-                                           'nginx-forbidden.conf',
-                                           encoding='utf-8', mode='w')
-                    self.app.render((data), 'fail2ban-forbidden.mustache',
-                                    out=fail2ban_config)
-                    fail2ban_config.close()
+                Log.debug(self, "Setting up fail2ban wp filter")
+                fail2ban_config = open('/etc/fail2ban/filter.d/'
+                                       'nginx-forbidden.conf',
+                                       encoding='utf-8', mode='w')
+                self.app.render((data), 'fail2ban-forbidden.mustache',
+                                out=fail2ban_config)
+                fail2ban_config.close()
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
                 WOService.reload_service(self, 'fail2ban')
@@ -1045,63 +1044,63 @@ def post_pref(self, apt_packages, packages):
                       msg="Adding ProFTPd into Git")
             WOService.reload_service(self, 'proftpd')
 
-        if (packages):
-            if any('/usr/local/bin/wp' == x[1] for x in packages):
-                Log.debug(self, "Setting Privileges"
-                          " to /usr/local/bin/wp file ")
-                WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
+    if (packages):
+        if any('/usr/local/bin/wp' == x[1] for x in packages):
+            Log.debug(self, "Setting Privileges"
+                      " to /usr/local/bin/wp file ")
+            WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
-            if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
-                    for x in packages):
-                WOExtract.extract(
-                    self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
-                Log.debug(self, 'Extracting file /var/lib/wo/tmp/pma.tar.gz to '
-                          'location /var/lib/wo/tmp/')
-                if not os.path.exists('{0}22222/htdocs/db'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, "Creating new  directory "
-                              "{0}22222/htdocs/db"
-                              .format(WOVariables.wo_webroot))
-                    os.makedirs('{0}22222/htdocs/db'
+        if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
+               for x in packages):
+            WOExtract.extract(
+                self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
+            Log.debug(self, 'Extracting file /var/lib/wo/tmp/pma.tar.gz to '
+                      'location /var/lib/wo/tmp/')
+            if not os.path.exists('{0}22222/htdocs/db'
+                                  .format(WOVariables.wo_webroot)):
+                Log.debug(self, "Creating new  directory "
+                          "{0}22222/htdocs/db"
+                          .format(WOVariables.wo_webroot))
+                os.makedirs('{0}22222/htdocs/db'
+                            .format(WOVariables.wo_webroot))
+            if not os.path.exists('{0}22222/htdocs/db/pma/'
+                                  .format(WOVariables.wo_webroot)):
+                shutil.move('/var/lib/wo/tmp/phpmyadmin-STABLE/',
+                            '{0}22222/htdocs/db/pma/'
+                            .format(WOVariables.wo_webroot))
+                shutil.copyfile('{0}22222/htdocs/db/pma'
+                                '/config.sample.inc.php'
+                                .format(WOVariables.wo_webroot),
+                                '{0}22222/htdocs/db/pma/config.inc.php'
                                 .format(WOVariables.wo_webroot))
-                if not os.path.exists('{0}22222/htdocs/db/pma/'
-                                      .format(WOVariables.wo_webroot)):
-                    shutil.move('/var/lib/wo/tmp/phpmyadmin-STABLE/',
-                                '{0}22222/htdocs/db/pma/'
-                                .format(WOVariables.wo_webroot))
-                    shutil.copyfile('{0}22222/htdocs/db/pma'
-                                    '/config.sample.inc.php'
-                                    .format(WOVariables.wo_webroot),
-                                    '{0}22222/htdocs/db/pma/config.inc.php'
-                                    .format(WOVariables.wo_webroot))
-                    Log.debug(self, 'Setting Blowfish Secret Key '
-                              'FOR COOKIE AUTH to  '
-                              '{0}22222/htdocs/db/pma/config.inc.php file '
-                              .format(WOVariables.wo_webroot))
-                    blowfish_key = ''.join([random.choice
-                                            (string.ascii_letters +
-                                             string.digits)
-                                            for n in range(25)])
-                    WOFileUtils.searchreplace(self,
-                                              '{0}22222/htdocs/db/pma'
-                                              '/config.inc.php'
-                                              .format(WOVariables.wo_webroot),
-                                              "$cfg[\'blowfish_secret\']"
-                                              " = \'\';",
-                                              "$cfg[\'blowfish_secret\']"
-                                              " = \'{0}\';"
-                                              .format(blowfish_key))
-                    Log.debug(self, 'Setting HOST Server For Mysql to  '
-                              '{0}22222/htdocs/db/pma/config.inc.php file '
-                              .format(WOVariables.wo_webroot))
-                    WOFileUtils.searchreplace(self,
-                                              '{0}22222/htdocs/db/pma'
-                                              '/config.inc.php'
-                                              .format(WOVariables.wo_webroot),
-                                              "$cfg[\'Servers\'][$i][\'host\']"
-                                              " = \'localhost\';", "$cfg"
-                                              "[\'Servers\'][$i][\'host\'] = \'{0}\';"
-                                              .format(WOVariables.wo_mysql_host))
+                Log.debug(self, 'Setting Blowfish Secret Key '
+                          'FOR COOKIE AUTH to  '
+                          '{0}22222/htdocs/db/pma/config.inc.php file '
+                          .format(WOVariables.wo_webroot))
+                blowfish_key = ''.join([random.choice
+                                        (string.ascii_letters +
+                                         string.digits)
+                                        for n in range(25)])
+                WOFileUtils.searchreplace(self,
+                                          '{0}22222/htdocs/db/pma'
+                                          '/config.inc.php'
+                                          .format(WOVariables.wo_webroot),
+                                          "$cfg[\'blowfish_secret\']"
+                                          " = \'\';",
+                                          "$cfg[\'blowfish_secret\']"
+                                          " = \'{0}\';"
+                                          .format(blowfish_key))
+                Log.debug(self, 'Setting HOST Server For Mysql to  '
+                          '{0}22222/htdocs/db/pma/config.inc.php file '
+                          .format(WOVariables.wo_webroot))
+                WOFileUtils.searchreplace(self,
+                                          '{0}22222/htdocs/db/pma'
+                                          '/config.inc.php'
+                                          .format(WOVariables.wo_webroot),
+                                          "$cfg[\'Servers\'][$i][\'host\']"
+                                          " = \'localhost\';", "$cfg"
+                                          "[\'Servers\'][$i][\'host\'] = \'{0}\';"
+                                          .format(WOVariables.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '.format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222'.format(WOVariables.wo_webroot),
@@ -1109,74 +1108,79 @@ def post_pref(self, apt_packages, packages):
                                   WOVariables.wo_php_user,
                                   recursive=True)
 
-            # composer install and phpmyadmin update
-            if any('/var/lib/wo/tmp/composer-install' == x[1]
-                   for x in packages):
-                Log.info(self, "Installing composer, please wait...")
-                WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
-                                     "/tmp/composer-install "
-                                     "--install-dir=/var/lib/wo/tmp/")
-                shutil.copyfile('/var/lib/wo/tmp/composer.phar',
-                                '/usr/local/bin/composer')
-                WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
-                Log.info(self, "Updating phpMyAdmin, please wait...")
-                WOShellExec.cmd_exec(self, "sudo -u www-data -H composer "
-                                     "update -n --no-dev -d "
-                                     "/var/www/22222/htdocs/db/pma/")
+        # composer install and phpmyadmin update
+        if any('/var/lib/wo/tmp/composer-install' == x[1]
+               for x in packages):
+            Log.info(self, "Installing composer, please wait...")
+            WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
+                                 "/tmp/composer-install "
+                                 "--install-dir=/var/lib/wo/tmp/")
+            shutil.copyfile('/var/lib/wo/tmp/composer.phar',
+                            '/usr/local/bin/composer')
+            WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+            Log.info(self, "Updating phpMyAdmin, please wait...")
+            WOShellExec.cmd_exec(self, "/usr/local/bin/composer update --no-plugins --no-scripts "
+                                 "-n --no-dev -d "
+                                 "/var/www/22222/htdocs/db/pma/")
+            WOFileUtils.chown(self, '{0}22222/htdocs/db/pma'
+                              .format(WOVariables.wo_webroot),
+                              WOVariables.wo_php_user,
+                              WOVariables.wo_php_user,
+                              recursive=True)
 
-            # netdata install
-            if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
-                   for x in packages):
-                if ((not os.path.exists('/opt/netdata')) and
-                        (not os.path.exists('/etc/netdata'))):
-                    Log.info(self, "Installing Netdata, please wait...")
-                    WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
-                                         "kickstart.sh "
-                                         "--dont-wait")
-                    # disable mail notifications
-                    WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
-                                              "lib/netdata/conf.d/"
-                                              "health_alarm_notify.conf",
-                                              'SEND_EMAIL="YES"',
-                                              'SEND_EMAIL="NO"')
-                    # make changes persistant
-                    WOFileUtils.copyfile(self, "/opt/netdata/usr/"
-                                         "lib/netdata/conf.d/"
-                                         "health_alarm_notify.conf",
-                                         "/opt/netdata/etc/netdata/"
-                                         "health_alarm_notify.conf")
-                    # check if mysql credentials are available
-                    if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
-                        try:
-                            WOMysql.execute(self,
-                                            "create user "
-                                            "'netdata'@'localhost';",
-                                            log=False)
-                            WOMysql.execute(self,
-                                            "grant usage on *.* to "
-                                            "'netdata'@'localhost';",
-                                            log=False)
-                            WOMysql.execute(self,
-                                            "flush privileges;",
-                                            log=False)
-                        except CommandExecutionError as e:
-                            Log.debug(self, "{0}".format(e))
-                            Log.info(
-                                self, "fail to setup mysql user for netdata")
-                    WOService.restart_service(self, 'netdata')
+        # netdata install
+        if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
+               for x in packages):
+            if ((not os.path.exists('/opt/netdata')) and
+                    (not os.path.exists('/etc/netdata'))):
+                Log.info(self, "Installing Netdata, please wait...")
+                WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
+                                     "kickstart.sh "
+                                     "--dont-wait")
+                # disable mail notifications
+                WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
+                                          "lib/netdata/conf.d/"
+                                          "health_alarm_notify.conf",
+                                          'SEND_EMAIL="YES"',
+                                          'SEND_EMAIL="NO"')
+                # make changes persistant
+                WOFileUtils.copyfile(self, "/opt/netdata/usr/"
+                                     "lib/netdata/conf.d/"
+                                     "health_alarm_notify.conf",
+                                     "/opt/netdata/etc/netdata/"
+                                     "health_alarm_notify.conf")
+                # check if mysql credentials are available
+                if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
+                    try:
+                        WOMysql.execute(self,
+                                        "create user "
+                                        "'netdata'@'localhost';",
+                                        log=False)
+                        WOMysql.execute(self,
+                                        "grant usage on *.* to "
+                                        "'netdata'@'localhost';",
+                                        log=False)
+                        WOMysql.execute(self,
+                                        "flush privileges;",
+                                        log=False)
+                    except CommandExecutionError as e:
+                        Log.debug(self, "{0}".format(e))
+                        Log.info(
+                            self, "fail to setup mysql user for netdata")
+                WOService.restart_service(self, 'netdata')
 
-            # WordOps Dashboard
-            if any('/var/lib/wo/tmp/wo-dashboard.tar.gz' == x[1]
-                   for x in packages):
-                if not os.path.isfile('{0}22222/htdocs/index.php'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, "Extracting wo-dashboard.tar.gz "
-                              "to location {0}22222/htdocs/"
-                              .format(WOVariables.wo_webroot))
-                    WOExtract.extract(self, '/var/lib/wo/tmp/'
-                                      'wo-dashboard.tar.gz',
-                                      '{0}22222/htdocs'
-                                      .format(WOVariables.wo_webroot))
+        # WordOps Dashboard
+        if any('/var/lib/wo/tmp/wo-dashboard.tar.gz' == x[1]
+               for x in packages):
+            if not os.path.isfile('{0}22222/htdocs/index.php'
+                                  .format(WOVariables.wo_webroot)):
+                Log.debug(self, "Extracting wo-dashboard.tar.gz "
+                          "to location {0}22222/htdocs/"
+                          .format(WOVariables.wo_webroot))
+                WOExtract.extract(self, '/var/lib/wo/tmp/'
+                                  'wo-dashboard.tar.gz',
+                                  '{0}22222/htdocs'
+                                  .format(WOVariables.wo_webroot))
                 wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
                                   "grep -oP \"dev [^[:space:]]+ \" "
                                   "| cut -d ' ' -f 2").read()
@@ -1195,162 +1199,162 @@ def post_pref(self, apt_packages, packages):
                                       WOVariables.wo_php_user,
                                       recursive=True)
 
-            # Extplorer FileManager
-            if any('/var/lib/wo/tmp/extplorer.tar.gz' == x[1]
-                   for x in packages):
-                if not os.path.exists('{0}22222/htdocs/files'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, "Extracting explorer.tar.gz "
-                              "to location {0}22222/htdocs/files"
-                              .format(WOVariables.wo_webroot))
-                    WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
-                                      '/var/lib/wo/tmp/')
-                    shutil.move('/var/lib/wo/tmp/extplorer-{0}'
-                                .format(WOVariables.wo_extplorer),
-                                '{0}22222/htdocs/files'
-                                .format(WOVariables.wo_webroot))
-                    Log.debug(self, "Setting Privileges to "
-                              "{0}22222/htdocs/files"
-                              .format(WOVariables.wo_webroot))
-                    WOFileUtils.chown(self, '{0}22222'
-                                      .format(WOVariables.wo_webroot),
-                                      WOVariables.wo_php_user,
-                                      WOVariables.wo_php_user,
-                                      recursive=True)
-
-            # webgrind
-            if any('/var/lib/wo/tmp/webgrind.tar.gz' == x[1]
-                    for x in packages):
-                Log.debug(self, "Extracting file webgrind.tar.gz to "
-                          "location /var/lib/wo/tmp/ ")
-                WOExtract.extract(
-                    self, '/var/lib/wo/tmp/webgrind.tar.gz',
-                    '/var/lib/wo/tmp/')
-                if not os.path.exists('{0}22222/htdocs/php'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, "Creating directroy "
-                              "{0}22222/htdocs/php"
-                              .format(WOVariables.wo_webroot))
-                    os.makedirs('{0}22222/htdocs/php'
-                                .format(WOVariables.wo_webroot))
-                if not os.path.exists('{0}22222/htdocs/php/webgrind'
-                                      .format(WOVariables.wo_webroot)):
-                    shutil.move('/var/lib/wo/tmp/webgrind-master/',
-                                '{0}22222/htdocs/php/webgrind'
-                                .format(WOVariables.wo_webroot))
-
-                WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
-                                          "config.php"
-                                          .format(WOVariables.wo_webroot),
-                                          "/usr/local/bin/dot", "/usr/bin/dot")
-                WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
-                                          "config.php"
-                                          .format(WOVariables.wo_webroot),
-                                          "Europe/Copenhagen",
-                                          WOVariables.wo_timezone)
-
-                WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
-                                          "config.php"
-                                          .format(WOVariables.wo_webroot),
-                                          "90", "100")
-
-                Log.debug(self, "Setting Privileges of webroot permission to "
-                          "{0}22222/htdocs/php/webgrind/ file "
+        # Extplorer FileManager
+        if any('/var/lib/wo/tmp/extplorer.tar.gz' == x[1]
+               for x in packages):
+            if not os.path.exists('{0}22222/htdocs/files'
+                                  .format(WOVariables.wo_webroot)):
+                Log.debug(self, "Extracting explorer.tar.gz "
+                          "to location {0}22222/htdocs/files"
+                          .format(WOVariables.wo_webroot))
+                WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
+                                  '/var/lib/wo/tmp/')
+                shutil.move('/var/lib/wo/tmp/extplorer-{0}'
+                            .format(WOVariables.wo_extplorer),
+                            '{0}22222/htdocs/files'
+                            .format(WOVariables.wo_webroot))
+                Log.debug(self, "Setting Privileges to "
+                          "{0}22222/htdocs/files"
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222'
                                   .format(WOVariables.wo_webroot),
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
-            # anemometer
-            if any('/var/lib/wo/tmp/anemometer.tar.gz' == x[1]
-                    for x in packages):
-                Log.debug(self, "Extracting file anemometer.tar.gz to "
-                          "location /var/lib/wo/tmp/ ")
-                WOExtract.extract(
-                    self, '/var/lib/wo/tmp/anemometer.tar.gz',
-                    '/var/lib/wo/tmp/')
-                if not os.path.exists('{0}22222/htdocs/db/'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, "Creating directory")
-                    os.makedirs('{0}22222/htdocs/db/'
-                                .format(WOVariables.wo_webroot))
-                if not os.path.exists('{0}22222/htdocs/db/anemometer'
-                                      .format(WOVariables.wo_webroot)):
-                    shutil.move('/var/lib/wo/tmp/Anemometer-master',
-                                '{0}22222/htdocs/db/anemometer'
-                                .format(WOVariables.wo_webroot))
-                    chars = ''.join(random.sample(string.ascii_letters, 8))
-                    try:
-                        WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
-                                             '/anemometer/install.sql'
-                                             .format(WOVariables.wo_webroot))
-                    except CommandExecutionError as e:
-                        Log.debug(self, "{0}".format(e))
-                        raise SiteError("Unable to import Anemometer database")
 
-                    WOMysql.execute(self, 'grant select on'
-                                    ' *.* to \'anemometer\''
-                                    '@\'{0}\' IDENTIFIED'
-                                    ' BY \'{1}\''.format(self.app.config.get
-                                                         ('mysql',
-                                                          'grant-host'),
-                                                         chars))
-                    Log.debug(self, "grant all on slow-query-log.*"
-                              " to anemometer@root_user"
-                              " IDENTIFIED BY password ")
-                    WOMysql.execute(self, 'grant all on slow_query_log.* to'
-                                    '\'anemometer\'@\'{0}\' IDENTIFIED'
-                                    ' BY \'{1}\''.format(self.app.config.get(
-                                        'mysql', 'grant-host'),
-                                        chars),
-                                    errormsg="cannot grant priviledges",
-                                    log=False)
-
-                    # Custom Anemometer configuration
-                    Log.debug(self, "configration Anemometer")
-                    data = dict(host=WOVariables.wo_mysql_host, port='3306',
-                                user='anemometer', password=chars)
-                    wo_anemometer = open('{0}22222/htdocs/db/anemometer'
-                                         '/conf/config.inc.php'
-                                         .format(WOVariables.wo_webroot),
-                                         encoding='utf-8', mode='w')
-                    self.app.render((data), 'anemometer.mustache',
-                                    out=wo_anemometer)
-                    wo_anemometer.close()
-
-            if any('/usr/bin/pt-query-advisor' == x[1]
-                    for x in packages):
-                WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
-
-            # phpredisadmin
-            if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
-                    for x in packages):
-                if not os.path.exists('{0}22222/htdocs/cache/'
-                                      'redis/phpRedisAdmin'
-                                      .format(WOVariables.wo_webroot)):
-                    Log.debug(self, "Creating new directory "
-                              "{0}22222/htdocs/cache/redis"
-                              .format(WOVariables.wo_webroot))
-                    os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                                .format(WOVariables.wo_webroot))
-                    WOFileUtils.chown(self, '{0}22222'
-                                      .format(WOVariables.wo_webroot),
-                                      WOVariables.wo_php_user,
-                                      WOVariables.wo_php_user,
-                                      recursive=True)
-                    if os.path.isfile("/usr/local/bin/composer"):
-                        WOShellExec.cmd_exec(self, "sudo -u www-data -H "
-                                             "composer "
-                                             "create-project -n -s dev "
-                                             "erik-dubbelboer/php-redis-admin "
-                                             "/var/www/22222/htdocs/cache"
-                                             "/redis/phpRedisAdmin ")
-                Log.debug(self, 'Setting Privileges of webroot permission to  '
-                          '{0}22222/htdocs/cache/file '
+        # webgrind
+        if any('/var/lib/wo/tmp/webgrind.tar.gz' == x[1]
+               for x in packages):
+            Log.debug(self, "Extracting file webgrind.tar.gz to "
+                      "location /var/lib/wo/tmp/ ")
+            WOExtract.extract(
+                self, '/var/lib/wo/tmp/webgrind.tar.gz',
+                '/var/lib/wo/tmp/')
+            if not os.path.exists('{0}22222/htdocs/php'
+                                  .format(WOVariables.wo_webroot)):
+                Log.debug(self, "Creating directroy "
+                          "{0}22222/htdocs/php"
                           .format(WOVariables.wo_webroot))
+                os.makedirs('{0}22222/htdocs/php'
+                            .format(WOVariables.wo_webroot))
+            if not os.path.exists('{0}22222/htdocs/php/webgrind'
+                                  .format(WOVariables.wo_webroot)):
+                shutil.move('/var/lib/wo/tmp/webgrind-master/',
+                            '{0}22222/htdocs/php/webgrind'
+                            .format(WOVariables.wo_webroot))
+
+            WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                      "config.php"
+                                      .format(WOVariables.wo_webroot),
+                                      "/usr/local/bin/dot", "/usr/bin/dot")
+            WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                      "config.php"
+                                      .format(WOVariables.wo_webroot),
+                                      "Europe/Copenhagen",
+                                      WOVariables.wo_timezone)
+
+            WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                      "config.php"
+                                      .format(WOVariables.wo_webroot),
+                                      "90", "100")
+
+            Log.debug(self, "Setting Privileges of webroot permission to "
+                      "{0}22222/htdocs/php/webgrind/ file "
+                      .format(WOVariables.wo_webroot))
+            WOFileUtils.chown(self, '{0}22222'
+                              .format(WOVariables.wo_webroot),
+                              WOVariables.wo_php_user,
+                              WOVariables.wo_php_user,
+                              recursive=True)
+        # anemometer
+        if any('/var/lib/wo/tmp/anemometer.tar.gz' == x[1]
+               for x in packages):
+            Log.debug(self, "Extracting file anemometer.tar.gz to "
+                      "location /var/lib/wo/tmp/ ")
+            WOExtract.extract(
+                self, '/var/lib/wo/tmp/anemometer.tar.gz',
+                '/var/lib/wo/tmp/')
+            if not os.path.exists('{0}22222/htdocs/db/'
+                                  .format(WOVariables.wo_webroot)):
+                Log.debug(self, "Creating directory")
+                os.makedirs('{0}22222/htdocs/db/'
+                            .format(WOVariables.wo_webroot))
+            if not os.path.exists('{0}22222/htdocs/db/anemometer'
+                                  .format(WOVariables.wo_webroot)):
+                shutil.move('/var/lib/wo/tmp/Anemometer-master',
+                            '{0}22222/htdocs/db/anemometer'
+                            .format(WOVariables.wo_webroot))
+                chars = ''.join(random.sample(string.ascii_letters, 8))
+                try:
+                    WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
+                                         '/anemometer/install.sql'
+                                         .format(WOVariables.wo_webroot))
+                except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
+                    raise SiteError("Unable to import Anemometer database")
+
+                WOMysql.execute(self, 'grant select on'
+                                ' *.* to \'anemometer\''
+                                '@\'{0}\' IDENTIFIED'
+                                ' BY \'{1}\''.format(self.app.config.get
+                                                     ('mysql',
+                                                      'grant-host'),
+                                                     chars))
+                Log.debug(self, "grant all on slow-query-log.*"
+                          " to anemometer@root_user"
+                          " IDENTIFIED BY password ")
+                WOMysql.execute(self, 'grant all on slow_query_log.* to'
+                                '\'anemometer\'@\'{0}\' IDENTIFIED'
+                                ' BY \'{1}\''.format(self.app.config.get(
+                                    'mysql', 'grant-host'),
+                                    chars),
+                                errormsg="cannot grant priviledges",
+                                log=False)
+
+                # Custom Anemometer configuration
+                Log.debug(self, "configration Anemometer")
+                data = dict(host=WOVariables.wo_mysql_host, port='3306',
+                            user='anemometer', password=chars)
+                wo_anemometer = open('{0}22222/htdocs/db/anemometer'
+                                     '/conf/config.inc.php'
+                                     .format(WOVariables.wo_webroot),
+                                     encoding='utf-8', mode='w')
+                self.app.render((data), 'anemometer.mustache',
+                                out=wo_anemometer)
+                wo_anemometer.close()
+
+        if any('/usr/bin/pt-query-advisor' == x[1]
+               for x in packages):
+            WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
+
+        # phpredisadmin
+        if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
+               for x in packages):
+            if not os.path.exists('{0}22222/htdocs/cache/'
+                                  'redis/phpRedisAdmin'
+                                  .format(WOVariables.wo_webroot)):
+                Log.debug(self, "Creating new directory "
+                          "{0}22222/htdocs/cache/redis"
+                          .format(WOVariables.wo_webroot))
+                os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                            .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222'
                                   .format(WOVariables.wo_webroot),
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
+                if os.path.isfile("/usr/local/bin/composer"):
+                    WOShellExec.cmd_exec(self, "sudo -u www-data -H "
+                                         "composer "
+                                         "create-project -n -s dev "
+                                         "erik-dubbelboer/php-redis-admin "
+                                         "/var/www/22222/htdocs/cache"
+                                         "/redis/phpRedisAdmin ")
+            Log.debug(self, 'Setting Privileges of webroot permission to  '
+                      '{0}22222/htdocs/cache/file '
+                      .format(WOVariables.wo_webroot))
+            WOFileUtils.chown(self, '{0}22222'
+                              .format(WOVariables.wo_webroot),
+                              WOVariables.wo_php_user,
+                              WOVariables.wo_php_user,
+                              recursive=True)
