@@ -1,22 +1,16 @@
 import codecs
 import configparser
 import os
-import pwd
 import random
 import shutil
 import string
-import re
 import requests
 
-import psutil
 from wo.cli.plugins.site_functions import *
-from wo.cli.plugins.sitedb import *
 from wo.cli.plugins.stack_services import WOStackStatusController
-from wo.core.addswap import WOSwap
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
-from wo.core.download import WODownload
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
@@ -530,23 +524,23 @@ def post_pref(self, apt_packages, packages):
                           ["/etc/nginx"], msg="Adding Nginx into Git")
                 WOService.reload_service(self, 'nginx')
 
-            if set(["nginx"]).issubset(set(apt_packages)):
-                print("WordOps backend configuration was successful\n"
-                      "You can access it on : https://{0}:22222"
-                      .format(server_ip))
-                print("HTTP Auth User Name: WordOps" +
-                      "\nHTTP Auth Password : {0}".format(passwd))
-                WOService.reload_service(self, 'nginx')
-            else:
-                self.msg = (self.msg + ["HTTP Auth User "
-                                        "Name: WordOps"] +
-                            ["HTTP Auth Password : {0}"
-                             .format(passwd)])
-                self.msg = (self.msg + ["WordOps backend is available "
-                                        "on https://{0}:22222 "
-                                        "or https://{1}:22222"
-                                        .format(server_ip.text,
-                                                WOVariables.wo_fqdn)])
+                if set(["nginx"]).issubset(set(apt_packages)):
+                    print("WordOps backend configuration was successful\n"
+                          "You can access it on : https://{0}:22222"
+                          .format(server_ip))
+                    print("HTTP Auth User Name: WordOps" +
+                          "\nHTTP Auth Password : {0}".format(passwd))
+                    WOService.reload_service(self, 'nginx')
+                else:
+                    self.msg = (self.msg + ["HTTP Auth User "
+                                            "Name: WordOps"] +
+                                ["HTTP Auth Password : {0}"
+                                 .format(passwd)])
+                    self.msg = (self.msg + ["WordOps backend is available "
+                                            "on https://{0}:22222 "
+                                            "or https://{1}:22222"
+                                            .format(server_ip.text,
+                                                    WOVariables.wo_fqdn)])
             else:
                 WOService.restart_service(self, 'nginx')
 
