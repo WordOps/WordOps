@@ -536,15 +536,15 @@ def post_pref(self, apt_packages, packages):
                             self, "Failed to generate HTTPS "
                             "certificate for 22222")
 
-                    if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
-                                          .format(WOVariables.wo_webroot)):
+                if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
+                                      .format(WOVariables.wo_webroot)):
 
-                        with open("/var/www/22222/conf/nginx/"
-                                  "ssl.conf", "a") as php_file:
-                            php_file.write("ssl_certificate "
-                                           "/var/www/22222/cert/22222.crt;\n"
-                                           "ssl_certificate_key "
-                                           "/var/www/22222/cert/22222.key;\n")
+                    with open("/var/www/22222/conf/nginx/"
+                              "ssl.conf", "a") as php_file:
+                        php_file.write("ssl_certificate "
+                                       "/var/www/22222/cert/22222.crt;\n"
+                                       "ssl_certificate_key "
+                                       "/var/www/22222/cert/22222.key;\n")
 
                 # Nginx Configation into GIT
                 WOGit.add(self,
@@ -574,7 +574,7 @@ def post_pref(self, apt_packages, packages):
         # create nginx configuration for redis
         if set(WOVariables.wo_redis).issubset(set(apt_packages)):
             if os.path.isdir('/etc/nginx/common'):
-                data = dict()
+                data = dict(upstream="php72")
                 Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/common/redis-php72.conf')
                 wo_nginx = open('/etc/nginx/common/redis-php72.conf',

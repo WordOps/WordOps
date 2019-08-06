@@ -10,7 +10,7 @@ location / {
 location /redis-fetch {
     internal  ;
     set  $redis_key $args;
-    redis_pass  redis;
+    redis_pass redis;
 }
 location /redis-store {
     internal  ;
