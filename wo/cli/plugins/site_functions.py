@@ -290,7 +290,7 @@ def setupwordpress(self, data):
     Log.debug(self, "Setting up wp-config file")
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
-        Log.debug(self, "bash -c \"php {0} --allow-root "
+        Log.debug(self, "/bin/bash -c \"{0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
                   "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
@@ -302,7 +302,7 @@ def setupwordpress(self, data):
                   .format(data['wo_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
                                     .format(WOVariables.wo_wpcli_path) +
                                     " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -325,7 +325,7 @@ def setupwordpress(self, data):
             raise SiteError("generate wp-config failed for wp single site")
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
-        Log.debug(self, "bash -c \"php {0} --allow-root "
+        Log.debug(self, "/bin/bash -c \"{0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
                   "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
@@ -340,7 +340,7 @@ def setupwordpress(self, data):
                           " false);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
                                     .format(WOVariables.wo_wpcli_path) +
                                     " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -365,36 +365,36 @@ def setupwordpress(self, data):
 
     try:
 
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_CACHE_KEY_SALT "
                              "\'{0}:\'\"".format(wo_domain_name))
 
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_MEMORY_LIMIT "
                              "\'128M\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_MAX_MEMORY_LIMIT "
                              "\'256M\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set CONCATENATE_SCRIPTS "
                              "false --raw\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_POST_REVISIONS "
                              "\'10\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set MEDIA_TRASH "
                              "true --raw\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set EMPTY_TRASH_DAYS "
                              "\'15\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_AUTO_UPDATE_CORE "
                              "minor\"")
@@ -456,14 +456,14 @@ def setupwordpress(self, data):
 
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
-        Log.debug(self, "php {0} --allow-root core install "
+        Log.debug(self, "{0} --allow-root core install "
                   .format(WOVariables.wo_wpcli_path) +
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], wo_wp_user) +
                   "--admin_password= --admin_email=\'{1}\'"
                   .format(wo_wp_pass, wo_wp_email))
         try:
-            if WOShellExec.cmd_exec(self, "php {0} --allow-root core "
+            if WOShellExec.cmd_exec(self, "{0} --allow-root core "
                                     .format(WOVariables.wo_wpcli_path) +
                                     "install --url=\'{0}\' --title=\'{0}\' "
                                     "--admin_name=\'{1}\' "
@@ -480,7 +480,7 @@ def setupwordpress(self, data):
             raise SiteError("setup WordPress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
-        Log.debug(self, "php {0} --allow-root "
+        Log.debug(self, "{0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
                   "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
@@ -491,7 +491,7 @@ def setupwordpress(self, data):
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            if WOShellExec.cmd_exec(self, "php {0} --allow-root "
+            if WOShellExec.cmd_exec(self, "{0} --allow-root "
                                     .format(WOVariables.wo_wpcli_path) +
                                     "core multisite-install "
                                     "--url=\'{0}\' --title=\'{0}\' "
@@ -513,7 +513,7 @@ def setupwordpress(self, data):
 
     Log.debug(self, "Updating WordPress permalink")
     try:
-        WOShellExec.cmd_exec(self, " php {0} --allow-root "
+        WOShellExec.cmd_exec(self, " {0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "rewrite structure "
                              "/%year%/%monthnum%/%day%/%postname%/")
@@ -619,7 +619,7 @@ def installwp_plugin(self, plugin_name, data):
              .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     try:
-        WOShellExec.cmd_exec(self, "php {0} plugin "
+        WOShellExec.cmd_exec(self, "{0} plugin "
                              .format(WOVariables.wo_wpcli_path) +
                              "--allow-root install "
                              "{0}".format(plugin_name))
@@ -628,7 +628,7 @@ def installwp_plugin(self, plugin_name, data):
         raise SiteError("plugin installation failed")
 
     try:
-        WOShellExec.cmd_exec(self, "php {0} plugin "
+        WOShellExec.cmd_exec(self, "{0} plugin "
                              .format(WOVariables.wo_wpcli_path) +
                              "--allow-root activate "
                              "{0} {na}"
@@ -856,7 +856,7 @@ def site_package_check(self, stype):
         if (os.path.isfile("/etc/nginx/nginx.conf") and
                 not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
 
-            data = dict()
+            data = dict(upstream="php72")
             Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/redis-php72.conf')
             wo_nginx = open('/etc/nginx/common/redis-php72.conf',
