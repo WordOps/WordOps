@@ -240,7 +240,7 @@ def setupwordpress(self, data):
     # Random characters
     wo_random = (''.join(random.sample(string.ascii_uppercase +
                                        string.ascii_lowercase +
-                                       string.digits, 15)))
+                                       string.digits, 24)))
     wo_wp_prefix = ''
     # wo_wp_user = ''
     # wo_wp_pass = ''
