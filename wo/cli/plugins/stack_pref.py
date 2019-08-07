@@ -228,6 +228,14 @@ def post_pref(self, apt_packages, packages):
                 wo_nginx.close()
 
                 Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/conf.d/cloudflare.conf')
+                wo_nginx = open('/etc/nginx/conf.d/cloudflare.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'cloudflare.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
+
+                Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/conf.d/'
                           'map-wp-fastcgi-cache.conf')
                 wo_nginx = open('/etc/nginx/conf.d/'

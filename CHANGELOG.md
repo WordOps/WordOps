@@ -10,11 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.7.1 - 2019-08-09
 
+- APT Packages configuration step with `wo stack upgrade` to apply new configurations
+- Cloudflare restore real_ip configuration
+
 #### Changed
 
-- Cement framework updated to v2.8.0
-- Psutil updated to v5.6.3
-- PyMySQL updated to v0.9.3
+- Moving package configuration in a new plugin stack_pref.py
+- Set WordOps backend password length from 16 to 24
+- Upgrade framework cement to 2.6.0
+- Upgrade PyMySQL to 0.9.3
+- Upgrade Psutil to 5.6.3
 
 #### Fixed
 
