@@ -37,22 +37,23 @@ class WOCleanController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        if (not (self.app.pargs.all or self.app.pargs.fastcgi or
-                 self.app.pargs.memcached or self.app.pargs.opcache or
-                 self.app.pargs.redis)):
+        pargs = self.app.pargs
+        if (not (pargs.all or pargs.fastcgi or
+                 pargs.memcached or pargs.opcache or
+                 pargs.redis)):
             self.clean_fastcgi()
-        if self.app.pargs.all:
+        if pargs.all:
             self.clean_memcached()
             self.clean_fastcgi()
             self.clean_opcache()
             self.clean_redis()
-        if self.app.pargs.fastcgi:
+        if pargs.fastcgi:
             self.clean_fastcgi()
-        if self.app.pargs.memcached:
+        if pargs.memcached:
             self.clean_memcached()
-        if self.app.pargs.opcache:
+        if pargs.opcache:
             self.clean_opcache()
-        if self.app.pargs.redis:
+        if pargs.redis:
             self.clean_redis()
 
     @expose(hide=True)

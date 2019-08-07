@@ -1235,7 +1235,8 @@ def post_pref(self, apt_packages, packages):
                             '/usr/local/bin/composer')
             WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
             Log.info(self, "Updating phpMyAdmin, please wait...")
-            WOShellExec.cmd_exec(self, "/usr/local/bin/composer update --no-plugins --no-scripts "
+            WOShellExec.cmd_exec(self, "/usr/local/bin/composer update "
+                                 "--no-plugins --no-scripts "
                                  "-n --no-dev -d "
                                  "/var/www/22222/htdocs/db/pma/")
             WOFileUtils.chown(self, '{0}22222/htdocs/db/pma'
