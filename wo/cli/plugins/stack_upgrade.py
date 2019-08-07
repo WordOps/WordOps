@@ -57,35 +57,36 @@ class WOStackUpgradeController(CementBaseController):
         apt_packages = []
         packages = []
         empty_packages = []
+        pargs = pargs = self.app.pargs
 
-        if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
-            (not self.app.pargs.php) and (not self.app.pargs.php73) and
-            (not self.app.pargs.mysql) and
-            (not self.app.pargs.all) and (not self.app.pargs.wpcli) and
-            (not self.app.pargs.netdata) and (not self.app.pargs.composer) and
-            (not self.app.pargs.phpmyadmin) and
-                (not self.app.pargs.redis)):
-            self.app.pargs.web = True
+        if ((not pargs.web) and (not pargs.nginx) and
+            (not pargs.php) and (not pargs.php73) and
+            (not pargs.mysql) and
+            (not pargs.all) and (not pargs.wpcli) and
+            (not pargs.netdata) and (not pargs.composer) and
+            (not pargs.phpmyadmin) and
+                (not pargs.redis)):
+            pargs.web = True
 
-        if self.app.pargs.all:
-            self.app.pargs.web = True
+        if pargs.all:
+            pargs.web = True
 
-        if self.app.pargs.web:
+        if pargs.web:
             if WOAptGet.is_installed(self, 'nginx-custom'):
-                self.app.pargs.nginx = True
+                pargs.nginx = True
             else:
                 Log.info(self, "Nginx is not already installed")
-            self.app.pargs.php = True
-            self.app.pargs.mysql = True
-            self.app.pargs.wpcli = True
+            pargs.php = True
+            pargs.mysql = True
+            pargs.wpcli = True
 
-        if self.app.pargs.nginx:
+        if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
                 Log.info(self, "Nginx Stable is not already installed")
 
-        if self.app.pargs.php:
+        if pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php + \
@@ -95,7 +96,7 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.info(self, "PHP 7.2 is not installed")
 
-        if self.app.pargs.php73:
+        if pargs.php73:
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.2-fpm'):
                     apt_packages = apt_packages + WOVariables.wo_php73 + \
@@ -105,19 +106,19 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.info(self, "PHP 7.3 is not installed")
 
-        if self.app.pargs.mysql:
+        if pargs.mysql:
             if WOAptGet.is_installed(self, 'mariadb-server'):
                 apt_packages = apt_packages + WOVariables.wo_mysql
             else:
                 Log.info(self, "MariaDB is not installed")
 
-        if self.app.pargs.redis:
+        if pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 apt_packages = apt_packages + WOVariables.wo_redis
             else:
                 Log.info(self, "Redis is not installed")
 
-        if self.app.pargs.wpcli:
+        if pargs.wpcli:
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                         "releases/download/v{0}/"
@@ -128,13 +129,13 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.info(self, "WPCLI is not installed with WordOps")
 
-        if self.app.pargs.netdata:
+        if pargs.netdata:
             if os.path.isdir('/opt/netdata'):
                 packages = packages + [['https://my-netdata.io/'
                                         'kickstart-static64.sh',
                                         '/var/lib/wo/tmp/kickstart.sh',
                                         'Netdata']]
-        if self.app.pargs.phpmyadmin:
+        if pargs.phpmyadmin:
             if os.path.isdir('/var/www/22222/htdocs/db/pma'):
                 packages = packages + \
                     [["https://files.phpmyadmin.net"
@@ -147,7 +148,7 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.error(self, "phpMyAdmin isn't installed")
 
-        if self.app.pargs.composer:
+        if pargs.composer:
             if os.path.isfile('/usr/local/bin/composer'):
                 packages = packages + [["https://getcomposer.org/installer",
                                         "/var/lib/wo/tmp/composer-install",
@@ -160,7 +161,7 @@ class WOStackUpgradeController(CementBaseController):
             Log.info(self, "During package update process non nginx-cached"
                      " parts of your site may remain down")
             # Check prompt
-            if (not self.app.pargs.no_prompt):
+            if (not pargs.no_prompt):
                 start_upgrade = input("Do you want to continue:[y/N]")
                 if start_upgrade != "Y" and start_upgrade != "y":
                     Log.error(self, "Not starting package update")
@@ -191,25 +192,25 @@ class WOStackUpgradeController(CementBaseController):
                     WOService.restart_service(self, 'redis-server')
 
             if len(packages):
-                if self.app.pargs.wpcli:
+                if pargs.wpcli:
                     WOFileUtils.remove(self, ['/usr/local/bin/wp'])
 
-                if self.app.pargs.netdata:
+                if pargs.netdata:
                     WOFileUtils.remove(self, ['/var/lib/wo/tmp/kickstart.sh'])
 
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
 
-                if self.app.pargs.wpcli:
+                if pargs.wpcli:
                     WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
-                if self.app.pargs.netdata:
+                if pargs.netdata:
                     Log.info(self, "Upgrading Netdata, please wait...")
                     WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
                                          "kickstart.sh "
                                          "--dont-wait")
 
-                if self.app.pargs.composer:
+                if pargs.composer:
                     Log.info(self, "Upgrading Composer, please wait...")
                     WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
                                          "/tmp/composer-install "
@@ -218,7 +219,7 @@ class WOStackUpgradeController(CementBaseController):
                                     '/usr/local/bin/composer')
                     WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
 
-                if self.app.pargs.phpmyadmin:
+                if pargs.phpmyadmin:
                     Log.info(self, "Upgrading phpMyAdmin, please wait...")
                     WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz',
                                       '/var/lib/wo/tmp/')

@@ -36,20 +36,21 @@ class WOUpdateController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        pargs = self.app.pargs
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
 
-        if self.app.pargs.travis:
+        if pargs.travis:
             wo_branch = "updating-configuration"
             install_args = "--travis --force "
-        elif self.app.pargs.beta:
+        elif pargs.beta:
             wo_branch = "beta"
             install_args = ""
         else:
             wo_branch = "master"
             install_args = ""
-        if self.app.pargs.force:
+        if pargs.force:
             install_args = install_args + "--force "
-        if self.app.pargs.preserve:
+        if pargs.preserve:
             install_args = install_args + "--preserve "
 
         WODownload.download(self, [["https://raw.githubusercontent.com/"
