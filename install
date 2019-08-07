@@ -406,9 +406,9 @@ wo_install_acme_sh() {
 wo_install() {
     {
         rm -f /etc/bash_completion.d/wo_auto.rc
-        rm -rf /tmp/WordOps
-        git clone -b "$wo_branch" --depth=50 https://github.com/WordOps/WordOps.git /tmp/WordOps
-        cd /tmp/WordOps || exit 1
+        rm -rf /var/lib/wo/tmp/WordOps-*
+        curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+        cd /var/lib/wo/tmp/WordOps-${wo_branch} || exit 1
 
     } \
         >> "$wo_install_log" 2>&1
