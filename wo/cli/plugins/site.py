@@ -867,7 +867,7 @@ class WOSiteUpdateController(CementBaseController):
         pargs = self.app.pargs
 
         if pargs.php72:
-            self.app.pargs.php = True
+            pargs.php = True
 
         if pargs.all:
             if pargs.site_name:

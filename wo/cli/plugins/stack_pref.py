@@ -1160,6 +1160,65 @@ def post_pref(self, apt_packages, packages):
                       msg="Adding ProFTPd into Git")
             WOService.reload_service(self, 'proftpd')
 
+    # Redis configuration
+    if set(["redis-server"]).issubset(set(apt_packages)):
+        # set redis.conf parameter
+        # set maxmemory 10% for ram below 512MB and 20% for others
+        # set maxmemory-policy allkeys-lru
+        # enable systemd service
+        Log.debug(self, "Enabling redis systemd service")
+        WOShellExec.cmd_exec(self, "systemctl enable redis-server")
+        if os.path.isfile("/etc/redis/redis.conf"):
+            wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+            if wo_ram < 1024:
+                Log.debug(self, "Setting maxmemory variable to "
+                          "{0} in redis.conf"
+                          .format(int(wo_ram*1024*1024*0.1)))
+                WOFileUtils.searchreplace(self,
+                                          "/etc/redis/redis.conf",
+                                          "# maxmemory <bytes>",
+                                          "maxmemory {0}"
+                                          .format
+                                          (int(wo_ram*1024*1024*0.1)))
+                Log.debug(
+                    self, "Setting maxmemory-policy variable to "
+                    "allkeys-lru in redis.conf")
+                WOFileUtils.searchreplace(self,
+                                          "/etc/redis/redis.conf",
+                                          "# maxmemory-policy "
+                                          "noeviction",
+                                          "maxmemory-policy "
+                                          "allkeys-lru")
+                Log.debug(
+                    self, "Setting tcp-backlog variable to "
+                    "in redis.conf")
+                WOFileUtils.searchreplace(self,
+                                          "/etc/redis/redis.conf",
+                                          "tcp-backlog 511",
+                                          "tcp-backlog 32768")
+
+                WOService.restart_service(self, 'redis-server')
+            else:
+                Log.debug(self, "Setting maxmemory variable to {0} "
+                          "in redis.conf"
+                          .format(int(wo_ram*1024*1024*0.2)))
+                WOFileUtils.searchreplace(self,
+                                          "/etc/redis/redis.conf",
+                                          "# maxmemory <bytes>",
+                                          "maxmemory {0}"
+                                          .format
+                                          (int(wo_ram*1024*1024*0.1)))
+                Log.debug(
+                    self, "Setting maxmemory-policy variable "
+                    "to allkeys-lru in redis.conf")
+                WOFileUtils.searchreplace(self,
+                                          "/etc/redis/redis.conf",
+                                          "# maxmemory-policy "
+                                          "noeviction",
+                                          "maxmemory-policy "
+                                          "allkeys-lru")
+                WOService.restart_service(self, 'redis-server')
+
     if (packages):
         if any('/usr/local/bin/wp' == x[1] for x in packages):
             Log.debug(self, "Setting Privileges"
