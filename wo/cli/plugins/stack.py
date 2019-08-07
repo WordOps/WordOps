@@ -86,6 +86,9 @@ class WOStackController(CementBaseController):
                 dict(help='Install phpRedisAdmin', action='store_true')),
             (['--proftpd'],
                 dict(help='Install ProFTPd', action='store_true')),
+            (['--force'],
+                dict(help='Force install/remove/purge without prompt',
+                     action='store_true')),
         ]
         usage = "wo stack (command) [options]"
 
@@ -98,63 +101,64 @@ class WOStackController(CementBaseController):
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
         self.msg = []
+        pargs = self.app.pargs
         try:
             # Default action for stack installation
-            if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
-                (not self.app.pargs.nginx) and (not self.app.pargs.php) and
-                (not self.app.pargs.mysql) and (not self.app.pargs.wpcli) and
-                (not self.app.pargs.phpmyadmin) and
-                (not self.app.pargs.composer) and
-                (not self.app.pargs.netdata) and
-                (not self.app.pargs.dashboard) and
-                (not self.app.pargs.fail2ban) and
-                (not self.app.pargs.security) and
-                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-                (not self.app.pargs.redis) and (not self.app.pargs.proftpd) and
-                (not self.app.pargs.phpredisadmin) and
-                    (not self.app.pargs.php73)):
-                self.app.pargs.web = True
-                self.app.pargs.admin = True
-                self.app.pargs.security = True
+            if ((not pargs.web) and (not pargs.admin) and
+                (not pargs.nginx) and (not pargs.php) and
+                (not pargs.mysql) and (not pargs.wpcli) and
+                (not pargs.phpmyadmin) and
+                (not pargs.composer) and
+                (not pargs.netdata) and
+                (not pargs.dashboard) and
+                (not pargs.fail2ban) and
+                (not pargs.security) and
+                (not pargs.adminer) and (not pargs.utils) and
+                (not pargs.redis) and (not pargs.proftpd) and
+                (not pargs.phpredisadmin) and
+                    (not pargs.php73)):
+                pargs.web = True
+                pargs.admin = True
+                pargs.security = True
 
-            if self.app.pargs.all:
-                self.app.pargs.web = True
-                self.app.pargs.admin = True
-                self.app.pargs.php73 = True
-                self.app.pargs.redis = True
-                self.app.pargs.proftpd = True
+            if pargs.all:
+                pargs.web = True
+                pargs.admin = True
+                pargs.php73 = True
+                pargs.redis = True
+                pargs.proftpd = True
 
-            if self.app.pargs.web:
-                self.app.pargs.nginx = True
-                self.app.pargs.php = True
-                self.app.pargs.mysql = True
-                self.app.pargs.wpcli = True
+            if pargs.web:
+                pargs.nginx = True
+                pargs.php = True
+                pargs.mysql = True
+                pargs.wpcli = True
 
-            if self.app.pargs.admin:
-                self.app.pargs.nginx = True
-                self.app.pargs.php = True
-                self.app.pargs.mysql = True
-                self.app.pargs.adminer = True
-                self.app.pargs.phpmyadmin = True
-                self.app.pargs.composer = True
-                self.app.pargs.utils = True
-                self.app.pargs.netdata = True
-                self.app.pargs.dashboard = True
-                self.app.pargs.phpredisadmin = True
+            if pargs.admin:
+                pargs.nginx = True
+                pargs.php = True
+                pargs.mysql = True
+                pargs.adminer = True
+                pargs.phpmyadmin = True
+                pargs.composer = True
+                pargs.utils = True
+                pargs.netdata = True
+                pargs.dashboard = True
+                pargs.phpredisadmin = True
 
-            if self.app.pargs.security:
-                self.app.pargs.fail2ban = True
+            if pargs.security:
+                pargs.fail2ban = True
 
             # Redis
-            if self.app.pargs.redis:
+            if pargs.redis:
                 if not WOAptGet.is_installed(self, 'redis-server'):
                     apt_packages = apt_packages + WOVariables.wo_redis
-                    self.app.pargs.php = True
+                    pargs.php = True
                 else:
                     Log.info(self, "Redis already installed")
 
             # Nginx
-            if self.app.pargs.nginx:
+            if pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
                 if not (WOAptGet.is_installed(self, 'nginx-custom')):
@@ -177,7 +181,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Nginx Stable already installed")
 
             # PHP 7.2
-            if self.app.pargs.php:
+            if pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
@@ -190,7 +194,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "PHP 7.2 already installed")
 
             # PHP 7.3
-            if self.app.pargs.php73:
+            if pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
@@ -203,7 +207,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "PHP 7.3 already installed")
 
             # MariaDB 10.3
-            if self.app.pargs.mysql:
+            if pargs.mysql:
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + WOVariables.wo_mysql
@@ -219,7 +223,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "MySQL connection is already alive")
 
             # WP-CLI
-            if self.app.pargs.wpcli:
+            if pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
                 if not WOShellExec.cmd_exec(self, "command -v wp"):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
@@ -233,7 +237,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "WP-CLI is already installed")
 
             # fail2ban
-            if self.app.pargs.fail2ban:
+            if pargs.fail2ban:
                 Log.debug(self, "Setting apt_packages variable for Fail2ban")
                 if not WOAptGet.is_installed(self, 'fail2ban'):
                     apt_packages = apt_packages + WOVariables.wo_fail2ban
@@ -242,7 +246,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "Fail2ban already installed")
 
             # proftpd
-            if self.app.pargs.proftpd:
+            if pargs.proftpd:
                 Log.debug(self, "Setting apt_packages variable for ProFTPd")
                 if not WOAptGet.is_installed(self, 'proftpd-basic'):
                     apt_packages = apt_packages + ["proftpd-basic"]
@@ -251,11 +255,11 @@ class WOStackController(CementBaseController):
                     Log.info(self, "ProFTPd already installed")
 
             # PHPMYADMIN
-            if self.app.pargs.phpmyadmin:
+            if pargs.phpmyadmin:
                 if not os.path.isdir('/var/www/22222/htdocs/db/pma'):
                     Log.debug(self, "Setting packages variable "
                               "for phpMyAdmin ")
-                    self.app.pargs.composer = True
+                    pargs.composer = True
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
                                             "/var/lib/wo/tmp/pma.tar.gz",
@@ -265,7 +269,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "phpMyAdmin already installed")
 
             # Composer
-            if self.app.pargs.composer:
+            if pargs.composer:
                 if not os.path.isfile('/usr/local/bin/composer'):
                     Log.debug(self, "Setting packages variable for Composer ")
                     packages = packages + [["https://getcomposer.org/"
@@ -277,12 +281,12 @@ class WOStackController(CementBaseController):
                     Log.info(self, "Composer already installed")
 
             # PHPREDISADMIN
-            if self.app.pargs.phpredisadmin:
+            if pargs.phpredisadmin:
                 if not os.path.isdir('/var/www/22222/htdocs/'
                                      'cache/redis/phpRedisAdmin'):
                     Log.debug(
                         self, "Setting packages variable for phpRedisAdmin")
-                    self.app.pargs.composer = True
+                    pargs.composer = True
                     packages = packages + [["https://github.com/"
                                             "erikdubbelboer/"
                                             "phpRedisAdmin/archive"
@@ -294,7 +298,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "phpRedisAdmin already installed")
 
             # ADMINER
-            if self.app.pargs.adminer:
+            if pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["https://github.com/vrana/adminer/"
                                         "releases/download/v{0}"
@@ -313,7 +317,7 @@ class WOStackController(CementBaseController):
                                         "Adminer theme"]]
 
             # Netdata
-            if self.app.pargs.netdata:
+            if pargs.netdata:
                 Log.debug(self, "Setting packages variable for Netdata")
                 if not os.path.exists('/opt/netdata'):
                     packages = packages + [['https://my-netdata.io/'
@@ -325,7 +329,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "Netdata already installed")
 
             # WordOps Dashboard
-            if self.app.pargs.dashboard:
+            if pargs.dashboard:
                 if not os.path.isfile('/var/www/22222/htdocs/index.php'):
                     Log.debug(
                         self, "Setting packages variable for WO-Dashboard")
@@ -345,7 +349,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "WordOps dashboard already installed")
 
             # UTILS
-            if self.app.pargs.utils:
+            if pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
@@ -408,63 +412,6 @@ class WOStackController(CementBaseController):
                 WODownload.download(self, packages)
             Log.debug(self, "Calling post_pref")
             post_pref(self, apt_packages, packages)
-            if 'redis-server' in apt_packages:
-                # set redis.conf parameter
-                # set maxmemory 10% for ram below 512MB and 20% for others
-                # set maxmemory-policy allkeys-lru
-                # enable systemd service
-                Log.debug(self, "Enabling redis systemd service")
-                WOShellExec.cmd_exec(self, "systemctl enable redis-server")
-                if os.path.isfile("/etc/redis/redis.conf"):
-                    wo_ram = psutil.virtual_memory().total / (1024 * 1024)
-                    if wo_ram < 1024:
-                        Log.debug(self, "Setting maxmemory variable to "
-                                  "{0} in redis.conf"
-                                  .format(int(wo_ram*1024*1024*0.1)))
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "# maxmemory <bytes>",
-                                                  "maxmemory {0}"
-                                                  .format
-                                                  (int(wo_ram*1024*1024*0.1)))
-                        Log.debug(
-                            self, "Setting maxmemory-policy variable to "
-                            "allkeys-lru in redis.conf")
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "# maxmemory-policy "
-                                                  "noeviction",
-                                                  "maxmemory-policy "
-                                                  "allkeys-lru")
-                        Log.debug(
-                            self, "Setting tcp-backlog variable to "
-                            "in redis.conf")
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "tcp-backlog 511",
-                                                  "tcp-backlog 32768")
-
-                        WOService.restart_service(self, 'redis-server')
-                    else:
-                        Log.debug(self, "Setting maxmemory variable to {0} "
-                                  "in redis.conf"
-                                  .format(int(wo_ram*1024*1024*0.2)))
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "# maxmemory <bytes>",
-                                                  "maxmemory {0}"
-                                                  .format
-                                                  (int(wo_ram*1024*1024*0.1)))
-                        Log.debug(
-                            self, "Setting maxmemory-policy variable "
-                            "to allkeys-lru in redis.conf")
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "# maxmemory-policy "
-                                                  "noeviction",
-                                                  "maxmemory-policy "
-                                                  "allkeys-lru")
-                        WOService.restart_service(self, 'redis-server')
 
             if disp_msg:
                 if (self.msg):
@@ -479,46 +426,46 @@ class WOStackController(CementBaseController):
         """Start removal of packages"""
         apt_packages = []
         packages = []
+        pargs = self.app.pargs
+        if ((not pargs.web) and (not pargs.admin) and
+            (not pargs.nginx) and (not pargs.php) and
+            (not pargs.php73) and (not pargs.mysql) and
+            (not pargs.wpcli) and (not pargs.phpmyadmin) and
+            (not pargs.adminer) and (not pargs.utils) and
+            (not pargs.composer) and (not pargs.netdata) and
+            (not pargs.fail2ban) and (not pargs.proftpd) and
+            (not pargs.security) and
+            (not pargs.all) and (not pargs.redis) and
+                (not pargs.phpredisadmin)):
+            pargs.web = True
+            pargs.admin = True
+            pargs.security = True
 
-        if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
-            (not self.app.pargs.nginx) and (not self.app.pargs.php) and
-            (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
-            (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
-            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-            (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
-            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd) and
-            (not self.app.pargs.security) and
-            (not self.app.pargs.all) and (not self.app.pargs.redis) and
-                (not self.app.pargs.phpredisadmin)):
-            self.app.pargs.web = True
-            self.app.pargs.admin = True
-            self.app.pargs.security = True
+        if pargs.all:
+            pargs.web = True
+            pargs.admin = True
+            pargs.php73 = True
 
-        if self.app.pargs.all:
-            self.app.pargs.web = True
-            self.app.pargs.admin = True
-            self.app.pargs.php73 = True
+        if pargs.web:
+            pargs.nginx = True
+            pargs.php = True
+            pargs.mysql = True
+            pargs.wpcli = True
 
-        if self.app.pargs.web:
-            self.app.pargs.nginx = True
-            self.app.pargs.php = True
-            self.app.pargs.mysql = True
-            self.app.pargs.wpcli = True
+        if pargs.admin:
+            pargs.composer = True
+            pargs.utils = True
+            pargs.netdata = True
+            if os.path.isdir('{0}22222/htdocs'
+                             .format(WOVariables.wo_webroot)):
+                packages = packages + ['{0}22222/htdocs/*'
+                                       .format(WOVariables.wo_webroot)]
 
-        if self.app.pargs.admin:
-            self.app.pargs.adminer = True
-            self.app.pargs.phpmyadmin = True
-            self.app.pargs.composer = True
-            self.app.pargs.utils = True
-            self.app.pargs.netdata = True
-            self.app.pargs.dashboard = True
-            self.app.pargs.phpredisadmin = True
-
-        if self.app.pargs.security:
-            self.app.pargs.fail2ban = True
+        if pargs.security:
+            pargs.fail2ban = True
 
         # NGINX
-        if self.app.pargs.nginx:
+        if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Removing apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
@@ -526,7 +473,7 @@ class WOStackController(CementBaseController):
                 Log.error(self, "Cannot Remove! Nginx Stable "
                           "version not found.")
         # PHP 7.2
-        if self.app.pargs.php:
+        if pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
@@ -538,7 +485,7 @@ class WOStackController(CementBaseController):
                 Log.error(self, "PHP 7.2 not found")
 
         # PHP7.3
-        if self.app.pargs.php73:
+        if pargs.php73:
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
@@ -550,18 +497,18 @@ class WOStackController(CementBaseController):
                 Log.error(self, "PHP 7.3 not found")
 
         # REDIS
-        if self.app.pargs.redis:
+        if pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
             apt_packages = apt_packages + WOVariables.wo_redis
 
         # MariaDB
-        if self.app.pargs.mysql:
+        if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + WOVariables.wo_mysql
             packages = packages + ['/usr/bin/mysqltuner']
 
         # fail2ban
-        if self.app.pargs.fail2ban:
+        if pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
                 Log.debug(self, "Remove apt_packages variable of Fail2ban")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
@@ -569,7 +516,7 @@ class WOStackController(CementBaseController):
                 Log.error(self, "Fail2ban not found")
 
         # proftpd
-        if self.app.pargs.proftpd:
+        if pargs.proftpd:
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Remove apt_packages variable for ProFTPd")
                 apt_packages = apt_packages + ["proftpd-basic"]
@@ -577,19 +524,19 @@ class WOStackController(CementBaseController):
                 Log.error(self, "ProFTPd not found")
 
         # WPCLI
-        if self.app.pargs.wpcli:
+        if pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
             else:
                 Log.warn(self, "WP-CLI is not installed with WordOps")
         # PHPMYADMIN
-        if self.app.pargs.phpmyadmin:
+        if pargs.phpmyadmin:
             Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
                                    .format(WOVariables.wo_webroot)]
         # Composer
-        if self.app.pargs.composer:
+        if pargs.composer:
             Log.debug(self, "Removing package variable of Composer ")
             if os.path.isfile('/usr/local/bin/composer'):
                 packages = packages + ['/usr/local/bin/composer']
@@ -597,7 +544,7 @@ class WOStackController(CementBaseController):
                 Log.warn(self, "Composer is not installed with WordOps")
 
         # PHPREDISADMIN
-        if self.app.pargs.phpredisadmin:
+        if pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
             if os.path.isdir('{0}22222/htdocs/cache/redis'
                              .format(WOVariables.wo_webroot)):
@@ -605,11 +552,11 @@ class WOStackController(CementBaseController):
                                        'cache/redis/phpRedisAdmin'
                                        .format(WOVariables.wo_webroot)]
         # ADMINER
-        if self.app.pargs.adminer:
+        if pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
             packages = packages + ['{0}22222/htdocs/db/adminer'
                                    .format(WOVariables.wo_webroot)]
-        if self.app.pargs.utils:
+        if pargs.utils:
             Log.debug(self, "Removing package variable of utils ")
             packages = packages + ['{0}22222/htdocs/php/webgrind/'
                                    .format(WOVariables.wo_webroot),
@@ -621,29 +568,31 @@ class WOStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVariables.wo_webroot)]
 
-        if self.app.pargs.netdata:
+        if pargs.netdata:
             Log.debug(self, "Removing Netdata")
             if os.path.isfile('/opt/netdata/usr/'
                               'libexec/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
-        if self.app.pargs.dashboard:
+        if pargs.dashboard:
             Log.debug(self, "Removing Wo-Dashboard")
-            packages = packages + ['{0}22222/htdocs/assets/'
+            packages = packages + ['{0}22222/htdocs/assets'
                                    .format(WOVariables.wo_webroot),
                                    '{0}22222/htdocs/index.php'
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            wo_prompt = input('Are you sure you to want to'
-                              ' remove from server.'
-                              '\nPackage configuration will remain'
-                              ' on server after this operation.\n'
-                              'Any answer other than '
-                              '"yes" will be stop this'
-                              ' operation :  ')
+            if not pargs.force:
+                wo_prompt = input('Are you sure you to want to'
+                                  ' remove from server.'
+                                  '\nPackage configuration will remain'
+                                  ' on server after this operation.\n'
+                                  'Any answer other than '
+                                  '"yes" will be stop this'
+                                  ' operation :  ')
 
-            if wo_prompt == 'YES' or wo_prompt == 'yes':
+            if (wo_prompt == 'YES' or wo_prompt == 'yes'
+                    or pargs.force):
 
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
@@ -672,46 +621,46 @@ class WOStackController(CementBaseController):
         """Start purging of packages"""
         apt_packages = []
         packages = []
-
+        pargs = self.app.pargs
         # Default action for stack purge
-        if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
-            (not self.app.pargs.nginx) and (not self.app.pargs.php) and
-            (not self.app.pargs.php73) and (not self.app.pargs.mysql) and
-            (not self.app.pargs.wpcli) and (not self.app.pargs.phpmyadmin) and
-            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-            (not self.app.pargs.composer) and (not self.app.pargs.netdata) and
-            (not self.app.pargs.fail2ban) and (not self.app.pargs.proftpd) and
-            (not self.app.pargs.security) and
-            (not self.app.pargs.all) and (not self.app.pargs.redis) and
-                (not self.app.pargs.phpredisadmin)):
-            self.app.pargs.web = True
-            self.app.pargs.admin = True
-            self.app.pargs.security = True
+        if ((not pargs.web) and (not pargs.admin) and
+            (not pargs.nginx) and (not pargs.php) and
+            (not pargs.php73) and (not pargs.mysql) and
+            (not pargs.wpcli) and (not pargs.phpmyadmin) and
+            (not pargs.adminer) and (not pargs.utils) and
+            (not pargs.composer) and (not pargs.netdata) and
+            (not pargs.fail2ban) and (not pargs.proftpd) and
+            (not pargs.security) and
+            (not pargs.all) and (not pargs.redis) and
+                (not pargs.phpredisadmin)):
+            pargs.web = True
+            pargs.admin = True
+            pargs.security = True
 
-        if self.app.pargs.all:
-            self.app.pargs.web = True
-            self.app.pargs.admin = True
-            self.app.pargs.php73 = True
+        if pargs.all:
+            pargs.web = True
+            pargs.admin = True
+            pargs.php73 = True
 
-        if self.app.pargs.web:
-            self.app.pargs.nginx = True
-            self.app.pargs.php = True
-            self.app.pargs.mysql = True
-            self.app.pargs.wpcli = True
+        if pargs.web:
+            pargs.nginx = True
+            pargs.php = True
+            pargs.mysql = True
+            pargs.wpcli = True
 
-        if self.app.pargs.admin:
-            self.app.pargs.adminer = True
-            self.app.pargs.phpmyadmin = True
-            self.app.pargs.utils = True
-            self.app.pargs.composer = True
-            self.app.pargs.netdata = True
-            self.app.pargs.dashboard = True
-            self.app.pargs.phpredisadmin = True
+        if pargs.admin:
+            pargs.utils = True
+            pargs.composer = True
+            pargs.netdata = True
+            if os.path.isdir('{0}22222/htdocs'
+                             .format(WOVariables.wo_webroot)):
+                packages = packages + ['{0}22222/htdocs/*'
+                                       .format(WOVariables.wo_webroot)]
 
-        if self.app.pargs.security:
-            self.app.pargs.fail2ban = True
+        if pargs.security:
+            pargs.fail2ban = True
         # NGINX
-        if self.app.pargs.nginx:
+        if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Purge apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
@@ -720,7 +669,7 @@ class WOStackController(CementBaseController):
                           "Nginx Stable version not found.")
 
         # PHP
-        if self.app.pargs.php:
+        if pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
@@ -732,7 +681,7 @@ class WOStackController(CementBaseController):
                 Log.error(self, "Cannot Purge PHP 7.2. not found.")
 
         # PHP 7.3
-        if self.app.pargs.php73:
+        if pargs.php73:
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
@@ -742,19 +691,19 @@ class WOStackController(CementBaseController):
                     apt_packages = apt_packages + WOVariables.wo_php73
 
         # fail2ban
-        if self.app.pargs.fail2ban:
+        if pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
                 Log.debug(self, "Purge apt_packages variable of Fail2ban")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
 
         # proftpd
-        if self.app.pargs.proftpd:
+        if pargs.proftpd:
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Purge apt_packages variable for ProFTPd")
                 apt_packages = apt_packages + ["proftpd-basic"]
 
         # WP-CLI
-        if self.app.pargs.wpcli:
+        if pargs.wpcli:
             Log.debug(self, "Purge package variable WPCLI")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
@@ -762,13 +711,13 @@ class WOStackController(CementBaseController):
                 Log.warn(self, "WP-CLI is not installed with WordOps")
 
         # PHPMYADMIN
-        if self.app.pargs.phpmyadmin:
+        if pargs.phpmyadmin:
             packages = packages + ['{0}22222/htdocs/db/pma'.
                                    format(WOVariables.wo_webroot)]
             Log.debug(self, "Purge package variable phpMyAdmin")
 
         # Composer
-        if self.app.pargs.composer:
+        if pargs.composer:
             Log.debug(self, "Removing package variable of Composer ")
             if os.path.isfile('/usr/local/bin/composer'):
                 packages = packages + ['/usr/local/bin/composer']
@@ -776,7 +725,7 @@ class WOStackController(CementBaseController):
                 Log.warn(self, "Composer is not installed with WordOps")
 
         # PHPREDISADMIN
-        if self.app.pargs.phpredisadmin:
+        if pargs.phpredisadmin:
             Log.debug(self, "Removing package variable of phpRedisAdmin ")
             if os.path.isdir('{0}22222/htdocs/cache/redis'
                              .format(WOVariables.wo_webroot)):
@@ -784,12 +733,12 @@ class WOStackController(CementBaseController):
                                        'cache/redis/phpRedisAdmin'
                                        .format(WOVariables.wo_webroot)]
         # Adminer
-        if self.app.pargs.adminer:
+        if pargs.adminer:
             Log.debug(self, "Purge  package variable Adminer")
             packages = packages + ['{0}22222/htdocs/db/adminer'
                                    .format(WOVariables.wo_webroot)]
         # utils
-        if self.app.pargs.utils:
+        if pargs.utils:
             Log.debug(self, "Purge package variable utils")
             packages = packages + ['{0}22222/htdocs/php/webgrind/'
                                    .format(WOVariables.wo_webroot),
@@ -802,13 +751,13 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)
                                    ]
 
-        if self.app.pargs.netdata:
+        if pargs.netdata:
             Log.debug(self, "Removing Netdata")
             if os.path.isfile('/opt/netdata/usr/'
                               'libexec/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
-        if self.app.pargs.dashboard:
+        if pargs.dashboard:
             Log.debug(self, "Removing Wo-Dashboard")
             packages = packages + ['{0}22222/htdocs/assets/'
                                    .format(WOVariables.wo_webroot),
@@ -823,7 +772,7 @@ class WOStackController(CementBaseController):
                               '"yes" will be stop this '
                               'operation :')
 
-            if wo_prompt == 'YES' or wo_prompt == 'yes':
+            if wo_prompt == 'YES' or wo_prompt == 'yes' or pargs.force:
 
                 if (set(["nginx-custom"]).issubset(set(apt_packages))):
                     WOService.stop_service(self, 'nginx')
