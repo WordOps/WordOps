@@ -72,10 +72,10 @@ setup(name='wo',
       test_suite='nose.collector',
       install_requires=[
           # Required to build documentation
-          # "Sphinx >= 1.0",
+          "Sphinx >= 1.0",
           # Required for testing
-          # "nose",
-          # "coverage",
+          "nose",
+          "coverage",
           # Required to function
           'cement == 2.8.0',
           'pystache',
