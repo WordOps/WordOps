@@ -77,7 +77,7 @@ setup(name='wo',
           "nose",
           "coverage",
           # Required to function
-          'cement == 2.6',
+          'cement == 2.10.12',
           'pystache',
           'python-apt',
           'pynginxconfig',
