@@ -56,6 +56,20 @@ location /wp-content/plugins/ewww-image-optimizer/images {
         deny all;
     }
 }
+# enable gzip on static assets - php files are forbidden
+location /wp-content/cache {
+# Cache css & js files
+    location ~* \.(?:css(\.map)?|js(\.map)?|.html)$ {
+        add_header "Access-Control-Allow-Origin" "*";
+        access_log off;
+        log_not_found off;
+        expires 30d;
+    }
+    location ~ \.php$ {
+#Prevent Direct Access Of PHP Files From Web Browsers
+        deny all;
+    }
+}
 # Deny access to any files with a .php extension in the uploads directory
 # Works in sub-directory installs and also in multisite network
 # Keep logging the requests to parse later (or to pass to firewall utilities such as fail2ban)

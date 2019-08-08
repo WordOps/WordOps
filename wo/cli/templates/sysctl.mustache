@@ -1,10 +1,10 @@
 # Kernel sysctl configuration file for Linux
 #
-# Version 1.16 - 2019-10-25
+# Version 1.18 - 2019-08-07
 # Michiel Klaver - IT Professional
-# Modified by VirtuBox
+# Modified by VirtuBox (https://github.com/VirtuBox)
+# For WordOps (https://github.com/WordOps/WordOps)
 #
-#  Instructions available on https://github.com/VirtuBox/ubuntu-nginx-web-server
 #
 # Sources :
 # https://klaver.it/linux/sysctl.conf
@@ -27,10 +27,6 @@
 # http://lartc.org/howto/lartc.kernel.obscure.html
 # http://en.wikipedia.org/wiki/Sysctl
 #
-# Usage
-# wget -O /etc/sysctl.d/60-ubuntu-nginx-web-server.conf https://virtubox.github.io/ubuntu-nginx-web-server/files/etc/sysctl.d/60-ubuntu-nginx-web-server.conf
-#
-# sysctl -e -p /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
 # For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and sysctl.conf(5) for more details.
 #
 
@@ -200,6 +196,8 @@ net.core.somaxconn = 32768
 # Increase number of incoming connections backlog
 net.core.netdev_max_backlog = 16384
 net.core.dev_weight = 64
+net.core.netdev_budget = 600
+net.core.netdev_budget_usecs = 4000
 
 # Increase the maximum amount of option memory buffers
 net.core.optmem_max = 65535

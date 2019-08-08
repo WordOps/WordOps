@@ -667,8 +667,6 @@ wo_tweak_kernel() {
             fi
             # apply sysctl tweaks
             sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
-        else
-            sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
         fi
     fi
     if [ ! -x /opt/wo-kernel.sh ]; then
