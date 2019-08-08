@@ -4,6 +4,7 @@ from wo.core.fileutils import WOFileUtils
 from wo.cli.plugins.sitedb import *
 from wo.core.mysql import *
 from wo.core.logging import Log
+import glob
 
 
 def wo_sync_hook(app):
