@@ -1225,6 +1225,8 @@ def post_pref(self, apt_packages, packages):
                                           "noeviction",
                                           "maxmemory-policy "
                                           "allkeys-lru")
+                WOFileUtils.chown(self, '/etc/redis/redis.conf',
+                                  redis, redis)
                 WOService.restart_service(self, 'redis-server')
 
     if (packages):
