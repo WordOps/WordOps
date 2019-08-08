@@ -1792,6 +1792,10 @@ class WOStackController(CementBaseController):
                                                   "noeviction",
                                                   "maxmemory-policy "
                                                   "allkeys-lru")
+                        WOFileUtils.chown(self, '/etc/redis/redis.conf',
+                                          'redis',
+                                          'redis',
+                                          recursive=False)
                         WOService.restart_service(self, 'redis-server')
             if 'mariadb-server' in apt_packages:
                 # setting innodb memory usage
