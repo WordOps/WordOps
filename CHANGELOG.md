@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.7.1 - 2019-08-09
+
+#### Changed
+
+- Cement framework updated to v2.8.0
+- Psutil updated to v5.6.3
+- PyMySQL updated to v0.9.3
+
+#### Fixed
+
+- Missing import in `wo sync`
+- redis.conf incorrect permissions
+
 ### v3.9.7 - 2019-08-02
 
 #### Added
