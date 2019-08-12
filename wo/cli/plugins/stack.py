@@ -397,7 +397,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Calling pre_pref")
             pre_pref(self, apt_packages)
             if (apt_packages):
-                meminfo = (os.popen('cat /proc/meminfo '
+                meminfo = (os.popen('/bin/cat /proc/meminfo '
                                     '| grep MemTotal').read()).split(":")
                 memsplit = re.split(" kB", meminfo[1])
                 wo_mem = int(memsplit[0])
