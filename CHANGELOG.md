@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.7.2 - 2019-08-12
+
+#### Fixed
+
+- redis.conf permissions additional fix
+
 ### v3.9.7.1 - 2019-08-09
 
 #### Changed
