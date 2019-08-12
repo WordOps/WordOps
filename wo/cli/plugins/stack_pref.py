@@ -1188,24 +1188,7 @@ def post_pref(self, apt_packages, packages):
                                           "maxmemory {0}"
                                           .format
                                           (int(wo_ram*1024*1024*0.1)))
-                Log.debug(
-                    self, "Setting maxmemory-policy variable to "
-                    "allkeys-lru in redis.conf")
-                WOFileUtils.searchreplace(self,
-                                          "/etc/redis/redis.conf",
-                                          "# maxmemory-policy "
-                                          "noeviction",
-                                          "maxmemory-policy "
-                                          "allkeys-lru")
-                Log.debug(
-                    self, "Setting tcp-backlog variable to "
-                    "in redis.conf")
-                WOFileUtils.searchreplace(self,
-                                          "/etc/redis/redis.conf",
-                                          "tcp-backlog 511",
-                                          "tcp-backlog 32768")
 
-                WOService.restart_service(self, 'redis-server')
             else:
                 Log.debug(self, "Setting maxmemory variable to {0} "
                           "in redis.conf"
@@ -1215,19 +1198,27 @@ def post_pref(self, apt_packages, packages):
                                           "# maxmemory <bytes>",
                                           "maxmemory {0}"
                                           .format
-                                          (int(wo_ram*1024*1024*0.1)))
-                Log.debug(
-                    self, "Setting maxmemory-policy variable "
-                    "to allkeys-lru in redis.conf")
-                WOFileUtils.searchreplace(self,
-                                          "/etc/redis/redis.conf",
-                                          "# maxmemory-policy "
-                                          "noeviction",
-                                          "maxmemory-policy "
-                                          "allkeys-lru")
-                WOFileUtils.chown(self, '/etc/redis/redis.conf',
-                                  'redis', 'redis', recursive=False)
-                WOService.restart_service(self, 'redis-server')
+                                          (int(wo_ram*1024*1024*0.2)))
+
+            Log.debug(
+                self, "Setting maxmemory-policy variable to "
+                "allkeys-lru in redis.conf")
+            WOFileUtils.searchreplace(self,
+                                      "/etc/redis/redis.conf",
+                                      "# maxmemory-policy "
+                                      "noeviction",
+                                      "maxmemory-policy "
+                                      "allkeys-lru")
+            Log.debug(
+                self, "Setting tcp-backlog variable to "
+                "in redis.conf")
+            WOFileUtils.searchreplace(self,
+                                      "/etc/redis/redis.conf",
+                                      "tcp-backlog 511",
+                                      "tcp-backlog 32768")
+            WOFileUtils.chown(self, '/etc/redis/redis.conf',
+                              'redis', 'redis', recursive=False)
+            WOService.restart_service(self, 'redis-server')
 
     if (packages):
         if any('/usr/local/bin/wp' == x[1] for x in packages):
