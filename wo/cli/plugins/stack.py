@@ -1000,7 +1000,7 @@ class WOStackController(CementBaseController):
                                       comment='MySQL optimization cronjob '
                                       'added by WordOps')
                 WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
-                WOService.reload_service(self, 'mysql')
+                WOService.restart_service(self, 'mysql')
 
             # create fail2ban configuration files
             if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
@@ -1721,7 +1721,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Calling pre_pref")
             self.pre_pref(apt_packages)
             if (apt_packages):
-                meminfo = (os.popen('cat /proc/meminfo '
+                meminfo = (os.popen('/bin/cat /proc/meminfo '
                                     '| grep MemTotal').read()).split(":")
                 memsplit = re.split(" kB", meminfo[1])
                 wo_mem = int(memsplit[0])
@@ -1755,24 +1755,6 @@ class WOStackController(CementBaseController):
                                                   "maxmemory {0}"
                                                   .format
                                                   (int(wo_ram*1024*1024*0.1)))
-                        Log.debug(
-                            self, "Setting maxmemory-policy variable to "
-                            "allkeys-lru in redis.conf")
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "# maxmemory-policy "
-                                                  "noeviction",
-                                                  "maxmemory-policy "
-                                                  "allkeys-lru")
-                        Log.debug(
-                            self, "Setting tcp-backlog variable to "
-                            "in redis.conf")
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "tcp-backlog 511",
-                                                  "tcp-backlog 32768")
-
-                        WOService.restart_service(self, 'redis-server')
                     else:
                         Log.debug(self, "Setting maxmemory variable to {0} "
                                   "in redis.conf"
@@ -1782,21 +1764,28 @@ class WOStackController(CementBaseController):
                                                   "# maxmemory <bytes>",
                                                   "maxmemory {0}"
                                                   .format
-                                                  (int(wo_ram*1024*1024*0.1)))
-                        Log.debug(
-                            self, "Setting maxmemory-policy variable "
-                            "to allkeys-lru in redis.conf")
-                        WOFileUtils.searchreplace(self,
-                                                  "/etc/redis/redis.conf",
-                                                  "# maxmemory-policy "
-                                                  "noeviction",
-                                                  "maxmemory-policy "
-                                                  "allkeys-lru")
-                        WOFileUtils.chown(self, '/etc/redis/redis.conf',
-                                          'redis',
-                                          'redis',
-                                          recursive=False)
-                        WOService.restart_service(self, 'redis-server')
+                                                  (int(wo_ram*1024*1024*0.2)))
+                    Log.debug(
+                        self, "Setting maxmemory-policy variable to "
+                        "allkeys-lru in redis.conf")
+                    WOFileUtils.searchreplace(self,
+                                              "/etc/redis/redis.conf",
+                                              "# maxmemory-policy "
+                                              "noeviction",
+                                              "maxmemory-policy "
+                                              "allkeys-lru")
+                    Log.debug(
+                        self, "Setting tcp-backlog variable to "
+                        "in redis.conf")
+                    WOFileUtils.searchreplace(self,
+                                              "/etc/redis/redis.conf",
+                                              "tcp-backlog 511",
+                                              "tcp-backlog 32768")
+                    WOFileUtils.chown(self, '/etc/redis/redis.conf',
+                                      'redis',
+                                      'redis',
+                                      recursive=False)
+                    WOService.restart_service(self, 'redis-server')
             if 'mariadb-server' in apt_packages:
                 # setting innodb memory usage
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
