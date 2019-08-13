@@ -8,12 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- Allow web browser caching for json and webmanifest files
+- nginx-core.mustache template used to render nginx.conf during stack setup
+
 #### Changed
 
 - Do not force Nginx upgrade if a custom Nginx package compiled with nginx-ee is detected
 - Gzip enabled again by default with configuration in /etc/nginx/conf.d/gzip.conf
 - Brotli configuration moved in /etc/nginx/conf.d/brotli.conf (easier to disable in case of issues)
 - Moving package configuration in a new plugin stack_pref.py
+- Cleanup templates by removing all doublons (with/without php7) and replacing them with variables
 
 ### v3.9.7.2 - 2019-08-12
 
