@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- Do not force Nginx upgrade if a custom Nginx package compiled with nginx-ee is detected
+- Gzip enabled again by default with configuration in /etc/nginx/conf.d/gzip.conf
+- Brotli configuration moved in /etc/nginx/conf.d/brotli.conf (easier to disable in case of issues)
+- Moving package configuration in a new plugin stack_pref.py
+
 ### v3.9.7.2 - 2019-08-12
 
 #### Fixed
@@ -21,9 +28,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- Gzip enabled again by default with configuration in /etc/nginx/conf.d/gzip.conf
-- Brotli configuration moved in /etc/nginx/conf.d/brotli.conf (easier to disable in case of issues)
-- Moving package configuration in a new plugin stack_pref.py
 - Set WordOps backend password length from 16 to 24
 - Upgrade framework cement to 2.6.0
 - Upgrade PyMySQL to 0.9.3
