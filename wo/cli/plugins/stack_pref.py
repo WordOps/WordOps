@@ -180,13 +180,32 @@ def post_pref(self, apt_packages, packages):
                     data = dict(tls13=True)
                 else:
                     data = dict(tls13=False)
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/nginx.conf')
-                    wo_nginx = open('/etc/nginx/nginx.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render(
-                        (data), 'nginx-core.mustache', out=wo_nginx)
-                    wo_nginx.close()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/nginx.conf')
+                wo_nginx = open('/etc/nginx/nginx.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render(
+                    (data), 'nginx-core.mustache', out=wo_nginx)
+                wo_nginx.close()
+
+            if not os.path.isfile('/etc/nginx/conf.d/gzip.conf'):
+                data = dict()
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/conf.d/gzip.conf')
+                wo_nginx = open('/etc/nginx/conf.d/gzip.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render(
+                    (data), 'gzip.mustache', out=wo_nginx)
+                wo_nginx.close()
+
+            if not os.path.isfile('/etc/nginx/conf.d/brotli.conf'):
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/conf.d/brotli.conf')
+                wo_nginx = open('/etc/nginx/conf.d/brotli.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render(
+                    (data), 'brotli.mustache', out=wo_nginx)
+                wo_nginx.close()
 
             # Fix for white screen death with NGINX PLUS
             if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',

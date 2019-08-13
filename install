@@ -475,11 +475,6 @@ wo_upgrade_nginx() {
         # stop nginx
         service nginx stop
 
-        # prevent apt preference to block install
-        [ -f /etc/apt/preferences.d/nginx-block ] && {
-            mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
-        }
-
         # install new nginx package
         if [ -n "$CHECK_NGINX_EE" ] || [ -n "$CHECK_NGINX_WO" ]; then
             if [ -x /usr/local/bin/wo ]; then
@@ -539,12 +534,8 @@ wo_upgrade_nginx() {
             systemctl start nginx
         fi
 
-        # set back apt preference
-        [ -f "$HOME/nginx-block" ] && {
-            mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
-        }
-
-    } >> "$wo_install_log" 2>&1
+    } \
+        >> "$wo_install_log" 2>&1
 
 }
 
@@ -732,8 +723,10 @@ else
                 if [ -z "$wo_preserve_config" ]; then
                     if [ -n "$(command -v nginx)" ]; then
                         if [ ! -f /etc/nginx/common/release ] || ! grep -q "v3.9.7" /etc/nginx/common/release; then
-                            wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                            wo_upgrade_nginx | tee -ai $wo_install_log
+                            if [ ! -f /etc/apt/preferences.d/nginx-block ]; then
+                                wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+                                wo_upgrade_nginx | tee -ai $wo_install_log
+                            fi
                         fi
                     fi
                 fi
@@ -832,6 +825,8 @@ else
     echo
     wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
     wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
+    echo
+    wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo
 
 fi
