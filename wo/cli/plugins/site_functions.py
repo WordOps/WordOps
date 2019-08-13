@@ -1098,7 +1098,7 @@ def detSitePar(opts):
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain', 'php73']:
             typelist.append(key)
-        elif val and key in ['wpfc', 'wpsc', 'wpredis']:
+        elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket']:
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:
