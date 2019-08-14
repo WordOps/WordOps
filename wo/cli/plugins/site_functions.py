@@ -1534,7 +1534,7 @@ def setupHsts(self, wo_domain_name):
     hstsconf.write("more_set_headers "
                    "\"Strict-Transport-Security: "
                    "max-age=31536000; "
-                   "'includeSubDomains; "
+                   "includeSubDomains; "
                    "preload\";")
     hstsconf.close()
     return 0

@@ -198,10 +198,10 @@ def post_pref(self, apt_packages, packages):
                     (data), 'gzip.mustache', out=wo_nginx)
                 wo_nginx.close()
 
-            if not os.path.isfile('/etc/nginx/conf.d/brotli.conf'):
+            if not os.path.isfile('/etc/nginx/conf.d/brotli.conf.disabled'):
                 Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/conf.d/brotli.conf')
-                wo_nginx = open('/etc/nginx/conf.d/brotli.conf',
+                          'file /etc/nginx/conf.d/brotli.conf.disabled')
+                wo_nginx = open('/etc/nginx/conf.d/brotli.conf.disabled',
                                 encoding='utf-8', mode='w')
                 self.app.render(
                     (data), 'brotli.mustache', out=wo_nginx)

@@ -66,7 +66,7 @@ http {
 	ssl_session_cache shared:SSL:50m;
 	ssl_session_tickets off;
 	ssl_prefer_server_ciphers on;
-    {{#tls13}}ssl_ciphers 'TLS13+AESGCM+AES256:TLS13+AESGCM+AES128:TLS13+CHACHA20:EECDH+AESGCM:EECDH+CHACHA20';
+	{{#tls13}}ssl_ciphers 'TLS13+AESGCM+AES256:TLS13+AESGCM+AES128:TLS13+CHACHA20:EECDH+AESGCM:EECDH+CHACHA20';
 	ssl_protocols TLSv1.2 TLSv1.3;{{/tls13}}
 	ssl_ecdh_curve X25519:P-521:P-384:P-256;
 	# Previous TLS v1.2 configuration

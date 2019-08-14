@@ -12,14 +12,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Allow web browser caching for json and webmanifest files
 - nginx-core.mustache template used to render nginx.conf during stack setup
+- APT Packages configuration step with `wo stack upgrade` to apply new configurations
+- Cloudflare restore real_ip configuration
+- WP-Rocket support with the flag `--wprocket`
 
 #### Changed
 
 - Do not force Nginx upgrade if a custom Nginx package compiled with nginx-ee is detected
 - Gzip enabled again by default with configuration in /etc/nginx/conf.d/gzip.conf
-- Brotli configuration moved in /etc/nginx/conf.d/brotli.conf (easier to disable in case of issues)
+- Brotli configuration moved in /etc/nginx/conf.d/brotli.conf.disabled (disabled by default)
 - Moving package configuration in a new plugin stack_pref.py
 - Cleanup templates by removing all doublons (with/without php7) and replacing them with variables
+- Updated Nginx to v1.16.1 in response to HTTP/2 vulnerabilites discovered
+- Disable temporary adding swap feature (not working)
+
+#### Fixed
+
+- Error in HSTS header syntax
 
 ### v3.9.7.2 - 2019-08-12
 
@@ -28,9 +37,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - redis.conf permissions additional fix
 
 ### v3.9.7.1 - 2019-08-09
-
-- APT Packages configuration step with `wo stack upgrade` to apply new configurations
-- Cloudflare restore real_ip configuration
 
 #### Changed
 
