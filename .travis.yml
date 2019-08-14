@@ -13,9 +13,6 @@ addons:
 git:
   quiet: true
 
-cache:
-  apt: true
-
 before_install:
   - rm -rf ~/.gnupg
 
