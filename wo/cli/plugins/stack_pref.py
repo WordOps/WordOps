@@ -126,12 +126,11 @@ def pre_pref(self, apt_packages):
 
     # add nginx repository
     if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+        Log.info(self, "Adding repository for NGINX, please wait...")
         if (WOVariables.wo_distro == 'ubuntu'):
-            Log.info(self, "Adding repository for NGINX, please wait...")
             WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding ppa for Nginx')
         else:
-            Log.info(self, "Adding repository for NGINX, please wait...")
             WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
             WORepo.add_key(self, WOVariables.wo_nginx_key)
@@ -139,12 +138,11 @@ def pre_pref(self, apt_packages):
     # add php repository
     if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
             set(WOVariables.wo_php).issubset(set(apt_packages))):
+        Log.info(self, "Adding repository for PHP, please wait...")
         if (WOVariables.wo_distro == 'ubuntu'):
-            Log.info(self, "Adding repository for PHP, please wait...")
             Log.debug(self, 'Adding ppa for PHP')
             WORepo.add(self, ppa=WOVariables.wo_php_repo)
         else:
-            Log.info(self, "Adding repository for PHP, please wait...")
             # Add repository for php
             if (WOVariables.wo_platform_codename == 'buster'):
                 php_pref = ("Package: *\nPin: origin "
@@ -163,14 +161,11 @@ def pre_pref(self, apt_packages):
         if WOVariables.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
             WORepo.add(self, ppa=WOVariables.wo_redis_repo)
-        else:
-            Log.debug(self, 'Adding repo_url of redis for debian')
 
 
 def post_pref(self, apt_packages, packages):
     """Post activity after installation of packages"""
     if (apt_packages):
-
         # Nginx configuration
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
             # Nginx main configuration
@@ -1363,6 +1358,10 @@ def post_pref(self, apt_packages, packages):
                         Log.debug(self, "{0}".format(e))
                         Log.info(
                             self, "fail to setup mysql user for netdata")
+                WOFileUtils.chown(self, '/opt/netdata',
+                                  'netdata',
+                                  'netdata',
+                                  recursive=True)
                 WOService.restart_service(self, 'netdata')
 
         # WordOps Dashboard
