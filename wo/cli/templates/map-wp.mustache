@@ -19,6 +19,7 @@ map $http_cookie $cookie_no_cache {
     "~*woocommerce_cart_hash" 1;
     "~*wptouch_switch_toogle" 1;
     "~*comment_author_email_" 1;
+     "~*wptouch_switch_toggle" 1;
     "~*edd" 1;
 }
 
@@ -44,6 +45,13 @@ map $request_uri $uri_no_cache {
     "~*/wc-api/*" 1;
     "~*/logout/" 1;
     "~*/lost-password/" 1;
+    "~*/panier/" 1;
+    "~*/mon-compte/" 1;
+    "~*/embed" 1;
+    "~*/commande/" 1;
+    "~*/resetpass/" 1;
+
+
 }
 
 # do not cache requests with query strings
