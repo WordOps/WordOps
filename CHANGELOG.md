@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - APT Packages configuration step with `wo stack upgrade` to apply new configurations
 - Cloudflare restore real_ip configuration
 - WP-Rocket support with the flag `--wprocket`
+- Install unattended-upgrade and enable automated security updates
+- Enable time synchronization with ntp
 
 #### Changed
 
