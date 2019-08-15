@@ -335,8 +335,7 @@ class WOStackController(CementBaseController):
                         self, "Setting packages variable for WO-Dashboard")
                     packages = packages + \
                         [["https://github.com/WordOps/"
-                          "wordops-dashboard/releases/"
-                          "download/v1.0/wo-dashboard.tar.gz",
+                          "wordops-dashboard/archive/master.tar.gz",
                           "/var/lib/wo/tmp/wo-dashboard.tar.gz",
                           "WordOps Dashboard"],
                          ["https://github.com/soerennb/"
