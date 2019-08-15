@@ -64,7 +64,7 @@ map $http_request_no_cache$cookie_no_cache$uri_no_cache$query_no_cache $skip_cac
     0000 0;
 }
 
-# map $skip_cache with $cache_uri for --wpsc stack
+# map $skip_cache with $cache_uri for --wpsc --wpce & --wprocket stack
 map $skip_cache $cache_uri {
     0 $request_uri;
     default 'null cache';

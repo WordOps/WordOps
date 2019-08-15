@@ -334,6 +334,14 @@ def post_pref(self, apt_packages, packages):
                                 out=wo_nginx)
                 wo_nginx.close()
 
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpce-php72.conf')
+                wo_nginx = open('/etc/nginx/common/wpce-php72.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpce.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
+
             # PHP 7.3 conf
             if os.path.isdir("/etc/nginx/common"):
                 data = dict(upstream="php73")
@@ -375,6 +383,14 @@ def post_pref(self, apt_packages, packages):
                 wo_nginx = open('/etc/nginx/common/wprocket-php73.conf',
                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'wprocket.mustache',
+                                out=wo_nginx)
+                wo_nginx.close()
+
+                Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpce-php73.conf')
+                wo_nginx = open('/etc/nginx/common/wpce-php73.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'wpce.mustache',
                                 out=wo_nginx)
                 wo_nginx.close()
 

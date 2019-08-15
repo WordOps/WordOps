@@ -16,6 +16,7 @@ from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.mysql import *
 from wo.core.services import WOService
+from wo.cli.plugins.stack_pref import pre_pref, post_pref
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables
@@ -584,6 +585,10 @@ def setupwordpress(self, data):
     if data['wpredis']:
         installwp_plugin(self, 'redis-cache', data)
 
+    """Install Cache-Enabler"""
+    if data['wpce']:
+        installwp_plugin(self, 'cache-enabler', data)
+
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
 
@@ -785,7 +790,7 @@ def site_package_check(self, stype):
                 Log.info(self, "NGINX PLUS Detected ...")
                 apt = ["nginx-plus"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
-                stack.post_pref(apt, packages)
+                stack.post_pref(self, apt, packages)
             elif WOAptGet.is_installed(self, 'nginx'):
                 Log.info(self, "WordOps detected a previously"
                                "installed Nginx package. "
@@ -794,7 +799,7 @@ def site_package_check(self, stype):
                                "https://github.com/WordOps/WordOps/issues/ \n")
                 apt = ["nginx"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
-                stack.post_pref(apt, packages)
+                post_pref(self, apt, packages)
             else:
                 apt_packages = apt_packages + WOVariables.wo_nginx
         else:
@@ -853,39 +858,6 @@ def site_package_check(self, stype):
         if not WOAptGet.is_installed(self, 'redis-server'):
             apt_packages = apt_packages + WOVariables.wo_redis
 
-        if (os.path.isfile("/etc/nginx/nginx.conf") and
-                not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
-
-            data = dict(upstream="php72")
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis-php72.conf')
-            wo_nginx = open('/etc/nginx/common/redis-php72.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'redis.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                    "upstream.conf",
-                                    "redis"):
-                with open("/etc/nginx/conf.d/upstream.conf",
-                          "a") as redis_file:
-                    redis_file.write("upstream redis {\n"
-                                     "    server 127.0.0.1:6379;\n"
-                                     "    keepalive 10;\n}")
-
-        if (os.path.isfile("/etc/nginx/nginx.conf") and
-                not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
-            with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
-                redis_file.write("# Log format Settings\n"
-                                 "log_format rt_cache_redis '$remote_addr"
-                                 " $upstream_response_time "
-                                 "$srcache_fetch_status [$time_local] '\n"
-                                 "'$http_host \"$request\" $status"
-                                 " $body_bytes_sent '\n"
-                                 "'\"$http_referer\" \"$http_user_agent\"';\n")
-
     if self.app.pargs.php73:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
@@ -895,71 +867,8 @@ def site_package_check(self, stype):
             else:
                 apt_packages = apt_packages + WOVariables.wo_php73
 
-        if (os.path.isdir("/etc/nginx/common") and
-                not os.path.isfile("/etc/nginx/common/locations-wo.conf")):
-            data = dict(upstream="php73")
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/locations-wo.conf')
-            wo_nginx = open('/etc/nginx/common/locations-wo.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'locations.mustache',
-                                    out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/php73.conf')
-            wo_nginx = open('/etc/nginx/common/php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'php.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpcommon-php73.conf')
-            wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpcommon.mustache',
-                                    out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpfc-php73.conf')
-            wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpfc.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpsc-php73.conf')
-            wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpsc.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wprocket-php73.conf')
-            wo_nginx = open('/etc/nginx/common/wprocket-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wprocket.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if (os.path.isfile("/etc/nginx/nginx.conf") and
-                not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
-            data = dict(upstream="php73")
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis-php73.conf')
-            wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'redis.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
-
 
 def updatewpuserpassword(self, wo_domain, wo_site_webroot):
 
@@ -1098,7 +1007,7 @@ def detSitePar(opts):
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain', 'php73']:
             typelist.append(key)
-        elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket']:
+        elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket', 'wpce']:
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:

@@ -87,6 +87,8 @@ wo site create example.com --wp                  # install wordpress without any
 wo site create example.com --wp  --php73         # install wordpress with PHP 7.3  without any page caching
 wo site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis             # install wordpress + nginx redis_cache
+wo site create example.com --wprocket            # install wordpress with WP-Rocket plugin
+wo site create example.com --wpce                # install wordpress with Cache-enabler plugin
 wo site create example.com --wpsc                # install wordpress with wp-super-cache plugin
 ```
 
@@ -97,6 +99,8 @@ wo site create example.com --wpsubdir            # install wpmu-subdirectory wit
 wo site create example.com --wpsubdir --wpsc     # install wpmu-subdirectory with wp-super-cache plugin
 wo site create example.com --wpsubdir --wpfc     # install wpmu-subdirectory + nginx fastcgi_cache
 wo site create example.com --wpsubdir --wpredis  # install wpmu-subdirectory + nginx redis_cache
+wo site create example.com --wpsubdir --wprocket # install wpmu-subdirectory + WP-Rocket plugin
+wo site create example.com --wpsubdir --wpce     # install wpmu-subdirectory + Cache-Enabler plugin
 ```
 
 ### WordPress multisite with subdomain
@@ -106,6 +110,8 @@ wo site create example.com --wpsubdomain            # install wpmu-subdomain wit
 wo site create example.com --wpsubdomain --wpsc     # install wpmu-subdomain with wp-super-cache plugin
 wo site create example.com --wpsubdomain --wpfc     # install wpmu-subdomain + nginx fastcgi_cache
 wo site create example.com --wpsubdomain --wpredis  # install wpmu-subdomain + nginx redis_cache
+wo site create example.com --wpsubdomain --wprocket # install wpmu-subdomain + WP-Rocket plugin
+wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + Cache-Enabler plugin
 ```
 
 ### Non-WordPress sites

@@ -336,6 +336,9 @@ class WOSiteCreateController(CementBaseController):
             (['--wprocket'],
              dict(help="create WordPress single/multi site with WP-Rocket",
                   action='store_true')),
+            (['--wpce'],
+             dict(help="create WordPress single/multi site with Cache-Enabler",
+                  action='store_true')),
             (['--wpredis'],
                 dict(help="create WordPress single/multi site "
                      "with redis cache",
@@ -426,7 +429,7 @@ class WOSiteCreateController(CementBaseController):
         if stype == 'proxy':
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=True,  basic=False, php73=False, wp=False,
-                        wpfc=False, wpsc=False, wprocket=False,
+                        wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
             data['proxy'] = True
@@ -437,7 +440,7 @@ class WOSiteCreateController(CementBaseController):
         if self.app.pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=False,  basic=False, php73=True, wp=False,
-                        wpfc=False, wpsc=False, wprocket=False,
+                        wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
@@ -445,7 +448,7 @@ class WOSiteCreateController(CementBaseController):
         if stype in ['html', 'php']:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=True,  basic=False, php73=False, wp=False,
-                        wpfc=False, wpsc=False, wprocket=False,
+                        wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
 
@@ -457,7 +460,7 @@ class WOSiteCreateController(CementBaseController):
 
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=False,  basic=True, wp=False, wpfc=False,
-                        wpsc=False, wpredis=False, wprocket=False,
+                        wpsc=False, wpredis=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot,
                         wo_db_name='', wo_db_user='', wo_db_pass='',
@@ -487,6 +490,7 @@ class WOSiteCreateController(CementBaseController):
         if ((not self.app.pargs.wpfc) and
             (not self.app.pargs.wpsc) and
             (not self.app.pargs.wprocket) and
+            (not self.app.pargs.wpce) and
                 (not self.app.pargs.wpredis)):
             data['basic'] = True
 
@@ -495,7 +499,6 @@ class WOSiteCreateController(CementBaseController):
             data['wpredis'] = True
             data['basic'] = False
             self.app.pargs.wpredis = True
-
 
         # Check rerequired packages are installed or not
         wo_auth = site_package_check(self, stype)
@@ -836,6 +839,8 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to wpsc cache", action='store_true')),
             (['--wprocket'],
                 dict(help="update to WP-Rocket cache", action='store_true')),
+            (['--wpce'],
+                dict(help="update to Cache-Enabler cache", action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
             (['-le', '--letsencrypt'],
@@ -879,7 +884,7 @@ class WOSiteUpdateController(CementBaseController):
             if not (pargs.php or pargs.php73 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
-                    pargs.wprocket or
+                    pargs.wprocket or pargs.wpce or
                     pargs.wpredis or pargs.letsencrypt or pargs.hsts or
                     pargs.dns or pargs.force):
                 Log.error(self, "Please provide options to update sites.")
@@ -958,7 +963,7 @@ class WOSiteUpdateController(CementBaseController):
         if (pargs.password and not (pargs.html or
                                     pargs.php or pargs.php73 or pargs.mysql or
                                     pargs.wp or pargs.wpfc or pargs.wpsc or
-                                    pargs.wprocket or
+                                    pargs.wprocket or pargs.wpce or
                                     pargs.wpsubdir or pargs.wpsubdomain or
                                     pargs.hsts)):
             try:
@@ -971,7 +976,7 @@ class WOSiteUpdateController(CementBaseController):
         if (pargs.hsts and not (pargs.html or
                                 pargs.php or pargs.php73 or pargs.mysql or
                                 pargs.wp or pargs.wpfc or pargs.wpsc or
-                                pargs.wprocket or
+                                pargs.wprocket or parge.wpce or
                                 pargs.wpsubdir or pargs.wpsubdomain or
                                 pargs.password)):
             try:
@@ -1013,16 +1018,16 @@ class WOSiteUpdateController(CementBaseController):
         if stype == 'php':
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=False,  basic=True, wp=False, wpfc=False,
-                        wpsc=False, wpredis=False, wprocket=False, multisite=False,
-                        wpsubdir=False, webroot=wo_site_webroot,
+                        wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                        multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                         currsitetype=oldsitetype, currcachetype=oldcachetype)
 
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=False,  basic=True, wp=False, wpfc=False,
-                        wpsc=False, wpredis=False, wprocket=False, multisite=False,
-                        wpsubdir=False, webroot=wo_site_webroot,
+                        wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                        multisite=False,wpsubdir=False, webroot=wo_site_webroot,
                         wo_db_name='', wo_db_user='', wo_db_pass='',
                         wo_db_host='',
                         currsitetype=oldsitetype, currcachetype=oldcachetype)
@@ -1076,30 +1081,42 @@ class WOSiteUpdateController(CementBaseController):
                     data['wpsc'] = False
                     data['wpredis'] = False
                     data['wprocket'] = False
+                    data['wpce'] = False
                 elif oldcachetype == 'wpfc':
                     data['basic'] = False
                     data['wpfc'] = True
                     data['wpsc'] = False
                     data['wpredis'] = False
                     data['wprocket'] = False
+                    data['wpce'] = False
                 elif oldcachetype == 'wpsc':
                     data['basic'] = False
                     data['wpfc'] = False
                     data['wpsc'] = True
                     data['wpredis'] = False
                     data['wprocket'] = False
+                    data['wpce'] = False
                 elif oldcachetype == 'wpredis':
                     data['basic'] = False
                     data['wpfc'] = False
                     data['wpsc'] = False
                     data['wpredis'] = True
                     data['wprocket'] = False
+                    data['wpce'] = False
                 elif oldcachetype == 'wprocket':
                     data['basic'] = False
                     data['wpfc'] = False
                     data['wpsc'] = False
                     data['wpredis'] = False
                     data['wprocket'] = True
+                    data['wpce'] = False
+                elif oldcachetype == 'wpce':
+                    data['basic'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                    data['wpredis'] = False
+                    data['wprocket'] = False
+                    data['wpce'] = True
 
             if pargs.php73 == 'on':
                 data['php73'] = True
@@ -1261,6 +1278,11 @@ class WOSiteUpdateController(CementBaseController):
             data['wprocket'] = True
             data['basic'] = False
             cache = 'wprocket'
+
+        if pargs.wpce and data['currcachetype'] != 'wpce':
+            data['wpce'] = True
+            data['basic'] = False
+            cache = 'wpce'
 
         if (php73 is old_php73) and (stype == oldsitetype and
                                      cache == oldcachetype):
@@ -1502,7 +1524,7 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            if ((oldcachetype in ['wpsc', 'basic', 'wpredis', 'wprocket'] and
+            if ((oldcachetype in ['wpsc', 'basic', 'wpredis', 'wprocket', 'wpce'] and
                  (data['wpfc'])) or (oldsitetype == 'wp' and
                                      data['multisite'] and data['wpfc'])):
                 try:
@@ -1541,7 +1563,7 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket'] and
+            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpce'] and
                    (data['wpredis'])) or (oldsitetype == 'wp' and
                                           data['multisite'] and
                                           data['wpredis'])):
@@ -1652,6 +1674,16 @@ class WOSiteUpdateController(CementBaseController):
         if oldcachetype == 'wprocket' and not data['wprocket']:
             try:
                 uninstallwp_plugin(self, 'wp-rocket', data)
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.info(self, Log.FAIL + "Update site failed."
+                         "Check the log for details: "
+                         "`tail /var/log/wo/wordops.log` and please try again")
+                return 1
+
+        if oldcachetype == 'wpce' and not data['wpce']:
+            try:
+                uninstallwp_plugin(self, 'cache-enabler', data)
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, Log.FAIL + "Update site failed."
