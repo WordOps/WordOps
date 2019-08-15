@@ -380,7 +380,7 @@ def post_pref(self, apt_packages, packages):
                 wo_nginx.close()
 
                 with open("/etc/nginx/common/release",
-                          "a") as release_file:
+                          "w") as release_file:
                     release_file.write("v{0}"
                                        .format(WOVariables.wo_version))
                 release_file.close()

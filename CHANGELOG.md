@@ -16,7 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - nginx-core.mustache template used to render nginx.conf during stack setup
 - APT Packages configuration step with `wo stack upgrade` to apply new configurations
 - Cloudflare restore real_ip configuration
-- WP-Rocket support with the flag `--wprocket`
+- WP-Rocket plugin support with the flag `--wprocket`
+- Cache-Enabler plugin support with the flag `--wpce`
 - Install unattended-upgrade and enable automated security updates
 - Enable time synchronization with ntp
 - Additional cache exception for woocommerce
