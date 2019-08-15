@@ -49,6 +49,9 @@ class WOStackUpgradeController(CementBaseController):
             (['--no-prompt'],
                 dict(help="Upgrade Packages without any prompt",
                      action='store_true')),
+            (['--force'],
+                dict(help="Force Packages upgrade without any prompt",
+                     action='store_true')),
         ]
 
     @expose(hide=True)
@@ -157,17 +160,15 @@ class WOStackUpgradeController(CementBaseController):
                 Log.error(self, "Composer isn't installed")
 
         if len(packages) or len(apt_packages):
-
-            Log.info(self, "During package update process non nginx-cached"
-                     " parts of your site may remain down")
-            # Check prompt
-            if (not pargs.no_prompt):
-                start_upgrade = input("Do you want to continue:[y/N]")
-                if start_upgrade != "Y" and start_upgrade != "y":
-                    Log.error(self, "Not starting package update")
-
-            Log.info(self, "Updating packages, please wait...")
             if len(apt_packages):
+                Log.info(self, "Your site may be down for few seconds if "
+                         "you are upgrading Nginx, PHP-FPM, MariaDB or Redis")
+                # Check prompt
+                if ((not pargs.no_prompt) and (not pargs.force)):
+                    start_upgrade = input("Do you want to continue:[y/N]")
+                    if start_upgrade != "Y" and start_upgrade != "y":
+                        Log.error(self, "Not starting package update")
+                Log.info(self, "Updating APT packages, please wait...")
                 # apt-get update
                 WOAptGet.update(self)
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):
@@ -180,16 +181,6 @@ class WOStackUpgradeController(CementBaseController):
                 WOAptGet.install(self, apt_packages)
                 post_pref(self, apt_packages, empty_packages)
                 # Post Actions after package updates
-                if (set(WOVariables.wo_nginx).issubset(set(apt_packages))):
-                    WOService.restart_service(self, 'nginx')
-                if set(WOVariables.wo_php).issubset(set(apt_packages)):
-                    WOService.restart_service(self, 'php7.2-fpm')
-                if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                    WOService.restart_service(self, 'php7.3-fpm')
-                if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
-                    WOService.restart_service(self, 'mysql')
-                if set(WOVariables.wo_redis).issubset(set(apt_packages)):
-                    WOService.restart_service(self, 'redis-server')
 
             if len(packages):
                 if pargs.wpcli:

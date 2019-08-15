@@ -104,6 +104,7 @@ class WOStackController(CementBaseController):
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
         self.msg = []
+        empty_packages = []
         pargs = self.app.pargs
         try:
             # Default action for stack installation
@@ -395,25 +396,25 @@ class WOStackController(CementBaseController):
         except Exception as e:
             Log.debug(self, "{0}".format(e))
 
-        if (apt_packages) or (packages):
+        if (apt_packages):
             Log.debug(self, "Calling pre_pref")
             pre_pref(self, apt_packages)
-            if (apt_packages):
-                # meminfo = (os.popen('/bin/cat /proc/meminfo '
-                #                    '| grep MemTotal').read()).split(":")
-                # memsplit = re.split(" kB", meminfo[1])
-                # wo_mem = int(memsplit[0])
-                # if (wo_mem < 4000000):
-                #    WOSwap.add(self)
-                Log.info(self, "Updating apt-cache, please wait...")
-                WOAptGet.update(self)
-                Log.info(self, "Installing packages, please wait...")
-                WOAptGet.install(self, apt_packages)
-            if (packages):
-                Log.debug(self, "Downloading following: {0}".format(packages))
-                WODownload.download(self, packages)
+            # meminfo = (os.popen('/bin/cat /proc/meminfo '
+            #                    '| grep MemTotal').read()).split(":")
+            # memsplit = re.split(" kB", meminfo[1])
+            # wo_mem = int(memsplit[0])
+            # if (wo_mem < 4000000):
+            #    WOSwap.add(self)
+            Log.info(self, "Updating apt-cache, please wait...")
+            WOAptGet.update(self)
+            Log.info(self, "Installing packages, please wait...")
+            WOAptGet.install(self, apt_packages)
+            post_pref(self, apt_packages, empty_packages)
+        if (packages):
+            Log.debug(self, "Downloading following: {0}".format(packages))
+            WODownload.download(self, packages)
             Log.debug(self, "Calling post_pref")
-            post_pref(self, apt_packages, packages)
+            post_pref(self, empty_packages, packages)
 
             if disp_msg:
                 if (self.msg):
