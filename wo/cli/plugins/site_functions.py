@@ -870,6 +870,7 @@ def site_package_check(self, stype):
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
 
+
 def updatewpuserpassword(self, wo_domain, wo_site_webroot):
 
     wo_wp_user = ''
@@ -1225,10 +1226,11 @@ def site_url_https(self, domain):
         Log.info(self, "Checking if site url already "
                  "use https, please wait...")
         WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
-        wo_siteurl = WOShellExec.cmd_exec_stdout(self,
-                                                 "php {0} option get siteurl "
-                                                 .format(WOVariables.wo_wpcli_path) +
-                                                 "--allow-root --quiet")
+        wo_siteurl = \
+            WOShellExec.cmd_exec_stdout(self,
+                                        "php {0} option get siteurl "
+                                        .format(WOVariables.wo_wpcli_path) +
+                                        "--allow-root --quiet")
         test_url = re.split(":", wo_siteurl)
         if not (test_url[0] == 'https'):
             try:
