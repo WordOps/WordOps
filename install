@@ -465,58 +465,41 @@ wo_upgrade_nginx() {
         fi
         # chec if the package nginx-ee is installed
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
-        CHECK_NGINX_WO=$(dpkg --list | grep nginx-wo)
         CHECK_PHP72=$(command -v php-fpm7.2)
 
         # add new Nginx repository
-        if [ "$wo_linux_distro" = "Ubuntu" ]; then
-            if [ ! -f /etc/apt/sources.list.d/wordops-ubuntu-nginx-wo-"$(lsb_release -sc)".list ]; then
-                add-apt-repository ppa:wordops/nginx-wo -y -u
-            fi
+        if [ "$wo_distro_version" == "jessie" ]; then
+            # import the respository key for updates
+            curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key | apt-key add -
         else
-            if [ "$wo_distro_version" == "jessie" ]; then
-                # import the respository key for updates
-                curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key | apt-key add -
-            else
-                curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key | apt-key add -
-            fi
-
+            curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key | apt-key add -
         fi
 
-        # stop nginx
-        service nginx stop
-
         # install new nginx package
-        if [ -n "$CHECK_NGINX_EE" ] || [ -n "$CHECK_NGINX_WO" ]; then
+        if [ -n "$CHECK_NGINX_EE" ]; then
             if [ -x /usr/local/bin/wo ]; then
-                if [ -n "$CHECK_NGINX_EE" ]; then
-                    # remove previous package
-                    apt-mark unhold nginx-ee nginx-common nginx-custom
-                    apt-get --assume-yes purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
-                    # remove previous php-fpm pool configuration
-                    if [ -n "$CHECK_PHP72" ]; then
-                        apt-get purge php7.2-fpm -y -qq
-                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                    fi
-                elif [ -n "$CHECK_NGINX_WO" ]; then
-                    apt-mark unhold nginx-wo nginx-common nginx-custom
-                    apt-get --assume-yes purge nginx-wo nginx-common nginx-custom --allow-change-held-packages
-                    if [ -n "$CHECK_PHP72" ]; then
-                        apt-get purge php7.2-fpm -y -qq
-                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                    fi
+                # stop nginx
+                service nginx stop
+                # remove previous package
+                apt-mark unhold nginx-ee nginx-common nginx-custom
+                apt-get --assume-yes purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
+                # remove previous php-fpm pool configuration
+                if [ -n "$CHECK_PHP72" ]; then
+                    apt-get purge php7.2-fpm -y -qq
+                    rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                 fi
                 if [ -d /etc/nginx ]; then
                     rm -rf /etc/nginx
                 fi
-
                 /usr/local/bin/wo stack install --nginx --php
-                rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf,blockips.conf} /etc/nginx/htpasswd-wo
-            fi
-        fi
+                rm -f /etc/nginx/common/acl.conf /etc/nginx/htpasswd-wo
+                /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
 
+            fi
+        else
+            /usr/local/bin/wo stack upgrade --nginx
+        fi
         # restore sites and configuration
-        /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
         [ -f /etc/nginx/htpasswd-ee ] && { mv /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
         sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
@@ -772,11 +755,9 @@ else
                 fi
                 if [ -z "$wo_preserve_config" ]; then
                     if [ -n "$(command -v nginx)" ]; then
-                        if [ ! -f /etc/nginx/common/release ] || ! grep -q "v3.9.7" /etc/nginx/common/release; then
-                            if [ ! -f /etc/apt/preferences.d/nginx-block ]; then
-                                wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                                wo_upgrade_nginx | tee -ai $wo_install_log
-                            fi
+                        if [ ! -f /etc/apt/preferences.d/nginx-block ]; then
+                            wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
+                            wo_upgrade_nginx | tee -ai $wo_install_log
                         fi
                     fi
                 fi

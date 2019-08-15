@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Cleanup templates by removing all doublons (with/without php7) and replacing them with variables
 - Updated Nginx to v1.16.1 in response to HTTP/2 vulnerabilites discovered
 - Disable temporary adding swap feature (not working)
+- `wo stack upgrade --nginx` is now able to apply new configurations during `wo update`, it highly reduce upgrade duration
 
 #### Fixed
 
