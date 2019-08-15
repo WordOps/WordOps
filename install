@@ -10,7 +10,7 @@
 # Version 3.9.7.2 - 2019-08-12
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.7.2"
+readonly wo_version_new="3.9.7.3"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -124,11 +124,11 @@ readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -is)
 readonly wo_distro_version=$(lsb_release -sc)
 readonly wo_distro_id=$(lsb_release -rs)
-TIME_FORMAT='%d-%b-%Y-%H%M%S'
-TIME=$(date +"$TIME_FORMAT")
-NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
-EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
-WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
+readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
+readonly TIME=$(date +"$TIME_FORMAT")
+readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
+readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
+readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
 WO_ARCH="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
@@ -147,9 +147,9 @@ if [ -z "$wo_force_install" ]; then
         wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
         exit 100
     else
-        check_wo_linux_distro=$(lsb_release -sc | grep -E "trusty|xenial|bionic|disco|jessie|stretch|buster")
+        check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
         if [ -z "$check_wo_linux_distro" ]; then
-            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 14.04/16.04/18.04/19.04 LTS, Debian 8.x/9.x/10.x and Raspbian 9.x"
+            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x"
             exit 100
         fi
     fi
@@ -175,17 +175,21 @@ fi
 wo_install_dep() {
 
     {
-
+        export DEBIAN_FRONTEND=noninteractive
         [ -z "$wo_travis" ] && {
             # update server packages
-            DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
+            apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
         }
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
             # install dependencies
-            DEBIAN_FRONTEND=noninteractive apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install build-essential curl gzip python3 python3-apt python3-setuptools python3-requests python3-dev sqlite3 git tar software-properties-common pigz gnupg2 cron ccze rsync tree haveged ufw > /dev/null 2>&1
+            apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
+                build-essential curl gzip python3 python3-apt python3-setuptools python3-requests python3-dev sqlite3 git tar software-properties-common pigz \
+                gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         else
             # install dependencies
-            DEBIAN_FRONTEND=noninteractive apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-requests python3-dev ca-certificates sqlite3 git tar software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw > /dev/null 2>&1
+            apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
+                build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-requests python3-dev ca-certificates sqlite3 git tar \
+                software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
             # add php repository gpg key
             [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
             # add nginx repository gpg key
@@ -193,6 +197,13 @@ wo_install_dep() {
         fi
 
         locale-gen en
+        # enable unattended upgades
+        cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
+        # set default ntp pools
+        sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
+        # enable ntp
+        timedatectl set-ntp 1
+
     } >> "$wo_install_log" 2>&1
 
 }
@@ -406,9 +417,9 @@ wo_install_acme_sh() {
 wo_install() {
     {
         rm -f /etc/bash_completion.d/wo_auto.rc
-        rm -rf /tmp/WordOps
-        git clone -b "$wo_branch" --depth=50 https://github.com/WordOps/WordOps.git /tmp/WordOps
-        cd /tmp/WordOps || exit 1
+        rm -rf /var/lib/wo/tmp/WordOps-*
+        curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+        cd /var/lib/wo/tmp/WordOps-${wo_branch} || exit 1
 
     } \
         >> "$wo_install_log" 2>&1
@@ -454,63 +465,41 @@ wo_upgrade_nginx() {
         fi
         # chec if the package nginx-ee is installed
         CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
-        CHECK_NGINX_WO=$(dpkg --list | grep nginx-wo)
         CHECK_PHP72=$(command -v php-fpm7.2)
 
         # add new Nginx repository
-        if [ "$wo_linux_distro" = "Ubuntu" ]; then
-            if [ ! -f /etc/apt/sources.list.d/wordops-ubuntu-nginx-wo-"$(lsb_release -sc)".list ]; then
-                add-apt-repository ppa:wordops/nginx-wo -y -u
-            fi
+        if [ "$wo_distro_version" == "jessie" ]; then
+            # import the respository key for updates
+            curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key | apt-key add -
         else
-            if [ "$wo_distro_version" == "jessie" ]; then
-                # import the respository key for updates
-                curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key | apt-key add -
-            else
-                curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key | apt-key add -
-            fi
-
+            curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key | apt-key add -
         fi
 
-        # stop nginx
-        service nginx stop
-
-        # prevent apt preference to block install
-        [ -f /etc/apt/preferences.d/nginx-block ] && {
-            mv /etc/apt/preferences.d/nginx-block "$HOME/nginx-block"
-        }
-
         # install new nginx package
-        if [ -n "$CHECK_NGINX_EE" ] || [ -n "$CHECK_NGINX_WO" ]; then
+        if [ -n "$CHECK_NGINX_EE" ]; then
             if [ -x /usr/local/bin/wo ]; then
-                if [ -n "$CHECK_NGINX_EE" ]; then
-                    # remove previous package
-                    apt-mark unhold nginx-ee nginx-common nginx-custom
-                    apt-get --assume-yes purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
-                    # remove previous php-fpm pool configuration
-                    if [ -n "$CHECK_PHP72" ]; then
-                        apt-get purge php7.2-fpm -y -qq
-                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                    fi
-                elif [ -n "$CHECK_NGINX_WO" ]; then
-                    apt-mark unhold nginx-wo nginx-common nginx-custom
-                    apt-get --assume-yes purge nginx-wo nginx-common nginx-custom --allow-change-held-packages
-                    if [ -n "$CHECK_PHP72" ]; then
-                        apt-get purge php7.2-fpm -y -qq
-                        rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-                    fi
+                # stop nginx
+                service nginx stop
+                # remove previous package
+                apt-mark unhold nginx-ee nginx-common nginx-custom
+                apt-get --assume-yes purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
+                # remove previous php-fpm pool configuration
+                if [ -n "$CHECK_PHP72" ]; then
+                    apt-get purge php7.2-fpm -y -qq
+                    rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
                 fi
                 if [ -d /etc/nginx ]; then
                     rm -rf /etc/nginx
                 fi
-
                 /usr/local/bin/wo stack install --nginx --php
-                rm -f /etc/nginx/common/acl.conf /etc/nginx/conf.d/{map-wp-cache.conf,map-wp.conf,fascgi.conf,blockips.conf} /etc/nginx/htpasswd-wo
-            fi
-        fi
+                rm -f /etc/nginx/common/acl.conf /etc/nginx/htpasswd-wo
+                /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
 
+            fi
+        else
+            /usr/local/bin/wo stack upgrade --nginx --force
+        fi
         # restore sites and configuration
-        /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
         [ -f /etc/nginx/htpasswd-ee ] && { mv /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
         sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
@@ -539,12 +528,8 @@ wo_upgrade_nginx() {
             systemctl start nginx
         fi
 
-        # set back apt preference
-        [ -f "$HOME/nginx-block" ] && {
-            mv "$HOME/nginx-block" /etc/apt/preferences.d/nginx-block
-        }
-
-    } >> "$wo_install_log" 2>&1
+    } \
+        >> "$wo_install_log" 2>&1
 
 }
 
@@ -654,23 +639,20 @@ wo_remove_ee_cron() {
 
 wo_tweak_kernel() {
 
-    if [ ! -f /etc/sysctl.d/60-wo-tweaks.conf ]; then
-        if [ "$WO_ARCH" = "x86_64" ]; then
-            rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
-            wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/master/wo/cli/templates/sysctl.mustache
-            if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ] || [ "$wo_distro_version" = "buster" ]; then
-                modprobe tcp_bbr && echo 'tcp_bbr' >> /etc/modules-load.d/bbr.conf
-                echo -e '\nnet.ipv4.tcp_congestion_control = bbr\nnet.ipv4.tcp_notsent_lowat = 16384' >> /etc/sysctl.d/60-wo-tweaks.conf
-            else
-                modprobe tcp_htcp && echo 'tcp_htcp' >> /etc/modules-load.d/htcp.conf
-                echo 'net.ipv4.tcp_congestion_control = htcp' >> /etc/sysctl.d/60-wo-tweaks.conf
-            fi
-            # apply sysctl tweaks
-            sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
+    if [ "$WO_ARCH" = "x86_64" ]; then
+        rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
+        wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/"$wo_branch"/wo/cli/templates/sysctl.mustache
+        if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ] || [ "$wo_distro_version" = "buster" ]; then
+            modprobe tcp_bbr && echo 'tcp_bbr' >> /etc/modules-load.d/bbr.conf
+            echo -e '\nnet.ipv4.tcp_congestion_control = bbr\nnet.ipv4.tcp_notsent_lowat = 16384' >> /etc/sysctl.d/60-wo-tweaks.conf
         else
-            sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
+            modprobe tcp_htcp && echo 'tcp_htcp' >> /etc/modules-load.d/htcp.conf
+            echo 'net.ipv4.tcp_congestion_control = htcp' >> /etc/sysctl.d/60-wo-tweaks.conf
         fi
+        # apply sysctl tweaks
+        sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
     fi
+
     if [ ! -x /opt/wo-kernel.sh ]; then
         {
             # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
@@ -696,6 +678,46 @@ wo_clean() {
 wo_uninstall() {
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates >> /var/log/wo/install.log 2>&1
 }
+
+wo_ufw_setup() {
+
+    CURRENT_SSH_PORT=$(grep "Port" /etc/ssh/sshd_config | awk -F " " '{print $2}')
+
+    if [ ! -d /etc/ufw ]; then
+        apt-get install ufw -y
+    fi
+
+    # define firewall rules
+
+    ufw logging low
+    ufw default allow outgoing
+    ufw default deny incoming
+
+    # default ssh port
+    ufw allow 22
+
+    # custom ssh port
+    if [ "$CURRENT_SSH_PORT" != "22" ]; then
+        ufw allow "$CURRENT_SSH_PORT"
+    fi
+
+    # dns
+    ufw allow 53
+
+    # nginx
+    ufw allow http
+    ufw allow https
+
+    # ntp
+    ufw allow 123
+
+    # wordops backend
+    ufw allow 22222
+
+    # enable ufw
+    echo "y" | ufw enable
+
+} >> $wo_install_log
 
 ###
 # 4 - WO MAIN SETUP
@@ -733,7 +755,7 @@ else
                 fi
                 if [ -z "$wo_preserve_config" ]; then
                     if [ -n "$(command -v nginx)" ]; then
-                        if [ ! -f /etc/nginx/common/release ] || ! grep -q "v3.9.7" /etc/nginx/common/release; then
+                        if [ ! -f /etc/apt/preferences.d/nginx-block ]; then
                             wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
                             wo_upgrade_nginx | tee -ai $wo_install_log
                         fi
@@ -834,6 +856,8 @@ else
     echo
     wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
     wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
+    echo
+    wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo
 
 fi

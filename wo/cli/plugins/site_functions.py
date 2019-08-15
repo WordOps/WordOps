@@ -16,6 +16,7 @@ from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.mysql import *
 from wo.core.services import WOService
+from wo.cli.plugins.stack_pref import pre_pref, post_pref
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables
@@ -39,7 +40,7 @@ def pre_run_checks(self):
         Log.debug(self, "checking NGINX configuration ...")
         FNULL = open('/dev/null', 'w')
         subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
-                                    stderr=subprocess.STDOUT)
+                              stderr=subprocess.STDOUT)
     except CalledProcessError as e:
         Log.debug(self, "{0}".format(str(e)))
         raise SiteError("nginx configuration check failed.")
@@ -90,7 +91,7 @@ def setupdomain(self, data):
             Log.debug(self, "Checking generated nginx conf, please wait...")
             FNULL = open('/dev/null', 'w')
             subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
-                                        stderr=subprocess.STDOUT)
+                                  stderr=subprocess.STDOUT)
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         except CalledProcessError as e:
             Log.debug(self, "{0}".format(str(e)))
@@ -240,7 +241,7 @@ def setupwordpress(self, data):
     # Random characters
     wo_random = (''.join(random.sample(string.ascii_uppercase +
                                        string.ascii_lowercase +
-                                       string.digits, 15)))
+                                       string.digits, 24)))
     wo_wp_prefix = ''
     # wo_wp_user = ''
     # wo_wp_pass = ''
@@ -290,7 +291,7 @@ def setupwordpress(self, data):
     Log.debug(self, "Setting up wp-config file")
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
-        Log.debug(self, "bash -c \"php {0} --allow-root "
+        Log.debug(self, "/bin/bash -c \"{0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
                   "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
@@ -302,7 +303,7 @@ def setupwordpress(self, data):
                   .format(data['wo_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
                                     .format(WOVariables.wo_wpcli_path) +
                                     " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -325,7 +326,7 @@ def setupwordpress(self, data):
             raise SiteError("generate wp-config failed for wp single site")
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
-        Log.debug(self, "bash -c \"php {0} --allow-root "
+        Log.debug(self, "/bin/bash -c \"{0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
                   "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
@@ -340,7 +341,7 @@ def setupwordpress(self, data):
                           " false);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            if WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
                                     .format(WOVariables.wo_wpcli_path) +
                                     " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -365,36 +366,36 @@ def setupwordpress(self, data):
 
     try:
 
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_CACHE_KEY_SALT "
                              "\'{0}:\'\"".format(wo_domain_name))
 
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_MEMORY_LIMIT "
                              "\'128M\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_MAX_MEMORY_LIMIT "
                              "\'256M\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set CONCATENATE_SCRIPTS "
                              "false --raw\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_POST_REVISIONS "
                              "\'10\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set MEDIA_TRASH "
                              "true --raw\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set EMPTY_TRASH_DAYS "
                              "\'15\'\"")
-        WOShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root "
+        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "config set WP_AUTO_UPDATE_CORE "
                              "minor\"")
@@ -456,14 +457,14 @@ def setupwordpress(self, data):
 
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
-        Log.debug(self, "php {0} --allow-root core install "
+        Log.debug(self, "{0} --allow-root core install "
                   .format(WOVariables.wo_wpcli_path) +
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], wo_wp_user) +
                   "--admin_password= --admin_email=\'{1}\'"
                   .format(wo_wp_pass, wo_wp_email))
         try:
-            if WOShellExec.cmd_exec(self, "php {0} --allow-root core "
+            if WOShellExec.cmd_exec(self, "{0} --allow-root core "
                                     .format(WOVariables.wo_wpcli_path) +
                                     "install --url=\'{0}\' --title=\'{0}\' "
                                     "--admin_name=\'{1}\' "
@@ -480,7 +481,7 @@ def setupwordpress(self, data):
             raise SiteError("setup WordPress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
-        Log.debug(self, "php {0} --allow-root "
+        Log.debug(self, "{0} --allow-root "
                   .format(WOVariables.wo_wpcli_path) +
                   "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
@@ -491,7 +492,7 @@ def setupwordpress(self, data):
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            if WOShellExec.cmd_exec(self, "php {0} --allow-root "
+            if WOShellExec.cmd_exec(self, "{0} --allow-root "
                                     .format(WOVariables.wo_wpcli_path) +
                                     "core multisite-install "
                                     "--url=\'{0}\' --title=\'{0}\' "
@@ -513,7 +514,7 @@ def setupwordpress(self, data):
 
     Log.debug(self, "Updating WordPress permalink")
     try:
-        WOShellExec.cmd_exec(self, " php {0} --allow-root "
+        WOShellExec.cmd_exec(self, " {0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "rewrite structure "
                              "/%year%/%monthnum%/%day%/%postname%/")
@@ -584,6 +585,10 @@ def setupwordpress(self, data):
     if data['wpredis']:
         installwp_plugin(self, 'redis-cache', data)
 
+    """Install Cache-Enabler"""
+    if data['wpce']:
+        installwp_plugin(self, 'cache-enabler', data)
+
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
 
@@ -619,7 +624,7 @@ def installwp_plugin(self, plugin_name, data):
              .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     try:
-        WOShellExec.cmd_exec(self, "php {0} plugin "
+        WOShellExec.cmd_exec(self, "{0} plugin "
                              .format(WOVariables.wo_wpcli_path) +
                              "--allow-root install "
                              "{0}".format(plugin_name))
@@ -628,7 +633,7 @@ def installwp_plugin(self, plugin_name, data):
         raise SiteError("plugin installation failed")
 
     try:
-        WOShellExec.cmd_exec(self, "php {0} plugin "
+        WOShellExec.cmd_exec(self, "{0} plugin "
                              .format(WOVariables.wo_wpcli_path) +
                              "--allow-root activate "
                              "{0} {na}"
@@ -785,7 +790,7 @@ def site_package_check(self, stype):
                 Log.info(self, "NGINX PLUS Detected ...")
                 apt = ["nginx-plus"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
-                stack.post_pref(apt, packages)
+                stack.post_pref(self, apt, packages)
             elif WOAptGet.is_installed(self, 'nginx'):
                 Log.info(self, "WordOps detected a previously"
                                "installed Nginx package. "
@@ -794,7 +799,7 @@ def site_package_check(self, stype):
                                "https://github.com/WordOps/WordOps/issues/ \n")
                 apt = ["nginx"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
-                stack.post_pref(apt, packages)
+                post_pref(self, apt, packages)
             else:
                 apt_packages = apt_packages + WOVariables.wo_nginx
         else:
@@ -853,39 +858,6 @@ def site_package_check(self, stype):
         if not WOAptGet.is_installed(self, 'redis-server'):
             apt_packages = apt_packages + WOVariables.wo_redis
 
-        if (os.path.isfile("/etc/nginx/nginx.conf") and
-                not os.path.isfile("/etc/nginx/common/redis-php72.conf")):
-
-            data = dict()
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis-php72.conf')
-            wo_nginx = open('/etc/nginx/common/redis-php72.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'redis.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                    "upstream.conf",
-                                    "redis"):
-                with open("/etc/nginx/conf.d/upstream.conf",
-                          "a") as redis_file:
-                    redis_file.write("upstream redis {\n"
-                                     "    server 127.0.0.1:6379;\n"
-                                     "    keepalive 10;\n}")
-
-        if (os.path.isfile("/etc/nginx/nginx.conf") and
-                not os.path.isfile("/etc/nginx/conf.d/redis.conf")):
-            with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
-                redis_file.write("# Log format Settings\n"
-                                 "log_format rt_cache_redis '$remote_addr"
-                                 " $upstream_response_time "
-                                 "$srcache_fetch_status [$time_local] '\n"
-                                 "'$http_host \"$request\" $status"
-                                 " $body_bytes_sent '\n"
-                                 "'\"$http_referer\" \"$http_user_agent\"';\n")
-
     if self.app.pargs.php73:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
@@ -894,69 +866,6 @@ def site_package_check(self, stype):
                     WOVariables.wo_php73 + WOVariables.wo_php_extra
             else:
                 apt_packages = apt_packages + WOVariables.wo_php73
-
-        if (os.path.isdir("/etc/nginx/common") and
-                not os.path.isfile("/etc/nginx/common/locations-wo.conf")):
-            data = dict()
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/locations-wo.conf')
-            wo_nginx = open('/etc/nginx/common/locations-wo.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'locations-php7.mustache',
-                                    out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/php73.conf')
-            wo_nginx = open('/etc/nginx/common/php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'php7.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpcommon-php73.conf')
-            wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpcommon-php7.mustache',
-                                    out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpfc-php73.conf')
-            wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpfc-php7.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/wpsc-php73.conf')
-            wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'wpsc-php7.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if (os.path.isfile("/etc/nginx/nginx.conf") and
-                not os.path.isfile("/etc/nginx/common/redis-php73.conf")):
-            data = dict()
-            Log.debug(self, 'Writting the nginx configuration to '
-                      'file /etc/nginx/common/redis-php73.conf')
-            wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'redis-php7.mustache',
-                            out=wo_nginx)
-            wo_nginx.close()
-
-        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
-                                          "php73"):
-                with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
-                    php_file.write("upstream php73 {\nserver"
-                                   "unix:/var/run/php/php73-fpm.sock;\n}\n"
-                                   "upstream debug73"
-                                   " {\nserver 127.0.0.1:9173;\n}\n")
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
@@ -1099,7 +1008,7 @@ def detSitePar(opts):
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain', 'php73']:
             typelist.append(key)
-        elif val and key in ['wpfc', 'wpsc', 'wpredis']:
+        elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket', 'wpce']:
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:
@@ -1317,10 +1226,11 @@ def site_url_https(self, domain):
         Log.info(self, "Checking if site url already "
                  "use https, please wait...")
         WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
-        wo_siteurl = WOShellExec.cmd_exec_stdout(self,
-                                                 "php {0} option get siteurl "
-                                                 .format(WOVariables.wo_wpcli_path) +
-                                                 "--allow-root --quiet")
+        wo_siteurl = \
+            WOShellExec.cmd_exec_stdout(self,
+                                        "php {0} option get siteurl "
+                                        .format(WOVariables.wo_wpcli_path) +
+                                        "--allow-root --quiet")
         test_url = re.split(":", wo_siteurl)
         if not (test_url[0] == 'https'):
             try:
@@ -1382,6 +1292,8 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
     else:
         keylenght = "{0}".format(self.app.config.get('letsencrypt',
                                                      'keylength'))
+        wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
+                        "'/etc/letsencrypt/config'")
         if wo_dns:
             acme_mode = "--dns {0}".format(wo_acme_dns)
             validation_mode = "DNS with {0}".format(wo_acme_dns)
@@ -1394,9 +1306,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         if subdomain:
             Log.info(self, "Issuing subdomain SSL cert with acme.sh")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
+            ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} {1} "
                                        "-k {2} -f"
@@ -1406,9 +1316,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         elif wildcard:
             Log.info(self, "Issuing Wildcard SSL cert with acme.sh")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
+            ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d *.{0} --dns {1} "
                                        "-k {2} -f"
@@ -1418,9 +1326,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         else:
             Log.info(self, "Issuing domain SSL cert with acme.sh")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            ssl = WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
+            ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d www.{0} {1} "
                                        "-k {2} -f"
@@ -1539,7 +1445,7 @@ def setupHsts(self, wo_domain_name):
     hstsconf.write("more_set_headers "
                    "\"Strict-Transport-Security: "
                    "max-age=31536000; "
-                   "'includeSubDomains; "
+                   "includeSubDomains; "
                    "preload\";")
     hstsconf.close()
     return 0

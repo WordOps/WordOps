@@ -1,4 +1,4 @@
-# WPSC NGINX CONFIGURATION - WO v3.9.5
+# WPSC NGINX CONFIGURATION - WO v3.9.7
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 # $cache_uri variable set in /etc/nginx/conf.d/map-wp.conf
 
@@ -11,7 +11,7 @@ location / {
 location ~ \.php$ {
   try_files $uri =404;
   include fastcgi_params;
-  fastcgi_pass php72;
+  fastcgi_pass {{upstream}};
   # Following line is needed by WP Super Cache plugin
   fastcgi_param SERVER_NAME $http_host;
 }

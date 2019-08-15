@@ -26,8 +26,6 @@ class WOCleanController(CementBaseController):
                 dict(help='Clean all cache', action='store_true')),
             (['--fastcgi'],
                 dict(help='Clean FastCGI cache', action='store_true')),
-            (['--memcached'],
-                dict(help='Clean MemCached', action='store_true')),
             (['--opcache'],
                 dict(help='Clean OpCache', action='store_true')),
             (['--redis'],
@@ -37,22 +35,20 @@ class WOCleanController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        if (not (self.app.pargs.all or self.app.pargs.fastcgi or
-                 self.app.pargs.memcached or self.app.pargs.opcache or
-                 self.app.pargs.redis)):
+        pargs = self.app.pargs
+        if (not (pargs.all or pargs.fastcgi or
+                 pargs.memcached or pargs.opcache or
+                 pargs.redis)):
             self.clean_fastcgi()
-        if self.app.pargs.all:
-            self.clean_memcached()
+        if pargs.all:
             self.clean_fastcgi()
             self.clean_opcache()
             self.clean_redis()
-        if self.app.pargs.fastcgi:
+        if pargs.fastcgi:
             self.clean_fastcgi()
-        if self.app.pargs.memcached:
-            self.clean_memcached()
-        if self.app.pargs.opcache:
+        if pargs.opcache:
             self.clean_opcache()
-        if self.app.pargs.redis:
+        if pargs.redis:
             self.clean_redis()
 
     @expose(hide=True)
@@ -65,22 +61,11 @@ class WOCleanController(CementBaseController):
             Log.info(self, "Redis is not installed")
 
     @expose(hide=True)
-    def clean_memcached(self):
-        try:
-            if(WOAptGet.is_installed(self, "memcached")):
-                WOService.restart_service(self, "memcached")
-                Log.info(self, "Cleaning MemCached")
-            else:
-                Log.info(self, "Memcached not installed")
-        except Exception as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Unable to restart Memcached", False)
-
-    @expose(hide=True)
     def clean_fastcgi(self):
         if(os.path.isdir("/var/run/nginx-cache")):
             Log.info(self, "Cleaning NGINX FastCGI cache")
             WOShellExec.cmd_exec(self, "rm -rf /var/run/nginx-cache/*")
+            WOService.restart_service(self, 'nginx')
         else:
             Log.error(self, "Unable to clean FastCGI cache", False)
 
@@ -88,7 +73,7 @@ class WOCleanController(CementBaseController):
     def clean_opcache(self):
         try:
             Log.info(self, "Cleaning opcache")
-            urllib.request.urlopen(" https://127.0.0.1:22222/cache"
+            urllib.request.urlopen("https://127.0.0.1:22222/cache"
                                    "/opcache/opgui.php?reset=1").read()
         except Exception as e:
             Log.debug(self, "{0}".format(e))

@@ -13,14 +13,11 @@ addons:
 git:
   quiet: true
 
-cache:
-  apt: true
-
 before_install:
   - rm -rf ~/.gnupg
 
 before_script:
-  - sudo rm -rf /etc/mysql/
+  - sudo rm -rf /etc/mysql
   - sudo bash -c 'echo example.com > /etc/hostname'
   - sudo apt-get -qq purge mysql* graphviz* redis*
   - sudo apt-get -qq autoremove --purge
@@ -36,6 +33,8 @@ script:
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql && sudo wo site create proxy.com --proxy=127.0.0.1:3000
   - sudo wo site create wp1.com --wp && sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc
   - sudo wo site create wpsc-php73.net --wpsc --php73 && sudo wo site create wpfc-php73.net --wpfc --php73
+  - sudo wo site create wprocket.net --wprocket && sudo wo site create wprocket-php73.net --wprocket --php73
+  - sudo wo site create wpce.net --wpce && sudo wo site create wpce-php73.net --wpce --php73
   - sudo wo site create wpredis.net --wpredis && sudo wo site create wpredis-php73.net --wpredis --php73
   - sudo wo site create wpsubdir1.com --wpsubdir && sudo wo site create wpsubdir-php73.com --wpsubdir --php73
 
@@ -47,11 +46,16 @@ script:
   - sudo wp --allow-root --info
   - sudo wo info
   - sudo cat /etc/nginx/nginx.conf
+  - sudo tree -L 2 /etc/nginx
   - sudo cat /etc/mysql/my.cnf
+  - sudo wo stack upgrade --nginx --no-prompt
+  - sudo wo stack upgrade --php --no-prompt
   - sudo wo stack upgrade --netdata --no-prompt
   - sudo wo stack upgrade --phpmyadmin --no-prompt
   - sudo wo stack upgrade --composer --no-prompt
   - sudo wo update --travis
   - sudo wo stack status
+  - sudo tar -I pigz  -cf wordops.tar.gz /var/log/wo
+  - curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/$(basename "wordops.tar.gz") && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
   - echo "yes" | sudo wo stack purge --all
   - sudo bash install --purge

@@ -1,4 +1,4 @@
-# NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION - WO v3.9.5
+# NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION - WO v3.9.7
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 
 # do not cache xhtml request
@@ -19,6 +19,7 @@ map $http_cookie $cookie_no_cache {
     "~*woocommerce_cart_hash" 1;
     "~*wptouch_switch_toogle" 1;
     "~*comment_author_email_" 1;
+     "~*wptouch_switch_toggle" 1;
     "~*edd" 1;
 }
 
@@ -44,6 +45,11 @@ map $request_uri $uri_no_cache {
     "~*/wc-api/*" 1;
     "~*/logout/" 1;
     "~*/lost-password/" 1;
+    "~*/panier/" 1;
+    "~*/mon-compte/" 1;
+    "~*/embed" 1;
+    "~*/commande/" 1;
+    "~*/resetpass/" 1;
 }
 
 # do not cache requests with query strings
@@ -58,8 +64,13 @@ map $http_request_no_cache$cookie_no_cache$uri_no_cache$query_no_cache $skip_cac
     0000 0;
 }
 
-# map $skip_cache with $cache_uri for --wpsc stack
+# map $skip_cache with $cache_uri for --wpsc --wpce & --wprocket stack
 map $skip_cache $cache_uri {
     0 $request_uri;
     default 'null cache';
+}
+
+map $https $https_prefix {
+    default "";
+    on "-https";
 }
