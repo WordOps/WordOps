@@ -63,6 +63,9 @@ class WOStackController(CementBaseController):
                 dict(help='Install PHP 7.3 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
+            (['--mysqlclient'],
+                dict(help='Install MySQL client for remote MySQL server',
+                     action='store_true')),
             (['--wpcli'],
                 dict(help='Install WPCLI stack', action='store_true')),
             (['--phpmyadmin'],
@@ -107,12 +110,10 @@ class WOStackController(CementBaseController):
             if ((not pargs.web) and (not pargs.admin) and
                 (not pargs.nginx) and (not pargs.php) and
                 (not pargs.mysql) and (not pargs.wpcli) and
-                (not pargs.phpmyadmin) and
-                (not pargs.composer) and
-                (not pargs.netdata) and
-                (not pargs.dashboard) and
-                (not pargs.fail2ban) and
-                (not pargs.security) and
+                (not pargs.phpmyadmin) and (not pargs.composer) and
+                (not pargs.netdata) and (not pargs.dashboard) and
+                (not pargs.fail2ban) and (not pargs.security)
+                and (not pargs.mysqlclient) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.phpredisadmin) and
@@ -218,9 +219,10 @@ class WOStackController(CementBaseController):
                                             "/usr/bin/mysqltuner",
                                             "MySQLTuner"]]
 
-                else:
-                    Log.debug(self, "MySQL connection is already alive")
-                    Log.info(self, "MySQL connection is already alive")
+            if pargs.mysqlclient:
+                Log.debug(self, "Setting apt_packages variable "
+                          "for MySQL Client")
+                apt_packages = apt_packages + WOVariables.wo_mysql_client
 
             # WP-CLI
             if pargs.wpcli:

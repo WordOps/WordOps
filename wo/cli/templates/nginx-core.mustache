@@ -40,6 +40,12 @@ http {
 	reset_timedout_connection on;
 	more_set_headers "X-Powered-By : WordOps";
 
+    open_file_cache max=50000 inactive=60s;
+    open_file_cache_errors off;
+    open_file_cache_min_uses 2;
+    open_file_cache_valid 120s;
+    open_log_file_cache max=10000 inactive=30s min_uses=2;
+
 	# Limit Request
 	limit_req_status 403;
 	limit_req_zone $binary_remote_addr zone=one:10m rate=1r/s;

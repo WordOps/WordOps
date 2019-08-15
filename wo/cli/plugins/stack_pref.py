@@ -25,7 +25,8 @@ from wo.core.variables import WOVariables
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
-    if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
+    if (set(WOVariables.wo_mysql).issubset(set(apt_packages)) or
+            set(WOVariables.wo_mysql_client).issubset(set(apt_packages))):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -42,71 +43,47 @@ def pre_pref(self, apt_packages):
                            keyserver="keyserver.ubuntu.com")
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver="keyserver.ubuntu.com")
+    if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
         # configure MySQL non-interactive install
         if (not WOVariables.wo_distro == 'raspbian'):
-            Log.debug(self, "Pre-seeding MySQL")
-            Log.debug(self, "echo \"mariadb-server-10.3 "
-                      "mysql-server/root_password "
-                      "password \" | "
-                      "debconf-set-selections")
-            try:
-                WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
-                                     "mysql-server/root_password "
-                                     "password {chars}\" | "
-                                     "debconf-set-selections"
-                                     .format(chars=chars),
-                                     log=False)
-            except CommandExecutionError as e:
-                Log.debug(self, "{0}".format(e))
-                Log.error("Failed to initialize MySQL package")
-
-            Log.debug(self, "echo \"mariadb-server-10.3 "
-                      "mysql-server/root_password_again "
-                      "password \" | "
-                      "debconf-set-selections")
-            try:
-                WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.3 "
-                                     "mysql-server/root_password_again "
-                                     "password {chars}\" | "
-                                     "debconf-set-selections"
-                                     .format(chars=chars),
-                                     log=False)
-            except CommandExecutionError as e:
-                Log.debug(self, "{0}".format(e))
-                Log.error("Failed to initialize MySQL package")
+            mariadb_ver = '10.3'
         else:
-            Log.debug(self, "Pre-seeding MySQL")
-            Log.debug(self, "echo \"mariadb-server-10.1 "
-                      "mysql-server/root_password "
-                      "password \" | "
-                      "debconf-set-selections")
-            try:
-                WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
-                                     "mysql-server/root_password "
-                                     "password {chars}\" | "
-                                     "debconf-set-selections"
-                                     .format(chars=chars),
-                                     log=False)
-            except CommandExecutionError as e:
-                Log.debug(self, "{0}".format(e))
-                Log.error("Failed to initialize MySQL package")
+            mariadb_ver = '10.1'
 
-            Log.debug(self, "echo \"mariadb-server-10.1 "
-                      "mysql-server/root_password_again "
-                      "password \" | "
-                      "debconf-set-selections")
-            try:
-                WOShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
-                                     "mysql-server/root_password_again "
-                                     "password {chars}\" | "
-                                     "debconf-set-selections"
-                                     .format(chars=chars),
-                                     log=False)
-            except CommandExecutionError as e:
-                Log.debug(self, "{0}".format(e))
-                Log.error(self, "Failed to initialize MySQL package")
+        Log.debug(self, "Pre-seeding MySQL")
+        Log.debug(self, "echo \"mariadb-server-{0} "
+                  "mysql-server/root_password "
+                  "password \" | "
+                  "debconf-set-selections"
+                  .format(mariadb_ver))
+        try:
+            WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
+                                 "mysql-server/root_password "
+                                 "password {chars}\" | "
+                                 "debconf-set-selections"
+                                 .format(mariadb_ver, chars=chars),
+                                 log=False)
+        except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error("Failed to initialize MySQL package")
+
+        Log.debug(self, "echo \"mariadb-server-{0} "
+                  "mysql-server/root_password_again "
+                  "password \" | "
+                  "debconf-set-selections"
+                  .format(mariadb_ver))
+        try:
+            WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
+                                 "mysql-server/root_password_again "
+                                 "password {chars}\" | "
+                                 "debconf-set-selections"
+                                 .format(mariadb_ver, chars=chars),
+                                 log=False)
+        except CommandExecutionError as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error("Failed to initialize MySQL package")
         # generate my.cnf root credentials
         mysql_config = """
             [client]
@@ -695,7 +672,7 @@ def post_pref(self, apt_packages, packages):
             # Parse /etc/php/7.2/fpm/php-fpm.conf
             data = dict(pid="/run/php/php7.2-fpm.pid",
                         error_log="/var/log/php/7.2/fpm.log",
-                            include="/etc/php/7.2/fpm/pool.d/*.conf")
+                        include="/etc/php/7.2/fpm/pool.d/*.conf")
             Log.debug(self, "writting php7.2 configuration into "
                       "/etc/php/7.2/fpm/php-fpm.conf")
             wo_php_fpm = open('/etc/php/7.2/fpm/php-fpm.conf',
@@ -858,8 +835,8 @@ def post_pref(self, apt_packages, packages):
 
             # Parse /etc/php/7.3/fpm/php-fpm.conf
             data = dict(pid="/run/php/php7.3-fpm.pid",
-                            error_log="/var/log/php7.3-fpm.log",
-                            include="/etc/php/7.3/fpm/pool.d/*.conf")
+                        error_log="/var/log/php7.3-fpm.log",
+                        include="/etc/php/7.3/fpm/pool.d/*.conf")
             Log.debug(self, "writting php 7.3 configuration into "
                       "/etc/php/7.3/fpm/php-fpm.conf")
             wo_php_fpm = open('/etc/php/7.3/fpm/php-fpm.conf',
