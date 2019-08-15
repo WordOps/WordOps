@@ -10,7 +10,7 @@
 # Version 3.9.7.2 - 2019-08-12
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.7.2"
+readonly wo_version_new="3.9.7.3"
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -124,11 +124,11 @@ readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -is)
 readonly wo_distro_version=$(lsb_release -sc)
 readonly wo_distro_id=$(lsb_release -rs)
-TIME_FORMAT='%d-%b-%Y-%H%M%S'
-TIME=$(date +"$TIME_FORMAT")
-NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
-EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
-WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
+readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
+readonly TIME=$(date +"$TIME_FORMAT")
+readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
+readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
+readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
 WO_ARCH="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
@@ -183,13 +183,13 @@ wo_install_dep() {
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
             # install dependencies
             apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3 python3-apt python3-setuptools python3-requests python3-dev sqlite3 git tar software-properties-common pigz \
-            gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
+                build-essential curl gzip python3 python3-apt python3-setuptools python3-requests python3-dev sqlite3 git tar software-properties-common pigz \
+                gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         else
             # install dependencies
             apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-requests python3-dev ca-certificates sqlite3 git tar \
-            software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
+                build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-requests python3-dev ca-certificates sqlite3 git tar \
+                software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
             # add php repository gpg key
             [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
             # add nginx repository gpg key
@@ -695,6 +695,46 @@ wo_clean() {
 wo_uninstall() {
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates >> /var/log/wo/install.log 2>&1
 }
+
+wo_ufw_setup() {
+
+    CURRENT_SSH_PORT=$(grep "Port" /etc/ssh/sshd_config | awk -F " " '{print $2}')
+
+    if [ ! -d /etc/ufw ]; then
+        apt-get install ufw -y
+    fi
+
+    # define firewall rules
+
+    ufw logging low
+    ufw default allow outgoing
+    ufw default deny incoming
+
+    # default ssh port
+    ufw allow 22
+
+    # custom ssh port
+    if [ "$CURRENT_SSH_PORT" != "22" ]; then
+        ufw allow "$CURRENT_SSH_PORT"
+    fi
+
+    # dns
+    ufw allow 53
+
+    # nginx
+    ufw allow http
+    ufw allow https
+
+    # ntp
+    ufw allow 123
+
+    # wordops backend
+    ufw allow 22222
+
+    # enable ufw
+    echo "y" | ufw enable
+
+} >> $wo_install_log
 
 ###
 # 4 - WO MAIN SETUP

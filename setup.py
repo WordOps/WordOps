@@ -9,9 +9,10 @@ import shutil
 conf = []
 templates = []
 
-long_description = '''WordOps is the commandline tool to manage your
-                      Websites based on WordPress and Nginx with easy to use
-                      commands'''
+long_description = '''WordOps  An essential toolset that eases WordPress
+                      site and server administration. It provide the ability
+                      to Install a high performance WordPress stack
+                      with a few keystrokes'''
 
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
@@ -56,7 +57,7 @@ if not os.path.isfile('/root/.gitconfig'):
     shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
 
 setup(name='wo',
-      version='3.9.7.2',
+      version='3.9.7.3',
       description=long_description,
       long_description=long_description,
       classifiers=[],

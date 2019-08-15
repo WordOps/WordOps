@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.7.3 - 2019-08-15
+
 #### Added
 
 - Allow web browser caching for json and webmanifest files
@@ -17,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - WP-Rocket support with the flag `--wprocket`
 - Install unattended-upgrade and enable automated security updates
 - Enable time synchronization with ntp
+- Additional cache exception for woocommerce
 
 #### Changed
 

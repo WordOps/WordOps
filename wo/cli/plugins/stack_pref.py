@@ -593,6 +593,19 @@ def post_pref(self, apt_packages, packages):
             else:
                 WOService.restart_service(self, 'nginx')
 
+            # add rule for Nginx with UFW
+            if WOAptGet.is_installed(self, 'ufw'):
+                try:
+                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
+                                         "http")
+                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
+                                         "https")
+                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
+                                         "22222")
+                except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(self, "Unable to add UFW rule")
+
         # create nginx configuration for redis
         if set(WOVariables.wo_redis).issubset(set(apt_packages)):
             if os.path.isdir('/etc/nginx/common'):
@@ -1070,7 +1083,6 @@ def post_pref(self, apt_packages, packages):
                                   comment='MySQL optimization cronjob '
                                   'added by WordOps')
             WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
-            WOService.restart_service(self, 'mysql')
 
         # create fail2ban configuration files
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
@@ -1166,7 +1178,7 @@ def post_pref(self, apt_packages, packages):
             # add rule for proftpd with UFW
             if WOAptGet.is_installed(self, 'ufw'):
                 try:
-                    WOShellExec.cmd_exec(self, "ufw allow "
+                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
                                          "49000:50000/tcp")
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
