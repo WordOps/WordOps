@@ -28,6 +28,9 @@ script:
   - lsb_release -a
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
+  - sed -i 's/# "nose"/"nose"/g' setup.py
+  - sed -i 's/# "coverage"/"coverage"/g' setup.py
+  - sed -i 's/# "Sphinx >= 1.0"/"Sphinx >= 1.0"/g' setup.py
   - sudo bash install --travis
   - sudo wo --help && sudo wo stack install && sudo wo stack install --proftpd
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql && sudo wo site create proxy.com --proxy=127.0.0.1:3000
