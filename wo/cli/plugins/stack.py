@@ -582,7 +582,7 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            if ((not pargs.no_prompt) and (not pargs.force)):
+            if not pargs.force:
                 wo_prompt = input('Are you sure you to want to'
                                   ' remove from server.'
                                   '\nPackage configuration will remain'
@@ -590,7 +590,7 @@ class WOStackController(CementBaseController):
                                   'Any answer other than '
                                   '"yes" will be stop this'
                                   ' operation :  ')
-                if (wo_prompt == 'YES' or wo_prompt == 'yes' or pargs.force):
+                if (wo_prompt != 'YES' or wo_prompt != 'yes'):
                     Log.error(self, "Not removing packages")
 
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
@@ -761,14 +761,14 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            if ((not pargs.no_prompt) and (not pargs.force)):
+            if not pargs.force:
                 wo_prompt = input('Are you sure you to want to purge '
                                   'from server '
                                   'along with their configuration'
                                   ' packages,\nAny answer other than '
                                   '"yes" will be stop this '
                                   'operation :')
-                if (wo_prompt == 'YES' or wo_prompt == 'yes' or pargs.force):
+                if (wo_prompt != 'YES' or wo_prompt != 'yes'):
                     Log.error(self, "Not purging packages")
 
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
