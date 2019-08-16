@@ -840,10 +840,6 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for MySQL")
         if not WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
             apt_packages = apt_packages + WOVariables.wo_mysql
-            packages = packages + [["https://raw.githubusercontent.com/"
-                                    "major/MySQLTuner-perl/master/"
-                                    "mysqltuner.pl", "/usr/bin/mysqltuner",
-                                    "MySQLTuner"]]
 
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting packages variable for WP-CLI")

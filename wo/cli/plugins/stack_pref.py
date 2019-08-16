@@ -160,7 +160,7 @@ def post_pref(self, apt_packages, packages):
                     (data), 'nginx-core.mustache', out=wo_nginx)
                 wo_nginx.close()
 
-            if not os.path.isfile('/etc/nginx/conf.d/gzip.conf'):
+            if not os.path.isfile('/etc/nginx/conf.d/gzip.conf.disabled'):
                 data = dict()
                 Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/conf.d/gzip.conf')
@@ -170,7 +170,7 @@ def post_pref(self, apt_packages, packages):
                     (data), 'gzip.mustache', out=wo_nginx)
                 wo_nginx.close()
 
-            if not os.path.isfile('/etc/nginx/conf.d/brotli.conf.disabled'):
+            if not os.path.isfile('/etc/nginx/conf.d/brotli.conf'):
                 Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/conf.d/brotli.conf.disabled')
                 wo_nginx = open('/etc/nginx/conf.d/brotli.conf.disabled',
@@ -1070,7 +1070,6 @@ def post_pref(self, apt_packages, packages):
                                    '/var/lib/mysql/ib_logfile1.bak')
                 WOService.start_service(self, 'mysql')
 
-            WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
             WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
                                   '> /dev/null 2>&1',
                                   comment='MySQL optimization cronjob '
@@ -1323,6 +1322,11 @@ def post_pref(self, apt_packages, packages):
                               WOVariables.wo_php_user,
                               WOVariables.wo_php_user,
                               recursive=True)
+
+        if any('/usr/bin/mysqltuner' == x[1]
+               for x in packages):
+            Log.debug(self, "CHMOD MySQLTuner in /usr/bin/mysqltuner")
+            WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
 
         # netdata install
         if any('/var/lib/wo/tmp/kickstart.sh' == x[1]

@@ -65,6 +65,8 @@ class WOStackController(CementBaseController):
             (['--mysqlclient'],
                 dict(help='Install MySQL client for remote MySQL server',
                      action='store_true')),
+            (['--mysqltuner'],
+                dict(help='Install MySQLTuner stack', action='store_true')),
             (['--wpcli'],
                 dict(help='Install WPCLI stack', action='store_true')),
             (['--phpmyadmin'],
@@ -113,7 +115,7 @@ class WOStackController(CementBaseController):
                 (not pargs.phpmyadmin) and (not pargs.composer) and
                 (not pargs.netdata) and (not pargs.dashboard) and
                 (not pargs.fail2ban) and (not pargs.security)
-                and (not pargs.mysqlclient) and
+                and (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.phpredisadmin) and
@@ -146,6 +148,7 @@ class WOStackController(CementBaseController):
                 pargs.netdata = True
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
+                pargs.mysqltuner = True
 
             if pargs.security:
                 pargs.fail2ban = True
@@ -212,12 +215,6 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + WOVariables.wo_mysql
-                    packages = packages + [["https://raw."
-                                            "githubusercontent.com/"
-                                            "major/MySQLTuner-perl"
-                                            "/master/mysqltuner.pl",
-                                            "/usr/bin/mysqltuner",
-                                            "MySQLTuner"]]
 
             if pargs.mysqlclient:
                 Log.debug(self, "Setting apt_packages variable "
@@ -317,6 +314,15 @@ class WOStackController(CementBaseController):
                                         "htdocs/db/adminer/adminer.css"
                                         .format(WOVariables.wo_webroot),
                                         "Adminer theme"]]
+
+            if pargs.mysqltuner:
+                Log.debug(self, "Setting packages variable for MySQLTuner ")
+                packages = packages + [["https://raw."
+                                        "githubusercontent.com/"
+                                        "major/MySQLTuner-perl"
+                                        "/master/mysqltuner.pl",
+                                        "/usr/bin/mysqltuner",
+                                        "MySQLTuner"]]
 
             # Netdata
             if pargs.netdata:
@@ -436,7 +442,8 @@ class WOStackController(CementBaseController):
             (not pargs.adminer) and (not pargs.utils) and
             (not pargs.composer) and (not pargs.netdata) and
             (not pargs.fail2ban) and (not pargs.proftpd) and
-            (not pargs.security) and
+            (not pargs.security) and (not pargs.mysqltuner) and
+            (not pargs.mysqlclient) and
             (not pargs.all) and (not pargs.redis) and
                 (not pargs.phpredisadmin)):
             pargs.web = True
@@ -447,6 +454,10 @@ class WOStackController(CementBaseController):
             pargs.web = True
             pargs.admin = True
             pargs.php73 = True
+            pargs.fail2ban = True
+            pargs.proftpd = True
+            pargs.utils = True
+            pargs.redis = True
 
         if pargs.web:
             pargs.nginx = True
@@ -458,6 +469,7 @@ class WOStackController(CementBaseController):
             pargs.composer = True
             pargs.utils = True
             pargs.netdata = True
+            pargs.mysqltuner = True
             if os.path.isdir('{0}22222/htdocs'
                              .format(WOVariables.wo_webroot)):
                 packages = packages + ['{0}22222/htdocs/*'
@@ -471,9 +483,7 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Removing apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
-            else:
-                Log.error(self, "Cannot Remove! Nginx Stable "
-                          "version not found.")
+
         # PHP 7.2
         if pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
@@ -483,8 +493,6 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
-            else:
-                Log.error(self, "PHP 7.2 not found")
 
         # PHP7.3
         if pargs.php73:
@@ -495,8 +503,6 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
-            else:
-                Log.error(self, "PHP 7.3 not found")
 
         # REDIS
         if pargs.redis:
@@ -507,43 +513,39 @@ class WOStackController(CementBaseController):
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + WOVariables.wo_mysql
-            packages = packages + ['/usr/bin/mysqltuner']
 
         # fail2ban
         if pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
                 Log.debug(self, "Remove apt_packages variable of Fail2ban")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
-            else:
-                Log.error(self, "Fail2ban not found")
 
         # proftpd
         if pargs.proftpd:
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Remove apt_packages variable for ProFTPd")
                 apt_packages = apt_packages + ["proftpd-basic"]
-            else:
-                Log.error(self, "ProFTPd not found")
 
         # WPCLI
         if pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
-            else:
-                Log.warn(self, "WP-CLI is not installed with WordOps")
+
         # PHPMYADMIN
         if pargs.phpmyadmin:
-            Log.debug(self, "Removing package variable of phpMyAdmin ")
+            Log.debug(self, "Removing package of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
                                    .format(WOVariables.wo_webroot)]
         # Composer
         if pargs.composer:
-            Log.debug(self, "Removing package variable of Composer ")
+            Log.debug(self, "Removing package of Composer ")
             if os.path.isfile('/usr/local/bin/composer'):
                 packages = packages + ['/usr/local/bin/composer']
-            else:
-                Log.warn(self, "Composer is not installed with WordOps")
+
+        if pargs.mysqltuner:
+            Log.debug(self, "Removing packages for MySQLTuner ")
+            packages = packages + [['/usr/bin/mysqltuner']]
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
@@ -632,7 +634,8 @@ class WOStackController(CementBaseController):
             (not pargs.adminer) and (not pargs.utils) and
             (not pargs.composer) and (not pargs.netdata) and
             (not pargs.fail2ban) and (not pargs.proftpd) and
-            (not pargs.security) and
+            (not pargs.security) and (not pargs.mysqltuner) and
+            (not pargs.mysqlclient) and
             (not pargs.all) and (not pargs.redis) and
                 (not pargs.phpredisadmin)):
             pargs.web = True
@@ -643,6 +646,10 @@ class WOStackController(CementBaseController):
             pargs.web = True
             pargs.admin = True
             pargs.php73 = True
+            pargs.fail2ban = True
+            pargs.proftpd = True
+            pargs.utils = True
+            pargs.redis = True
 
         if pargs.web:
             pargs.nginx = True
@@ -654,6 +661,7 @@ class WOStackController(CementBaseController):
             pargs.utils = True
             pargs.composer = True
             pargs.netdata = True
+            pargs.mysqltuner = True
             if os.path.isdir('{0}22222/htdocs'
                              .format(WOVariables.wo_webroot)):
                 packages = packages + ['{0}22222/htdocs/*'
@@ -666,9 +674,6 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Purge apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
-            else:
-                Log.error(self, "Cannot Purge! "
-                          "Nginx Stable version not found.")
 
         # PHP
         if pargs.php:
@@ -679,8 +684,6 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
-            else:
-                Log.error(self, "Cannot Purge PHP 7.2. not found.")
 
         # PHP 7.3
         if pargs.php73:
@@ -709,8 +712,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Purge package variable WPCLI")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
-            else:
-                Log.warn(self, "WP-CLI is not installed with WordOps")
 
         # PHPMYADMIN
         if pargs.phpmyadmin:
@@ -723,8 +724,10 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing package variable of Composer ")
             if os.path.isfile('/usr/local/bin/composer'):
                 packages = packages + ['/usr/local/bin/composer']
-            else:
-                Log.warn(self, "Composer is not installed with WordOps")
+
+        if pargs.mysqltuner:
+            Log.debug(self, "Removing packages for MySQLTuner ")
+            packages = packages + [['/usr/bin/mysqltuner']]
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
