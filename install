@@ -129,7 +129,7 @@ readonly TIME=$(date +"$TIME_FORMAT")
 readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
 readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
 readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
-readonly wo_env=$(cat /proc/1/environ)
+readonly wo_env=$(grep "container=lxc" /proc/1/environ)
 WO_ARCH="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
@@ -262,7 +262,7 @@ wo_sync_db() {
 
                 # Acquire information about the current nginx configuration
 
-                wo_site_current_type=$(grep "common/" /etc/nginx/sites-available/$site | awk -F "/" '{print $2}')
+                wo_site_current_type=$(grep "common/" "/etc/nginx/sites-available/$site" | awk -F "/" '{print $2}')
 
                 if echo "$wo_site_current_type" | grep -q "php"; then
                     if echo "$wo_site_current_type" | grep -q "php7"; then
@@ -640,7 +640,7 @@ wo_remove_ee_cron() {
 
 wo_tweak_kernel() {
 
-    if [ "$WO_ARCH" = "x86_64" ] && [ "$wo_env" != "container=lxc" ]; then
+    if [ "$WO_ARCH" = "x86_64" ] && [ -z "$wo_env" ]; then
         rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
         wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/"$wo_branch"/wo/cli/templates/sysctl.mustache
         if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ] || [ "$wo_distro_version" = "buster" ]; then
