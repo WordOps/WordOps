@@ -470,10 +470,6 @@ class WOStackController(CementBaseController):
             pargs.utils = True
             pargs.netdata = True
             pargs.mysqltuner = True
-            if os.path.isdir('{0}22222/htdocs'
-                             .format(WOVariables.wo_webroot)):
-                packages = packages + ['{0}22222/htdocs/*'
-                                       .format(WOVariables.wo_webroot)]
 
         if pargs.security:
             pargs.fail2ban = True
@@ -545,7 +541,7 @@ class WOStackController(CementBaseController):
 
         if pargs.mysqltuner:
             Log.debug(self, "Removing packages for MySQLTuner ")
-            packages = packages + [['/usr/bin/mysqltuner']]
+            packages = packages + ['/usr/bin/mysqltuner']
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
@@ -662,10 +658,6 @@ class WOStackController(CementBaseController):
             pargs.composer = True
             pargs.netdata = True
             pargs.mysqltuner = True
-            if os.path.isdir('{0}22222/htdocs'
-                             .format(WOVariables.wo_webroot)):
-                packages = packages + ['{0}22222/htdocs/*'
-                                       .format(WOVariables.wo_webroot)]
 
         if pargs.security:
             pargs.fail2ban = True
@@ -727,7 +719,7 @@ class WOStackController(CementBaseController):
 
         if pargs.mysqltuner:
             Log.debug(self, "Removing packages for MySQLTuner ")
-            packages = packages + [['/usr/bin/mysqltuner']]
+            packages = packages + ['/usr/bin/mysqltuner']
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
