@@ -21,7 +21,6 @@ from wo.cli.plugins.stack_migrate import WOStackMigrateController
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
 from wo.cli.plugins.stack_pref import pre_pref, post_pref
-from wo.core.addswap import WOSwap
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
