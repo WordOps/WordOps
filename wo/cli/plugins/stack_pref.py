@@ -179,6 +179,14 @@ def post_pref(self, apt_packages, packages):
                     (data), 'brotli.mustache', out=wo_nginx)
                 wo_nginx.close()
 
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/conf.d/tweaks.conf')
+            wo_nginx = open('/etc/nginx/conf.d/tweaks.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render(
+                (data), 'tweaks.mustache', out=wo_nginx)
+            wo_nginx.close()
+
             # Fix for white screen death with NGINX PLUS
             if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
                                     'SCRIPT_FILENAME'):

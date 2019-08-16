@@ -15,22 +15,10 @@ events {
 
 
 http {
+
 	##
 	# WordOps Settings
 	##
-
-	sendfile on;
-	sendfile_max_chunk 512k;
-
-	tcp_nopush on;
-	tcp_nodelay on;
-
-	keepalive_timeout 8;
-	keepalive_requests 500;
-	keepalive_disable msie6;
-
-	lingering_time 20s;
-	lingering_timeout 5s;
 
 	# Nginx AIO : See - https://www.nginx.com/blog/thread-pools-boost-performance-9x/
 	# http://nginx.org/en/docs/http/ngx_http_core_module.html#aio
@@ -40,13 +28,7 @@ http {
 	reset_timedout_connection on;
 	more_set_headers "X-Powered-By : WordOps";
 
-    open_file_cache max=50000 inactive=60s;
-    open_file_cache_errors off;
-    open_file_cache_min_uses 2;
-    open_file_cache_valid 120s;
-    open_log_file_cache max=10000 inactive=30s min_uses=2;
-
-	# Limit Request
+    # Limit Request
 	limit_req_status 403;
 	limit_req_zone $binary_remote_addr zone=one:10m rate=1r/s;
 
@@ -62,7 +44,6 @@ http {
 
 	# tls dynamic records patch directive
 	ssl_dyn_rec_enable on;
-
 
 	##
 	# SSL Settings

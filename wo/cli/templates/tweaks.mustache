@@ -1,0 +1,30 @@
+# NGINX Tweaks  - WO v3.9.8
+	directio 4m;
+	directio_alignment 512;
+	http2_max_field_size 16k;
+	http2_max_header_size 32k;
+
+	large_client_header_buffers 8 64k;
+
+	postpone_output 1460;
+	proxy_buffers 8 32k;
+	proxy_buffer_size 64k;
+
+	sendfile on;
+	sendfile_max_chunk 512k;
+
+	tcp_nopush on;
+	tcp_nodelay on;
+
+	keepalive_timeout 8;
+	keepalive_requests 500;
+	keepalive_disable msie6;
+
+	lingering_time 20s;
+	lingering_timeout 5s;
+
+	open_file_cache max=50000 inactive=60s;
+	open_file_cache_errors off;
+	open_file_cache_min_uses 2;
+	open_file_cache_valid 120s;
+	open_log_file_cache max=10000 inactive=30s min_uses=2;
