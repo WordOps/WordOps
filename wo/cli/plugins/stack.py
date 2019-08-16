@@ -582,7 +582,7 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            if not pargs.force:
+            if ((not pargs.no_prompt) and (not pargs.force)):
                 wo_prompt = input('Are you sure you to want to'
                                   ' remove from server.'
                                   '\nPackage configuration will remain'
@@ -590,31 +590,30 @@ class WOStackController(CementBaseController):
                                   'Any answer other than '
                                   '"yes" will be stop this'
                                   ' operation :  ')
+                if (wo_prompt == 'YES' or wo_prompt == 'yes' or pargs.force):
+                    Log.error(self, "Not removing packages")
 
-            if (wo_prompt == 'YES' or wo_prompt == 'yes'
-                    or pargs.force):
+            if (set(["nginx-custom"]).issubset(set(apt_packages))):
+                WOService.stop_service(self, 'nginx')
 
-                if (set(["nginx-custom"]).issubset(set(apt_packages))):
-                    WOService.stop_service(self, 'nginx')
+            # Netdata uninstaller
+            if (set(['/var/lib/wo/tmp/'
+                     'kickstart.sh']).issubset(set(packages))):
+                WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                     "libexec/netdata-"
+                                     "uninstaller.sh -y -f")
 
-                # Netdata uninstaller
-                if (set(['/var/lib/wo/tmp/'
-                         'kickstart.sh']).issubset(set(packages))):
-                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+            if (packages):
+                WOFileUtils.remove(self, packages)
+                WOAptGet.auto_remove(self)
 
-                if (packages):
-                    WOFileUtils.remove(self, packages)
-                    WOAptGet.auto_remove(self)
+            if (apt_packages):
+                Log.debug(self, "Removing apt_packages")
+                Log.info(self, "Removing packages, please wait...")
+                WOAptGet.remove(self, apt_packages)
+                WOAptGet.auto_remove(self)
 
-                if (apt_packages):
-                    Log.debug(self, "Removing apt_packages")
-                    Log.info(self, "Removing packages, please wait...")
-                    WOAptGet.remove(self, apt_packages)
-                    WOAptGet.auto_remove(self)
-
-                Log.info(self, "Successfully removed packages")
+            Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
     def purge(self):
@@ -762,39 +761,39 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            if not pargs.force:
+            if ((not pargs.no_prompt) and (not pargs.force)):
                 wo_prompt = input('Are you sure you to want to purge '
                                   'from server '
                                   'along with their configuration'
                                   ' packages,\nAny answer other than '
                                   '"yes" will be stop this '
                                   'operation :')
+                if (wo_prompt == 'YES' or wo_prompt == 'yes' or pargs.force):
+                    Log.error(self, "Not purging packages")
 
-            if (wo_prompt == 'YES' or wo_prompt == 'yes' or pargs.force):
+            if (set(["nginx-custom"]).issubset(set(apt_packages))):
+                WOService.stop_service(self, 'nginx')
 
-                if (set(["nginx-custom"]).issubset(set(apt_packages))):
-                    WOService.stop_service(self, 'nginx')
+            # Netdata uninstaller
+            if (set(['/var/lib/wo/tmp/'
+                     'kickstart.sh']).issubset(set(packages))):
+                WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                     "libexec/netdata-"
+                                     "uninstaller.sh -y -f")
 
-                # Netdata uninstaller
-                if (set(['/var/lib/wo/tmp/'
-                         'kickstart.sh']).issubset(set(packages))):
-                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+            if (set(["fail2ban"]).issubset(set(apt_packages))):
+                WOService.stop_service(self, 'fail2ban')
 
-                if (set(["fail2ban"]).issubset(set(apt_packages))):
-                    WOService.stop_service(self, 'fail2ban')
+            if (apt_packages):
+                Log.info(self, "Purging packages, please wait...")
+                WOAptGet.remove(self, apt_packages, purge=True)
+                WOAptGet.auto_remove(self)
 
-                if (apt_packages):
-                    Log.info(self, "Purging packages, please wait...")
-                    WOAptGet.remove(self, apt_packages, purge=True)
-                    WOAptGet.auto_remove(self)
+            if (packages):
+                WOFileUtils.remove(self, packages)
+                WOAptGet.auto_remove(self)
 
-                if (packages):
-                    WOFileUtils.remove(self, packages)
-                    WOAptGet.auto_remove(self)
-
-                Log.info(self, "Successfully purged packages")
+            Log.info(self, "Successfully purged packages")
 
 
 def load(app):
