@@ -97,13 +97,13 @@ fi
 ###
 export DEBIAN_FRONTEND=noninteractive
 [ -z "$wo_travis" ] && {
-    wo_lib_echo "Updating apt-get repository info"
     apt-get update -qq
 }
 
 if [ -z "$(command -v curl)" ]; then
     apt-get -y install curl -qq
 fi
+
 readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
 
 echo ""
