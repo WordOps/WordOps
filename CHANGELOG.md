@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
-### v3.9.8.1 - 2019-08-17
+### v3.9.8.1 - 2019-08-18
 
 #### Added
 
@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - variable substitution in install script
 - `wo stack upgrade --phpmyadmin/--dashboard`
 - phpmyadmin blowfish_secret key length
+- Cement App not exiting on close in case of error
 
 ### v3.9.8 - 2019-08-16
 

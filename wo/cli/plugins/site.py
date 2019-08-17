@@ -11,6 +11,7 @@ from wo.core.services import WOService
 from wo.cli.plugins.sitedb import (addNewSite, getSiteInfo,
                                    updateSiteInfo, deleteSiteInfo, getAllsites)
 from wo.core.git import WOGit
+from wo.core.logging import Log
 from subprocess import Popen
 from wo.core.nginxhashbucket import hashbucket
 import os
