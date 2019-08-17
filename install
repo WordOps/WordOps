@@ -739,7 +739,7 @@ else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         if ! {
-            wo -v 2>&1 | grep $wo_version_new
+            wo -v 2>&1 | grep -q "$wo_version_new"
         } || [ "$wo_force_install" = "y" ]; then
             if [ -z "$wo_force_install" ]; then
                 echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
