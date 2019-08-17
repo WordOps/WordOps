@@ -20,6 +20,7 @@ class WOStackUpgradeController(CementBaseController):
         label = 'upgrade'
         stacked_on = 'stack'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('Upgrade stack safely')
         arguments = [
             (['--all'],

@@ -30,6 +30,7 @@ class WOSiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('Performs website specific operations')
         arguments = [
             (['site_name'],
@@ -249,6 +250,7 @@ class WOSiteEditController(CementBaseController):
         label = 'edit'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('Edit Nginx configuration of site')
         arguments = [
             (['site_name'],
@@ -302,6 +304,7 @@ class WOSiteCreateController(CementBaseController):
         label = 'create'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('this commands set up configuration and installs '
                        'required files as options are provided')
         arguments = [
@@ -806,6 +809,7 @@ class WOSiteUpdateController(CementBaseController):
         label = 'update'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('This command updates websites configuration to '
                        'another as per the options are provided')
         arguments = [
@@ -1742,6 +1746,7 @@ class WOSiteDeleteController(CementBaseController):
         label = 'delete'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = 'delete an existing website'
         arguments = [
             (['site_name'],
@@ -1879,6 +1884,7 @@ class WOSiteListController(CementBaseController):
         label = 'list'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = 'List websites'
         arguments = [
             (['--enabled'],

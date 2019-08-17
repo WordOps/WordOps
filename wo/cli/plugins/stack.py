@@ -44,6 +44,7 @@ class WOStackController(CementBaseController):
         label = 'stack'
         stacked_on = 'base'
         stacked_type = 'nested'
+        exit_on_close = True
         description = 'Stack command manages stack operations'
         arguments = [
             (['--all'],
