@@ -7,10 +7,12 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
+# wget -qO wo wops.cc && sudo bash wo
+# -------------------------------------------------------------------------
 # Version 3.9.8 - 2019-08-17
 # -------------------------------------------------------------------------
 readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.8"
+export DEBIAN_FRONTEND=noninteractive
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -87,13 +89,9 @@ done
 ###
 if [[ $EUID -ne 0 ]]; then
     wo_lib_echo_fail "Sudo privilege required..."
-    wo_lib_echo_fail "Use: curl -sL wops.cc | sudo bash"
+    wo_lib_echo_fail "Use: wget -qO wo wops.cc && sudo bash wo  "
     exit 100
 fi
-
-echo ""
-wo_lib_echo "Welcome to WordOps install script v${wo_version_new}"
-echo ""
 
 ###
 # 1- Update the apt sewers with fresh info
@@ -102,6 +100,17 @@ echo ""
     wo_lib_echo "Updating apt-get repository info"
     apt-get update -qq
 }
+
+if [ -z "$(command -v curl)" ]; then
+    apt-get -y install curl -qq
+fi
+readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
+
+echo ""
+wo_lib_echo "Welcome to WordOps install script v${wo_version_new}"
+echo ""
+
+
 
 ###
 # 1- Check whether lsb_release is installed, and if not, install it
@@ -176,7 +185,7 @@ fi
 wo_install_dep() {
 
     {
-        export DEBIAN_FRONTEND=noninteractive
+
         [ -z "$wo_travis" ] && {
             # update server packages
             apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
