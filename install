@@ -9,10 +9,9 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.8 - 2019-08-17
+# Version 3.9.8.1 - 2019-08-17
 # -------------------------------------------------------------------------
-readonly wo_version_old="2.2.3"
-export DEBIAN_FRONTEND=noninteractive
+
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -96,6 +95,7 @@ fi
 ###
 # 1- Update the apt sewers with fresh info
 ###
+export DEBIAN_FRONTEND=noninteractive
 [ -z "$wo_travis" ] && {
     wo_lib_echo "Updating apt-get repository info"
     apt-get update -qq
