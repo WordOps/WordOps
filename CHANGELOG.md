@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.1 - 2019-08-17
+
+#### Added
+
+- WordOps backend is automatically secured by the first Let's Encrypt SSL certificate issued
+
 #### Changed
 
 - Extra Nginx directives moved from nginx.conf to conf.d/tweaks.conf
@@ -17,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - MySQLTuner installation
 - `wo stack remove/purge --all`
 - variable substitution in install script
+- `wo stack upgrade --phpmyadmin/--dashboard`
 
 ### v3.9.8 - 2019-08-16
 

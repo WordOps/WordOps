@@ -229,6 +229,10 @@ class WOStackUpgradeController(CementBaseController):
                                       'wo-dashboard.tar.gz',
                                       '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, "{0}22222/htdocs"
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user, recursive=True)
 
                 if pargs.composer:
                     Log.info(self, "Upgrading Composer, please wait...")
@@ -257,6 +261,10 @@ class WOStackUpgradeController(CementBaseController):
                                 .format(WOVariables.wo_phpmyadmin),
                                 '{0}22222/htdocs/db/pma/'
                                 .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, "{0}22222/htdocs"
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user, recursive=True)
 
             Log.info(self, "Successfully updated packages")
         else:

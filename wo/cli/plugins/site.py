@@ -8,7 +8,8 @@ from wo.core.domainvalidate import ValidateDomain
 from wo.core.fileutils import WOFileUtils
 from wo.cli.plugins.site_functions import *
 from wo.core.services import WOService
-from wo.cli.plugins.sitedb import *
+from wo.cli.plugins.sitedb import (addNewSite, getSiteInfo,
+                                   updateSiteInfo, deleteSiteInfo, getAllsites)
 from wo.core.git import WOGit
 from subprocess import Popen
 from wo.core.nginxhashbucket import hashbucket
@@ -1027,7 +1028,7 @@ class WOSiteUpdateController(CementBaseController):
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=False,  basic=True, wp=False, wpfc=False,
                         wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                        multisite=False,wpsubdir=False, webroot=wo_site_webroot,
+                        multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                         wo_db_name='', wo_db_user='', wo_db_pass='',
                         wo_db_host='',
                         currsitetype=oldsitetype, currcachetype=oldcachetype)
