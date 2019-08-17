@@ -1282,7 +1282,7 @@ def post_pref(self, apt_packages, packages):
                 blowfish_key = ''.join([random.choice
                                         (string.ascii_letters +
                                          string.digits)
-                                        for n in range(25)])
+                                        for n in range(32)])
                 WOFileUtils.searchreplace(self,
                                           '{0}22222/htdocs/db/pma'
                                           '/config.inc.php'

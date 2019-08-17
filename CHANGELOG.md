@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `wo stack remove/purge --all`
 - variable substitution in install script
 - `wo stack upgrade --phpmyadmin/--dashboard`
+- phpmyadmin blowfish_secret key length
 
 ### v3.9.8 - 2019-08-16
 
