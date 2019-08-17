@@ -104,7 +104,7 @@ if [ -z "$(command -v curl)" ]; then
     apt-get -y install curl -qq
 fi
 
-readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
+readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" | awk -F "'" '{print$2}' 2>&1)
 
 echo ""
 wo_lib_echo "Welcome to WordOps install script v${wo_version_new}"
