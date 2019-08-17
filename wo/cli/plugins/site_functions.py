@@ -1365,6 +1365,19 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                           .format(WOVariables.wo_ssl_live, wo_domain_name))
             sslconf.close()
             # updateSiteInfo(self, wo_domain_name, ssl=True)
+            if not WOFileUtils.grep(self, '/var/www/22222/conf/nginx/ssl.conf',
+                                    '/etc/letsencrypt'):
+                Log.info(self, "Securing WordOps backend with {0} certificate"
+                         .format(wo_domain_name))
+                sslconf = open("/var/www/22222/conf/nginx/ssl.conf"
+                               .format(wo_domain_name),
+                               encoding='utf-8', mode='w')
+                sslconf.write("ssl_certificate     {0}/{1}/fullchain.pem;\n"
+                              "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                              "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                              "ssl_stapling_verify on;\n"
+                              .format(WOVariables.wo_ssl_live, wo_domain_name))
+                sslconf.close()
 
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
