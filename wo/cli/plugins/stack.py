@@ -21,7 +21,6 @@ from wo.cli.plugins.stack_migrate import WOStackMigrateController
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
 from wo.cli.plugins.stack_pref import pre_pref, post_pref
-from wo.core.addswap import WOSwap
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
@@ -66,6 +65,8 @@ class WOStackController(CementBaseController):
             (['--mysqlclient'],
                 dict(help='Install MySQL client for remote MySQL server',
                      action='store_true')),
+            (['--mysqltuner'],
+                dict(help='Install MySQLTuner stack', action='store_true')),
             (['--wpcli'],
                 dict(help='Install WPCLI stack', action='store_true')),
             (['--phpmyadmin'],
@@ -114,7 +115,7 @@ class WOStackController(CementBaseController):
                 (not pargs.phpmyadmin) and (not pargs.composer) and
                 (not pargs.netdata) and (not pargs.dashboard) and
                 (not pargs.fail2ban) and (not pargs.security)
-                and (not pargs.mysqlclient) and
+                and (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.phpredisadmin) and
@@ -147,6 +148,7 @@ class WOStackController(CementBaseController):
                 pargs.netdata = True
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
+                pargs.mysqltuner = True
 
             if pargs.security:
                 pargs.fail2ban = True
@@ -213,12 +215,6 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + WOVariables.wo_mysql
-                    packages = packages + [["https://raw."
-                                            "githubusercontent.com/"
-                                            "major/MySQLTuner-perl"
-                                            "/master/mysqltuner.pl",
-                                            "/usr/bin/mysqltuner",
-                                            "MySQLTuner"]]
 
             if pargs.mysqlclient:
                 Log.debug(self, "Setting apt_packages variable "
@@ -318,6 +314,15 @@ class WOStackController(CementBaseController):
                                         "htdocs/db/adminer/adminer.css"
                                         .format(WOVariables.wo_webroot),
                                         "Adminer theme"]]
+
+            if pargs.mysqltuner:
+                Log.debug(self, "Setting packages variable for MySQLTuner ")
+                packages = packages + [["https://raw."
+                                        "githubusercontent.com/"
+                                        "major/MySQLTuner-perl"
+                                        "/master/mysqltuner.pl",
+                                        "/usr/bin/mysqltuner",
+                                        "MySQLTuner"]]
 
             # Netdata
             if pargs.netdata:
@@ -437,7 +442,8 @@ class WOStackController(CementBaseController):
             (not pargs.adminer) and (not pargs.utils) and
             (not pargs.composer) and (not pargs.netdata) and
             (not pargs.fail2ban) and (not pargs.proftpd) and
-            (not pargs.security) and
+            (not pargs.security) and (not pargs.mysqltuner) and
+            (not pargs.mysqlclient) and
             (not pargs.all) and (not pargs.redis) and
                 (not pargs.phpredisadmin)):
             pargs.web = True
@@ -448,6 +454,10 @@ class WOStackController(CementBaseController):
             pargs.web = True
             pargs.admin = True
             pargs.php73 = True
+            pargs.fail2ban = True
+            pargs.proftpd = True
+            pargs.utils = True
+            pargs.redis = True
 
         if pargs.web:
             pargs.nginx = True
@@ -459,10 +469,7 @@ class WOStackController(CementBaseController):
             pargs.composer = True
             pargs.utils = True
             pargs.netdata = True
-            if os.path.isdir('{0}22222/htdocs'
-                             .format(WOVariables.wo_webroot)):
-                packages = packages + ['{0}22222/htdocs/*'
-                                       .format(WOVariables.wo_webroot)]
+            pargs.mysqltuner = True
 
         if pargs.security:
             pargs.fail2ban = True
@@ -472,9 +479,7 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Removing apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
-            else:
-                Log.error(self, "Cannot Remove! Nginx Stable "
-                          "version not found.")
+
         # PHP 7.2
         if pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
@@ -484,8 +489,6 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
-            else:
-                Log.error(self, "PHP 7.2 not found")
 
         # PHP7.3
         if pargs.php73:
@@ -496,8 +499,6 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
-            else:
-                Log.error(self, "PHP 7.3 not found")
 
         # REDIS
         if pargs.redis:
@@ -508,43 +509,39 @@ class WOStackController(CementBaseController):
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + WOVariables.wo_mysql
-            packages = packages + ['/usr/bin/mysqltuner']
 
         # fail2ban
         if pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
                 Log.debug(self, "Remove apt_packages variable of Fail2ban")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
-            else:
-                Log.error(self, "Fail2ban not found")
 
         # proftpd
         if pargs.proftpd:
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Remove apt_packages variable for ProFTPd")
                 apt_packages = apt_packages + ["proftpd-basic"]
-            else:
-                Log.error(self, "ProFTPd not found")
 
         # WPCLI
         if pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
-            else:
-                Log.warn(self, "WP-CLI is not installed with WordOps")
+
         # PHPMYADMIN
         if pargs.phpmyadmin:
-            Log.debug(self, "Removing package variable of phpMyAdmin ")
+            Log.debug(self, "Removing package of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
                                    .format(WOVariables.wo_webroot)]
         # Composer
         if pargs.composer:
-            Log.debug(self, "Removing package variable of Composer ")
+            Log.debug(self, "Removing package of Composer ")
             if os.path.isfile('/usr/local/bin/composer'):
                 packages = packages + ['/usr/local/bin/composer']
-            else:
-                Log.warn(self, "Composer is not installed with WordOps")
+
+        if pargs.mysqltuner:
+            Log.debug(self, "Removing packages for MySQLTuner ")
+            packages = packages + ['/usr/bin/mysqltuner']
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
@@ -593,31 +590,30 @@ class WOStackController(CementBaseController):
                                   'Any answer other than '
                                   '"yes" will be stop this'
                                   ' operation :  ')
+                if (wo_prompt != 'YES' or wo_prompt != 'yes'):
+                    Log.error(self, "Not removing packages")
 
-            if (wo_prompt == 'YES' or wo_prompt == 'yes'
-                    or pargs.force):
+            if (set(["nginx-custom"]).issubset(set(apt_packages))):
+                WOService.stop_service(self, 'nginx')
 
-                if (set(["nginx-custom"]).issubset(set(apt_packages))):
-                    WOService.stop_service(self, 'nginx')
+            # Netdata uninstaller
+            if (set(['/var/lib/wo/tmp/'
+                     'kickstart.sh']).issubset(set(packages))):
+                WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                     "libexec/netdata-"
+                                     "uninstaller.sh -y -f")
 
-                # Netdata uninstaller
-                if (set(['/var/lib/wo/tmp/'
-                         'kickstart.sh']).issubset(set(packages))):
-                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+            if (packages):
+                WOFileUtils.remove(self, packages)
+                WOAptGet.auto_remove(self)
 
-                if (packages):
-                    WOFileUtils.remove(self, packages)
-                    WOAptGet.auto_remove(self)
+            if (apt_packages):
+                Log.debug(self, "Removing apt_packages")
+                Log.info(self, "Removing packages, please wait...")
+                WOAptGet.remove(self, apt_packages)
+                WOAptGet.auto_remove(self)
 
-                if (apt_packages):
-                    Log.debug(self, "Removing apt_packages")
-                    Log.info(self, "Removing packages, please wait...")
-                    WOAptGet.remove(self, apt_packages)
-                    WOAptGet.auto_remove(self)
-
-                Log.info(self, "Successfully removed packages")
+            Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
     def purge(self):
@@ -633,7 +629,8 @@ class WOStackController(CementBaseController):
             (not pargs.adminer) and (not pargs.utils) and
             (not pargs.composer) and (not pargs.netdata) and
             (not pargs.fail2ban) and (not pargs.proftpd) and
-            (not pargs.security) and
+            (not pargs.security) and (not pargs.mysqltuner) and
+            (not pargs.mysqlclient) and
             (not pargs.all) and (not pargs.redis) and
                 (not pargs.phpredisadmin)):
             pargs.web = True
@@ -644,6 +641,10 @@ class WOStackController(CementBaseController):
             pargs.web = True
             pargs.admin = True
             pargs.php73 = True
+            pargs.fail2ban = True
+            pargs.proftpd = True
+            pargs.utils = True
+            pargs.redis = True
 
         if pargs.web:
             pargs.nginx = True
@@ -655,10 +656,7 @@ class WOStackController(CementBaseController):
             pargs.utils = True
             pargs.composer = True
             pargs.netdata = True
-            if os.path.isdir('{0}22222/htdocs'
-                             .format(WOVariables.wo_webroot)):
-                packages = packages + ['{0}22222/htdocs/*'
-                                       .format(WOVariables.wo_webroot)]
+            pargs.mysqltuner = True
 
         if pargs.security:
             pargs.fail2ban = True
@@ -667,9 +665,6 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Purge apt_packages variable of Nginx")
                 apt_packages = apt_packages + WOVariables.wo_nginx
-            else:
-                Log.error(self, "Cannot Purge! "
-                          "Nginx Stable version not found.")
 
         # PHP
         if pargs.php:
@@ -680,8 +675,6 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php
-            else:
-                Log.error(self, "Cannot Purge PHP 7.2. not found.")
 
         # PHP 7.3
         if pargs.php73:
@@ -710,8 +703,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Purge package variable WPCLI")
             if os.path.isfile('/usr/local/bin/wp'):
                 packages = packages + ['/usr/local/bin/wp']
-            else:
-                Log.warn(self, "WP-CLI is not installed with WordOps")
 
         # PHPMYADMIN
         if pargs.phpmyadmin:
@@ -724,8 +715,10 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing package variable of Composer ")
             if os.path.isfile('/usr/local/bin/composer'):
                 packages = packages + ['/usr/local/bin/composer']
-            else:
-                Log.warn(self, "Composer is not installed with WordOps")
+
+        if pargs.mysqltuner:
+            Log.debug(self, "Removing packages for MySQLTuner ")
+            packages = packages + ['/usr/bin/mysqltuner']
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
@@ -768,38 +761,39 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            wo_prompt = input('Are you sure you to want to purge '
-                              'from server '
-                              'along with their configuration'
-                              ' packages,\nAny answer other than '
-                              '"yes" will be stop this '
-                              'operation :')
+            if not pargs.force:
+                wo_prompt = input('Are you sure you to want to purge '
+                                  'from server '
+                                  'along with their configuration'
+                                  ' packages,\nAny answer other than '
+                                  '"yes" will be stop this '
+                                  'operation :')
+                if (wo_prompt != 'YES' or wo_prompt != 'yes'):
+                    Log.error(self, "Not purging packages")
 
-            if wo_prompt == 'YES' or wo_prompt == 'yes' or pargs.force:
+            if (set(["nginx-custom"]).issubset(set(apt_packages))):
+                WOService.stop_service(self, 'nginx')
 
-                if (set(["nginx-custom"]).issubset(set(apt_packages))):
-                    WOService.stop_service(self, 'nginx')
+            # Netdata uninstaller
+            if (set(['/var/lib/wo/tmp/'
+                     'kickstart.sh']).issubset(set(packages))):
+                WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                     "libexec/netdata-"
+                                     "uninstaller.sh -y -f")
 
-                # Netdata uninstaller
-                if (set(['/var/lib/wo/tmp/'
-                         'kickstart.sh']).issubset(set(packages))):
-                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+            if (set(["fail2ban"]).issubset(set(apt_packages))):
+                WOService.stop_service(self, 'fail2ban')
 
-                if (set(["fail2ban"]).issubset(set(apt_packages))):
-                    WOService.stop_service(self, 'fail2ban')
+            if (apt_packages):
+                Log.info(self, "Purging packages, please wait...")
+                WOAptGet.remove(self, apt_packages, purge=True)
+                WOAptGet.auto_remove(self)
 
-                if (apt_packages):
-                    Log.info(self, "Purging packages, please wait...")
-                    WOAptGet.remove(self, apt_packages, purge=True)
-                    WOAptGet.auto_remove(self)
+            if (packages):
+                WOFileUtils.remove(self, packages)
+                WOAptGet.auto_remove(self)
 
-                if (packages):
-                    WOFileUtils.remove(self, packages)
-                    WOAptGet.auto_remove(self)
-
-                Log.info(self, "Successfully purged packages")
+            Log.info(self, "Successfully purged packages")
 
 
 def load(app):

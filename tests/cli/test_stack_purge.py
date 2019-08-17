@@ -10,55 +10,64 @@ class CliTestCaseStack(test.WOTestCase):
         self.app.close()
 
     def test_wo_cli_stack_purge_web(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--web'])
+        self.app = get_test_app(argv=['stack', 'purge',
+                                      '--web', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_admin(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--admin'])
+        self.app = get_test_app(argv=['stack', 'purge',
+                                      '--admin', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_nginx(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--nginx'])
+        self.app = get_test_app(argv=['stack', 'purge',
+                                      '--nginx', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_php(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--php'])
+        self.app = get_test_app(argv=['stack', 'purge',
+                                      '--php', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_mysql(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--mysql'])
+        self.app = get_test_app(argv=['stack', 'purge',
+                                      '--mysql', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_wpcli(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--wpcli'])
+        self.app = get_test_app(argv=['stack', 'purge',
+                                      '--wpcli', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_phpmyadmin(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--phpmyadmin'])
+        self.app = get_test_app(
+            argv=['stack', 'purge', '--phpmyadmin', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_adminer(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--adminer'])
+        self.app = get_test_app(
+            argv=['stack', 'purge', '--adminer', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_wo_cli_stack_purge_utils(self):
-        self.app = get_test_app(argv=['stack', 'purge', '--utils'])
+        self.app = get_test_app(argv=['stack', 'purge',
+                                      '--utils', '--force'])
         self.app.setup()
         self.app.run()
         self.app.close()

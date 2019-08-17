@@ -29,6 +29,8 @@ class WOStackStatusController(CementBaseController):
             pargs.nginx = True
             pargs.php = True
             pargs.mysql = True
+            pargs.fail2ban = True
+            pargs.netdata = True
 
         if pargs.nginx:
             if (WOAptGet.is_installed(self, 'nginx-custom')):
@@ -198,6 +200,7 @@ class WOStackStatusController(CementBaseController):
             pargs.nginx = True
             pargs.php = True
             pargs.mysql = True
+            pargs.netdata = True
 
         if pargs.nginx:
             if (WOAptGet.is_installed(self, 'nginx-custom')):
@@ -281,6 +284,8 @@ class WOStackStatusController(CementBaseController):
             pargs.nginx = True
             pargs.php = True
             pargs.mysql = True
+            pargs.fail2ban = True
+            pargs.netdata = True
 
         if pargs.nginx:
             if (WOAptGet.is_installed(self, 'nginx-custom')):
@@ -363,6 +368,7 @@ class WOStackStatusController(CementBaseController):
             pargs.nginx = True
             pargs.php = True
             pargs.mysql = True
+            pargs.fail2ban = True
 
         if pargs.nginx:
             if (WOAptGet.is_installed(self, 'nginx-custom') or

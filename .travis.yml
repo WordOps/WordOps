@@ -51,14 +51,15 @@ script:
   - sudo cat /etc/nginx/nginx.conf
   - sudo tree -L 2 /etc/nginx
   - sudo cat /etc/mysql/my.cnf
-  - sudo wo stack upgrade --nginx --no-prompt
-  - sudo wo stack upgrade --php --no-prompt
-  - sudo wo stack upgrade --netdata --no-prompt
-  - sudo wo stack upgrade --phpmyadmin --no-prompt
-  - sudo wo stack upgrade --composer --no-prompt
+  - sudo wo stack upgrade --nginx --force
+  - sudo wo stack upgrade --php --force
+  - sudo wo stack upgrade --netdata --force
+  - sudo wo stack upgrade --phpmyadmin --force
+  - sudo wo stack upgrade --composer --force
+  - sudo wo stack upgrade --dashboard --force
   - sudo wo update --travis
   - sudo wo stack status
   - sudo tar -I pigz  -cf wordops.tar.gz /var/log/wo
   - curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/$(basename "wordops.tar.gz") && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
-  - echo "yes" | sudo wo stack purge --all
+  - echo "yes" | sudo wo stack purge --all --force
   - sudo bash install --purge

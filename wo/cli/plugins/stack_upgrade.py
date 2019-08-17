@@ -42,6 +42,8 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade Redis', action='store_true')),
             (['--netdata'],
                 dict(help='Upgrade Netdata', action='store_true')),
+            (['--dashboard'],
+                dict(help='Upgrade WordOps Dashboard', action='store_true')),
             (['--composer'],
              dict(help='Upgrade Composer', action='store_true')),
             (['--phpmyadmin'],
@@ -67,7 +69,7 @@ class WOStackUpgradeController(CementBaseController):
             (not pargs.mysql) and
             (not pargs.all) and (not pargs.wpcli) and
             (not pargs.netdata) and (not pargs.composer) and
-            (not pargs.phpmyadmin) and
+            (not pargs.phpmyadmin) and (not pargs.dashboard) and
                 (not pargs.redis)):
             pargs.web = True
 
@@ -138,6 +140,21 @@ class WOStackUpgradeController(CementBaseController):
                                         'kickstart-static64.sh',
                                         '/var/lib/wo/tmp/kickstart.sh',
                                         'Netdata']]
+
+        if pargs.dashboard:
+            if os.path.isfile('/var/www/22222/htdocs/index.php'):
+                packages = packages + \
+                    [["https://github.com/WordOps/wordops-dashboard/"
+                      "releases/download/v{0}/wordops-dashboard.tar.gz"
+                      .format(WOVariables.wo_dashboard),
+                      "/var/lib/wo/tmp/wo-dashboard.tar.gz",
+                      "WordOps Dashboard"],
+                     ["https://github.com/soerennb/"
+                      "extplorer/archive/v{0}.tar.gz"
+                      .format(WOVariables.wo_extplorer),
+                      "/var/lib/wo/tmp/extplorer.tar.gz",
+                      "eXtplorer"]]
+
         if pargs.phpmyadmin:
             if os.path.isdir('/var/www/22222/htdocs/db/pma'):
                 packages = packages + \
@@ -184,10 +201,13 @@ class WOStackUpgradeController(CementBaseController):
 
             if len(packages):
                 if pargs.wpcli:
-                    WOFileUtils.remove(self, ['/usr/local/bin/wp'])
+                    WOFileUtils.rm(self, '/usr/local/bin/wp')
 
                 if pargs.netdata:
-                    WOFileUtils.remove(self, ['/var/lib/wo/tmp/kickstart.sh'])
+                    WOFileUtils.rm(self, '/var/lib/wo/tmp/kickstart.sh')
+
+                if pargs.dashboard:
+                    WOFileUtils.rm(self, '/var/www/22222/htdocs/index.php')
 
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
@@ -200,6 +220,15 @@ class WOStackUpgradeController(CementBaseController):
                     WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
                                          "kickstart.sh "
                                          "--dont-wait")
+
+                if pargs.dashboard:
+                    Log.debug(self, "Extracting wo-dashboard.tar.gz "
+                              "to location {0}22222/htdocs/"
+                              .format(WOVariables.wo_webroot))
+                    WOExtract.extract(self, '/var/lib/wo/tmp/'
+                                      'wo-dashboard.tar.gz',
+                                      '{0}22222/htdocs'
+                                      .format(WOVariables.wo_webroot))
 
                 if pargs.composer:
                     Log.info(self, "Upgrading Composer, please wait...")

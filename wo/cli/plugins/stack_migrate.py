@@ -91,7 +91,7 @@ class WOStackMigrateController(CementBaseController):
         if ((not self.app.pargs.mariadb)):
             self.app.args.print_help()
         if self.app.pargs.mariadb:
-            if WOVariables.wo_mysql_host is not "localhost":
+            if WOVariables.wo_mysql_host != "localhost":
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
 
