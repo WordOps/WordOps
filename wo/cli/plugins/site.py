@@ -8,8 +8,10 @@ from wo.core.domainvalidate import ValidateDomain
 from wo.core.fileutils import WOFileUtils
 from wo.cli.plugins.site_functions import *
 from wo.core.services import WOService
-from wo.cli.plugins.sitedb import *
+from wo.cli.plugins.sitedb import (addNewSite, getSiteInfo,
+                                   updateSiteInfo, deleteSiteInfo, getAllsites)
 from wo.core.git import WOGit
+from wo.core.logging import Log
 from subprocess import Popen
 from wo.core.nginxhashbucket import hashbucket
 import os
@@ -29,6 +31,7 @@ class WOSiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('Performs website specific operations')
         arguments = [
             (['site_name'],
@@ -248,6 +251,7 @@ class WOSiteEditController(CementBaseController):
         label = 'edit'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('Edit Nginx configuration of site')
         arguments = [
             (['site_name'],
@@ -301,6 +305,7 @@ class WOSiteCreateController(CementBaseController):
         label = 'create'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('this commands set up configuration and installs '
                        'required files as options are provided')
         arguments = [
@@ -805,6 +810,7 @@ class WOSiteUpdateController(CementBaseController):
         label = 'update'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = ('This command updates websites configuration to '
                        'another as per the options are provided')
         arguments = [
@@ -1027,7 +1033,7 @@ class WOSiteUpdateController(CementBaseController):
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=False,  basic=True, wp=False, wpfc=False,
                         wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                        multisite=False,wpsubdir=False, webroot=wo_site_webroot,
+                        multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                         wo_db_name='', wo_db_user='', wo_db_pass='',
                         wo_db_host='',
                         currsitetype=oldsitetype, currcachetype=oldcachetype)
@@ -1741,6 +1747,7 @@ class WOSiteDeleteController(CementBaseController):
         label = 'delete'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = 'delete an existing website'
         arguments = [
             (['site_name'],
@@ -1878,6 +1885,7 @@ class WOSiteListController(CementBaseController):
         label = 'list'
         stacked_on = 'site'
         stacked_type = 'nested'
+        exit_on_close = True
         description = 'List websites'
         arguments = [
             (['--enabled'],

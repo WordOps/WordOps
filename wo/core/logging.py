@@ -24,6 +24,7 @@ class Log:
         if exit:
             self.app.close(1)
 
+
     def info(self, msg, end='\n', log=True):
         """
         Logs info messages into log file

@@ -800,7 +800,7 @@ def post_pref(self, apt_packages, packages):
                       encoding='utf-8', mode='w') as myfile:
                 myfile.write("<?php\nphpinfo();\n?>")
 
-            WOFileUtils.chown(self, "{0}22222"
+            WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(WOVariables.wo_webroot),
                               WOVariables.wo_php_user,
                               WOVariables.wo_php_user, recursive=True)
@@ -964,7 +964,7 @@ def post_pref(self, apt_packages, packages):
                       encoding='utf-8', mode='w') as myfile:
                 myfile.write("<?php\nphpinfo();\n?>")
 
-            WOFileUtils.chown(self, "{0}22222"
+            WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(WOVariables.wo_webroot),
                               WOVariables.wo_php_user,
                               WOVariables.wo_php_user, recursive=True)
@@ -1282,7 +1282,7 @@ def post_pref(self, apt_packages, packages):
                 blowfish_key = ''.join([random.choice
                                         (string.ascii_letters +
                                          string.digits)
-                                        for n in range(25)])
+                                        for n in range(32)])
                 WOFileUtils.searchreplace(self,
                                           '{0}22222/htdocs/db/pma'
                                           '/config.inc.php'
@@ -1304,8 +1304,10 @@ def post_pref(self, apt_packages, packages):
                                           "[\'Servers\'][$i][\'host\'] = \'{0}\';"
                                           .format(WOVariables.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
-                          '{0}22222/htdocs/db/pma file '.format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222'.format(WOVariables.wo_webroot),
+                          '{0}22222/htdocs/db/pma file '
+                          .format(WOVariables.wo_webroot))
+                WOFileUtils.chown(self, '{0}22222/htdocs'
+                                  .format(WOVariables.wo_webroot),
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
                                   recursive=True)
@@ -1405,7 +1407,7 @@ def post_pref(self, apt_packages, packages):
                     Log.debug(self, "Setting Privileges to "
                               "{0}22222/htdocs"
                               .format(WOVariables.wo_webroot))
-                    WOFileUtils.chown(self, '{0}22222'
+                    WOFileUtils.chown(self, '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot),
                                       WOVariables.wo_php_user,
                                       WOVariables.wo_php_user,
@@ -1428,7 +1430,7 @@ def post_pref(self, apt_packages, packages):
                 Log.debug(self, "Setting Privileges to "
                           "{0}22222/htdocs/files"
                           .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222'
+                WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
@@ -1473,7 +1475,7 @@ def post_pref(self, apt_packages, packages):
             Log.debug(self, "Setting Privileges of webroot permission to "
                       "{0}22222/htdocs/php/webgrind/ file "
                       .format(WOVariables.wo_webroot))
-            WOFileUtils.chown(self, '{0}22222'
+            WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
                               WOVariables.wo_php_user,
                               WOVariables.wo_php_user,
@@ -1550,7 +1552,7 @@ def post_pref(self, apt_packages, packages):
                           .format(WOVariables.wo_webroot))
                 os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
                             .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222'
+                WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
                                   WOVariables.wo_php_user,
                                   WOVariables.wo_php_user,
@@ -1565,7 +1567,7 @@ def post_pref(self, apt_packages, packages):
             Log.debug(self, 'Setting Privileges of webroot permission to  '
                       '{0}22222/htdocs/cache/file '
                       .format(WOVariables.wo_webroot))
-            WOFileUtils.chown(self, '{0}22222'
+            WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
                               WOVariables.wo_php_user,
                               WOVariables.wo_php_user,

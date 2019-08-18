@@ -65,6 +65,8 @@ class WOApp(foundation.CementApp):
 
         debug = TOGGLE_DEBUG
 
+        exit_on_close = True
+
 
 class WOTestApp(WOApp):
     """A test app that is better suited for testing."""

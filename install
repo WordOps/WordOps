@@ -7,10 +7,11 @@
 # Copyright (c) 2019 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# Version 3.9.8 - 2019-08-17
+# wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-readonly wo_version_old="2.2.3"
-readonly wo_version_new="3.9.8"
+# Version 3.9.8.1 - 2019-08-18
+# -------------------------------------------------------------------------
+
 # CONTENTS
 # ---
 # 1. VARIABLES AND DECLARATIONS
@@ -87,21 +88,31 @@ done
 ###
 if [[ $EUID -ne 0 ]]; then
     wo_lib_echo_fail "Sudo privilege required..."
-    wo_lib_echo_fail "Use: curl -sL wops.cc | sudo bash"
+    wo_lib_echo_fail "Use: wget -qO wo wops.cc && sudo bash wo  "
     exit 100
+fi
+
+###
+# 1- Update the apt sewers with fresh info
+###
+export DEBIAN_FRONTEND=noninteractive
+[ -z "$wo_travis" ] && {
+    apt-get update -qq
+}
+
+if [ -z "$(command -v curl)" ]; then
+    apt-get -y install curl -qq
+fi
+
+if [ -f ./setup.py ]; then
+    readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
+else
+    readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" | awk -F "'" '{print$2}' 2>&1)
 fi
 
 echo ""
 wo_lib_echo "Welcome to WordOps install script v${wo_version_new}"
 echo ""
-
-###
-# 1- Update the apt sewers with fresh info
-###
-[ -z "$wo_travis" ] && {
-    wo_lib_echo "Updating apt-get repository info"
-    apt-get update -qq
-}
 
 ###
 # 1- Check whether lsb_release is installed, and if not, install it
@@ -176,7 +187,7 @@ fi
 wo_install_dep() {
 
     {
-        export DEBIAN_FRONTEND=noninteractive
+
         [ -z "$wo_travis" ] && {
             # update server packages
             apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
@@ -186,7 +197,7 @@ wo_install_dep() {
             apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
                 build-essential curl gzip python3 python3-apt python3-setuptools python3-requests python3-dev sqlite3 git tar software-properties-common pigz \
                 gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
-                add-apt-repository ppa:wordops/nginx-wo -yu
+            add-apt-repository ppa:wordops/nginx-wo -yu
         else
             # install dependencies
             apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
@@ -315,13 +326,6 @@ wo_sync_db() {
             echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
             VALUES (\"$site\", \"$wo_site_current\", \"$wo_site_current_cache\", \"$wo_webroot\", \"$wo_site_status\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/wo/dbase.db
 
-            wo_lib_echo "Updating WordOps Database"
-            echo "ALTER TABLE sites ADD COLUMN db_name varchar;" | sqlite3 /var/lib/wo/dbase.db
-            echo "ALTER TABLE sites ADD COLUMN db_user varchar; " | sqlite3 /var/lib/wo/dbase.db
-            echo "ALTER TABLE sites ADD COLUMN db_password varchar;" | sqlite3 /var/lib/wo/dbase.db
-            echo "ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/wo/dbase.db
-            echo "ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0';" | sqlite3 /var/lib/wo/dbase.db
-            echo "ALTER TABLE sites ADD COLUMN php_version varchar DEFAULT \"$wo_php_version\";" | sqlite3 /var/lib/wo/dbase.db
         fi
 
         #        echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
@@ -735,7 +739,7 @@ else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         if ! {
-            wo -v 2>&1 | grep $wo_version_new
+            wo -v 2>&1 | grep -q "$wo_version_new"
         } || [ "$wo_force_install" = "y" ]; then
             if [ -z "$wo_force_install" ]; then
                 echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER

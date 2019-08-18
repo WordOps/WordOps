@@ -15,10 +15,11 @@ events {
 
 
 http {
-
 	##
 	# WordOps Settings
 	##
+
+	keepalive_timeout 8;
 
 	# Nginx AIO : See - https://www.nginx.com/blog/thread-pools-boost-performance-9x/
 	# http://nginx.org/en/docs/http/ngx_http_core_module.html#aio
@@ -28,7 +29,7 @@ http {
 	reset_timedout_connection on;
 	more_set_headers "X-Powered-By : WordOps";
 
-    # Limit Request
+	# Limit Request
 	limit_req_status 403;
 	limit_req_zone $binary_remote_addr zone=one:10m rate=1r/s;
 
