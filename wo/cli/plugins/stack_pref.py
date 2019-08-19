@@ -253,81 +253,53 @@ def post_pref(self, apt_packages, packages):
                                        .format(ngxcom),
                                        'wpsc.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wprocket-php72.conf')
-                wo_nginx = open('/etc/nginx/common/wprocket-php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wprocket.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wprocket-php72.conf'
+                                       .format(ngxcom),
+                                       'wprocket.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpce-php72.conf')
-                wo_nginx = open('/etc/nginx/common/wpce-php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpce.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpce-php72.conf'
+                                       .format(ngxcom),
+                                       'wpce.mustache', data)
 
             # PHP 7.3 conf
             if os.path.isdir("/etc/nginx/common"):
                 data = dict(upstream="php73")
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/php73.conf')
-                wo_nginx = open('/etc/nginx/common/php73.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'php.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/php73.conf'
+                                       .format(ngxcom),
+                                       'php.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpcommon-php73.conf')
-                wo_nginx = open('/etc/nginx/common/wpcommon-php73.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpcommon.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/redis-php73.conf'
+                                       .format(ngxcom),
+                                       'redis.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpfc-php73.conf')
-                wo_nginx = open('/etc/nginx/common/wpfc-php73.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpfc.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpcommon-php73.conf'
+                                       .format(ngxcom),
+                                       'wpcommon.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpsc-php73.conf')
-                wo_nginx = open('/etc/nginx/common/wpsc-php73.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpsc.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpfc-php73.conf'
+                                       .format(ngxcom),
+                                       'wpfc.mustache', data)
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpsc-php73.conf'
+                                       .format(ngxcom),
+                                       'wpsc.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wprocket-php73.conf')
-                wo_nginx = open('/etc/nginx/common/wprocket-php73.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wprocket.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wprocket-php73.conf'
+                                       .format(ngxcom),
+                                       'wprocket.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpce-php73.conf')
-                wo_nginx = open('/etc/nginx/common/wpce-php73.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpce.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
-
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/redis-php73.conf')
-                wo_nginx = open('/etc/nginx/common/redis-php73.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'redis.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpce-php73.conf'
+                                       .format(ngxcom),
+                                       'wpce.mustache', data)
 
                 with open("/etc/nginx/common/release",
                           "w") as release_file:
@@ -337,32 +309,19 @@ def post_pref(self, apt_packages, packages):
 
             # Following files should not be overwrited
 
-            if not os.path.isfile('/etc/nginx/common/acl.conf'):
-                data = dict(webroot=ngxroot)
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/acl.conf')
-                wo_nginx = open('/etc/nginx/common/acl.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'acl.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
-            if not os.path.isfile('{0}/blockips.conf'.format(ngxcnf)):
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file {0}/blockips.conf'.format(ngxcnf))
-                wo_nginx = open('{0}/blockips.conf'.format(ngxcnf),
-                                encoding='utf-8', mode='w')
-                self.app.render(
-                    (data), 'blockips.mustache', out=wo_nginx)
-                wo_nginx.close()
-
-            if not os.path.isfile('{0}/fastcgi.conf'.format(ngxcnf)):
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file {0}/fastcgi.conf'.format(ngxcnf))
-                wo_nginx = open('{0}/fastcgi.conf'.format(ngxcnf),
-                                encoding='utf-8', mode='w')
-                self.app.render(
-                    (data), 'fastcgi.mustache', out=wo_nginx)
-                wo_nginx.close()
+            data = dict(webroot=ngxroot)
+            WOTemplate.tmpl_render(self,
+                                   '{0}/acl.conf'
+                                   .format(ngxcom),
+                                   'acl.mustache', data, overwrite=False)
+            WOTemplate.tmpl_render(self,
+                                   '{0}/blockips.conf'
+                                   .format(ngxcnf),
+                                   'blockips.mustache', data, overwrite=False)
+            WOTemplate.tmpl_render(self,
+                                   '{0}/fastcgi.conf'
+                                   .format(ngxcnf),
+                                   'fastcgi.mustache', data, overwrite=False)
 
             # add redis cache format if not already done
             if (os.path.isfile("/etc/nginx/nginx.conf") and
