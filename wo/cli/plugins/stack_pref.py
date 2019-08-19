@@ -169,9 +169,10 @@ def post_pref(self, apt_packages, packages):
                 WOTemplate.tmpl_render(self, '{0}/gzip.conf'.format(ngxcnf),
                                        'gzip.mustache', data)
 
-            if not os.path.isfile('{0}/brotli.conf'):
+            if not os.path.isfile('{0}/brotli.conf'.format(ngxcnf)):
                 WOTemplate.tmpl_render(self,
-                                       '{0}/brotli.conf.disabled',
+                                       '{0}/brotli.conf.disabled'
+                                       .format(ngxcnf),
                                        'brotli.mustache', data)
 
             WOTemplate.tmpl_render(self, '{0}/tweaks.conf'.format(ngxcnf),
