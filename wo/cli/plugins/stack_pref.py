@@ -166,7 +166,7 @@ def post_pref(self, apt_packages, packages):
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict()
-                WOTemplate.tmpl_render(self, '{0}/gzip.conf',
+                WOTemplate.tmpl_render(self, '{0}/gzip.conf'.format(ngxcnf),
                                        'gzip.mustache', data)
 
             if not os.path.isfile('{0}/brotli.conf'):
@@ -174,7 +174,7 @@ def post_pref(self, apt_packages, packages):
                                        '{0}/brotli.conf.disabled',
                                        'brotli.mustache', data)
 
-            WOTemplate.tmpl_render(self, '{0}/tweaks.conf',
+            WOTemplate.tmpl_render(self, '{0}/tweaks.conf'.format(ngxcnf),
                                    'tweaks.mustache')
 
             # Fix for white screen death with NGINX PLUS
