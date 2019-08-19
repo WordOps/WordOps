@@ -549,6 +549,7 @@ def post_pref(self, apt_packages, packages):
                                          "\"$http_user_agent\"';\n")
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
+            ngxroot = '/var/www/'
             # Create log directories
             if not os.path.exists('/var/log/php/7.2/'):
                 Log.debug(self, 'Creating directory /var/log/php/7.2/')
@@ -720,6 +721,7 @@ def post_pref(self, apt_packages, packages):
 
         # PHP7.3 configuration
         if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            ngxroot = '/var/www/'
             # Create log directories
             if not os.path.exists('/var/log/php/7.3/'):
                 Log.debug(self, 'Creating directory /var/log/php/7.3/')
@@ -854,35 +856,35 @@ def post_pref(self, apt_packages, packages):
 
             # PHP and Debug pull configuration
             if not os.path.exists('{0}22222/htdocs/fpm/status/'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(ngxroot)):
                 Log.debug(self, 'Creating directory '
                           '{0}22222/htdocs/fpm/status/ '
-                          .format(WOVariables.wo_webroot))
+                          .format(ngxroot))
                 os.makedirs('{0}22222/htdocs/fpm/status/'
-                            .format(WOVariables.wo_webroot))
+                            .format(ngxroot))
             open('{0}22222/htdocs/fpm/status/debug73'
-                 .format(WOVariables.wo_webroot),
+                 .format(ngxroot),
                  encoding='utf-8', mode='a').close()
             open('{0}22222/htdocs/fpm/status/php73'
-                 .format(WOVariables.wo_webroot),
+                 .format(ngxroot),
                  encoding='utf-8', mode='a').close()
 
             # Write info.php
             if not os.path.exists('{0}22222/htdocs/php/'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(ngxroot)):
                 Log.debug(self, 'Creating directory '
                           '{0}22222/htdocs/php/ '
-                          .format(WOVariables.wo_webroot))
+                          .format(ngxroot))
                 os.makedirs('{0}22222/htdocs/php'
-                            .format(WOVariables.wo_webroot))
+                            .format(ngxroot))
 
             with open("{0}22222/htdocs/php/info.php"
-                      .format(WOVariables.wo_webroot),
+                      .format(ngxroot),
                       encoding='utf-8', mode='w') as myfile:
                 myfile.write("<?php\nphpinfo();\n?>")
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
-                              .format(WOVariables.wo_webroot),
+                              .format(ngxroot),
                               WOVariables.wo_php_user,
                               WOVariables.wo_php_user, recursive=True)
 
