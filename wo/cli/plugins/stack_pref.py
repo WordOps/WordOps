@@ -150,19 +150,14 @@ def post_pref(self, apt_packages, packages):
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
             ngxroot = '/var/www/'
-            if os.path.isfile('/etc/nginx/nginx.conf'):
-                if (WOVariables.wo_distro == 'ubuntu' or
-                        WOVariables.wo_platform_codename == 'buster'):
-                    data = dict(tls13=True)
-                else:
-                    data = dict(tls13=False)
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/nginx.conf')
-                wo_nginx = open('/etc/nginx/nginx.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render(
-                    (data), 'nginx-core.mustache', out=wo_nginx)
-                wo_nginx.close()
+            if (WOVariables.wo_distro == 'ubuntu' or
+                    WOVariables.wo_platform_codename == 'buster'):
+                data = dict(tls13=True)
+            else:
+                data = dict(tls13=False)
+            WOTemplate.tmpl_render(self,
+                                   '/etc/nginx/nginx.conf',
+                                   'nginx-core.mustache', data)
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict()
