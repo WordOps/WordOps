@@ -9,6 +9,7 @@ Render Templates
 class WOTemplate():
     def tmpl_render(self, fileconf, template, data, overwrite=False):
         if overwrite:
+            data = dict(data)
             Log.debug(self, 'Writting the configuration to '
                       'file {0}'.format(fileconf))
             wo_template = open('{0}'.format(fileconf),
