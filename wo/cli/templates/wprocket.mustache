@@ -3,14 +3,14 @@
 # $cache_uri variable set in /etc/nginx/conf.d/map-wp.conf
 # Use cached or actual file if they exists, Otherwise pass request to WordPress
 location / {
-    try_files /wp-content/cache/wp-rocket/$http_host/$cache_uri/index$https_prefix.html $uri $uri/ /index.php$is_args$args;
+    try_files /wp-content/cache/wp-rocket/$http_host/$cache_uri/index${mobile_prefix}${https_prefix}.html /wp-content/cache/wp-rocket/$http_host/$cache_uri/index${https_prefix}.html $uri $uri/ /index.php$is_args$args;
 }
 location ~ \.php$ {
     try_files $uri =404;
     include fastcgi_params;
-  fastcgi_pass {{upstream}};
+    fastcgi_pass {{upstream}};
 }
-location ~* /cache/wp-rocket/\.html$ {
+location ~ /wp-content/cache/wp-rocket/.*html$ {
     etag on;
     add_header Vary "Accept-Encoding, Cookie";
     access_log off;

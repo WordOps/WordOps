@@ -10,7 +10,7 @@ location ~ \.php$ {
     include fastcgi_params;
     fastcgi_pass {{upstream}};
 }
-location ~* /cache/cache-enabler/\.html$ {
+location ~ /wp-content/cache/cache-enabler/.*html$ {
     etag on;
     add_header Vary "Accept-Encoding, Cookie";
     access_log off;

@@ -208,12 +208,10 @@ def post_pref(self, apt_packages, packages):
                                        '{0}/cloudflare.conf'.format(ngxcnf),
                                        'cloudflare.mustache', data)
 
-                wo_nginx = open('{0}/'
-                                'map-wp-fastcgi-cache.conf'.format(ngxcnf),
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'map-wp.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/map-wp-fastcgi-cache.conf'.format(
+                                           ngxcnf),
+                                       'map-wp.mustache', data)
 
             # Setup Nginx common directory
             if not os.path.exists('{0}'.format(ngxcom)):
@@ -225,62 +223,40 @@ def post_pref(self, apt_packages, packages):
                 data = dict()
 
                 # Common Configuration
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/locations-wo.conf')
-                wo_nginx = open('/etc/nginx/common/locations-wo.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'locations.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/locations-wo.conf'
+                                       .format(ngxcom),
+                                       'locations.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpsubdir.conf')
-                wo_nginx = open('/etc/nginx/common/wpsubdir.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpsubdir.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpsubdir.conf'
+                                       .format(ngxcom),
+                                       'wpsubdir.mustache', data)
                 data = dict(upstream="php72")
                 # PHP 7.2 conf
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/php72.conf')
-                wo_nginx = open('/etc/nginx/common/php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'php.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/php72.conf'
+                                       .format(ngxcom),
+                                       'php72.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/redis-php72.conf')
-                wo_nginx = open('/etc/nginx/common/redis-php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'redis.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/redis-php72.conf'
+                                       .format(ngxcom),
+                                       'redis.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpcommon-php72.conf')
-                wo_nginx = open('/etc/nginx/common/wpcommon-php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpcommon.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpcommon-php72.conf'
+                                       .format(ngxcom),
+                                       'wpcommon.mustache', data)
 
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpfc-php72.conf')
-                wo_nginx = open('/etc/nginx/common/wpfc-php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpfc.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
-
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/wpsc-php72.conf')
-                wo_nginx = open('/etc/nginx/common/wpsc-php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'wpsc.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpfc-php72.conf'
+                                       .format(ngxcom),
+                                       'wpfc.mustache', data)
+                WOTemplate.tmpl_render(self,
+                                       '{0}/wpsc-php72.conf'
+                                       .format(ngxcom),
+                                       'wpsc.mustache', data)
 
                 Log.debug(self, 'Writting the nginx configuration to '
                           'file /etc/nginx/common/wprocket-php72.conf')
