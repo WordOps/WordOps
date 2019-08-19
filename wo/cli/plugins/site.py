@@ -1608,6 +1608,35 @@ class WOSiteUpdateController(CementBaseController):
                              " `tail /var/log/wo/wordops.log` "
                              "and please try again")
                     return 1
+
+            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpredis'] and
+                   (data['wpce'])) or (oldsitetype == 'wp' and
+                                       data['multisite'] and
+                                       data['wpce'])):
+                try:
+                    plugin_data_object = {"expires": 24,
+                                          "new_post": 1,
+                                          "new_comment": 0,
+                                          "webp": 0,
+                                          "clear_on_upgrade": 1,
+                                          "compress": 0,
+                                          "excl_ids": "",
+                                          "excl_regexp": "",
+                                          "excl_cookies": "",
+                                          "incl_attributes": "",
+                                          "minify_html": 1}
+                    plugin_data = json.dumps(plugin_data_object)
+                    setupwp_plugin(
+                        self, 'cache-enabler',
+                        'cache-enabler', plugin_data, data)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Update cache-enabler "
+                             "settings failed. "
+                             "Check the log for details:"
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
+                    return 1
             else:
                 try:
                     plugin_data_object = {"log_level": "INFO",
