@@ -176,7 +176,7 @@ def post_pref(self, apt_packages, packages):
                                        'brotli.mustache', data)
 
             WOTemplate.tmpl_render(self, '{0}/tweaks.conf'.format(ngxcnf),
-                                   'tweaks.mustache')
+                                   'tweaks.mustache', data)
 
             # Fix for white screen death with NGINX PLUS
             if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
