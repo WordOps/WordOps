@@ -192,33 +192,21 @@ def post_pref(self, apt_packages, packages):
                 WOTemplate.tmpl_render(
                     self, '{0}/upstream.conf'.format(ngxcnf),
                     'upstream.mustache', data, overwrite=True)
-                wo_nginx = open('{0}/upstream.conf'.format(ngxcnf),
-                                encoding='utf-8', mode='w')
-                self.app.render(
-                    (data), 'upstream.mustache', out=wo_nginx)
-                wo_nginx.close()
 
                 data = dict(phpconf=True if
                             WOAptGet.is_installed(self, 'php7.2-fpm')
                             else False)
-                wo_nginx = open('{0}/stub_status.conf'.format(ngxcnf),
-                                encoding='utf-8', mode='w')
-                self.app.render(
-                    (data), 'stub_status.mustache', out=wo_nginx)
-                wo_nginx.close()
-
+                WOTemplate.tmpl_render(self,
+                                       '{0}/stub_status.conf'.format(ngxcnf),
+                                       'stub_status.mustache', data)
                 data = dict()
-                wo_nginx = open('{0}/webp.conf'.format(ngxcnf),
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'webp.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/webp.conf'.format(ngxcnf),
+                                       'webp.mustache', data)
 
-                wo_nginx = open('{0}/cloudflare.conf'.format(ngxcnf),
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'cloudflare.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+                WOTemplate.tmpl_render(self,
+                                       '{0}/cloudflare.conf'.format(ngxcnf),
+                                       'cloudflare.mustache', data)
 
                 wo_nginx = open('{0}/'
                                 'map-wp-fastcgi-cache.conf'.format(ngxcnf),
@@ -485,7 +473,7 @@ def post_pref(self, apt_packages, packages):
                                 .format(ngxroot))
 
                 if not os.path.isdir('{0}22222/conf/nginx'
-                                      .format(ngxroot)):
+                                     .format(ngxroot)):
                     Log.debug(self, "Creating directory "
                               "{0}22222/conf/nginx"
                               .format(ngxroot))
