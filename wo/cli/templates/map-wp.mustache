@@ -16,10 +16,11 @@ map $http_cookie $cookie_no_cache {
     "~*wordpress_no_cache" 1;
     "~*comment_author" 1;
     "~*woocommerce_items_in_cart" 1;
+    "~*edd_items_in_cart" 1;
     "~*woocommerce_cart_hash" 1;
     "~*wptouch_switch_toogle" 1;
     "~*comment_author_email_" 1;
-     "~*wptouch_switch_toggle" 1;
+    "~*wptouch_switch_toggle" 1;
     "~*edd" 1;
 }
 
@@ -37,6 +38,7 @@ map $request_uri $uri_no_cache {
     "~*/xmlrpc.php" 1;
     "~*/checkout" 1;
     "~*/edd_action" 1;
+    "~*/edd-sl/*" 1;
     "~*/add_to_cart/" 1;
     "~*/cart/" 1;
     "~*/my-account/" 1;
