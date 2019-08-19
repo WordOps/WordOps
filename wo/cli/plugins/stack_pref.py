@@ -237,7 +237,7 @@ def post_pref(self, apt_packages, packages):
                 WOTemplate.tmpl_render(self,
                                        '{0}/php72.conf'
                                        .format(ngxcom),
-                                       'php72.mustache', data)
+                                       'php.mustache', data)
 
                 WOTemplate.tmpl_render(self,
                                        '{0}/redis-php72.conf'
