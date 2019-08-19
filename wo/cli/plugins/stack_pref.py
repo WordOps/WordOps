@@ -149,7 +149,7 @@ def post_pref(self, apt_packages, packages):
             # Nginx main configuration
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
-            ngxroot = '/var/www'
+            ngxroot = '/var/www/'
             if os.path.isfile('/etc/nginx/nginx.conf'):
                 if (WOVariables.wo_distro == 'ubuntu' or
                         WOVariables.wo_platform_codename == 'buster'):
