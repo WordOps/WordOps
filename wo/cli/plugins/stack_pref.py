@@ -484,7 +484,7 @@ def post_pref(self, apt_packages, packages):
                     os.makedirs('{0}22222/cert'
                                 .format(ngxroot))
 
-                if not os.path.exists('{0}22222/conf/nginx'
+                if not os.path.isdir('{0}22222/conf/nginx'
                                       .format(ngxroot)):
                     Log.debug(self, "Creating directory "
                               "{0}22222/conf/nginx"
