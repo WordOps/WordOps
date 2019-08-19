@@ -641,7 +641,7 @@ def post_pref(self, apt_packages, packages):
             self.app.render((data), 'php-fpm.mustache', out=wo_php_fpm)
             wo_php_fpm.close()
 
-            if not os.path.isfile('/etc/php/7.2/fpm/pool.d/www.conf'):
+            if not os.path.isfile('/etc/php/7.2/fpm/pool.d/www.conf.orig'):
                 WOFileUtils.copyfile(self, '/etc/php/7.2/fpm/pool.d/www.conf',
                                      '/etc/php/7.2/fpm/pool.d/www.conf.orig')
             # Parse /etc/php/7.2/fpm/pool.d/www.conf
@@ -813,7 +813,7 @@ def post_pref(self, apt_packages, packages):
             wo_php_fpm.close()
 
             # Parse /etc/php/7.3/fpm/pool.d/www.conf
-            if not os.path.isfile('/etc/php/7.3/fpm/pool.d/www.conf'):
+            if not os.path.isfile('/etc/php/7.3/fpm/pool.d/www.conf.orig'):
                 WOFileUtils.copyfile(self, '/etc/php/7.3/fpm/pool.d/www.conf',
                                      '/etc/php/7.3/fpm/pool.d/www.conf.orig')
             config = configparser.ConfigParser()
