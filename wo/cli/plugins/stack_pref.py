@@ -164,7 +164,7 @@ def post_pref(self, apt_packages, packages):
                     (data), 'nginx-core.mustache', out=wo_nginx)
                 wo_nginx.close()
 
-            if not os.path.isfile('{0}/gzip.conf.disabled'.forat(ngxcnf)):
+            if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict()
                 WOTemplate.tmpl_render(self, '{0}/gzip.conf',
                                        'gzip.mustache')
