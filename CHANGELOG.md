@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - Additional cache expection for Easy Digital Downloads [PR #120](https://github.com/WordOps/WordOps/pull/120)
+- Additional settings to support mobile with WP-Rocket
+- Add the ability to block nginx configuration overwriting by adding a file .custom. Example with webp.conf -> `touch webp.conf.custom`
+- If there is a custom file, WordOps will write the configuration in a file named fileconf.conf.orig to let users implement possible changes
 
 ### v3.9.8.1 - 2019-08-18
 
