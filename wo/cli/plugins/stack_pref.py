@@ -354,15 +354,10 @@ def post_pref(self, apt_packages, packages):
                 os.makedirs('/etc/nginx/sites-enabled')
 
                 # 22222 port settings
-            if not os.path.isfile("/etc/nginx/sites-available/22222"):
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/sites-available/'
-                          '22222')
-                wo_nginx = open('/etc/nginx/sites-available/22222',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), '22222.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
+            if not os.path.isfile('/etc/nginx/sites-available/22222'):
+                WOTemplate.tmpl_render(self,
+                                       '/etc/nginx/sites-available/22222',
+                                       '22222.mustache', data, overwrite=False)
 
                 passwd = ''.join([random.choice
                                   (string.ascii_letters + string.digits)
@@ -496,57 +491,6 @@ def post_pref(self, apt_packages, packages):
                                                     WOVariables.wo_fqdn)])
             else:
                 WOService.restart_service(self, 'nginx')
-
-            # add rule for Nginx with UFW
-            if WOAptGet.is_installed(self, 'ufw'):
-                try:
-                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
-                                         "http")
-                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
-                                         "https")
-                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
-                                         "22222")
-                except CommandExecutionError as e:
-                    Log.debug(self, "{0}".format(e))
-                    Log.error(self, "Unable to add UFW rule")
-
-        # create nginx configuration for redis
-        if set(WOVariables.wo_redis).issubset(set(apt_packages)):
-            if os.path.isdir('/etc/nginx/common'):
-                data = dict(upstream="php72")
-                Log.debug(self, 'Writting the nginx configuration to '
-                          'file /etc/nginx/common/redis-php72.conf')
-                wo_nginx = open('/etc/nginx/common/redis-php72.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'redis.mustache',
-                                out=wo_nginx)
-                wo_nginx.close()
-
-            if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-                if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                        "upstream.conf",
-                                        "redis"):
-                    with open("/etc/nginx/conf.d/upstream.conf",
-                              "a") as redis_file:
-                        redis_file.write("upstream redis {\n"
-                                         "    server 127.0.0.1:6379;\n"
-                                         "    keepalive 10;\n}\n")
-
-            if os.path.isfile("/etc/nginx/nginx.conf"):
-                if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
-                    with open("/etc/nginx/conf.d/redis.conf",
-                              "a") as redis_file:
-                        redis_file.write("# Log format Settings\n"
-                                         "log_format rt_cache_redis "
-                                         "'$remote_addr "
-                                         "$upstream_response_time "
-                                         "$srcache_fetch_status "
-                                         "[$time_local]"
-                                         " '\n '$http_host"
-                                         " \"$request\" "
-                                         "$status $body_bytes_sent '\n"
-                                         "'\"$http_referer\" "
-                                         "\"$http_user_agent\"';\n")
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
             ngxroot = '/var/www/'
@@ -1007,28 +951,21 @@ def post_pref(self, apt_packages, packages):
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 data = dict()
-                Log.debug(self, "Setting up fail2ban jails configuration")
-                fail2ban_config = open('/etc/fail2ban/jail.d/custom.conf',
-                                       encoding='utf-8', mode='w')
-                self.app.render((data), 'fail2ban.mustache',
-                                out=fail2ban_config)
-                fail2ban_config.close()
-
-                Log.debug(self, "Setting up fail2ban wp filter")
-                fail2ban_config = open('/etc/fail2ban/filter.d/'
+                WOTemplate.tmpl_render(self,
+                                       '/etc/fail2ban/jail.d/custom.conf',
+                                       'fail2ban.mustache',
+                                       data, overwrite=False)
+                WOTemplate.tmpl_render(self,
+                                       '/etc/fail2ban/filter.d/'
                                        'wo-wordpress.conf',
-                                       encoding='utf-8', mode='w')
-                self.app.render((data), 'fail2ban-wp.mustache',
-                                out=fail2ban_config)
-                fail2ban_config.close()
-
-                Log.debug(self, "Setting up fail2ban wp filter")
-                fail2ban_config = open('/etc/fail2ban/filter.d/'
+                                       'fail2ban-wp.mustache',
+                                       data, overwrite=False)
+                WOTemplate.tmpl_render(self,
+                                       '/etc/fail2ban/filter.d/'
                                        'nginx-forbidden.conf',
-                                       encoding='utf-8', mode='w')
-                self.app.render((data), 'fail2ban-forbidden.mustache',
-                                out=fail2ban_config)
-                fail2ban_config.close()
+                                       'fail2ban-forbidden.mustache',
+                                       data, overwrite=False)
+
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
                 WOService.reload_service(self, 'fail2ban')
@@ -1115,6 +1052,31 @@ def post_pref(self, apt_packages, packages):
 
     # Redis configuration
     if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                    "upstream.conf",
+                                    "redis"):
+                with open("/etc/nginx/conf.d/upstream.conf",
+                          "a") as redis_file:
+                    redis_file.write("upstream redis {\n"
+                                     "    server 127.0.0.1:6379;\n"
+                                     "    keepalive 10;\n}\n")
+
+        if os.path.isfile("/etc/nginx/nginx.conf"):
+            if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
+                with open("/etc/nginx/conf.d/redis.conf",
+                          "a") as redis_file:
+                    redis_file.write("# Log format Settings\n"
+                                     "log_format rt_cache_redis "
+                                     "'$remote_addr "
+                                     "$upstream_response_time "
+                                     "$srcache_fetch_status "
+                                     "[$time_local]"
+                                     " '\n '$http_host"
+                                     " \"$request\" "
+                                     "$status $body_bytes_sent '\n"
+                                     "'\"$http_referer\" "
+                                     "\"$http_user_agent\"';\n")
         # set redis.conf parameter
         # set maxmemory 10% for ram below 512MB and 20% for others
         # set maxmemory-policy allkeys-lru

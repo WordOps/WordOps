@@ -548,22 +548,6 @@ wo_upgrade_nginx() {
 
 wo_update_latest() {
 
-    if [ -f /etc/nginx/fastcgi_params ]; then
-        CHECK_HTTP_PROXY=$(grep 'HTTP_PROXY' /etc/nginx/fastcgi_params)
-        if [ -z "$CHECK_HTTP_PROXY" ]; then
-            echo 'fastcgi_param  HTTP_PROXY         "";' >> /etc/nginx/fastcgi_params
-            echo 'fastcgi_param  HTTP_PROXY         "";' >> /etc/nginx/fastcgi.conf
-            service nginx restart | tee -ai $wo_install_log
-        fi
-    fi
-
-    if [ -f /etc/ImageMagick/policy.xml ]; then
-        if [ ! -f /etc/ImageMagick/patch.txt ]; then
-            echo -e "\t<policy domain=\"coder\" rights=\"none\" pattern=\"EPHEMERAL\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"URL\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"HTTPS\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"MVG\" />\n\t<policy domain=\"coder\" rights=\"none\" pattern=\"MSL\" />" >> /etc/ImageMagick/patch.txt
-            sed -i '/<policymap>/r /etc/ImageMagick/patch.txt' /etc/ImageMagick/policy.xml
-        fi
-    fi
-
     # Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
     if [ ! -f /etc/mysql/conf.d/my.cnf ]; then
         # create conf.d folder if not exist

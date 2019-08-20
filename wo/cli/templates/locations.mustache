@@ -41,3 +41,55 @@ location ~* "\.(old|orig|original|php#|php~|php_bak|save|swo|aspx?|tpl|sh|bash|b
 location ~* "/(=|\$&|_mm|(wp-)?config\.|cgi-|etc/passwd|muieblack)" {
     deny all;
 }
+
+# block base64_encoded content
+location ~* "(base64_encode)(.*)(\()" {
+    deny all;
+}
+
+# block javascript eval()
+location ~* "(eval\()" {
+    deny all;
+}
+
+# Additional security settings
+
+location ~* "(127\.0\.0\.1)" {
+    deny all;
+}
+location ~* "([a-z0-9]{2000})" {
+    deny all;
+}
+location ~* "(javascript\:)(.*)(\;)" {
+    deny all;
+}
+location ~* "(GLOBALS|REQUEST)(=|\[|%)" {
+    deny all;
+}
+location ~* "(<|%3C).*script.*(>|%3)" {
+    deny all;
+}
+location ~ "(\\|\.\.\.|\.\./|~|`|<|>|\|)" {
+    deny all;
+}
+location ~* "(boot\.ini|etc/passwd|self/environ)" {
+    deny all;
+}
+location ~* "(thumbs?(_editor|open)?|tim(thumb)?)\.php" {
+    deny all;
+}
+location ~* "(\'|\")(.*)(drop|insert|md5|select|union)" {
+    deny all;
+}
+location ~* "(https?|ftp|php):/" {
+    deny all;
+}
+location ~* "(=\\\'|=\\%27|/\\\'/?)\." {
+    deny all;
+}
+location ~ "(\{0\}|\(/\(|\.\.\.|\+\+\+|\\\"\\\")" {
+    deny all;
+}
+location ~ "(~|`|<|>|:|;|%|\\|\s|\{|\}|\[|\]|\|)" {
+    deny all;
+}
