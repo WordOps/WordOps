@@ -178,8 +178,8 @@ class WOStackUpgradeController(CementBaseController):
             # Check prompt
             if ((not pargs.no_prompt) and (not pargs.force)):
                 start_upgrade = input("Do you want to continue:[y/N]")
-            if start_upgrade != "Y" and start_upgrade != "y":
-                Log.error(self, "Not starting package update")
+                if start_upgrade != "Y" and start_upgrade != "y":
+                    Log.error(self, "Not starting package update")
             Log.info(self, "Updating APT packages, please wait...")
             # apt-get update
             WOAptGet.update(self)
