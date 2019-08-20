@@ -54,6 +54,12 @@ map $request_uri $uri_no_cache {
     "~*/resetpass/" 1;
 }
 
+map $http_user_agent $mobile_prefix {
+    default "";
+    "~*iphone" -mobile;
+    "~*android" -mobile;
+}
+
 # do not cache requests with query strings
 map $is_args $query_no_cache {
     default 1;

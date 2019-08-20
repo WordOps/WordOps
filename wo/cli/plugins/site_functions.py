@@ -587,7 +587,20 @@ def setupwordpress(self, data):
 
     """Install Cache-Enabler"""
     if data['wpce']:
-        installwp_plugin(self, 'cache-enabler', data)
+        plugin_data_object = {"expires": 24,
+                              "new_post": 1,
+                              "new_comment": 0,
+                              "webp": 0,
+                              "clear_on_upgrade": 1,
+                              "compress": 0,
+                              "excl_ids": "",
+                              "excl_regexp": "",
+                              "excl_cookies": "",
+                              "incl_attributes": "",
+                              "minify_html": 1}
+        plugin_data = json.dumps(plugin_data_object)
+        setupwp_plugin(self, 'cache-enabler', 'cache-enabler',
+                       plugin_data, data)
 
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
@@ -656,12 +669,12 @@ def uninstallwp_plugin(self, plugin_name, data):
     Log.info(self, "Uninstalling plugin {0}, please wait..."
              .format(plugin_name))
     try:
-        WOShellExec.cmd_exec(self, "php {0} plugin "
+        WOShellExec.cmd_exec(self, "{0} plugin "
                              .format(WOVariables.wo_wpcli_path) +
                              "--allow-root deactivate "
                              "{0}".format(plugin_name))
 
-        WOShellExec.cmd_exec(self, "php {0} plugin "
+        WOShellExec.cmd_exec(self, "{0} plugin "
                              .format(WOVariables.wo_wpcli_path) +
                              "--allow-root uninstall "
                              "{0}".format(plugin_name))
@@ -678,7 +691,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
 
     if not data['multisite']:
         try:
-            WOShellExec.cmd_exec(self, "php {0} "
+            WOShellExec.cmd_exec(self, "{0} "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "--allow-root option update "
                                  "{0} \'{1}\' --format=json"
@@ -688,7 +701,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
             raise SiteError("plugin setup failed")
     else:
         try:
-            WOShellExec.cmd_exec(self, "php {0} "
+            WOShellExec.cmd_exec(self, "{0} "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "--allow-root network meta update 1 "
                                  "{0} \'{1}\' --format=json"
@@ -1224,16 +1237,16 @@ def site_url_https(self, domain):
         WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
         wo_siteurl = \
             WOShellExec.cmd_exec_stdout(self,
-                                        "php {0} option get siteurl "
+                                        "{0} option get siteurl "
                                         .format(WOVariables.wo_wpcli_path) +
                                         "--allow-root --quiet")
         test_url = re.split(":", wo_siteurl)
         if not (test_url[0] == 'https'):
             try:
-                WOShellExec.cmd_exec(self, "php {0} option update siteurl "
+                WOShellExec.cmd_exec(self, "{0} option update siteurl "
                                      "\'https://{1}\' --allow-root".format(
                                          WOVariables.wo_wpcli_path, domain))
-                WOShellExec.cmd_exec(self, "php {0} option update home "
+                WOShellExec.cmd_exec(self, "{0} option update home "
                                      "\'https://{1}\' --allow-root".format(
                                          WOVariables.wo_wpcli_path, domain))
             except CommandExecutionError as e:

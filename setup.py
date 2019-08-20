@@ -57,7 +57,7 @@ if not os.path.isfile('/root/.gitconfig'):
     shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
 
 setup(name='wo',
-      version='3.9.8.1',
+      version='3.9.8.2',
       description=long_description,
       long_description=long_description,
       classifiers=[],
@@ -87,6 +87,7 @@ setup(name='wo',
           'sh',
           'SQLAlchemy',
           'requests',
+          'distro',
       ],
       data_files=[('/etc/wo', ['config/wo.conf']),
                   ('/etc/wo/plugins.d', conf),

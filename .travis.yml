@@ -50,6 +50,7 @@ script:
   - sudo wo info
   - sudo cat /etc/nginx/nginx.conf
   - sudo tree -L 2 /etc/nginx
+  - sudo tree -L 2 /var/www
   - sudo cat /etc/mysql/my.cnf
   - sudo wo stack upgrade --nginx --force
   - sudo wo stack upgrade --php --force

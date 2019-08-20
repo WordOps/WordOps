@@ -1,5 +1,5 @@
 """WordOps core variable module"""
-import platform
+import distro
 import socket
 import configparser
 import os
@@ -10,7 +10,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.8.1"
+    wo_version = "3.9.8.2"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.2"
@@ -25,11 +25,12 @@ class WOVariables():
     wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # WordOps core variables
-    wo_distro = os.popen("/usr/bin/lsb_release -si "
-                         "| tr -d \'\\n\'").read().lower()
-    wo_platform_version = platform.linux_distribution()[1]
-    wo_platform_codename = os.popen(
-        "/usr/bin/lsb_release -sc | tr -d \'\\n\'").read()
+    wo_distro = distro.linux_distribution(
+        full_distribution_name=False)[0].lower()
+    wo_platform_version = distro.linux_distribution(
+        full_distribution_name=False)[1].lower()
+    wo_platform_codename = distro.linux_distribution(
+        full_distribution_name=False)[2].lower()
 
     # Get timezone of system
     if os.path.isfile('/etc/timezone'):

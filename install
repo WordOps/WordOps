@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.8.1 - 2019-08-18
+# Version 3.9.8.2 - 2019-08-20
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -76,6 +76,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     --purge | --uninstall)
         wo_purge="y"
+        ;;
+    -w | --wufw | --without-ufw)
+        ufw="n"
         ;;
     *) # positional args
         ;;
@@ -148,7 +151,9 @@ if [ -x /usr/local/bin/ee ]; then
 elif [ -x /usr/local/bin/wo ]; then
     wo_upgrade=1
 fi
-
+if [ -z "$ufw" ]; then
+    ufw="y"
+fi
 ###
 # 1 - Checking linux distro
 ###
@@ -211,11 +216,15 @@ wo_install_dep() {
 
         locale-gen en
         # enable unattended upgades
-        cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
+        if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
+            cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
+        fi
         # set default ntp pools
-        sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
-        # enable ntp
-        timedatectl set-ntp 1
+        if ! grep -q "time.cloudflare.com" /etc/systemd/timesyncd.conf; then
+            sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
+            # enable ntp
+            timedatectl set-ntp 1
+        fi
 
     } >> "$wo_install_log" 2>&1
 
@@ -318,13 +327,13 @@ wo_sync_db() {
                     fi
                 fi
 
-            done
+                wo_webroot="/var/www/$site"
 
-            wo_webroot="/var/www/$site"
-
-            # Import the configuration into the WordOps SQLite database
-            echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
+                # Import the configuration into the WordOps SQLite database
+                echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
             VALUES (\"$site\", \"$wo_site_current\", \"$wo_site_current_cache\", \"$wo_webroot\", \"$wo_site_status\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/wo/dbase.db
+
+            done
 
         fi
 
@@ -401,9 +410,6 @@ wo_install_acme_sh() {
                 /etc/letsencrypt/renewal/
             # remove previous acme.sh folder
             rm -rf "$HOME/.acme.sh"
-            # create acme.sh.env file inlcuded in .bashrc to avoid error when logging in
-            mkdir -p "$HOME/.acme.sh"
-            echo '' > "$HOME/.acme.sh/acme.sh.env"
             # removing previous cronjob
             crontab -l | sed '/41 0 \* \* \* "\/root\/\.acme\.sh"\/acme.sh --cron --home "\/root\/\.acme\.sh" > \/dev\/null/d' | crontab -
 
@@ -509,6 +515,7 @@ wo_upgrade_nginx() {
         [ -f /etc/nginx/htpasswd-ee ] && { mv /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
         sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php71.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
@@ -687,43 +694,73 @@ wo_uninstall() {
 
 wo_ufw_setup() {
 
-    CURRENT_SSH_PORT=$(grep "Port" /etc/ssh/sshd_config | awk -F " " '{print $2}')
-
+    # get custom ssh port
+    if [ -f /etc/ssh/sshd_config ]; then
+        CURRENT_SSH_PORT=$(grep "Port" /etc/ssh/sshd_config | awk -F " " '{print $2}')
+    fi
+    # install ufw if needed
     if [ ! -d /etc/ufw ]; then
         apt-get install ufw -y
     fi
 
     # define firewall rules
-
-    ufw logging low
-    ufw default allow outgoing
-    ufw default deny incoming
-
-    # default ssh port
-    ufw allow 22
+    if ! grep -q "LOGLEVEL=low" /etc/ufw/ufw.conf; then
+        ufw logging low
+    fi
+    if ! grep -q 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw; then
+        ufw default allow outgoing
+    fi
+    if ! grep -q 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw; then
+        ufw default deny incoming
+    fi
+    if ! grep -q "\-\-dport 22 -j" /etc/ufw/user.rules; then
+        # default ssh port
+        ufw limit 22
+    fi
 
     # custom ssh port
     if [ "$CURRENT_SSH_PORT" != "22" ]; then
-        ufw allow "$CURRENT_SSH_PORT"
+        if ! grep -q "\-\-dport $CURRENT_SSH_PORT -j" /etc/ufw/user.rules; then
+            ufw limit "$CURRENT_SSH_PORT"
+        fi
     fi
 
-    # dns
-    ufw allow 53
-
     # nginx
-    ufw allow http
-    ufw allow https
+    if ! grep -q "\-\-dport 80 -j" /etc/ufw/user.rules; then
+        # http
+        ufw allow http
+    fi
+    if ! grep -q "\-\-dport 443 -j" /etc/ufw/user.rules; then
+        # https
+        ufw allow https
+    fi
 
     # ntp
-    ufw allow 123
+    if ! grep -q "\-\-dport 123 -j" /etc/ufw/user.rules; then
+        ufw allow 123
+    fi
 
-    # wordops backend
-    ufw allow 22222
-
+    if ! grep -q "\-\-dport 22222 -j" /etc/ufw/user.rules; then
+        # wordops backend
+        ufw limit 22222
+    fi
     # enable ufw
-    echo "y" | ufw enable
+    if [ -n "$CURRENT_SSH_PORT" ]; then
+        if ! grep -q "ENABLED=yes" /etc/ufw/ufw.conf; then
+            ufw --force enable
+        else
+            ufw reload
+        fi
+    fi
 
-} >> $wo_install_log
+    # remove ufw from syslog
+    if [ -f /etc/rsyslog.d/20-ufw.conf ]; then
+        sed -i 's/\#\& stop/\& stop/' /etc/rsyslog.d/20-ufw.conf
+        service rsyslog restart
+    fi
+
+} \
+    >> $wo_install_log
 
 ###
 # 4 - WO MAIN SETUP
@@ -739,7 +776,7 @@ else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         if ! {
-            wo -v 2>&1 | grep -q "$wo_version_new"
+            wo -v 2>&1 | grep "$wo_version_new"
         } || [ "$wo_force_install" = "y" ]; then
             if [ -z "$wo_force_install" ]; then
                 echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
@@ -754,10 +791,14 @@ else
                 secure_wo_db | tee -ai $wo_install_log
                 wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
                 wo_clean | tee -ai $wo_install_log
-                if [ -f "$HOME/.gitconfig" ]; then
-                    wo_install >> $wo_install_log 2>&1
+                if [ "$wo_travis" = "y" ]; then
+                    wo_install_travis | tee -ai $wo_install_log
                 else
-                    wo_install | tee -ai $wo_install_log
+                    if [ -f "$HOME/.gitconfig" ]; then
+                        wo_install >> $wo_install_log 2>&1
+                    else
+                        wo_install | tee -ai $wo_install_log
+                    fi
                 fi
                 if [ -z "$wo_preserve_config" ]; then
                     if [ -n "$(command -v nginx)" ]; then
@@ -771,6 +812,10 @@ else
                 if [ ! -d /opt/acme/.sh ]; then
                     wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
                     wo_install_acme_sh | tee -ai $wo_install_log
+                fi
+                if [ "$ufw" = "y" ]; then
+                    wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
+                    wo_ufw_setup | tee -ai $wo_install_log
                 fi
                 wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
                 wo_tweak_kernel | tee -ai $wo_install_log
@@ -813,6 +858,10 @@ else
                 wo_update_latest | tee -ai $wo_install_log
                 wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
                 wo_install_acme_sh | tee -ai $wo_install_log
+                if [ "$ufw" = "y" ]; then
+                    wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
+                    wo_ufw_setup | tee -ai $wo_install_log
+                fi
                 wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
                 wo_tweak_kernel | tee -ai $wo_install_log
                 wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
@@ -832,6 +881,10 @@ else
                 wo_install_travis | tee -ai $wo_install_log
             else
                 wo_install | tee -ai $wo_install_log
+            fi
+            if [ "$ufw" = "y" ]; then
+                wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
+                wo_ufw_setup | tee -ai $wo_install_log
             fi
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
             wo_tweak_kernel | tee -ai $wo_install_log
