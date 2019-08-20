@@ -171,95 +171,95 @@ class WOStackUpgradeController(CementBaseController):
                                         "Composer"]]
             else:
                 Log.error(self, "Composer isn't installed")
+        if len(apt_packages) or len(packages):
+            if len(apt_packages):
+                Log.info(self, "Your site may be down for few seconds if "
+                         "you are upgrading Nginx, PHP-FPM, MariaDB or Redis")
+                # Check prompt
+                if ((not pargs.no_prompt) and (not pargs.force)):
+                    start_upgrade = input("Do you want to continue:[y/N]")
+                    if start_upgrade != "Y" and start_upgrade != "y":
+                        Log.error(self, "Not starting package update")
+                Log.info(self, "Updating APT packages, please wait...")
+                # apt-get update
+                WOAptGet.update(self)
+                if set(WOVariables.wo_php).issubset(set(apt_packages)):
+                    WOAptGet.remove(self, ['php7.2-fpm'],
+                                    auto=False, purge=True)
+                if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+                    WOAptGet.remove(self, ['php7.3-fpm'],
+                                    auto=False, purge=True)
+                # Update packages
+                WOAptGet.install(self, apt_packages)
+                post_pref(self, apt_packages, empty_packages)
+                # Post Actions after package updates
 
-        if len(apt_packages):
-            Log.info(self, "Your site may be down for few seconds if "
-                     "you are upgrading Nginx, PHP-FPM, MariaDB or Redis")
-            # Check prompt
-            if ((not pargs.no_prompt) and (not pargs.force)):
-                start_upgrade = input("Do you want to continue:[y/N]")
-                if start_upgrade != "Y" and start_upgrade != "y":
-                    Log.error(self, "Not starting package update")
-            Log.info(self, "Updating APT packages, please wait...")
-            # apt-get update
-            WOAptGet.update(self)
-            if set(WOVariables.wo_php).issubset(set(apt_packages)):
-                WOAptGet.remove(self, ['php7.2-fpm'],
-                                auto=False, purge=True)
-            if set(WOVariables.wo_php73).issubset(set(apt_packages)):
-                WOAptGet.remove(self, ['php7.3-fpm'],
-                                auto=False, purge=True)
-            # Update packages
-            WOAptGet.install(self, apt_packages)
-            post_pref(self, apt_packages, empty_packages)
-            # Post Actions after package updates
+            if len(packages):
+                if pargs.wpcli:
+                    WOFileUtils.rm(self, '/usr/local/bin/wp')
 
-        if len(packages):
-            if pargs.wpcli:
-                WOFileUtils.rm(self, '/usr/local/bin/wp')
+                if pargs.netdata:
+                    WOFileUtils.rm(self, '/var/lib/wo/tmp/kickstart.sh')
 
-            if pargs.netdata:
-                WOFileUtils.rm(self, '/var/lib/wo/tmp/kickstart.sh')
+                if pargs.dashboard:
+                    WOFileUtils.rm(self, '/var/www/22222/htdocs/index.php')
 
-            if pargs.dashboard:
-                WOFileUtils.rm(self, '/var/www/22222/htdocs/index.php')
+                Log.debug(self, "Downloading following: {0}".format(packages))
+                WODownload.download(self, packages)
 
-            Log.debug(self, "Downloading following: {0}".format(packages))
-            WODownload.download(self, packages)
+                if pargs.wpcli:
+                    WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
-            if pargs.wpcli:
-                WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
+                if pargs.netdata:
+                    Log.info(self, "Upgrading Netdata, please wait...")
+                    WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
+                                         "kickstart.sh "
+                                         "--dont-wait")
 
-            if pargs.netdata:
-                Log.info(self, "Upgrading Netdata, please wait...")
-                WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
-                                     "kickstart.sh "
-                                     "--dont-wait")
+                if pargs.dashboard:
+                    Log.debug(self, "Extracting wo-dashboard.tar.gz "
+                              "to location {0}22222/htdocs/"
+                              .format(WOVariables.wo_webroot))
+                    WOExtract.extract(self, '/var/lib/wo/tmp/'
+                                      'wo-dashboard.tar.gz',
+                                      '{0}22222/htdocs'
+                                      .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, "{0}22222/htdocs"
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user, recursive=True)
 
-            if pargs.dashboard:
-                Log.debug(self, "Extracting wo-dashboard.tar.gz "
-                          "to location {0}22222/htdocs/"
-                          .format(WOVariables.wo_webroot))
-                WOExtract.extract(self, '/var/lib/wo/tmp/'
-                                  'wo-dashboard.tar.gz',
-                                  '{0}22222/htdocs'
-                                  .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, "{0}22222/htdocs"
-                                  .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user, recursive=True)
+                if pargs.composer:
+                    Log.info(self, "Upgrading Composer, please wait...")
+                    WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
+                                         "/tmp/composer-install "
+                                         "--install-dir=/var/lib/wo/tmp/")
+                    shutil.copyfile('/var/lib/wo/tmp/composer.phar',
+                                    '/usr/local/bin/composer')
+                    WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
 
-            if pargs.composer:
-                Log.info(self, "Upgrading Composer, please wait...")
-                WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
-                                     "/tmp/composer-install "
-                                     "--install-dir=/var/lib/wo/tmp/")
-                shutil.copyfile('/var/lib/wo/tmp/composer.phar',
-                                '/usr/local/bin/composer')
-                WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
-
-            if pargs.phpmyadmin:
-                Log.info(self, "Upgrading phpMyAdmin, please wait...")
-                WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz',
-                                  '/var/lib/wo/tmp/')
-                shutil.copyfile(('{0}22222/htdocs/db/pma'
-                                 '/config.inc.php'
-                                 .format(WOVariables.wo_webroot)),
-                                ('/var/lib/wo/tmp/phpMyAdmin-{0}'
-                                 '-all-languages/config.inc.php'
-                                 .format(WOVariables.wo_phpmyadmin))
-                                )
-                WOFileUtils.rm(self, '{0}22222/htdocs/db/pma'
-                               .format(WOVariables.wo_webroot))
-                shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
-                            '-all-languages/'
-                            .format(WOVariables.wo_phpmyadmin),
-                            '{0}22222/htdocs/db/pma/'
-                            .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, "{0}22222/htdocs"
-                                  .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user, recursive=True)
+                if pargs.phpmyadmin:
+                    Log.info(self, "Upgrading phpMyAdmin, please wait...")
+                    WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz',
+                                      '/var/lib/wo/tmp/')
+                    shutil.copyfile(('{0}22222/htdocs/db/pma'
+                                     '/config.inc.php'
+                                     .format(WOVariables.wo_webroot)),
+                                    ('/var/lib/wo/tmp/phpMyAdmin-{0}'
+                                     '-all-languages/config.inc.php'
+                                     .format(WOVariables.wo_phpmyadmin))
+                                    )
+                    WOFileUtils.rm(self, '{0}22222/htdocs/db/pma'
+                                   .format(WOVariables.wo_webroot))
+                    shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
+                                '-all-languages/'
+                                .format(WOVariables.wo_phpmyadmin),
+                                '{0}22222/htdocs/db/pma/'
+                                .format(WOVariables.wo_webroot))
+                    WOFileUtils.chown(self, "{0}22222/htdocs"
+                                      .format(WOVariables.wo_webroot),
+                                      WOVariables.wo_php_user,
+                                      WOVariables.wo_php_user, recursive=True)
 
             Log.info(self, "Successfully updated packages")
         else:

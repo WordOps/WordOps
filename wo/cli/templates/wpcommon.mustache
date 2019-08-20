@@ -66,7 +66,7 @@ location /wp-content/cache {
         expires 30d;
     }
     location ~ \.php$ {
-#Prevent Direct Access Of PHP Files From Web Browsers
+        #Prevent Direct Access Of PHP Files From Web Browsers
         deny all;
     }
 }
