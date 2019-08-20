@@ -1114,7 +1114,7 @@ def post_pref(self, apt_packages, packages):
             WOService.reload_service(self, 'proftpd')
 
     # Redis configuration
-    if set(["redis-server"]).issubset(set(apt_packages)):
+    if set(WOVariables.wo_redis).issubset(set(apt_packages)):
         # set redis.conf parameter
         # set maxmemory 10% for ram below 512MB and 20% for others
         # set maxmemory-policy allkeys-lru
