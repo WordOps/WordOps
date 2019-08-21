@@ -139,9 +139,12 @@ def setupdomain(self, data):
 
 def setupdatabase(self, data):
     wo_domain_name = data['site_name']
+    wo_random_pass = (''.join(random.sample(string.ascii_uppercase +
+                                            string.ascii_lowercase +
+                                            string.digits, 24)))
     wo_random = (''.join(random.sample(string.ascii_uppercase +
                                        string.ascii_lowercase +
-                                       string.digits, 24)))
+                                       string.digits, 8)))
     wo_replace_dot = wo_domain_name.replace('.', '_')
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
@@ -158,7 +161,7 @@ def setupdatabase(self, data):
             raise SiteError("Unable to input database name")
 
     if not wo_db_name:
-        wo_db_name = wo_replace_dot
+        wo_db_name = wo_replace_dot[]
 
     if prompt_dbuser == 'True' or prompt_dbuser == 'true':
         try:
@@ -166,14 +169,14 @@ def setupdatabase(self, data):
                                    .format(wo_replace_dot))
             wo_db_password = getpass.getpass(prompt='Enter the MySQL database'
                                              ' password [{0}]: '
-                                             .format(wo_random))
+                                             .format(wo_random_pass))
         except EOFError:
             raise SiteError("Unable to input database credentials")
 
     if not wo_db_username:
         wo_db_username = wo_replace_dot
     if not wo_db_password:
-        wo_db_password = wo_random
+        wo_db_password = wo_random_pass
 
     if len(wo_db_username) > 16:
         Log.debug(self, 'Autofix MySQL username (ERROR 1470 (HY000)),'
@@ -239,9 +242,12 @@ def setupwordpress(self, data):
     wo_wp_pass = self.app.config.get('wordpress', 'password')
     wo_wp_email = self.app.config.get('wordpress', 'email')
     # Random characters
+    wo_random_pass = (''.join(random.sample(string.ascii_uppercase +
+                                            string.ascii_lowercase +
+                                            string.digits, 24)))
     wo_random = (''.join(random.sample(string.ascii_uppercase +
                                        string.ascii_lowercase +
-                                       string.digits, 24)))
+                                       string.digits, 8)))
     wo_wp_prefix = ''
     # wo_wp_user = ''
     # wo_wp_pass = ''
@@ -434,7 +440,7 @@ def setupwordpress(self, data):
             except EOFError:
                 raise SiteError("input WordPress username failed")
     if not wo_wp_pass:
-        wo_wp_pass = wo_random
+        wo_wp_pass = wo_random_pass
 
     if not wo_wp_email:
         wo_wp_email = WOVariables.wo_email
@@ -1116,10 +1122,17 @@ def detSitePar(opts):
     return (sitetype, cachetype)
 
 
-def generate_random():
+def generate_random_pass():
     wo_random10 = (''.join(random.sample(string.ascii_uppercase +
                                          string.ascii_lowercase +
                                          string.digits, 24)))
+    return wo_random10
+
+
+def generate_random():
+    wo_random10 = (''.join(random.sample(string.ascii_uppercase +
+                                         string.ascii_lowercase +
+                                         string.digits, 8)))
     return wo_random10
 
 
