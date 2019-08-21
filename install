@@ -114,7 +114,7 @@ else
 fi
 
 echo ""
-wo_lib_echo "Welcome to WordOps install script v${wo_version_new}"
+wo_lib_echo "Welcome to WordOps install/update script v${wo_version_new}"
 echo ""
 
 ###
@@ -625,7 +625,7 @@ wo_backup_ee() {
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /usr/local/lib/python3.*/dist-packages/wo-*.egg /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean_ee() {
