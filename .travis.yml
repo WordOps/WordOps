@@ -47,7 +47,7 @@ script:
   - sudo wo site create 1.com --html && sudo wo site create 2.com --php && sudo wo site create 3.com --mysql
   - sudo wo site update 1.com --wp && sudo wo site update 2.com --php73 && sudo wo site update 3.com --php73 && sudo wo site update 1.com --wpfc && sudo wo site update 1.com --wpsc && sudo wo site update 1.com --wpredis
   - sudo wp --allow-root --info
-  - sudo wo info wp1.com
+  - sudo wo site info wp1.com
   - sudo cat /etc/nginx/nginx.conf
   - sudo wo site info
   - sudo cat /etc/mysql/my.cnf
