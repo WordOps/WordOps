@@ -142,10 +142,7 @@ def setupdatabase(self, data):
     wo_random_pass = (''.join(random.sample(string.ascii_uppercase +
                                             string.ascii_lowercase +
                                             string.digits, 24)))
-    wo_random = (''.join(random.sample(string.ascii_uppercase +
-                                       string.ascii_lowercase +
-                                       string.digits, 8)))
-    wo_replace_dot = wo_domain_name.replace('.', '_')
+    wo_replace_dot = wo_domain_name.replace('.', '')
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
     wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
@@ -161,7 +158,7 @@ def setupdatabase(self, data):
             raise SiteError("Unable to input database name")
 
     if not wo_db_name:
-        wo_db_name = wo_replace_dot[]
+        wo_db_name = wo_replace_dot
 
     if prompt_dbuser == 'True' or prompt_dbuser == 'true':
         try:
@@ -178,10 +175,8 @@ def setupdatabase(self, data):
     if not wo_db_password:
         wo_db_password = wo_random_pass
 
-    if len(wo_db_username) > 16:
-        Log.debug(self, 'Autofix MySQL username (ERROR 1470 (HY000)),'
-                  ' please wait')
-        wo_db_username = (wo_db_name[0:6] + generate_random())
+    wo_db_username = (wo_db_name[0:8] + generate_random())
+    wo_db_name = (wo_db_name[0:8] + generate_random())
 
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
@@ -189,8 +184,8 @@ def setupdatabase(self, data):
     try:
         if WOMysql.check_db_exists(self, wo_db_name):
             Log.debug(self, "Database already exists, Updating DB_NAME .. ")
-            wo_db_name = (wo_db_name[0:6] + generate_random())
-            wo_db_username = (wo_db_name[0:6] + generate_random())
+            wo_db_name = (wo_db_name[0:8] + generate_random())
+            wo_db_username = (wo_db_name[0:8] + generate_random())
     except MySQLConnectionError:
         raise SiteError("MySQL Connectivity problem occured")
 
