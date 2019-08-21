@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
+- Nginx package OpenSSL configuration improvements (TLS v1.3 now available on all operating systems supported by WordOps)
 - remove user prompt for confirmation with `wo update`
 - Nginx stack will not be upgraded with `wo update` anymore. This can be done at anytime with `wo upgrade --nginx`
 
