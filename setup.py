@@ -57,7 +57,7 @@ if not os.path.isfile('/root/.gitconfig'):
     shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
 
 setup(name='wo',
-      version='3.9.8.2',
+      version='3.9.8.3',
       description=long_description,
       long_description=long_description,
       classifiers=[],
