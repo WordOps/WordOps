@@ -39,10 +39,7 @@ class WOUpdateController(CementBaseController):
         pargs = self.app.pargs
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
 
-        if pargs.travis:
-            wo_branch = "updating-configuration"
-            install_args = "--travis --force "
-        elif pargs.beta:
+        if pargs.beta:
             wo_branch = "beta"
             install_args = ""
         else:
@@ -59,14 +56,23 @@ class WOUpdateController(CementBaseController):
                                     "/var/lib/wo/tmp/{0}".format(filename),
                                     "update script"]])
 
-        try:
-            Log.info(self, "updating WordOps, please wait...")
-            os.system("/bin/bash /var/lib/wo/tmp/{0} "
-                      "-b {1} {2}".format(filename,
-                                          wo_branch, install_args))
-        except OSError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "WordOps update failed !")
+        if pargs.travis:
+            try:
+                Log.info(self, "updating WordOps, please wait...")
+                os.system("/bin/bash install --travis "
+                          "-b $TRAVIS_BRANCH --force")
+            except OSError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "WordOps update failed !")
+        else:
+            try:
+                Log.info(self, "updating WordOps, please wait...")
+                os.system("/bin/bash /var/lib/wo/tmp/{0} "
+                          "-b {1} {2}".format(filename,
+                                              wo_branch, install_args))
+            except OSError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "WordOps update failed !")
 
 
 def load(app):

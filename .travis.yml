@@ -28,11 +28,10 @@ script:
   - lsb_release -a
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo export wo_branch="$TRAVIS_BRANCH"
   - sed -i 's/# "nose"/"nose"/g' setup.py
   - sed -i 's/# "coverage"/"coverage"/g' setup.py
   - sed -i 's/# "Sphinx >= 1.0"/"Sphinx >= 1.0"/g' setup.py
-  - sudo bash install --travis
+  - sudo bash install --travis -b "$TRAVIS_BRANCH"
   - sudo wo --help && sudo wo stack install && sudo wo stack install --proftpd
   - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql && sudo wo site create proxy.com --proxy=127.0.0.1:3000
   - sudo wo site create wp1.com --wp && sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc
@@ -60,6 +59,7 @@ script:
   - sudo wo stack upgrade --composer --force
   - sudo wo stack upgrade --dashboard --force
   - sudo wo update --travis
+  - sudo wo update --force
   - sudo wo stack status
   - sudo tar -I pigz  -cf wordops.tar.gz /var/log/wo
   - curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/$(basename "wordops.tar.gz") && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
