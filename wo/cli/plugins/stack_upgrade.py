@@ -12,7 +12,7 @@ from wo.core.logging import Log
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
-from wo.cli.plugins.stack_pref import post_pref
+from wo.cli.plugins.stack_pref import pre_pref, post_pref
 
 
 class WOStackUpgradeController(CementBaseController):
@@ -181,6 +181,9 @@ class WOStackUpgradeController(CementBaseController):
                     if start_upgrade != "Y" and start_upgrade != "y":
                         Log.error(self, "Not starting package update")
                 Log.info(self, "Updating APT packages, please wait...")
+                if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+                    pre_pref(self, ['nginx-custom', 'nginx-wo'],
+                             empty_packages)
                 # apt-get update
                 WOAptGet.update(self)
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):

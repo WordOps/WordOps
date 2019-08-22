@@ -881,12 +881,18 @@ else
         echo
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
+        echo
+        wo_lib_echo "To upgrade Nginx use the command:"
+        wo_lib_echo_info "wo stack upgrade --nginx"
+        echo
+        wo_lib_echo "To update other packages use the command:"
+        wo_lib_echo_info "wo stack maintenance"
     else
         wo_lib_echo "WordOps (wo) installed successfully"
+        echo
+        wo_lib_echo "For autocompletion, run the following command:"
+        wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     fi
-    echo
-    wo_lib_echo_info "For autocompletion, run the following command:"
-    wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
     wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
     wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
