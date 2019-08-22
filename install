@@ -851,7 +851,11 @@ else
             if [ "$wo_travis" = "y" ]; then
                 wo_install_travis | tee -ai $wo_install_log
             else
-                wo_install | tee -ai $wo_install_log
+                if [ -f "$HOME/.gitconfig" ]; then
+                    wo_install >> $wo_install_log 2>&1
+                else
+                    wo_install | tee -ai $wo_install_log
+                fi
             fi
             if [ "$ufw" = "y" ]; then
                 wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
@@ -872,7 +876,7 @@ else
         fi
     fi
 
-    wo sync | tee -ai $wo_install_log
+    wo sync >> $wo_install_log 2>&1
 
     if [ "$ee_migration" = "1" ]; then
         echo
