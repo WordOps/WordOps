@@ -12,7 +12,7 @@ from wo.core.logging import Log
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
-from wo.cli.plugins.stack_pref import post_pref
+from wo.cli.plugins.stack_pref import pre_pref, post_pref
 
 
 class WOStackUpgradeController(CementBaseController):
@@ -62,6 +62,7 @@ class WOStackUpgradeController(CementBaseController):
         # All package update
         apt_packages = []
         packages = []
+        nginx_packages = []
         empty_packages = []
         pargs = pargs = self.app.pargs
 
@@ -89,6 +90,7 @@ class WOStackUpgradeController(CementBaseController):
         if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 apt_packages = apt_packages + WOVariables.wo_nginx
+                nginx_packages = nginx_packages + WOVariables.wo_nginx
             else:
                 Log.info(self, "Nginx Stable is not already installed")
 
@@ -181,6 +183,8 @@ class WOStackUpgradeController(CementBaseController):
                     if start_upgrade != "Y" and start_upgrade != "y":
                         Log.error(self, "Not starting package update")
                 Log.info(self, "Updating APT packages, please wait...")
+                if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+                    pre_pref(self, nginx_packages)
                 # apt-get update
                 WOAptGet.update(self)
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):

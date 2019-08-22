@@ -851,7 +851,11 @@ else
             if [ "$wo_travis" = "y" ]; then
                 wo_install_travis | tee -ai $wo_install_log
             else
-                wo_install | tee -ai $wo_install_log
+                if [ -f "$HOME/.gitconfig" ]; then
+                    wo_install >> $wo_install_log 2>&1
+                else
+                    wo_install | tee -ai $wo_install_log
+                fi
             fi
             if [ "$ufw" = "y" ]; then
                 wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
@@ -872,7 +876,7 @@ else
         fi
     fi
 
-    wo sync | tee -ai $wo_install_log
+    wo sync >> $wo_install_log 2>&1
 
     if [ "$ee_migration" = "1" ]; then
         echo
@@ -881,12 +885,21 @@ else
         echo
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
+        echo
+        wo_lib_echo "To upgrade Nginx use the command:"
+        wo_lib_echo_info "wo stack upgrade --nginx"
+        echo
+        wo_lib_echo "To update other packages use the command:"
+        wo_lib_echo_info "wo stack maintenance"
     else
         wo_lib_echo "WordOps (wo) installed successfully"
+        echo
+        wo_lib_echo "For autocompletion, run the following command:"
+        wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
+        echo
+        wo_lib_echo "To install WordOps main stacks, use the command:"
+        wo_lib_echo_info "wo stack install"
     fi
-    echo
-    wo_lib_echo_info "For autocompletion, run the following command:"
-    wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
     echo
     wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
     wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
