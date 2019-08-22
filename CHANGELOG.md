@@ -8,9 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.3 - 2019-08-21
+
+#### Changed
+
+- Nginx package OpenSSL configuration improvements (TLS v1.3 now available on all operating systems supported by WordOps)
+- remove user prompt for confirmation with `wo update`
+- Nginx stack will not be upgraded with `wo update` anymore. This can be done at anytime with `wo upgrade --nginx`
+- Databases name and user are now semi-randomly generated (0-8 letters from the domain + 8 random caracters)
+
 #### Fixed
 
 - `wo upgrade` output
+- Database name or database user length
 
 ### v3.9.8.2 - 2019-08-20
 

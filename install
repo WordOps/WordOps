@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.8.2 - 2019-08-20
+# Version 3.9.8.3 - 2019-08-20
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -114,7 +114,7 @@ else
 fi
 
 echo ""
-wo_lib_echo "Welcome to WordOps install script v${wo_version_new}"
+wo_lib_echo "Welcome to WordOps install/update script v${wo_version_new}"
 echo ""
 
 ###
@@ -189,14 +189,18 @@ fi
 ###
 # 2 - Setup the dependencies for installation
 ####
+
+wo_dist_upgrade() {
+    [ -z "$wo_travis" ] && {
+        # update server packages
+        apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
+    } >> "$wo_install_log" 2>&1
+}
+
 wo_install_dep() {
 
     {
 
-        [ -z "$wo_travis" ] && {
-            # update server packages
-            apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
-        }
         if [ "$wo_linux_distro" == "Ubuntu" ]; then
             # install dependencies
             apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
@@ -621,7 +625,7 @@ wo_backup_ee() {
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /usr/local/lib/python3.*/dist-packages/wo-*.egg /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean_ee() {
@@ -649,6 +653,10 @@ wo_tweak_kernel() {
         # apply sysctl tweaks
         sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
     fi
+
+}
+
+wo_systemd_tweak() {
 
     if [ ! -x /opt/wo-kernel.sh ]; then
         {
@@ -682,11 +690,6 @@ wo_ufw_setup() {
     if [ -f /etc/ssh/sshd_config ]; then
         CURRENT_SSH_PORT=$(grep "Port" /etc/ssh/sshd_config | awk -F " " '{print $2}')
     fi
-    # install ufw if needed
-    if [ ! -d /etc/ufw ]; then
-        apt-get install ufw -y
-    fi
-
     # define firewall rules
     if ! grep -q "LOGLEVEL=low" /etc/ufw/ufw.conf; then
         ufw logging low
@@ -760,54 +763,37 @@ else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         if ! {
-            wo -v 2>&1 | grep "$wo_version_new"
+            wo -v 2>&1 | grep -q "$wo_version_new"
         } || [ "$wo_force_install" = "y" ]; then
-            if [ -z "$wo_force_install" ]; then
-                echo -e "Update WordOps to $wo_version_new (y/n): " && read -r WO_ANSWER
+            wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
+            wo_install_dep | tee -ai $wo_install_log
+            wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
+            wo_backup_wo | tee -ai $wo_install_log
+            secure_wo_db | tee -ai $wo_install_log
+            wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
+            wo_clean | tee -ai $wo_install_log
+            if [ "$wo_travis" = "y" ]; then
+                wo_install_travis | tee -ai $wo_install_log
             else
-                WO_ANSWER="y"
-            fi
-            if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
-                wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
-                wo_install_dep | tee -ai $wo_install_log
-                wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
-                wo_backup_wo | tee -ai $wo_install_log
-                secure_wo_db | tee -ai $wo_install_log
-                wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-                wo_clean | tee -ai $wo_install_log
-                if [ "$wo_travis" = "y" ]; then
-                    wo_install_travis | tee -ai $wo_install_log
+                if [ -f "$HOME/.gitconfig" ]; then
+                    wo_install >> $wo_install_log 2>&1
                 else
-                    if [ -f "$HOME/.gitconfig" ]; then
-                        wo_install >> $wo_install_log 2>&1
-                    else
-                        wo_install | tee -ai $wo_install_log
-                    fi
+                    wo_install | tee -ai $wo_install_log
                 fi
-                if [ -z "$wo_preserve_config" ]; then
-                    if [ -n "$(command -v nginx)" ]; then
-                        if [ ! -f /etc/apt/preferences.d/nginx-block ]; then
-                            wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                            wo_upgrade_nginx | tee -ai $wo_install_log
-                        fi
-                    fi
-                fi
-                wo_update_latest | tee -ai $wo_install_log
-                if [ ! -d /opt/acme/.sh ]; then
-                    wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
-                    wo_install_acme_sh | tee -ai $wo_install_log
-                fi
-                if [ "$ufw" = "y" ]; then
-                    wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
-                    wo_ufw_setup | tee -ai $wo_install_log
-                fi
-                wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
-                wo_tweak_kernel | tee -ai $wo_install_log
-                wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
-                wo_update_wp_cli | tee -ai $wo_install_log
-            else
-                wo_lib_error "Not updating WordOps to $wo_version_new, exit status = " 1
             fi
+            wo_update_latest | tee -ai $wo_install_log
+            if [ ! -d /opt/acme/.sh ]; then
+                wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
+                wo_install_acme_sh | tee -ai $wo_install_log
+            fi
+            wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
+            wo_tweak_kernel | tee -ai $wo_install_log
+            if [ ! -f /opt/wo-kernel.sh ]; then
+                wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
+                wo_systemd_tweak | tee -ai $wo_install_log
+            fi
+            wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
+            wo_update_wp_cli | tee -ai $wo_install_log
         else
             wo_lib_error "You already have WordOps $wo_version_new, exit status = " 1
         fi
@@ -842,12 +828,12 @@ else
                 wo_update_latest | tee -ai $wo_install_log
                 wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
                 wo_install_acme_sh | tee -ai $wo_install_log
-                if [ "$ufw" = "y" ]; then
-                    wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
-                    wo_ufw_setup | tee -ai $wo_install_log
-                fi
                 wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
                 wo_tweak_kernel | tee -ai $wo_install_log
+                if [ ! -f /opt/wo-kernel.sh ]; then
+                    wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
+                    wo_systemd_tweak | tee -ai $wo_install_log
+                fi
                 wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
                 wo_git_init | tee -ai $wo_install_log
                 wo_update_wp_cli | tee -ai $wo_install_log
@@ -859,6 +845,7 @@ else
         else
             # 3 - Fresh WO setup
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
+            wo_dist_upgrade | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             if [ "$wo_travis" = "y" ]; then
@@ -872,6 +859,10 @@ else
             fi
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
             wo_tweak_kernel | tee -ai $wo_install_log
+            if [ ! -f /opt/wo-kernel.sh ]; then
+                wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
+                wo_systemd_tweak | tee -ai $wo_install_log
+            fi
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log

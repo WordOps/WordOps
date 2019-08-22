@@ -31,36 +31,10 @@ script:
   - sed -i 's/# "nose"/"nose"/g' setup.py
   - sed -i 's/# "coverage"/"coverage"/g' setup.py
   - sed -i 's/# "Sphinx >= 1.0"/"Sphinx >= 1.0"/g' setup.py
-  - sudo bash install --travis
-  - sudo wo --help && sudo wo stack install && sudo wo stack install --proftpd
-  - sudo wo site create html.net --html && sudo wo site create php.com --php && sudo wo site create mysql.com --mysql && sudo wo site create proxy.com --proxy=127.0.0.1:3000
-  - sudo wo site create wp1.com --wp && sudo wo site create wpsc1.net --wpsc && sudo wo site create wpfc1.com --wpfc
-  - sudo wo site create wpsc-php73.net --wpsc --php73 && sudo wo site create wpfc-php73.net --wpfc --php73
-  - sudo wo site create wprocket.net --wprocket && sudo wo site create wprocket-php73.net --wprocket --php73
-  - sudo wo site create wpce.net --wpce && sudo wo site create wpce-php73.net --wpce --php73
-  - sudo wo site create wpredis.net --wpredis && sudo wo site create wpredis-php73.net --wpredis --php73
-  - sudo wo site create wpsubdir1.com --wpsubdir && sudo wo site create wpsubdir-php73.com --wpsubdir --php73
+  - sudo bash install --travis -b "$TRAVIS_BRANCH"
+  - sudo bash tests/travis.sh
 
-  - sudo wo site create wpsubdirwpsc1.com --wpsubdir --wpsc &&  sudo wo site create wpsubdirwpsc2.com --wpsubdir --wpfc &&  sudo wo site create wpsubdirwpsc1-php73.com --wpsubdir --wpsc --php73 && sudo wo site create wpsubdirwpsc2-php73.com --wpsubdir --wpfc --php73
-  - sudo wo site create wpsubdomain1.com --wpsubdomain && sudo wo site create wpsubdomain1-php73.com --wpsubdomain --php73 && sudo wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc && sudo wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc && sudo wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain
-
-  - sudo wo site create 1.com --html && sudo wo site create 2.com --php && sudo wo site create 3.com --mysql
-  - sudo wo site update 1.com --wp && sudo wo site update 2.com --php73 && sudo wo site update 3.com --php73 && sudo wo site update 1.com --wpfc && sudo wo site update 1.com --wpsc && sudo wo site update 1.com --wpredis
-  - sudo wp --allow-root --info
-  - sudo wo info
-  - sudo cat /etc/nginx/nginx.conf
-  - sudo tree -L 2 /etc/nginx
-  - sudo tree -L 2 /var/www
-  - sudo cat /etc/mysql/my.cnf
-  - sudo wo stack upgrade --nginx --force
-  - sudo wo stack upgrade --php --force
-  - sudo wo stack upgrade --netdata --force
-  - sudo wo stack upgrade --phpmyadmin --force
-  - sudo wo stack upgrade --composer --force
-  - sudo wo stack upgrade --dashboard --force
   - sudo wo update --travis
   - sudo wo stack status
-  - sudo tar -I pigz  -cf wordops.tar.gz /var/log/wo
-  - curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/$(basename "wordops.tar.gz") && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
-  - echo "yes" | sudo wo stack purge --all --force
+  - sudo wo stack purge --all --force
   - sudo bash install --purge
