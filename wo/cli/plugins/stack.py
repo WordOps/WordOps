@@ -63,6 +63,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install PHP 7.3 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
+            (['--mariabackup'],
+                dict(help='Install MariaBackup stack', action='store_true')),
             (['--mysqlclient'],
                 dict(help='Install MySQL client for remote MySQL server',
                      action='store_true')),
@@ -79,6 +81,8 @@ class WOStackController(CementBaseController):
                      action='store_true')),
             (['--dashboard'],
                 dict(help='Install WordOps dashboard', action='store_true')),
+            (['--extplorer'],
+                dict(help='Install eXtplorer file manager', action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--fail2ban'],
@@ -119,6 +123,7 @@ class WOStackController(CementBaseController):
                 and (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
+                (not pargs.extplorer) and (not pargs.mariabackup) and
                 (not pargs.phpredisadmin) and
                     (not pargs.php73)):
                 pargs.web = True
@@ -139,17 +144,13 @@ class WOStackController(CementBaseController):
                 pargs.wpcli = True
 
             if pargs.admin:
-                pargs.nginx = True
-                pargs.php = True
-                pargs.mysql = True
+                pargs.web = True
                 pargs.adminer = True
                 pargs.phpmyadmin = True
-                pargs.composer = True
                 pargs.utils = True
                 pargs.netdata = True
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
-                pargs.mysqltuner = True
 
             if pargs.security:
                 pargs.fail2ban = True
@@ -213,6 +214,8 @@ class WOStackController(CementBaseController):
 
             # MariaDB 10.3
             if pargs.mysql:
+                pargs.mariabackup = True
+                pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + WOVariables.wo_mysql
@@ -221,6 +224,12 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable "
                           "for MySQL Client")
                 apt_packages = apt_packages + WOVariables.wo_mysql_client
+
+            if pargs.mariabackup:
+                if not WOAptGet.is_installed(self, 'mariadb-backup'):
+                    Log.debug(self, "Setting apt_packages variable "
+                              "for MariaBackup")
+                    apt_packages = apt_packages + ["mariadb-backup"]
 
             # WP-CLI
             if pargs.wpcli:

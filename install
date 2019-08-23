@@ -494,6 +494,7 @@ wo_upgrade_nginx() {
         # install new nginx package
         if [ -n "$CHECK_NGINX_EE" ]; then
             if [ -x /usr/local/bin/wo ]; then
+                [ -f /etc/apt/preferences.d/nginx-block ] && { mv /etc/apt/preferences.d/nginx-block .;}
                 # stop nginx
                 service nginx stop
                 # remove previous package
@@ -544,6 +545,7 @@ wo_upgrade_nginx() {
             systemctl stop nginx
             systemctl start nginx
         fi
+        [ -f ./nginx-block ] && { mv nginx-block /etc/apt/preferences.d/nginx-block ;}
 
     } \
         >> "$wo_install_log" 2>&1

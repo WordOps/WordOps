@@ -27,7 +27,8 @@ def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
     if (set(WOVariables.wo_mysql).issubset(set(apt_packages)) or
-            set(WOVariables.wo_mysql_client).issubset(set(apt_packages))):
+            set(WOVariables.wo_mysql_client).issubset(set(apt_packages)) or
+            set(['mariadb-backup']).issubset(set(apt_packages))):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -1182,7 +1183,8 @@ def post_pref(self, apt_packages, packages):
                                           .format(WOVariables.wo_webroot),
                                           "$cfg[\'Servers\'][$i][\'host\']"
                                           " = \'localhost\';", "$cfg"
-                                          "[\'Servers\'][$i][\'host\'] = \'{0}\';"
+                                          "[\'Servers\'][$i][\'host\'] "
+                                          "= \'{0}\';"
                                           .format(WOVariables.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
