@@ -182,32 +182,31 @@ def post_pref(self, apt_packages, packages):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-            if os.path.isfile('/etc/nginx/nginx.conf'):
-                data = dict(php="9000", debug="9001",
+            data = dict(php="9000", debug="9001",
                             php7="9070", debug7="9170")
-                WOTemplate.tmpl_render(
-                    self, '{0}/upstream.conf'.format(ngxcnf),
-                    'upstream.mustache', data, overwrite=True)
+            WOTemplate.tmpl_render(
+                self, '{0}/upstream.conf'.format(ngxcnf),
+                'upstream.mustache', data, overwrite=True)
 
-                data = dict(phpconf=True if
-                            WOAptGet.is_installed(self, 'php7.2-fpm')
-                            else False)
-                WOTemplate.tmpl_render(self,
-                                       '{0}/stub_status.conf'.format(ngxcnf),
-                                       'stub_status.mustache', data)
-                data = dict()
-                WOTemplate.tmpl_render(self,
-                                       '{0}/webp.conf'.format(ngxcnf),
-                                       'webp.mustache', data)
+            data = dict(phpconf=True if
+                        WOAptGet.is_installed(self, 'php7.2-fpm')
+                        else False)
+            WOTemplate.tmpl_render(self,
+                                   '{0}/stub_status.conf'.format(ngxcnf),
+                                   'stub_status.mustache', data)
+            data = dict()
+            WOTemplate.tmpl_render(self,
+                                   '{0}/webp.conf'.format(ngxcnf),
+                                   'webp.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/cloudflare.conf'.format(ngxcnf),
-                                       'cloudflare.mustache', data)
+            WOTemplate.tmpl_render(self,
+                                   '{0}/cloudflare.conf'.format(ngxcnf),
+                                   'cloudflare.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/map-wp-fastcgi-cache.conf'.format(
-                                           ngxcnf),
-                                       'map-wp.mustache', data)
+            WOTemplate.tmpl_render(self,
+                                   '{0}/map-wp-fastcgi-cache.conf'.format(
+                                       ngxcnf),
+                                   'map-wp.mustache', data)
 
             # Setup Nginx common directory
             if not os.path.exists('{0}'.format(ngxcom)):
