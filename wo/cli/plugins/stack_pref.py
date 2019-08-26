@@ -202,6 +202,15 @@ def post_pref(self, apt_packages, packages):
             WOTemplate.tmpl_render(self,
                                    '{0}/cloudflare.conf'.format(ngxcnf),
                                    'cloudflare.mustache', data)
+            Log.debug("Setting up freshclam cronjob")
+            WOTemplate.tmpl_render(self, '/opt/cf-update.sh',
+                                   'cf-update.mustache',
+                                   data, overwrite=False)
+            WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
+            WOCron.setcron_weekly(self, '/opt/cf-update.sh '
+                                  '> /dev/null 2>&1',
+                                  comment='Cloudflare IP refresh cronjob '
+                                  'added by WordOps')
 
             WOTemplate.tmpl_render(self,
                                    '{0}/map-wp-fastcgi-cache.conf'.format(
@@ -471,7 +480,7 @@ def post_pref(self, apt_packages, packages):
                 WOGit.add(self,
                           ["/etc/nginx"], msg="Adding Nginx into Git")
                 WOService.reload_service(self, 'nginx')
-                server_ip = requests.get('http://v4.wordops.eu')
+
                 if set(["nginx"]).issubset(set(apt_packages)):
                     print("WordOps backend configuration was successful\n"
                           "You can access it on : https://{0}:22222"
@@ -657,8 +666,8 @@ def post_pref(self, apt_packages, packages):
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user, recursive=True)
+                              'www-data',
+                              'www-data', recursive=True)
 
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             WOService.restart_service(self, 'php7.2-fpm')
@@ -829,8 +838,8 @@ def post_pref(self, apt_packages, packages):
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user, recursive=True)
+                              'www-data',
+                              'www-data', recursive=True)
 
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             WOService.restart_service(self, 'php7.3-fpm')
@@ -845,17 +854,34 @@ def post_pref(self, apt_packages, packages):
                                    encoding='utf-8', mode='w')
                 config_file.write(config)
                 config_file.close()
-            else:
+            elif (not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+                with open("/etc/mysql/my.cnf",
+                          "a") as mysql_file:
+                    mysql_file.write("\n# WordOps v3.9.8\n")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+                # set InnoDB variable depending on the RAM available
                 wo_ram_innodb = int(wo_ram*0.3)
                 wo_ram_log_buffer = int(wo_ram_innodb*0.25)
                 wo_ram_log_size = int(wo_ram_log_buffer*0.5)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
+                # set innodb_buffer_pool_instances depending
+                # on the amount of RAM
+                if (wo_ram_innodb > 1000) and (wo_ram_innodb < 64000):
+                    wo_innodb_instance = int(
+                        wo_ram_innodb/1000)
+                elif (wo_ram_innodb < 1000):
+                    wo_innodb_instance = int(1)
+                elif (wo_ram_innodb > 64000):
+                    wo_innodb_instance = int(64)
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "innodb_buffer_pool_size	= 256M",
-                                          "innodb_buffer_pool_size	= {0}M"
-                                          .format(wo_ram_innodb))
+                                          "innodb_buffer_pool_size	"
+                                          "= {0}M\n"
+                                          "innodb_buffer_pool_instances "
+                                          "= {1}\n"
+                                          .format(wo_ram_innodb,
+                                                  wo_innodb_instance))
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "innodb_log_buffer_size	= 8M",
                                           "innodb_log_buffer_size	= {0}M"
@@ -870,11 +896,6 @@ def post_pref(self, apt_packages, packages):
                                           "= 600",
                                           "wait_timeout		"
                                           "= 120")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "skip-external-locking",
-                                          "skip-external-locking\n"
-                                          "skip-name-resolve = 1\n")
-
                 # disabling mariadb binlog
                 WOFileUtils.searchreplace(self,
                                           "/etc/mysql/my.cnf",
@@ -924,15 +945,8 @@ def post_pref(self, apt_packages, packages):
                                           "table_open_cache	= 16000")
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "max_allowed_packet	= 16M",
-                                          "max_allowed_packet	= 64M")
-                if (wo_ram_innodb > 1000) and (wo_ram_innodb < 64000):
-                    wo_innodb_instance = int(wo_ram_innodb/1000)
-                    WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                              "# * Security Features",
-                                              "innodb_buffer_pool_instances "
-                                              "= {0}\n"
-                                              .format(wo_innodb_instance) +
-                                              "# * Security Features")
+                                          "max_allowed_packet	= 64M\n"
+                                          "skip-name-resolve=1\n")
 
                 WOService.stop_service(self, 'mysql')
                 WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
@@ -1083,7 +1097,11 @@ def post_pref(self, apt_packages, packages):
         # enable systemd service
         Log.debug(self, "Enabling redis systemd service")
         WOShellExec.cmd_exec(self, "systemctl enable redis-server")
-        if os.path.isfile("/etc/redis/redis.conf"):
+        if (os.path.isfile("/etc/redis/redis.conf") and
+                not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+            with open("/etc/redis/redis.conf",
+                      "a") as redis_file:
+                redis_file.write("\n# WordOps v3.9.8\n")
             wo_ram = psutil.virtual_memory().total / (1024 * 1024)
             if wo_ram < 1024:
                 Log.debug(self, "Setting maxmemory variable to "
@@ -1126,6 +1144,18 @@ def post_pref(self, apt_packages, packages):
             WOFileUtils.chown(self, '/etc/redis/redis.conf',
                               'redis', 'redis', recursive=False)
             WOService.restart_service(self, 'redis-server')
+
+    # Redis configuration
+    if set(["clamav"]).issubset(set(apt_packages)):
+        Log.debug("Setting up freshclam cronjob")
+        WOTemplate.tmpl_render(self, '/opt/freshclam.sh',
+                               'freshclam.mustache',
+                               data, overwrite=False)
+        WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
+        WOCron.setcron_weekly(self, '/opt/freshclam.sh '
+                              '> /dev/null 2>&1',
+                              comment='ClamAV freshclam cronjob '
+                              'added by WordOps')
 
     if (packages):
         if any('/usr/local/bin/wp' == x[1] for x in packages):
@@ -1190,8 +1220,8 @@ def post_pref(self, apt_packages, packages):
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
+                                  'www-data',
+                                  'www-data',
                                   recursive=True)
 
         # composer install and phpmyadmin update
@@ -1211,8 +1241,8 @@ def post_pref(self, apt_packages, packages):
                                  "/var/www/22222/htdocs/db/pma/")
             WOFileUtils.chown(self, '{0}22222/htdocs/db/pma'
                               .format(WOVariables.wo_webroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user,
+                              'www-data',
+                              'www-data',
                               recursive=True)
 
         if any('/usr/bin/mysqltuner' == x[1]
@@ -1291,8 +1321,8 @@ def post_pref(self, apt_packages, packages):
                               .format(WOVariables.wo_webroot))
                     WOFileUtils.chown(self, '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot),
-                                      WOVariables.wo_php_user,
-                                      WOVariables.wo_php_user,
+                                      'www-data',
+                                      'www-data',
                                       recursive=True)
 
         # Extplorer FileManager
@@ -1314,8 +1344,8 @@ def post_pref(self, apt_packages, packages):
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
+                                  'www-data',
+                                  'www-data',
                                   recursive=True)
 
         # webgrind
@@ -1359,8 +1389,8 @@ def post_pref(self, apt_packages, packages):
                       .format(WOVariables.wo_webroot))
             WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user,
+                              'www-data',
+                              'www-data',
                               recursive=True)
         # anemometer
         if any('/var/lib/wo/tmp/anemometer.tar.gz' == x[1]
@@ -1419,9 +1449,19 @@ def post_pref(self, apt_packages, packages):
                                 out=wo_anemometer)
                 wo_anemometer.close()
 
+        # pt-query-advisor
         if any('/usr/bin/pt-query-advisor' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
+
+        # cht.sh
+        if any('/usr/local/bin/cht.sh' == x[1]
+               for x in packages):
+            WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
+            if not WOFileUtils.grep(self, "~/.bashrc", "cheat"):
+                with open("~/.bashrc",
+                          "a") as wo_bashrc:
+                    wo_bashrc.write("\nalias cheat='cht.sh'\n")
 
         # phpredisadmin
         if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
@@ -1436,21 +1476,21 @@ def post_pref(self, apt_packages, packages):
                             .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
+                                  'www-data',
+                                  'www-data',
                                   recursive=True)
                 if os.path.isfile("/usr/local/bin/composer"):
-                    WOShellExec.cmd_exec(self, "sudo -u www-data -H "
-                                         "composer "
-                                         "create-project -n -s dev "
+                    WOShellExec.cmd_exec(self, "/usr/local/bin/composer"
+                                         "create-project --no-plugins "
+                                         "--no-scripts -n -s dev "
                                          "erik-dubbelboer/php-redis-admin "
                                          "/var/www/22222/htdocs/cache"
                                          "/redis/phpRedisAdmin ")
             Log.debug(self, 'Setting Privileges of webroot permission to  '
-                      '{0}22222/htdocs/cache/file '
+                      '{0}22222/htdocs/cache/redis'
                       .format(WOVariables.wo_webroot))
             WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user,
+                              'www-data',
+                              'www-data',
                               recursive=True)

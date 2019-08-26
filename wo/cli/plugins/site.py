@@ -4,7 +4,7 @@ from cement.core import handler, hook
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables
 from wo.core.shellexec import WOShellExec
-from wo.core.domainvalidate import ValidateDomain
+from wo.core.domainvalidate import ValidateDomain, GetDomainlevel
 from wo.core.fileutils import WOFileUtils
 from wo.cli.plugins.site_functions import *
 from wo.core.services import WOService
@@ -45,18 +45,19 @@ class WOSiteController(CementBaseController):
 
     @expose(help="Enable site example.com")
     def enable(self):
-        if not self.app.pargs.site_name:
+        pargs = self.app.pargs
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
 
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
+        pargs.site_name = pargs.site_name.strip()
         # validate domain name
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
 
         # check if site exists
         if not check_domain_exists(self, wo_domain):
@@ -83,17 +84,18 @@ class WOSiteController(CementBaseController):
 
     @expose(help="Disable site example.com")
     def disable(self):
-        if not self.app.pargs.site_name:
+        pargs = self.app.pargs
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
 
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
         # check if site exists
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -124,16 +126,18 @@ class WOSiteController(CementBaseController):
 
     @expose(help="Get example.com information")
     def info(self):
-        if not self.app.pargs.site_name:
+        pargs = self.app.pargs
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        wo_domain_type = GetDomainlevel(wo_domain)
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
@@ -143,7 +147,6 @@ class WOSiteController(CementBaseController):
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(wo_domain)):
             siteinfo = getSiteInfo(self, wo_domain)
-
             sitetype = siteinfo.site_type
             cachetype = siteinfo.cache_type
             wo_site_webroot = siteinfo.site_path
@@ -179,8 +182,9 @@ class WOSiteController(CementBaseController):
 
     @expose(help="Monitor example.com logs")
     def log(self):
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        pargs = self.app.pargs
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
         wo_site_webroot = getSiteInfo(self, wo_domain).site_path
 
         if not check_domain_exists(self, wo_domain):
@@ -191,17 +195,18 @@ class WOSiteController(CementBaseController):
 
     @expose(help="Display Nginx configuration of example.com")
     def show(self):
-        if not self.app.pargs.site_name:
+        pargs = self.app.pargs
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         # TODO Write code for wo site edit command here
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -221,17 +226,18 @@ class WOSiteController(CementBaseController):
 
     @expose(help="Change directory to site webroot")
     def cd(self):
-        if not self.app.pargs.site_name:
+        pargs = self.app.pargs
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, 'Unable to read input, please try again')
 
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -261,17 +267,18 @@ class WOSiteEditController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        if not self.app.pargs.site_name:
+        pargs = self.app.pargs
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, 'Unable to read input, Please try again')
 
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -381,43 +388,43 @@ class WOSiteCreateController(CementBaseController):
     def default(self):
         pargs = self.app.pargs
         if pargs.php72:
-            self.app.pargs.php = True
+            pargs.php = True
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
         host, port = None, None
         try:
-            stype, cache = detSitePar(vars(self.app.pargs))
+            stype, cache = detSitePar(vars(pargs))
         except RuntimeError as e:
             Log.debug(self, str(e))
             Log.error(self, "Please provide valid options to creating site")
 
-        if stype is None and self.app.pargs.proxy:
+        if stype is None and pargs.proxy:
             stype, cache = 'proxy', ''
-            proxyinfo = self.app.pargs.proxy[0].strip()
+            proxyinfo = pargs.proxy[0].strip()
             if not proxyinfo:
                 Log.error(self, "Please provide proxy server host information")
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not self.app.pargs.proxy:
+        elif stype is None and not pargs.proxy:
             stype, cache = 'html', 'basic'
-        elif stype and self.app.pargs.proxy:
+        elif stype and pargs.proxy:
             Log.error(self, "proxy should not be used with other site types")
 
-        if not self.app.pargs.site_name:
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
+                while not pargs.site_name:
                     # preprocessing before finalize site name
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "Unable to input site name, Please try again!")
 
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
-
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        wo_domain_type = GetDomainlevel(wo_domain)
         if not wo_domain.strip():
             Log.error("Invalid domain name, "
                       "Provide valid domain name")
@@ -442,7 +449,7 @@ class WOSiteCreateController(CementBaseController):
             data['port'] = port
             data['basic'] = True
 
-        if self.app.pargs.php73:
+        if pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
                         static=False,  basic=False, php73=True, wp=False,
                         wpfc=False, wpsc=False, wprocket=False, wpce=False,
@@ -475,9 +482,9 @@ class WOSiteCreateController(CementBaseController):
                 data['wp'] = True
                 data['basic'] = False
                 data[cache] = True
-                data['wp-user'] = self.app.pargs.user
-                data['wp-email'] = self.app.pargs.email
-                data['wp-pass'] = self.app.pargs.wppass
+                data['wp-user'] = pargs.user
+                data['wp-email'] = pargs.email
+                data['wp-pass'] = pargs.wppass
                 if stype in ['wpsubdir', 'wpsubdomain']:
                     data['multisite'] = True
                     if stype == 'wpsubdir':
@@ -485,25 +492,25 @@ class WOSiteCreateController(CementBaseController):
         else:
             pass
 
-        if data and self.app.pargs.php73:
+        if data and pargs.php73:
             data['php73'] = True
             php73 = 1
         elif data:
             data['php73'] = False
             php73 = 0
 
-        if ((not self.app.pargs.wpfc) and
-            (not self.app.pargs.wpsc) and
-            (not self.app.pargs.wprocket) and
-            (not self.app.pargs.wpce) and
-                (not self.app.pargs.wpredis)):
+        if ((not pargs.wpfc) and
+            (not pargs.wpsc) and
+            (not pargs.wprocket) and
+            (not pargs.wpce) and
+                (not pargs.wpredis)):
             data['basic'] = True
 
         if (cache == 'wpredis'):
             cache = 'wpredis'
             data['wpredis'] = True
             data['basic'] = False
-            self.app.pargs.wpredis = True
+            pargs.wpredis = True
 
         # Check rerequired packages are installed or not
         wo_auth = site_package_check(self, stype)
@@ -619,7 +626,7 @@ class WOSiteCreateController(CementBaseController):
                               "and please try again")
 
             # Setup WordPress if Wordpress site
-            if (data['wp'] and (not self.app.pargs.vhostonly)):
+            if (data['wp'] and (not pargs.vhostonly)):
                 try:
                     wo_wp_creds = setupwordpress(self, data)
                     # Add database information for site into database
@@ -644,7 +651,7 @@ class WOSiteCreateController(CementBaseController):
                               "`tail /var/log/wo/wordops.log` "
                               "and please try again")
 
-            if (data['wp'] and (self.app.pargs.vhostonly)):
+            if (data['wp'] and (pargs.vhostonly)):
                 try:
                     wo_wp_creds = setupwordpress(self, data)
                     # Add database information for site into database
@@ -745,7 +752,7 @@ class WOSiteCreateController(CementBaseController):
                 for msg in wo_auth:
                     Log.info(self, Log.ENDC + msg, log=False)
 
-            if data['wp'] and (not self.app.pargs.vhostonly):
+            if data['wp'] and (not pargs.vhostonly):
                 Log.info(self, Log.ENDC + "WordPress admin user :"
                          " {0}".format(wo_wp_creds['wp_user']), log=False)
                 Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
@@ -759,32 +766,32 @@ class WOSiteCreateController(CementBaseController):
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
-        if self.app.pargs.letsencrypt:
+        if pargs.letsencrypt:
             data['letsencrypt'] = True
             letsencrypt = True
-            if self.app.pargs.dns:
+            if pargs.dns:
                 wo_acme_dns = pargs.dns
             if data['letsencrypt'] is True:
-                if self.app.pargs.letsencrypt == "subdomain":
-                    if self.app.pargs.dns:
+                if pargs.letsencrypt == "subdomain":
+                    if pargs.dns:
                         setupLetsEncrypt(self, wo_domain, True, False,
                                          True, wo_acme_dns)
                     else:
                         setupLetsEncrypt(self, wo_domain, True)
                     httpsRedirect(self, wo_domain)
-                elif self.app.pargs.letsencrypt == "wildcard":
+                elif pargs.letsencrypt == "wildcard":
                     setupLetsEncrypt(self, wo_domain, False, True,
                                      True, wo_acme_dns)
                     httpsRedirect(self, wo_domain, True, True)
                 else:
-                    if self.app.pargs.dns:
+                    if pargs.dns:
                         setupLetsEncrypt(self, wo_domain, False,
                                          False, True, wo_acme_dns)
                     else:
                         setupLetsEncrypt(self, wo_domain)
                     httpsRedirect(self, wo_domain)
 
-                if self.app.pargs.hsts:
+                if pargs.hsts:
                     setupHsts(self, wo_domain)
 
                 site_url_https(self, wo_domain)
@@ -915,6 +922,7 @@ class WOSiteUpdateController(CementBaseController):
             self.doupdatesite(pargs)
 
     def doupdatesite(self, pargs):
+        pargs = self.app.pargs
         letsencrypt = False
         php73 = None
 
@@ -950,7 +958,7 @@ class WOSiteUpdateController(CementBaseController):
         (wo_domain,
          wo_www_domain, ) = ValidateDomain(pargs.site_name)
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
-
+        wo_domain_type = GetDomainlevel(wo_domain)
         check_site = getSiteInfo(self, wo_domain)
 
         if check_site is None:
@@ -1342,27 +1350,30 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if self.app.pargs.letsencrypt:
-            if self.app.pargs.dns:
+        if pargs.letsencrypt:
+            if pargs.dns:
                 wo_acme_dns = pargs.dns
             if data['letsencrypt'] is True:
+                if (wo_domain_type == 'subdomain' and
+                        pargs.letsencrypt != 'wildcard'):
+                    pargs.letsencrypt == 'subdomain'
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                                       .format(wo_site_webroot)):
-                    if self.app.pargs.letsencrypt == "on":
-                        if self.app.pargs.dns:
+                    if pargs.letsencrypt == "on":
+                        if pargs.dns:
                             setupLetsEncrypt(self, wo_domain, False,
                                              False, True, wo_acme_dns)
                         else:
                             setupLetsEncrypt(self, wo_domain)
                         httpsRedirect(self, wo_domain)
-                    elif self.app.pargs.letsencrypt == "subdomain":
-                        if self.app.pargs.dns:
+                    elif pargs.letsencrypt == "subdomain":
+                        if pargs.dns:
                             setupLetsEncrypt(self, wo_domain, True, False,
                                              True, wo_acme_dns)
                         else:
                             setupLetsEncrypt(self, wo_domain, True)
                         httpsRedirect(self, wo_domain)
-                    elif self.app.pargs.letsencrypt == "wildcard":
+                    elif pargs.letsencrypt == "wildcard":
                         setupLetsEncrypt(self, wo_domain, False, True,
                                          True, wo_acme_dns)
                         httpsRedirect(self, wo_domain, True, True)
@@ -1391,7 +1402,7 @@ class WOSiteUpdateController(CementBaseController):
                         ".PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
-                if self.app.pargs.letsencrypt == "off":
+                if pargs.letsencrypt == "off":
                     if os.path.isfile("{0}/conf/nginx/ssl.conf"
                                       .format(wo_site_webroot)):
                         Log.info(self, 'Setting Nginx configuration')
@@ -1407,8 +1418,8 @@ class WOSiteUpdateController(CementBaseController):
                                                '{0}/conf/nginx/'
                                                'hsts.conf.disabled'
                                                .format(wo_site_webroot))
-                elif (self.app.pargs.letsencrypt == "clean" or
-                      self.app.pargs.letsencrypt == "purge"):
+                elif (pargs.letsencrypt == "clean" or
+                      pargs.letsencrypt == "purge"):
                     removeAcmeConf(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1798,16 +1809,18 @@ class WOSiteDeleteController(CementBaseController):
     @expose(help="Delete website configuration and files")
     @expose(hide=True)
     def default(self):
-        if not self.app.pargs.site_name:
+        pargs = self.app.pargs
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ')
+                                       .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
 
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        pargs.site_name = pargs.site_name.strip()
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        wo_domain_type = GetDomainlevel(wo_domain)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''
@@ -1818,9 +1831,9 @@ class WOSiteDeleteController(CementBaseController):
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
 
-        if ((not self.app.pargs.db) and (not self.app.pargs.files) and
-                (not self.app.pargs.all)):
-            self.app.pargs.all = True
+        if ((not pargs.db) and (not pargs.files) and
+                (not pargs.all)):
+            pargs.all = True
 
         # Gather information from wo-db for wo_domain
         check_site = getSiteInfo(self, wo_domain)
@@ -1834,18 +1847,18 @@ class WOSiteDeleteController(CementBaseController):
             wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
             if wo_db_name == 'deleted':
                 mark_db_deleted = True
-            if self.app.pargs.all:
-                self.app.pargs.db = True
-                self.app.pargs.files = True
+            if pargs.all:
+                pargs.db = True
+                pargs.files = True
         else:
-            if self.app.pargs.all:
+            if pargs.all:
                 mark_db_deleted = True
-                self.app.pargs.files = True
+                pargs.files = True
 
         # Delete website database
-        if self.app.pargs.db:
+        if pargs.db:
             if wo_db_name != 'deleted' and wo_db_name != '':
-                if not self.app.pargs.no_prompt:
+                if not pargs.no_prompt:
                     wo_db_prompt = input('Are you sure, you want to delete'
                                          ' database [y/N]: ')
                 else:
@@ -1870,9 +1883,9 @@ class WOSiteDeleteController(CementBaseController):
                          )
 
         # Delete webroot
-        if self.app.pargs.files:
+        if pargs.files:
             if wo_site_webroot != 'deleted':
-                if not self.app.pargs.no_prompt:
+                if not pargs.no_prompt:
                     wo_web_prompt = input('Are you sure, you want to delete '
                                           'webroot [y/N]: ')
                 else:
@@ -1891,7 +1904,7 @@ class WOSiteDeleteController(CementBaseController):
                 mark_webroot_deleted = True
                 Log.info(self, "Webroot seems to be already deleted")
 
-        if not self.app.pargs.force:
+        if not pargs.force:
             if (mark_webroot_deleted and mark_db_deleted):
                 # TODO Delete nginx conf
                 removeNginxConf(self, wo_domain)
@@ -1925,15 +1938,16 @@ class WOSiteListController(CementBaseController):
 
     @expose(help="Lists websites")
     def default(self):
+        pargs = self.app.pargs
         sites = getAllsites(self)
         if not sites:
             pass
 
-        if self.app.pargs.enabled:
+        if pargs.enabled:
             for site in sites:
                 if site.is_enabled:
                     Log.info(self, "{0}".format(site.sitename))
-        elif self.app.pargs.disabled:
+        elif pargs.disabled:
             for site in sites:
                 if not site.is_enabled:
                     Log.info(self, "{0}".format(site.sitename))

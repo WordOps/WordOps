@@ -87,8 +87,12 @@ class WOStackController(CementBaseController):
                 dict(help='Install Adminer stack', action='store_true')),
             (['--fail2ban'],
                 dict(help='Install Fail2ban stack', action='store_true')),
+            (['--clamav'],
+                dict(help='Install ClamAV stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
+            (['--cheat'],
+                dict(help='Install cht.sh stack', action='store_true')),
             (['--redis'],
                 dict(help='Install Redis', action='store_true')),
             (['--phpredisadmin'],
@@ -124,11 +128,12 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.mariabackup) and
+                (not pargs.cheat) and (not pargs.clamav) and
                 (not pargs.phpredisadmin) and
                     (not pargs.php73)):
                 pargs.web = True
                 pargs.admin = True
-                pargs.security = True
+                pargs.fail2ban = True
 
             if pargs.all:
                 pargs.web = True
@@ -151,9 +156,11 @@ class WOStackController(CementBaseController):
                 pargs.netdata = True
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
+                pargs.cheat = True
 
             if pargs.security:
                 pargs.fail2ban = True
+                pargs.clamav = True
 
             # Redis
             if pargs.redis:
@@ -220,11 +227,13 @@ class WOStackController(CementBaseController):
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + WOVariables.wo_mysql
 
+            # mysqlclient
             if pargs.mysqlclient:
                 Log.debug(self, "Setting apt_packages variable "
                           "for MySQL Client")
                 apt_packages = apt_packages + WOVariables.wo_mysql_client
 
+            # mariabackup
             if pargs.mariabackup:
                 if not WOAptGet.is_installed(self, 'mariadb-backup'):
                     Log.debug(self, "Setting apt_packages variable "
@@ -250,6 +259,15 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for Fail2ban")
                 if not WOAptGet.is_installed(self, 'fail2ban'):
                     apt_packages = apt_packages + WOVariables.wo_fail2ban
+                else:
+                    Log.debug(self, "Fail2ban already installed")
+                    Log.info(self, "Fail2ban already installed")
+
+            # ClamAV
+            if pargs.clamav:
+                Log.debug(self, "Setting apt_packages variable for ClamAV")
+                if not WOAptGet.is_installed(self, 'fail2ban'):
+                    apt_packages = apt_packages + ["clamav"]
                 else:
                     Log.debug(self, "Fail2ban already installed")
                     Log.info(self, "Fail2ban already installed")
@@ -324,7 +342,7 @@ class WOStackController(CementBaseController):
                                         "htdocs/db/adminer/adminer.css"
                                         .format(WOVariables.wo_webroot),
                                         "Adminer theme"]]
-
+            # mysqltuner
             if pargs.mysqltuner:
                 Log.debug(self, "Setting packages variable for MySQLTuner ")
                 packages = packages + [["https://raw."
@@ -356,15 +374,23 @@ class WOStackController(CementBaseController):
                           "releases/download/v{0}/wordops-dashboard.tar.gz"
                           .format(WOVariables.wo_dashboard),
                           "/var/lib/wo/tmp/wo-dashboard.tar.gz",
-                          "WordOps Dashboard"],
-                         ["https://github.com/soerennb/"
-                          "extplorer/archive/v{0}.tar.gz"
-                          .format(WOVariables.wo_extplorer),
-                            "/var/lib/wo/tmp/extplorer.tar.gz",
-                            "eXtplorer"]]
+                          "WordOps Dashboard"]]
                 else:
                     Log.debug(self, "WordOps dashboard already installed")
                     Log.info(self, "WordOps dashboard already installed")
+
+            if pargs.dashboard:
+                if not os.path.isdir('/var/www/22222/htdocs/files'):
+                    Log.debug(self, "Setting packages variable for eXtplorer")
+                    packages = packages + \
+                        [["https://github.com/soerennb/"
+                          "extplorer/archive/v{0}.tar.gz"
+                          .format(WOVariables.wo_extplorer),
+                          "/var/lib/wo/tmp/extplorer.tar.gz",
+                          "eXtplorer"]]
+                else:
+                    Log.debug(self, "eXtplorer is already installed")
+                    Log.info(self, "eXtplorer is already installed")
 
             # UTILS
             if pargs.utils:
@@ -408,6 +434,17 @@ class WOStackController(CementBaseController):
                                         '/var/lib/wo/tmp/anemometer.tar.gz',
                                         'Anemometer']
                                        ]
+            if pargs.cheat:
+                if (not os.path.isfile('/usr/local/bin/cht.sh') and
+                        not os.path.isfile('/usr/bin/cht.sh')):
+                    Log.debug(self, "Setting packages variable for cht.sh")
+                    [["https://cht.sh/:cht.sh",
+                      "/usr/local/bin/cht.sh",
+                      "Cht.sh"]]
+                else:
+                    Log.debug(self, "cht.sh is already installed")
+                    Log.info(self, "cht.sh is already installed")
+
         except Exception as e:
             Log.debug(self, "{0}".format(e))
 

@@ -64,7 +64,7 @@ class WOStackUpgradeController(CementBaseController):
         packages = []
         nginx_packages = []
         empty_packages = []
-        pargs = pargs = self.app.pargs
+        pargs = self.app.pargs
 
         if ((not pargs.web) and (not pargs.nginx) and
             (not pargs.php) and (not pargs.php73) and

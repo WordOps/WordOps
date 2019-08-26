@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- cht.sh stack : linux online cheatsheet. Usage : `cheat <command>`. Example for tar : `cheat tar`
+- ClamAV anti-virus with weekly cronjob to update signatures database
+- Internal function to add daily cronjobs
+- Additional comment to detect previous configuration tuning (MariaDB & Redis)
+- Domain/Subdomain detection based on public domain suffixes list
+- Increase Nginx & MariaDB systemd open_files limits
+- Cronjob to update Cloudflare IPs list
+
+#### Changed
+
+- eXplorer filemanager isn't installed with WordOps dashboard anymore, and a flag `--extplorer` is available. But it's still installed when running the command `wo stack install`
+- Template rendering function now check for a .custom file before overwriting a configuration by default.
+- flag `--letsencrypt=subdomain` is not required anymore, you can use `--letsencrypt` or `-le`
+
 ### v3.9.8.3 - 2019-08-21
 
 #### Changed

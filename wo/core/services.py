@@ -17,8 +17,12 @@ class WOService():
         """
         try:
             if service_name in ['nginx', 'php5-fpm']:
-                service_cmd = ('{0} -t && service {0} start'
-                               .format(service_name))
+                # Check Nginx configuration before executing command
+                sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, shell=True)
+                output, error_output = sub.communicate()
+                if 'emerg' not in str(error_output):
+                    service_cmd = ('service {0} start'.format(service_name))
             else:
                 service_cmd = ('service {0} start'.format(service_name))
 
@@ -64,8 +68,12 @@ class WOService():
         """
         try:
             if service_name in ['nginx', 'php5-fpm']:
-                service_cmd = ('{0} -t && service {0} restart'
-                               .format(service_name))
+                # Check Nginx configuration before executing command
+                sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, shell=True)
+                output, error_output = sub.communicate()
+                if 'emerg' not in str(error_output):
+                    service_cmd = ('service {0} restart'.format(service_name))
             else:
                 service_cmd = ('service {0} restart'.format(service_name))
 
@@ -90,8 +98,12 @@ class WOService():
         """
         try:
             if service_name in ['nginx', 'php5-fpm']:
-                service_cmd = ('{0} -t && service {0} reload'
-                               .format(service_name))
+                # Check Nginx configuration before executing command
+                sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, shell=True)
+                output, error_output = sub.communicate()
+                if 'emerg' not in str(error_output):
+                    service_cmd = ('service {0} restart'.format(service_name))
             else:
                 service_cmd = ('service {0} reload'.format(service_name))
 

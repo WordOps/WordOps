@@ -1279,8 +1279,10 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(domain)):
             removeNginxConf(self, domain)
-        if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
-                         .format(domain)):
+        if (os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
+                          .format(domain)) or
+                os.path.isdir('/etc/letsencrypt/live/{0}'
+                              .format(domain))):
             removeAcmeConf(self, domain)
 
     if webroot:
