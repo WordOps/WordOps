@@ -38,14 +38,14 @@ def GetDomainlevel(domain):
             "/var/lib/wo/public_suffix_list.dat", "r")
         # Read all the lines into a list.
         for domain_suffix in Suffix_file:
-            if (str(domain_suffix).strip()) == ('.'.join(testing_domain[1:])):
+            if (str(domain_suffix).strip()) == ('.'.join(domain_name[1:])):
                 domain_type = 'domain'
                 break
-            elif (str(domain_suffix).strip()) == ('.'.join(testing_domain[2:]):
-                domain_type='subdomain'
+            elif (str(domain_suffix).strip()) == ('.'.join(domain_name[2:])):
+                domain_type = 'subdomain'
                 break
             else:
-                domain_type='other'
+                domain_type = 'other'
         Suffix_file.close()
 
     return (domain_type)
