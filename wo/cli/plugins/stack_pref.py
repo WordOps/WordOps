@@ -4,8 +4,8 @@ import os
 import random
 import shutil
 import string
-import requests
 import psutil
+import requests
 
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.stack_services import WOStackStatusController
@@ -475,7 +475,7 @@ def post_pref(self, apt_packages, packages):
                                        "/var/www/22222/cert/22222.crt;\n"
                                        "ssl_certificate_key "
                                        "/var/www/22222/cert/22222.key;\n")
-
+                server_ip = requests.get('http://v4.wordops.eu')
                 # Nginx Configation into GIT
                 WOGit.add(self,
                           ["/etc/nginx"], msg="Adding Nginx into Git")

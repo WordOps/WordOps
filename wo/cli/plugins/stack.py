@@ -82,7 +82,8 @@ class WOStackController(CementBaseController):
             (['--dashboard'],
                 dict(help='Install WordOps dashboard', action='store_true')),
             (['--extplorer'],
-                dict(help='Install eXtplorer file manager', action='store_true')),
+                dict(help='Install eXtplorer file manager',
+                     action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--fail2ban'],
@@ -141,12 +142,14 @@ class WOStackController(CementBaseController):
                 pargs.php73 = True
                 pargs.redis = True
                 pargs.proftpd = True
+                pargs.clamav = True
 
             if pargs.web:
                 pargs.nginx = True
                 pargs.php = True
                 pargs.mysql = True
                 pargs.wpcli = True
+                pargs.mariabackup = True
 
             if pargs.admin:
                 pargs.web = True
@@ -156,6 +159,7 @@ class WOStackController(CementBaseController):
                 pargs.netdata = True
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
+                pargs.extplorer = True
                 pargs.cheat = True
 
             if pargs.security:
