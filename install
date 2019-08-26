@@ -695,7 +695,6 @@ wo_mariadb_tweak() {
 wo_nginx_tweak() {
     # increase nginx open_files_limit
     {
-        if [ -x /usr/sbin/nginx ]; then
             if [ ! -d /etc/systemd/system/nginx.service.d ]; then
                 mkdir -p /etc/systemd/system/nginx.service.d
                 if [ ! -f /etc/systemd/system/nginx.service.d/limits.conf ]; then
@@ -704,7 +703,6 @@ wo_nginx_tweak() {
                     nginx -t && service nginx restart
                 fi
             fi
-        fi
     } >> /var/log/wo/install.log 2>&1
 }
 
@@ -824,8 +822,13 @@ else
                 wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
                 wo_systemd_tweak | tee -ai $wo_install_log
             fi
-            wo_nginx_tweak | tee -ai $wo_install_log
-            wo_mysql_tweak | tee -ai $wo_install_log
+            if [ -x /usr/sbin/nginx ]; then
+                wo_nginx_tweak | tee -ai $wo_install_log
+            fi
+            if [ -d /etc/systemd/system/mariadb.service.d ]; then
+                wo_mariadb_tweak | tee -ai $wo_install_log
+            fi
+            wo_domain_suffix | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
         else
@@ -868,8 +871,13 @@ else
                     wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
                     wo_systemd_tweak | tee -ai $wo_install_log
                 fi
-                wo_nginx_tweak | tee -ai $wo_install_log
-                wo_mysql_tweak | tee -ai $wo_install_log
+                if [ -x /usr/sbin/nginx ]; then
+                    wo_nginx_tweak | tee -ai $wo_install_log
+                fi
+                if [ -d /etc/systemd/system/mariadb.service.d ]; then
+                    wo_mariadb_tweak | tee -ai $wo_install_log
+                fi
+                wo_domain_suffix | tee -ai $wo_install_log
                 wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
                 wo_git_init | tee -ai $wo_install_log
                 wo_update_wp_cli | tee -ai $wo_install_log
@@ -907,6 +915,7 @@ else
             wo_install_acme_sh | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
+            wo_domain_suffix | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
         fi

@@ -10,7 +10,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.8.3"
+    wo_version = "3.9.8.4"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.2"
@@ -143,7 +143,8 @@ class WOVariables():
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
-    wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
+    wo_mysql = ["mariadb-server", "percona-toolkit",
+                "python3-mysqldb", "mariadb-backup"]
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
 

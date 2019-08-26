@@ -128,7 +128,7 @@ class WOStackController(CementBaseController):
                 and (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
-                (not pargs.extplorer) and (not pargs.mariabackup) and
+                (not pargs.extplorer) and
                 (not pargs.cheat) and (not pargs.clamav) and
                 (not pargs.phpredisadmin) and
                     (not pargs.php73)):
@@ -149,7 +149,6 @@ class WOStackController(CementBaseController):
                 pargs.php = True
                 pargs.mysql = True
                 pargs.wpcli = True
-                pargs.mariabackup = True
 
             if pargs.admin:
                 pargs.web = True
@@ -186,14 +185,14 @@ class WOStackController(CementBaseController):
                         if WOAptGet.is_installed(self, 'nginx-plus'):
                             Log.info(self, "NGINX PLUS Detected ...")
                             apt = ["nginx-plus"] + WOVariables.wo_nginx
-                            self.post_pref(apt, packages)
+                            self.post_pref(apt, empty_packages)
                         elif WOAptGet.is_installed(self, 'nginx'):
                             Log.info(self, "WordOps detected an already "
                                      "installed nginx package."
                                      "It may or may not have "
                                      "required modules.\n")
                             apt = ["nginx"] + WOVariables.wo_nginx
-                            self.post_pref(apt, packages)
+                            self.post_pref(apt, empty_packages)
                 else:
                     Log.debug(self, "Nginx Stable already installed")
 
@@ -225,7 +224,6 @@ class WOStackController(CementBaseController):
 
             # MariaDB 10.3
             if pargs.mysql:
-                pargs.mariabackup = True
                 pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
@@ -236,13 +234,6 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable "
                           "for MySQL Client")
                 apt_packages = apt_packages + WOVariables.wo_mysql_client
-
-            # mariabackup
-            if pargs.mariabackup:
-                if not WOAptGet.is_installed(self, 'mariadb-backup'):
-                    Log.debug(self, "Setting apt_packages variable "
-                              "for MariaBackup")
-                    apt_packages = apt_packages + ["mariadb-backup"]
 
             # WP-CLI
             if pargs.wpcli:
@@ -270,11 +261,11 @@ class WOStackController(CementBaseController):
             # ClamAV
             if pargs.clamav:
                 Log.debug(self, "Setting apt_packages variable for ClamAV")
-                if not WOAptGet.is_installed(self, 'fail2ban'):
+                if not WOAptGet.is_installed(self, 'clamav'):
                     apt_packages = apt_packages + ["clamav"]
                 else:
-                    Log.debug(self, "Fail2ban already installed")
-                    Log.info(self, "Fail2ban already installed")
+                    Log.debug(self, "ClamAV already installed")
+                    Log.info(self, "ClamAV already installed")
 
             # proftpd
             if pargs.proftpd:
@@ -383,7 +374,8 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "WordOps dashboard already installed")
                     Log.info(self, "WordOps dashboard already installed")
 
-            if pargs.dashboard:
+            # eXtplorer
+            if pargs.explorer:
                 if not os.path.isdir('/var/www/22222/htdocs/files'):
                     Log.debug(self, "Setting packages variable for eXtplorer")
                     packages = packages + \
@@ -442,9 +434,9 @@ class WOStackController(CementBaseController):
                 if (not os.path.isfile('/usr/local/bin/cht.sh') and
                         not os.path.isfile('/usr/bin/cht.sh')):
                     Log.debug(self, "Setting packages variable for cht.sh")
-                    [["https://cht.sh/:cht.sh",
-                      "/usr/local/bin/cht.sh",
-                      "Cht.sh"]]
+                    packages = packages + [["https://cht.sh/:cht.sh",
+                                            "/usr/local/bin/cht.sh",
+                                            "cht.sh"]]
                 else:
                     Log.debug(self, "cht.sh is already installed")
                     Log.info(self, "cht.sh is already installed")
