@@ -202,15 +202,6 @@ def post_pref(self, apt_packages, packages):
             WOTemplate.tmpl_render(self,
                                    '{0}/cloudflare.conf'.format(ngxcnf),
                                    'cloudflare.mustache', data)
-            Log.debug("Setting up freshclam cronjob")
-            WOTemplate.tmpl_render(self, '/opt/cf-update.sh',
-                                   'cf-update.mustache',
-                                   data, overwrite=False)
-            WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
-            WOCron.setcron_weekly(self, '/opt/cf-update.sh '
-                                  '> /dev/null 2>&1',
-                                  comment='Cloudflare IP refresh cronjob '
-                                  'added by WordOps')
 
             WOTemplate.tmpl_render(self,
                                    '{0}/map-wp-fastcgi-cache.conf'.format(
@@ -476,6 +467,14 @@ def post_pref(self, apt_packages, packages):
                                        "ssl_certificate_key "
                                        "/var/www/22222/cert/22222.key;\n")
                 server_ip = requests.get('http://v4.wordops.eu')
+                WOTemplate.tmpl_render(self, '/opt/cf-update.sh',
+                                       'cf-update.mustache',
+                                       data, overwrite=False)
+                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
+                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
+                                      '> /dev/null 2>&1',
+                                      comment='Cloudflare IP refresh cronjob '
+                                      'added by WordOps')
                 # Nginx Configation into GIT
                 WOGit.add(self,
                           ["/etc/nginx"], msg="Adding Nginx into Git")

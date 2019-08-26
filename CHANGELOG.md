@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Domain/Subdomain detection based on public domain suffixes list
 - Increase Nginx & MariaDB systemd open_files limits
 - Cronjob to update Cloudflare IPs list
+- mariadb-backup to perform full and non-blocking databases backup
 
 #### Changed
 
