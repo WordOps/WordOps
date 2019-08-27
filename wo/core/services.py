@@ -23,12 +23,12 @@ class WOService():
                     service_cmd = ('service {0} start'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.info(self, "Starting Nginx" +
+                        Log.info(self, "Starting Nginx " +
                                  "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                         return True
                 else:
-                    Log.info(
-                        self, "Starting Nginx" + "[" + Log.FAIL +
+                    Log.error(
+                        self, "Starting Nginx " + "[" + Log.FAIL +
                         "Failed" + Log.OKBLUE+"]")
                     return False
             else:
@@ -84,12 +84,12 @@ class WOService():
                     service_cmd = ('service {0} restart'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.info(self, "Restarting Nginx" +
+                        Log.info(self, "Restarting Nginx " +
                                  "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                         return True
                 else:
-                    Log.info(
-                        self, "Restarting Nginx" + "[" + Log.FAIL +
+                    Log.error(
+                        self, "Restarting Nginx " + "[" + Log.FAIL +
                         "Failed" + Log.OKBLUE+"]")
                     return False
             else:
@@ -110,8 +110,8 @@ class WOService():
 
     def reload_service(self, service_name):
         """
-            Stop service
-            Similar to `service xyz stop`
+            Reload service
+            Similar to `service xyz reload`
         """
         try:
             if service_name in ['nginx']:
@@ -123,12 +123,12 @@ class WOService():
                     service_cmd = ('service {0} reload'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.info(self, "Reloading Nginx" +
+                        Log.info(self, "Reloading Nginx " +
                                  "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                         return True
                 else:
-                    Log.info(
-                        self, "Restarting Nginx" + "[" + Log.FAIL +
+                    Log.error(
+                        self, "Reloading Nginx " + "[" + Log.FAIL +
                         "Failed" + Log.OKBLUE+"]")
                     return False
             else:
