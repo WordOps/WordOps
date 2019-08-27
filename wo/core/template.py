@@ -7,7 +7,7 @@ Render Templates
 
 
 class WOTemplate():
-    def tmpl_render(self, fileconf, template, data, overwrite=True):
+    def render(self, fileconf, template, data, overwrite=True):
         data = dict(data)
         if (not os.path.isfile('{0}.custom'
                                .format(fileconf))):

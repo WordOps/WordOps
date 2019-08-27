@@ -142,7 +142,7 @@ def pre_pref(self, apt_packages):
             WORepo.add(self, ppa=WOVariables.wo_redis_repo)
 
 
-def post_pref(self, apt_packages, packages):
+def post_pref(self, apt_packages, packages, upgrade=False):
     """Post activity after installation of packages"""
     if (apt_packages):
         # Nginx configuration
@@ -151,28 +151,29 @@ def post_pref(self, apt_packages, packages):
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
             ngxroot = '/var/www/'
-            if (WOVariables.wo_distro == 'ubuntu' or
-                    WOVariables.wo_platform_codename == 'buster'):
-                data = dict(tls13=True)
-            else:
-                data = dict(tls13=False)
-            WOTemplate.tmpl_render(self,
-                                   '/etc/nginx/nginx.conf',
-                                   'nginx-core.mustache', data)
+            if upgrade:
+                if os.path.isdir('/etc/nginx'):
+                    WOGit.add(self,
+                              ["/etc/nginx"],
+                              msg="Adding Nginx into Git")
+            data = dict(tls13=True)
+            WOTemplate.render(self,
+                              '/etc/nginx/nginx.conf',
+                              'nginx-core.mustache', data)
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict()
-                WOTemplate.tmpl_render(self, '{0}/gzip.conf'.format(ngxcnf),
-                                       'gzip.mustache', data)
+                WOTemplate.render(self, '{0}/gzip.conf'.format(ngxcnf),
+                                  'gzip.mustache', data)
 
             if not os.path.isfile('{0}/brotli.conf'.format(ngxcnf)):
-                WOTemplate.tmpl_render(self,
-                                       '{0}/brotli.conf.disabled'
-                                       .format(ngxcnf),
-                                       'brotli.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/brotli.conf.disabled'
+                                  .format(ngxcnf),
+                                  'brotli.mustache', data)
 
-            WOTemplate.tmpl_render(self, '{0}/tweaks.conf'.format(ngxcnf),
-                                   'tweaks.mustache', data)
+            WOTemplate.render(self, '{0}/tweaks.conf'.format(ngxcnf),
+                              'tweaks.mustache', data)
 
             # Fix for white screen death with NGINX PLUS
             if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
@@ -184,29 +185,29 @@ def post_pref(self, apt_packages, packages):
 
             data = dict(php="9000", debug="9001",
                             php7="9070", debug7="9170")
-            WOTemplate.tmpl_render(
+            WOTemplate.render(
                 self, '{0}/upstream.conf'.format(ngxcnf),
                 'upstream.mustache', data, overwrite=True)
 
             data = dict(phpconf=True if
                         WOAptGet.is_installed(self, 'php7.2-fpm')
                         else False)
-            WOTemplate.tmpl_render(self,
-                                   '{0}/stub_status.conf'.format(ngxcnf),
-                                   'stub_status.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/stub_status.conf'.format(ngxcnf),
+                              'stub_status.mustache', data)
             data = dict()
-            WOTemplate.tmpl_render(self,
-                                   '{0}/webp.conf'.format(ngxcnf),
-                                   'webp.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/webp.conf'.format(ngxcnf),
+                              'webp.mustache', data)
 
-            WOTemplate.tmpl_render(self,
-                                   '{0}/cloudflare.conf'.format(ngxcnf),
-                                   'cloudflare.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/cloudflare.conf'.format(ngxcnf),
+                              'cloudflare.mustache', data)
 
-            WOTemplate.tmpl_render(self,
-                                   '{0}/map-wp-fastcgi-cache.conf'.format(
-                                       ngxcnf),
-                                   'map-wp.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/map-wp-fastcgi-cache.conf'.format(
+                                  ngxcnf),
+                              'map-wp.mustache', data)
 
             # Setup Nginx common directory
             if not os.path.exists('{0}'.format(ngxcom)):
@@ -218,88 +219,88 @@ def post_pref(self, apt_packages, packages):
                 data = dict()
 
                 # Common Configuration
-                WOTemplate.tmpl_render(self,
-                                       '{0}/locations-wo.conf'
-                                       .format(ngxcom),
-                                       'locations.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/locations-wo.conf'
+                                  .format(ngxcom),
+                                  'locations.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpsubdir.conf'
-                                       .format(ngxcom),
-                                       'wpsubdir.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsubdir.conf'
+                                  .format(ngxcom),
+                                  'wpsubdir.mustache', data)
                 data = dict(upstream="php72")
                 # PHP 7.2 conf
-                WOTemplate.tmpl_render(self,
-                                       '{0}/php72.conf'
-                                       .format(ngxcom),
-                                       'php.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/php72.conf'
+                                  .format(ngxcom),
+                                  'php.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/redis-php72.conf'
-                                       .format(ngxcom),
-                                       'redis.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/redis-php72.conf'
+                                  .format(ngxcom),
+                                  'redis.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpcommon-php72.conf'
-                                       .format(ngxcom),
-                                       'wpcommon.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpcommon-php72.conf'
+                                  .format(ngxcom),
+                                  'wpcommon.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpfc-php72.conf'
-                                       .format(ngxcom),
-                                       'wpfc.mustache', data)
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpsc-php72.conf'
-                                       .format(ngxcom),
-                                       'wpsc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpfc-php72.conf'
+                                  .format(ngxcom),
+                                  'wpfc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsc-php72.conf'
+                                  .format(ngxcom),
+                                  'wpsc.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wprocket-php72.conf'
-                                       .format(ngxcom),
-                                       'wprocket.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wprocket-php72.conf'
+                                  .format(ngxcom),
+                                  'wprocket.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpce-php72.conf'
-                                       .format(ngxcom),
-                                       'wpce.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpce-php72.conf'
+                                  .format(ngxcom),
+                                  'wpce.mustache', data)
 
             # PHP 7.3 conf
             if os.path.isdir("/etc/nginx/common"):
                 data = dict(upstream="php73")
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/php73.conf'
-                                       .format(ngxcom),
-                                       'php.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/php73.conf'
+                                  .format(ngxcom),
+                                  'php.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/redis-php73.conf'
-                                       .format(ngxcom),
-                                       'redis.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/redis-php73.conf'
+                                  .format(ngxcom),
+                                  'redis.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpcommon-php73.conf'
-                                       .format(ngxcom),
-                                       'wpcommon.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpcommon-php73.conf'
+                                  .format(ngxcom),
+                                  'wpcommon.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpfc-php73.conf'
-                                       .format(ngxcom),
-                                       'wpfc.mustache', data)
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpsc-php73.conf'
-                                       .format(ngxcom),
-                                       'wpsc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpfc-php73.conf'
+                                  .format(ngxcom),
+                                  'wpfc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsc-php73.conf'
+                                  .format(ngxcom),
+                                  'wpsc.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wprocket-php73.conf'
-                                       .format(ngxcom),
-                                       'wprocket.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wprocket-php73.conf'
+                                  .format(ngxcom),
+                                  'wprocket.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpce-php73.conf'
-                                       .format(ngxcom),
-                                       'wpce.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpce-php73.conf'
+                                  .format(ngxcom),
+                                  'wpce.mustache', data)
 
                 with open("/etc/nginx/common/release",
                           "w") as release_file:
@@ -310,18 +311,18 @@ def post_pref(self, apt_packages, packages):
             # Following files should not be overwrited
 
             data = dict(webroot=ngxroot)
-            WOTemplate.tmpl_render(self,
-                                   '{0}/acl.conf'
-                                   .format(ngxcom),
-                                   'acl.mustache', data, overwrite=False)
-            WOTemplate.tmpl_render(self,
-                                   '{0}/blockips.conf'
-                                   .format(ngxcnf),
-                                   'blockips.mustache', data, overwrite=False)
-            WOTemplate.tmpl_render(self,
-                                   '{0}/fastcgi.conf'
-                                   .format(ngxcnf),
-                                   'fastcgi.mustache', data, overwrite=False)
+            WOTemplate.render(self,
+                              '{0}/acl.conf'
+                              .format(ngxcom),
+                              'acl.mustache', data, overwrite=False)
+            WOTemplate.render(self,
+                              '{0}/blockips.conf'
+                              .format(ngxcnf),
+                              'blockips.mustache', data, overwrite=False)
+            WOTemplate.render(self,
+                              '{0}/fastcgi.conf'
+                              .format(ngxcnf),
+                              'fastcgi.mustache', data, overwrite=False)
 
             # add redis cache format if not already done
             if (os.path.isfile("/etc/nginx/nginx.conf") and
@@ -355,9 +356,9 @@ def post_pref(self, apt_packages, packages):
 
                 # 22222 port settings
             if not os.path.isfile('/etc/nginx/sites-available/22222'):
-                WOTemplate.tmpl_render(self,
-                                       '/etc/nginx/sites-available/22222',
-                                       '22222.mustache', data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/nginx/sites-available/22222',
+                                  '22222.mustache', data, overwrite=False)
 
                 passwd = ''.join([random.choice
                                   (string.ascii_letters + string.digits)
@@ -455,7 +456,7 @@ def post_pref(self, apt_packages, packages):
                         Log.debug(self, "{0}".format(e))
                         Log.error(
                             self, "Failed to generate HTTPS "
-                            "certificate for 22222")
+                            "certificate for 22222", False)
 
                 if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                       .format(ngxroot)):
@@ -467,38 +468,36 @@ def post_pref(self, apt_packages, packages):
                                        "ssl_certificate_key "
                                        "/var/www/22222/cert/22222.key;\n")
                 server_ip = requests.get('http://v4.wordops.eu')
-                WOTemplate.tmpl_render(self, '/opt/cf-update.sh',
-                                       'cf-update.mustache',
-                                       data, overwrite=False)
+
+                WOTemplate.render(self, '/opt/cf-update.sh',
+                                  'cf-update.mustache',
+                                  data, overwrite=False)
                 WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
                 WOCron.setcron_weekly(self, '/opt/cf-update.sh '
                                       '> /dev/null 2>&1',
                                       comment='Cloudflare IP refresh cronjob '
                                       'added by WordOps')
-                # Nginx Configation into GIT
-                WOGit.add(self,
-                          ["/etc/nginx"], msg="Adding Nginx into Git")
-                WOService.reload_service(self, 'nginx')
+                self.msg = (self.msg + ["HTTP Auth User "
+                                        "Name: WordOps"] +
+                            ["HTTP Auth Password : {0}"
+                             .format(passwd)])
+                self.msg = (self.msg + ["WordOps backend is available "
+                                        "on https://{0}:22222 "
+                                        "or https://{1}:22222"
+                                        .format(server_ip.text,
+                                                WOVariables.wo_fqdn)])
 
-                if set(["nginx"]).issubset(set(apt_packages)):
-                    print("WordOps backend configuration was successful\n"
-                          "You can access it on : https://{0}:22222"
-                          .format(server_ip))
-                    print("HTTP Auth User Name: WordOps" +
-                          "\nHTTP Auth Password : {0}".format(passwd))
+            if upgrade:
+                try:
                     WOService.reload_service(self, 'nginx')
-                else:
-                    self.msg = (self.msg + ["HTTP Auth User "
-                                            "Name: WordOps"] +
-                                ["HTTP Auth Password : {0}"
-                                 .format(passwd)])
-                    self.msg = (self.msg + ["WordOps backend is available "
-                                            "on https://{0}:22222 "
-                                            "or https://{1}:22222"
-                                            .format(server_ip.text,
-                                                    WOVariables.wo_fqdn)])
-            else:
-                WOService.restart_service(self, 'nginx')
+                except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
+                    WOGit.rollback(self, ["/etc/nginx"])
+
+            # Nginx Configation into GIT
+            WOGit.add(self,
+                      ["/etc/nginx"], msg="Adding Nginx into Git")
+            WOService.restart_service(self, 'nginx')
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
             ngxroot = '/var/www/'
@@ -964,20 +963,20 @@ def post_pref(self, apt_packages, packages):
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 data = dict()
-                WOTemplate.tmpl_render(self,
-                                       '/etc/fail2ban/jail.d/custom.conf',
-                                       'fail2ban.mustache',
-                                       data, overwrite=False)
-                WOTemplate.tmpl_render(self,
-                                       '/etc/fail2ban/filter.d/'
-                                       'wo-wordpress.conf',
-                                       'fail2ban-wp.mustache',
-                                       data, overwrite=False)
-                WOTemplate.tmpl_render(self,
-                                       '/etc/fail2ban/filter.d/'
-                                       'nginx-forbidden.conf',
-                                       'fail2ban-forbidden.mustache',
-                                       data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/fail2ban/jail.d/custom.conf',
+                                  'fail2ban.mustache',
+                                  data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/fail2ban/filter.d/'
+                                  'wo-wordpress.conf',
+                                  'fail2ban-wp.mustache',
+                                  data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/fail2ban/filter.d/'
+                                  'nginx-forbidden.conf',
+                                  'fail2ban-forbidden.mustache',
+                                  data, overwrite=False)
 
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
@@ -1147,9 +1146,9 @@ def post_pref(self, apt_packages, packages):
     # Redis configuration
     if set(["clamav"]).issubset(set(apt_packages)):
         Log.debug("Setting up freshclam cronjob")
-        WOTemplate.tmpl_render(self, '/opt/freshclam.sh',
-                               'freshclam.mustache',
-                               data, overwrite=False)
+        WOTemplate.render(self, '/opt/freshclam.sh',
+                          'freshclam.mustache',
+                          data, overwrite=False)
         WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
         WOCron.setcron_weekly(self, '/opt/freshclam.sh '
                               '> /dev/null 2>&1',

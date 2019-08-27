@@ -27,7 +27,7 @@ class WOService():
                                  "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                         return True
                 else:
-                    Log.error(
+                    Log.info(
                         self, "Starting Nginx " + "[" + Log.FAIL +
                         "Failed" + Log.OKBLUE+"]")
                     return False
@@ -88,13 +88,13 @@ class WOService():
                                  "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                         return True
                 else:
-                    Log.error(
-                        self, "Restarting Nginx " + "[" + Log.FAIL +
-                        "Failed" + Log.OKBLUE+"]")
+                    Log.info(self, "Restarting Nginx " + "[" + Log.FAIL +
+                             "Failed" + Log.OKBLUE+"]")
                     return False
             else:
                 service_cmd = ('service {0} restart'.format(service_name))
-                Log.info(self, "Restart : {0:10}".format(service_name), end='')
+                Log.info(self, "Restart : {0:10}".format(
+                    service_name), end='')
                 retcode = subprocess.getstatusoutput(service_cmd)
                 if retcode[0] == 0:
                     Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")

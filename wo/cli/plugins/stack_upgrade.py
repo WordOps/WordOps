@@ -184,7 +184,7 @@ class WOStackUpgradeController(CementBaseController):
                         Log.error(self, "Not starting package update")
                 Log.info(self, "Updating APT packages, please wait...")
                 if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-                    pre_pref(self, nginx_packages)
+                    pre_pref(self, ["nginx-custom", "nginx-wo"])
                 # apt-get update
                 WOAptGet.update(self)
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):
@@ -195,7 +195,7 @@ class WOStackUpgradeController(CementBaseController):
                                     auto=False, purge=True)
                 # Update packages
                 WOAptGet.install(self, apt_packages)
-                post_pref(self, apt_packages, empty_packages)
+                post_pref(self, apt_packages, empty_packages, True)
                 # Post Actions after package updates
 
             if len(packages):
