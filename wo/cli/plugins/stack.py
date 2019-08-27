@@ -499,6 +499,8 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
+            packages = \
+                packages + ['/var/www/22222/htdocs/*']
 
         if pargs.web:
             pargs.nginx = True
@@ -686,6 +688,8 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
+            packages = \
+                packages + ['/var/www/22222/htdocs/*']
 
         if pargs.web:
             pargs.nginx = True
