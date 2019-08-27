@@ -21,6 +21,20 @@ class WOCron():
                                  "\\\"; } | crontab -\"")
             Log.debug(self, "Cron set")
 
+    def setcron_daily(self, cmd, comment='Cron set by WordOps', user='root',
+                      min=0, hour=12):
+        if not WOShellExec.cmd_exec(self, "crontab -l "
+                                    "| grep -q \'{0}\'".format(cmd)):
+
+            WOShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
+                                 "2> /dev/null | {{ cat; echo -e"
+                                 " \\\""
+                                 "\\n@daily"
+                                 "{0}".format(cmd) +
+                                 " # {0}".format(comment) +
+                                 "\\\"; } | crontab -\"")
+            Log.debug(self, "Cron set")
+
     def remove_cron(self, cmd):
         if WOShellExec.cmd_exec(self, "crontab -l "
                                 "| grep -q \'{0}\'".format(cmd)):

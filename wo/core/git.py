@@ -55,3 +55,27 @@ class WOGit:
             return True
         else:
             return False
+
+    def rollback(self, paths, msg="Rolling-Back"):
+        """
+            Rollback last commit to restore previous.
+            configuration and commit changes automatically
+        """
+        for path in paths:
+            global git
+            git = git.bake("--git-dir={0}/.git".format(path),
+                           "--work-tree={0}".format(path))
+            if os.path.isdir(path):
+                if not os.path.isdir(path+"/.git"):
+                    Log.error(self, "Unable to find a git repository at {0}"
+                              .format(path))
+                try:
+                    Log.debug(self, "WOGit: git reset HEAD~ at {0}"
+                              .format(path))
+                    git.reset("--hard HEAD~")
+                except ErrorReturnCode as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(self, "Unable to git reset at {0} "
+                              .format(path))
+            else:
+                Log.debug(self, "WOGit: Path {0} not present".format(path))

@@ -8,6 +8,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.4 - 2019-08-28
+
+#### Added
+
+- cht.sh stack : linux online cheatsheet. Usage : `cheat <command>`. Example for tar : `cheat tar`
+- ClamAV anti-virus with weekly cronjob to update signatures database
+- Internal function to add daily cronjobs
+- Additional comment to detect previous configuration tuning (MariaDB & Redis)
+- Domain/Subdomain detection based on public domain suffixes list for letsencrypt
+- Increase Nginx & MariaDB systemd open_files limits
+- Cronjob to update Cloudflare IPs list
+- mariadb-backup to perform full and non-blocking databases backup (installation only. Backup feature will be available soon)
+- Nginx configuration check before performing start/reload/restart (If configuration check fail, WordOps will not reload/restart Nginx anymore)
+- Nginx mapping to proxy web-socket connections
+
+#### Changed
+
+- eXplorer filemanager isn't installed with WordOps dashboard anymore, and a flag `--extplorer` is available. But it's still installed when running the command `wo stack install`
+- Template rendering function now check for a .custom file before overwriting a configuration by default.
+- flag `--letsencrypt=subdomain` is not required anymore, you can use `--letsencrypt` or `-le`
+- Simplifiy and decrease duration of `apt-key` GPG keys import
+
+#### Fixed
+
+- typo error in `wo site update` : [PR #126](https://github.com/WordOps/WordOps/pull/126)
+
 ### v3.9.8.3 - 2019-08-21
 
 #### Changed

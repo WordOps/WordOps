@@ -19,7 +19,7 @@ class WOStackStatusController(CementBaseController):
     def start(self):
         """Start services"""
         services = []
-        pargs = pargs = self.app.pargs
+        pargs = self.app.pargs
         if not (pargs.nginx or pargs.php or
                 pargs.php73 or
                 pargs.mysql or

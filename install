@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.8.3 - 2019-08-20
+# Version 3.9.8.4 - 2019-08-28
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -494,6 +494,7 @@ wo_upgrade_nginx() {
         # install new nginx package
         if [ -n "$CHECK_NGINX_EE" ]; then
             if [ -x /usr/local/bin/wo ]; then
+                [ -f /etc/apt/preferences.d/nginx-block ] && { mv /etc/apt/preferences.d/nginx-block /var/lib/wo/tmp/nginx-block; }
                 # stop nginx
                 service nginx stop
                 # remove previous package
@@ -544,6 +545,7 @@ wo_upgrade_nginx() {
             systemctl stop nginx
             systemctl start nginx
         fi
+        [ -f /var/lib/wo/tmp/nginx-block ] && { mv /var/lib/wo/tmp/nginx-block /etc/apt/preferences.d/nginx-block; }
 
     } \
         >> "$wo_install_log" 2>&1
@@ -653,7 +655,6 @@ wo_tweak_kernel() {
         # apply sysctl tweaks
         sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
     fi
-
 }
 
 wo_systemd_tweak() {
@@ -674,6 +675,35 @@ wo_systemd_tweak() {
         echo -e "*         hard    nofile      500000\n*         soft    nofile      500000\nroot      hard    nofile      500000\nroot      soft    nofile      500000\n" >> /etc/security/limits.conf
     fi
 
+}
+
+wo_domain_suffix() {
+    curl -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
+}
+
+wo_mariadb_tweak() {
+    # increase mariadb open_files_limit
+    {
+        if [ -d /etc/systemd/system/mariadb.service.d ] && [ ! -f /etc/systemd/system/mariadb.service.d/limits.conf ]; then
+            echo -e '[Service]\nLimitNOFILE=500000' > /etc/systemd/system/mariadb.service.d/limits.conf
+            systemctl daemon-reload
+            service mysql restart
+        fi
+    } >> /var/log/wo/install.log 2>&1
+}
+
+wo_nginx_tweak() {
+    # increase nginx open_files_limit
+    {
+            if [ ! -d /etc/systemd/system/nginx.service.d ]; then
+                mkdir -p /etc/systemd/system/nginx.service.d
+                if [ ! -f /etc/systemd/system/nginx.service.d/limits.conf ]; then
+                    echo -e '[Service]\nLimitNOFILE=500000' > /etc/systemd/system/nginx.service.d/limits.conf
+                    systemctl daemon-reload
+                    nginx -t && service nginx restart
+                fi
+            fi
+    } >> /var/log/wo/install.log 2>&1
 }
 
 wo_clean() {
@@ -792,6 +822,13 @@ else
                 wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
                 wo_systemd_tweak | tee -ai $wo_install_log
             fi
+            if [ -x /usr/sbin/nginx ]; then
+                wo_nginx_tweak | tee -ai $wo_install_log
+            fi
+            if [ -d /etc/systemd/system/mariadb.service.d ]; then
+                wo_mariadb_tweak | tee -ai $wo_install_log
+            fi
+            wo_domain_suffix | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
         else
@@ -834,6 +871,13 @@ else
                     wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
                     wo_systemd_tweak | tee -ai $wo_install_log
                 fi
+                if [ -x /usr/sbin/nginx ]; then
+                    wo_nginx_tweak | tee -ai $wo_install_log
+                fi
+                if [ -d /etc/systemd/system/mariadb.service.d ]; then
+                    wo_mariadb_tweak | tee -ai $wo_install_log
+                fi
+                wo_domain_suffix | tee -ai $wo_install_log
                 wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
                 wo_git_init | tee -ai $wo_install_log
                 wo_update_wp_cli | tee -ai $wo_install_log
@@ -871,6 +915,7 @@ else
             wo_install_acme_sh | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
+            wo_domain_suffix | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
         fi

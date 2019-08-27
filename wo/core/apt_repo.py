@@ -47,7 +47,7 @@ class WORepo():
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to add repo")
         if ppa is not None:
-            WOShellExec.cmd_exec(self, "add-apt-repository -y '{ppa_name}'"
+            WOShellExec.cmd_exec(self, "add-apt-repository -yu '{ppa_name}'"
                                  .format(ppa_name=ppa))
 
     def remove(self, ppa=None, repo_url=None):
@@ -82,10 +82,7 @@ class WORepo():
         default keyserver is hkp://keyserver.ubuntu.com
         user can provide other keyserver with keyserver="hkp://xyz"
         """
-        WOShellExec.cmd_exec(self, "gpg --keyserver {serv}"
+        WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
                              .format(serv=(keyserver or
                                            "hkp://keyserver.ubuntu.com")) +
                              " --recv-keys {key}".format(key=keyids))
-        WOShellExec.cmd_exec(self, "gpg -a --export --armor {0}"
-                             .format(keyids) +
-                             " | apt-key add - ")

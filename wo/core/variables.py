@@ -10,7 +10,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.8.3"
+    wo_version = "3.9.8.4"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.2"
@@ -88,22 +88,24 @@ class WOVariables():
     # Nginx repo and packages
     if wo_distro == 'ubuntu':
         wo_nginx_repo = "ppa:wordops/nginx-wo"
-    elif wo_distro == 'debian':
-        if wo_platform_codename == 'jessie':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/Debian_8.0/ /")
-        elif wo_platform_codename == 'stretch':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/Debian_9.0/ /")
-        elif wo_platform_codename == 'buster':
-            wo_nginx_repo = ("deb http://download.opensuse.org"
-                             "/repositories/home:"
-                             "/virtubox:/WordOps/Debian_10/ /")
     else:
-        wo_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/virtubox:/WordOps/Raspbian_9.0/ /")
+        if wo_distro == 'debian':
+            if wo_platform_codename == 'jessie':
+                wo_deb_repo = "Debian_8.0"
+            elif wo_platform_codename == 'stretch':
+                wo_deb_repo = "Debian_9.0"
+            elif wo_platform_codename == 'buster':
+                wo_deb_repo = "Debian_10"
+        elif wo_distro == 'raspbian':
+            if wo_platform_codename == 'stretch':
+                wo_deb_repo = "Raspbian_9.0"
+            elif wo_platform_codename == 'buster':
+                wo_deb_repo = "Raspbian_10"
+        # debian/raspbian nginx repository
+        wo_nginx_repo = ("deb http://download.opensuse.org"
+                         "/repositories/home:"
+                         "/virtubox:/WordOps/{0}/ /"
+                         .format(wo_deb_repo))
 
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
@@ -111,7 +113,6 @@ class WOVariables():
     # PHP repo and packages
     if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
-        wo_php_key = ''
     else:
         wo_php_repo = (
             "deb https://packages.sury.org/php/ {codename} main"
@@ -143,7 +144,12 @@ class WOVariables():
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
-    wo_mysql = ["mariadb-server", "percona-toolkit", "python3-mysqldb"]
+    if wo_distro == 'raspbian':
+        wo_mysql = ["mariadb-server", "percona-toolkit",
+                    "python3-mysqldb"]
+    else:
+        wo_mysql = ["mariadb-server", "percona-toolkit",
+                    "python3-mysqldb", "mariadb-backup"]
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
 

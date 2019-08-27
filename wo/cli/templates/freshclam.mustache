@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# WordOps ClamAV freshclam script
+# script path after installation /opt/freshcham.sh
+
+if [ -x /etc/init.d/clamav-freshclam ]; then
+{
+    /etc/init.d/clamav-freshclam stop
+    freshclam
+    /etc/init.d/clamav-freshclam start
+} >> /var/log/wo/clamav.log 2>&1
+fi

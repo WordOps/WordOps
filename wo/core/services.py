@@ -1,8 +1,6 @@
 """WordOps Service Manager"""
 import subprocess
-from subprocess import Popen
 from wo.core.logging import Log
-
 
 
 class WOService():
@@ -16,21 +14,35 @@ class WOService():
             Similar to `service xyz start`
         """
         try:
-            if service_name in ['nginx', 'php5-fpm']:
-                service_cmd = ('{0} -t && service {0} start'
-                               .format(service_name))
+            if service_name in ['nginx']:
+                # Check Nginx configuration before executing command
+                sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, shell=True)
+                output, error_output = sub.communicate()
+                if 'emerg' not in str(error_output):
+                    service_cmd = ('service {0} start'.format(service_name))
+                    retcode = subprocess.getstatusoutput(service_cmd)
+                    if retcode[0] == 0:
+                        Log.info(self, "Starting Nginx " +
+                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        return True
+                else:
+                    Log.info(
+                        self, "Starting Nginx " + "[" + Log.FAIL +
+                        "Failed" + Log.OKBLUE+"]")
+                    return False
             else:
                 service_cmd = ('service {0} start'.format(service_name))
 
-            Log.info(self, "Start : {0:10}" .format(service_name), end='')
-            retcode = subprocess.getstatusoutput(service_cmd)
-            if retcode[0] == 0:
-                Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                return True
-            else:
-                Log.debug(self, "{0}".format(retcode[1]))
-                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
-                return False
+                Log.info(self, "Start : {0:10}" .format(service_name), end='')
+                retcode = subprocess.getstatusoutput(service_cmd)
+                if retcode[0] == 0:
+                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                    return True
+                else:
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "\nFailed to start service   {0}"
@@ -63,21 +75,34 @@ class WOService():
             Similar to `service xyz restart`
         """
         try:
-            if service_name in ['nginx', 'php5-fpm']:
-                service_cmd = ('{0} -t && service {0} restart'
-                               .format(service_name))
+            if service_name in ['nginx']:
+                # Check Nginx configuration before executing command
+                sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, shell=True)
+                output, error_output = sub.communicate()
+                if 'emerg' not in str(error_output):
+                    service_cmd = ('service {0} restart'.format(service_name))
+                    retcode = subprocess.getstatusoutput(service_cmd)
+                    if retcode[0] == 0:
+                        Log.info(self, "Restarting Nginx " +
+                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        return True
+                else:
+                    Log.info(self, "Restarting Nginx " + "[" + Log.FAIL +
+                             "Failed" + Log.OKBLUE+"]")
+                    return False
             else:
                 service_cmd = ('service {0} restart'.format(service_name))
-
-            Log.info(self, "Restart : {0:10}".format(service_name), end='')
-            retcode = subprocess.getstatusoutput(service_cmd)
-            if retcode[0] == 0:
-                Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                return True
-            else:
-                Log.debug(self, "{0}".format(retcode[1]))
-                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
-                return False
+                Log.info(self, "Restart : {0:10}".format(
+                    service_name), end='')
+                retcode = subprocess.getstatusoutput(service_cmd)
+                if retcode[0] == 0:
+                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                    return True
+                else:
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    return False
         except OSError as e:
             Log.debug(self, "{0} {1}".format(e.errno, e.strerror))
             Log.error(self, "\nFailed to restart service : {0}"
@@ -85,25 +110,38 @@ class WOService():
 
     def reload_service(self, service_name):
         """
-            Stop service
-            Similar to `service xyz stop`
+            Reload service
+            Similar to `service xyz reload`
         """
         try:
-            if service_name in ['nginx', 'php5-fpm']:
-                service_cmd = ('{0} -t && service {0} reload'
-                               .format(service_name))
+            if service_name in ['nginx']:
+                # Check Nginx configuration before executing command
+                sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE, shell=True)
+                output, error_output = sub.communicate()
+                if 'emerg' not in str(error_output):
+                    service_cmd = ('service {0} reload'.format(service_name))
+                    retcode = subprocess.getstatusoutput(service_cmd)
+                    if retcode[0] == 0:
+                        Log.info(self, "Reloading Nginx " +
+                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        return True
+                else:
+                    Log.info(
+                        self, "Reloading Nginx " + "[" + Log.FAIL +
+                        "Failed" + Log.OKBLUE+"]")
+                    return False
             else:
                 service_cmd = ('service {0} reload'.format(service_name))
-
-            Log.info(self, "Reload : {0:10}".format(service_name), end='')
-            retcode = subprocess.getstatusoutput(service_cmd)
-            if retcode[0] == 0:
-                Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                return True
-            else:
-                Log.debug(self, "{0}".format(retcode[1]))
-                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
-                return False
+                Log.info(self, "Reload : {0:10}".format(service_name), end='')
+                retcode = subprocess.getstatusoutput(service_cmd)
+                if retcode[0] == 0:
+                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                    return True
+                else:
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "\nFailed to reload service {0}"

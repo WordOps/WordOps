@@ -79,12 +79,19 @@ class WOStackController(CementBaseController):
                      action='store_true')),
             (['--dashboard'],
                 dict(help='Install WordOps dashboard', action='store_true')),
+            (['--extplorer'],
+                dict(help='Install eXtplorer file manager',
+                     action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--fail2ban'],
                 dict(help='Install Fail2ban stack', action='store_true')),
+            (['--clamav'],
+                dict(help='Install ClamAV stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
+            (['--cheat'],
+                dict(help='Install cht.sh stack', action='store_true')),
             (['--redis'],
                 dict(help='Install Redis', action='store_true')),
             (['--phpredisadmin'],
@@ -119,11 +126,13 @@ class WOStackController(CementBaseController):
                 and (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
+                (not pargs.extplorer) and
+                (not pargs.cheat) and (not pargs.clamav) and
                 (not pargs.phpredisadmin) and
                     (not pargs.php73)):
                 pargs.web = True
                 pargs.admin = True
-                pargs.security = True
+                pargs.fail2ban = True
 
             if pargs.all:
                 pargs.web = True
@@ -131,6 +140,7 @@ class WOStackController(CementBaseController):
                 pargs.php73 = True
                 pargs.redis = True
                 pargs.proftpd = True
+                pargs.clamav = True
 
             if pargs.web:
                 pargs.nginx = True
@@ -139,20 +149,19 @@ class WOStackController(CementBaseController):
                 pargs.wpcli = True
 
             if pargs.admin:
-                pargs.nginx = True
-                pargs.php = True
-                pargs.mysql = True
+                pargs.web = True
                 pargs.adminer = True
                 pargs.phpmyadmin = True
-                pargs.composer = True
                 pargs.utils = True
                 pargs.netdata = True
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
-                pargs.mysqltuner = True
+                pargs.extplorer = True
+                pargs.cheat = True
 
             if pargs.security:
                 pargs.fail2ban = True
+                pargs.clamav = True
 
             # Redis
             if pargs.redis:
@@ -174,14 +183,14 @@ class WOStackController(CementBaseController):
                         if WOAptGet.is_installed(self, 'nginx-plus'):
                             Log.info(self, "NGINX PLUS Detected ...")
                             apt = ["nginx-plus"] + WOVariables.wo_nginx
-                            self.post_pref(apt, packages)
+                            self.post_pref(apt, empty_packages)
                         elif WOAptGet.is_installed(self, 'nginx'):
                             Log.info(self, "WordOps detected an already "
                                      "installed nginx package."
                                      "It may or may not have "
                                      "required modules.\n")
                             apt = ["nginx"] + WOVariables.wo_nginx
-                            self.post_pref(apt, packages)
+                            self.post_pref(apt, empty_packages)
                 else:
                     Log.debug(self, "Nginx Stable already installed")
 
@@ -213,10 +222,12 @@ class WOStackController(CementBaseController):
 
             # MariaDB 10.3
             if pargs.mysql:
+                pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + WOVariables.wo_mysql
 
+            # mysqlclient
             if pargs.mysqlclient:
                 Log.debug(self, "Setting apt_packages variable "
                           "for MySQL Client")
@@ -244,6 +255,15 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "Fail2ban already installed")
                     Log.info(self, "Fail2ban already installed")
+
+            # ClamAV
+            if pargs.clamav:
+                Log.debug(self, "Setting apt_packages variable for ClamAV")
+                if not WOAptGet.is_installed(self, 'clamav'):
+                    apt_packages = apt_packages + ["clamav"]
+                else:
+                    Log.debug(self, "ClamAV already installed")
+                    Log.info(self, "ClamAV already installed")
 
             # proftpd
             if pargs.proftpd:
@@ -315,7 +335,7 @@ class WOStackController(CementBaseController):
                                         "htdocs/db/adminer/adminer.css"
                                         .format(WOVariables.wo_webroot),
                                         "Adminer theme"]]
-
+            # mysqltuner
             if pargs.mysqltuner:
                 Log.debug(self, "Setting packages variable for MySQLTuner ")
                 packages = packages + [["https://raw."
@@ -347,15 +367,24 @@ class WOStackController(CementBaseController):
                           "releases/download/v{0}/wordops-dashboard.tar.gz"
                           .format(WOVariables.wo_dashboard),
                           "/var/lib/wo/tmp/wo-dashboard.tar.gz",
-                          "WordOps Dashboard"],
-                         ["https://github.com/soerennb/"
-                          "extplorer/archive/v{0}.tar.gz"
-                          .format(WOVariables.wo_extplorer),
-                            "/var/lib/wo/tmp/extplorer.tar.gz",
-                            "eXtplorer"]]
+                          "WordOps Dashboard"]]
                 else:
                     Log.debug(self, "WordOps dashboard already installed")
                     Log.info(self, "WordOps dashboard already installed")
+
+            # eXtplorer
+            if pargs.explorer:
+                if not os.path.isdir('/var/www/22222/htdocs/files'):
+                    Log.debug(self, "Setting packages variable for eXtplorer")
+                    packages = packages + \
+                        [["https://github.com/soerennb/"
+                          "extplorer/archive/v{0}.tar.gz"
+                          .format(WOVariables.wo_extplorer),
+                          "/var/lib/wo/tmp/extplorer.tar.gz",
+                          "eXtplorer"]]
+                else:
+                    Log.debug(self, "eXtplorer is already installed")
+                    Log.info(self, "eXtplorer is already installed")
 
             # UTILS
             if pargs.utils:
@@ -399,6 +428,17 @@ class WOStackController(CementBaseController):
                                         '/var/lib/wo/tmp/anemometer.tar.gz',
                                         'Anemometer']
                                        ]
+            if pargs.cheat:
+                if (not os.path.isfile('/usr/local/bin/cht.sh') and
+                        not os.path.isfile('/usr/bin/cht.sh')):
+                    Log.debug(self, "Setting packages variable for cht.sh")
+                    packages = packages + [["https://cht.sh/:cht.sh",
+                                            "/usr/local/bin/cht.sh",
+                                            "cht.sh"]]
+                else:
+                    Log.debug(self, "cht.sh is already installed")
+                    Log.info(self, "cht.sh is already installed")
+
         except Exception as e:
             Log.debug(self, "{0}".format(e))
 
@@ -459,6 +499,8 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
+            packages = \
+                packages + ['/var/www/22222/htdocs/*']
 
         if pargs.web:
             pargs.nginx = True
@@ -646,6 +688,8 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
+            packages = \
+                packages + ['/var/www/22222/htdocs/*']
 
         if pargs.web:
             pargs.nginx = True

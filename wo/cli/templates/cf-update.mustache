@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# WordOps bash script to update cloudflare IP
+
+CURL_BIN=$(command -v curl)
+CF_IPV4=$($CURL_BIN -sL https://www.cloudflare.com/ips-v4)
+CF_IPV6=$($CURL_BIN -sL https://www.cloudflare.com/ips-v6)
+
+echo -e '# WordOps (wo) set visitors real ip with Cloudflare\n' > /etc/nginx/conf.d/cloudflare.conf
+echo "####################################"
+echo "Adding Cloudflare IPv4"
+echo "####################################"
+for cf_ip4 in $CF_IPV4; do
+    echo "set_real_ip_from $cf_ip4;" >> /etc/nginx/conf.d/cloudflare.conf
+done
+echo "####################################"
+echo "Adding Cloudflare IPv6"
+echo "####################################"
+for cf_ip6 in $CF_IPV6; do
+    echo "set_real_ip_from $cf_ip6;" >> /etc/nginx/conf.d/cloudflare.conf
+done
+echo 'real_ip_header CF-Connecting-IP;' >> /etc/nginx/conf.d/cloudflare.conf
+
+nginx -t && service nginx reload

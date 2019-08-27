@@ -4,8 +4,8 @@ import os
 import random
 import shutil
 import string
-import requests
 import psutil
+import requests
 
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.stack_services import WOStackStatusController
@@ -141,7 +141,7 @@ def pre_pref(self, apt_packages):
             WORepo.add(self, ppa=WOVariables.wo_redis_repo)
 
 
-def post_pref(self, apt_packages, packages):
+def post_pref(self, apt_packages, packages, upgrade=False):
     """Post activity after installation of packages"""
     if (apt_packages):
         # Nginx configuration
@@ -150,28 +150,29 @@ def post_pref(self, apt_packages, packages):
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
             ngxroot = '/var/www/'
-            if (WOVariables.wo_distro == 'ubuntu' or
-                    WOVariables.wo_platform_codename == 'buster'):
-                data = dict(tls13=True)
-            else:
-                data = dict(tls13=False)
-            WOTemplate.tmpl_render(self,
-                                   '/etc/nginx/nginx.conf',
-                                   'nginx-core.mustache', data)
+            if upgrade:
+                if os.path.isdir('/etc/nginx'):
+                    WOGit.add(self,
+                              ["/etc/nginx"],
+                              msg="Adding Nginx into Git")
+            data = dict(tls13=True)
+            WOTemplate.render(self,
+                              '/etc/nginx/nginx.conf',
+                              'nginx-core.mustache', data)
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict()
-                WOTemplate.tmpl_render(self, '{0}/gzip.conf'.format(ngxcnf),
-                                       'gzip.mustache', data)
+                WOTemplate.render(self, '{0}/gzip.conf'.format(ngxcnf),
+                                  'gzip.mustache', data)
 
             if not os.path.isfile('{0}/brotli.conf'.format(ngxcnf)):
-                WOTemplate.tmpl_render(self,
-                                       '{0}/brotli.conf.disabled'
-                                       .format(ngxcnf),
-                                       'brotli.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/brotli.conf.disabled'
+                                  .format(ngxcnf),
+                                  'brotli.mustache', data)
 
-            WOTemplate.tmpl_render(self, '{0}/tweaks.conf'.format(ngxcnf),
-                                   'tweaks.mustache', data)
+            WOTemplate.render(self, '{0}/tweaks.conf'.format(ngxcnf),
+                              'tweaks.mustache', data)
 
             # Fix for white screen death with NGINX PLUS
             if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
@@ -181,32 +182,31 @@ def post_pref(self, apt_packages, packages):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-            if os.path.isfile('/etc/nginx/nginx.conf'):
-                data = dict(php="9000", debug="9001",
+            data = dict(php="9000", debug="9001",
                             php7="9070", debug7="9170")
-                WOTemplate.tmpl_render(
-                    self, '{0}/upstream.conf'.format(ngxcnf),
-                    'upstream.mustache', data, overwrite=True)
+            WOTemplate.render(
+                self, '{0}/upstream.conf'.format(ngxcnf),
+                'upstream.mustache', data, overwrite=True)
 
-                data = dict(phpconf=True if
-                            WOAptGet.is_installed(self, 'php7.2-fpm')
-                            else False)
-                WOTemplate.tmpl_render(self,
-                                       '{0}/stub_status.conf'.format(ngxcnf),
-                                       'stub_status.mustache', data)
-                data = dict()
-                WOTemplate.tmpl_render(self,
-                                       '{0}/webp.conf'.format(ngxcnf),
-                                       'webp.mustache', data)
+            data = dict(phpconf=True if
+                        WOAptGet.is_installed(self, 'php7.2-fpm')
+                        else False)
+            WOTemplate.render(self,
+                              '{0}/stub_status.conf'.format(ngxcnf),
+                              'stub_status.mustache', data)
+            data = dict()
+            WOTemplate.render(self,
+                              '{0}/webp.conf'.format(ngxcnf),
+                              'webp.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/cloudflare.conf'.format(ngxcnf),
-                                       'cloudflare.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/cloudflare.conf'.format(ngxcnf),
+                              'cloudflare.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/map-wp-fastcgi-cache.conf'.format(
-                                           ngxcnf),
-                                       'map-wp.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/map-wp-fastcgi-cache.conf'.format(
+                                  ngxcnf),
+                              'map-wp.mustache', data)
 
             # Setup Nginx common directory
             if not os.path.exists('{0}'.format(ngxcom)):
@@ -218,88 +218,88 @@ def post_pref(self, apt_packages, packages):
                 data = dict()
 
                 # Common Configuration
-                WOTemplate.tmpl_render(self,
-                                       '{0}/locations-wo.conf'
-                                       .format(ngxcom),
-                                       'locations.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/locations-wo.conf'
+                                  .format(ngxcom),
+                                  'locations.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpsubdir.conf'
-                                       .format(ngxcom),
-                                       'wpsubdir.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsubdir.conf'
+                                  .format(ngxcom),
+                                  'wpsubdir.mustache', data)
                 data = dict(upstream="php72")
                 # PHP 7.2 conf
-                WOTemplate.tmpl_render(self,
-                                       '{0}/php72.conf'
-                                       .format(ngxcom),
-                                       'php.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/php72.conf'
+                                  .format(ngxcom),
+                                  'php.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/redis-php72.conf'
-                                       .format(ngxcom),
-                                       'redis.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/redis-php72.conf'
+                                  .format(ngxcom),
+                                  'redis.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpcommon-php72.conf'
-                                       .format(ngxcom),
-                                       'wpcommon.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpcommon-php72.conf'
+                                  .format(ngxcom),
+                                  'wpcommon.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpfc-php72.conf'
-                                       .format(ngxcom),
-                                       'wpfc.mustache', data)
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpsc-php72.conf'
-                                       .format(ngxcom),
-                                       'wpsc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpfc-php72.conf'
+                                  .format(ngxcom),
+                                  'wpfc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsc-php72.conf'
+                                  .format(ngxcom),
+                                  'wpsc.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wprocket-php72.conf'
-                                       .format(ngxcom),
-                                       'wprocket.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wprocket-php72.conf'
+                                  .format(ngxcom),
+                                  'wprocket.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpce-php72.conf'
-                                       .format(ngxcom),
-                                       'wpce.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpce-php72.conf'
+                                  .format(ngxcom),
+                                  'wpce.mustache', data)
 
             # PHP 7.3 conf
             if os.path.isdir("/etc/nginx/common"):
                 data = dict(upstream="php73")
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/php73.conf'
-                                       .format(ngxcom),
-                                       'php.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/php73.conf'
+                                  .format(ngxcom),
+                                  'php.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/redis-php73.conf'
-                                       .format(ngxcom),
-                                       'redis.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/redis-php73.conf'
+                                  .format(ngxcom),
+                                  'redis.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpcommon-php73.conf'
-                                       .format(ngxcom),
-                                       'wpcommon.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpcommon-php73.conf'
+                                  .format(ngxcom),
+                                  'wpcommon.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpfc-php73.conf'
-                                       .format(ngxcom),
-                                       'wpfc.mustache', data)
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpsc-php73.conf'
-                                       .format(ngxcom),
-                                       'wpsc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpfc-php73.conf'
+                                  .format(ngxcom),
+                                  'wpfc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsc-php73.conf'
+                                  .format(ngxcom),
+                                  'wpsc.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wprocket-php73.conf'
-                                       .format(ngxcom),
-                                       'wprocket.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wprocket-php73.conf'
+                                  .format(ngxcom),
+                                  'wprocket.mustache', data)
 
-                WOTemplate.tmpl_render(self,
-                                       '{0}/wpce-php73.conf'
-                                       .format(ngxcom),
-                                       'wpce.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpce-php73.conf'
+                                  .format(ngxcom),
+                                  'wpce.mustache', data)
 
                 with open("/etc/nginx/common/release",
                           "w") as release_file:
@@ -310,18 +310,18 @@ def post_pref(self, apt_packages, packages):
             # Following files should not be overwrited
 
             data = dict(webroot=ngxroot)
-            WOTemplate.tmpl_render(self,
-                                   '{0}/acl.conf'
-                                   .format(ngxcom),
-                                   'acl.mustache', data, overwrite=False)
-            WOTemplate.tmpl_render(self,
-                                   '{0}/blockips.conf'
-                                   .format(ngxcnf),
-                                   'blockips.mustache', data, overwrite=False)
-            WOTemplate.tmpl_render(self,
-                                   '{0}/fastcgi.conf'
-                                   .format(ngxcnf),
-                                   'fastcgi.mustache', data, overwrite=False)
+            WOTemplate.render(self,
+                              '{0}/acl.conf'
+                              .format(ngxcom),
+                              'acl.mustache', data, overwrite=False)
+            WOTemplate.render(self,
+                              '{0}/blockips.conf'
+                              .format(ngxcnf),
+                              'blockips.mustache', data, overwrite=False)
+            WOTemplate.render(self,
+                              '{0}/fastcgi.conf'
+                              .format(ngxcnf),
+                              'fastcgi.mustache', data, overwrite=False)
 
             # add redis cache format if not already done
             if (os.path.isfile("/etc/nginx/nginx.conf") and
@@ -355,9 +355,9 @@ def post_pref(self, apt_packages, packages):
 
                 # 22222 port settings
             if not os.path.isfile('/etc/nginx/sites-available/22222'):
-                WOTemplate.tmpl_render(self,
-                                       '/etc/nginx/sites-available/22222',
-                                       '22222.mustache', data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/nginx/sites-available/22222',
+                                  '22222.mustache', data, overwrite=False)
 
                 passwd = ''.join([random.choice
                                   (string.ascii_letters + string.digits)
@@ -455,7 +455,7 @@ def post_pref(self, apt_packages, packages):
                         Log.debug(self, "{0}".format(e))
                         Log.error(
                             self, "Failed to generate HTTPS "
-                            "certificate for 22222")
+                            "certificate for 22222", False)
 
                 if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                       .format(ngxroot)):
@@ -466,31 +466,39 @@ def post_pref(self, apt_packages, packages):
                                        "/var/www/22222/cert/22222.crt;\n"
                                        "ssl_certificate_key "
                                        "/var/www/22222/cert/22222.key;\n")
-
-                # Nginx Configation into GIT
-                WOGit.add(self,
-                          ["/etc/nginx"], msg="Adding Nginx into Git")
-                WOService.reload_service(self, 'nginx')
                 server_ip = requests.get('http://v4.wordops.eu')
-                if set(["nginx"]).issubset(set(apt_packages)):
-                    print("WordOps backend configuration was successful\n"
-                          "You can access it on : https://{0}:22222"
-                          .format(server_ip))
-                    print("HTTP Auth User Name: WordOps" +
-                          "\nHTTP Auth Password : {0}".format(passwd))
-                    WOService.reload_service(self, 'nginx')
-                else:
-                    self.msg = (self.msg + ["HTTP Auth User "
-                                            "Name: WordOps"] +
-                                ["HTTP Auth Password : {0}"
-                                 .format(passwd)])
-                    self.msg = (self.msg + ["WordOps backend is available "
-                                            "on https://{0}:22222 "
-                                            "or https://{1}:22222"
-                                            .format(server_ip.text,
-                                                    WOVariables.wo_fqdn)])
-            else:
-                WOService.restart_service(self, 'nginx')
+
+                WOTemplate.render(self, '/opt/cf-update.sh',
+                                  'cf-update.mustache',
+                                  data, overwrite=False)
+                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
+                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
+                                      '> /dev/null 2>&1',
+                                      comment='Cloudflare IP refresh cronjob '
+                                      'added by WordOps')
+                self.msg = (self.msg + ["HTTP Auth User "
+                                        "Name: WordOps"] +
+                            ["HTTP Auth Password : {0}"
+                             .format(passwd)])
+                self.msg = (self.msg + ["WordOps backend is available "
+                                        "on https://{0}:22222 "
+                                        "or https://{1}:22222"
+                                        .format(server_ip.text,
+                                                WOVariables.wo_fqdn)])
+
+            if upgrade:
+                try:
+                    WOShellExec.cmd_exec(self, 'nginx -t')
+                except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.info(self, "Rolling-Back Nginx"
+                             "configuration")
+                    WOGit.rollback(self, ["/etc/nginx"])
+
+            # Nginx Configation into GIT
+            WOGit.add(self,
+                      ["/etc/nginx"], msg="Adding Nginx into Git")
+            WOService.restart_service(self, 'nginx')
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
             ngxroot = '/var/www/'
@@ -657,8 +665,8 @@ def post_pref(self, apt_packages, packages):
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user, recursive=True)
+                              'www-data',
+                              'www-data', recursive=True)
 
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             WOService.restart_service(self, 'php7.2-fpm')
@@ -829,8 +837,8 @@ def post_pref(self, apt_packages, packages):
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user, recursive=True)
+                              'www-data',
+                              'www-data', recursive=True)
 
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             WOService.restart_service(self, 'php7.3-fpm')
@@ -845,17 +853,34 @@ def post_pref(self, apt_packages, packages):
                                    encoding='utf-8', mode='w')
                 config_file.write(config)
                 config_file.close()
-            else:
+            elif (not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+                with open("/etc/mysql/my.cnf",
+                          "a") as mysql_file:
+                    mysql_file.write("\n# WordOps v3.9.8\n")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+                # set InnoDB variable depending on the RAM available
                 wo_ram_innodb = int(wo_ram*0.3)
                 wo_ram_log_buffer = int(wo_ram_innodb*0.25)
                 wo_ram_log_size = int(wo_ram_log_buffer*0.5)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
+                # set innodb_buffer_pool_instances depending
+                # on the amount of RAM
+                if (wo_ram_innodb > 1000) and (wo_ram_innodb < 64000):
+                    wo_innodb_instance = int(
+                        wo_ram_innodb/1000)
+                elif (wo_ram_innodb < 1000):
+                    wo_innodb_instance = int(1)
+                elif (wo_ram_innodb > 64000):
+                    wo_innodb_instance = int(64)
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "innodb_buffer_pool_size	= 256M",
-                                          "innodb_buffer_pool_size	= {0}M"
-                                          .format(wo_ram_innodb))
+                                          "innodb_buffer_pool_size	"
+                                          "= {0}M\n"
+                                          "innodb_buffer_pool_instances "
+                                          "= {1}\n"
+                                          .format(wo_ram_innodb,
+                                                  wo_innodb_instance))
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "innodb_log_buffer_size	= 8M",
                                           "innodb_log_buffer_size	= {0}M"
@@ -870,11 +895,6 @@ def post_pref(self, apt_packages, packages):
                                           "= 600",
                                           "wait_timeout		"
                                           "= 120")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "skip-external-locking",
-                                          "skip-external-locking\n"
-                                          "skip-name-resolve = 1\n")
-
                 # disabling mariadb binlog
                 WOFileUtils.searchreplace(self,
                                           "/etc/mysql/my.cnf",
@@ -924,15 +944,8 @@ def post_pref(self, apt_packages, packages):
                                           "table_open_cache	= 16000")
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "max_allowed_packet	= 16M",
-                                          "max_allowed_packet	= 64M")
-                if (wo_ram_innodb > 1000) and (wo_ram_innodb < 64000):
-                    wo_innodb_instance = int(wo_ram_innodb/1000)
-                    WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                              "# * Security Features",
-                                              "innodb_buffer_pool_instances "
-                                              "= {0}\n"
-                                              .format(wo_innodb_instance) +
-                                              "# * Security Features")
+                                          "max_allowed_packet	= 64M\n"
+                                          "skip-name-resolve=1\n")
 
                 WOService.stop_service(self, 'mysql')
                 WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
@@ -951,20 +964,20 @@ def post_pref(self, apt_packages, packages):
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 data = dict()
-                WOTemplate.tmpl_render(self,
-                                       '/etc/fail2ban/jail.d/custom.conf',
-                                       'fail2ban.mustache',
-                                       data, overwrite=False)
-                WOTemplate.tmpl_render(self,
-                                       '/etc/fail2ban/filter.d/'
-                                       'wo-wordpress.conf',
-                                       'fail2ban-wp.mustache',
-                                       data, overwrite=False)
-                WOTemplate.tmpl_render(self,
-                                       '/etc/fail2ban/filter.d/'
-                                       'nginx-forbidden.conf',
-                                       'fail2ban-forbidden.mustache',
-                                       data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/fail2ban/jail.d/custom.conf',
+                                  'fail2ban.mustache',
+                                  data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/fail2ban/filter.d/'
+                                  'wo-wordpress.conf',
+                                  'fail2ban-wp.mustache',
+                                  data, overwrite=False)
+                WOTemplate.render(self,
+                                  '/etc/fail2ban/filter.d/'
+                                  'nginx-forbidden.conf',
+                                  'fail2ban-forbidden.mustache',
+                                  data, overwrite=False)
 
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
@@ -1083,7 +1096,11 @@ def post_pref(self, apt_packages, packages):
         # enable systemd service
         Log.debug(self, "Enabling redis systemd service")
         WOShellExec.cmd_exec(self, "systemctl enable redis-server")
-        if os.path.isfile("/etc/redis/redis.conf"):
+        if (os.path.isfile("/etc/redis/redis.conf") and
+                not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+            with open("/etc/redis/redis.conf",
+                      "a") as redis_file:
+                redis_file.write("\n# WordOps v3.9.8\n")
             wo_ram = psutil.virtual_memory().total / (1024 * 1024)
             if wo_ram < 1024:
                 Log.debug(self, "Setting maxmemory variable to "
@@ -1126,6 +1143,18 @@ def post_pref(self, apt_packages, packages):
             WOFileUtils.chown(self, '/etc/redis/redis.conf',
                               'redis', 'redis', recursive=False)
             WOService.restart_service(self, 'redis-server')
+
+    # Redis configuration
+    if set(["clamav"]).issubset(set(apt_packages)):
+        Log.debug("Setting up freshclam cronjob")
+        WOTemplate.render(self, '/opt/freshclam.sh',
+                          'freshclam.mustache',
+                          data, overwrite=False)
+        WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
+        WOCron.setcron_weekly(self, '/opt/freshclam.sh '
+                              '> /dev/null 2>&1',
+                              comment='ClamAV freshclam cronjob '
+                              'added by WordOps')
 
     if (packages):
         if any('/usr/local/bin/wp' == x[1] for x in packages):
@@ -1182,15 +1211,16 @@ def post_pref(self, apt_packages, packages):
                                           .format(WOVariables.wo_webroot),
                                           "$cfg[\'Servers\'][$i][\'host\']"
                                           " = \'localhost\';", "$cfg"
-                                          "[\'Servers\'][$i][\'host\'] = \'{0}\';"
+                                          "[\'Servers\'][$i][\'host\'] "
+                                          "= \'{0}\';"
                                           .format(WOVariables.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
+                                  'www-data',
+                                  'www-data',
                                   recursive=True)
 
         # composer install and phpmyadmin update
@@ -1210,8 +1240,8 @@ def post_pref(self, apt_packages, packages):
                                  "/var/www/22222/htdocs/db/pma/")
             WOFileUtils.chown(self, '{0}22222/htdocs/db/pma'
                               .format(WOVariables.wo_webroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user,
+                              'www-data',
+                              'www-data',
                               recursive=True)
 
         if any('/usr/bin/mysqltuner' == x[1]
@@ -1290,8 +1320,8 @@ def post_pref(self, apt_packages, packages):
                               .format(WOVariables.wo_webroot))
                     WOFileUtils.chown(self, '{0}22222/htdocs'
                                       .format(WOVariables.wo_webroot),
-                                      WOVariables.wo_php_user,
-                                      WOVariables.wo_php_user,
+                                      'www-data',
+                                      'www-data',
                                       recursive=True)
 
         # Extplorer FileManager
@@ -1313,8 +1343,8 @@ def post_pref(self, apt_packages, packages):
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
+                                  'www-data',
+                                  'www-data',
                                   recursive=True)
 
         # webgrind
@@ -1358,8 +1388,8 @@ def post_pref(self, apt_packages, packages):
                       .format(WOVariables.wo_webroot))
             WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user,
+                              'www-data',
+                              'www-data',
                               recursive=True)
         # anemometer
         if any('/var/lib/wo/tmp/anemometer.tar.gz' == x[1]
@@ -1418,9 +1448,19 @@ def post_pref(self, apt_packages, packages):
                                 out=wo_anemometer)
                 wo_anemometer.close()
 
+        # pt-query-advisor
         if any('/usr/bin/pt-query-advisor' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
+
+        # cht.sh
+        if any('/usr/local/bin/cht.sh' == x[1]
+               for x in packages):
+            WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
+            if not WOFileUtils.grep(self, "~/.bashrc", "cheat"):
+                with open("~/.bashrc",
+                          "a") as wo_bashrc:
+                    wo_bashrc.write("\nalias cheat='cht.sh'\n")
 
         # phpredisadmin
         if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
@@ -1435,21 +1475,21 @@ def post_pref(self, apt_packages, packages):
                             .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
-                                  WOVariables.wo_php_user,
-                                  WOVariables.wo_php_user,
+                                  'www-data',
+                                  'www-data',
                                   recursive=True)
                 if os.path.isfile("/usr/local/bin/composer"):
-                    WOShellExec.cmd_exec(self, "sudo -u www-data -H "
-                                         "composer "
-                                         "create-project -n -s dev "
+                    WOShellExec.cmd_exec(self, "/usr/local/bin/composer"
+                                         "create-project --no-plugins "
+                                         "--no-scripts -n -s dev "
                                          "erik-dubbelboer/php-redis-admin "
                                          "/var/www/22222/htdocs/cache"
                                          "/redis/phpRedisAdmin ")
             Log.debug(self, 'Setting Privileges of webroot permission to  '
-                      '{0}22222/htdocs/cache/file '
+                      '{0}22222/htdocs/cache/redis'
                       .format(WOVariables.wo_webroot))
             WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
-                              WOVariables.wo_php_user,
-                              WOVariables.wo_php_user,
+                              'www-data',
+                              'www-data',
                               recursive=True)

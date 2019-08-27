@@ -978,6 +978,18 @@ def display_cache_settings(self, data):
                      "page=redis-cache".format(data['site_name']))
         Log.info(self, "Object Cache:\t\tEnable")
 
+    if data['wpfc']:
+        if data['multisite']:
+            Log.info(self, "Nginx-Helper configuration :"
+                     "\thttp://{0}/wp-admin/network/settings.php?"
+                     "page=nginx".format(data['site_name']))
+        else:
+            Log.info(self, "Nginx-Helper configuration :"
+                     "\thttp://{0}/wp-admin/options-general.php?"
+                     "page=nginx".format(data['site_name']))
+
+
+
 
 def logwatch(self, logfiles):
     import zlib
@@ -1279,8 +1291,10 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(domain)):
             removeNginxConf(self, domain)
-        if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
-                         .format(domain)):
+        if (os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
+                          .format(domain)) or
+                os.path.isdir('/etc/letsencrypt/live/{0}'
+                              .format(domain))):
             removeAcmeConf(self, domain)
 
     if webroot:
