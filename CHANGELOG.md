@@ -16,11 +16,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - ClamAV anti-virus with weekly cronjob to update signatures database
 - Internal function to add daily cronjobs
 - Additional comment to detect previous configuration tuning (MariaDB & Redis)
-- Domain/Subdomain detection based on public domain suffixes list
+- Domain/Subdomain detection based on public domain suffixes list for letsencrypt
 - Increase Nginx & MariaDB systemd open_files limits
 - Cronjob to update Cloudflare IPs list
-- mariadb-backup to perform full and non-blocking databases backup (only installation)
-- Nginx configuration check before performing start/reload/restart
+- mariadb-backup to perform full and non-blocking databases backup (installation only. Backup feature will be available soon)
+- Nginx configuration check before performing start/reload/restart (If configuration check fail, WordOps will not reload/restart Nginx anymore)
 - Nginx mapping to proxy web-socket connections
 
 #### Changed
