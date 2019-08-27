@@ -770,9 +770,6 @@ class WOSiteCreateController(CementBaseController):
             data['letsencrypt'] = True
             letsencrypt = True
             if data['letsencrypt'] is True:
-                if (wo_domain_type == 'subdomain' and
-                        (not pargs.letsencrypt == 'wildcard')):
-                    pargs.letsencrypt == 'subdomain'
                 if pargs.dns:
                     wo_acme_dns = pargs.dns
                     wo_dns = True
@@ -788,6 +785,9 @@ class WOSiteCreateController(CementBaseController):
                 else:
                     wo_wildcard = False
                     wo_subdomain = False
+                if ((wo_domain_type == 'subdomain') and
+                        (not pargs.letsencrypt == 'wildcard')):
+                    wo_subdomain = True
 
                 setupLetsEncrypt(self, wo_domain, wo_subdomain, wo_wildcard,
                                  wo_dns, wo_acme_dns)
