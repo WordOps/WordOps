@@ -769,27 +769,29 @@ class WOSiteCreateController(CementBaseController):
         if pargs.letsencrypt:
             data['letsencrypt'] = True
             letsencrypt = True
-            if pargs.dns:
-                wo_acme_dns = pargs.dns
             if data['letsencrypt'] is True:
-                if pargs.letsencrypt == "subdomain":
-                    if pargs.dns:
-                        setupLetsEncrypt(self, wo_domain, True, False,
-                                         True, wo_acme_dns)
-                    else:
-                        setupLetsEncrypt(self, wo_domain, True)
-                    httpsRedirect(self, wo_domain)
-                elif pargs.letsencrypt == "wildcard":
-                    setupLetsEncrypt(self, wo_domain, False, True,
-                                     True, wo_acme_dns)
-                    httpsRedirect(self, wo_domain, True, True)
+                if (wo_domain_type == 'subdomain' and
+                        (not pargs.letsencrypt == 'wildcard')):
+                    pargs.letsencrypt == 'subdomain'
+                if pargs.dns:
+                    wo_acme_dns = pargs.dns
+                    wo_dns = True
                 else:
-                    if pargs.dns:
-                        setupLetsEncrypt(self, wo_domain, False,
-                                         False, True, wo_acme_dns)
-                    else:
-                        setupLetsEncrypt(self, wo_domain)
-                    httpsRedirect(self, wo_domain)
+                    wo_acme_dns = ''
+                    wo_dns = False
+                if pargs.letsencrypt == "subdomain":
+                    wo_subdomain = True
+                    wo_wildcard = False
+                elif pargs.letsencrypt == "wildcard":
+                    wo_wildcard = True
+                    wo_subdomain = False
+                else:
+                    wo_wildcard = False
+                    wo_subdomain = False
+
+                setupLetsEncrypt(self, wo_domain, wo_subdomain, wo_wildcard,
+                                 wo_dns, wo_acme_dns)
+                httpsRedirect(self, wo_domain, True, wo_wildcard)
 
                 if pargs.hsts:
                     setupHsts(self, wo_domain)
@@ -951,7 +953,7 @@ class WOSiteUpdateController(CementBaseController):
             try:
                 while not pargs.site_name:
                     pargs.site_name = (input('Enter site name : ').strip())
-            except IOError as e:
+            except IOError:
                 Log.error(self, 'Unable to input site name, Please try again!')
 
         pargs.site_name = pargs.site_name.strip()
@@ -1239,24 +1241,42 @@ class WOSiteUpdateController(CementBaseController):
                     return 0
 
         if pargs.letsencrypt:
+            if ((wo_domain_type == 'subdomain') and
+                (not pargs.letsencrypt == 'wildcard') and
+                (not pargs.letsencrypt == 'off') and
+                (not pargs.letsencrypt == 'clean') and
+                    (not pargs.letsencrypt == 'purge')):
+                pargs.letsencrypt == 'subdomain'
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
+                wo_wildcard = False
+                wo_subdomain = False
             elif pargs.letsencrypt == 'subdomain':
                 data['letsencrypt'] = True
                 letsencrypt = True
+                wo_subdomain = True
+                wo_wildcard = False
             elif pargs.letsencrypt == 'wildcard':
                 data['letsencrypt'] = True
                 letsencrypt = True
+                wo_wildcard = True
+                wo_subdomain = False
             elif pargs.letsencrypt == 'off':
                 data['letsencrypt'] = False
                 letsencrypt = False
+                wo_subdomain = False
+                wo_wildcard = False
             elif pargs.letsencrypt == 'clean':
                 data['letsencrypt'] = False
                 letsencrypt = False
+                wo_subdomain = False
+                wo_wildcard = False
             elif pargs.letsencrypt == 'purge':
                 data['letsencrypt'] = False
                 letsencrypt = False
+                wo_subdomain = False
+                wo_wildcard = False
 
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
@@ -1351,38 +1371,31 @@ class WOSiteUpdateController(CementBaseController):
             return 0
 
         if pargs.letsencrypt:
-            if pargs.dns:
-                wo_acme_dns = pargs.dns
             if data['letsencrypt'] is True:
-                if (wo_domain_type == 'subdomain' and
-                        pargs.letsencrypt != 'wildcard'):
-                    pargs.letsencrypt == 'subdomain'
-                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
-                                      .format(wo_site_webroot)):
-                    if pargs.letsencrypt == "on":
-                        if pargs.dns:
-                            setupLetsEncrypt(self, wo_domain, False,
-                                             False, True, wo_acme_dns)
-                        else:
-                            setupLetsEncrypt(self, wo_domain)
-                        httpsRedirect(self, wo_domain)
-                    elif pargs.letsencrypt == "subdomain":
-                        if pargs.dns:
-                            setupLetsEncrypt(self, wo_domain, True, False,
-                                             True, wo_acme_dns)
-                        else:
-                            setupLetsEncrypt(self, wo_domain, True)
-                        httpsRedirect(self, wo_domain)
-                    elif pargs.letsencrypt == "wildcard":
-                        setupLetsEncrypt(self, wo_domain, False, True,
-                                         True, wo_acme_dns)
-                        httpsRedirect(self, wo_domain, True, True)
+                if pargs.dns:
+                    wo_acme_dns = pargs.dns
+                    wo_dns = True
+                else:
+                    wo_acme_dns = ''
+                    wo_dns = False
+                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
+                    setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                     wo_wildcard,
+                                     wo_dns, wo_acme_dns)
+                    httpsRedirect(self, wo_domain, True, wo_wildcard)
                     site_url_https(self, wo_domain)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
                                        '{0}/conf/nginx/ssl.conf'
                                        .format(wo_site_webroot))
+                    WOFileUtils.mvfile(self, "/etc/nginx/conf.d/"
+                                       "force-ssl-{0}.conf.disabled"
+                                       .format(wo_domain),
+                                       '/etc/nginx/conf.d/force-ssl-{0}.conf'
+                                       .format(wo_domain))
+
+                    httpsRedirect(self, wo_domain, True, wo_wildcard)
                     site_url_https(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
