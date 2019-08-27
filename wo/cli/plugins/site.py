@@ -982,7 +982,7 @@ class WOSiteUpdateController(CementBaseController):
         if (pargs.hsts and not (pargs.html or
                                 pargs.php or pargs.php73 or pargs.mysql or
                                 pargs.wp or pargs.wpfc or pargs.wpsc or
-                                pargs.wprocket or parge.wpce or
+                                pargs.wprocket or pargs.wpce or
                                 pargs.wpsubdir or pargs.wpsubdomain or
                                 pargs.password)):
             try:
