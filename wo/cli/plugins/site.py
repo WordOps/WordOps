@@ -755,7 +755,7 @@ class WOSiteCreateController(CementBaseController):
             if data['wp'] and (not pargs.vhostonly):
                 Log.info(self, Log.ENDC + "WordPress admin user :"
                          " {0}".format(wo_wp_creds['wp_user']), log=False)
-                Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
+                Log.info(self, Log.ENDC + "WordPress admin password : {0}"
                          .format(wo_wp_creds['wp_pass']), log=False)
 
                 display_cache_settings(self, data)
