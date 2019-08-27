@@ -67,6 +67,7 @@
 - Debian 9 (Stretch)
 - Debian 10 (Buster) - Not ready for production
 - Raspbian 9 (Stretch)
+- Raspbian 10 (Buster) - Testing
 
 ## Getting Started
 

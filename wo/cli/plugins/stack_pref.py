@@ -27,7 +27,7 @@ def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
     if (set(WOVariables.wo_mysql).issubset(set(apt_packages)) or
-            set(WOVariables.wo_mysql_client).issubset(set(apt_packages)) or
+            set(WOVariables.wo_mysql_client).issubset(set(apt_packages))):
             set(['mariadb-backup']).issubset(set(apt_packages))):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):

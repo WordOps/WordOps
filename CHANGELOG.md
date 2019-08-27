@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.4 - 2019-08-27
+
 #### Added
 
 - cht.sh stack : linux online cheatsheet. Usage : `cheat <command>`. Example for tar : `cheat tar`
@@ -27,6 +29,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - eXplorer filemanager isn't installed with WordOps dashboard anymore, and a flag `--extplorer` is available. But it's still installed when running the command `wo stack install`
 - Template rendering function now check for a .custom file before overwriting a configuration by default.
 - flag `--letsencrypt=subdomain` is not required anymore, you can use `--letsencrypt` or `-le`
+- Simplify APT GPG Keys import
+
+#### Fixed
+
+- typo error in `wo site update` : [PR #126](https://github.com/WordOps/WordOps/pull/126)
 
 ### v3.9.8.3 - 2019-08-21
 

@@ -82,10 +82,7 @@ class WORepo():
         default keyserver is hkp://keyserver.ubuntu.com
         user can provide other keyserver with keyserver="hkp://xyz"
         """
-        WOShellExec.cmd_exec(self, "gpg --keyserver {serv}"
+        WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
                              .format(serv=(keyserver or
                                            "hkp://keyserver.ubuntu.com")) +
                              " --recv-keys {key}".format(key=keyids))
-        WOShellExec.cmd_exec(self, "gpg -a --export --armor {0}"
-                             .format(keyids) +
-                             " | apt-key add - ")
