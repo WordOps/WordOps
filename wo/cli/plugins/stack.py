@@ -63,8 +63,6 @@ class WOStackController(CementBaseController):
                 dict(help='Install PHP 7.3 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
-            (['--mariabackup'],
-                dict(help='Install MariaBackup stack', action='store_true')),
             (['--mysqlclient'],
                 dict(help='Install MySQL client for remote MySQL server',
                      action='store_true')),

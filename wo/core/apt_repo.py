@@ -47,7 +47,7 @@ class WORepo():
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to add repo")
         if ppa is not None:
-            WOShellExec.cmd_exec(self, "add-apt-repository -y '{ppa_name}'"
+            WOShellExec.cmd_exec(self, "add-apt-repository -yu '{ppa_name}'"
                                  .format(ppa_name=ppa))
 
     def remove(self, ppa=None, repo_url=None):
