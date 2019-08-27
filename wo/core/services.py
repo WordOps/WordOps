@@ -127,7 +127,7 @@ class WOService():
                                  "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                         return True
                 else:
-                    Log.error(
+                    Log.info(
                         self, "Reloading Nginx " + "[" + Log.FAIL +
                         "Failed" + Log.OKBLUE+"]")
                     return False
