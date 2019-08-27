@@ -1250,8 +1250,12 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
+                if ((wo_domain_type == 'subdomain') and
+                        (not pargs.letsencrypt == 'wildcard')):
+                    wo_subdomain = True
+                else:
+                    wo_subdomain = False
                 wo_wildcard = False
-                wo_subdomain = False
             elif pargs.letsencrypt == 'subdomain':
                 data['letsencrypt'] = True
                 letsencrypt = True
