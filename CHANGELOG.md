@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Increase Nginx & MariaDB systemd open_files limits
 - Cronjob to update Cloudflare IPs list
 - mariadb-backup to perform full and non-blocking databases backup
+- Nginx configuration check before performing reload/restart
+- Nginx mapping to proxy web-socket connections
 
 #### Changed
 

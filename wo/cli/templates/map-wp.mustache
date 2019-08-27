@@ -1,4 +1,4 @@
-# NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION - WO v3.9.7
+# NGINX CONFIGURATION FOR FASTCGI_CACHE EXCEPTION - WO v3.9.8
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 
 # do not cache xhtml request
@@ -53,7 +53,7 @@ map $request_uri $uri_no_cache {
     "~*/commande/" 1;
     "~*/resetpass/" 1;
 }
-
+# mobile_prefix needed for WP-Rocket
 map $http_user_agent $mobile_prefix {
     default "";
     "~*iphone" -mobile;
@@ -78,7 +78,14 @@ map $skip_cache $cache_uri {
     default 'null cache';
 }
 
+# http_prefix needed for WP-Rocket
 map $https $https_prefix {
     default "";
     on "-https";
+}
+
+# needed to proxy web-socket connections
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
 }

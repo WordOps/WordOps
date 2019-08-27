@@ -137,7 +137,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type = GetDomainlevel(wo_domain)
+        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
@@ -424,7 +424,7 @@ class WOSiteCreateController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type = GetDomainlevel(wo_domain)
+        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
         if not wo_domain.strip():
             Log.error("Invalid domain name, "
                       "Provide valid domain name")
@@ -958,7 +958,7 @@ class WOSiteUpdateController(CementBaseController):
         (wo_domain,
          wo_www_domain, ) = ValidateDomain(pargs.site_name)
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
-        wo_domain_type = GetDomainlevel(wo_domain)
+        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
         check_site = getSiteInfo(self, wo_domain)
 
         if check_site is None:
@@ -1820,7 +1820,7 @@ class WOSiteDeleteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type = GetDomainlevel(wo_domain)
+        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''

@@ -1,5 +1,4 @@
 """WordOps Service Manager"""
-import os
 import subprocess
 from wo.core.logging import Log
 
@@ -23,10 +22,14 @@ class WOService():
                 if 'emerg' not in str(error_output):
                     service_cmd = ('service {0} start'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                    return True
+                    if retcode[0] == 0:
+                        Log.info(self, "Starting Nginx" +
+                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        return True
                 else:
-                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    Log.info(
+                        self, "Starting Nginx" + "[" + Log.FAIL +
+                        "Failed" + Log.OKBLUE+"]")
                     return False
             else:
                 service_cmd = ('service {0} start'.format(service_name))
@@ -78,12 +81,16 @@ class WOService():
                                        stderr=subprocess.PIPE, shell=True)
                 output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                     service_cmd = ('service {0} restart'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
-                    return True
+                    if retcode[0] == 0:
+                        Log.info(self, "Restarting Nginx" +
+                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        return True
                 else:
-                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    Log.info(
+                        self, "Restarting Nginx" + "[" + Log.FAIL +
+                        "Failed" + Log.OKBLUE+"]")
                     return False
             else:
                 service_cmd = ('service {0} restart'.format(service_name))
@@ -113,17 +120,19 @@ class WOService():
                                        stderr=subprocess.PIPE, shell=True)
                 output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
-                    service_cmd = ('service {0} restart'.format(service_name))
+                    service_cmd = ('service {0} reload'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                    return True
+                    if retcode[0] == 0:
+                        Log.info(self, "Reloading Nginx" +
+                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        return True
                 else:
-                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    Log.info(
+                        self, "Restarting Nginx" + "[" + Log.FAIL +
+                        "Failed" + Log.OKBLUE+"]")
                     return False
-
             else:
                 service_cmd = ('service {0} reload'.format(service_name))
-
                 Log.info(self, "Reload : {0:10}".format(service_name), end='')
                 retcode = subprocess.getstatusoutput(service_cmd)
                 if retcode[0] == 0:
