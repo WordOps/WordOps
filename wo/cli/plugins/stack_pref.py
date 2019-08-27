@@ -489,9 +489,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             if upgrade:
                 try:
-                    WOService.reload_service(self, 'nginx')
+                    WOShellExec.cmd_exec(self, 'nginx -t')
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
+                    Log.info(self, "Rolling-Back Nginx"
+                             "configuration")
                     WOGit.rollback(self, ["/etc/nginx"])
 
             # Nginx Configation into GIT
