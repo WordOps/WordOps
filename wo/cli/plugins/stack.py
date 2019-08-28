@@ -3,17 +3,8 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 
-import codecs
-import configparser
 import os
-import pwd
-import random
-import shutil
-import string
-import re
-import requests
 
-import psutil
 # from pynginxconfig import NginxConfig
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import *
@@ -21,17 +12,11 @@ from wo.cli.plugins.stack_migrate import WOStackMigrateController
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
 from wo.cli.plugins.stack_pref import pre_pref, post_pref
-from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
-from wo.core.cron import WOCron
-from wo.core.download import WODownload
-from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
-from wo.core.git import WOGit
 from wo.core.logging import Log
-from wo.core.mysql import WOMysql
 from wo.core.services import WOService
-from wo.core.shellexec import CommandExecutionError, WOShellExec
+from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
 
 
@@ -140,7 +125,7 @@ class WOStackController(CementBaseController):
                 pargs.php73 = True
                 pargs.redis = True
                 pargs.proftpd = True
-                pargs.clamav = True
+                pargs.security = True
 
             if pargs.web:
                 pargs.nginx = True
@@ -360,8 +345,8 @@ class WOStackController(CementBaseController):
             # WordOps Dashboard
             if pargs.dashboard:
                 if not os.path.isfile('/var/www/22222/htdocs/index.php'):
-                    Log.debug(
-                        self, "Setting packages variable for WO-Dashboard")
+                    Log.debug(self,
+                              "Setting packages variable for WO-Dashboard")
                     packages = packages + \
                         [["https://github.com/WordOps/wordops-dashboard/"
                           "releases/download/v{0}/wordops-dashboard.tar.gz"

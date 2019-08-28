@@ -3,7 +3,6 @@ import shutil
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.download import WODownload
 from wo.core.extract import WOExtract

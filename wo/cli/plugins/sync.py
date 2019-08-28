@@ -1,8 +1,8 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from wo.core.fileutils import WOFileUtils
-from wo.cli.plugins.sitedb import *
-from wo.core.mysql import *
+from wo.cli.plugins.sitedb import updateSiteInfo, getAllsites
+from wo.core.mysql import WOMysql, StatementExcecutionError
 from wo.core.logging import Log
 import glob
 
