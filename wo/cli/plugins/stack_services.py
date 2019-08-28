@@ -89,7 +89,8 @@ class WOStackStatusController(CementBaseController):
 
         # netdata
         if pargs.netdata:
-            if os.path.isdir("/opt/netdata"):
+            if (os.path.isdir("/opt/netdata") or
+                    os.path.isdir("/etc/netdata")):
                 services = services + ['netdata']
             else:
                 Log.info(self, "Netdata is not installed")
@@ -177,7 +178,8 @@ class WOStackStatusController(CementBaseController):
 
         # netdata
         if pargs.netdata:
-            if os.path.isdir("/opt/netdata"):
+            if (os.path.isdir("/opt/netdata") or
+                    os.path.isdir("/etc/netdata")):
                 services = services + ['netdata']
             else:
                 Log.info(self, "Netdata is not installed")
@@ -261,7 +263,8 @@ class WOStackStatusController(CementBaseController):
 
         # netdata
         if pargs.netdata:
-            if os.path.isdir("/opt/netdata"):
+            if (os.path.isdir("/opt/netdata") or
+                    os.path.isdir("/etc/netdata")):
                 services = services + ['netdata']
             else:
                 Log.info(self, "Netdata is not installed")
@@ -345,7 +348,8 @@ class WOStackStatusController(CementBaseController):
 
         # netdata
         if pargs.netdata:
-            if os.path.isdir("/opt/netdata"):
+            if (os.path.isdir("/opt/netdata") or
+                    os.path.isdir("/etc/netdata")):
                 services = services + ['netdata']
             else:
                 Log.info(self, "Netdata is not installed")
@@ -429,7 +433,8 @@ class WOStackStatusController(CementBaseController):
 
         # netdata
         if pargs.netdata:
-            if os.path.isdir("/opt/netdata"):
+            if (os.path.isdir("/opt/netdata") or
+                    os.path.isdir("/etc/netdata")):
                 services = services + ['netdata']
             else:
                 Log.info(self, "Netdata is not installed")

@@ -1258,18 +1258,25 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
                                      "kickstart.sh "
                                      "--dont-wait")
+                if WOVariables.wo_distro == 'raspbian':
+                    wo_netdata = "/"
+                else:
+                    wo_netdata = "/opt/netdata/"
                 # disable mail notifications
-                WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
+                WOFileUtils.searchreplace(self, "{0}usr/"
                                           "lib/netdata/conf.d/"
-                                          "health_alarm_notify.conf",
+                                          "health_alarm_notify.conf"
+                                          .format(wo_netdata),
                                           'SEND_EMAIL="YES"',
                                           'SEND_EMAIL="NO"')
                 # make changes persistant
-                WOFileUtils.copyfile(self, "/opt/netdata/usr/"
+                WOFileUtils.copyfile(self, "{0}usr/"
                                      "lib/netdata/conf.d/"
-                                     "health_alarm_notify.conf",
-                                     "/opt/netdata/etc/netdata/"
-                                     "health_alarm_notify.conf")
+                                     "health_alarm_notify.conf"
+                                     .format(wo_netdata),
+                                     "{0}etc/netdata/"
+                                     "health_alarm_notify.conf"
+                                     .format(wo_netdata))
                 # check if mysql credentials are available
                 if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
                     try:
@@ -1288,7 +1295,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         Log.debug(self, "{0}".format(e))
                         Log.info(
                             self, "fail to setup mysql user for netdata")
-                WOFileUtils.chown(self, '/opt/netdata',
+                WOFileUtils.chown(self, '{0}etc/netdata'
+                                  .format(wo_netdata),
                                   'netdata',
                                   'netdata',
                                   recursive=True)
