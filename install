@@ -103,7 +103,11 @@ export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq
 }
 
-if [ -z "$(command -v curl)" ]; then
+command_exists() {
+    command -v "$@" > /dev/null 2>&1
+}
+
+if ! command_exists curl; then
     apt-get -y install curl -qq
 fi
 
@@ -120,9 +124,9 @@ echo ""
 ###
 # 1- Check whether lsb_release is installed, and if not, install it
 ###
-if [ -z "$(command -v lsb_release)" ]; then
+if ! command_exists lsb_release; then
     wo_lib_echo "Installing lsb-release, please wait..."
-    apt-get -y install lsb-release -qq
+    apt-get install lsb-release -qq
 fi
 
 ###
@@ -191,11 +195,9 @@ fi
 ####
 
 wo_dist_upgrade() {
-    [ -z "$wo_travis" ] && {
-        # update server packages
-        apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
-    } >> "$wo_install_log" 2>&1
-}
+    # update server packages
+    apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
+} >> "$wo_install_log" 2>&1
 
 wo_install_dep() {
 
@@ -223,15 +225,17 @@ wo_install_dep() {
         if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
             cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
         fi
-        # set default ntp pools
-        if ! grep -q "time.cloudflare.com" /etc/systemd/timesyncd.conf; then
-            sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
-            # enable ntp
-            timedatectl set-ntp 1
-        fi
-
     } >> "$wo_install_log" 2>&1
 
+}
+
+wo_timesync() {
+    # set default ntp pools
+    if ! grep -q "time.cloudflare.com" /etc/systemd/timesyncd.conf; then
+        sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
+        # enable ntp
+        timedatectl set-ntp 1
+    fi
 }
 
 ###
@@ -695,14 +699,14 @@ wo_mariadb_tweak() {
 wo_nginx_tweak() {
     # increase nginx open_files_limit
     {
-            if [ ! -d /etc/systemd/system/nginx.service.d ]; then
-                mkdir -p /etc/systemd/system/nginx.service.d
-                if [ ! -f /etc/systemd/system/nginx.service.d/limits.conf ]; then
-                    echo -e '[Service]\nLimitNOFILE=500000' > /etc/systemd/system/nginx.service.d/limits.conf
-                    systemctl daemon-reload
-                    nginx -t && service nginx restart
-                fi
+        if [ ! -d /etc/systemd/system/nginx.service.d ]; then
+            mkdir -p /etc/systemd/system/nginx.service.d
+            if [ ! -f /etc/systemd/system/nginx.service.d/limits.conf ]; then
+                echo -e '[Service]\nLimitNOFILE=500000' > /etc/systemd/system/nginx.service.d/limits.conf
+                systemctl daemon-reload
+                nginx -t && service nginx restart
             fi
+        fi
     } >> /var/log/wo/install.log 2>&1
 }
 
@@ -716,7 +720,7 @@ wo_uninstall() {
 
 wo_cheat_alias() {
     if ! grep -q "cheat" "$HOME/.bashrc"; then
-    echo "alias cheat='/usr/local/bin/cht.sh'" >> "$HOME/.bashrc"
+        echo "alias cheat='/usr/local/bin/cht.sh'" >> "$HOME/.bashrc"
     fi
 }
 
@@ -803,6 +807,7 @@ else
         } || [ "$wo_force_install" = "y" ]; then
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
             wo_install_dep | tee -ai $wo_install_log
+            wo_timesync | tee -ai $wo_install_log
             wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
             wo_backup_wo | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
@@ -852,6 +857,7 @@ else
             if [ "$WO_ANSWER" = "y" ] || [ "$WO_ANSWER" = "Y" ]; then
                 wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
                 wo_install_dep | tee -ai $wo_install_log
+                wo_timesync | tee -ai $wo_install_log
                 wo_lib_echo "Backing-up EE install" | tee -ai $wo_install_log
                 wo_backup_ee | tee -ai $wo_install_log
                 wo_lib_echo "Removing EasyEngine cronjob" | tee -ai $wo_install_log
@@ -897,8 +903,11 @@ else
         else
             # 3 - Fresh WO setup
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
-            wo_dist_upgrade | tee -ai $wo_install_log
+            [ -z "$wo_travis" ] && {
+                wo_dist_upgrade | tee -ai $wo_install_log
+            }
             wo_install_dep | tee -ai $wo_install_log
+            wo_timesync | tee -ai $wo_install_log
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             if [ "$wo_travis" = "y" ]; then
                 wo_install_travis | tee -ai $wo_install_log

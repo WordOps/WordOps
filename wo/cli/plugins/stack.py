@@ -151,9 +151,9 @@ class WOStackController(CementBaseController):
                 pargs.wpcli = True
 
             if pargs.admin:
-                pargs.web = True
                 pargs.adminer = True
                 pargs.phpmyadmin = True
+                pargs.composer = True
                 pargs.utils = True
                 pargs.netdata = True
                 pargs.dashboard = True
@@ -639,7 +639,7 @@ class WOStackController(CementBaseController):
             if os.path.isdir('{0}22222/htdocs/cache/redis'
                              .format(WOVariables.wo_webroot)):
                 packages = packages + ['{0}22222/htdocs/'
-                                       'cache/redis/phpRedisAdmin'
+                                       'cache/redis'
                                        .format(WOVariables.wo_webroot)]
         # ADMINER
         if pargs.adminer:
@@ -677,7 +677,7 @@ class WOStackController(CementBaseController):
                                      ' remove from server.'
                                      '\nPackage configuration will remain'
                                      ' on server after this operation.\n'
-                                     'Remove stacks [y/N]')
+                                     'Remove stacks [y/N]?')
                 if start_remove != "Y" and start_remove != "y":
                     Log.error(self, "Not starting stack removal")
             Log.info(self, "Removing stacks, please wait...")
@@ -687,17 +687,22 @@ class WOStackController(CementBaseController):
             # Netdata uninstaller
             if (set(['/var/lib/wo/tmp/'
                      'kickstart.sh']).issubset(set(packages))):
-                WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                     "libexec/netdata-"
-                                     "uninstaller.sh -y -f")
+                if WOVariables.wo_distro == 'Raspbian':
+                    WOShellExec.cmd_exec(self, "bash /usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
+                else:
+                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
 
             if (packages):
+                Log.info(self, "Removing packages, please wait...")
                 WOFileUtils.remove(self, packages)
-                WOAptGet.auto_remove(self)
 
             if (apt_packages):
                 Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Removing packages, please wait...")
+                Log.info(self, "Removing apt packages, please wait...")
                 WOAptGet.remove(self, apt_packages)
                 WOAptGet.auto_remove(self)
 
@@ -748,6 +753,7 @@ class WOStackController(CementBaseController):
             pargs.composer = True
             pargs.netdata = True
             pargs.mysqltuner = True
+            pargs.cheat = True
 
         if pargs.security:
             pargs.fail2ban = True
@@ -778,6 +784,16 @@ class WOStackController(CementBaseController):
                         WOVariables.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
+
+        # REDIS
+        if pargs.redis:
+            Log.debug(self, "Remove apt_packages variable of Redis")
+            apt_packages = apt_packages + WOVariables.wo_redis
+
+        # MariaDB
+        if pargs.mysql:
+            Log.debug(self, "Removing apt_packages variable of MySQL")
+            apt_packages = apt_packages + WOVariables.wo_mysql
 
         # mysqlclient
         if pargs.mysqlclient:
@@ -832,7 +848,7 @@ class WOStackController(CementBaseController):
             if os.path.isdir('{0}22222/htdocs/cache/redis'
                              .format(WOVariables.wo_webroot)):
                 packages = packages + ['{0}22222/htdocs/'
-                                       'cache/redis/phpRedisAdmin'
+                                       'cache/redis'
                                        .format(WOVariables.wo_webroot)]
         # Adminer
         if pargs.adminer:
@@ -842,16 +858,16 @@ class WOStackController(CementBaseController):
         # utils
         if pargs.utils:
             Log.debug(self, "Purge package variable utils")
-            packages = packages + ['{0}22222/htdocs/php/webgrind/'
-                                   .format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/opcache'
-                                   .format(WOVariables.wo_webroot),
-                                   '{0}22222/htdocs/cache/nginx/'
-                                   'clean.php'.format(WOVariables.wo_webroot),
-                                   '/usr/bin/pt-query-advisor',
-                                   '{0}22222/htdocs/db/anemometer'
-                                   .format(WOVariables.wo_webroot)
-                                   ]
+            packages = packages + [['{0}22222/htdocs/php/webgrind/'
+                                    .format(WOVariables.wo_webroot),
+                                    '{0}22222/htdocs/cache/opcache'
+                                    .format(WOVariables.wo_webroot),
+                                    '{0}22222/htdocs/cache/nginx/'
+                                    'clean.php'.format(WOVariables.wo_webroot),
+                                    '/usr/bin/pt-query-advisor',
+                                    '{0}22222/htdocs/db/anemometer'
+                                    .format(WOVariables.wo_webroot)
+                                    ]]
 
         if pargs.netdata:
             Log.debug(self, "Removing Netdata")
