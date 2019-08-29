@@ -872,7 +872,7 @@ else
             else
                 wo_install | tee -ai $wo_install_log
             fi
-            if [ -n "$(command -v nginx)" ]; then
+            if command_exists nginx; then
                 wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
                 wo_upgrade_nginx | tee -ai $wo_install_log
             fi
@@ -885,7 +885,7 @@ else
                 wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
                 wo_systemd_tweak | tee -ai $wo_install_log
             fi
-            if [ -x /usr/sbin/nginx ]; then
+            if command_exists nginx; then
                 wo_nginx_tweak | tee -ai $wo_install_log
             fi
             if [ -d /etc/systemd/system/mariadb.service.d ]; then

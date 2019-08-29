@@ -858,16 +858,16 @@ class WOStackController(CementBaseController):
         # utils
         if pargs.utils:
             Log.debug(self, "Purge package variable utils")
-            packages = packages + [['{0}22222/htdocs/php/webgrind/'
-                                    .format(WOVariables.wo_webroot),
-                                    '{0}22222/htdocs/cache/opcache'
-                                    .format(WOVariables.wo_webroot),
-                                    '{0}22222/htdocs/cache/nginx/'
-                                    'clean.php'.format(WOVariables.wo_webroot),
-                                    '/usr/bin/pt-query-advisor',
-                                    '{0}22222/htdocs/db/anemometer'
-                                    .format(WOVariables.wo_webroot)
-                                    ]]
+            packages = packages + ['{0}22222/htdocs/php/webgrind/'
+                                   .format(WOVariables.wo_webroot),
+                                   '{0}22222/htdocs/cache/opcache'
+                                   .format(WOVariables.wo_webroot),
+                                   '{0}22222/htdocs/cache/nginx/'
+                                   'clean.php'.format(WOVariables.wo_webroot),
+                                   '/usr/bin/pt-query-advisor',
+                                   '{0}22222/htdocs/db/anemometer'
+                                   .format(WOVariables.wo_webroot)
+                                   ]
 
         if pargs.netdata:
             Log.debug(self, "Removing Netdata")
@@ -897,15 +897,20 @@ class WOStackController(CementBaseController):
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'nginx')
 
+            if (set(["fail2ban"]).issubset(set(apt_packages))):
+                WOService.stop_service(self, 'fail2ban')
+
             # Netdata uninstaller
             if (set(['/var/lib/wo/tmp/'
                      'kickstart.sh']).issubset(set(packages))):
-                WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                     "libexec/netdata-"
-                                     "uninstaller.sh -y -f")
-
-            if (set(["fail2ban"]).issubset(set(apt_packages))):
-                WOService.stop_service(self, 'fail2ban')
+                if WOVariables.wo_distro == 'Raspbian':
+                    WOShellExec.cmd_exec(self, "bash /usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
+                else:
+                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
+                                         "libexec/netdata-"
+                                         "uninstaller.sh -y -f")
 
             if (apt_packages):
                 Log.info(self, "Purging packages, please wait...")
