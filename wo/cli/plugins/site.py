@@ -957,8 +957,7 @@ class WOSiteUpdateController(CementBaseController):
                 Log.error(self, 'Unable to input site name, Please try again!')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain, ) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
         wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
         check_site = getSiteInfo(self, wo_domain)
