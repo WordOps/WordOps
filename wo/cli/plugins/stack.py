@@ -238,7 +238,8 @@ class WOStackController(CementBaseController):
             # WP-CLI
             if pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
-                if not WOShellExec.cmd_exec(self, "command -v wp"):
+                if (not os.path.isfile("/usr/local/bin/wp") and not
+                        os.path.isfile("/usr/bin/wp")):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                             "releases/download/v{0}/"
                                             "wp-cli-{0}.phar"
@@ -308,79 +309,83 @@ class WOStackController(CementBaseController):
                     Log.info(self, "phpRedisAdmin already installed")
 
             # Composer
-            if pargs.composer and (not
-                                   os.path.isfile('/usr/local/bin/composer')):
-                Log.debug(self, "Setting packages variable for Composer ")
-                packages = packages + [["https://getcomposer.org/"
-                                        "installer",
-                                        "/var/lib/wo/tmp/composer-install",
-                                        "Composer"]]
-            else:
-                Log.debug(self, "Composer already installed")
-                Log.info(self, "Composer already installed")
+            if pargs.composer:
+                if not os.path.isfile('/usr/local/bin/composer'):
+                    Log.debug(self, "Setting packages variable for Composer ")
+                    packages = packages + [["https://getcomposer.org/"
+                                            "installer",
+                                            "/var/lib/wo/tmp/composer-install",
+                                            "Composer"]]
+                else:
+                    Log.debug(self, "Composer already installed")
+                    Log.info(self, "Composer already installed")
 
             # ADMINER
-            if pargs.adminer and (not
-                                  os.path.isfile("{0}22222/htdocs/db/"
-                                                 "adminer/index.php"
-                                                 .format(wo_webroot))):
-                Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["https://github.com/vrana/adminer/"
-                                        "releases/download/v{0}"
-                                        "/adminer-{0}.php"
-                                        .format(WOVariables.wo_adminer),
-                                        "{0}22222/"
-                                        "htdocs/db/adminer/index.php"
-                                        .format(WOVariables.wo_webroot),
-                                        "Adminer"],
-                                       ["https://raw.githubusercontent.com"
-                                        "/vrana/adminer/master/designs/"
-                                        "pepa-linha/adminer.css",
-                                        "{0}22222/"
-                                        "htdocs/db/adminer/adminer.css"
-                                        .format(WOVariables.wo_webroot),
-                                        "Adminer theme"]]
+            if pargs.adminer:
+                if not os.path.isfile("{0}22222/htdocs/db/"
+                                      "adminer/index.php"
+                                      .format(wo_webroot)):
+                    Log.debug(self, "Setting packages variable for Adminer ")
+                    packages = packages + [["https://github.com/vrana/adminer/"
+                                            "releases/download/v{0}"
+                                            "/adminer-{0}.php"
+                                            .format(WOVariables.wo_adminer),
+                                            "{0}22222/"
+                                            "htdocs/db/adminer/index.php"
+                                            .format(WOVariables.wo_webroot),
+                                            "Adminer"],
+                                           ["https://raw.githubusercontent.com"
+                                            "/vrana/adminer/master/designs/"
+                                            "pepa-linha/adminer.css",
+                                            "{0}22222/"
+                                            "htdocs/db/adminer/adminer.css"
+                                            .format(WOVariables.wo_webroot),
+                                            "Adminer theme"]]
             # mysqltuner
-            if pargs.mysqltuner and (not
-                                     os.path.isfile("/usr/bin/mysqltuner")):
-                Log.debug(self, "Setting packages variable for MySQLTuner ")
-                packages = packages + [["https://raw."
-                                        "githubusercontent.com/"
-                                        "major/MySQLTuner-perl"
-                                        "/master/mysqltuner.pl",
-                                        "/usr/bin/mysqltuner",
-                                        "MySQLTuner"]]
+            if pargs.mysqltuner:
+                if not os.path.isfile("/usr/bin/mysqltuner"):
+                    Log.debug(self, "Setting packages variable "
+                              "for MySQLTuner ")
+                    packages = packages + [["https://raw."
+                                            "githubusercontent.com/"
+                                            "major/MySQLTuner-perl"
+                                            "/master/mysqltuner.pl",
+                                            "/usr/bin/mysqltuner",
+                                            "MySQLTuner"]]
 
             # Netdata
-            if pargs.netdata and (
-                    not os.path.isdir('/opt/netdata') and not
-                    os.path.isdir("/etc/netdata")):
-                Log.debug(self, "Setting packages variable for Netdata")
-                if WOVariables.wo_distro == 'raspbian':
-                    packages = packages + [['https://my-netdata.io/'
-                                            'kickstart.sh',
-                                            '/var/lib/wo/tmp/kickstart.sh',
-                                            'Netdata']]
+            if pargs.netdata:
+                if (not os.path.isdir('/opt/netdata') and not
+                        os.path.isdir("/etc/netdata")):
+                    Log.debug(
+                        self, "Setting packages variable for Netdata")
+                    if WOVariables.wo_distro == 'raspbian':
+                        packages = packages + [['https://my-netdata.io/'
+                                                'kickstart.sh',
+                                                '/var/lib/wo/tmp/kickstart.sh',
+                                                'Netdata']]
+                    else:
+                        packages = packages + [['https://my-netdata.io/'
+                                                'kickstart-static64.sh',
+                                                '/var/lib/wo/tmp/kickstart.sh',
+                                                'Netdata']]
                 else:
-                    packages = packages + [['https://my-netdata.io/'
-                                            'kickstart-static64.sh',
-                                            '/var/lib/wo/tmp/kickstart.sh',
-                                            'Netdata']]
-            else:
-                Log.debug(self, "Netdata already installed")
-                Log.info(self, "Netdata already installed")
+                    Log.debug(self, "Netdata already installed")
+                    Log.info(self, "Netdata already installed")
 
             # WordOps Dashboard
             if pargs.dashboard:
                 if not os.path.isfile('/var/www/22222/htdocs/index.php'):
                     Log.debug(self,
                               "Setting packages variable for WO-Dashboard")
-                    packages = packages + \
-                        [["https://github.com/WordOps/wordops-dashboard/"
-                          "releases/download/v{0}/wordops-dashboard.tar.gz"
-                          .format(WOVariables.wo_dashboard),
-                          "/var/lib/wo/tmp/wo-dashboard.tar.gz",
-                          "WordOps Dashboard"]]
+                    packages = \
+                        packages + [["https://github.com/WordOps"
+                                     "/wordops-dashboard/"
+                                     "releases/download/v{0}/"
+                                     "wordops-dashboard.tar.gz"
+                                     .format(WOVariables.wo_dashboard),
+                                     "/var/lib/wo/tmp/wo-dashboard.tar.gz",
+                                     "WordOps Dashboard"]]
                 else:
                     Log.debug(self, "WordOps dashboard already installed")
                     Log.info(self, "WordOps dashboard already installed")
@@ -421,9 +426,8 @@ class WOStackController(CementBaseController):
                                         "cache/opcache/opgui.php"
                                         .format(WOVariables.wo_webroot),
                                         "Opgui"],
-                                       ["https://gist.github.com/ck-on/4959032"
-                                        "/raw/0b871b345fd6cfcd6d2be030c1f33d1"
-                                        "ad6a475cb/ocp.php",
+                                       ["https://raw.githubusercontent.com/"
+                                        "mlazarov/ocp/master/ocp.php",
                                         "{0}22222/htdocs/cache/"
                                         "opcache/ocp.php"
                                         .format(WOVariables.wo_webroot),

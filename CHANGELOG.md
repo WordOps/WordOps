@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fix Netdata install on Raspbian 9/10
 - `wo stack remove/purge` confirmation
 - Nginx error after removing a SSL certificate used to secure WordOps backend
+- `wo stack install --all`
+
+#### Changed
+
+- updated OpCache Control Panel to v0.2.0
 
 ### v3.9.8.4 - 2019-08-28
 
