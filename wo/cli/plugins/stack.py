@@ -418,6 +418,17 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "eXtplorer is already installed")
                     Log.info(self, "eXtplorer is already installed")
 
+            # cheat.sh
+            if pargs.cheat:
+                if not os.path.isfile('/usr/local/bin/cht.sh'):
+                    Log.debug(self, "Setting packages variable for cht.sh")
+                    packages = packages + [["https://cht.sh/:cht.sh",
+                                            "/usr/local/bin/cht.sh",
+                                            "cheat.sh"]]
+                else:
+                    Log.debug(self, "cheat.sh is already installed")
+                    Log.info(self, "cheat.sh is already installed")
+
             # UTILS
             if pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -458,15 +469,7 @@ class WOStackController(CementBaseController):
                                         "archive/master.tar.gz",
                                         '/var/lib/wo/tmp/anemometer.tar.gz',
                                         'Anemometer']]
-            if pargs.cheat:
-                if not os.path.isfile('/usr/local/bin/cht.sh'):
-                    Log.debug(self, "Setting packages variable for cht.sh")
-                    packages = packages + [["https://cht.sh/:cht.sh",
-                                            "/usr/local/bin/cht.sh",
-                                            "cheat.sh"]]
-                else:
-                    Log.debug(self, "cheat.sh is already installed")
-                    Log.info(self, "cheat.sh is already installed")
+
 
         except Exception as e:
             Log.debug(self, "{0}".format(e))
@@ -547,6 +550,7 @@ class WOStackController(CementBaseController):
 
         if pargs.security:
             pargs.fail2ban = True
+            pargs.clamav = True
 
         # NGINX
         if pargs.nginx:
@@ -584,11 +588,24 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + WOVariables.wo_mysql
 
+        # mysqlclient
+        if pargs.mysqlclient:
+            Log.debug(self, "Removing apt_packages variable "
+                      "for MySQL Client")
+            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+                apt_packages = apt_packages + WOVariables.wo_mysql_client
+
         # fail2ban
         if pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
                 Log.debug(self, "Remove apt_packages variable of Fail2ban")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
+
+        # ClamAV
+        if pargs.clamav:
+            Log.debug(self, "Setting apt_packages variable for ClamAV")
+            if WOAptGet.is_installed(self, 'clamav'):
+                apt_packages = apt_packages + ["clamav"]
 
         # proftpd
         if pargs.proftpd:
@@ -735,6 +752,8 @@ class WOStackController(CementBaseController):
 
         if pargs.security:
             pargs.fail2ban = True
+            pargs.clamav = True
+
         # NGINX
         if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
@@ -761,11 +780,24 @@ class WOStackController(CementBaseController):
                 else:
                     apt_packages = apt_packages + WOVariables.wo_php73
 
+        # mysqlclient
+        if pargs.mysqlclient:
+            Log.debug(self, "Removing apt_packages variable "
+                      "for MySQL Client")
+            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+                apt_packages = apt_packages + WOVariables.wo_mysql_client
+
         # fail2ban
         if pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                Log.debug(self, "Purge apt_packages variable of Fail2ban")
+                Log.debug(self, "Remove apt_packages variable of Fail2ban")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
+
+        # ClamAV
+        if pargs.clamav:
+            Log.debug(self, "Setting apt_packages variable for ClamAV")
+            if WOAptGet.is_installed(self, 'clamav'):
+                apt_packages = apt_packages + ["clamav"]
 
         # proftpd
         if pargs.proftpd:
