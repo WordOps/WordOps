@@ -14,6 +14,9 @@ exit_script() {
 }
 
 if ! {
+    echo -e "${CGREEN}#############################################${CEND}"
+    echo -e '       stack install             '
+    echo -e "${CGREEN}#############################################${CEND}"
     wo --help && wo stack install && wo stack install --proftpd
 }; then
     exit_script
@@ -60,9 +63,9 @@ if ! {
 }; then
     exit_script
 fi
-    echo -e "${CGREEN}#############################################${CEND}"
-    echo -e '       various informations             '
-    echo -e "${CGREEN}#############################################${CEND}"
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       various informations             '
+echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
 cat /etc/nginx/nginx.conf
 wo site info wp1.com
