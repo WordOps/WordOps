@@ -503,7 +503,7 @@ wo_upgrade_nginx() {
                 service nginx stop
                 # remove previous package
                 apt-mark unhold nginx-ee nginx-common nginx-custom
-                apt-get --assume-yes purge nginx-ee nginx-common nginx-custom --allow-change-held-packages
+                apt-get autoremove nginx-ee nginx-common nginx-custom --allow-change-held-packages --purge -qq
                 # remove previous php-fpm pool configuration
                 if [ -n "$CHECK_PHP72" ]; then
                     apt-get purge php7.2-fpm -y -qq
@@ -515,13 +515,11 @@ wo_upgrade_nginx() {
                 /usr/local/bin/wo stack install --nginx --php
                 rm -f /etc/nginx/common/acl.conf /etc/nginx/htpasswd-wo
                 /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
-
+                /usr/local/bin/wo stack upgrade --nginx --force
             fi
-        else
-            /usr/local/bin/wo stack upgrade --nginx --force
         fi
         # restore sites and configuration
-        [ -f /etc/nginx/htpasswd-ee ] && { mv /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
+        [ -f /etc/nginx/htpasswd-ee ] && { cp -f /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
         sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php71.conf/locations-wo.conf/" /etc/nginx/sites-available/*
