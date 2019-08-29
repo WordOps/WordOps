@@ -244,6 +244,22 @@ class WOFileUtils():
             Log.error(self, "Unable to Search string {0} in {1}"
                       .format(sstr, fnm))
 
+    def grepcheck(self, fnm, sstr):
+        """
+            Searches for string in file and returns True or False.
+        """
+        try:
+            Log.debug(self, "Finding string {0} to file {1}"
+                      .format(sstr, fnm))
+            for line in open(fnm, encoding='utf-8'):
+                if sstr in line:
+                    return True
+            return False
+        except OSError as e:
+            Log.debug(self, "{0}".format(e.strerror))
+            Log.error(self, "Unable to Search string {0} in {1}"
+                      .format(sstr, fnm))
+
     def rm(self, path):
         """
             Remove files

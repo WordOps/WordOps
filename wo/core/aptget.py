@@ -148,14 +148,16 @@ class WOAptGet():
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
                 if purge:
-                    proc = subprocess.Popen('apt-get autoremove --purge '
-                                            '--assume-yes {0}'
+                    proc = subprocess.Popen('DEBIAN_FRONTEND=noninteractive '
+                                            'apt-get autoremove --purge '
+                                            '-qq {0}'
                                             .format(all_packages), shell=True,
                                             stdin=None, stdout=f, stderr=f,
                                             executable="/bin/bash")
                 else:
-                    proc = subprocess.Popen('apt-get autoremove '
-                                            '--assume-yes {0}'
+                    proc = subprocess.Popen('DEBIAN_FRONTEND=noninteractive '
+                                            'apt-get autoremove '
+                                            '-qq {0}'
                                             .format(all_packages), shell=True,
                                             stdin=None, stdout=f, stderr=f,
                                             executable="/bin/bash")

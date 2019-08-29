@@ -957,10 +957,9 @@ class WOSiteUpdateController(CementBaseController):
                 Log.error(self, 'Unable to input site name, Please try again!')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain, ) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
-        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
+        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
         check_site = getSiteInfo(self, wo_domain)
 
         if check_site is None:
@@ -1198,14 +1197,14 @@ class WOSiteUpdateController(CementBaseController):
                     return 0
                 min_expiry_days = 45
                 if (expiry_days <= min_expiry_days):
-                    renewLetsEncrypt(self, ee_domain)
+                    renewLetsEncrypt(self, wo_domain)
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
                                   "check issues with `nginx -t` command")
                     Log.info(self, "SUCCESS: Certificate was successfully "
                              "renewed For https://{0}".format(wo_domain))
                 elif pargs.force:
-                    renewLetsEncrypt(self, ee_domain)
+                    renewLetsEncrypt(self, wo_domain)
                     Log.info(self, "Certificate was successfully renewed")
                     if not WOService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "

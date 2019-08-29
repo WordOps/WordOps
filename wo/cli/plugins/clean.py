@@ -20,7 +20,7 @@ class WOCleanController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         description = (
-            'Clean NGINX FastCGI cache, Opcache, Memcached, Redis Cache')
+            'Clean NGINX FastCGI cache, Opcache, Redis Cache')
         arguments = [
             (['--all'],
                 dict(help='Clean all cache', action='store_true')),

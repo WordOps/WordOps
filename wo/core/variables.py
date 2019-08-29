@@ -10,7 +10,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.8.4"
+    wo_version = "3.9.8.5"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.2"
@@ -22,7 +22,7 @@ class WOVariables():
     wo_wpcli_path = '/usr/local/bin/wp'
 
     # Current date and time of System
-    wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
+    wo_date = datetime.datetime.now().strftime('%d%b%Y-%H-%M-%S')
 
     # WordOps core variables
     wo_distro = distro.linux_distribution(
@@ -121,12 +121,12 @@ class WOVariables():
 
     wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
               "php7.2-readline", "php7.2-common", "php7.2-recode",
-              "php7.2-cli", "php7.2-mbstring",
+              "php7.2-cli", "php7.2-mbstring", "php7.2-intl",
               "php7.2-bcmath", "php7.2-mysql", "php7.2-opcache",
               "php7.2-zip", "php7.2-xml", "php7.2-soap"]
     wo_php73 = ["php7.3-fpm", "php7.3-curl", "php7.3-gd", "php7.3-imap",
                 "php7.3-readline", "php7.3-common", "php7.3-recode",
-                "php7.3-cli", "php7.3-mbstring",
+                "php7.3-cli", "php7.3-mbstring", "php7.3-intl",
                 "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
                 "php7.3-zip", "php7.3-xml", "php7.3-soap"]
     wo_php_extra = ["php-memcached", "php-imagick",

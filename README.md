@@ -168,6 +168,10 @@ Apps & Tools shipped with WordOps :
 - [MySQLTuner](https://github.com/major/MySQLTuner-perl/)
 - [Webgrind](https://github.com/jokkedk/webgrind)
 - [MySQLTuner](https://github.com/major/MySQLTuner-perl)
+- [Fail2Ban](https://github.com/fail2ban/fail2ban)
+- [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
+- [cheat.sh](https://github.com/chubin/cheat.sh)
+- [ProFTPd](https://github.com/proftpd/proftpd)
 
 ## License
 

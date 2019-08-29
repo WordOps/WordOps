@@ -146,6 +146,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
     if (apt_packages):
         # Nginx configuration
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+            Log.info(self, "Applying Nginx configuration templates")
             # Nginx main configuration
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
@@ -459,23 +460,22 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
                 if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                       .format(ngxroot)):
-
                     with open("/var/www/22222/conf/nginx/"
-                              "ssl.conf", "a") as php_file:
+                              "ssl.conf", "w") as php_file:
                         php_file.write("ssl_certificate "
                                        "/var/www/22222/cert/22222.crt;\n"
                                        "ssl_certificate_key "
                                        "/var/www/22222/cert/22222.key;\n")
                 server_ip = requests.get('http://v4.wordops.eu')
 
-                WOTemplate.render(self, '/opt/cf-update.sh',
-                                  'cf-update.mustache',
-                                  data, overwrite=False)
-                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
-                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
-                                      '> /dev/null 2>&1',
-                                      comment='Cloudflare IP refresh cronjob '
-                                      'added by WordOps')
+            if set(["nginx"]).issubset(set(apt_packages)):
+                print("WordOps backend configuration was successful\n"
+                      "You can access it on : https://{0}:22222"
+                      .format(server_ip))
+                print("HTTP Auth User Name: WordOps" +
+                      "\nHTTP Auth Password : {0}".format(passwd))
+                WOService.reload_service(self, 'nginx')
+            else:
                 self.msg = (self.msg + ["HTTP Auth User "
                                         "Name: WordOps"] +
                             ["HTTP Auth Password : {0}"
@@ -485,6 +485,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                         "or https://{1}:22222"
                                         .format(server_ip.text,
                                                 WOVariables.wo_fqdn)])
+
+            if not os.path.isfile("/opt/cf-update.sh"):
+                WOTemplate.render(self, '/opt/cf-update.sh',
+                                  'cf-update.mustache',
+                                  data, overwrite=False)
+                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
+                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
+                                      '> /dev/null 2>&1',
+                                      comment='Cloudflare IP refresh cronjob '
+                                      'added by WordOps')
 
             if upgrade:
                 try:
@@ -501,6 +511,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'nginx')
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
+            Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
             # Create log directories
             if not os.path.exists('/var/log/php/7.2/'):
@@ -673,6 +684,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # PHP7.3 configuration
         if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            Log.info(self, "Configuring php7.3-fpm")
             ngxroot = '/var/www/'
             # Create log directories
             if not os.path.exists('/var/log/php/7.3/'):
@@ -854,6 +866,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.write(config)
                 config_file.close()
             elif (not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+                Log.info(self, "Tuning MariaDB configuration")
                 with open("/etc/mysql/my.cnf",
                           "a") as mysql_file:
                     mysql_file.write("\n# WordOps v3.9.8\n")
@@ -963,6 +976,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # create fail2ban configuration files
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                Log.info(self, "Configuring Fail2Ban")
                 data = dict()
                 WOTemplate.render(self,
                                   '/etc/fail2ban/jail.d/custom.conf',
@@ -986,6 +1000,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # Proftpd configuration
         if set(["proftpd-basic"]).issubset(set(apt_packages)):
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
+                Log.info(self, "Configuring ProFTPd")
                 Log.debug(self, "Setting up Proftpd configuration")
                 WOFileUtils.searchreplace(self, "/etc/proftpd/"
                                           "proftpd.conf",
@@ -1053,7 +1068,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Unable to add UFW rule")
 
-            if os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+            if ((os.path.isfile("/etc/fail2ban/jail.d/custom.conf")) and
+                (not WOFileUtils.grep(self, "/etc/fail2ban/jail.d/custom.conf",
+                                      "proftpd"))):
                 with open("/etc/fail2ban/jail.d/custom.conf",
                           encoding='utf-8', mode='a') as f2bproftpd:
                     f2bproftpd.write("\n\n[proftpd]\nenabled = true\n")
@@ -1098,6 +1115,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         WOShellExec.cmd_exec(self, "systemctl enable redis-server")
         if (os.path.isfile("/etc/redis/redis.conf") and
                 not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+            Log.info(self, "Tuning Redis configuration")
             with open("/etc/redis/redis.conf",
                       "a") as redis_file:
                 redis_file.write("\n# WordOps v3.9.8\n")
@@ -1157,11 +1175,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'added by WordOps')
 
     if (packages):
+        # WP-CLI
         if any('/usr/local/bin/wp' == x[1] for x in packages):
             Log.debug(self, "Setting Privileges"
                       " to /usr/local/bin/wp file ")
             WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
+        # PHPMyAdmin
         if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
                for x in packages):
             WOExtract.extract(
@@ -1243,7 +1263,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'www-data',
                               'www-data',
                               recursive=True)
-
+        # MySQLtuner
         if any('/usr/bin/mysqltuner' == x[1]
                for x in packages):
             Log.debug(self, "CHMOD MySQLTuner in /usr/bin/mysqltuner")
@@ -1258,18 +1278,25 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
                                      "kickstart.sh "
                                      "--dont-wait")
+                if WOVariables.wo_distro == 'raspbian':
+                    wo_netdata = "/"
+                else:
+                    wo_netdata = "/opt/netdata/"
                 # disable mail notifications
-                WOFileUtils.searchreplace(self, "/opt/netdata/usr/"
+                WOFileUtils.searchreplace(self, "{0}usr/"
                                           "lib/netdata/conf.d/"
-                                          "health_alarm_notify.conf",
+                                          "health_alarm_notify.conf"
+                                          .format(wo_netdata),
                                           'SEND_EMAIL="YES"',
                                           'SEND_EMAIL="NO"')
                 # make changes persistant
-                WOFileUtils.copyfile(self, "/opt/netdata/usr/"
+                WOFileUtils.copyfile(self, "{0}usr/"
                                      "lib/netdata/conf.d/"
-                                     "health_alarm_notify.conf",
-                                     "/opt/netdata/etc/netdata/"
-                                     "health_alarm_notify.conf")
+                                     "health_alarm_notify.conf"
+                                     .format(wo_netdata),
+                                     "{0}etc/netdata/"
+                                     "health_alarm_notify.conf"
+                                     .format(wo_netdata))
                 # check if mysql credentials are available
                 if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
                     try:
@@ -1288,7 +1315,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         Log.debug(self, "{0}".format(e))
                         Log.info(
                             self, "fail to setup mysql user for netdata")
-                WOFileUtils.chown(self, '/opt/netdata',
+                WOFileUtils.chown(self, '{0}etc/netdata'
+                                  .format(wo_netdata),
                                   'netdata',
                                   'netdata',
                                   recursive=True)
@@ -1457,10 +1485,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         if any('/usr/local/bin/cht.sh' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
-            if not WOFileUtils.grep(self, "~/.bashrc", "cheat"):
-                with open("~/.bashrc",
-                          "a") as wo_bashrc:
-                    wo_bashrc.write("\nalias cheat='cht.sh'\n")
 
         # phpredisadmin
         if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
