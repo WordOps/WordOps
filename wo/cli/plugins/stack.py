@@ -92,7 +92,7 @@ class WOStackController(CementBaseController):
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
             (['--cheat'],
-                dict(help='Install cht.sh stack', action='store_true')),
+                dict(help='Install cheat.sh stack', action='store_true')),
             (['--redis'],
                 dict(help='Install Redis', action='store_true')),
             (['--phpredisadmin'],
@@ -459,15 +459,11 @@ class WOStackController(CementBaseController):
                                         '/var/lib/wo/tmp/anemometer.tar.gz',
                                         'Anemometer']]
             if pargs.cheat:
-                if ((not os.path.isfile('/usr/local/bin/cht.sh')) and
-                        (not os.path.isfile('/usr/bin/cht.sh'))):
+                if not os.path.isfile('/usr/local/bin/cht.sh'):
                     Log.debug(self, "Setting packages variable for cht.sh")
-                    WOShellExec.cmd_exec(
-                        self, "/usr/bin/curl https://cht.sh/:cht.sh "
-                        "| sudo tee /usr/local/bin/cht.sh")
-                    WOShellExec(self, "/usr/bin/curl "
-                                "https://cheat.sh/:bash_completion | "
-                                "sudo tee /etc/bash_completion.d/cht.sh")
+                    packages = packages + [["https://cht.sh/:cht.sh",
+                                            "/usr/local/bin/cht.sh",
+                                            "cheat.sh"]]
                 else:
                     Log.debug(self, "cheat.sh is already installed")
                     Log.info(self, "cheat.sh is already installed")
