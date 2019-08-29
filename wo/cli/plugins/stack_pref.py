@@ -1485,11 +1485,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         if any('/usr/local/bin/cht.sh' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
-            if (not WOFileUtils.grep(self, "/root/.bashrc", "cheat") and
-                    not WOFileUtils.grep(self, "/home/ubuntu/.bashrc", "cheat")):
-                with open("/root/.bashrc",
-                          "a") as wo_bashrc:
-                    wo_bashrc.write("\nalias cheat='/usr/local/bin/cht.sh'\n")
 
         # phpredisadmin
         if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
