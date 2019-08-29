@@ -459,14 +459,14 @@ class WOStackController(CementBaseController):
                                         '/var/lib/wo/tmp/anemometer.tar.gz',
                                         'Anemometer']]
             if pargs.cheat:
-                if (not os.path.isfile('/usr/local/bin/cht.sh') and
-                        not os.path.isfile('/usr/bin/cht.sh')):
+                if ((not os.path.isfile('/usr/local/bin/cht.sh')) and
+                        (not os.path.isfile('/usr/bin/cht.sh'))):
                     Log.debug(self, "Setting packages variable for cht.sh")
                     WOShellExec.cmd_exec(
                         self, "/usr/bin/curl https://cht.sh/:cht.sh "
                         "| sudo tee /usr/local/bin/cht.sh")
                     WOShellExec(self, "/usr/bin/curl "
-                                "https://cheat.sh/:bash_completion |"
+                                "https://cheat.sh/:bash_completion | "
                                 "sudo tee /etc/bash_completion.d/cht.sh")
                 else:
                     Log.debug(self, "cheat.sh is already installed")
