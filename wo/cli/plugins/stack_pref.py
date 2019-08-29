@@ -468,14 +468,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                        "/var/www/22222/cert/22222.key;\n")
                 server_ip = requests.get('http://v4.wordops.eu')
 
-                WOTemplate.render(self, '/opt/cf-update.sh',
-                                  'cf-update.mustache',
-                                  data, overwrite=False)
-                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
-                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
-                                      '> /dev/null 2>&1',
-                                      comment='Cloudflare IP refresh cronjob '
-                                      'added by WordOps')
+            if set(["nginx"]).issubset(set(apt_packages)):
+                print("WordOps backend configuration was successful\n"
+                      "You can access it on : https://{0}:22222"
+                      .format(server_ip))
+                print("HTTP Auth User Name: WordOps" +
+                      "\nHTTP Auth Password : {0}".format(passwd))
+                WOService.reload_service(self, 'nginx')
+            else:
                 self.msg = (self.msg + ["HTTP Auth User "
                                         "Name: WordOps"] +
                             ["HTTP Auth Password : {0}"
@@ -485,6 +485,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                         "or https://{1}:22222"
                                         .format(server_ip.text,
                                                 WOVariables.wo_fqdn)])
+
+            if not os.path.isfile("/opt/cf-update.sh"):
+                WOTemplate.render(self, '/opt/cf-update.sh',
+                                  'cf-update.mustache',
+                                  data, overwrite=False)
+                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
+                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
+                                      '> /dev/null 2>&1',
+                                      comment='Cloudflare IP refresh cronjob '
+                                      'added by WordOps')
 
             if upgrade:
                 try:
