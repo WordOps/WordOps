@@ -680,7 +680,7 @@ class WOStackController(CementBaseController):
                                      'Remove stacks [y/N]?')
                 if start_remove != "Y" and start_remove != "y":
                     Log.error(self, "Not starting stack removal")
-            Log.info(self, "Removing stacks, please wait...")
+
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'nginx')
 
@@ -892,7 +892,6 @@ class WOStackController(CementBaseController):
                                     'Purge stacks [y/N]')
                 if start_purge != "Y" and start_purge != "y":
                     Log.error(self, "Not starting stack purge")
-            Log.info(self, "Purging stacks, please wait...")
 
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'nginx')
@@ -913,11 +912,12 @@ class WOStackController(CementBaseController):
                                          "uninstaller.sh -y -f")
 
             if (apt_packages):
-                Log.info(self, "Purging packages, please wait...")
+                Log.info(self, "Purging apt packages, please wait...")
                 WOAptGet.remove(self, apt_packages, purge=True)
                 WOAptGet.auto_remove(self)
 
             if (packages):
+                Log.info(self, "Purging packages, please wait...")
                 WOFileUtils.remove(self, packages)
                 WOAptGet.auto_remove(self)
 
