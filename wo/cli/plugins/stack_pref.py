@@ -460,9 +460,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
                 if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                       .format(ngxroot)):
-
                     with open("/var/www/22222/conf/nginx/"
-                              "ssl.conf", "a") as php_file:
+                              "ssl.conf", "w") as php_file:
                         php_file.write("ssl_certificate "
                                        "/var/www/22222/cert/22222.crt;\n"
                                        "ssl_certificate_key "

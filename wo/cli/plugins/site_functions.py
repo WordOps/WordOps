@@ -989,8 +989,6 @@ def display_cache_settings(self, data):
                      "page=nginx".format(data['site_name']))
 
 
-
-
 def logwatch(self, logfiles):
     import zlib
     import base64
@@ -1012,8 +1010,8 @@ def logwatch(self, logfiles):
                              'caught exception rendering a new log line in %s'
                              % filename)
 
-    l = logwatch.LogWatcher(logfiles, callback)
-    l.loop()
+    logl = logwatch.LogWatcher(logfiles, callback)
+    logl.loop()
 
 
 def detSitePar(opts):
@@ -1243,10 +1241,19 @@ def removeAcmeConf(self, domain):
                        .format(domain))
         WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'
                        .format(domain))
-
-        WOGit.add(self, ["/etc/letsencrypt"],
-                  msg="Deleted {0} "
-                  .format(domain))
+    if WOFileUtils.grepcheck(self, '/var/www/22222/conf/nginx/ssl.conf',
+                             '{0}'.format(domain)):
+        Log.info(self, "Setting back default certificate for WordOps backend")
+        with open("/var/www/22222/conf/nginx/"
+                  "ssl.conf", "w") as ssl_conf_file:
+            ssl_conf_file.write("ssl_certificate "
+                                "/var/www/22222/cert/22222.crt;\n"
+                                "ssl_certificate_key "
+                                "/var/www/22222/cert/22222.key;\n")
+    WOGit.add(self, ["/etc/letsencrypt"],
+              msg="Deleted {0} "
+              .format(domain))
+    WOService.restart_service(self, "nginx")
 
 
 def site_url_https(self, domain):
