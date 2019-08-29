@@ -470,7 +470,6 @@ class WOStackController(CementBaseController):
                                         '/var/lib/wo/tmp/anemometer.tar.gz',
                                         'Anemometer']]
 
-
         except Exception as e:
             Log.debug(self, "{0}".format(e))
 
