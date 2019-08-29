@@ -124,8 +124,8 @@ class WOStackController(CementBaseController):
                 (not pargs.mysql) and (not pargs.wpcli) and
                 (not pargs.phpmyadmin) and (not pargs.composer) and
                 (not pargs.netdata) and (not pargs.dashboard) and
-                (not pargs.fail2ban) and (not pargs.security)
-                and (not pargs.mysqlclient) and (not pargs.mysqltuner) and
+                (not pargs.fail2ban) and (not pargs.security) and
+                (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and
@@ -308,8 +308,8 @@ class WOStackController(CementBaseController):
                     Log.info(self, "phpRedisAdmin already installed")
 
             # Composer
-            if (pargs.composer and not
-                    os.path.isfile('/usr/local/bin/composer')):
+            if pargs.composer and (not
+                                   os.path.isfile('/usr/local/bin/composer')):
                 Log.debug(self, "Setting packages variable for Composer ")
                 packages = packages + [["https://getcomposer.org/"
                                         "installer",
@@ -320,9 +320,10 @@ class WOStackController(CementBaseController):
                 Log.info(self, "Composer already installed")
 
             # ADMINER
-            if (pargs.adminer and not
-                os.path.isfile("{0}22222/htdocs/db/adminer/index.php"
-                               .format(wo_webroot))):
+            if pargs.adminer and (not
+                                  os.path.isfile("{0}22222/htdocs/db/"
+                                                 "adminer/index.php"
+                                                 .format(wo_webroot))):
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["https://github.com/vrana/adminer/"
                                         "releases/download/v{0}"
@@ -340,8 +341,8 @@ class WOStackController(CementBaseController):
                                         .format(WOVariables.wo_webroot),
                                         "Adminer theme"]]
             # mysqltuner
-            if (pargs.mysqltuner and not
-                    os.path.isfile("/usr/bin/mysqltuner")):
+            if pargs.mysqltuner and (not
+                                     os.path.isfile("/usr/bin/mysqltuner")):
                 Log.debug(self, "Setting packages variable for MySQLTuner ")
                 packages = packages + [["https://raw."
                                         "githubusercontent.com/"
@@ -351,9 +352,9 @@ class WOStackController(CementBaseController):
                                         "MySQLTuner"]]
 
             # Netdata
-            if (pargs.netdata and
-                (not os.path.isdir('/opt/netdata') and not
-                 os.path.isdir("/etc/netdata"))):
+            if pargs.netdata and (
+                    not os.path.isdir('/opt/netdata') and not
+                    os.path.isdir("/etc/netdata")):
                 Log.debug(self, "Setting packages variable for Netdata")
                 if WOVariables.wo_distro == 'raspbian':
                     packages = packages + [['https://my-netdata.io/'
@@ -446,33 +447,34 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Setting packages variable for cht.sh")
                     packages = packages + [["https://cht.sh/:cht.sh",
                                             "/usr/local/bin/cht.sh",
-                                            "cht.sh"]]
+                                            "cheat.sh"]]
                 else:
                     Log.debug(self, "cht.sh is already installed")
-                    Log.info(self, "cht.sh is already installed")
+                    Log.info(self, "cheat.sh is already installed")
 
         except Exception as e:
             Log.debug(self, "{0}".format(e))
 
-        if (apt_packages):
-            Log.debug(self, "Calling pre_pref")
-            pre_pref(self, apt_packages)
-            # meminfo = (os.popen('/bin/cat /proc/meminfo '
-            #                    '| grep MemTotal').read()).split(":")
-            # memsplit = re.split(" kB", meminfo[1])
-            # wo_mem = int(memsplit[0])
-            # if (wo_mem < 4000000):
-            #    WOSwap.add(self)
-            Log.info(self, "Updating apt-cache, please wait...")
-            WOAptGet.update(self)
-            Log.info(self, "Installing packages, please wait...")
-            WOAptGet.install(self, apt_packages)
-            post_pref(self, apt_packages, empty_packages)
-        if (packages):
-            Log.debug(self, "Downloading following: {0}".format(packages))
-            WODownload.download(self, packages)
-            Log.debug(self, "Calling post_pref")
-            post_pref(self, empty_packages, packages)
+        if (apt_packages) or (packages):
+            if (apt_packages):
+                Log.debug(self, "Calling pre_pref")
+                pre_pref(self, apt_packages)
+                # meminfo = (os.popen('/bin/cat /proc/meminfo '
+                #                    '| grep MemTotal').read()).split(":")
+                # memsplit = re.split(" kB", meminfo[1])
+                # wo_mem = int(memsplit[0])
+                # if (wo_mem < 4000000):
+                #    WOSwap.add(self)
+                Log.info(self, "Updating apt-cache, please wait...")
+                WOAptGet.update(self)
+                Log.info(self, "Installing packages, please wait...")
+                WOAptGet.install(self, apt_packages)
+                post_pref(self, apt_packages, empty_packages)
+            if (packages):
+                Log.debug(self, "Downloading following: {0}".format(packages))
+                WODownload.download(self, packages)
+                Log.debug(self, "Calling post_pref")
+                post_pref(self, empty_packages, packages)
 
             if disp_msg:
                 if (self.msg):
@@ -490,15 +492,17 @@ class WOStackController(CementBaseController):
         pargs = self.app.pargs
         if ((not pargs.web) and (not pargs.admin) and
             (not pargs.nginx) and (not pargs.php) and
-            (not pargs.php73) and (not pargs.mysql) and
-            (not pargs.wpcli) and (not pargs.phpmyadmin) and
-            (not pargs.adminer) and (not pargs.utils) and
-            (not pargs.composer) and (not pargs.netdata) and
-            (not pargs.fail2ban) and (not pargs.proftpd) and
-            (not pargs.security) and (not pargs.mysqltuner) and
-            (not pargs.mysqlclient) and
-            (not pargs.all) and (not pargs.redis) and
-                (not pargs.phpredisadmin)):
+            (not pargs.mysql) and (not pargs.wpcli) and
+            (not pargs.phpmyadmin) and (not pargs.composer) and
+                (not pargs.netdata) and (not pargs.dashboard) and
+                (not pargs.fail2ban) and (not pargs.security) and
+                (not pargs.mysqlclient) and (not pargs.mysqltuner) and
+                (not pargs.adminer) and (not pargs.utils) and
+                (not pargs.redis) and (not pargs.proftpd) and
+                (not pargs.extplorer) and
+                (not pargs.cheat) and (not pargs.clamav) and
+                (not pargs.phpredisadmin) and
+                (not pargs.php73)):
             pargs.web = True
             pargs.admin = True
             pargs.security = True
@@ -676,15 +680,17 @@ class WOStackController(CementBaseController):
         # Default action for stack purge
         if ((not pargs.web) and (not pargs.admin) and
             (not pargs.nginx) and (not pargs.php) and
-            (not pargs.php73) and (not pargs.mysql) and
-            (not pargs.wpcli) and (not pargs.phpmyadmin) and
-            (not pargs.adminer) and (not pargs.utils) and
-            (not pargs.composer) and (not pargs.netdata) and
-            (not pargs.fail2ban) and (not pargs.proftpd) and
-            (not pargs.security) and (not pargs.mysqltuner) and
-            (not pargs.mysqlclient) and
-            (not pargs.all) and (not pargs.redis) and
-                (not pargs.phpredisadmin)):
+            (not pargs.mysql) and (not pargs.wpcli) and
+            (not pargs.phpmyadmin) and (not pargs.composer) and
+                (not pargs.netdata) and (not pargs.dashboard) and
+                (not pargs.fail2ban) and (not pargs.security) and
+                (not pargs.mysqlclient) and (not pargs.mysqltuner) and
+                (not pargs.adminer) and (not pargs.utils) and
+                (not pargs.redis) and (not pargs.proftpd) and
+                (not pargs.extplorer) and
+                (not pargs.cheat) and (not pargs.clamav) and
+                (not pargs.phpredisadmin) and
+                (not pargs.php73)):
             pargs.web = True
             pargs.admin = True
             pargs.security = True
