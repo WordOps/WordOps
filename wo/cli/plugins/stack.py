@@ -277,10 +277,10 @@ class WOStackController(CementBaseController):
 
             # PHPMYADMIN
             if pargs.phpmyadmin:
+                pargs.composer = True
                 if not os.path.isdir('/var/www/22222/htdocs/db/pma'):
                     Log.debug(self, "Setting packages variable "
                               "for phpMyAdmin ")
-                    pargs.composer = True
                     packages = packages + [["https://github.com/phpmyadmin/"
                                             "phpmyadmin/archive/STABLE.tar.gz",
                                             "/var/lib/wo/tmp/pma.tar.gz",
@@ -288,6 +288,23 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "phpMyAdmin already installed")
                     Log.info(self, "phpMyAdmin already installed")
+
+                    # PHPREDISADMIN
+            if pargs.phpredisadmin:
+                pargs.composer = True
+                if not os.path.isdir('/var/www/22222/htdocs/'
+                                     'cache/redis/phpRedisAdmin'):
+                    Log.debug(
+                        self, "Setting packages variable for phpRedisAdmin")
+                    packages = packages + [["https://github.com/"
+                                            "erikdubbelboer/"
+                                            "phpRedisAdmin/archive"
+                                            "/v1.11.3.tar.gz",
+                                            "/var/lib/wo/tmp/pra.tar.gz",
+                                            "phpRedisAdmin"]]
+                else:
+                    Log.debug(self, "phpRedisAdmin already installed")
+                    Log.info(self, "phpRedisAdmin already installed")
 
             # Composer
             if pargs.composer:
@@ -300,23 +317,6 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "Composer already installed")
                     Log.info(self, "Composer already installed")
-
-            # PHPREDISADMIN
-            if pargs.phpredisadmin:
-                if not os.path.isdir('/var/www/22222/htdocs/'
-                                     'cache/redis/phpRedisAdmin'):
-                    Log.debug(
-                        self, "Setting packages variable for phpRedisAdmin")
-                    pargs.composer = True
-                    packages = packages + [["https://github.com/"
-                                            "erikdubbelboer/"
-                                            "phpRedisAdmin/archive"
-                                            "/v1.11.3.tar.gz",
-                                            "/var/lib/wo/tmp/pra.tar.gz",
-                                            "phpRedisAdmin"]]
-                else:
-                    Log.debug(self, "phpRedisAdmin already installed")
-                    Log.info(self, "phpRedisAdmin already installed")
 
             # ADMINER
             if pargs.adminer:
@@ -632,17 +632,15 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            if not pargs.force:
-                wo_prompt = input('Are you sure you to want to'
-                                  ' remove from server.'
-                                  '\nPackage configuration will remain'
-                                  ' on server after this operation.\n'
-                                  'Any answer other than '
-                                  '"yes" will be stop this'
-                                  ' operation :  ')
-                if (wo_prompt != 'YES' or wo_prompt != 'yes'):
-                    Log.error(self, "Not removing packages")
-
+            if (not pargs.force):
+                start_remove = input('Are you sure you to want to'
+                                     ' remove from server.'
+                                     '\nPackage configuration will remain'
+                                     ' on server after this operation.\n'
+                                     'Remove stacks [y/N]')
+                if start_remove != "Y" and start_remove != "y":
+                    Log.error(self, "Not starting stack removal")
+            Log.info(self, "Removing stacks, please wait...")
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'nginx')
 
@@ -813,15 +811,16 @@ class WOStackController(CementBaseController):
                                    .format(WOVariables.wo_webroot)]
 
         if (packages) or (apt_packages):
-            if not pargs.force:
-                wo_prompt = input('Are you sure you to want to purge '
-                                  'from server '
-                                  'along with their configuration'
-                                  ' packages,\nAny answer other than '
-                                  '"yes" will be stop this '
-                                  'operation :')
-                if (wo_prompt != 'YES' or wo_prompt != 'yes'):
-                    Log.error(self, "Not purging packages")
+            if (not pargs.force):
+                start_purge = input('Are you sure you to want to'
+                                    ' purge stacks from this server ?'
+                                    '\nPackage configuration and data '
+                                    'will not remain'
+                                    ' on this server after this operation.\n'
+                                    'Purge stacks [y/N]')
+                if start_purge != "Y" and start_purge != "y":
+                    Log.error(self, "Not starting stack purge")
+            Log.info(self, "Purging stacks, please wait...")
 
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'nginx')
