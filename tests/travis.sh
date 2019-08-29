@@ -46,7 +46,8 @@ if ! {
     echo -e '       wo site update              '
     echo -e "${CGREEN}#############################################${CEND}"
     wo site create 1.com --html && wo site create 2.com --php && wo site create 3.com --mysql
-    wo site update 1.com --wp && wo site update 2.com --php73 && wo site update 3.com --php73 && wo site update 1.com --wpfc && wo site update 1.com --wpsc && wo site update 1.com --wpredis
+    wo site update 1.com --wp && wo site update 2.com --php73 && wo site update 3.com --php73
+    wo site update 1.com --wp && wo site update 1.com --wpfc && wo site update 1.com --wpsc && wo site update 1.com --wpredis && wo site update 1.com --wpce && wo site update 1.com --wprocket && wo site update 1.com --php73=off
 }; then
     exit_script
 fi
