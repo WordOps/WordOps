@@ -165,14 +165,6 @@ class WOStackController(CementBaseController):
                 pargs.fail2ban = True
                 pargs.clamav = True
 
-            # Redis
-            if pargs.redis:
-                if not WOAptGet.is_installed(self, 'redis-server'):
-                    apt_packages = apt_packages + WOVariables.wo_redis
-                    pargs.php = True
-                else:
-                    Log.info(self, "Redis already installed")
-
             # Nginx
             if pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
@@ -195,6 +187,14 @@ class WOStackController(CementBaseController):
                             self.post_pref(apt, empty_packages)
                 else:
                     Log.debug(self, "Nginx Stable already installed")
+
+            # Redis
+            if pargs.redis:
+                if not WOAptGet.is_installed(self, 'redis-server'):
+                    apt_packages = apt_packages + WOVariables.wo_redis
+                    pargs.php = True
+                else:
+                    Log.info(self, "Redis already installed")
 
             # PHP 7.2
             if pargs.php:
@@ -228,12 +228,19 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + WOVariables.wo_mysql
+                else:
+                    Log.debug(self, "MySQL already installed and alive")
+                    Log.info(self, "MySQL already installed and alive")
 
             # mysqlclient
             if pargs.mysqlclient:
                 Log.debug(self, "Setting apt_packages variable "
                           "for MySQL Client")
-                apt_packages = apt_packages + WOVariables.wo_mysql_client
+                if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
+                    apt_packages = apt_packages + WOVariables.wo_mysql_client
+                else:
+                    Log.debug(self, "MySQL already installed and alive")
+                    Log.info(self, "MySQL already installed and alive")
 
             # WP-CLI
             if pargs.wpcli:
@@ -341,6 +348,10 @@ class WOStackController(CementBaseController):
                                             "htdocs/db/adminer/adminer.css"
                                             .format(WOVariables.wo_webroot),
                                             "Adminer theme"]]
+                else:
+                    Log.debug(self, "Adminer already installed")
+                    Log.info(self, "Adminer already installed")
+
             # mysqltuner
             if pargs.mysqltuner:
                 if not os.path.isfile("/usr/bin/mysqltuner"):
@@ -352,6 +363,9 @@ class WOStackController(CementBaseController):
                                             "/master/mysqltuner.pl",
                                             "/usr/bin/mysqltuner",
                                             "MySQLTuner"]]
+                else:
+                    Log.debug(self, "MySQLtuner already installed")
+                    Log.info(self, "MySQLtuner already installed")
 
             # Netdata
             if pargs.netdata:
@@ -443,17 +457,19 @@ class WOStackController(CementBaseController):
                                        ["https://github.com/box/Anemometer/"
                                         "archive/master.tar.gz",
                                         '/var/lib/wo/tmp/anemometer.tar.gz',
-                                        'Anemometer']
-                                       ]
+                                        'Anemometer']]
             if pargs.cheat:
                 if (not os.path.isfile('/usr/local/bin/cht.sh') and
                         not os.path.isfile('/usr/bin/cht.sh')):
                     Log.debug(self, "Setting packages variable for cht.sh")
-                    packages = packages + [["https://cht.sh/:cht.sh",
-                                            "/usr/local/bin/cht.sh",
-                                            "cheat.sh"]]
+                    WOShellExec.cmd_exec(
+                        self, "/usr/bin/curl https://cht.sh/:cht.sh "
+                        "| sudo tee /usr/local/bin/cht.sh")
+                    WOShellExec(self, "/usr/bin/curl "
+                                "https://cheat.sh/:bash_completion |"
+                                "sudo tee /etc/bash_completion.d/cht.sh")
                 else:
-                    Log.debug(self, "cht.sh is already installed")
+                    Log.debug(self, "cheat.sh is already installed")
                     Log.info(self, "cheat.sh is already installed")
 
         except Exception as e:

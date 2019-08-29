@@ -1068,7 +1068,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Unable to add UFW rule")
 
-            if os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+            if ((os.path.isfile("/etc/fail2ban/jail.d/custom.conf")) and
+                (not WOFileUtils.grep(self, "/etc/fail2ban/jail.d/custom.conf",
+                                      "proftpd"))):
                 with open("/etc/fail2ban/jail.d/custom.conf",
                           encoding='utf-8', mode='a') as f2bproftpd:
                     f2bproftpd.write("\n\n[proftpd]\nenabled = true\n")
@@ -1173,11 +1175,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'added by WordOps')
 
     if (packages):
+        # WP-CLI
         if any('/usr/local/bin/wp' == x[1] for x in packages):
             Log.debug(self, "Setting Privileges"
                       " to /usr/local/bin/wp file ")
             WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
+        # PHPMyAdmin
         if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
                for x in packages):
             WOExtract.extract(
@@ -1259,7 +1263,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'www-data',
                               'www-data',
                               recursive=True)
-
+        # MySQLtuner
         if any('/usr/bin/mysqltuner' == x[1]
                for x in packages):
             Log.debug(self, "CHMOD MySQLTuner in /usr/bin/mysqltuner")
@@ -1481,10 +1485,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         if any('/usr/local/bin/cht.sh' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
-            if not WOFileUtils.grep(self, "~/.bashrc", "cheat"):
-                with open("~/.bashrc",
+            if (not WOFileUtils.grep(self, "/root/.bashrc", "cheat") and
+                    not WOFileUtils.grep(self, "/home/ubuntu/.bashrc", "cheat")):
+                with open("/root/.bashrc",
                           "a") as wo_bashrc:
-                    wo_bashrc.write("\nalias cheat='cht.sh'\n")
+                    wo_bashrc.write("\nalias cheat='/usr/local/bin/cht.sh'\n")
 
         # phpredisadmin
         if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
