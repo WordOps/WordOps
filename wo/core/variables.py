@@ -22,7 +22,7 @@ class WOVariables():
     wo_wpcli_path = '/usr/local/bin/wp'
 
     # Current date and time of System
-    wo_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
+    wo_date = datetime.datetime.now().strftime('%d%b%Y-%H-%M-%S')
 
     # WordOps core variables
     wo_distro = distro.linux_distribution(
