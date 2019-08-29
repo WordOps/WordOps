@@ -76,6 +76,13 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.all:
             pargs.web = True
+            pargs.netdata = True
+            pargs.composer = True
+            pargs.dashboard = True
+            pargs.phpmyadmin = True
+            pargs.redis = True
+            pargs.wpcli = True
+            pargs.php73 = True
 
         if pargs.web:
             if WOAptGet.is_installed(self, 'nginx-custom'):

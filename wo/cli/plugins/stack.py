@@ -115,6 +115,7 @@ class WOStackController(CementBaseController):
         """Start installation of packages"""
         self.msg = []
         empty_packages = []
+        wo_webroot = "/var/www/"
         pargs = self.app.pargs
         try:
             # Default action for stack installation
@@ -307,19 +308,21 @@ class WOStackController(CementBaseController):
                     Log.info(self, "phpRedisAdmin already installed")
 
             # Composer
-            if pargs.composer:
-                if not os.path.isfile('/usr/local/bin/composer'):
-                    Log.debug(self, "Setting packages variable for Composer ")
-                    packages = packages + [["https://getcomposer.org/"
-                                            "installer",
-                                            "/var/lib/wo/tmp/composer-install",
-                                            "Composer"]]
-                else:
-                    Log.debug(self, "Composer already installed")
-                    Log.info(self, "Composer already installed")
+            if (pargs.composer and not
+                    os.path.isfile('/usr/local/bin/composer')):
+                Log.debug(self, "Setting packages variable for Composer ")
+                packages = packages + [["https://getcomposer.org/"
+                                        "installer",
+                                        "/var/lib/wo/tmp/composer-install",
+                                        "Composer"]]
+            else:
+                Log.debug(self, "Composer already installed")
+                Log.info(self, "Composer already installed")
 
             # ADMINER
-            if pargs.adminer:
+            if (pargs.adminer and not
+                os.path.isfile("{0}22222/htdocs/db/adminer/index.php"
+                               .format(wo_webroot))):
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["https://github.com/vrana/adminer/"
                                         "releases/download/v{0}"
@@ -337,7 +340,8 @@ class WOStackController(CementBaseController):
                                         .format(WOVariables.wo_webroot),
                                         "Adminer theme"]]
             # mysqltuner
-            if pargs.mysqltuner:
+            if (pargs.mysqltuner and not
+                    os.path.isfile("/usr/bin/mysqltuner")):
                 Log.debug(self, "Setting packages variable for MySQLTuner ")
                 packages = packages + [["https://raw."
                                         "githubusercontent.com/"
@@ -347,22 +351,23 @@ class WOStackController(CementBaseController):
                                         "MySQLTuner"]]
 
             # Netdata
-            if pargs.netdata:
+            if (pargs.netdata and
+                (not os.path.isdir('/opt/netdata') and not
+                 os.path.isdir("/etc/netdata"))):
                 Log.debug(self, "Setting packages variable for Netdata")
-                if not os.path.exists('/opt/netdata'):
-                    if WOVariables.wo_distro == 'raspbian':
-                        packages = packages + [['https://my-netdata.io/'
-                                                'kickstart.sh',
-                                                '/var/lib/wo/tmp/kickstart.sh',
-                                                'Netdata']]
-                    else:
-                        packages = packages + [['https://my-netdata.io/'
-                                                'kickstart-static64.sh',
-                                                '/var/lib/wo/tmp/kickstart.sh',
-                                                'Netdata']]
+                if WOVariables.wo_distro == 'raspbian':
+                    packages = packages + [['https://my-netdata.io/'
+                                            'kickstart.sh',
+                                            '/var/lib/wo/tmp/kickstart.sh',
+                                            'Netdata']]
                 else:
-                    Log.debug(self, "Netdata already installed")
-                    Log.info(self, "Netdata already installed")
+                    packages = packages + [['https://my-netdata.io/'
+                                            'kickstart-static64.sh',
+                                            '/var/lib/wo/tmp/kickstart.sh',
+                                            'Netdata']]
+            else:
+                Log.debug(self, "Netdata already installed")
+                Log.info(self, "Netdata already installed")
 
             # WordOps Dashboard
             if pargs.dashboard:
@@ -506,8 +511,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
-            packages = \
-                packages + ['/var/www/22222/htdocs/*']
+            packages = packages + ['/var/www/22222/htdocs/*']
 
         if pargs.web:
             pargs.nginx = True
@@ -693,8 +697,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
-            packages = \
-                packages + ['/var/www/22222/htdocs/*']
+            packages = packages + ['/var/www/22222/htdocs/*']
 
         if pargs.web:
             pargs.nginx = True

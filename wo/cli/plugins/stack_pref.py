@@ -146,6 +146,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
     if (apt_packages):
         # Nginx configuration
         if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+            Log.info(self, "Applying Nginx configuration templates")
             # Nginx main configuration
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
@@ -501,6 +502,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'nginx')
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
+            Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
             # Create log directories
             if not os.path.exists('/var/log/php/7.2/'):
@@ -673,6 +675,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # PHP7.3 configuration
         if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            Log.info(self, "Configuring php7.3-fpm")
             ngxroot = '/var/www/'
             # Create log directories
             if not os.path.exists('/var/log/php/7.3/'):
@@ -854,6 +857,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.write(config)
                 config_file.close()
             elif (not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+                Log.info(self, "Tuning MariaDB configuration")
                 with open("/etc/mysql/my.cnf",
                           "a") as mysql_file:
                     mysql_file.write("\n# WordOps v3.9.8\n")
@@ -963,6 +967,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # create fail2ban configuration files
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
+                Log.info(self, "Configuring Fail2Ban")
                 data = dict()
                 WOTemplate.render(self,
                                   '/etc/fail2ban/jail.d/custom.conf',
@@ -986,6 +991,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # Proftpd configuration
         if set(["proftpd-basic"]).issubset(set(apt_packages)):
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
+                Log.info(self, "Configuring ProFTPd")
                 Log.debug(self, "Setting up Proftpd configuration")
                 WOFileUtils.searchreplace(self, "/etc/proftpd/"
                                           "proftpd.conf",
@@ -1098,6 +1104,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         WOShellExec.cmd_exec(self, "systemctl enable redis-server")
         if (os.path.isfile("/etc/redis/redis.conf") and
                 not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+            Log.info(self, "Tuning Redis configuration")
             with open("/etc/redis/redis.conf",
                       "a") as redis_file:
                 redis_file.write("\n# WordOps v3.9.8\n")
