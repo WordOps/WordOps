@@ -424,7 +424,7 @@ class WOSiteCreateController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
+        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
         if not wo_domain.strip():
             Log.error("Invalid domain name, "
                       "Provide valid domain name")
@@ -760,12 +760,9 @@ class WOSiteCreateController(CementBaseController):
                 if ((wo_domain_type == 'subdomain') and
                         (not pargs.letsencrypt == 'wildcard')):
                     wo_subdomain = True
-                # check if a wildcard cert for the root domain exist
-                if wo_subdomain is True:
-                    wo_exist_wildcard = checkWildcardExist(self,
-                                                           wo_root_domain)
-                    # copy the cert from the root domain
-                    if wo_exist_wildcard is True:
+                    # check if a wildcard cert for the root domain exist
+                    if checkWildcardExist(self, wo_root_domain):
+                        # copy the cert from the root domain
                         copyWildcardCert(self, wo_domain, wo_root_domain)
                     else:
                         setupLetsEncrypt(self, wo_domain, wo_subdomain,
