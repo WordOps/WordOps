@@ -1376,9 +1376,14 @@ class WOSiteUpdateController(CementBaseController):
                         # check if a wildcard cert for the root domain exist
                         Log.debug(self, "checkWildcardExist on *.{0}"
                                   .format(wo_root_domain))
+                        Log.info(self, "Checking if there is a wildcard "
+                                 "certificate available from the root domain")
                         isWildcard = checkWildcardExist(self, wo_root_domain)
                         Log.debug(self, "isWildcard = {0}".format(isWildcard))
                         if isWildcard:
+                            Log.info(self, "Using existing Wildcard SSL"
+                                     "certificate from {0} to secure {1}"
+                                     .format(wo_root_domain, wo_domain))
                             Log.debug(self, "symlink wildcard "
                                       "cert between {0} & {1}"
                                       .format(wo_domain, wo_root_domain))
