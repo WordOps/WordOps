@@ -229,7 +229,7 @@ def setupdatabase(self, data):
     return(data)
 
 
-def setupwordpress(self, data):
+def setupwordpress(self, data, vhostonly=False):
     wo_domain_name = data['site_name']
     wo_site_webroot = data['webroot']
     prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
@@ -531,13 +531,13 @@ def setupwordpress(self, data):
                               "enable_purge": 1,
                               "enable_map": "0",
                               "enable_log": 0,
-                              "enable_stamp": 0,
+                              "enable_stamp": 1,
                               "purge_homepage_on_new": 1,
                               "purge_homepage_on_edit": 1,
                               "purge_homepage_on_del": 1,
                               "purge_archive_on_new": 1,
-                              "purge_archive_on_edit": 0,
-                              "purge_archive_on_del": 0,
+                              "purge_archive_on_edit": 1,
+                              "purge_archive_on_del": 1,
                               "purge_archive_on_new_comment": 0,
                               "purge_archive_on_deleted_comment": 0,
                               "purge_page_on_mod": 1,
@@ -557,13 +557,13 @@ def setupwordpress(self, data):
                               "enable_purge": 1,
                               "enable_map": "0",
                               "enable_log": 0,
-                              "enable_stamp": 0,
+                              "enable_stamp": 1,
                               "purge_homepage_on_new": 1,
                               "purge_homepage_on_edit": 1,
                               "purge_homepage_on_del": 1,
                               "purge_archive_on_new": 1,
-                              "purge_archive_on_edit": 0,
-                              "purge_archive_on_del": 0,
+                              "purge_archive_on_edit": 1,
+                              "purge_archive_on_del": 1,
                               "purge_archive_on_new_comment": 0,
                               "purge_archive_on_deleted_comment": 0,
                               "purge_page_on_mod": 1,
@@ -588,6 +588,7 @@ def setupwordpress(self, data):
 
     """Install Cache-Enabler"""
     if data['wpce']:
+        installwp_plugin(self, 'cache-enabler', data)
         plugin_data_object = {"expires": 24,
                               "new_post": 1,
                               "new_comment": 0,
@@ -602,6 +603,13 @@ def setupwordpress(self, data):
         plugin_data = json.dumps(plugin_data_object)
         setupwp_plugin(self, 'cache-enabler', 'cache-enabler',
                        plugin_data, data)
+
+    if vhostonly:
+        try:
+            WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "db clean --yes\"")
+            WOFileUtils.rm(self, "{0}/htdocs/*".format(wo_site_webroot))
 
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
@@ -987,6 +995,16 @@ def display_cache_settings(self, data):
             Log.info(self, "Nginx-Helper configuration :"
                      "\thttp://{0}/wp-admin/options-general.php?"
                      "page=nginx".format(data['site_name']))
+
+    if data['wpce']:
+        if data['multisite']:
+            Log.info(self, "Nginx-Helper configuration :"
+                     "\thttp://{0}/wp-admin/network/settings.php?"
+                     "page=cache-enabler".format(data['site_name']))
+        else:
+            Log.info(self, "Nginx-Helper configuration :"
+                     "\thttp://{0}/wp-admin/options-general.php?"
+                     "page=cache-enabler".format(data['site_name']))
 
 
 def logwatch(self, logfiles):

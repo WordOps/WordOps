@@ -626,84 +626,56 @@ class WOSiteCreateController(CementBaseController):
                               "and please try again")
 
             # Setup WordPress if Wordpress site
-            if (data['wp'] and (not pargs.vhostonly)):
-                try:
-                    wo_wp_creds = setupwordpress(self, data)
-                    # Add database information for site into database
-                    updateSiteInfo(self, wo_domain,
-                                   db_name=data['wo_db_name'],
-                                   db_user=data['wo_db_user'],
-                                   db_password=data['wo_db_pass'],
-                                   db_host=data['wo_db_host'])
-                except SiteError as e:
-                    # call cleanup actions on failure
-                    Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL +
-                             "There was a serious error encountered...")
-                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                    doCleanupAction(self, domain=wo_domain,
-                                    webroot=data['webroot'],
-                                    dbname=data['wo_db_name'],
-                                    dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_mysql_grant_host'])
-                    deleteSiteInfo(self, wo_domain)
-                    Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` "
-                              "and please try again")
-
-            if (data['wp'] and (pargs.vhostonly)):
-                try:
-                    wo_wp_creds = setupwordpress(self, data)
-                    # Add database information for site into database
-                    updateSiteInfo(self, wo_domain, db_name=data['wo_db_name'],
-                                   db_user=data['wo_db_user'],
-                                   db_password=data['wo_db_pass'],
-                                   db_host=data['wo_db_host'])
-                except SiteError as e:
-                    # call cleanup actions on failure
-                    Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL +
-                             "There was a serious error encountered...")
-                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                    doCleanupAction(self, domain=wo_domain,
-                                    webroot=data['webroot'],
-                                    dbname=data['wo_db_name'],
-                                    dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_db_host'])
-                    deleteSiteInfo(self, wo_domain)
-                    Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` "
-                              "and please try again")
-                try:
-                    wodbconfig = open("{0}/wo-config.php"
-                                      .format(wo_site_webroot),
-                                      encoding='utf-8', mode='w')
-                    wodbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
-                                     "\ndefine('DB_USER', '{1}'); "
-                                     "\ndefine('DB_PASSWORD', '{2}');"
-                                     "\ndefine('DB_HOST', '{3}');\n?>"
-                                     .format(data['wo_db_name'],
-                                             data['wo_db_user'],
-                                             data['wo_db_pass'],
-                                             data['wo_db_host']))
-                    wodbconfig.close()
-
-                except IOError as e:
-                    Log.debug(self, str(e))
-                    Log.debug(self, "Error occured while generating "
-                              "wo-config.php")
-                    Log.info(self, Log.FAIL +
-                             "There was a serious error encountered...")
-                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                    doCleanupAction(self, domain=wo_domain,
-                                    webroot=data['webroot'],
-                                    dbname=data['wo_db_name'],
-                                    dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_db_host'])
-                    deleteSiteInfo(self, wo_domain)
-                    Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` "
-                              "and please try again")
+            if data['wp']:
+                if not pargs.vhostonly:
+                    try:
+                        wo_wp_creds = setupwordpress(self, data)
+                        # Add database information for site into database
+                        updateSiteInfo(self, wo_domain,
+                                       db_name=data['wo_db_name'],
+                                       db_user=data['wo_db_user'],
+                                       db_password=data['wo_db_pass'],
+                                       db_host=data['wo_db_host'])
+                    except SiteError as e:
+                        # call cleanup actions on failure
+                        Log.debug(self, str(e))
+                        Log.info(self, Log.FAIL +
+                                 "There was a serious error encountered...")
+                        Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                        doCleanupAction(self, domain=wo_domain,
+                                        webroot=data['webroot'],
+                                        dbname=data['wo_db_name'],
+                                        dbuser=data['wo_db_user'],
+                                        dbhost=data['wo_mysql_grant_host'])
+                        deleteSiteInfo(self, wo_domain)
+                        Log.error(self, "Check the log for details: "
+                                  "`tail /var/log/wo/wordops.log` "
+                                  "and please try again")
+                else:
+                    try:
+                        wo_wp_creds = setupwordpress(
+                            self, data, vhostonly=True)
+                        # Add database information for site into database
+                        updateSiteInfo(self, wo_domain,
+                                       db_name=data['wo_db_name'],
+                                       db_user=data['wo_db_user'],
+                                       db_password=data['wo_db_pass'],
+                                       db_host=data['wo_db_host'])
+                    except SiteError as e:
+                        # call cleanup actions on failure
+                        Log.debug(self, str(e))
+                        Log.info(self, Log.FAIL +
+                                 "There was a serious error encountered...")
+                        Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                        doCleanupAction(self, domain=wo_domain,
+                                        webroot=data['webroot'],
+                                        dbname=data['wo_db_name'],
+                                        dbuser=data['wo_db_user'],
+                                        dbhost=data['wo_mysql_grant_host'])
+                        deleteSiteInfo(self, wo_domain)
+                        Log.error(self, "Check the log for details: "
+                                  "`tail /var/log/wo/wordops.log` "
+                                  "and please try again")
 
             # Service Nginx Reload call cleanup if failed to reload nginx
             if not WOService.reload_service(self, 'nginx'):
@@ -1557,7 +1529,8 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            if ((oldcachetype in ['wpsc', 'basic', 'wpredis', 'wprocket', 'wpce'] and
+            if ((oldcachetype in ['wpsc', 'basic', 'wpredis', 'wprocket',
+                                  'wpce'] and
                  (data['wpfc'])) or (oldsitetype == 'wp' and
                                      data['multisite'] and data['wpfc'])):
                 try:
@@ -1584,9 +1557,9 @@ class WOSiteUpdateController(CementBaseController):
                                           "redis_port": "6379",
                                           "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
-                    setupwp_plugin(
-                        self, 'nginx-helper',
-                        'rt_wp_nginx_helper_options', plugin_data, data)
+                    setupwp_plugin(self, 'nginx-helper',
+                                   'rt_wp_nginx_helper_options',
+                                   plugin_data, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update nginx-helper "
@@ -1596,7 +1569,8 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpce'] and
+            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc',
+                                    'wprocket', 'wpce'] and
                    (data['wpredis'])) or (oldsitetype == 'wp' and
                                           data['multisite'] and
                                           data['wpredis'])):
@@ -1624,9 +1598,9 @@ class WOSiteUpdateController(CementBaseController):
                                           "redis_port": "6379",
                                           "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
-                    setupwp_plugin(
-                        self, 'nginx-helper',
-                        'rt_wp_nginx_helper_options', plugin_data, data)
+                    setupwp_plugin(self, 'nginx-helper',
+                                   'rt_wp_nginx_helper_options',
+                                   plugin_data, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update nginx-helper "
@@ -1635,37 +1609,9 @@ class WOSiteUpdateController(CementBaseController):
                              " `tail /var/log/wo/wordops.log` "
                              "and please try again")
                     return 1
-
-            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpredis'] and
-                   (data['wpce'])) or (oldsitetype == 'wp' and
-                                       data['multisite'] and
-                                       data['wpce'])):
-                try:
-                    plugin_data_object = {"expires": 24,
-                                          "new_post": 1,
-                                          "new_comment": 0,
-                                          "webp": 0,
-                                          "clear_on_upgrade": 1,
-                                          "compress": 0,
-                                          "excl_ids": "",
-                                          "excl_regexp": "",
-                                          "excl_cookies": "",
-                                          "incl_attributes": "",
-                                          "minify_html": 1}
-                    plugin_data = json.dumps(plugin_data_object)
-                    setupwp_plugin(
-                        self, 'cache-enabler',
-                        'cache-enabler', plugin_data, data)
-                except SiteError as e:
-                    Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL + "Update cache-enabler "
-                             "settings failed. "
-                             "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` "
-                             "and please try again")
-                    return 1
             else:
                 try:
+                    # disable nginx-helper
                     plugin_data_object = {"log_level": "INFO",
                                           "log_filesize": 5,
                                           "enable_purge": 0,
@@ -1695,6 +1641,36 @@ class WOSiteUpdateController(CementBaseController):
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update nginx-helper "
+                             "settings failed. "
+                             "Check the log for details:"
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
+                    return 1
+
+            if ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpredis'] and
+                 (data['wpce'])) or (oldsitetype == 'wp' and
+                                     data['multisite'] and
+                                     data['wpce'])):
+                try:
+                    installwp_plugin(self, 'cache-enabler', data)
+                    # setup cache-enabler
+                    plugin_data_object = {"expires": 24,
+                                          "new_post": 1,
+                                          "new_comment": 0,
+                                          "webp": 0,
+                                          "clear_on_upgrade": 1,
+                                          "compress": 0,
+                                          "excl_ids": "",
+                                          "excl_regexp": "",
+                                          "excl_cookies": "",
+                                          "incl_attributes": "",
+                                          "minify_html": 1}
+                    plugin_data = json.dumps(plugin_data_object)
+                    setupwp_plugin(self, 'cache-enabler',
+                                   'cache-enabler', plugin_data, data)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Update cache-enabler "
                              "settings failed. "
                              "Check the log for details:"
                              " `tail /var/log/wo/wordops.log` "
