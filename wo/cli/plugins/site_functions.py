@@ -1485,8 +1485,8 @@ def checkWildcardExist(self, wo_domain_name):
         try:
             for row in reader:
                 if wo_wildcard in row[2]:
-                    break
                     return True
+                    break
                 else:
                     return False
         except csv.Error as e:
