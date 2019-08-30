@@ -1481,10 +1481,10 @@ def checkWildcardExist(self, wo_domain_name):
     # open file
     with open('/var/lib/wo/cert.csv', 'rt') as wo_cert:
         reader = csv.reader(wo_cert, 'acmeconf')
-        wo_wildcard = "*.{0}".format(wo_domain_name)
+        wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
         try:
             for row in reader:
-                if wo_wildcard in row[2]:
+                if wo_wildcard_domain in row[2]:
                     return True
                     break
                 else:
