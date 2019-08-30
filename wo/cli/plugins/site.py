@@ -1372,9 +1372,27 @@ class WOSiteUpdateController(CementBaseController):
                     wo_acme_dns = ''
                     wo_dns = False
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
-                    setupLetsEncrypt(self, wo_domain, wo_subdomain,
-                                     wo_wildcard,
-                                     wo_dns, wo_acme_dns)
+                    if wo_subdomain:
+                        # check if a wildcard cert for the root domain exist
+                        Log.debug(self, "checkWildcardExist on *.{0}"
+                                  .format(wo_root_domain))
+                        isWildcard = checkWildcardExist(self, wo_root_domain)
+                        Log.debug(self, "isWildcard = {0}".format(isWildcard))
+                        if isWildcard:
+                            Log.debug(self, "symlink wildcard "
+                                      "cert between {0} & {1}"
+                                      .format(wo_domain, wo_root_domain))
+                            # copy the cert from the root domain
+                            copyWildcardCert(self, wo_domain, wo_root_domain)
+                        else:
+                            Log.debug(self, "Setup Cert with acme.sh for {0}"
+                                      .format(wo_domain))
+                            setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                             wo_wildcard, wo_dns, wo_acme_dns)
+                    else:
+                        setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                         wo_wildcard, wo_dns, wo_acme_dns)
+
                     httpsRedirect(self, wo_domain, True, wo_wildcard)
                     site_url_https(self, wo_domain)
                 else:
