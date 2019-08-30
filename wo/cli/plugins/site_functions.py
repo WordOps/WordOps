@@ -1509,7 +1509,7 @@ def copyWildcardCert(self, wo_domain_name, wo_root_domain):
                 WOFileUtils.mkdir(self, "/etc/letsencrypt/shared")
             if not os.path.isfile("/etc/letsencrypt/shared/{0}.conf"
                                   .format(wo_root_domain)):
-                WOFileUtils.copyfile("/var/www/{0}/conf/nginx/ssl.conf"
+                WOFileUtils.copyfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
                                      .format(wo_root_domain),
                                      "/etc/letsencrypt/shared/{0}.conf"
                                      .format(wo_root_domain))
