@@ -1482,18 +1482,17 @@ def checkWildcardExist(self, wo_domain_name):
     with open('/var/lib/wo/cert.csv', 'rt') as wo_cert:
         reader = csv.reader(wo_cert, 'acmeconf')
         wo_wildcard = "*.{0}".format(wo_domain_name)
-    try:
-        for row in reader:
-            if wo_wildcard in row[2]:
-                break
-                return True
-            else:
-                return False
-    except csv.Error as e:
-        Log.debug(self, "{0}".format(e))
-        Log.error(self, "Failed to read cert list")
-    finally:
-        wo_cert.close()
+        try:
+            for row in reader:
+                if wo_wildcard in row[2]:
+                    break
+                    return True
+                else:
+                    return False
+        except csv.Error as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Failed to read cert list")
+
 
 # copy wildcard certificate to a subdomain
 
