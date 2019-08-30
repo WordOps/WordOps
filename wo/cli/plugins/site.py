@@ -137,7 +137,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
+        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
@@ -162,7 +162,12 @@ class WOSiteController(CementBaseController):
             ssl = ("enabled" if siteinfo.is_ssl else "disabled")
             if (ssl == "enabled"):
                 sslprovider = "Lets Encrypt"
-                sslexpiry = str(SSL.getExpirationDate(self, wo_domain))
+                if os.path.islink("{0}/conf/nginx/ssl.conf"
+                                  .format(wo_site_webroot)):
+                    sslexpiry = str(
+                        SSL.getExpirationDate(self, wo_root_domain))
+                else:
+                    sslexpiry = str(SSL.getExpirationDate(self, wo_domain))
             else:
                 sslprovider = ''
                 sslexpiry = ''
@@ -1271,14 +1276,15 @@ class WOSiteUpdateController(CementBaseController):
                 wo_subdomain = False
                 wo_wildcard = False
 
-            if letsencrypt is check_ssl:
-                if letsencrypt is False:
-                    Log.error(self, "SSl is not configured for given "
-                              "site")
-                elif letsencrypt is True:
-                    Log.error(self, "SSl is already configured for given "
-                              "site")
-                pargs.letsencrypt = False
+            if not wo_subdomain:
+                if letsencrypt is check_ssl:
+                    if letsencrypt is False:
+                        Log.error(self, "SSl is not configured for given "
+                                  "site")
+                    elif letsencrypt is True:
+                        Log.error(self, "SSl is already configured for given "
+                                  "site")
+                    pargs.letsencrypt = False
 
         if data and (not pargs.php73):
             if old_php73 is True:
