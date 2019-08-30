@@ -6,6 +6,7 @@ import json
 import re
 import string
 import subprocess
+import csv
 from subprocess import CalledProcessError
 
 from wo.cli.plugins.sitedb import getSiteInfo
@@ -229,7 +230,7 @@ def setupdatabase(self, data):
     return(data)
 
 
-def setupwordpress(self, data):
+def setupwordpress(self, data, vhostonly=False):
     wo_domain_name = data['site_name']
     wo_site_webroot = data['webroot']
     prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
@@ -531,13 +532,13 @@ def setupwordpress(self, data):
                               "enable_purge": 1,
                               "enable_map": "0",
                               "enable_log": 0,
-                              "enable_stamp": 0,
+                              "enable_stamp": 1,
                               "purge_homepage_on_new": 1,
                               "purge_homepage_on_edit": 1,
                               "purge_homepage_on_del": 1,
                               "purge_archive_on_new": 1,
-                              "purge_archive_on_edit": 0,
-                              "purge_archive_on_del": 0,
+                              "purge_archive_on_edit": 1,
+                              "purge_archive_on_del": 1,
                               "purge_archive_on_new_comment": 0,
                               "purge_archive_on_deleted_comment": 0,
                               "purge_page_on_mod": 1,
@@ -557,13 +558,13 @@ def setupwordpress(self, data):
                               "enable_purge": 1,
                               "enable_map": "0",
                               "enable_log": 0,
-                              "enable_stamp": 0,
+                              "enable_stamp": 1,
                               "purge_homepage_on_new": 1,
                               "purge_homepage_on_edit": 1,
                               "purge_homepage_on_del": 1,
                               "purge_archive_on_new": 1,
-                              "purge_archive_on_edit": 0,
-                              "purge_archive_on_del": 0,
+                              "purge_archive_on_edit": 1,
+                              "purge_archive_on_del": 1,
                               "purge_archive_on_new_comment": 0,
                               "purge_archive_on_deleted_comment": 0,
                               "purge_page_on_mod": 1,
@@ -588,6 +589,7 @@ def setupwordpress(self, data):
 
     """Install Cache-Enabler"""
     if data['wpce']:
+        installwp_plugin(self, 'cache-enabler', data)
         plugin_data_object = {"expires": 24,
                               "new_post": 1,
                               "new_comment": 0,
@@ -602,6 +604,15 @@ def setupwordpress(self, data):
         plugin_data = json.dumps(plugin_data_object)
         setupwp_plugin(self, 'cache-enabler', 'cache-enabler',
                        plugin_data, data)
+
+    if vhostonly:
+        try:
+            WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
+                                 .format(WOVariables.wo_wpcli_path) +
+                                 "db clean --yes\"")
+            WOFileUtils.rm(self, "{0}/htdocs/*".format(wo_site_webroot))
+        except CommandExecutionError:
+            raise SiteError("Cleaning WordPress install failed")
 
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
@@ -988,6 +999,16 @@ def display_cache_settings(self, data):
                      "\thttp://{0}/wp-admin/options-general.php?"
                      "page=nginx".format(data['site_name']))
 
+    if data['wpce']:
+        if data['multisite']:
+            Log.info(self, "Nginx-Helper configuration :"
+                     "\thttp://{0}/wp-admin/network/settings.php?"
+                     "page=cache-enabler".format(data['site_name']))
+        else:
+            Log.info(self, "Nginx-Helper configuration :"
+                     "\thttp://{0}/wp-admin/options-general.php?"
+                     "page=cache-enabler".format(data['site_name']))
+
 
 def logwatch(self, logfiles):
     import zlib
@@ -1214,6 +1235,10 @@ def removeNginxConf(self, domain):
 
 
 def removeAcmeConf(self, domain):
+    sslconf = ("/var/www/{0}/conf/nginx/ssl.conf"
+               .format(domain))
+    sslforce = ("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                .format(domain))
     if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
                      .format(domain)):
         Log.info(self, "Removing Acme configuration")
@@ -1229,18 +1254,27 @@ def removeAcmeConf(self, domain):
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Cert removal failed")
 
-        WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
+        WOFileUtils.rm(self, '{0}/{1}_ecc'
+                       .format(WOVariables.wo_ssl_archive, domain))
+        WOFileUtils.rm(self, '{0}/{1}'
+                       .format(WOVariables.wo_ssl_live, domain))
+        WOFileUtils.rm(self, '{0}'.format(sslconf))
+        WOFileUtils.rm(self, '{0}.disabled'.format(sslconf))
+        WOFileUtils.rm(self, '{0}'.format(sslforce))
+        WOFileUtils.rm(self, '{0}.disabled'
+                       .format(sslforce))
+        WOFileUtils.rm(self, '/etc/letsencrypt/shared/{0}.conf'
                        .format(domain))
-        WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
-                       .format(domain))
-        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf'
-                       .format(domain))
-        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf.disabled'
-                       .format(domain))
-        WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf'
-                       .format(domain))
-        WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'
-                       .format(domain))
+
+        # find all broken symlinks
+        sympath = "/var/www"
+        WOFileUtils.findBrokenSymlink(self, sympath)
+
+    else:
+        if os.path.islink("{0}".format(sslconf)):
+            WOFileUtils.remove_symlink(self, "{0}".format(sslconf))
+            WOFileUtils.rm(self, '{0}'.format(sslforce))
+
     if WOFileUtils.grepcheck(self, '/var/www/22222/conf/nginx/ssl.conf',
                              '{0}'.format(domain)):
         Log.info(self, "Setting back default certificate for WordOps backend")
@@ -1339,7 +1373,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                 self, "Validation : DNS mode with {0}".format(wo_acme_dns))
         else:
             acme_mode = "-w /var/www/html"
-            validation_mode = "Webroot challenge"
+            validation_mode = "Subdomain Webroot challenge"
             Log.debug(self, "Validation : Webroot mode")
         if subdomain:
             Log.info(self, "Issuing subdomain SSL cert with acme.sh")
@@ -1356,7 +1390,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
             Log.info(self, "Validation mode : {0}".format(validation_mode))
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
-                                       "-d {0} -d *.{0} --dns {1} "
+                                       "-d {0} -d '*.{0}' --dns {1} "
                                        "-k {2} -f"
                                        .format(wo_domain_name,
                                                wo_acme_dns,
@@ -1434,6 +1468,61 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                   "same server on which "
                   "you are running Let\'s Encrypt Client "
                   "\n to allow it to verify the site automatically.")
+
+# check if a wildcard exist to secure a new subdomain
+
+
+def checkWildcardExist(self, wo_domain_name):
+
+    wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
+                    "'/etc/letsencrypt/config'")
+    # export certificates list from acme.sh
+    WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
+                         "--list --listraw > /var/lib/wo/cert.csv")
+
+    # define new csv dialect
+    csv.register_dialect('acmeconf', delimiter='|')
+    # open file
+    certfile = open('/var/lib/wo/cert.csv', 'rt')
+    reader = csv.reader(certfile, 'acmeconf')
+    wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
+    for row in reader:
+        if wo_wildcard_domain in row[2]:
+            isWildcard = True
+            break
+        else:
+            isWildcard = False
+    certfile.close()
+
+    return isWildcard
+
+
+# copy wildcard certificate to a subdomain
+
+
+def copyWildcardCert(self, wo_domain_name, wo_root_domain):
+
+    if os.path.isfile("/var/www/{0}/conf/nginx/ssl.conf"
+                      .format(wo_root_domain)):
+        try:
+            if not os.path.isdir("/etc/letsencrypt/shared"):
+                WOFileUtils.mkdir(self, "/etc/letsencrypt/shared")
+            if not os.path.isfile("/etc/letsencrypt/shared/{0}.conf"
+                                  .format(wo_root_domain)):
+                WOFileUtils.copyfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
+                                     .format(wo_root_domain),
+                                     "/etc/letsencrypt/shared/{0}.conf"
+                                     .format(wo_root_domain))
+            WOFileUtils.create_symlink(self, ["/etc/letsencrypt/shared/"
+                                              "{0}.conf"
+                                              .format(wo_root_domain),
+                                              '/var/www/{0}/conf/nginx/'
+                                              'ssl.conf'
+                                              .format(wo_domain_name)])
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while "
+                      "creating symlink for ssl cert")
 
 # letsencrypt cert renewal
 
@@ -1514,9 +1603,6 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
         else:
             if wildcard:
                 try:
-                    Log.info(
-                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
-                        .format(wo_domain_name))
                     sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
                                    .format(wo_domain_name),
                                    encoding='utf-8', mode='w')
@@ -1536,10 +1622,6 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
 
             else:
                 try:
-                    Log.info(
-                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
-                        .format(wo_domain_name))
-
                     sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
                                    .format(wo_domain_name),
                                    encoding='utf-8', mode='w')

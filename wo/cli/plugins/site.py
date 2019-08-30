@@ -137,7 +137,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
+        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
@@ -162,7 +162,12 @@ class WOSiteController(CementBaseController):
             ssl = ("enabled" if siteinfo.is_ssl else "disabled")
             if (ssl == "enabled"):
                 sslprovider = "Lets Encrypt"
-                sslexpiry = str(SSL.getExpirationDate(self, wo_domain))
+                if os.path.islink("{0}/conf/nginx/ssl.conf"
+                                  .format(wo_site_webroot)):
+                    sslexpiry = str(
+                        SSL.getExpirationDate(self, wo_root_domain))
+                else:
+                    sslexpiry = str(SSL.getExpirationDate(self, wo_domain))
             else:
                 sslprovider = ''
                 sslexpiry = ''
@@ -424,7 +429,7 @@ class WOSiteCreateController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
+        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
         if not wo_domain.strip():
             Log.error("Invalid domain name, "
                       "Provide valid domain name")
@@ -626,84 +631,56 @@ class WOSiteCreateController(CementBaseController):
                               "and please try again")
 
             # Setup WordPress if Wordpress site
-            if (data['wp'] and (not pargs.vhostonly)):
-                try:
-                    wo_wp_creds = setupwordpress(self, data)
-                    # Add database information for site into database
-                    updateSiteInfo(self, wo_domain,
-                                   db_name=data['wo_db_name'],
-                                   db_user=data['wo_db_user'],
-                                   db_password=data['wo_db_pass'],
-                                   db_host=data['wo_db_host'])
-                except SiteError as e:
-                    # call cleanup actions on failure
-                    Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL +
-                             "There was a serious error encountered...")
-                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                    doCleanupAction(self, domain=wo_domain,
-                                    webroot=data['webroot'],
-                                    dbname=data['wo_db_name'],
-                                    dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_mysql_grant_host'])
-                    deleteSiteInfo(self, wo_domain)
-                    Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` "
-                              "and please try again")
-
-            if (data['wp'] and (pargs.vhostonly)):
-                try:
-                    wo_wp_creds = setupwordpress(self, data)
-                    # Add database information for site into database
-                    updateSiteInfo(self, wo_domain, db_name=data['wo_db_name'],
-                                   db_user=data['wo_db_user'],
-                                   db_password=data['wo_db_pass'],
-                                   db_host=data['wo_db_host'])
-                except SiteError as e:
-                    # call cleanup actions on failure
-                    Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL +
-                             "There was a serious error encountered...")
-                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                    doCleanupAction(self, domain=wo_domain,
-                                    webroot=data['webroot'],
-                                    dbname=data['wo_db_name'],
-                                    dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_db_host'])
-                    deleteSiteInfo(self, wo_domain)
-                    Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` "
-                              "and please try again")
-                try:
-                    wodbconfig = open("{0}/wo-config.php"
-                                      .format(wo_site_webroot),
-                                      encoding='utf-8', mode='w')
-                    wodbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
-                                     "\ndefine('DB_USER', '{1}'); "
-                                     "\ndefine('DB_PASSWORD', '{2}');"
-                                     "\ndefine('DB_HOST', '{3}');\n?>"
-                                     .format(data['wo_db_name'],
-                                             data['wo_db_user'],
-                                             data['wo_db_pass'],
-                                             data['wo_db_host']))
-                    wodbconfig.close()
-
-                except IOError as e:
-                    Log.debug(self, str(e))
-                    Log.debug(self, "Error occured while generating "
-                              "wo-config.php")
-                    Log.info(self, Log.FAIL +
-                             "There was a serious error encountered...")
-                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                    doCleanupAction(self, domain=wo_domain,
-                                    webroot=data['webroot'],
-                                    dbname=data['wo_db_name'],
-                                    dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_db_host'])
-                    deleteSiteInfo(self, wo_domain)
-                    Log.error(self, "Check the log for details: "
-                              "`tail /var/log/wo/wordops.log` "
-                              "and please try again")
+            if data['wp']:
+                if not pargs.vhostonly:
+                    try:
+                        wo_wp_creds = setupwordpress(self, data)
+                        # Add database information for site into database
+                        updateSiteInfo(self, wo_domain,
+                                       db_name=data['wo_db_name'],
+                                       db_user=data['wo_db_user'],
+                                       db_password=data['wo_db_pass'],
+                                       db_host=data['wo_db_host'])
+                    except SiteError as e:
+                        # call cleanup actions on failure
+                        Log.debug(self, str(e))
+                        Log.info(self, Log.FAIL +
+                                 "There was a serious error encountered...")
+                        Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                        doCleanupAction(self, domain=wo_domain,
+                                        webroot=data['webroot'],
+                                        dbname=data['wo_db_name'],
+                                        dbuser=data['wo_db_user'],
+                                        dbhost=data['wo_mysql_grant_host'])
+                        deleteSiteInfo(self, wo_domain)
+                        Log.error(self, "Check the log for details: "
+                                  "`tail /var/log/wo/wordops.log` "
+                                  "and please try again")
+                else:
+                    try:
+                        wo_wp_creds = setupwordpress(
+                            self, data, vhostonly=True)
+                        # Add database information for site into database
+                        updateSiteInfo(self, wo_domain,
+                                       db_name=data['wo_db_name'],
+                                       db_user=data['wo_db_user'],
+                                       db_password=data['wo_db_pass'],
+                                       db_host=data['wo_db_host'])
+                    except SiteError as e:
+                        # call cleanup actions on failure
+                        Log.debug(self, str(e))
+                        Log.info(self, Log.FAIL +
+                                 "There was a serious error encountered...")
+                        Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                        doCleanupAction(self, domain=wo_domain,
+                                        webroot=data['webroot'],
+                                        dbname=data['wo_db_name'],
+                                        dbuser=data['wo_db_user'],
+                                        dbhost=data['wo_mysql_grant_host'])
+                        deleteSiteInfo(self, wo_domain)
+                        Log.error(self, "Check the log for details: "
+                                  "`tail /var/log/wo/wordops.log` "
+                                  "and please try again")
 
             # Service Nginx Reload call cleanup if failed to reload nginx
             if not WOService.reload_service(self, 'nginx'):
@@ -785,12 +762,33 @@ class WOSiteCreateController(CementBaseController):
                 else:
                     wo_wildcard = False
                     wo_subdomain = False
+                Log.debug(self, "Domain type = {0}"
+                          .format(wo_domain_type))
                 if ((wo_domain_type == 'subdomain') and
                         (not pargs.letsencrypt == 'wildcard')):
                     wo_subdomain = True
-
-                setupLetsEncrypt(self, wo_domain, wo_subdomain, wo_wildcard,
-                                 wo_dns, wo_acme_dns)
+                    # check if a wildcard cert for the root domain exist
+                    Log.debug(self, "checkWildcardExist on *.{0}"
+                              .format(wo_root_domain))
+                    isWildcard = checkWildcardExist(self, wo_root_domain)
+                    Log.debug(self, "isWildcard = {0}".format(isWildcard))
+                    if isWildcard:
+                        Log.info(self, "Using existing Wildcard SSL "
+                                 "certificate from {0} to secure {1}"
+                                 .format(wo_root_domain, wo_domain))
+                        Log.debug(self, "symlink wildcard "
+                                  "cert between {0} & {1}"
+                                  .format(wo_domain, wo_root_domain))
+                        # copy the cert from the root domain
+                        copyWildcardCert(self, wo_domain, wo_root_domain)
+                    else:
+                        Log.debug(self, "Setup Cert with acme.sh for {0}"
+                                  .format(wo_domain))
+                        setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                         wo_wildcard, wo_dns, wo_acme_dns)
+                else:
+                    setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                     wo_wildcard, wo_dns, wo_acme_dns)
                 httpsRedirect(self, wo_domain, True, wo_wildcard)
 
                 if pargs.hsts:
@@ -855,7 +853,8 @@ class WOSiteUpdateController(CementBaseController):
             (['--wprocket'],
                 dict(help="update to WP-Rocket cache", action='store_true')),
             (['--wpce'],
-                dict(help="update to Cache-Enabler cache", action='store_true')),
+                dict(help="update to Cache-Enabler cache",
+                     action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
             (['-le', '--letsencrypt'],
@@ -1240,12 +1239,6 @@ class WOSiteUpdateController(CementBaseController):
                     return 0
 
         if pargs.letsencrypt:
-            if ((wo_domain_type == 'subdomain') and
-                (not pargs.letsencrypt == 'wildcard') and
-                (not pargs.letsencrypt == 'off') and
-                (not pargs.letsencrypt == 'clean') and
-                    (not pargs.letsencrypt == 'purge')):
-                pargs.letsencrypt == 'subdomain'
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
@@ -1281,14 +1274,15 @@ class WOSiteUpdateController(CementBaseController):
                 wo_subdomain = False
                 wo_wildcard = False
 
-            if letsencrypt is check_ssl:
-                if letsencrypt is False:
-                    Log.error(self, "SSl is not configured for given "
-                              "site")
-                elif letsencrypt is True:
-                    Log.error(self, "SSl is already configured for given "
-                              "site")
-                pargs.letsencrypt = False
+            if not wo_subdomain:
+                if letsencrypt is check_ssl:
+                    if letsencrypt is False:
+                        Log.error(self, "SSl is not configured for given "
+                                  "site")
+                    elif letsencrypt is True:
+                        Log.error(self, "SSl is already configured for given "
+                                  "site")
+                    pargs.letsencrypt = False
 
         if data and (not pargs.php73):
             if old_php73 is True:
@@ -1382,9 +1376,30 @@ class WOSiteUpdateController(CementBaseController):
                     wo_acme_dns = ''
                     wo_dns = False
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
-                    setupLetsEncrypt(self, wo_domain, wo_subdomain,
-                                     wo_wildcard,
-                                     wo_dns, wo_acme_dns)
+                    if wo_subdomain:
+                        # check if a wildcard cert for the root domain exist
+                        Log.debug(self, "checkWildcardExist on *.{0}"
+                                  .format(wo_root_domain))
+                        isWildcard = checkWildcardExist(self, wo_root_domain)
+                        Log.debug(self, "isWildcard = {0}".format(isWildcard))
+                        if isWildcard:
+                            Log.info(self, "Using existing Wildcard SSL "
+                                     "certificate from {0} to secure {1}"
+                                     .format(wo_root_domain, wo_domain))
+                            Log.debug(self, "symlink wildcard "
+                                      "cert between {0} & {1}"
+                                      .format(wo_domain, wo_root_domain))
+                            # copy the cert from the root domain
+                            copyWildcardCert(self, wo_domain, wo_root_domain)
+                        else:
+                            Log.debug(self, "Setup Cert with acme.sh for {0}"
+                                      .format(wo_domain))
+                            setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                             wo_wildcard, wo_dns, wo_acme_dns)
+                    else:
+                        setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                         wo_wildcard, wo_dns, wo_acme_dns)
+
                     httpsRedirect(self, wo_domain, True, wo_wildcard)
                     site_url_https(self, wo_domain)
                 else:
@@ -1405,22 +1420,36 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
                 Log.info(self, "Congratulations! Successfully "
-                         "Configured SSl for Site "
+                         "Configured SSL for Site "
                          " https://{0}".format(wo_domain))
-
-                if (SSL.getExpirationDays(self, wo_domain) > 0):
-                    Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) +
-                             " days.")
+                if wo_subdomain:
+                    if (SSL.getExpirationDays(self, wo_root_domain) > 0):
+                        Log.info(self, "Your cert will expire within " +
+                                 str(SSL.getExpirationDays(self, wo_root_domain)) +
+                                 " days.")
+                    else:
+                        Log.warn(
+                            self, "Your cert already EXPIRED ! "
+                            ".PLEASE renew soon . ")
                 else:
-                    Log.warn(
-                        self, "Your cert already EXPIRED ! "
-                        ".PLEASE renew soon . ")
+                    if (SSL.getExpirationDays(self, wo_domain) > 0):
+                        Log.info(self, "Your cert will expire within " +
+                                 str(SSL.getExpirationDays(self, wo_domain)) +
+                                 " days.")
+                    else:
+                        Log.warn(
+                            self, "Your cert already EXPIRED ! "
+                            ".PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
                 if pargs.letsencrypt == "off":
-                    if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                    if os.path.islink("{0}/conf/nginx/ssl.conf"
                                       .format(wo_site_webroot)):
+                        WOFileUtils.remove_symlink(self,
+                                                   "{0}/conf/nginx/ssl.conf"
+                                                   .format(wo_site_webroot))
+                    elif os.path.isfile("{0}/conf/nginx/ssl.conf"
+                                        .format(wo_site_webroot)):
                         Log.info(self, 'Setting Nginx configuration')
                         WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
                                            .format(wo_site_webroot),
@@ -1434,6 +1463,10 @@ class WOSiteUpdateController(CementBaseController):
                                                '{0}/conf/nginx/'
                                                'hsts.conf.disabled'
                                                .format(wo_site_webroot))
+                        # find all broken symlinks
+                        sympath = "/var/www"
+                        WOFileUtils.findBrokenSymlink(self, sympath)
+
                 elif (pargs.letsencrypt == "clean" or
                       pargs.letsencrypt == "purge"):
                     removeAcmeConf(self, wo_domain)
@@ -1557,7 +1590,8 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            if ((oldcachetype in ['wpsc', 'basic', 'wpredis', 'wprocket', 'wpce'] and
+            if ((oldcachetype in ['wpsc', 'basic', 'wpredis', 'wprocket',
+                                  'wpce'] and
                  (data['wpfc'])) or (oldsitetype == 'wp' and
                                      data['multisite'] and data['wpfc'])):
                 try:
@@ -1566,7 +1600,7 @@ class WOSiteUpdateController(CementBaseController):
                                           "enable_purge": 1,
                                           "enable_map": "0",
                                           "enable_log": 0,
-                                          "enable_stamp": 0,
+                                          "enable_stamp": 1,
                                           "purge_homepage_on_new": 1,
                                           "purge_homepage_on_edit": 1,
                                           "purge_homepage_on_del": 1,
@@ -1584,9 +1618,9 @@ class WOSiteUpdateController(CementBaseController):
                                           "redis_port": "6379",
                                           "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
-                    setupwp_plugin(
-                        self, 'nginx-helper',
-                        'rt_wp_nginx_helper_options', plugin_data, data)
+                    setupwp_plugin(self, 'nginx-helper',
+                                   'rt_wp_nginx_helper_options',
+                                   plugin_data, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update nginx-helper "
@@ -1596,7 +1630,8 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpce'] and
+            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc',
+                                    'wprocket', 'wpce'] and
                    (data['wpredis'])) or (oldsitetype == 'wp' and
                                           data['multisite'] and
                                           data['wpredis'])):
@@ -1606,7 +1641,7 @@ class WOSiteUpdateController(CementBaseController):
                                           "enable_purge": 1,
                                           "enable_map": "0",
                                           "enable_log": 0,
-                                          "enable_stamp": 0,
+                                          "enable_stamp": 1,
                                           "purge_homepage_on_new": 1,
                                           "purge_homepage_on_edit": 1,
                                           "purge_homepage_on_del": 1,
@@ -1624,9 +1659,9 @@ class WOSiteUpdateController(CementBaseController):
                                           "redis_port": "6379",
                                           "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
-                    setupwp_plugin(
-                        self, 'nginx-helper',
-                        'rt_wp_nginx_helper_options', plugin_data, data)
+                    setupwp_plugin(self, 'nginx-helper',
+                                   'rt_wp_nginx_helper_options',
+                                   plugin_data, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update nginx-helper "
@@ -1635,37 +1670,9 @@ class WOSiteUpdateController(CementBaseController):
                              " `tail /var/log/wo/wordops.log` "
                              "and please try again")
                     return 1
-
-            elif ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpredis'] and
-                   (data['wpce'])) or (oldsitetype == 'wp' and
-                                       data['multisite'] and
-                                       data['wpce'])):
-                try:
-                    plugin_data_object = {"expires": 24,
-                                          "new_post": 1,
-                                          "new_comment": 0,
-                                          "webp": 0,
-                                          "clear_on_upgrade": 1,
-                                          "compress": 0,
-                                          "excl_ids": "",
-                                          "excl_regexp": "",
-                                          "excl_cookies": "",
-                                          "incl_attributes": "",
-                                          "minify_html": 1}
-                    plugin_data = json.dumps(plugin_data_object)
-                    setupwp_plugin(
-                        self, 'cache-enabler',
-                        'cache-enabler', plugin_data, data)
-                except SiteError as e:
-                    Log.debug(self, str(e))
-                    Log.info(self, Log.FAIL + "Update cache-enabler "
-                             "settings failed. "
-                             "Check the log for details:"
-                             " `tail /var/log/wo/wordops.log` "
-                             "and please try again")
-                    return 1
             else:
                 try:
+                    # disable nginx-helper
                     plugin_data_object = {"log_level": "INFO",
                                           "log_filesize": 5,
                                           "enable_purge": 0,
@@ -1695,6 +1702,36 @@ class WOSiteUpdateController(CementBaseController):
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update nginx-helper "
+                             "settings failed. "
+                             "Check the log for details:"
+                             " `tail /var/log/wo/wordops.log` "
+                             "and please try again")
+                    return 1
+
+            if ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpredis'] and
+                 (data['wpce'])) or (oldsitetype == 'wp' and
+                                     data['multisite'] and
+                                     data['wpce'])):
+                try:
+                    installwp_plugin(self, 'cache-enabler', data)
+                    # setup cache-enabler
+                    plugin_data_object = {"expires": 24,
+                                          "new_post": 1,
+                                          "new_comment": 0,
+                                          "webp": 0,
+                                          "clear_on_upgrade": 1,
+                                          "compress": 0,
+                                          "excl_ids": "",
+                                          "excl_regexp": "",
+                                          "excl_cookies": "",
+                                          "incl_attributes": "",
+                                          "minify_html": 1}
+                    plugin_data = json.dumps(plugin_data_object)
+                    setupwp_plugin(self, 'cache-enabler',
+                                   'cache-enabler', plugin_data, data)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Update cache-enabler "
                              "settings failed. "
                              "Check the log for details:"
                              " `tail /var/log/wo/wordops.log` "
@@ -1832,6 +1869,7 @@ class WOSiteDeleteController(CementBaseController):
                     pargs.site_name = (input('Enter site name : ')
                                        .strip())
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
 
         pargs.site_name = pargs.site_name.strip()

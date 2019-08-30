@@ -40,11 +40,11 @@ def GetDomainlevel(domain):
         for domain_suffix in Suffix_file:
             if (str(domain_suffix).strip()) == ('.'.join(domain_name[1:])):
                 domain_type = 'domain'
-                root_domain = domain_name[0:]
+                root_domain = ('.'.join(domain_name[0:]))
                 break
             elif (str(domain_suffix).strip()) == ('.'.join(domain_name[2:])):
                 domain_type = 'subdomain'
-                root_domain = domain_name[1:]
+                root_domain = ('.'.join(domain_name[1:]))
                 break
             else:
                 domain_type = 'other'

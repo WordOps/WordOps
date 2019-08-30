@@ -8,6 +8,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.6 - 2019-08-30
+
+#### Added
+
+- Subdomains are automatically secured with an existant Wildcard LetsEncrypt SSL certificate.
+(If a wildcard certificate exist, WordOps will use this certificate for subdomains instead of issuing new certificates)
+- MySQL & Redis stack to `wo stack remove/purge`
+
+#### Changed
+
+- Date format in backup name : /backup/30Aug2019035932 -> /backup/30Aug2019-03-59-32
+- Cleanup and update bash_completion
+- cheat.sh is installed with WordOps install script, not as a stack because it wasn't downloaded at all by WordOps (unknown reason yet)
+
+#### Fixed
+
+- cache-enabler plugin not installed and configured with `wo site update site.tld --wpce`
+- possible issue with domain variable in `--letsencrypt=wildcard`
+- python3-mysqldb not available on Debian 8 (Jessie)
+- Fix mysql variable skip-name-resolved
+- Fix typo in redis tuning directives
+
 ### v3.9.8.5 - 2019-08-30
 
 #### Changed
