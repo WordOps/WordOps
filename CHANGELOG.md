@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Fixed
 
 - cache-enabler plugin not installed and configured with `wo site update site.tld --wpce`
+- possible issue with domain variable in `--letsencrypt=wildcard`
 
 ### v3.9.8.5 - 2019-08-30
 

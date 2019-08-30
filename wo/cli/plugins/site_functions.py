@@ -1475,7 +1475,7 @@ def checkWildcardExist(self, wo_domain_name):
     try:
         # export certificates list from acme.sh
         WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
-                             "--list --list-raw > /var/lib/wo/cert.csv")
+                             "--list --listraw > /var/lib/wo/cert.csv")
     except CommandExecutionError as e:
         Log.debug(self, "{0}".format(e))
         Log.error(self, "Failed to export cert list")
