@@ -757,15 +757,25 @@ class WOSiteCreateController(CementBaseController):
                 else:
                     wo_wildcard = False
                     wo_subdomain = False
+                Log.debug(self, "Domain type = {0}"
+                          .format(wo_domain_type))
                 if ((wo_domain_type == 'subdomain') and
                         (not pargs.letsencrypt == 'wildcard')):
                     wo_subdomain = True
                     # check if a wildcard cert for the root domain exist
+                    Log.debug(self, "checkWildcardExist on *.{0}"
+                              .format(wo_root_domain))
                     isWildcard = checkWildcardExist(self, wo_root_domain)
-                    if isWildcard is True:
+                    Log.debug(self, "isWildcard = {0}".format(isWildcard))
+                    if isWildcard:
+                        Log.debug(self, "symlink wildcard "
+                                  "cert between {0} & {1}"
+                                  .format(wo_domain, wo_root_domain))
                         # copy the cert from the root domain
                         copyWildcardCert(self, wo_domain, wo_root_domain)
                     else:
+                        Log.debug(self, "Setup Cert with acme.sh for {0}"
+                                  .format(wo_domain))
                         setupLetsEncrypt(self, wo_domain, wo_subdomain,
                                          wo_wildcard, wo_dns, wo_acme_dns)
                 else:
