@@ -761,7 +761,8 @@ class WOSiteCreateController(CementBaseController):
                         (not pargs.letsencrypt == 'wildcard')):
                     wo_subdomain = True
                     # check if a wildcard cert for the root domain exist
-                    if checkWildcardExist(self, wo_root_domain):
+                    isWildcard = checkWildcardExist(self, wo_root_domain)
+                    if isWildcard is True:
                         # copy the cert from the root domain
                         copyWildcardCert(self, wo_domain, wo_root_domain)
                     else:

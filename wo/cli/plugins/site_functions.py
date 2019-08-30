@@ -1479,19 +1479,18 @@ def checkWildcardExist(self, wo_domain_name):
     # define new csv dialect
     csv.register_dialect('acmeconf', delimiter='|')
     # open file
-    with open('/var/lib/wo/cert.csv', 'rt') as wo_cert:
-        reader = csv.reader(wo_cert, 'acmeconf')
-        wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
-        try:
-            for row in reader:
-                if wo_wildcard_domain in row[2]:
-                    return True
-                    break
-                else:
-                    return False
-        except csv.Error as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Failed to read cert list")
+    certfile = open('/var/lib/wo/cert.csv', 'rt')
+    reader = csv.reader(certfile, 'acmeconf')
+    wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
+    for row in reader:
+        if wo_wildcard_domain in row[2]:
+            isWildcard = True
+            break
+        else:
+            isWildcard = False
+    certfile.close()
+
+    return isWildcard
 
 
 # copy wildcard certificate to a subdomain
