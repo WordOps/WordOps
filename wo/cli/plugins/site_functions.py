@@ -1501,10 +1501,12 @@ def copyWildcardCert(self, wo_domain_name, wo_root_domain):
     if os.path.isfile("/var/www/{0}/conf/nginx/ssl.conf"
                       .format(wo_root_domain)):
         try:
-            WOFileUtils.create_symlink(self, "/var/www/{0}/conf/nginx/ssl.conf"
-                                       .format(wo_root_domain),
-                                       "/var/www/{0}/conf/nginx/ssl.conf"
-                                       .format(wo_domain_name))
+            WOFileUtils.create_symlink(self, ["/var/www/{0}/conf/nginx/"
+                                              "ssl.conf"
+                                              .format(wo_root_domain),
+                                              '/var/www/{0}/conf/nginx/'
+                                              'ssl.conf'
+                                              .format(wo_domain_name)])
         except IOError as e:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while "
