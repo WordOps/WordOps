@@ -1369,7 +1369,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                 self, "Validation : DNS mode with {0}".format(wo_acme_dns))
         else:
             acme_mode = "-w /var/www/html"
-            validation_mode = "Webroot challenge"
+            validation_mode = "Subdomain Webroot challenge"
             Log.debug(self, "Validation : Webroot mode")
         if subdomain:
             Log.info(self, "Issuing subdomain SSL cert with acme.sh")
@@ -1386,7 +1386,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
             Log.info(self, "Validation mode : {0}".format(validation_mode))
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
-                                       "-d {0} -d *.{0} --dns {1} "
+                                       "-d {0} -d '*.{0}' --dns {1} "
                                        "-k {2} -f"
                                        .format(wo_domain_name,
                                                wo_acme_dns,
