@@ -1263,6 +1263,8 @@ def removeAcmeConf(self, domain):
         WOFileUtils.rm(self, '{0}'.format(sslforce))
         WOFileUtils.rm(self, '{0}.disabled'
                        .format(sslforce))
+        WOFileUtils.rm(self, '/etc/letsencrypt/shared/{0}.conf'
+                       .format(domain))
 
         # find all broken symlinks
         sympath = "/var/www"
@@ -1503,8 +1505,16 @@ def copyWildcardCert(self, wo_domain_name, wo_root_domain):
     if os.path.isfile("/var/www/{0}/conf/nginx/ssl.conf"
                       .format(wo_root_domain)):
         try:
-            WOFileUtils.create_symlink(self, ["/var/www/{0}/conf/nginx/"
-                                              "ssl.conf"
+            if not os.path.isdir("/etc/letsencrypt/shared"):
+                WOFileUtils.mkdir(self, "/etc/letsencrypt/shared")
+            if not os.path.isfile("/etc/letsencrypt/shared/{0}.conf"
+                                  .format(wo_root_domain)):
+                WOFileUtils.copyfile("/var/www/{0}/conf/nginx/ssl.conf"
+                                     .format(wo_root_domain),
+                                     "/etc/letsencrypt/shared/{0}.conf"
+                                     .format(wo_root_domain))
+            WOFileUtils.create_symlink(self, ["/etc/letsencrypt/shared/"
+                                              "{0}.conf"
                                               .format(wo_root_domain),
                                               '/var/www/{0}/conf/nginx/'
                                               'ssl.conf'
