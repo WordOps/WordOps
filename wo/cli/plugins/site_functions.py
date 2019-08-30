@@ -610,6 +610,8 @@ def setupwordpress(self, data, vhostonly=False):
                                  .format(WOVariables.wo_wpcli_path) +
                                  "db clean --yes\"")
             WOFileUtils.rm(self, "{0}/htdocs/*".format(wo_site_webroot))
+        except CommandExecutionError:
+            raise SiteError("Cleaning WordPress install failed")
 
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
