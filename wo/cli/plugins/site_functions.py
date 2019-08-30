@@ -1235,6 +1235,10 @@ def removeNginxConf(self, domain):
 
 
 def removeAcmeConf(self, domain):
+    sslconf = ("/var/www/{0}/conf/nginx/ssl.conf"
+               .format(domain))
+    sslforce = ("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                .format(domain))
     if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
                      .format(domain)):
         Log.info(self, "Removing Acme configuration")
@@ -1250,18 +1254,23 @@ def removeAcmeConf(self, domain):
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Cert removal failed")
 
-        WOFileUtils.rm(self, '/etc/letsencrypt/renewal/{0}_ecc'
-                       .format(domain))
-        WOFileUtils.rm(self, '/etc/letsencrypt/live/{0}'
-                       .format(domain))
-        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf'
-                       .format(domain))
-        WOFileUtils.rm(self, '/var/www/{0}/conf/nginx/ssl.conf.disabled'
-                       .format(domain))
-        WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf'
-                       .format(domain))
-        WOFileUtils.rm(self, '/etc/nginx/conf.d/force-ssl-{0}.conf.disabled'
-                       .format(domain))
+        WOFileUtils.rm(self, '{0}/{1}_ecc'
+                       .format(WOVariables.wo_ssl_archive, domain))
+        WOFileUtils.rm(self, '{0}/{1}'
+                       .format(WOVariables.wo_ssl_live, domain))
+        WOFileUtils.rm(self, '{0}'.format(sslconf))
+        WOFileUtils.rm(self, '{0}.disabled'.format(sslconf))
+        WOFileUtils.rm(self, '{0}'.format(sslforce))
+        WOFileUtils.rm(self, '{0}.disabled'
+                       .format(sslforce))
+
+        # find all broken symlinks
+        symlinks = WOFileUtils.findBrokenSymlink(self, "/var/www")
+        for symlink in symlinks:
+            if os.path.islink('{0}'.format(sslconf)):
+                # remove broken symlinks
+                WOFileUtils.remove_symlink(self, symlink)
+
     if WOFileUtils.grepcheck(self, '/var/www/22222/conf/nginx/ssl.conf',
                              '{0}'.format(domain)):
         Log.info(self, "Setting back default certificate for WordOps backend")
@@ -1496,18 +1505,14 @@ def copyWildcardCert(self, wo_domain_name, wo_root_domain):
     if os.path.isfile("/var/www/{0}/conf/nginx/ssl.conf"
                       .format(wo_root_domain)):
         try:
-            WOFileUtils.copyfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
-                                 .format(wo_root_domain),
-                                 "/var/www/{0}/conf/nginx/ssl.conf"
-                                 .format(wo_domain_name))
-            cert_link = open('/var/lib/wo/linked.csv', encoding='utf-8',
-                             mode='a')
-            cert_link.write('{0}|{1}\n'.format(wo_root_domain,
-                                               wo_domain_name))
-            cert_link.close()
+            WOFileUtils.create_symlink(self, "/var/www/{0}/conf/nginx/ssl.conf"
+                                       .format(wo_root_domain),
+                                       "/var/www/{0}/conf/nginx/ssl.conf"
+                                       .format(wo_domain_name))
         except IOError as e:
             Log.debug(self, str(e))
-            Log.debug(self, "Error occured while copying ssl cert")
+            Log.debug(self, "Error occured while "
+                      "creating symlink for ssl cert")
 
 # letsencrypt cert renewal
 

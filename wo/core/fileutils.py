@@ -279,3 +279,33 @@ class WOFileUtils():
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to remove file  : {0} "
                           .format(path))
+
+    def findBrokenSymlink(self, sympath):
+        """
+            Find symlinks
+        """
+        links = []
+        broken = []
+
+        for root, dirs, files in os.walk(sympath):
+            if root.startswith('./.git'):
+                # Ignore the .git directory.
+                continue
+            for filename in files:
+                path = os.path.join(root, filename)
+                if os.path.islink(path):
+                    target_path = os.readlink(path)
+                    # Resolve relative symlinks
+                    if not os.path.isabs(target_path):
+                        target_path = os.path.join(os.path.dirname(path),
+                                                   target_path)
+                    if not os.path.exists(target_path):
+                        links.append(path)
+                        broken.append(path)
+                    else:
+                        links.append(path)
+                else:
+                    # If it's not a symlink we're not interested.
+                    continue
+
+            return broken
