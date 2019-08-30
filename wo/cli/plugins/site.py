@@ -1470,15 +1470,8 @@ class WOSiteUpdateController(CementBaseController):
                                                .format(wo_site_webroot))
                         # find all broken symlinks
                         sympath = "/var/www"
-                        sslconf = ("{0}/conf/nginx/ssl.conf"
-                                   .format(wo_site_webroot))
-                        symlinks = WOFileUtils.findBrokenSymlink(self, sympath)
+                        WOFileUtils.findBrokenSymlink(self, sympath)
 
-                        for symlink in symlinks:
-                            wo_symlink = os.readlink('{0}'.format(symlink))
-                            if wo_symlink == sslconf:
-                                # remove broken symlinks
-                                WOFileUtils.remove_symlink(self, symlink)
                 elif (pargs.letsencrypt == "clean" or
                       pargs.letsencrypt == "purge"):
                     removeAcmeConf(self, wo_domain)

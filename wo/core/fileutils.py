@@ -302,10 +302,10 @@ class WOFileUtils():
                     if not os.path.exists(target_path):
                         links.append(path)
                         broken.append(path)
+                        os.remove(path)
                     else:
                         links.append(path)
                 else:
                     # If it's not a symlink we're not interested.
                     continue
-
-            return broken
+        return True
