@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- Date format in backup name : /backup/30Aug2019035932 -> /backup/30Aug2019-03-59-32
+
+#### Fixed
+
+- cache-enabler plugin not installed and configured with `wo site update site.tld --wpce`
+
 ### v3.9.8.5 - 2019-08-30
 
 #### Changed

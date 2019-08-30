@@ -6,6 +6,7 @@ import json
 import re
 import string
 import subprocess
+import csv
 from subprocess import CalledProcessError
 
 from wo.cli.plugins.sitedb import getSiteInfo
@@ -1454,6 +1455,38 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                   "same server on which "
                   "you are running Let\'s Encrypt Client "
                   "\n to allow it to verify the site automatically.")
+
+# check if a wildcard exist to secure a new subdomain
+
+
+def checkWildcardExist(self, wo_domain_name):
+
+    wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
+                    "'/etc/letsencrypt/config'")
+    try:
+        # export certificates list from acme.sh
+        WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
+                             "--list --list-raw > /var/lib/wo/cert.csv")
+    except CommandExecutionError as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Failed to export cert list")
+
+    # define new csv dialect
+    csv.register_dialect('acmeconf', delimiter='|')
+    # open file
+    with open('/var/lib/wo/cert.csv', 'rt') as wo_cert:
+        reader = csv.reader(wo_cert, 'acmeconf')
+        wo_wildcard = "*.{0}".format(wo_domain_name)
+    try:
+        for row in reader:
+            if wo_wildcard in row[2]:
+                break
+                return True
+            else:
+                return False
+    except csv.Error as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Failed to read cert list")
 
 # letsencrypt cert renewal
 
