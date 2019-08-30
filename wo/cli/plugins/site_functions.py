@@ -1265,9 +1265,12 @@ def removeAcmeConf(self, domain):
                        .format(sslforce))
 
         # find all broken symlinks
-        symlinks = WOFileUtils.findBrokenSymlink(self, "/var/www")
+        sympath = "/var/www"
+        symlinks = WOFileUtils.findBrokenSymlink(self, sympath)
+
         for symlink in symlinks:
-            if os.path.islink('{0}'.format(sslconf)):
+            wo_symlink = os.readlink('{0}'.format(symlink))
+            if wo_symlink == sslconf:
                 # remove broken symlinks
                 WOFileUtils.remove_symlink(self, symlink)
     else:
