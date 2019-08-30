@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Date format in backup name : /backup/30Aug2019035932 -> /backup/30Aug2019-03-59-32
 - Cleanup and update bash_completion
+- cheat.sh is installed with WordOps install script, not as a stack because it wasn't downloaded at all by WordOps (unknown reason yet)
 
 #### Fixed
 
