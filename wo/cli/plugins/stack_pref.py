@@ -907,7 +907,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                           "wait_timeout		"
                                           "= 600",
                                           "wait_timeout		"
-                                          "= 120")
+                                          "= 120\n"
+                                          "skip-name-resolve = 1\n")
                 # disabling mariadb binlog
                 WOFileUtils.searchreplace(self,
                                           "/etc/mysql/my.cnf",
@@ -957,8 +958,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                           "table_open_cache	= 16000")
                 WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
                                           "max_allowed_packet	= 16M",
-                                          "max_allowed_packet	= 64M\n"
-                                          "skip-name-resolve=1\n")
+                                          "max_allowed_packet	= 64M\n")
 
                 WOService.stop_service(self, 'mysql')
                 WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
@@ -1114,7 +1114,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         Log.debug(self, "Enabling redis systemd service")
         WOShellExec.cmd_exec(self, "systemctl enable redis-server")
         if (os.path.isfile("/etc/redis/redis.conf") and
-                not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+                not WOFileUtils.grep(self, "/etc/redis/redis.conf",
+                                     "WordOps")):
             Log.info(self, "Tuning Redis configuration")
             with open("/etc/redis/redis.conf",
                       "a") as redis_file:

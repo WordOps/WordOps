@@ -15,7 +15,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Subdomains are automatically secured with an existant Wildcard LetsEncrypt SSL certificate.
 (If a wildcard certificate exist, WordOps will use this certificate for subdomains instead of issuing new certificates)
 - MySQL & Redis stack to `wo stack remove/purge`
-- Dump MySQL databases before purging MySQL Stack
 
 #### Changed
 
@@ -28,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - possible issue with domain variable in `--letsencrypt=wildcard`
 - python3-mysqldb not available on Debian 8 (Jessie)
 - Fix mysql variable skip-name-resolved
+- Fix typo in redis tuning directives
 
 ### v3.9.8.5 - 2019-08-30
 
