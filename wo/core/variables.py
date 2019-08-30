@@ -147,10 +147,9 @@ class WOVariables():
     if wo_distro == 'raspbian':
         wo_mysql = ["mariadb-server", "percona-toolkit",
                     "python3-mysqldb"]
-    elif wo_distro == 'debian':
-        if wo_platform_codename == 'jessie':
-            wo_mysql = ["mariadb-server", "percona-toolkit",
-                        "python3-mysql.connector"]
+    elif wo_platform_codename == 'jessie':
+        wo_mysql = ["mariadb-server", "percona-toolkit",
+                    "python3-mysql.connector"]
     else:
         wo_mysql = ["mariadb-server", "percona-toolkit",
                     "python3-mysqldb", "mariadb-backup"]

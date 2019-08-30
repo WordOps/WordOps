@@ -57,12 +57,13 @@ class WOStackUpgradeController(CementBaseController):
         ]
 
     @expose(hide=True)
-    def default(self):
+    def default(self, disp_msg=False):
         # All package update
         apt_packages = []
         packages = []
         nginx_packages = []
         empty_packages = []
+        self.msg = []
         pargs = self.app.pargs
 
         if ((not pargs.web) and (not pargs.nginx) and
