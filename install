@@ -80,6 +80,10 @@ while [ "$#" -gt 0 ]; do
     -w | --wufw | --without-ufw)
         ufw="n"
         ;;
+    -v | --version)
+        wo_version="$2"
+        shift
+        ;;
     *) # positional args
         ;;
     esac
@@ -438,8 +442,13 @@ wo_install() {
     {
         rm -f /etc/bash_completion.d/wo_auto.rc
         rm -rf /var/lib/wo/tmp/WordOps-*
-        curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
-        cd /var/lib/wo/tmp/WordOps-${wo_branch} || exit 1
+        if [ -z "$wo_version" ]; then
+            curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+            cd "/var/lib/wo/tmp/WordOps-$wo_branch" || exit 1
+        else
+            curl -sL https://github.com/WordOps/WordOps/archive/v${wo_version}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+            cd "/var/lib/wo/tmp/WordOps-$wo_version" || exit 1
+        fi
 
     } \
         >> "$wo_install_log" 2>&1
