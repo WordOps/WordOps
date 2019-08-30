@@ -1270,6 +1270,10 @@ def removeAcmeConf(self, domain):
             if os.path.islink('{0}'.format(sslconf)):
                 # remove broken symlinks
                 WOFileUtils.remove_symlink(self, symlink)
+    else:
+        if os.path.islink("{0}".format(sslconf)):
+            WOFileUtils.remove_symlink(self, "{0}".format(sslconf))
+            WOFileUtils.rm(self, '{0}'.format(sslforce))
 
     if WOFileUtils.grepcheck(self, '/var/www/22222/conf/nginx/ssl.conf',
                              '{0}'.format(domain)):

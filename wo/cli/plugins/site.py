@@ -1441,8 +1441,13 @@ class WOSiteUpdateController(CementBaseController):
 
             elif data['letsencrypt'] is False:
                 if pargs.letsencrypt == "off":
-                    if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                    if os.path.islink("{0}/conf/nginx/ssl.conf"
                                       .format(wo_site_webroot)):
+                        WOFileUtils.remove_symlink(self,
+                                                   "{0}/conf/nginx/ssl.conf"
+                                                   .format(wo_site_webroot))
+                    elif os.path.isfile("{0}/conf/nginx/ssl.conf"
+                                        .format(wo_site_webroot)):
                         Log.info(self, 'Setting Nginx configuration')
                         WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
                                            .format(wo_site_webroot),
