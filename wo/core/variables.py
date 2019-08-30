@@ -147,11 +147,18 @@ class WOVariables():
     if wo_distro == 'raspbian':
         wo_mysql = ["mariadb-server", "percona-toolkit",
                     "python3-mysqldb"]
+    elif wo_distro == 'debian':
+        if wo_platform_codename == 'jessie':
+            wo_mysql = ["mariadb-server", "percona-toolkit",
+                        "python3-mysql.connector"]
     else:
         wo_mysql = ["mariadb-server", "percona-toolkit",
                     "python3-mysqldb", "mariadb-backup"]
 
-    wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
+    if wo_platform_codename == 'jessie':
+        wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
+    else:
+        wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
 
     wo_fail2ban = ["fail2ban"]
 

@@ -853,7 +853,8 @@ class WOSiteUpdateController(CementBaseController):
             (['--wprocket'],
                 dict(help="update to WP-Rocket cache", action='store_true')),
             (['--wpce'],
-                dict(help="update to Cache-Enabler cache", action='store_true')),
+                dict(help="update to Cache-Enabler cache",
+                     action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
             (['-le', '--letsencrypt'],
@@ -1238,12 +1239,6 @@ class WOSiteUpdateController(CementBaseController):
                     return 0
 
         if pargs.letsencrypt:
-            if ((wo_domain_type == 'subdomain') and
-                (not pargs.letsencrypt == 'wildcard') and
-                (not pargs.letsencrypt == 'off') and
-                (not pargs.letsencrypt == 'clean') and
-                    (not pargs.letsencrypt == 'purge')):
-                pargs.letsencrypt == 'subdomain'
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
@@ -1874,6 +1869,7 @@ class WOSiteDeleteController(CementBaseController):
                     pargs.site_name = (input('Enter site name : ')
                                        .strip())
             except IOError as e:
+                Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
 
         pargs.site_name = pargs.site_name.strip()
