@@ -1423,7 +1423,7 @@ class WOSiteUpdateController(CementBaseController):
                 if wo_subdomain:
                     if (SSL.getExpirationDays(self, wo_root_domain) > 0):
                         Log.info(self, "Your cert will expire within " +
-                                 str(SSL.getExpirationDays(self, wo_domain)) +
+                                 str(SSL.getExpirationDays(self, wo_root_domain)) +
                                  " days.")
                     else:
                         Log.warn(
