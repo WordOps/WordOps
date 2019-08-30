@@ -1595,9 +1595,6 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
         else:
             if wildcard:
                 try:
-                    Log.info(
-                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
-                        .format(wo_domain_name))
                     sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
                                    .format(wo_domain_name),
                                    encoding='utf-8', mode='w')
@@ -1617,10 +1614,6 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
 
             else:
                 try:
-                    Log.info(
-                        self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf"
-                        .format(wo_domain_name))
-
                     sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
                                    .format(wo_domain_name),
                                    encoding='utf-8', mode='w')

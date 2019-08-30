@@ -773,6 +773,9 @@ class WOSiteCreateController(CementBaseController):
                     isWildcard = checkWildcardExist(self, wo_root_domain)
                     Log.debug(self, "isWildcard = {0}".format(isWildcard))
                     if isWildcard:
+                        Log.info(self, "Using existing Wildcard SSL "
+                                 "certificate from {0} to secure {1}"
+                                 .format(wo_root_domain, wo_domain))
                         Log.debug(self, "symlink wildcard "
                                   "cert between {0} & {1}"
                                   .format(wo_domain, wo_root_domain))
@@ -1382,12 +1385,10 @@ class WOSiteUpdateController(CementBaseController):
                         # check if a wildcard cert for the root domain exist
                         Log.debug(self, "checkWildcardExist on *.{0}"
                                   .format(wo_root_domain))
-                        Log.info(self, "Checking if there is a wildcard "
-                                 "certificate available from the root domain")
                         isWildcard = checkWildcardExist(self, wo_root_domain)
                         Log.debug(self, "isWildcard = {0}".format(isWildcard))
                         if isWildcard:
-                            Log.info(self, "Using existing Wildcard SSL"
+                            Log.info(self, "Using existing Wildcard SSL "
                                      "certificate from {0} to secure {1}"
                                      .format(wo_root_domain, wo_domain))
                             Log.debug(self, "symlink wildcard "
@@ -1424,7 +1425,7 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
                 Log.info(self, "Congratulations! Successfully "
-                         "Configured SSl for Site "
+                         "Configured SSL for Site "
                          " https://{0}".format(wo_domain))
                 if wo_subdomain:
                     if (SSL.getExpirationDays(self, wo_root_domain) > 0):
