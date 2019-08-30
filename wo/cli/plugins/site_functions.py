@@ -1472,14 +1472,9 @@ def checkWildcardExist(self, wo_domain_name):
 
     wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
                     "'/etc/letsencrypt/config'")
-    try:
-        # export certificates list from acme.sh
-        WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
-                             "--list --listraw > /var/lib/wo/cert.csv;"
-                             " echo 'OK'")
-    except CommandExecutionError as e:
-        Log.debug(self, "{0}".format(e))
-        Log.error(self, "Failed to export cert list")
+    # export certificates list from acme.sh
+    WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
+                         "--list --listraw > /var/lib/wo/cert.csv")
 
     # define new csv dialect
     csv.register_dialect('acmeconf', delimiter='|')
@@ -1497,6 +1492,8 @@ def checkWildcardExist(self, wo_domain_name):
     except csv.Error as e:
         Log.debug(self, "{0}".format(e))
         Log.error(self, "Failed to read cert list")
+    finally:
+        wo_cert.close()
 
 # copy wildcard certificate to a subdomain
 
