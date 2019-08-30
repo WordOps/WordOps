@@ -90,8 +90,6 @@ class WOStackController(CementBaseController):
                 dict(help='Install ClamAV stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
-            (['--cheat'],
-                dict(help='Install cheat.sh stack', action='store_true')),
             (['--redis'],
                 dict(help='Install Redis', action='store_true')),
             (['--phpredisadmin'],
@@ -127,8 +125,7 @@ class WOStackController(CementBaseController):
                 (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
-                (not pargs.extplorer) and
-                (not pargs.cheat) and (not pargs.clamav) and
+                (not pargs.extplorer) and (not pargs.clamav) and
                 (not pargs.phpredisadmin) and
                     (not pargs.php73)):
                 pargs.web = True
@@ -158,7 +155,6 @@ class WOStackController(CementBaseController):
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
                 pargs.extplorer = True
-                pargs.cheat = True
 
             if pargs.security:
                 pargs.fail2ban = True
@@ -417,17 +413,6 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "eXtplorer is already installed")
                     Log.info(self, "eXtplorer is already installed")
 
-            # cheat.sh
-            if pargs.cheat:
-                if not os.path.isfile('/usr/local/bin/cht.sh'):
-                    Log.debug(self, "Setting packages variable for cht.sh")
-                    packages = packages + [["https://cht.sh/:cht.sh",
-                                            "/usr/local/bin/cht.sh",
-                                            "cheat.sh"]]
-                else:
-                    Log.debug(self, "cheat.sh is already installed")
-                    Log.info(self, "cheat.sh is already installed")
-
             # UTILS
             if pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -516,8 +501,7 @@ class WOStackController(CementBaseController):
                 (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
-                (not pargs.extplorer) and
-                (not pargs.cheat) and (not pargs.clamav) and
+                (not pargs.extplorer) and (not pargs.clamav) and
                 (not pargs.phpredisadmin) and
                 (not pargs.php73)):
             pargs.web = True
@@ -723,8 +707,7 @@ class WOStackController(CementBaseController):
                 (not pargs.mysqlclient) and (not pargs.mysqltuner) and
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
-                (not pargs.extplorer) and
-                (not pargs.cheat) and (not pargs.clamav) and
+                (not pargs.extplorer) and (not pargs.clamav) and
                 (not pargs.phpredisadmin) and
                 (not pargs.php73)):
             pargs.web = True
@@ -752,7 +735,6 @@ class WOStackController(CementBaseController):
             pargs.composer = True
             pargs.netdata = True
             pargs.mysqltuner = True
-            pargs.cheat = True
 
         if pargs.security:
             pargs.fail2ban = True

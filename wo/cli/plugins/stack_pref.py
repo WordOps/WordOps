@@ -1482,11 +1482,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                for x in packages):
             WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
 
-        # cht.sh
-        if any('/usr/local/bin/cht.sh' == x[1]
-               for x in packages):
-            WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
-
         # phpredisadmin
         if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
                for x in packages):

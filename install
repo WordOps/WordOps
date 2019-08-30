@@ -725,12 +725,6 @@ wo_uninstall() {
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates >> /var/log/wo/install.log 2>&1
 }
 
-wo_cheat_alias() {
-    if ! grep -q "cheat" "$HOME/.bashrc"; then
-        echo "alias cheat='/usr/local/bin/cht.sh'" >> "$HOME/.bashrc"
-    fi
-}
-
 wo_ufw_setup() {
 
     # get custom ssh port
@@ -796,6 +790,14 @@ wo_ufw_setup() {
 } \
     >> $wo_install_log
 
+wo_cheat_install() {
+    curl -sL https://cht.sh/:cht.sh > /usr/local/bin/cht.sh
+    curl -sL https://cheat.sh/:bash_completion > /etc/bash_completion.d/cht.sh
+    if ! grep -q "cheat" $HOME/.bashrc; then
+        echo "alias cheat='/usr/local/bin/cht.sh'" >> "$HOME/.bashrc"
+    fi
+}
+
 ###
 # 4 - WO MAIN SETUP
 ###
@@ -849,7 +851,7 @@ else
         if [ -d /etc/systemd/system/mariadb.service.d ]; then
             wo_mariadb_tweak | tee -ai $wo_install_log
         fi
-        wo_cheat_alias | tee -ai $wo_install_log
+        wo_cheat_install | tee -ai $wo_install_log
         wo_domain_suffix | tee -ai $wo_install_log
         wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
         wo_update_wp_cli | tee -ai $wo_install_log
@@ -902,7 +904,7 @@ else
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
-            wo_cheat_alias | tee -ai $wo_install_log
+            wo_cheat_install | tee -ai $wo_install_log
             wo_lib_echo "Cleaning-up EE previous install" | tee -ai $wo_install_log
             wo_clean_ee | tee -ai $wo_install_log
         else
@@ -937,7 +939,7 @@ else
             wo_install_acme_sh | tee -ai $wo_install_log
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             secure_wo_db | tee -ai $wo_install_log
-            wo_cheat_alias | tee -ai $wo_install_log
+            wo_cheat_install | tee -ai $wo_install_log
             wo_domain_suffix | tee -ai $wo_install_log
             wo_git_init | tee -ai $wo_install_log
             wo_update_wp_cli | tee -ai $wo_install_log
