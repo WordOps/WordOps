@@ -1488,6 +1488,27 @@ def checkWildcardExist(self, wo_domain_name):
         Log.debug(self, "{0}".format(e))
         Log.error(self, "Failed to read cert list")
 
+# copy wildcard certificate to a subdomain
+
+
+def copyWildcardCert(self, wo_domain_name, wo_root_domain):
+
+    if os.path.isfile("/var/www/{0}/conf/nginx/ssl.conf"
+                      .format(wo_root_domain)):
+        try:
+            WOFileUtils.copyfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
+                                 .format(wo_root_domain),
+                                 "/var/www/{0}/conf/nginx/ssl.conf"
+                                 .format(wo_domain_name))
+            cert_link = open('/var/lib/wo/linked.csv', encoding='utf-8',
+                             mode='a')
+            cert_link.write('{0}|{1}\n'.format(wo_root_domain,
+                                               wo_domain_name))
+            cert_link.close()
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while copying ssl cert")
+
 # letsencrypt cert renewal
 
 

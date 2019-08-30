@@ -760,9 +760,19 @@ class WOSiteCreateController(CementBaseController):
                 if ((wo_domain_type == 'subdomain') and
                         (not pargs.letsencrypt == 'wildcard')):
                     wo_subdomain = True
-
-                setupLetsEncrypt(self, wo_domain, wo_subdomain, wo_wildcard,
-                                 wo_dns, wo_acme_dns)
+                # check if a wildcard cert for the root domain exist
+                if wo_subdomain is True:
+                    wo_exist_wildcard = checkWildcardExist(self,
+                                                           wo_root_domain)
+                    # copy the cert from the root domain
+                    if wo_exist_wildcard is True:
+                        copyWildcardCert(self, wo_domain, wo_root_domain)
+                    else:
+                        setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                         wo_wildcard, wo_dns, wo_acme_dns)
+                else:
+                    setupLetsEncrypt(self, wo_domain, wo_subdomain,
+                                     wo_wildcard, wo_dns, wo_acme_dns)
                 httpsRedirect(self, wo_domain, True, wo_wildcard)
 
                 if pargs.hsts:
