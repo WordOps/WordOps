@@ -151,6 +151,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
             ngxroot = '/var/www/'
+            self.msg = []
             if upgrade:
                 if os.path.isdir('/etc/nginx'):
                     WOGit.add(self,
@@ -1512,3 +1513,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'www-data',
                               'www-data',
                               recursive=True)
+
+    if (self.msg):
+        for msg in self.msg:
+            Log.info(self, Log.ENDC + msg)
+    else:
+        return self.msg
