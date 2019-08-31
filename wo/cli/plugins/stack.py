@@ -473,7 +473,7 @@ class WOStackController(CementBaseController):
                 WOAptGet.install(self, apt_packages)
                 post_pref(self, apt_packages, empty_packages)
             if (packages):
-                Log.info(self, "Downloading following: {0}".format(packages))
+                Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
                 Log.debug(self, "Calling post_pref")
                 post_pref(self, empty_packages, packages)
