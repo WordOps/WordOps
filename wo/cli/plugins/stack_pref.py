@@ -357,6 +357,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
                 # 22222 port settings
             if not os.path.isfile('/etc/nginx/sites-available/22222'):
+                data = dict(webroot=ngxroot)
                 WOTemplate.render(
                     self,
                     '/etc/nginx/sites-available/22222',
@@ -497,6 +498,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                                     WOVariables.wo_fqdn)])
 
             if not os.path.isfile("/opt/cf-update.sh"):
+                data = dict()
                 WOTemplate.render(self, '/opt/cf-update.sh',
                                   'cf-update.mustache',
                                   data, overwrite=False)
@@ -1177,14 +1179,15 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         if set(WOVariables.wo_clamav).issubset(set(apt_packages)):
             Log.debug(self, "Setting up freshclam cronjob")
             if not os.path.isfile("/opt/freshclam.sh"):
+                data = dict()
                 WOTemplate.render(self, '/opt/freshclam.sh',
                                   'freshclam.mustache',
                                   data, overwrite=False)
                 WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
-                # WOCron.setcron_weekly(self, '/opt/freshclam.sh '
-                #                      '> /dev/null 2>&1',
-                #                      comment='ClamAV freshclam cronjob '
-                #                      'added by WordOps')
+                WOCron.setcron_weekly(self, '/opt/freshclam.sh '
+                                      '> /dev/null 2>&1',
+                                      comment='ClamAV freshclam cronjob '
+                                      'added by WordOps')
 
     if (packages):
         # WP-CLI
