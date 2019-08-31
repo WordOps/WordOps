@@ -1163,17 +1163,18 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                   'redis', 'redis', recursive=False)
                 WOService.restart_service(self, 'redis-server')
 
-        # Redis configuration
-        if set(["clamav"]).issubset(set(apt_packages)):
+        # ClamAV configuration
+        if set(WOVariables.wo_clamav).issubset(set(apt_packages)):
             Log.debug("Setting up freshclam cronjob")
-            WOTemplate.render(self, '/opt/freshclam.sh',
-                              'freshclam.mustache',
-                              data, overwrite=False)
-            WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
-            WOCron.setcron_weekly(self, '/opt/freshclam.sh '
-                                  '> /dev/null 2>&1',
-                                  comment='ClamAV freshclam cronjob '
-                                  'added by WordOps')
+            if not os.path.isfile("/opt/freshclam.sh"):
+                WOTemplate.render(self, '/opt/freshclam.sh',
+                                  'freshclam.mustache',
+                                  data, overwrite=False)
+                WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
+                WOCron.setcron_weekly(self, '/opt/freshclam.sh '
+                                      '> /dev/null 2>&1',
+                                      comment='ClamAV freshclam cronjob '
+                                      'added by WordOps')
 
     if (packages):
         # WP-CLI
