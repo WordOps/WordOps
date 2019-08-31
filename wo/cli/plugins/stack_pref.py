@@ -331,16 +331,17 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    "/redis.conf")):
                 with open("/etc/nginx/conf.d/"
                           "redis.conf", "a") as redis_file:
-                    redis_file.write("# Log format Settings\n"
-                                     "log_format rt_cache_redis "
-                                     "'$remote_addr "
-                                     "$upstream_response_time "
-                                     "$srcache_fetch_status "
-                                     "[$time_local] '\n"
-                                     "'$http_host \"$request\" $status"
-                                     " $body_bytes_sent '\n"
-                                     "'\"$http_referer\" "
-                                     "\"$http_user_agent\"';\n")
+                    redis_file.write(
+                        "# Log format Settings\n"
+                        "log_format rt_cache_redis "
+                        "'$remote_addr "
+                        "$upstream_response_time "
+                        "$srcache_fetch_status "
+                        "[$time_local] '\n"
+                        "'$http_host \"$request\" $status"
+                        " $body_bytes_sent '\n"
+                        "'\"$http_referer\" "
+                        "\"$http_user_agent\"';\n")
 
                     # Nginx-Plus does not have nginx
                     # package structure like this
@@ -357,30 +358,33 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
                 # 22222 port settings
             if not os.path.isfile('/etc/nginx/sites-available/22222'):
-                WOTemplate.render(self,
-                                  '/etc/nginx/sites-available/22222',
-                                  '22222.mustache', data, overwrite=False)
+                WOTemplate.render(
+                    self,
+                    '/etc/nginx/sites-available/22222',
+                    '22222.mustache', data, overwrite=False)
                 passwd = ''.join([random.choice
                                   (string.ascii_letters + string.digits)
                                   for n in range(24)])
                 try:
-                    WOShellExec.cmd_exec(self, "printf \"WordOps:"
-                                         "$(openssl passwd -crypt "
-                                         "{password} 2> /dev/null)\n\""
-                                         "> /etc/nginx/htpasswd-wo "
-                                         "2>/dev/null"
-                                         .format(password=passwd))
+                    WOShellExec.cmd_exec(
+                        self, "printf \"WordOps:"
+                        "$(openssl passwd -crypt "
+                        "{password} 2> /dev/null)\n\""
+                        "> /etc/nginx/htpasswd-wo "
+                        "2>/dev/null"
+                        .format(password=passwd))
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Failed to save HTTP Auth")
 
                     # Create Symbolic link for 22222
-                WOFileUtils.create_symlink(self, ['/etc/nginx/'
-                                                  'sites-available/'
-                                                  '22222',
-                                                  '/etc/nginx/'
-                                                  'sites-enabled/'
-                                                  '22222'])
+                WOFileUtils.create_symlink(
+                    self, ['/etc/nginx/'
+                           'sites-available/'
+                           '22222',
+                           '/etc/nginx/'
+                           'sites-enabled/'
+                           '22222'])
                 # Create log and cert folder and softlinks
                 if not os.path.exists('{0}22222/logs'
                                       .format(ngxroot)):
@@ -406,51 +410,58 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     os.makedirs('{0}22222/conf/nginx'
                                 .format(ngxroot))
 
-                    WOFileUtils.create_symlink(self,
-                                               ['/var/log/nginx/'
-                                                '22222.access.log',
-                                                '{0}22222/'
-                                                'logs/access.log'
-                                                .format(ngxroot)]
-                                               )
+                    WOFileUtils.create_symlink(
+                        self,
+                        ['/var/log/nginx/'
+                         '22222.access.log',
+                         '{0}22222/'
+                         'logs/access.log'
+                         .format(ngxroot)]
+                    )
 
-                    WOFileUtils.create_symlink(self,
-                                               ['/var/log/nginx/'
-                                                '22222.error.log',
-                                                '{0}22222/'
-                                                'logs/error.log'
-                                                .format(ngxroot)]
-                                               )
+                    WOFileUtils.create_symlink(
+                        self,
+                        ['/var/log/nginx/'
+                         '22222.error.log',
+                         '{0}22222/'
+                         'logs/error.log'
+                         .format(ngxroot)]
+                    )
 
                     try:
-                        WOShellExec.cmd_exec(self, "openssl genrsa -out "
-                                             "{0}22222/cert/22222.key 2048"
-                                             .format(ngxroot))
-                        WOShellExec.cmd_exec(self, "openssl req -new -batch  "
-                                             "-subj /commonName=localhost/ "
-                                             "-key {0}22222/cert/22222.key "
-                                             "-out {0}22222/cert/"
-                                             "22222.csr"
-                                             .format(ngxroot))
+                        WOShellExec.cmd_exec(
+                            self, "openssl genrsa -out "
+                            "{0}22222/cert/22222.key 2048"
+                            .format(ngxroot))
+                        WOShellExec.cmd_exec(
+                            self, "openssl req -new -batch  "
+                            "-subj /commonName=localhost/ "
+                            "-key {0}22222/cert/22222.key "
+                            "-out {0}22222/cert/"
+                            "22222.csr"
+                            .format(ngxroot))
 
-                        WOFileUtils.mvfile(self, "{0}22222/cert/22222.key"
-                                           .format(ngxroot),
-                                           "{0}22222/cert/"
-                                           "22222.key.org"
-                                           .format(ngxroot))
+                        WOFileUtils.mvfile(
+                            self, "{0}22222/cert/22222.key"
+                            .format(ngxroot),
+                            "{0}22222/cert/"
+                            "22222.key.org"
+                            .format(ngxroot))
 
-                        WOShellExec.cmd_exec(self, "openssl rsa -in "
-                                             "{0}22222/cert/"
-                                             "22222.key.org -out "
-                                             "{0}22222/cert/22222.key"
-                                             .format(ngxroot))
+                        WOShellExec.cmd_exec(
+                            self, "openssl rsa -in "
+                            "{0}22222/cert/"
+                            "22222.key.org -out "
+                            "{0}22222/cert/22222.key"
+                            .format(ngxroot))
 
-                        WOShellExec.cmd_exec(self, "openssl x509 -req -days "
-                                             "3652 -in {0}22222/cert/"
-                                             "22222.csr -signkey {0}"
-                                             "22222/cert/22222.key -out "
-                                             "{0}22222/cert/22222.crt"
-                                             .format(ngxroot))
+                        WOShellExec.cmd_exec(
+                            self, "openssl x509 -req -days "
+                            "3652 -in {0}22222/cert/"
+                            "22222.csr -signkey {0}"
+                            "22222/cert/22222.key -out "
+                            "{0}22222/cert/22222.crt"
+                            .format(ngxroot))
 
                     except CommandExecutionError as e:
                         Log.debug(self, "{0}".format(e))
@@ -1114,8 +1125,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.debug(self, "Enabling redis systemd service")
             WOShellExec.cmd_exec(self, "systemctl enable redis-server")
             if (os.path.isfile("/etc/redis/redis.conf") and
-                    not WOFileUtils.grep(self, "/etc/redis/redis.conf",
-                                         "WordOps")):
+                    (not WOFileUtils.grep(self, "/etc/redis/redis.conf",
+                                          "WordOps"))):
                 Log.info(self, "Tuning Redis configuration")
                 with open("/etc/redis/redis.conf",
                           "a") as redis_file:
@@ -1171,10 +1182,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                   'freshclam.mustache',
                                   data, overwrite=False)
                 WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
-                WOCron.setcron_weekly(self, '/opt/freshclam.sh '
-                                      '> /dev/null 2>&1',
-                                      comment='ClamAV freshclam cronjob '
-                                      'added by WordOps')
+                # WOCron.setcron_weekly(self, '/opt/freshclam.sh '
+                #                      '> /dev/null 2>&1',
+                #                      comment='ClamAV freshclam cronjob '
+                #                      'added by WordOps')
 
     if (packages):
         # WP-CLI
@@ -1255,16 +1266,33 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             shutil.copyfile('/var/lib/wo/tmp/composer.phar',
                             '/usr/local/bin/composer')
             WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
-            Log.info(self, "Updating phpMyAdmin, please wait...")
-            WOShellExec.cmd_exec(self, "/usr/local/bin/composer update "
-                                 "--no-plugins --no-scripts "
-                                 "-n --no-dev -d "
-                                 "/var/www/22222/htdocs/db/pma/")
-            WOFileUtils.chown(self, '{0}22222/htdocs/db/pma'
-                              .format(WOVariables.wo_webroot),
-                              'www-data',
-                              'www-data',
-                              recursive=True)
+            if os.path.isdir("/var/www/22222/htdocs/db/pma"):
+                Log.info(self, "Updating phpMyAdmin, please wait...")
+                WOShellExec.cmd_exec(
+                    self, "/usr/local/bin/composer update "
+                    "--no-plugins --no-scripts "
+                    "-n --no-dev -d "
+                    "/var/www/22222/htdocs/db/pma/")
+                WOFileUtils.chown(
+                    self, '{0}22222/htdocs/db/pma'
+                    .format(WOVariables.wo_webroot),
+                    'www-data',
+                    'www-data',
+                    recursive=True)
+            if not os.path.exists('{0}22222/htdocs/cache/'
+                                  'redis/phpRedisAdmin'
+                                  .format(WOVariables.wo_webroot)):
+                Log.debug(self, "Creating new directory "
+                          "{0}22222/htdocs/cache/redis"
+                          .format(WOVariables.wo_webroot))
+                os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                            .format(WOVariables.wo_webroot))
+                WOFileUtils.chown(self, '{0}22222/htdocs'
+                                  .format(WOVariables.wo_webroot),
+                                  'www-data',
+                                  'www-data',
+                                  recursive=True)
+
         # MySQLtuner
         if any('/usr/bin/mysqltuner' == x[1]
                for x in packages):
@@ -1285,34 +1313,33 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 else:
                     wo_netdata = "/opt/netdata/"
                 # disable mail notifications
-                WOFileUtils.searchreplace(self, "{0}usr/"
-                                          "lib/netdata/conf.d/"
-                                          "health_alarm_notify.conf"
-                                          .format(wo_netdata),
-                                          'SEND_EMAIL="YES"',
-                                          'SEND_EMAIL="NO"')
+                WOFileUtils.searchreplace(
+                    self, "{0}usr/"
+                    "lib/netdata/conf.d/health_alarm_notify.conf"
+                    .format(wo_netdata),
+                    'SEND_EMAIL="YES"',
+                    'SEND_EMAIL="NO"')
                 # make changes persistant
-                WOFileUtils.copyfile(self, "{0}usr/"
-                                     "lib/netdata/conf.d/"
-                                     "health_alarm_notify.conf"
-                                     .format(wo_netdata),
-                                     "{0}etc/netdata/"
-                                     "health_alarm_notify.conf"
-                                     .format(wo_netdata))
+                WOFileUtils.copyfile(
+                    self, "{0}usr/lib/netdata/conf.d/"
+                    "health_alarm_notify.conf"
+                    .format(wo_netdata),
+                    "{0}etc/netdata/health_alarm_notify.conf"
+                    .format(wo_netdata))
                 # check if mysql credentials are available
                 if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
                     try:
-                        WOMysql.execute(self,
-                                        "create user "
-                                        "'netdata'@'localhost';",
-                                        log=False)
-                        WOMysql.execute(self,
-                                        "grant usage on *.* to "
-                                        "'netdata'@'localhost';",
-                                        log=False)
-                        WOMysql.execute(self,
-                                        "flush privileges;",
-                                        log=False)
+                        WOMysql.execute(
+                            self,
+                            "create user 'netdata'@'localhost';",
+                            log=False)
+                        WOMysql.execute(
+                            self,
+                            "grant usage on *.* to 'netdata'@'localhost';",
+                            log=False)
+                        WOMysql.execute(
+                            self, "flush privileges;",
+                            log=False)
                     except CommandExecutionError as e:
                         Log.debug(self, "{0}".format(e))
                         Log.info(
@@ -1398,20 +1425,23 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             '{0}22222/htdocs/php/webgrind'
                             .format(WOVariables.wo_webroot))
 
-            WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
-                                      "config.php"
-                                      .format(WOVariables.wo_webroot),
-                                      "/usr/local/bin/dot", "/usr/bin/dot")
-            WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
-                                      "config.php"
-                                      .format(WOVariables.wo_webroot),
-                                      "Europe/Copenhagen",
-                                      WOVariables.wo_timezone)
+            WOFileUtils.searchreplace(
+                self, "{0}22222/htdocs/php/webgrind/"
+                "config.php"
+                .format(WOVariables.wo_webroot),
+                "/usr/local/bin/dot", "/usr/bin/dot")
+            WOFileUtils.searchreplace(
+                self, "{0}22222/htdocs/php/webgrind/"
+                "config.php"
+                .format(WOVariables.wo_webroot),
+                "Europe/Copenhagen",
+                WOVariables.wo_timezone)
 
-            WOFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
-                                      "config.php"
-                                      .format(WOVariables.wo_webroot),
-                                      "90", "100")
+            WOFileUtils.searchreplace(
+                self, "{0}22222/htdocs/php/webgrind/"
+                "config.php"
+                .format(WOVariables.wo_webroot),
+                "90", "100")
 
             Log.debug(self, "Setting Privileges of webroot permission to "
                       "{0}22222/htdocs/php/webgrind/ file "
@@ -1458,13 +1488,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 Log.debug(self, "grant all on slow-query-log.*"
                           " to anemometer@root_user"
                           " IDENTIFIED BY password ")
-                WOMysql.execute(self, 'grant all on slow_query_log.* to'
-                                '\'anemometer\'@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get(
-                                    'mysql', 'grant-host'),
-                                    chars),
-                                errormsg="cannot grant priviledges",
-                                log=False)
+                WOMysql.execute(
+                    self, 'grant all on slow_query_log.* to'
+                    '\'anemometer\'@\'{0}\' IDENTIFIED'
+                    ' BY \'{1}\''.format(self.app.config.get(
+                        'mysql', 'grant-host'),
+                        chars),
+                    errormsg="cannot grant priviledges",
+                    log=False)
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
@@ -1482,41 +1513,3 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         if any('/usr/bin/pt-query-advisor' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
-
-        # phpredisadmin
-        if any('/var/lib/wo/tmp/pra.tar.gz' == x[1]
-               for x in packages):
-            if not os.path.exists('{0}22222/htdocs/cache/'
-                                  'redis/phpRedisAdmin'
-                                  .format(WOVariables.wo_webroot)):
-                Log.debug(self, "Creating new directory "
-                          "{0}22222/htdocs/cache/redis"
-                          .format(WOVariables.wo_webroot))
-                os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                            .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222/htdocs'
-                                  .format(WOVariables.wo_webroot),
-                                  'www-data',
-                                  'www-data',
-                                  recursive=True)
-                if os.path.isfile("/usr/local/bin/composer"):
-                    WOShellExec.cmd_exec(self, "/usr/local/bin/composer"
-                                         "create-project --no-plugins "
-                                         "--no-scripts -n -s dev "
-                                         "erik-dubbelboer/php-redis-admin "
-                                         "/var/www/22222/htdocs/cache"
-                                         "/redis/phpRedisAdmin ")
-            Log.debug(self, 'Setting Privileges of webroot permission to  '
-                      '{0}22222/htdocs/cache/redis'
-                      .format(WOVariables.wo_webroot))
-            WOFileUtils.chown(self, '{0}22222/htdocs'
-                              .format(WOVariables.wo_webroot),
-                              'www-data',
-                              'www-data',
-                              recursive=True)
-
-    if (self.msg):
-        for msg in self.msg:
-            Log.info(self, Log.ENDC + msg)
-    else:
-        return self.msg
