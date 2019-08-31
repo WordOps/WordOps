@@ -499,10 +499,8 @@ class WOSiteCreateController(CementBaseController):
 
         if data and pargs.php73:
             data['php73'] = True
-            php73 = 1
         elif data:
             data['php73'] = False
-            php73 = 0
 
         if ((not pargs.wpfc) and
             (not pargs.wpsc) and

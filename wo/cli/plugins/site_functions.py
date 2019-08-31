@@ -610,7 +610,10 @@ def setupwordpress(self, data, vhostonly=False):
             WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "db clean --yes\"")
-            WOFileUtils.rm(self, "{0}/htdocs/*".format(wo_site_webroot))
+            WOFileUtils.rm(self, "{0}/htdocs".format(wo_site_webroot))
+            WOFileUtils.mkdir(self, "{0}/htdocs".format(wo_site_webroot))
+            WOFileUtils.chown(self, "{0}/htdocs".format(wo_site_webroot),
+                              'www-data', 'www-data')
         except CommandExecutionError:
             raise SiteError("Cleaning WordPress install failed")
 
