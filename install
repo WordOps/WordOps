@@ -811,11 +811,11 @@ if [ "$wo_purge" = "y" ]; then
 else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
-        if {
-            wo -v 2>&1 | grep -q "$wo_version_new"
-        } && [ -z "$wo_force_install" ]; then
-            wo_lib_error "You already have WordOps $wo_version_new"
-            exit 1
+        if [ -z "$wo_force_install" ]; then
+            if { wo -v 2>&1 | grep -q "$wo_version_new"; }; then
+                wo_lib_error "You already have WordOps $wo_version_new"
+                exit 1
+            fi
         fi
         wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
         wo_install_dep | tee -ai $wo_install_log
