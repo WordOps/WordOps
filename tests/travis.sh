@@ -42,6 +42,7 @@ fi
 
         fi
     done
+    other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
     for site in $site_types; do
         echo -ne "       Installing $site php73              [..]\r"
         if {
