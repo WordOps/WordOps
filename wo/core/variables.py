@@ -160,6 +160,7 @@ class WOVariables():
         wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
 
     wo_fail2ban = ["fail2ban"]
+    wo_clamav = ["clamav", "clamav-freshclam"]
 
     # Redis repo details
     if wo_distro == 'ubuntu':

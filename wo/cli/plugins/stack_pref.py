@@ -1079,100 +1079,100 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                       msg="Adding ProFTPd into Git")
             WOService.reload_service(self, 'proftpd')
 
-    # Redis configuration
-    if set(WOVariables.wo_redis).issubset(set(apt_packages)):
-        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-            if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                    "upstream.conf",
-                                    "redis"):
-                with open("/etc/nginx/conf.d/upstream.conf",
-                          "a") as redis_file:
-                    redis_file.write("upstream redis {\n"
-                                     "    server 127.0.0.1:6379;\n"
-                                     "    keepalive 10;\n}\n")
+        # Redis configuration
+        if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+            if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                        "upstream.conf",
+                                        "redis"):
+                    with open("/etc/nginx/conf.d/upstream.conf",
+                              "a") as redis_file:
+                        redis_file.write("upstream redis {\n"
+                                         "    server 127.0.0.1:6379;\n"
+                                         "    keepalive 10;\n}\n")
 
-        if os.path.isfile("/etc/nginx/nginx.conf"):
-            if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
-                with open("/etc/nginx/conf.d/redis.conf",
+            if os.path.isfile("/etc/nginx/nginx.conf"):
+                if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
+                    with open("/etc/nginx/conf.d/redis.conf",
+                              "a") as redis_file:
+                        redis_file.write("# Log format Settings\n"
+                                         "log_format rt_cache_redis "
+                                         "'$remote_addr "
+                                         "$upstream_response_time "
+                                         "$srcache_fetch_status "
+                                         "[$time_local]"
+                                         " '\n '$http_host"
+                                         " \"$request\" "
+                                         "$status $body_bytes_sent '\n"
+                                         "'\"$http_referer\" "
+                                         "\"$http_user_agent\"';\n")
+            # set redis.conf parameter
+            # set maxmemory 10% for ram below 512MB and 20% for others
+            # set maxmemory-policy allkeys-lru
+            # enable systemd service
+            Log.debug(self, "Enabling redis systemd service")
+            WOShellExec.cmd_exec(self, "systemctl enable redis-server")
+            if (os.path.isfile("/etc/redis/redis.conf") and
+                    not WOFileUtils.grep(self, "/etc/redis/redis.conf",
+                                         "WordOps")):
+                Log.info(self, "Tuning Redis configuration")
+                with open("/etc/redis/redis.conf",
                           "a") as redis_file:
-                    redis_file.write("# Log format Settings\n"
-                                     "log_format rt_cache_redis "
-                                     "'$remote_addr "
-                                     "$upstream_response_time "
-                                     "$srcache_fetch_status "
-                                     "[$time_local]"
-                                     " '\n '$http_host"
-                                     " \"$request\" "
-                                     "$status $body_bytes_sent '\n"
-                                     "'\"$http_referer\" "
-                                     "\"$http_user_agent\"';\n")
-        # set redis.conf parameter
-        # set maxmemory 10% for ram below 512MB and 20% for others
-        # set maxmemory-policy allkeys-lru
-        # enable systemd service
-        Log.debug(self, "Enabling redis systemd service")
-        WOShellExec.cmd_exec(self, "systemctl enable redis-server")
-        if (os.path.isfile("/etc/redis/redis.conf") and
-                not WOFileUtils.grep(self, "/etc/redis/redis.conf",
-                                     "WordOps")):
-            Log.info(self, "Tuning Redis configuration")
-            with open("/etc/redis/redis.conf",
-                      "a") as redis_file:
-                redis_file.write("\n# WordOps v3.9.8\n")
-            wo_ram = psutil.virtual_memory().total / (1024 * 1024)
-            if wo_ram < 1024:
-                Log.debug(self, "Setting maxmemory variable to "
-                          "{0} in redis.conf"
-                          .format(int(wo_ram*1024*1024*0.1)))
+                    redis_file.write("\n# WordOps v3.9.8\n")
+                wo_ram = psutil.virtual_memory().total / (1024 * 1024)
+                if wo_ram < 1024:
+                    Log.debug(self, "Setting maxmemory variable to "
+                              "{0} in redis.conf"
+                              .format(int(wo_ram*1024*1024*0.1)))
+                    WOFileUtils.searchreplace(self,
+                                              "/etc/redis/redis.conf",
+                                              "# maxmemory <bytes>",
+                                              "maxmemory {0}"
+                                              .format
+                                              (int(wo_ram*1024*1024*0.1)))
+
+                else:
+                    Log.debug(self, "Setting maxmemory variable to {0} "
+                              "in redis.conf"
+                              .format(int(wo_ram*1024*1024*0.2)))
+                    WOFileUtils.searchreplace(self,
+                                              "/etc/redis/redis.conf",
+                                              "# maxmemory <bytes>",
+                                              "maxmemory {0}"
+                                              .format
+                                              (int(wo_ram*1024*1024*0.2)))
+
+                Log.debug(
+                    self, "Setting maxmemory-policy variable to "
+                    "allkeys-lru in redis.conf")
                 WOFileUtils.searchreplace(self,
                                           "/etc/redis/redis.conf",
-                                          "# maxmemory <bytes>",
-                                          "maxmemory {0}"
-                                          .format
-                                          (int(wo_ram*1024*1024*0.1)))
-
-            else:
-                Log.debug(self, "Setting maxmemory variable to {0} "
-                          "in redis.conf"
-                          .format(int(wo_ram*1024*1024*0.2)))
+                                          "# maxmemory-policy "
+                                          "noeviction",
+                                          "maxmemory-policy "
+                                          "allkeys-lru")
+                Log.debug(
+                    self, "Setting tcp-backlog variable to "
+                    "in redis.conf")
                 WOFileUtils.searchreplace(self,
                                           "/etc/redis/redis.conf",
-                                          "# maxmemory <bytes>",
-                                          "maxmemory {0}"
-                                          .format
-                                          (int(wo_ram*1024*1024*0.2)))
+                                          "tcp-backlog 511",
+                                          "tcp-backlog 32768")
+                WOFileUtils.chown(self, '/etc/redis/redis.conf',
+                                  'redis', 'redis', recursive=False)
+                WOService.restart_service(self, 'redis-server')
 
-            Log.debug(
-                self, "Setting maxmemory-policy variable to "
-                "allkeys-lru in redis.conf")
-            WOFileUtils.searchreplace(self,
-                                      "/etc/redis/redis.conf",
-                                      "# maxmemory-policy "
-                                      "noeviction",
-                                      "maxmemory-policy "
-                                      "allkeys-lru")
-            Log.debug(
-                self, "Setting tcp-backlog variable to "
-                "in redis.conf")
-            WOFileUtils.searchreplace(self,
-                                      "/etc/redis/redis.conf",
-                                      "tcp-backlog 511",
-                                      "tcp-backlog 32768")
-            WOFileUtils.chown(self, '/etc/redis/redis.conf',
-                              'redis', 'redis', recursive=False)
-            WOService.restart_service(self, 'redis-server')
-
-    # Redis configuration
-    if set(["clamav"]).issubset(set(apt_packages)):
-        Log.debug("Setting up freshclam cronjob")
-        WOTemplate.render(self, '/opt/freshclam.sh',
-                          'freshclam.mustache',
-                          data, overwrite=False)
-        WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
-        WOCron.setcron_weekly(self, '/opt/freshclam.sh '
-                              '> /dev/null 2>&1',
-                              comment='ClamAV freshclam cronjob '
-                              'added by WordOps')
+        # Redis configuration
+        if set(["clamav"]).issubset(set(apt_packages)):
+            Log.debug("Setting up freshclam cronjob")
+            WOTemplate.render(self, '/opt/freshclam.sh',
+                              'freshclam.mustache',
+                              data, overwrite=False)
+            WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
+            WOCron.setcron_weekly(self, '/opt/freshclam.sh '
+                                  '> /dev/null 2>&1',
+                                  comment='ClamAV freshclam cronjob '
+                                  'added by WordOps')
 
     if (packages):
         # WP-CLI
