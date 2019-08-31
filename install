@@ -960,7 +960,7 @@ else
         wo_lib_echo_info "wo stack upgrade --nginx"
         echo
         wo_lib_echo "To update other packages use the command:"
-        wo_lib_echo_info "wo stack maintenance"
+        wo_lib_echo_info "wo maintenance"
     else
         wo_lib_echo "WordOps (wo) installed successfully"
         echo
