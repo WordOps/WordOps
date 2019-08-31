@@ -519,7 +519,7 @@ def setupwordpress(self, data, vhostonly=False):
         WOShellExec.cmd_exec(self, " {0} --allow-root "
                              .format(WOVariables.wo_wpcli_path) +
                              "rewrite structure "
-                             "/%year%/%monthnum%/%day%/%postname%/")
+                             "/%postname%/")
     except CommandExecutionError as e:
         Log.debug(self, str(e))
         raise SiteError("Update wordpress permalinks failed")

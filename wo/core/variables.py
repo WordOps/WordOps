@@ -10,7 +10,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.8.6"
+    wo_version = "3.9.8.7"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.2"
@@ -160,6 +160,7 @@ class WOVariables():
         wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
 
     wo_fail2ban = ["fail2ban"]
+    wo_clamav = ["clamav", "clamav-freshclam"]
 
     # Redis repo details
     if wo_distro == 'ubuntu':

@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.7 - 2019-08-31
+
+#### Changed
+
+- WordPress default permalinks structure from `/%year%/%monthnum%/%day%/%postname%/` -> `/%postname%/`
+
+#### Fixed
+
+- Error with `wo stack upgrade --nginx`
+- Install/update script version check
+- clamAV stack install
+
 ### v3.9.8.6 - 2019-08-30
 
 #### Added

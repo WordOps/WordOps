@@ -265,7 +265,7 @@ class WOStackController(CementBaseController):
             if pargs.clamav:
                 Log.debug(self, "Setting apt_packages variable for ClamAV")
                 if not WOAptGet.is_installed(self, 'clamav'):
-                    apt_packages = apt_packages + ["clamav"]
+                    apt_packages = apt_packages + WOVariables.wo_clamav
                 else:
                     Log.debug(self, "ClamAV already installed")
                     Log.info(self, "ClamAV already installed")
@@ -473,7 +473,7 @@ class WOStackController(CementBaseController):
                 WOAptGet.install(self, apt_packages)
                 post_pref(self, apt_packages, empty_packages)
             if (packages):
-                Log.debug(self, "Downloading following: {0}".format(packages))
+                Log.info(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
                 Log.debug(self, "Calling post_pref")
                 post_pref(self, empty_packages, packages)
@@ -587,7 +587,7 @@ class WOStackController(CementBaseController):
         if pargs.clamav:
             Log.debug(self, "Setting apt_packages variable for ClamAV")
             if WOAptGet.is_installed(self, 'clamav'):
-                apt_packages = apt_packages + ["clamav"]
+                apt_packages = apt_packages + WOVariables.wo_clamav
 
         # proftpd
         if pargs.proftpd:
@@ -793,7 +793,7 @@ class WOStackController(CementBaseController):
         if pargs.clamav:
             Log.debug(self, "Setting apt_packages variable for ClamAV")
             if WOAptGet.is_installed(self, 'clamav'):
-                apt_packages = apt_packages + ["clamav"]
+                apt_packages = apt_packages + WOVariables.wo_clamav
 
         # proftpd
         if pargs.proftpd:
