@@ -19,44 +19,55 @@ if ! {
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       stack install             '
     echo -e "${CGREEN}#############################################${CEND}"
-    wo --help && wo stack install && wo stack install --proftpd
+    echo -ne "       Installing stacks               [..]\r"
+    if {
+        wo stack install --all
+    }; then
+        echo -ne "       Installing stacks                [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Installing stacks              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
 }; then
     exit_script
 fi
 
-    echo -e "${CGREEN}#############################################${CEND}"
-    echo -e '       Simple site create              '
-    echo -e "${CGREEN}#############################################${CEND}"
-    site_types='html php mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
-    for site in $site_types; do
-        echo -ne "       Installing $site               [..]\r"
-        if {
-            wo site create ${site}.net --${site}
-        } >> /var/log/wo/test.log; then
-            echo -ne "       Installing $site                [${CGREEN}OK${CEND}]\\r"
-            echo -ne '\n'
-        else
-            echo -e "        Installing $site              [${CRED}FAIL${CEND}]"
-            echo -ne '\n'
-            exit_script
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       Simple site create              '
+echo -e "${CGREEN}#############################################${CEND}"
+site_types='html php mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+for site in $site_types; do
+    echo -ne "       Installing $site               [..]\r"
+    if {
+        wo site create ${site}.net --${site}
+    } >> /var/log/wo/test.log; then
+        echo -ne "       Installing $site                [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Installing $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
 
-        fi
-    done
-    other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
-    for site in $other_site_types; do
-        echo -ne "       Installing $site php73              [..]\r"
-        if {
-            wo site create ${site}.com --${site} --php73
-        } >> /var/log/wo/test.log; then
-            echo -ne "       Installing $site php73               [${CGREEN}OK${CEND}]\\r"
-            echo -ne '\n'
-        else
-            echo -e "        Installing $site php73              [${CRED}FAIL${CEND}]"
-            echo -ne '\n'
-            exit_script
+    fi
+done
+other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+for site in $other_site_types; do
+    echo -ne "       Installing $site php73              [..]\r"
+    if {
+        wo site create ${site}.com --${site} --php73
+    } >> /var/log/wo/test.log; then
+        echo -ne "       Installing $site php73               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Installing $site php73              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
 
-        fi
-    done
+    fi
+done
 
 if ! {
     echo -e "${CGREEN}#############################################${CEND}"
