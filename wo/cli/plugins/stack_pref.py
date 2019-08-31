@@ -151,7 +151,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
             ngxroot = '/var/www/'
-            self.msg = []
             if upgrade:
                 if os.path.isdir('/etc/nginx'):
                     WOGit.add(self,
@@ -1176,7 +1175,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # ClamAV configuration
         if set(WOVariables.wo_clamav).issubset(set(apt_packages)):
-            Log.debug("Setting up freshclam cronjob")
+            Log.debug(self, "Setting up freshclam cronjob")
             if not os.path.isfile("/opt/freshclam.sh"):
                 WOTemplate.render(self, '/opt/freshclam.sh',
                                   'freshclam.mustache',
