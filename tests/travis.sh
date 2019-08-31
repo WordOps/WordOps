@@ -11,58 +11,100 @@ CEND="${CSI}0m"
 
 exit_script() {
     tar -I pigz -cf wordops.tar.gz /var/log/wo
-    curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/$(basename "wordops.tar.gz") && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
+    curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/"$(basename wordops.tar.gz)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
     exit 1
 }
 
-if ! {
-    echo -e "${CGREEN}#############################################${CEND}"
-    echo -e '       stack install             '
-    echo -e "${CGREEN}#############################################${CEND}"
-    echo -ne "       Installing stacks               [..]\r"
-    if {
-        wo stack install --all
-    }; then
-        echo -ne "       Installing stacks                [${CGREEN}OK${CEND}]\\r"
-        echo -ne '\n'
-    else
-        echo -e "        Installing stacks              [${CRED}FAIL${CEND}]"
-        echo -ne '\n'
-        exit_script
-
-    fi
-}; then
-    exit_script
-fi
-
 echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       Simple site create              '
+echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
-site_types='html php mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
-for site in $site_types; do
-    echo -ne "       Installing $site               [..]\r"
+stack_list='nginx php php73 mysql redis fail2ban clamav proftpd admin'
+for stack in $stack_list; do
+    echo -ne "       Installing $stack               [..]\r"
     if {
-        wo site create ${site}.net --${site}
+        wo stack install --${stack}
     } >> /var/log/wo/test.log; then
-        echo -ne "       Installing $site                [${CGREEN}OK${CEND}]\\r"
+        echo -ne "       Installing $stack                [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
-        echo -e "        Installing $site              [${CRED}FAIL${CEND}]"
+        echo -e "        Installing $stack              [${CRED}FAIL${CEND}]"
         echo -ne '\n'
         exit_script
 
     fi
 done
-other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
-for site in $other_site_types; do
-    echo -ne "       Installing $site php73              [..]\r"
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       Simple site create              '
+echo -e "${CGREEN}#############################################${CEND}"
+site_types='html php php73 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+for site in $site_types; do
+    echo -ne "       Creating $site               [..]\r"
     if {
-        wo site create ${site}.com --${site} --php73
+        wo site create ${site}.net --${site}
     } >> /var/log/wo/test.log; then
-        echo -ne "       Installing $site php73               [${CGREEN}OK${CEND}]\\r"
+        echo -ne "       Creating $site                [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
-        echo -e "        Installing $site php73              [${CRED}FAIL${CEND}]"
+        echo -e "        Creating $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update --php73              '
+echo -e "${CGREEN}#############################################${CEND}"
+other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+for site in $other_site_types; do
+    echo -ne "       Updating site to $site php73              [..]\r"
+    if {
+        wo site update ${site}.net --php73
+    } >> /var/log/wo/test.log; then
+        echo -ne "       Updating site to $site php73               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating site to $site php73              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update WP              '
+echo -e "${CGREEN}#############################################${CEND}"
+
+wp_site_types='wpfc wpsc wpce wprocket wpredis'
+wo site create wp.io --wp >> /dev/null 2>&1
+for site in $wp_site_types; do
+    echo -ne "        Updating WP to $site              [..]\r"
+    if {
+        wo site update wp.io --${site}
+    } >> /var/log/wo/test.log; then
+        echo -ne "       Updating WP to $site               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating WP to $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo stack upgrade              '
+echo -e "${CGREEN}#############################################${CEND}"
+stack_upgrade='nginx php mysql redis netdata dashboard phpmyadmin'
+for stack in $stack_upgrade; do
+    echo -ne "      Upgrading $stack               [..]\r"
+    if {
+        wo stack upgrade --${stack} --force
+    } >> /var/log/wo/test.log; then
+        echo -ne "       Upgrading $stack               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Upgrading $stack              [${CRED}FAIL${CEND}]"
         echo -ne '\n'
         exit_script
 
@@ -84,20 +126,7 @@ if ! {
 }; then
     exit_script
 fi
-if ! {
-    echo -e "${CGREEN}#############################################${CEND}"
-    echo -e '       wo stack upgrade              '
-    echo -e "${CGREEN}#############################################${CEND}"
-    wo stack upgrade --force
-    wo stack upgrade --nginx --force
-    wo stack upgrade --php --force
-    wo stack upgrade --netdata --force
-    wo stack upgrade --phpmyadmin --force
-    wo stack upgrade --composer --force
-    wo stack upgrade --dashboard --force
-}; then
-    exit_script
-fi
+
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
