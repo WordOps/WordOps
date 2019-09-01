@@ -109,7 +109,7 @@ class WOFileUtils():
             rstr: replace string
         """
         try:
-            Log.debug(self, "Doning search and replace, File:{0},"
+            Log.debug(self, "Doing search and replace, File:{0},"
                       "Source string:{1}, Dest String:{2}"
                       .format(fnm, sstr, rstr))
             for line in fileinput.input(fnm, inplace=True):

@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - netdata configuration
 - extplorer installation
 - add LANG='en_US.UTF-8' in install script
+- Read public_suffix list with utf8 encoding. Issue [#128](https://github.com/WordOps/WordOps/issues/128)
 
 ### v3.9.8.7 - 2019-08-31
 

@@ -429,7 +429,6 @@ class WOSiteCreateController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
         if not wo_domain.strip():
             Log.error("Invalid domain name, "
                       "Provide valid domain name")
@@ -566,8 +565,10 @@ class WOSiteCreateController(CementBaseController):
 
             if data['php73']:
                 php_version = "7.3"
+                php73 = 1
             else:
                 php_version = "7.2"
+                php73 = 0
 
             addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
                        php_version=php_version)
@@ -742,6 +743,7 @@ class WOSiteCreateController(CementBaseController):
                       "`tail /var/log/wo/wordops.log` and please try again")
 
         if pargs.letsencrypt:
+            (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
             data['letsencrypt'] = True
             letsencrypt = True
             if data['letsencrypt'] is True:
@@ -956,7 +958,6 @@ class WOSiteUpdateController(CementBaseController):
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
-        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
         check_site = getSiteInfo(self, wo_domain)
 
         if check_site is None:
@@ -1149,6 +1150,53 @@ class WOSiteUpdateController(CementBaseController):
                              "site")
                 pargs.php73 = False
 
+        if pargs.letsencrypt:
+            (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
+            if pargs.letsencrypt == 'on':
+                data['letsencrypt'] = True
+                letsencrypt = True
+                if ((wo_domain_type == 'subdomain') and
+                        (not pargs.letsencrypt == 'wildcard')):
+                    wo_subdomain = True
+                else:
+                    wo_subdomain = False
+                wo_wildcard = False
+            elif pargs.letsencrypt == 'subdomain':
+                data['letsencrypt'] = True
+                letsencrypt = True
+                wo_subdomain = True
+                wo_wildcard = False
+            elif pargs.letsencrypt == 'wildcard':
+                data['letsencrypt'] = True
+                letsencrypt = True
+                wo_wildcard = True
+                wo_subdomain = False
+            elif pargs.letsencrypt == 'off':
+                data['letsencrypt'] = False
+                letsencrypt = False
+                wo_subdomain = False
+                wo_wildcard = False
+            elif pargs.letsencrypt == 'clean':
+                data['letsencrypt'] = False
+                letsencrypt = False
+                wo_subdomain = False
+                wo_wildcard = False
+            elif pargs.letsencrypt == 'purge':
+                data['letsencrypt'] = False
+                letsencrypt = False
+                wo_subdomain = False
+                wo_wildcard = False
+
+            if not wo_subdomain:
+                if letsencrypt is check_ssl:
+                    if letsencrypt is False:
+                        Log.error(self, "SSl is not configured for given "
+                                  "site")
+                    elif letsencrypt is True:
+                        Log.error(self, "SSl is already configured for given "
+                                  "site")
+                    pargs.letsencrypt = False
+
         # --letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
             expiry_days = SSL.getExpirationDays(self, wo_domain)
@@ -1235,52 +1283,6 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "HTTPS is not configured for given "
                               "site", False)
                     return 0
-
-        if pargs.letsencrypt:
-            if pargs.letsencrypt == 'on':
-                data['letsencrypt'] = True
-                letsencrypt = True
-                if ((wo_domain_type == 'subdomain') and
-                        (not pargs.letsencrypt == 'wildcard')):
-                    wo_subdomain = True
-                else:
-                    wo_subdomain = False
-                wo_wildcard = False
-            elif pargs.letsencrypt == 'subdomain':
-                data['letsencrypt'] = True
-                letsencrypt = True
-                wo_subdomain = True
-                wo_wildcard = False
-            elif pargs.letsencrypt == 'wildcard':
-                data['letsencrypt'] = True
-                letsencrypt = True
-                wo_wildcard = True
-                wo_subdomain = False
-            elif pargs.letsencrypt == 'off':
-                data['letsencrypt'] = False
-                letsencrypt = False
-                wo_subdomain = False
-                wo_wildcard = False
-            elif pargs.letsencrypt == 'clean':
-                data['letsencrypt'] = False
-                letsencrypt = False
-                wo_subdomain = False
-                wo_wildcard = False
-            elif pargs.letsencrypt == 'purge':
-                data['letsencrypt'] = False
-                letsencrypt = False
-                wo_subdomain = False
-                wo_wildcard = False
-
-            if not wo_subdomain:
-                if letsencrypt is check_ssl:
-                    if letsencrypt is False:
-                        Log.error(self, "SSl is not configured for given "
-                                  "site")
-                    elif letsencrypt is True:
-                        Log.error(self, "SSl is already configured for given "
-                                  "site")
-                    pargs.letsencrypt = False
 
         if data and (not pargs.php73):
             if old_php73 is True:
@@ -1468,6 +1470,9 @@ class WOSiteUpdateController(CementBaseController):
                 elif (pargs.letsencrypt == "clean" or
                       pargs.letsencrypt == "purge"):
                     removeAcmeConf(self, wo_domain)
+                    # find all broken symlinks
+                    sympath = "/var/www"
+                    WOFileUtils.findBrokenSymlink(self, sympath)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
@@ -1872,7 +1877,6 @@ class WOSiteDeleteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        wo_domain_type, wo_root_domain = GetDomainlevel(wo_domain)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''

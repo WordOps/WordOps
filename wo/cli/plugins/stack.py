@@ -191,8 +191,6 @@ class WOStackController(CementBaseController):
             # Redis
             if pargs.redis:
                 pargs.php = True
-                WOTemplate.addAptPackage(
-                    self, 'redis-server', WOVariables.wo_redis)
                 if not WOAptGet.is_installed(self, 'redis-server'):
                     apt_packages = apt_packages + WOVariables.wo_redis
 
@@ -248,8 +246,8 @@ class WOStackController(CementBaseController):
             # WP-CLI
             if pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
-                if (not os.path.isfile("/usr/local/bin/wp") and not
-                        os.path.isfile("/usr/bin/wp")):
+                if ((not os.path.isfile("/usr/local/bin/wp")) and
+                        (not os.path.isfile("/usr/bin/wp"))):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                             "releases/download/v{0}/"
                                             "wp-cli-{0}.phar"
