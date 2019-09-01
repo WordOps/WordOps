@@ -669,7 +669,7 @@ class WOStackController(CementBaseController):
         if pargs.netdata:
             Log.debug(self, "Removing Netdata")
             if os.path.isfile('/opt/netdata/usr/'
-                              'libexec/netdata-uninstaller.sh'):
+                              'libexec/netdata/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
         if pargs.dashboard:
@@ -697,12 +697,12 @@ class WOStackController(CementBaseController):
                      'kickstart.sh']).issubset(set(packages))):
                 if WOVariables.wo_distro == 'Raspbian':
                     WOShellExec.cmd_exec(self, "bash /usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+                                         "libexec/netdata/"
+                                         "netdata-uninstaller.sh -y -f")
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+                                         "libexec/netdata/"
+                                         "netdata-uninstaller.sh -y -f")
 
             if (packages):
                 Log.info(self, "Removing packages, please wait...")
@@ -885,7 +885,7 @@ class WOStackController(CementBaseController):
         if pargs.netdata:
             Log.debug(self, "Removing Netdata")
             if os.path.isfile('/opt/netdata/usr/'
-                              'libexec/netdata-uninstaller.sh'):
+                              'libexec/netdata/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
         if pargs.dashboard:
