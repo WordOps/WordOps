@@ -34,6 +34,7 @@ from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.variables import WOVariables
+from wo.core.template import WOTemplate
 
 
 def wo_stack_hook(app):
@@ -88,6 +89,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install Fail2ban stack', action='store_true')),
             (['--clamav'],
                 dict(help='Install ClamAV stack', action='store_true')),
+            (['--sendmail'],
+                dict(help='Install Sendmail stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
             (['--redis'],
@@ -126,7 +129,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.phpredisadmin) and
+                (not pargs.phpredisadmin) and (not pargs.sendmail) and
                     (not pargs.php73)):
                 pargs.web = True
                 pargs.admin = True
@@ -145,8 +148,10 @@ class WOStackController(CementBaseController):
                 pargs.php = True
                 pargs.mysql = True
                 pargs.wpcli = True
+                pargs.sendmail = True
 
             if pargs.admin:
+                pargs.web = True
                 pargs.adminer = True
                 pargs.phpmyadmin = True
                 pargs.composer = True
@@ -185,9 +190,12 @@ class WOStackController(CementBaseController):
 
             # Redis
             if pargs.redis:
+                pargs.php = True
+                WOTemplate.addAptPackage(
+                    self, 'redis-server', WOVariables.wo_redis)
                 if not WOAptGet.is_installed(self, 'redis-server'):
                     apt_packages = apt_packages + WOVariables.wo_redis
-                    pargs.php = True
+
                 else:
                     Log.info(self, "Redis already installed")
 
@@ -269,6 +277,15 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "ClamAV already installed")
                     Log.info(self, "ClamAV already installed")
+
+            # sendmail
+            if pargs.sendmail:
+                Log.debug(self, "Setting apt_packages variable for Sendmail")
+                if not WOAptGet.is_installed(self, 'sendmail'):
+                    apt_packages = apt_packages + ["sendmail"]
+                else:
+                    Log.debug(self, "Sendmail already installed")
+                    Log.info(self, "Sendmail already installed")
 
             # proftpd
             if pargs.proftpd:
@@ -505,7 +522,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.phpredisadmin) and
+                (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
             pargs.web = True
             pargs.admin = True
@@ -526,6 +543,7 @@ class WOStackController(CementBaseController):
             pargs.php = True
             pargs.mysql = True
             pargs.wpcli = True
+            pargs.sendmail = True
 
         if pargs.admin:
             pargs.composer = True
@@ -591,6 +609,12 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for ClamAV")
             if WOAptGet.is_installed(self, 'clamav'):
                 apt_packages = apt_packages + WOVariables.wo_clamav
+
+        # sendmail
+        if pargs.sendmail:
+            Log.debug(self, "Setting apt_packages variable for Sendmail")
+            if WOAptGet.is_installed(self, 'sendmail'):
+                apt_packages = apt_packages + ["sendmail"]
 
         # proftpd
         if pargs.proftpd:
@@ -711,7 +735,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.phpredisadmin) and
+                (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
             pargs.web = True
             pargs.admin = True
@@ -732,6 +756,7 @@ class WOStackController(CementBaseController):
             pargs.php = True
             pargs.mysql = True
             pargs.wpcli = True
+            pargs.sendmail = True
 
         if pargs.admin:
             pargs.utils = True
@@ -797,6 +822,12 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for ClamAV")
             if WOAptGet.is_installed(self, 'clamav'):
                 apt_packages = apt_packages + WOVariables.wo_clamav
+
+        # sendmail
+        if pargs.sendmail:
+            Log.debug(self, "Setting apt_packages variable for Sendmail")
+            if WOAptGet.is_installed(self, 'sendmail'):
+                apt_packages = apt_packages + ["sendmail"]
 
         # proftpd
         if pargs.proftpd:
