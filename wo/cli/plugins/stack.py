@@ -672,12 +672,12 @@ class WOStackController(CementBaseController):
                      'kickstart.sh']).issubset(set(packages))):
                 if WOVariables.wo_distro == 'Raspbian':
                     WOShellExec.cmd_exec(self, "bash /usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+                                         "libexec/netdata/"
+                                         "netdata-uninstaller.sh -y -f")
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata-"
-                                         "uninstaller.sh -y -f")
+                                         "libexec/netdata/"
+                                         "netdata-uninstaller.sh -y -f")
 
             if (packages):
                 Log.info(self, "Removing packages, please wait...")
