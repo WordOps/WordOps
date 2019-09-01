@@ -644,7 +644,7 @@ class WOStackController(CementBaseController):
         if pargs.netdata:
             Log.debug(self, "Removing Netdata")
             if os.path.isfile('/opt/netdata/usr/'
-                              'libexec/netdata-uninstaller.sh'):
+                              'libexec/netdata/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
         if pargs.dashboard:
@@ -853,7 +853,7 @@ class WOStackController(CementBaseController):
         if pargs.netdata:
             Log.debug(self, "Removing Netdata")
             if os.path.isfile('/opt/netdata/usr/'
-                              'libexec/netdata-uninstaller.sh'):
+                              'libexec/netdata/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
         if pargs.dashboard:
