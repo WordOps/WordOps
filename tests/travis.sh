@@ -131,7 +131,4 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
-cat /etc/nginx/nginx.conf | ccze -A
 wo site info wp1.com
-cat /etc/mysql/my.cnf | ccze -A
-cat /var/log/wo/wordops.log | ccze -A

@@ -38,3 +38,8 @@ script:
   - sudo wo stack status
   - sudo wo stack purge --all --force
   - sudo bash install --purge
+
+after_script:
+  - sudo cat /etc/nginx/nginx.conf | ccze -A
+  - sudo cat /var/log/wo/wordops.log | ccze -A
+  - sudo cat /etc/mysql/my.cnf | ccze -A
