@@ -103,6 +103,8 @@ fi
 # 1- Update the apt sewers with fresh info
 ###
 export DEBIAN_FRONTEND=noninteractive
+export LANG='en_US.UTF-8'
+
 [ -z "$wo_travis" ] && {
     apt-get update -qq
 }

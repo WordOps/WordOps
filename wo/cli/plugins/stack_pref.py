@@ -184,32 +184,34 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           encoding='utf-8', mode='a') as wo_nginx:
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
+            try:
+                data = dict(php="9000", debug="9001",
+                                php7="9070", debug7="9170")
+                WOTemplate.render(
+                    self, '{0}/upstream.conf'.format(ngxcnf),
+                    'upstream.mustache', data, overwrite=True)
 
-            data = dict(php="9000", debug="9001",
-                            php7="9070", debug7="9170")
-            WOTemplate.render(
-                self, '{0}/upstream.conf'.format(ngxcnf),
-                'upstream.mustache', data, overwrite=True)
+                data = dict(phpconf=True if
+                            WOAptGet.is_installed(self, 'php7.2-fpm')
+                            else False)
+                WOTemplate.render(self,
+                                  '{0}/stub_status.conf'.format(ngxcnf),
+                                  'stub_status.mustache', data)
+                data = dict()
+                WOTemplate.render(self,
+                                  '{0}/webp.conf'.format(ngxcnf),
+                                  'webp.mustache', data, overwrite=False)
 
-            data = dict(phpconf=True if
-                        WOAptGet.is_installed(self, 'php7.2-fpm')
-                        else False)
-            WOTemplate.render(self,
-                              '{0}/stub_status.conf'.format(ngxcnf),
-                              'stub_status.mustache', data)
-            data = dict()
-            WOTemplate.render(self,
-                              '{0}/webp.conf'.format(ngxcnf),
-                              'webp.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/cloudflare.conf'.format(ngxcnf),
+                                  'cloudflare.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/cloudflare.conf'.format(ngxcnf),
-                              'cloudflare.mustache', data)
-
-            WOTemplate.render(self,
-                              '{0}/map-wp-fastcgi-cache.conf'.format(
-                                  ngxcnf),
-                              'map-wp.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/map-wp-fastcgi-cache.conf'.format(
+                                      ngxcnf),
+                                  'map-wp.mustache', data)
+            except CommandExecutionError as e:
+                Log.debug(self, "{0}".format(e))
 
             # Setup Nginx common directory
             if not os.path.exists('{0}'.format(ngxcom)):
@@ -217,90 +219,92 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           '/etc/nginx/common')
                 os.makedirs('/etc/nginx/common')
 
-            data = dict()
+            try:
+                data = dict()
 
-            # Common Configuration
-            WOTemplate.render(self,
-                              '{0}/locations-wo.conf'
-                              .format(ngxcom),
-                              'locations.mustache', data)
+                # Common Configuration
+                WOTemplate.render(self,
+                                  '{0}/locations-wo.conf'
+                                  .format(ngxcom),
+                                  'locations.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wpsubdir.conf'
-                              .format(ngxcom),
-                              'wpsubdir.mustache', data)
-            data = dict(upstream="php72")
-            # PHP 7.2 conf
-            WOTemplate.render(self,
-                              '{0}/php72.conf'
-                              .format(ngxcom),
-                              'php.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsubdir.conf'
+                                  .format(ngxcom),
+                                  'wpsubdir.mustache', data)
+                data = dict(upstream="php72")
+                # PHP 7.2 conf
+                WOTemplate.render(self,
+                                  '{0}/php72.conf'
+                                  .format(ngxcom),
+                                  'php.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/redis-php72.conf'
-                              .format(ngxcom),
-                              'redis.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/redis-php72.conf'
+                                  .format(ngxcom),
+                                  'redis.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wpcommon-php72.conf'
-                              .format(ngxcom),
-                              'wpcommon.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpcommon-php72.conf'
+                                  .format(ngxcom),
+                                  'wpcommon.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wpfc-php72.conf'
-                              .format(ngxcom),
-                              'wpfc.mustache', data)
-            WOTemplate.render(self,
-                              '{0}/wpsc-php72.conf'
-                              .format(ngxcom),
-                              'wpsc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpfc-php72.conf'
+                                  .format(ngxcom),
+                                  'wpfc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsc-php72.conf'
+                                  .format(ngxcom),
+                                  'wpsc.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wprocket-php72.conf'
-                              .format(ngxcom),
-                              'wprocket.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wprocket-php72.conf'
+                                  .format(ngxcom),
+                                  'wprocket.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wpce-php72.conf'
-                              .format(ngxcom),
-                              'wpce.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpce-php72.conf'
+                                  .format(ngxcom),
+                                  'wpce.mustache', data)
+                # PHP 7.3 conf
+                data = dict(upstream="php73")
 
-            # PHP 7.3 conf
-            data = dict(upstream="php73")
+                WOTemplate.render(self,
+                                  '{0}/php73.conf'
+                                  .format(ngxcom),
+                                  'php.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/php73.conf'
-                              .format(ngxcom),
-                              'php.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/redis-php73.conf'
+                                  .format(ngxcom),
+                                  'redis.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/redis-php73.conf'
-                              .format(ngxcom),
-                              'redis.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpcommon-php73.conf'
+                                  .format(ngxcom),
+                                  'wpcommon.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wpcommon-php73.conf'
-                              .format(ngxcom),
-                              'wpcommon.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpfc-php73.conf'
+                                  .format(ngxcom),
+                                  'wpfc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpsc-php73.conf'
+                                  .format(ngxcom),
+                                  'wpsc.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wpfc-php73.conf'
-                              .format(ngxcom),
-                              'wpfc.mustache', data)
-            WOTemplate.render(self,
-                              '{0}/wpsc-php73.conf'
-                              .format(ngxcom),
-                              'wpsc.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wprocket-php73.conf'
+                                  .format(ngxcom),
+                                  'wprocket.mustache', data)
 
-            WOTemplate.render(self,
-                              '{0}/wprocket-php73.conf'
-                              .format(ngxcom),
-                              'wprocket.mustache', data)
-
-            WOTemplate.render(self,
-                              '{0}/wpce-php73.conf'
-                              .format(ngxcom),
-                              'wpce.mustache', data)
+                WOTemplate.render(self,
+                                  '{0}/wpce-php73.conf'
+                                  .format(ngxcom),
+                                  'wpce.mustache', data)
+            except CommandExecutionError as e:
+                Log.debug(self, "{0}".format(e))
 
             with open("/etc/nginx/common/release",
                       "w") as release_file:
@@ -477,6 +481,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                        "/var/www/22222/cert/22222.crt;\n"
                                        "ssl_certificate_key "
                                        "/var/www/22222/cert/22222.key;\n")
+
                 server_ip = requests.get('http://v4.wordops.eu')
 
                 if set(["nginx"]).issubset(set(apt_packages)):
@@ -665,12 +670,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           .format(ngxroot))
                 os.makedirs('{0}22222/htdocs/fpm/status/'
                             .format(ngxroot))
-            open('{0}22222/htdocs/fpm/status/debug72'
-                 .format(ngxroot),
-                 encoding='utf-8', mode='a').close()
-            open('{0}22222/htdocs/fpm/status/php72'
-                 .format(ngxroot),
-                 encoding='utf-8', mode='a').close()
+                open('{0}22222/htdocs/fpm/status/debug72'
+                     .format(ngxroot),
+                     encoding='utf-8', mode='a').close()
+                open('{0}22222/htdocs/fpm/status/php72'
+                     .format(ngxroot),
+                     encoding='utf-8', mode='a').close()
 
             # Write info.php
             if not os.path.exists('{0}22222/htdocs/php/'
@@ -681,10 +686,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('{0}22222/htdocs/php'
                             .format(ngxroot))
 
-            with open("{0}22222/htdocs/php/info.php"
-                      .format(ngxroot),
-                      encoding='utf-8', mode='w') as myfile:
-                myfile.write("<?php\nphpinfo();\n?>")
+                with open("{0}22222/htdocs/php/info.php"
+                          .format(ngxroot),
+                          encoding='utf-8', mode='w') as myfile:
+                    myfile.write("<?php\nphpinfo();\n?>")
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
