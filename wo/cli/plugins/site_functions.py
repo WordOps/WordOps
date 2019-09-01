@@ -1486,7 +1486,7 @@ def checkWildcardExist(self, wo_domain_name):
     # define new csv dialect
     csv.register_dialect('acmeconf', delimiter='|')
     # open file
-    certfile = open('/var/lib/wo/cert.csv', 'rt')
+    certfile = open('/var/lib/wo/cert.csv', mode='rt', encoding='utf-8')
     reader = csv.reader(certfile, 'acmeconf')
     wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
     for row in reader:
