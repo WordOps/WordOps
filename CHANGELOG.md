@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- Sendmail stack to send WordPress welcome email properly
+- Backup all MySQL databases before removing/purging MySQL stack
+
 #### Changed
 
 - do not terminate stack install process on errors
