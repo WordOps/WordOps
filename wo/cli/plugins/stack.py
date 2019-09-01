@@ -403,7 +403,7 @@ class WOStackController(CementBaseController):
                     Log.info(self, "WordOps dashboard already installed")
 
             # eXtplorer
-            if pargs.explorer:
+            if pargs.extplorer:
                 if not os.path.isdir('/var/www/22222/htdocs/files'):
                     Log.debug(self, "Setting packages variable for eXtplorer")
                     packages = packages + \

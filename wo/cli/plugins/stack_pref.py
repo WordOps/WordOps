@@ -217,98 +217,96 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           '/etc/nginx/common')
                 os.makedirs('/etc/nginx/common')
 
-            if os.path.exists('/etc/nginx/common'):
-                data = dict()
+            data = dict()
 
-                # Common Configuration
-                WOTemplate.render(self,
-                                  '{0}/locations-wo.conf'
-                                  .format(ngxcom),
-                                  'locations.mustache', data)
+            # Common Configuration
+            WOTemplate.render(self,
+                              '{0}/locations-wo.conf'
+                              .format(ngxcom),
+                              'locations.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wpsubdir.conf'
-                                  .format(ngxcom),
-                                  'wpsubdir.mustache', data)
-                data = dict(upstream="php72")
-                # PHP 7.2 conf
-                WOTemplate.render(self,
-                                  '{0}/php72.conf'
-                                  .format(ngxcom),
-                                  'php.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpsubdir.conf'
+                              .format(ngxcom),
+                              'wpsubdir.mustache', data)
+            data = dict(upstream="php72")
+            # PHP 7.2 conf
+            WOTemplate.render(self,
+                              '{0}/php72.conf'
+                              .format(ngxcom),
+                              'php.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/redis-php72.conf'
-                                  .format(ngxcom),
-                                  'redis.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/redis-php72.conf'
+                              .format(ngxcom),
+                              'redis.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wpcommon-php72.conf'
-                                  .format(ngxcom),
-                                  'wpcommon.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpcommon-php72.conf'
+                              .format(ngxcom),
+                              'wpcommon.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wpfc-php72.conf'
-                                  .format(ngxcom),
-                                  'wpfc.mustache', data)
-                WOTemplate.render(self,
-                                  '{0}/wpsc-php72.conf'
-                                  .format(ngxcom),
-                                  'wpsc.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpfc-php72.conf'
+                              .format(ngxcom),
+                              'wpfc.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpsc-php72.conf'
+                              .format(ngxcom),
+                              'wpsc.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wprocket-php72.conf'
-                                  .format(ngxcom),
-                                  'wprocket.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wprocket-php72.conf'
+                              .format(ngxcom),
+                              'wprocket.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wpce-php72.conf'
-                                  .format(ngxcom),
-                                  'wpce.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpce-php72.conf'
+                              .format(ngxcom),
+                              'wpce.mustache', data)
 
             # PHP 7.3 conf
-            if os.path.isdir("/etc/nginx/common"):
-                data = dict(upstream="php73")
+            data = dict(upstream="php73")
 
-                WOTemplate.render(self,
-                                  '{0}/php73.conf'
-                                  .format(ngxcom),
-                                  'php.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/php73.conf'
+                              .format(ngxcom),
+                              'php.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/redis-php73.conf'
-                                  .format(ngxcom),
-                                  'redis.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/redis-php73.conf'
+                              .format(ngxcom),
+                              'redis.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wpcommon-php73.conf'
-                                  .format(ngxcom),
-                                  'wpcommon.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpcommon-php73.conf'
+                              .format(ngxcom),
+                              'wpcommon.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wpfc-php73.conf'
-                                  .format(ngxcom),
-                                  'wpfc.mustache', data)
-                WOTemplate.render(self,
-                                  '{0}/wpsc-php73.conf'
-                                  .format(ngxcom),
-                                  'wpsc.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpfc-php73.conf'
+                              .format(ngxcom),
+                              'wpfc.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpsc-php73.conf'
+                              .format(ngxcom),
+                              'wpsc.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wprocket-php73.conf'
-                                  .format(ngxcom),
-                                  'wprocket.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wprocket-php73.conf'
+                              .format(ngxcom),
+                              'wprocket.mustache', data)
 
-                WOTemplate.render(self,
-                                  '{0}/wpce-php73.conf'
-                                  .format(ngxcom),
-                                  'wpce.mustache', data)
+            WOTemplate.render(self,
+                              '{0}/wpce-php73.conf'
+                              .format(ngxcom),
+                              'wpce.mustache', data)
 
-                with open("/etc/nginx/common/release",
-                          "w") as release_file:
-                    release_file.write("v{0}"
-                                       .format(WOVariables.wo_version))
-                release_file.close()
+            with open("/etc/nginx/common/release",
+                      "w") as release_file:
+                release_file.write("v{0}"
+                                   .format(WOVariables.wo_version))
+            release_file.close()
 
             # Following files should not be overwrited
 
@@ -324,7 +322,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOTemplate.render(self,
                               '{0}/fastcgi.conf'
                               .format(ngxcnf),
-                              'fastcgi.mustache', data, overwrite=False)
+                              'fastcgi.mustache', data, overwrite=True)
 
             # add redis cache format if not already done
             if (os.path.isfile("/etc/nginx/nginx.conf") and
@@ -1364,55 +1362,51 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # WordOps Dashboard
         if any('/var/lib/wo/tmp/wo-dashboard.tar.gz' == x[1]
                for x in packages):
-            if not os.path.isfile('{0}22222/htdocs/index.php'
-                                  .format(WOVariables.wo_webroot)):
-                Log.debug(self, "Extracting wo-dashboard.tar.gz "
-                          "to location {0}22222/htdocs/"
-                          .format(WOVariables.wo_webroot))
-                WOExtract.extract(self, '/var/lib/wo/tmp/'
-                                  'wo-dashboard.tar.gz',
-                                  '{0}22222/htdocs'
-                                  .format(WOVariables.wo_webroot))
-                wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
-                                  "grep -oP \"dev [^[:space:]]+ \" "
-                                  "| cut -d ' ' -f 2").read()
-                if (wo_wan != 'eth0' and wo_wan != ''):
-                    WOFileUtils.searchreplace(self,
-                                              "{0}22222/htdocs/index.php"
-                                              .format(WOVariables.wo_webroot),
-                                              "eth0",
-                                              "{0}".format(wo_wan))
-                    Log.debug(self, "Setting Privileges to "
-                              "{0}22222/htdocs"
+            Log.debug(self, "Extracting wo-dashboard.tar.gz "
+                      "to location {0}22222/htdocs/"
+                      .format(WOVariables.wo_webroot))
+            WOExtract.extract(self, '/var/lib/wo/tmp/'
+                              'wo-dashboard.tar.gz',
+                              '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot))
-                    WOFileUtils.chown(self, '{0}22222/htdocs'
-                                      .format(WOVariables.wo_webroot),
-                                      'www-data',
-                                      'www-data',
-                                      recursive=True)
-
-        # Extplorer FileManager
-        if any('/var/lib/wo/tmp/extplorer.tar.gz' == x[1]
-               for x in packages):
-            if not os.path.exists('{0}22222/htdocs/files'
-                                  .format(WOVariables.wo_webroot)):
-                Log.debug(self, "Extracting explorer.tar.gz "
-                          "to location {0}22222/htdocs/files"
-                          .format(WOVariables.wo_webroot))
-                WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
-                                  '/var/lib/wo/tmp/')
-                shutil.move('/var/lib/wo/tmp/extplorer-{0}'
-                            .format(WOVariables.wo_extplorer),
-                            '{0}22222/htdocs/files'
-                            .format(WOVariables.wo_webroot))
+            wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
+                              "grep -oP \"dev [^[:space:]]+ \" "
+                              "| cut -d ' ' -f 2").read()
+            if (wo_wan != 'eth0' and wo_wan != ''):
+                WOFileUtils.searchreplace(self,
+                                          "{0}22222/htdocs/index.php"
+                                          .format(WOVariables.wo_webroot),
+                                          "eth0",
+                                          "{0}".format(wo_wan))
                 Log.debug(self, "Setting Privileges to "
-                          "{0}22222/htdocs/files"
+                          "{0}22222/htdocs"
                           .format(WOVariables.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
                                   .format(WOVariables.wo_webroot),
                                   'www-data',
                                   'www-data',
                                   recursive=True)
+
+        # Extplorer FileManager
+        if any('/var/lib/wo/tmp/extplorer.tar.gz' == x[1]
+               for x in packages):
+            Log.debug(self, "Extracting extplorer.tar.gz "
+                      "to location {0}22222/htdocs/files"
+                      .format(WOVariables.wo_webroot))
+            WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
+                              '/var/lib/wo/tmp/')
+            shutil.move('/var/lib/wo/tmp/extplorer-{0}'
+                        .format(WOVariables.wo_extplorer),
+                        '{0}22222/htdocs/files'
+                        .format(WOVariables.wo_webroot))
+            Log.debug(self, "Setting Privileges to "
+                      "{0}22222/htdocs/files"
+                      .format(WOVariables.wo_webroot))
+            WOFileUtils.chown(self, '{0}22222/htdocs'
+                              .format(WOVariables.wo_webroot),
+                              'www-data',
+                              'www-data',
+                              recursive=True)
 
         # webgrind
         if any('/var/lib/wo/tmp/webgrind.tar.gz' == x[1]
