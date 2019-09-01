@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Fixed
+
+- ufw rules for proftpd not applied
+- phpredisadmin install
+- netdata configuration
+
+
 ### v3.9.8.7 - 2019-08-31
 
 #### Changed

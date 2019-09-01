@@ -47,11 +47,13 @@ def pre_pref(self, apt_packages):
     if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
+
         # configure MySQL non-interactive install
-        if (not WOVariables.wo_distro == 'raspbian'):
-            mariadb_ver = '10.3'
-        else:
+        if ((WOVariables.wo_distro == 'raspbian') and
+                (WOVariables.wo_platform_codename == 'stretch')):
             mariadb_ver = '10.1'
+        else:
+            mariadb_ver = '10.3'
 
         Log.debug(self, "Pre-seeding MySQL")
         Log.debug(self, "echo \"mariadb-server-{0} "
@@ -1072,17 +1074,20 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'proftpd')
 
             # add rule for proftpd with UFW
-            if WOAptGet.is_installed(self, 'ufw'):
+            if os.path.isdir('/etc/ufw'):
                 try:
-                    WOShellExec.cmd_exec(self, "/usr/bin/ufw allow "
-                                         "49000:50000/tcp")
+                    WOShellExec.cmd_exec(
+                        self, "ufw allow 49000:50000/tcp")
+                    WOShellExec.cmd_exec(
+                        self, "ufw reload")
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Unable to add UFW rule")
 
             if ((os.path.isfile("/etc/fail2ban/jail.d/custom.conf")) and
-                (not WOFileUtils.grep(self, "/etc/fail2ban/jail.d/custom.conf",
-                                      "proftpd"))):
+                (not WOFileUtils.grep(
+                    self, "/etc/fail2ban/jail.d/custom.conf",
+                    "proftpd"))):
                 with open("/etc/fail2ban/jail.d/custom.conf",
                           encoding='utf-8', mode='a') as f2bproftpd:
                     f2bproftpd.write("\n\n[proftpd]\nenabled = true\n")
@@ -1108,17 +1113,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 if not os.path.isfile("/etc/nginx/conf.d/redis.conf"):
                     with open("/etc/nginx/conf.d/redis.conf",
                               "a") as redis_file:
-                        redis_file.write("# Log format Settings\n"
-                                         "log_format rt_cache_redis "
-                                         "'$remote_addr "
-                                         "$upstream_response_time "
-                                         "$srcache_fetch_status "
-                                         "[$time_local]"
-                                         " '\n '$http_host"
-                                         " \"$request\" "
-                                         "$status $body_bytes_sent '\n"
-                                         "'\"$http_referer\" "
-                                         "\"$http_user_agent\"';\n")
+                        redis_file.write(
+                            "# Log format Settings\n"
+                            "log_format rt_cache_redis '$remote_addr "
+                            "$upstream_response_time $srcache_fetch_status "
+                            "[$time_local] '\n '$http_host \"$request\" "
+                            "$status $body_bytes_sent '\n'\"$http_referer\" "
+                            "\"$http_user_agent\"';\n")
             # set redis.conf parameter
             # set maxmemory 10% for ram below 512MB and 20% for others
             # set maxmemory-policy allkeys-lru
@@ -1158,12 +1159,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 Log.debug(
                     self, "Setting maxmemory-policy variable to "
                     "allkeys-lru in redis.conf")
-                WOFileUtils.searchreplace(self,
-                                          "/etc/redis/redis.conf",
-                                          "# maxmemory-policy "
-                                          "noeviction",
-                                          "maxmemory-policy "
-                                          "allkeys-lru")
+                WOFileUtils.searchreplace(
+                    self, "/etc/redis/redis.conf",
+                    "# maxmemory-policy noeviction",
+                    "maxmemory-policy allkeys-lru")
                 Log.debug(
                     self, "Setting tcp-backlog variable to "
                     "in redis.conf")
@@ -1268,7 +1267,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             shutil.copyfile('/var/lib/wo/tmp/composer.phar',
                             '/usr/local/bin/composer')
             WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
-            if os.path.isdir("/var/www/22222/htdocs/db/pma"):
+            if ((os.path.isdir("/var/www/22222/htdocs/db/pma")) and
+                    (not os.path.isfile('/var/www/22222/htdocs/db/'
+                                        'pma/composer.lock'))):
                 Log.info(self, "Updating phpMyAdmin, please wait...")
                 WOShellExec.cmd_exec(
                     self, "/usr/local/bin/composer update "
@@ -1289,11 +1290,19 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           .format(WOVariables.wo_webroot))
                 os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
                             .format(WOVariables.wo_webroot))
-                WOFileUtils.chown(self, '{0}22222/htdocs'
-                                  .format(WOVariables.wo_webroot),
-                                  'www-data',
-                                  'www-data',
-                                  recursive=True)
+            if not os.path.isfile('/var/www/22222/htdocs/cache/redis/'
+                                  'phpRedisAdmin/composer.lock'):
+                WOShellExec.cmd_exec(self, "/usr/local/bin/composer"
+                                     "create-project --no-plugins "
+                                     "--no-scripts -n -s dev "
+                                     "erik-dubbelboer/php-redis-admin "
+                                     "/var/www/22222/htdocs/cache"
+                                     "/redis/phpRedisAdmin ")
+            WOFileUtils.chown(self, '{0}22222/htdocs'
+                              .format(WOVariables.wo_webroot),
+                              'www-data',
+                              'www-data',
+                              recursive=True)
 
         # MySQLtuner
         if any('/usr/bin/mysqltuner' == x[1]
@@ -1304,54 +1313,51 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # netdata install
         if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
                for x in packages):
-            if ((not os.path.exists('/opt/netdata')) and
-                    (not os.path.exists('/etc/netdata'))):
-                Log.info(self, "Installing Netdata, please wait...")
-                WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
-                                     "kickstart.sh "
-                                     "--dont-wait")
-                if WOVariables.wo_distro == 'raspbian':
-                    wo_netdata = "/"
-                else:
-                    wo_netdata = "/opt/netdata/"
-                # disable mail notifications
-                WOFileUtils.searchreplace(
-                    self, "{0}usr/"
-                    "lib/netdata/conf.d/health_alarm_notify.conf"
-                    .format(wo_netdata),
-                    'SEND_EMAIL="YES"',
-                    'SEND_EMAIL="NO"')
-                # make changes persistant
-                WOFileUtils.copyfile(
-                    self, "{0}usr/lib/netdata/conf.d/"
-                    "health_alarm_notify.conf"
-                    .format(wo_netdata),
-                    "{0}etc/netdata/health_alarm_notify.conf"
-                    .format(wo_netdata))
-                # check if mysql credentials are available
-                if os.path.isfile('/etc/mysql/conf.d/my.cnf'):
-                    try:
-                        WOMysql.execute(
-                            self,
-                            "create user 'netdata'@'localhost';",
-                            log=False)
-                        WOMysql.execute(
-                            self,
-                            "grant usage on *.* to 'netdata'@'localhost';",
-                            log=False)
-                        WOMysql.execute(
-                            self, "flush privileges;",
-                            log=False)
-                    except CommandExecutionError as e:
-                        Log.debug(self, "{0}".format(e))
-                        Log.info(
-                            self, "fail to setup mysql user for netdata")
-                WOFileUtils.chown(self, '{0}etc/netdata'
-                                  .format(wo_netdata),
-                                  'netdata',
-                                  'netdata',
-                                  recursive=True)
-                WOService.restart_service(self, 'netdata')
+            Log.info(self, "Installing Netdata, please wait...")
+            WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
+                                 "kickstart.sh "
+                                 "--dont-wait")
+            if os.path.isdir('/etc/netdata'):
+                wo_netdata = "/"
+            elif os.path.isdir('/opt/netdata'):
+                wo_netdata = "/opt/netdata/"
+            # disable mail notifications
+            WOFileUtils.searchreplace(
+                self, "{0}etc/netdata/orig/health_alarm_notify.conf"
+                .format(wo_netdata),
+                'SEND_EMAIL="YES"',
+                'SEND_EMAIL="NO"')
+            # make changes persistant
+            WOFileUtils.copyfile(
+                self, "{0}etc/netdata/orig/"
+                "health_alarm_notify.conf"
+                .format(wo_netdata),
+                "{0}etc/netdata/health_alarm_notify.conf"
+                .format(wo_netdata))
+            # check if mysql credentials are available
+            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+                try:
+                    WOMysql.execute(
+                        self,
+                        "create user 'netdata'@'localhost';",
+                        log=False)
+                    WOMysql.execute(
+                        self,
+                        "grant usage on *.* to 'netdata'@'localhost';",
+                        log=False)
+                    WOMysql.execute(
+                        self, "flush privileges;",
+                        log=False)
+                except CommandExecutionError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.info(
+                        self, "fail to setup mysql user for netdata")
+            WOFileUtils.chown(self, '{0}etc/netdata'
+                              .format(wo_netdata),
+                              'netdata',
+                              'netdata',
+                              recursive=True)
+            WOService.restart_service(self, 'netdata')
 
         # WordOps Dashboard
         if any('/var/lib/wo/tmp/wo-dashboard.tar.gz' == x[1]

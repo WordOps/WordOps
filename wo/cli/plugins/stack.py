@@ -312,6 +312,9 @@ class WOStackController(CementBaseController):
 
             # Composer
             if pargs.composer:
+                if ((not WOAptGet.is_installed(self, 'php7.2-fpm')) and
+                        (not WOAptGet.is_installed(self, 'php7.3-fpm'))):
+                    pargs.php = True
                 if not os.path.isfile('/usr/local/bin/composer'):
                     Log.debug(self, "Setting packages variable for Composer ")
                     packages = packages + [["https://getcomposer.org/"
