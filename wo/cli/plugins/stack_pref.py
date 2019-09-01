@@ -1297,7 +1297,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             .format(WOVariables.wo_webroot))
             if not os.path.isfile('/var/www/22222/htdocs/cache/redis/'
                                   'phpRedisAdmin/composer.lock'):
-                WOShellExec.cmd_exec(self, "/usr/local/bin/composer"
+                WOShellExec.cmd_exec(self, "/usr/local/bin/composer "
                                      "create-project --no-plugins "
                                      "--no-scripts -n -s dev "
                                      "erik-dubbelboer/php-redis-admin "
