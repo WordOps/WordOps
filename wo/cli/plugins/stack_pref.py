@@ -1077,6 +1077,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if os.path.isdir('/etc/ufw'):
                 try:
                     WOShellExec.cmd_exec(
+                        self, "ufw allow 21")
+                    WOShellExec.cmd_exec(
                         self, "ufw allow 49000:50000/tcp")
                     WOShellExec.cmd_exec(
                         self, "ufw reload")
