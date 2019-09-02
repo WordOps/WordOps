@@ -925,11 +925,11 @@ class WOStackController(CementBaseController):
                      'kickstart.sh']).issubset(set(packages))):
                 if WOVariables.wo_distro == 'Raspbian':
                     WOShellExec.cmd_exec(self, "bash /usr/"
-                                         "libexec/netdata-"
+                                         "libexec/netdata/netdata-"
                                          "uninstaller.sh -y -f")
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata-"
+                                         "libexec/netdata/netdata-"
                                          "uninstaller.sh -y -f")
 
             if (apt_packages):

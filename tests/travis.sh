@@ -132,3 +132,4 @@ echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
 wo site info wp1.com
+wo stack purge --all --force
