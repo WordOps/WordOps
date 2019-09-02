@@ -1,5 +1,6 @@
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
+import requests
 
 
 def check_fqdn(self, wo_host):
@@ -20,3 +21,18 @@ def check_fqdn(self, wo_host):
     else:
         wo_host = input("Enter hostname [fqdn]:")
         check_fqdn(self, wo_host)
+
+
+def check_fqdn_ip(self):
+    """Check if server hostname resolved server IP"""
+    x = requests.get('http://v4.wordops.eu')
+    ip = (x.text).strip()
+
+    wo_fqdn = WOVariables.wo_fqdn
+    y = requests.get('http://v4.wordops.eu/dns/{0}/'.format(wo_fqdn))
+    ip_fqdn = (y.text).strip()
+
+    if ip == ip_fqdn:
+        return True
+    else:
+        return False

@@ -1,23 +1,24 @@
 # """WordOps site controller."""
-from cement.core.controller import CementBaseController, expose
+import glob
+import json
+import os
+import subprocess
+from subprocess import Popen
+
 from cement.core import handler, hook
-from wo.core.sslutils import SSL
-from wo.core.variables import WOVariables
-from wo.core.shellexec import WOShellExec
-from wo.core.domainvalidate import ValidateDomain, GetDomainlevel
-from wo.core.fileutils import WOFileUtils
+from cement.core.controller import CementBaseController, expose
 from wo.cli.plugins.site_functions import *
-from wo.core.services import WOService
-from wo.cli.plugins.sitedb import (addNewSite, getSiteInfo,
-                                   updateSiteInfo, deleteSiteInfo, getAllsites)
+from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
+                                   getSiteInfo, updateSiteInfo)
+from wo.core.domainvalidate import GetDomainlevel, ValidateDomain
+from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
-from subprocess import Popen
 from wo.core.nginxhashbucket import hashbucket
-import os
-import glob
-import subprocess
-import json
+from wo.core.services import WOService
+from wo.core.shellexec import WOShellExec
+from wo.core.sslutils import SSL
+from wo.core.variables import WOVariables
 
 
 def wo_site_hook(app):
@@ -31,7 +32,6 @@ class WOSiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
-        exit_on_close = True
         description = ('Performs website specific operations')
         arguments = [
             (['site_name'],
