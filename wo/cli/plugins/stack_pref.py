@@ -5,9 +5,9 @@ import random
 import shutil
 import string
 
+import psutil
 import requests
 
-import psutil
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.core.apt_repo import WORepo
