@@ -1,8 +1,9 @@
 import os
 import shutil
 
-from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+from wo.cli.plugins.stack_pref import post_pref, pre_pref
 from wo.core.aptget import WOAptGet
 from wo.core.download import WODownload
 from wo.core.extract import WOExtract
@@ -11,7 +12,6 @@ from wo.core.logging import Log
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
-from wo.cli.plugins.stack_pref import pre_pref, post_pref
 
 
 class WOStackUpgradeController(CementBaseController):

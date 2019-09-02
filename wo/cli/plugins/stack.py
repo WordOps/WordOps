@@ -1,27 +1,25 @@
 """Stack Plugin for WordOps"""
 
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-
 import codecs
 import configparser
 import os
 import pwd
 import random
+import re
 import shutil
 import string
-import re
+
 import requests
 
 import psutil
-
-# from pynginxconfig import NginxConfig
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import *
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
+from wo.cli.plugins.stack_pref import post_pref, pre_pref
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
-from wo.cli.plugins.stack_pref import pre_pref, post_pref
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
@@ -33,8 +31,8 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
-from wo.core.variables import WOVariables
 from wo.core.template import WOTemplate
+from wo.core.variables import WOVariables
 
 
 def wo_stack_hook(app):

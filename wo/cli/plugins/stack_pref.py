@@ -4,22 +4,25 @@ import os
 import random
 import shutil
 import string
-import psutil
+
 import requests
 
+import psutil
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
+from wo.core.checkfqdn import check_fqdn_ip
 from wo.core.cron import WOCron
+from wo.core.domainvalidate import GetDomainlevel
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
-from wo.core.template import WOTemplate
 from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
+from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
 
 
@@ -359,16 +362,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           '/etc/nginx/sites-available')
                 os.makedirs('/etc/nginx/sites-enabled')
 
-                # 22222 port settings
-            if not os.path.isfile('/etc/nginx/sites-available/22222'):
-                data = dict(webroot=ngxroot)
-                WOTemplate.render(
-                    self,
-                    '/etc/nginx/sites-available/22222',
-                    '22222.mustache', data, overwrite=False)
-                passwd = ''.join([random.choice
-                                  (string.ascii_letters + string.digits)
-                                  for n in range(24)])
+            # 22222 port settings
+            data = dict(webroot=ngxroot)
+            WOTemplate.render(
+                self,
+                '/etc/nginx/sites-available/22222',
+                '22222.mustache', data, overwrite=False)
+            passwd = ''.join([random.choice
+                              (string.ascii_letters + string.digits)
+                              for n in range(24)])
+            if not os.path.isfile('/etc/nginx/htpasswd-wo'):
                 try:
                     WOShellExec.cmd_exec(
                         self, "printf \"WordOps:"
@@ -380,8 +383,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 except CommandExecutionError as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Failed to save HTTP Auth")
-
-                    # Create Symbolic link for 22222
+            if not os.path.islink('/etc/nginx/sites-enabled/22222'):
+                # Create Symbolic link for 22222
                 WOFileUtils.create_symlink(
                     self, ['/etc/nginx/'
                            'sites-available/'

@@ -1,13 +1,14 @@
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-from wo.core.mysql import WOMysql
-from wo.core.logging import Log
-from wo.core.variables import WOVariables
-from wo.core.aptget import WOAptGet
-from wo.core.shellexec import WOShellExec
-from wo.core.apt_repo import WORepo
 import configparser
 import os
+
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+from wo.core.apt_repo import WORepo
+from wo.core.aptget import WOAptGet
+from wo.core.logging import Log
+from wo.core.mysql import WOMysql
+from wo.core.shellexec import WOShellExec
+from wo.core.variables import WOVariables
 
 
 class WOStackMigrateController(CementBaseController):
