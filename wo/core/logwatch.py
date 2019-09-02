@@ -49,9 +49,9 @@ class LogWatcher(object):
         # assert (os.path.isdir(self.folder), "%s does not exists"
         #                                     % self.folder)
         for file in self.filelist:
-            assert (os.path.isfile(file))
-        assert callable(callback)
-        self.update_files()
+            if not os.path.isfile(file):
+                if not callable(callback):
+                    self.update_files()
         # The first time we run the script we move all file markers at EOF.
         # In case of files created afterwards we don't do this.
         for id, file in list(iter(self.files_map.items())):

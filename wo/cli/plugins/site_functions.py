@@ -81,10 +81,10 @@ def setupdomain(self, data):
                             out=wo_site_nginx_conf)
         wo_site_nginx_conf.close()
     except IOError as e:
-        Log.debug(self, "{0}".format(e))
+        Log.debug(self, str(e))
         raise SiteError("create nginx configuration failed for site")
     except Exception as e:
-        Log.debug(self, "{0}".format(e))
+        Log.debug(self, str(e))
         raise SiteError("create nginx configuration failed for site")
     finally:
         # Check nginx -t and return status over it
@@ -126,7 +126,7 @@ def setupdomain(self, data):
                                           '{0}/logs/error.log'
                                           .format(wo_site_webroot)])
     except Exception as e:
-        Log.debug(self, "{0}".format(e))
+        Log.debug(self, str(e))
         raise SiteError("setup webroot failed for site")
     finally:
         # TODO Check if directories are setup
@@ -267,7 +267,7 @@ def setupwordpress(self, data, vhostonly=False):
             raise SiteError("download WordPress core failed")
     except CommandExecutionError:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-        raise SiteError(self, "download WordPress core failed")
+        raise SiteError("download WordPress core failed")
 
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
@@ -730,6 +730,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
 def setwebrootpermissions(self, webroot):
     Log.debug(self, "Setting up permissions")
     try:
+        WOFileUtils.findBrokenSymlink(self, '/var/www/')
         WOFileUtils.chown(self, webroot, WOVariables.wo_php_user,
                           WOVariables.wo_php_user, recursive=True)
     except Exception as e:
@@ -917,7 +918,7 @@ def updatewpuserpassword(self, wo_domain, wo_site_webroot):
     try:
         wo_wp_user = input("Provide WordPress user name [admin]: ")
     except Exception as e:
-        Log.debug(self, "{0}".format(e))
+        Log.debug(self, str(e))
         Log.error(self, "\nCould not update password")
 
     if wo_wp_user == "?":
@@ -951,7 +952,7 @@ def updatewpuserpassword(self, wo_domain, wo_site_webroot):
                                              "{0} user: "
                                              .format(wo_wp_user))
         except Exception as e:
-            Log.debug(self, "{0}".format(e))
+            Log.debug(self, str(e))
             raise SiteError("failed to read password input ")
 
         try:
@@ -1345,15 +1346,15 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
     if dbname:
         if not dbuser:
             raise SiteError("dbuser not provided")
-            if not dbhost:
-                raise SiteError("dbhost not provided")
+        if not dbhost:
+            raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
 # setup letsencrypt for domain + www.domain
 
 
 def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
-                     wo_dns=False, wo_acme_dns='dns_cf'):
+                     wo_dns=False, wo_acme_dns='dns_cf', backend=False):
 
     if os.path.isfile("/etc/letsencrypt/"
                       "renewal/{0}_ecc/"

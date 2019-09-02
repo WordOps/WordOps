@@ -430,7 +430,7 @@ class WOSiteCreateController(CementBaseController):
         pargs.site_name = pargs.site_name.strip()
         (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
         if not wo_domain.strip():
-            Log.error("Invalid domain name, "
+            Log.error(self, "Invalid domain name, "
                       "Provide valid domain name")
 
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
