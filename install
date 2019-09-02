@@ -806,7 +806,7 @@ wo_cheat_install() {
 ###
 # 4 - WO MAIN SETUP
 ###
-
+wait
 if [ "$wo_purge" = "y" ]; then
     wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
     wo_backup_wo | tee -ai $wo_install_log
