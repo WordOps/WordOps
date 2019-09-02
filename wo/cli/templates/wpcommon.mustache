@@ -6,6 +6,18 @@ location = /wp-login.php {
     include fastcgi_params;
     fastcgi_pass {{upstream}};
 }
+# Prevent DoS attacks on wp-cron
+location = /wp-cron.php {
+    limit_req zone=two burst=1 nodelay;
+    include fastcgi_params;
+    fastcgi_pass {{upstream}};
+}
+# Prevent Dos attacks with xmlrpc.php
+location = /xmlrpc.php {
+    limit_req zone=two burst=1 nodelay;
+    include fastcgi_params;
+    fastcgi_pass {{upstream}};
+}
 # Disable wp-config.txt
 location = /wp-config.txt {
     deny all;
