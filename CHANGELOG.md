@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - do not terminate stack install process on errors
+- WordOps internal log rotation limit increased to 1MB
 
 #### Fixed
 
@@ -26,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - add LANG='en_US.UTF-8' in install script
 - Read public_suffix list with utf8 encoding. Issue [#128](https://github.com/WordOps/WordOps/issues/128)
 - Netdata uninstall script path. PR [#135](https://github.com/WordOps/WordOps/pull/135)
+- SSL Certificates expiration for subdomains
 
 ### v3.9.8.7 - 2019-08-31
 
