@@ -145,7 +145,8 @@ class WOStackUpgradeController(CementBaseController):
                 Log.info(self, "WPCLI is not installed with WordOps")
 
         if pargs.netdata:
-            if os.path.isdir('/opt/netdata'):
+            if (os.path.isdir('/opt/netdata') or
+                    os.path.isdir('/etc/netdata')):
                 packages = packages + [['https://my-netdata.io/'
                                         'kickstart-static64.sh',
                                         '/var/lib/wo/tmp/kickstart.sh',
@@ -223,9 +224,16 @@ class WOStackUpgradeController(CementBaseController):
 
                 if pargs.netdata:
                     Log.info(self, "Upgrading Netdata, please wait...")
-                    WOShellExec.cmd_exec(self, "/bin/bash /var/lib/wo/tmp/"
-                                         "kickstart.sh "
-                                         "--dont-wait")
+                    if os.path.isdir('/opt/netdata'):
+                        WOShellExec.cmd_exec(
+                            self, "bash /opt/netdata/usr/"
+                            "libexec/netdata/netdata-"
+                            "updater.sh")
+                    elif os.path.isdir('/etc/netdata'):
+                        WOShellExec.cmd_exec(
+                            self, "bash /usr/"
+                            "libexec/netdata/netdata-"
+                            "updater.sh")
 
                 if pargs.dashboard:
                     Log.debug(self, "Extracting wo-dashboard.tar.gz "

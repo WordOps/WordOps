@@ -80,7 +80,7 @@ class WOFileUtils():
         except IOError as e:
             Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to copy files from {0} to {1}"
-                      .format(src, dest))
+                      .format(src, dest), exit=False)
 
     def copyfile(self, src, dest):
         """
@@ -99,7 +99,7 @@ class WOFileUtils():
         except IOError as e:
             Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to copy file from {0} to {1}"
-                      .format(src, dest))
+                      .format(src, dest), exit=False)
 
     def searchreplace(self, fnm, sstr, rstr):
         """
@@ -109,7 +109,7 @@ class WOFileUtils():
             rstr: replace string
         """
         try:
-            Log.debug(self, "Doning search and replace, File:{0},"
+            Log.debug(self, "Doing search and replace, File:{0},"
                       "Source string:{1}, Dest String:{2}"
                       .format(fnm, sstr, rstr))
             for line in fileinput.input(fnm, inplace=True):
@@ -118,7 +118,7 @@ class WOFileUtils():
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to search {0} and replace {1} {2}"
-                      .format(fnm, sstr, rstr))
+                      .format(fnm, sstr, rstr), exit=False)
 
     def mvfile(self, src, dst):
         """

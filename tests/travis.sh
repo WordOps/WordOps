@@ -131,6 +131,5 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
-cat /etc/nginx/nginx.conf
 wo site info wp1.com
-cat /etc/mysql/my.cnf
+wo stack purge --all --force

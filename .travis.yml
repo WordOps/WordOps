@@ -24,6 +24,13 @@ before_script:
   - unset LANG
   - sudo apt-get install --assume-yes --quiet git python3-setuptools python3-dev python3-apt ccze tree
 
+after_script:
+  - sudo cat /etc/nginx/nginx.conf | ccze -A
+  - sudo cat /var/log/wo/wordops.log | ccze -A
+  - sudo cat /etc/mysql/my.cnf | ccze -A
+  - sudo bash install --purge
+
+
 script:
   - lsb_release -a
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
@@ -36,5 +43,3 @@ script:
 
   - sudo wo update --travis
   - sudo wo stack status
-  - sudo wo stack purge --all --force
-  - sudo bash install --purge

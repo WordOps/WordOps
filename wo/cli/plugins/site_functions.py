@@ -610,7 +610,10 @@ def setupwordpress(self, data, vhostonly=False):
             WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                                  .format(WOVariables.wo_wpcli_path) +
                                  "db clean --yes\"")
-            WOFileUtils.rm(self, "{0}/htdocs/*".format(wo_site_webroot))
+            WOFileUtils.rm(self, "{0}/htdocs".format(wo_site_webroot))
+            WOFileUtils.mkdir(self, "{0}/htdocs".format(wo_site_webroot))
+            WOFileUtils.chown(self, "{0}/htdocs".format(wo_site_webroot),
+                              'www-data', 'www-data')
         except CommandExecutionError:
             raise SiteError("Cleaning WordPress install failed")
 
@@ -1332,10 +1335,8 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(domain)):
             removeNginxConf(self, domain)
-        if (os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
-                          .format(domain)) or
-                os.path.isdir('/etc/letsencrypt/live/{0}'
-                              .format(domain))):
+        if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
+                         .format(domain)):
             removeAcmeConf(self, domain)
 
     if webroot:
@@ -1483,7 +1484,7 @@ def checkWildcardExist(self, wo_domain_name):
     # define new csv dialect
     csv.register_dialect('acmeconf', delimiter='|')
     # open file
-    certfile = open('/var/lib/wo/cert.csv', 'rt')
+    certfile = open('/var/lib/wo/cert.csv', mode='r', encoding='utf-8')
     reader = csv.reader(certfile, 'acmeconf')
     wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
     for row in reader:

@@ -173,6 +173,14 @@ Apps & Tools shipped with WordOps :
 - [cheat.sh](https://github.com/chubin/cheat.sh)
 - [ProFTPd](https://github.com/proftpd/proftpd)
 
+Cache Plugins supported by WordOps :
+
+- [Nginx-helper](https://github.com/rtCamp/nginx-helper)
+- [Cache-Enabler](https://github.com/keycdn/cache-enabler)
+- [Redis-object-cache](https://github.com/tillkruss/redis-cache)
+- [WP-Super-Cache](https://github.com/Automattic/wp-super-cache)
+- [WP-Rocket](https://github.com/wp-media/wp-rocket)
+
 ## License
 
 - [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.net)

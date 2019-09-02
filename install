@@ -103,6 +103,10 @@ fi
 # 1- Update the apt sewers with fresh info
 ###
 export DEBIAN_FRONTEND=noninteractive
+unset LANG
+export LANG='en_US.UTF-8'
+export LC_ALL='C.UTF-8'
+
 [ -z "$wo_travis" ] && {
     apt-get update -qq
 }
@@ -151,7 +155,8 @@ readonly TIME=$(date +"$TIME_FORMAT")
 readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
 readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
 readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
-readonly wo_env=$(grep "container=lxc" /proc/1/environ)
+readonly wo_lxc=$(grep "container=lxc" /proc/1/environ)
+readonly wo_wsl=$(grep "wsl" /proc/1/environ)
 WO_ARCH="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
@@ -653,7 +658,7 @@ wo_remove_ee_cron() {
 
 wo_tweak_kernel() {
 
-    if [ "$WO_ARCH" = "x86_64" ] && [ -z "$wo_env" ]; then
+    if [ "$WO_ARCH" = "x86_64" ] && [ -z "$wo_lxc" ] && [ -z "$wo_wsl" ]; then
         rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
         wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/"$wo_branch"/wo/cli/templates/sysctl.mustache
         if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ] || [ "$wo_distro_version" = "buster" ]; then
@@ -813,8 +818,7 @@ else
     if [ -x /usr/local/bin/wo ]; then
         if [ -z "$wo_force_install" ]; then
             if { wo -v 2>&1 | grep -q "$wo_version_new"; }; then
-                wo_lib_error "You already have WordOps $wo_version_new"
-                exit 1
+                wo_lib_error "You already have WordOps $wo_version_new" 1
             fi
         fi
         wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
@@ -861,8 +865,7 @@ else
             if [ -z "$wo_force_install" ]; then
                 echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
                 if [ "$WO_ANSWER" != "y" ] && [ "$WO_ANSWER" != "Y" ]; then
-                    wo_lib_error "Not installing WordOps, exit status = " 1
-                    exit 1
+                    wo_lib_error "Not installing WordOps" 1
                 fi
             fi
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
