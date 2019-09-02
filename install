@@ -972,11 +972,11 @@ else
     else
         wo_lib_echo "WordOps (wo) installed successfully"
         echo
-        wo_lib_echo "For autocompletion, run the following command:"
-        wo_lib_echo_info "source /etc/bash_completion.d/wo_auto.rc"
-        echo
         wo_lib_echo "To install WordOps main stacks, use the command:"
         wo_lib_echo_info "wo stack install"
+        echo
+        wo_lib_echo "To create a WordPress site, use the command:"
+        wo_lib_echo_info "wo site create site.tld --wp"
     fi
     echo
     wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
@@ -985,4 +985,6 @@ else
     wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo
 fi
-/bin/bash --init-file "/var/lib/wo/tmp/WordOps-$wo_branch/tests/init-file"
+if [ -z "$wo_travis" ]; then
+    /bin/bash --init-file "/var/lib/wo/tmp/WordOps-$wo_branch/tests/init-file"
+fi
