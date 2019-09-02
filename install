@@ -984,5 +984,6 @@ else
     echo
     wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo
-
+    /bin/bash -c "/bin/bash --init-file <(echo 'source /etc/bash_completion.d/wo_auto.rc')"
 fi
+/bin/bash --init-file "/var/lib/wo/tmp/WordOps-$wo_branch/tests/init-file"
