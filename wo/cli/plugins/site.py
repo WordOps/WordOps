@@ -1375,13 +1375,14 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     wo_acme_dns = ''
                     wo_dns = False
+                if wo_subdomain:
+                    # check if a wildcard cert for the root domain exist
+                    Log.debug(self, "checkWildcardExist on *.{0}"
+                                  .format(wo_root_domain))
+                    isWildcard = checkWildcardExist(self, wo_root_domain)
+                    Log.debug(self, "isWildcard = {0}".format(isWildcard))
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
                     if wo_subdomain:
-                        # check if a wildcard cert for the root domain exist
-                        Log.debug(self, "checkWildcardExist on *.{0}"
-                                  .format(wo_root_domain))
-                        isWildcard = checkWildcardExist(self, wo_root_domain)
-                        Log.debug(self, "isWildcard = {0}".format(isWildcard))
                         if isWildcard:
                             Log.info(self, "Using existing Wildcard SSL "
                                      "certificate from {0} to secure {1}"
@@ -1422,7 +1423,7 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "Congratulations! Successfully "
                          "Configured SSL for Site "
                          " https://{0}".format(wo_domain))
-                if wo_subdomain:
+                if wo_subdomain and isWildcard:
                     if (SSL.getExpirationDays(self, wo_root_domain) > 0):
                         Log.info(self, "Your cert will expire within " +
                                  str(SSL.getExpirationDays(self, wo_root_domain)) +
