@@ -29,7 +29,7 @@ def GetDomainlevel(domain):
     """
         This function returns the domain type : domain, subdomain,
     """
-    domain_name = domain.split('.').lower()
+    domain_name = domain.lower().split('.')
     if domain_name[0] == 'www':
         domain_name = domain_name[1:]
     domain_type = ''
