@@ -73,7 +73,7 @@ def pre_pref(self, apt_packages):
                                  log=False)
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
-            Log.error("Failed to initialize MySQL package")
+            Log.error(self, "Failed to initialize MySQL package")
 
         Log.debug(self, "echo \"mariadb-server-{0} "
                   "mysql-server/root_password_again "

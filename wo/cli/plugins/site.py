@@ -79,8 +79,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
         else:
-            Log.error(self, "nginx configuration file does not exist"
-                      .format(wo_domain))
+            Log.error(self, "nginx configuration file does not exist")
 
     @expose(help="Disable site example.com")
     def disable(self):
@@ -121,8 +120,7 @@ class WOSiteController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
         else:
-            Log.error(self, "nginx configuration file does not exist"
-                      .format(wo_domain))
+            Log.error(self, "nginx configuration file does not exist")
 
     @expose(help="Get example.com information")
     def info(self):
@@ -182,8 +180,7 @@ class WOSiteController(CementBaseController):
                                 "disabled"))
             self.app.render((data), 'siteinfo.mustache')
         else:
-            Log.error(self, "nginx configuration file does not exist"
-                      .format(wo_domain))
+            Log.error(self, "nginx configuration file does not exist")
 
     @expose(help="Monitor example.com logs")
     def log(self):

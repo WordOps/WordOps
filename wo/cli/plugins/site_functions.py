@@ -1447,8 +1447,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                     '/etc/letsencrypt'):
                 Log.info(self, "Securing WordOps backend with {0} certificate"
                          .format(wo_domain_name))
-                sslconf = open("/var/www/22222/conf/nginx/ssl.conf"
-                               .format(wo_domain_name),
+                sslconf = open("/var/www/22222/conf/nginx/ssl.conf",
                                encoding='utf-8', mode='w')
                 sslconf.write("ssl_certificate     {0}/{1}/fullchain.pem;\n"
                               "ssl_certificate_key     {0}/{1}/key.pem;\n"
