@@ -10,8 +10,7 @@ CGREEN="${CSI}1;32m"
 CEND="${CSI}0m"
 
 exit_script() {
-    tar -I pigz -cf wordops.tar.gz /var/log/wo
-    curl --progress-bar --upload-file wordops.tar.gz https://transfer.vtbox.net/"$(basename wordops.tar.gz)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
+    curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
     exit 1
 }
 

@@ -25,10 +25,10 @@ before_script:
   - sudo apt-get install --assume-yes --quiet git python3-setuptools python3-dev python3-apt ccze tree
 
 after_script:
-  - sudo cat /var/log/wo/wordops.log | ccze -A -p syslog -C
   - sudo cat /etc/nginx/nginx.conf | ccze -A
   - sudo cat /etc/mysql/my.cnf | ccze -A
   - sudo bash install --purge
+  - curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
 
 
 script:
