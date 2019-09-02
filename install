@@ -822,13 +822,14 @@ else
             fi
         fi
         wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
-        wo_install_dep | tee -ai $wo_install_log
-        wo_timesync | tee -ai $wo_install_log
+        wo_install_dep | tee -ai $wo_install_log &
+        wo_timesync | tee -ai $wo_install_log &
         wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
-        wo_backup_wo | tee -ai $wo_install_log
-        secure_wo_db | tee -ai $wo_install_log
+        wo_backup_wo | tee -ai $wo_install_log &
+        secure_wo_db | tee -ai $wo_install_log &
         wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-        wo_clean | tee -ai $wo_install_log
+        wo_clean | tee -ai $wo_install_log &
+        wait
         if [ "$wo_travis" = "y" ]; then
             wo_install_travis | tee -ai $wo_install_log
         else
@@ -838,27 +839,28 @@ else
                 wo_install | tee -ai $wo_install_log
             fi
         fi
-        wo_update_latest | tee -ai $wo_install_log
+        wo_update_latest | tee -ai $wo_install_log &
         if [ ! -d /opt/acme/.sh ]; then
             wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
-            wo_install_acme_sh | tee -ai $wo_install_log
+            wo_install_acme_sh | tee -ai $wo_install_log &
         fi
         wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
-        wo_tweak_kernel | tee -ai $wo_install_log
+        wo_tweak_kernel | tee -ai $wo_install_log &
         if [ ! -f /opt/wo-kernel.sh ]; then
             wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
-            wo_systemd_tweak | tee -ai $wo_install_log
+            wo_systemd_tweak | tee -ai $wo_install_log &
         fi
         if [ -x /usr/sbin/nginx ]; then
-            wo_nginx_tweak | tee -ai $wo_install_log
+            wo_nginx_tweak | tee -ai $wo_install_log &
         fi
         if [ -d /etc/systemd/system/mariadb.service.d ]; then
-            wo_mariadb_tweak | tee -ai $wo_install_log
+            wo_mariadb_tweak | tee -ai $wo_install_log &
         fi
-        wo_cheat_install | tee -ai $wo_install_log
-        wo_domain_suffix | tee -ai $wo_install_log
+        wo_cheat_install | tee -ai $wo_install_log &
+        wo_domain_suffix | tee -ai $wo_install_log &
         wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
-        wo_update_wp_cli | tee -ai $wo_install_log
+        wo_update_wp_cli | tee -ai $wo_install_log &
+        wait
     else
         # 2 - Migration from EEv3
         if [ -x /usr/local/bin/ee ]; then
@@ -916,8 +918,9 @@ else
             [ -z "$wo_travis" ] && {
                 wo_dist_upgrade | tee -ai $wo_install_log
             }
-            wo_install_dep | tee -ai $wo_install_log
-            wo_timesync | tee -ai $wo_install_log
+            wo_install_dep | tee -ai $wo_install_log &
+            wo_timesync | tee -ai $wo_install_log &
+            wait
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             if [ "$wo_travis" = "y" ]; then
                 wo_install_travis | tee -ai $wo_install_log
@@ -930,22 +933,23 @@ else
             fi
             if [ "$ufw" = "y" ]; then
                 wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
-                wo_ufw_setup | tee -ai $wo_install_log
+                wo_ufw_setup | tee -ai $wo_install_log &
             fi
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
-            wo_tweak_kernel | tee -ai $wo_install_log
+            wo_tweak_kernel | tee -ai $wo_install_log &
             if [ ! -f /opt/wo-kernel.sh ]; then
                 wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
-                wo_systemd_tweak | tee -ai $wo_install_log
+                wo_systemd_tweak | tee -ai $wo_install_log &
             fi
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
-            wo_install_acme_sh | tee -ai $wo_install_log
+            wo_install_acme_sh | tee -ai $wo_install_log &
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
-            secure_wo_db | tee -ai $wo_install_log
-            wo_cheat_install | tee -ai $wo_install_log
-            wo_domain_suffix | tee -ai $wo_install_log
-            wo_git_init | tee -ai $wo_install_log
-            wo_update_wp_cli | tee -ai $wo_install_log
+            secure_wo_db | tee -ai $wo_install_log &
+            wo_cheat_install | tee -ai $wo_install_log &
+            wo_domain_suffix | tee -ai $wo_install_log &
+            wo_git_init | tee -ai $wo_install_log &
+            wo_update_wp_cli | tee -ai $wo_install_log &
+            wait
         fi
     fi
 
