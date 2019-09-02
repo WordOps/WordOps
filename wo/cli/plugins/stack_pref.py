@@ -1283,7 +1283,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     self, "/usr/local/bin/composer update "
                     "--no-plugins --no-scripts "
                     "-n --no-dev -d "
-                    "/var/www/22222/htdocs/db/pma/")
+                    "/var/www/22222/htdocs/db/pma/ &")
                 WOFileUtils.chown(
                     self, '{0}22222/htdocs/db/pma'
                     .format(WOVariables.wo_webroot),
@@ -1305,7 +1305,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                      "--no-scripts -n -s dev "
                                      "erik-dubbelboer/php-redis-admin "
                                      "/var/www/22222/htdocs/cache"
-                                     "/redis/phpRedisAdmin ")
+                                     "/redis/phpRedisAdmin &")
             WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
                               'www-data',
