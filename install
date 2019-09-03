@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.8.5 - 2019-08-28
+# Version 3.9.8.9 - 2019-09-03
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -979,6 +979,9 @@ else
     else
         wo_lib_echo "WordOps (wo) installed successfully"
         echo
+        wo_lib_echo "To enable bash-completion, just run the command:"
+        wo_lib_echo_info "bash"
+        echo
         wo_lib_echo "To install WordOps main stacks, use the command:"
         wo_lib_echo_info "wo stack install"
         echo
@@ -992,6 +995,6 @@ else
     wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo
 fi
-if [ -z "$wo_travis" ]; then
-    /bin/bash --init-file "/var/lib/wo/tmp/WordOps-$wo_branch/tests/init-file"
-fi
+# if [ -z "$wo_travis" ]; then
+#    /bin/bash --init-file "/var/lib/wo/tmp/WordOps-$wo_branch/tests/init-file"
+# fi

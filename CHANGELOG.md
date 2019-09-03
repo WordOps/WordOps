@@ -14,7 +14,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - mime.types template to handle missing extension ttf
 - try_files directive for favicon
 - additional settings for fail2ban
-- Auto-apply bash-completion after install/update
 - asynchronous installer to decrease install/update duration
 
 #### Fixed
