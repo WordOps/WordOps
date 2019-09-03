@@ -150,8 +150,6 @@ for stack in $stack_upgrade; do
     fi
 done
 
-
-
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
