@@ -705,7 +705,8 @@ class WOStackController(CementBaseController):
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata/"
-                                         "netdata-uninstaller.sh -y -f")
+                                         "netdata-uninstaller.sh - y - f,
+                                         errormsg='', log=False)
 
             if (packages):
                 Log.info(self, "Removing packages, please wait...")
@@ -925,7 +926,8 @@ class WOStackController(CementBaseController):
                 if WOVariables.wo_distro == 'Raspbian':
                     WOShellExec.cmd_exec(self, "bash /usr/"
                                          "libexec/netdata/netdata-"
-                                         "uninstaller.sh -y -f")
+                                         "uninstaller.sh -y -f",
+                                         errormsg='', log=False)
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata/netdata-"
