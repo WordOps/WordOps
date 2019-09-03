@@ -92,6 +92,46 @@ for site in $wp_site_types; do
 done
 
 echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site create wpsubdir              '
+echo -e "${CGREEN}#############################################${CEND}"
+
+wp_site_types='wpfc wpsc wpce wprocket wpredis'
+for site in $wp_site_types; do
+    echo -ne "        Creating wpsubdir $site              [..]\r"
+    if {
+        wo site create wpsubdir"$site".io --wpsubdir --${site}
+    } >> /var/log/wo/test.log; then
+        echo -ne "       Creating wpsubdir $site               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Creating wpsubdir $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site create wpsubdomain              '
+echo -e "${CGREEN}#############################################${CEND}"
+
+wp_site_types='wpfc wpsc wpce wprocket wpredis'
+for site in $wp_site_types; do
+    echo -ne "        Creating wpsubdomain $site              [..]\r"
+    if {
+        wo site create wpsubdomain"$site".io --wpsubdomain --${site}
+    } >> /var/log/wo/test.log; then
+        echo -ne "       Creating wpsubdomain $site               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Creating wpsubdomain $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack upgrade              '
 echo -e "${CGREEN}#############################################${CEND}"
 stack_upgrade='nginx php mysql redis netdata dashboard phpmyadmin'
@@ -110,21 +150,7 @@ for stack in $stack_upgrade; do
     fi
 done
 
-if ! {
-    echo -e "${CGREEN}#############################################${CEND}"
-    echo -e '       Multi-site create              '
-    echo -e "${CGREEN}#############################################${CEND}"
-    wo site create wpsubdirwpsc1.com --wpsubdir --wpsc && wo site create wpsubdirwpsc2.com --wpsubdir --wpfc && wo site create wpsubdirwpsc1-php73.com --wpsubdir --wpsc --php73 && wo site create wpsubdirwpsc2-php73.com --wpsubdir --wpfc --php73
-    wo site create wpsubdomain1.com --wpsubdomain && wo site create wpsubdomain1-php73.com --wpsubdomain --php73 && wo site create wpsubdomainwpsc.org --wpsubdomain --wpsc && wo site create wpsubdomainwpfc.org --wpsubdomain --wpfc && wo site create wpsubdomainwpfc2.in --wpfc --wpsubdomain
-    echo -e "${CGREEN}#############################################${CEND}"
-    echo -e '       wo site update              '
-    echo -e "${CGREEN}#############################################${CEND}"
-    wo site create 1.com --html && wo site create 2.com --php && wo site create 3.com --mysql
-    wo site update 1.com --wp && wo site update 2.com --php73 && wo site update 3.com --php73
-    wo site update 1.com --wp && wo site update 1.com --wpfc && wo site update 1.com --wpsc && wo site update 1.com --wpredis && wo site update 1.com --wpce && wo site update 1.com --wprocket && wo site update 1.com --php73=off
-}; then
-    exit_script
-fi
+
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       various informations             '
