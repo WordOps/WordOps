@@ -111,11 +111,11 @@ command_exists() {
     command -v "$@" > /dev/null 2>&1
 }
 
-if command_exists curl; then
-    if [ -z "$wo_travis" ]; then
+if [ -z "$wo_travis" ]; then
+    if command_exists curl; then
         apt-get update -qq &
     else
-        apt-get update && apt-get -y install curl -qq
+        apt-get update -qq && apt-get -y install curl -qq > /dev/null 2>&1
     fi
 fi
 
@@ -179,7 +179,7 @@ if [ -z "$wo_force_install" ]; then
     else
         check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
         if [ -z "$check_wo_linux_distro" ]; then
-            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x"
+            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x"
             exit 100
         fi
     fi
@@ -190,7 +190,7 @@ fi
 ###
 if [ ! -d "$wo_log_dir" ] || [ ! -d "$wo_backup_dir" ] || [ ! -d "$wo_tmp_dir" ]; then
 
-    wo_lib_echo "Creating WordOps backup, tmp & log directory, just a second..."
+    wo_lib_echo "Creating WordOps directory"
     mkdir -p "$wo_backup_dir" "$wo_log_dir" "$wo_tmp_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
 
     # create wordops log files

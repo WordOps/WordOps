@@ -1,2 +1,3 @@
 #!/bin/bash --init-file
-source /etc/bash_completion.d/wo_auto.rc ~/.bashrc
+source /etc/bash_completion.d/wo_auto.rc
+source ~/.bashrc
