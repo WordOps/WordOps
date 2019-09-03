@@ -705,7 +705,7 @@ class WOStackController(CementBaseController):
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata/"
-                                         "netdata-uninstaller.sh - y - f,
+                                         "netdata-uninstaller.sh - y - f",
                                          errormsg='', log=False)
 
             if (packages):
