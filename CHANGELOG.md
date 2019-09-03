@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Fixed
+
+- Fix cheat.sh install [PR #139](https://github.com/WordOps/WordOps/pull/139)
+- sslutils error when trying to display SSL certificate expiration
+
 ### v3.9.8.9 - 2019-09-03
 
 #### Added
