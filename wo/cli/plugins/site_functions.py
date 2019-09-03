@@ -160,6 +160,7 @@ def setupdatabase(self, data):
 
     if not wo_db_name:
         wo_db_name = wo_replace_dot
+        wo_db_name = (wo_db_name[0:8] + generate_random())
 
     if prompt_dbuser == 'True' or prompt_dbuser == 'true':
         try:
@@ -173,11 +174,9 @@ def setupdatabase(self, data):
 
     if not wo_db_username:
         wo_db_username = wo_replace_dot
+        wo_db_username = (wo_db_name[0:8] + generate_random())
     if not wo_db_password:
         wo_db_password = wo_random_pass
-
-    wo_db_username = (wo_db_name[0:8] + generate_random())
-    wo_db_name = (wo_db_name[0:8] + generate_random())
 
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
