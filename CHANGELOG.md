@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- Rate limiter on wp-cron.php and xmlrpc.php
+- mime.types template to handle missing extension ttf
+- try_files directive for favicon
+- additional settings for fail2ban
+- asynchronous installer to decrease install/update duration
+
+#### Fixed
+
+- Several typo or syntax errors
+- `wo  site` errors due to broken symlinks for access.log or error.log
+- `wo clean` error due to unused memcached flag
+- MySQL database and user variables overwrited in `wo site`
+
 ### v3.9.8.8 - 2019-09-02
 
 #### Added

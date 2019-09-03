@@ -1,17 +1,18 @@
 """Logfile Plugin for WordOps"""
 
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-from wo.core.logging import Log
-from wo.cli.plugins.site_functions import logwatch
-from wo.core.variables import WOVariables
-from wo.core.fileutils import WOFileUtils
-from wo.core.shellexec import WOShellExec
-from wo.core.sendmail import WOSendMail
-from wo.core.mysql import WOMysql
-import os
 import glob
 import gzip
+import os
+
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+from wo.cli.plugins.site_functions import logwatch
+from wo.core.fileutils import WOFileUtils
+from wo.core.logging import Log
+from wo.core.mysql import WOMysql
+from wo.core.sendmail import WOSendMail
+from wo.core.shellexec import WOShellExec
+from wo.core.variables import WOVariables
 
 
 def wo_log_hook(app):

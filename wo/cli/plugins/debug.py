@@ -15,7 +15,6 @@ import os
 import configparser
 import glob
 import signal
-import subprocess
 
 
 def wo_debug_hook(app):

@@ -36,8 +36,8 @@ class WOCleanController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if (not (pargs.all or pargs.fastcgi or
-                 pargs.memcached or pargs.opcache or
+        if (not (pargs.all or pargs.fastcgi
+                 or pargs.opcache or
                  pargs.redis)):
             self.clean_fastcgi()
         if pargs.all:

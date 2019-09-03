@@ -26,9 +26,9 @@ before_script:
 
 after_script:
   - sudo cat /etc/nginx/nginx.conf | ccze -A
-  - sudo cat /var/log/wo/wordops.log | ccze -A
   - sudo cat /etc/mysql/my.cnf | ccze -A
   - sudo bash install --purge
+  - sudo curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
 
 
 script:

@@ -1,27 +1,25 @@
 """Stack Plugin for WordOps"""
 
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-
 import codecs
 import configparser
 import os
 import pwd
 import random
+import re
 import shutil
 import string
-import re
+
 import requests
 
 import psutil
-
-# from pynginxconfig import NginxConfig
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import *
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
+from wo.cli.plugins.stack_pref import post_pref, pre_pref
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
-from wo.cli.plugins.stack_pref import pre_pref, post_pref
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
@@ -33,8 +31,8 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
-from wo.core.variables import WOVariables
 from wo.core.template import WOTemplate
+from wo.core.variables import WOVariables
 
 
 def wo_stack_hook(app):
@@ -202,8 +200,8 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
                     if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
-                        apt_packages = apt_packages + WOVariables.wo_php + \
-                            WOVariables.wo_php_extra
+                        apt_packages = (apt_packages + WOVariables.wo_php +
+                                        WOVariables.wo_php_extra)
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php
                 else:
@@ -215,8 +213,9 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
                     if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                        apt_packages = apt_packages + WOVariables.wo_php + \
-                            WOVariables.wo_php73 + WOVariables.wo_php_extra
+                        apt_packages = (apt_packages + WOVariables.wo_php +
+                                        WOVariables.wo_php73 +
+                                        WOVariables.wo_php_extra)
                     else:
                         apt_packages = apt_packages + WOVariables.wo_php73
                 else:
@@ -706,7 +705,8 @@ class WOStackController(CementBaseController):
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata/"
-                                         "netdata-uninstaller.sh -y -f")
+                                         "netdata-uninstaller.sh - y - f",
+                                         errormsg='', log=False)
 
             if (packages):
                 Log.info(self, "Removing packages, please wait...")
@@ -926,7 +926,8 @@ class WOStackController(CementBaseController):
                 if WOVariables.wo_distro == 'Raspbian':
                     WOShellExec.cmd_exec(self, "bash /usr/"
                                          "libexec/netdata/netdata-"
-                                         "uninstaller.sh -y -f")
+                                         "uninstaller.sh -y -f",
+                                         errormsg='', log=False)
                 else:
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata/netdata-"

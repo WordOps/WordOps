@@ -1,10 +1,11 @@
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-from wo.core.fileutils import WOFileUtils
-from wo.cli.plugins.sitedb import updateSiteInfo, getAllsites
-from wo.core.mysql import WOMysql, StatementExcecutionError
-from wo.core.logging import Log
 import glob
+
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+from wo.cli.plugins.sitedb import getAllsites, updateSiteInfo
+from wo.core.fileutils import WOFileUtils
+from wo.core.logging import Log
+from wo.core.mysql import StatementExcecutionError, WOMysql
 
 
 def wo_sync_hook(app):
