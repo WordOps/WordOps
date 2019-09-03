@@ -979,13 +979,13 @@ else
     else
         wo_lib_echo "WordOps (wo) installed successfully"
         echo
-        wo_lib_echo "To enable bash-completion, just run the command:"
+        wo_lib_echo "To enable bash-completion, just use the command:"
         wo_lib_echo_info "bash"
         echo
-        wo_lib_echo "To install WordOps main stacks, use the command:"
+        wo_lib_echo "To install WordOps recommended stacks, you can use the command:"
         wo_lib_echo_info "wo stack install"
         echo
-        wo_lib_echo "To create a WordPress site, use the command:"
+        wo_lib_echo "To create a first WordPress site, you can use the command:"
         wo_lib_echo_info "wo site create site.tld --wp"
     fi
     echo
