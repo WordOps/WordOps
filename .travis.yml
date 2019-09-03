@@ -38,8 +38,8 @@ script:
   - sed -i 's/# "nose"/"nose"/g' setup.py
   - sed -i 's/# "coverage"/"coverage"/g' setup.py
   - sed -i 's/# "Sphinx >= 1.0"/"Sphinx >= 1.0"/g' setup.py
-  - sudo bash install --travis -b "$TRAVIS_BRANCH"
-  - sudo bash tests/travis.sh
+  - sudo time bash install --travis -b "$TRAVIS_BRANCH"
+  - sudo time bash tests/travis.sh
 
   - sudo wo update --travis
   - sudo wo stack status

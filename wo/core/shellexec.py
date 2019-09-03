@@ -54,9 +54,8 @@ class WOShellExec():
     def cmd_exec_stdout(self, command, errormsg='', log=True):
         """Run shell command from Python"""
         try:
-            log and Log.debug(self, "Running command: command -v {0}".format(command))
-            check_command = 'command -v' + command
-            with subprocess.Popen([check_command], stdout=subprocess.PIPE,
+            log and Log.debug(self, "Running command: {0}".format(command))
+            with subprocess.Popen([command], stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE, shell=True) as proc:
                 (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
                 (cmd_stdout, cmd_stderr) = (cmd_stdout_bytes.decode('utf-8',

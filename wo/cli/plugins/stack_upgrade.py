@@ -62,7 +62,6 @@ class WOStackUpgradeController(CementBaseController):
         apt_packages = []
         packages = []
         nginx_packages = []
-        empty_packages = []
         self.msg = []
         pargs = self.app.pargs
 
@@ -96,7 +95,6 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
-                apt_packages = apt_packages + WOVariables.wo_nginx
                 nginx_packages = nginx_packages + WOVariables.wo_nginx
             else:
                 Log.info(self, "Nginx Stable is not already installed")
@@ -191,8 +189,8 @@ class WOStackUpgradeController(CementBaseController):
                     if start_upgrade != "Y" and start_upgrade != "y":
                         Log.error(self, "Not starting package update")
                 Log.info(self, "Updating APT packages, please wait...")
-                if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
-                    pre_pref(self, ["nginx-custom", "nginx-wo"])
+
+                pre_pref(self, nginx_packages)
                 # apt-get update
                 WOAptGet.update(self)
                 if set(WOVariables.wo_php).issubset(set(apt_packages)):
@@ -202,8 +200,13 @@ class WOStackUpgradeController(CementBaseController):
                     WOAptGet.remove(self, ['php7.3-fpm'],
                                     auto=False, purge=True)
                 # Update packages
+                if not os.path.isfile(
+                            '/etc/apt/preferences.d/nginx-block'):
+                    WOAptGet.install(self, nginx_packages)
+
                 WOAptGet.install(self, apt_packages)
-                post_pref(self, apt_packages, empty_packages, True)
+                post_pref(self, nginx_packages, [], True)
+                post_pref(self, apt_packages, [], True)
                 # Post Actions after package updates
 
             if len(packages):

@@ -71,6 +71,7 @@
 
 ## Getting Started
 
+
 ```bash
 wget -qO wo wops.cc && sudo bash wo      # Install WordOps
 sudo wo site create example.com --wp     # Install required packages & setup WordPress on example.com
@@ -128,10 +129,10 @@ wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with ngi
 ### Sites secured with Let's Encrypt
 
 ```bash
-wo site create example.com --wp --letsencrypt #  wordpress & letsencrypt
-wo site create sub.example.com --wp --letsencrypt=subdomain # wordpress & letsencrypt subdomain
+wo site create example.com --wp -le #  wordpress & letsencrypt
+wo site create sub.example.com --wp -le # wordpress & letsencrypt subdomain
 wo site create site.tld --wp --letsencrypt --hsts # wordpress & letsencrypt with HSTS
-wo site create site.tld --wp --letsencrypt=wildcard --dns=dns_cf # wordpress & wildcard SSL certificate with Cloudflare DNS API
+wo site create site.tld --wp -le=wildcard --dns=dns_cf # wordpress & wildcard SSL certificate with Cloudflare DNS API
 ```
 
 ## Update WordOps

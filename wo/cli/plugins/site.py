@@ -628,55 +628,33 @@ class WOSiteCreateController(CementBaseController):
 
             # Setup WordPress if Wordpress site
             if data['wp']:
-                if not pargs.vhostonly:
-                    try:
-                        wo_wp_creds = setupwordpress(self, data)
-                        # Add database information for site into database
-                        updateSiteInfo(self, wo_domain,
-                                       db_name=data['wo_db_name'],
-                                       db_user=data['wo_db_user'],
-                                       db_password=data['wo_db_pass'],
-                                       db_host=data['wo_db_host'])
-                    except SiteError as e:
-                        # call cleanup actions on failure
-                        Log.debug(self, str(e))
-                        Log.info(self, Log.FAIL +
-                                 "There was a serious error encountered...")
-                        Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                        doCleanupAction(self, domain=wo_domain,
-                                        webroot=data['webroot'],
-                                        dbname=data['wo_db_name'],
-                                        dbuser=data['wo_db_user'],
-                                        dbhost=data['wo_mysql_grant_host'])
-                        deleteSiteInfo(self, wo_domain)
-                        Log.error(self, "Check the log for details: "
-                                  "`tail /var/log/wo/wordops.log` "
-                                  "and please try again")
+                if pargs.vhostonly:
+                    vhostonly = True
                 else:
-                    try:
-                        wo_wp_creds = setupwordpress(
-                            self, data, vhostonly=True)
-                        # Add database information for site into database
-                        updateSiteInfo(self, wo_domain,
-                                       db_name=data['wo_db_name'],
-                                       db_user=data['wo_db_user'],
-                                       db_password=data['wo_db_pass'],
-                                       db_host=data['wo_db_host'])
-                    except SiteError as e:
-                        # call cleanup actions on failure
-                        Log.debug(self, str(e))
-                        Log.info(self, Log.FAIL +
-                                 "There was a serious error encountered...")
-                        Log.info(self, Log.FAIL + "Cleaning up afterwards...")
-                        doCleanupAction(self, domain=wo_domain,
-                                        webroot=data['webroot'],
-                                        dbname=data['wo_db_name'],
-                                        dbuser=data['wo_db_user'],
-                                        dbhost=data['wo_mysql_grant_host'])
-                        deleteSiteInfo(self, wo_domain)
-                        Log.error(self, "Check the log for details: "
-                                  "`tail /var/log/wo/wordops.log` "
-                                  "and please try again")
+                    vhostonly = False
+                try:
+                    wo_wp_creds = setupwordpress(self, data, vhostonly)
+                    # Add database information for site into database
+                    updateSiteInfo(self, wo_domain,
+                                   db_name=data['wo_db_name'],
+                                   db_user=data['wo_db_user'],
+                                   db_password=data['wo_db_pass'],
+                                   db_host=data['wo_db_host'])
+                except SiteError as e:
+                    # call cleanup actions on failure
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['wo_db_name'],
+                                    dbuser=data['wo_db_user'],
+                                    dbhost=data['wo_mysql_grant_host'])
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
 
             # Service Nginx Reload call cleanup if failed to reload nginx
             if not WOService.reload_service(self, 'nginx'):
@@ -1375,7 +1353,7 @@ class WOSiteUpdateController(CementBaseController):
                 if wo_subdomain:
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"
-                                  .format(wo_root_domain))
+                              .format(wo_root_domain))
                     isWildcard = checkWildcardExist(self, wo_root_domain)
                     Log.debug(self, "isWildcard = {0}".format(isWildcard))
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
@@ -1422,9 +1400,10 @@ class WOSiteUpdateController(CementBaseController):
                          " https://{0}".format(wo_domain))
                 if wo_subdomain and isWildcard:
                     if (SSL.getExpirationDays(self, wo_root_domain) > 0):
-                        Log.info(self, "Your cert will expire within " +
-                                 str(SSL.getExpirationDays(self, wo_root_domain)) +
-                                 " days.")
+                        Log.info(
+                            self, "Your cert will expire within " +
+                            str(SSL.getExpirationDays(self, wo_root_domain)) +
+                            " days.")
                     else:
                         Log.warn(
                             self, "Your cert already EXPIRED ! "

@@ -798,7 +798,9 @@ wo_ufw_setup() {
 wo_cheat_install() {
     curl -sL https://cht.sh/:cht.sh > /usr/local/bin/cht.sh
     chmod +x /usr/local/bin/cht.sh
-    ln -s /usr/local/bin/cht.sh /usr/local/bin/cheat 
+    [ ! -h /usr/local/bin/cheat  ] && {
+    ln -s /usr/local/bin/cht.sh /usr/local/bin/cheat
+    }
     curl -sL https://cheat.sh/:bash_completion > /etc/bash_completion.d/cht.sh
 }
 
