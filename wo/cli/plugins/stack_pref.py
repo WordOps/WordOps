@@ -888,8 +888,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.close()
             else:
                 Log.info(self, "Tuning MariaDB configuration")
-                WOFileUtils.copyfile(self, "/etc/mysql/my.cnf",
-                                     "/etc/mysql/my.cnf.default-pkg")
+                if not os.path.isfile("/etc/mysql/my.cnf.default-pkg"):
+                    WOFileUtils.copyfile(self, "/etc/mysql/my.cnf",
+                                         "/etc/mysql/my.cnf.default-pkg")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
                 # set InnoDB variable depending on the RAM available
                 wo_ram_innodb = int(wo_ram*0.3)
