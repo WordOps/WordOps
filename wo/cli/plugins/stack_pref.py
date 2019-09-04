@@ -877,7 +877,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'php7.3-fpm')
 
         # create mysql config if it doesn't exist
-        if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
+        if set(["mariadb-server"]).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/mysql/my.cnf"):
                 config = ("[mysqld]\nwait_timeout = 30\n"
                           "interactive_timeout=60\nperformance_schema = 0"
