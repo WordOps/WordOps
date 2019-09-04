@@ -863,7 +863,17 @@ def site_package_check(self, stype):
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
         if not WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
-            apt_packages = apt_packages + WOVariables.wo_mysql
+            if not WOVariables.wo_distro == 'raspbian':
+                if (not WOVariables.wo_platform_codename == 'jessie'):
+                    wo_mysql = ["mariadb-server", "percona-toolkit",
+                                "python3-mysqldb", "mariadb-backup"]
+                else:
+                    wo_mysql = ["mariadb-server", "percona-toolkit",
+                                "python3-mysql.connector"]
+            else:
+                wo_mysql = ["mariadb-server", "percona-toolkit",
+                            "python3-mysqldb"]
+            apt_packages = apt_packages + wo_mysql
 
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting packages variable for WP-CLI")
