@@ -29,7 +29,7 @@ def GetDomainlevel(domain):
     """
         This function returns the domain type : domain, subdomain,
     """
-    domain_name = domain.lower().split('.')
+    domain_name = domain.lower().strip().split('.')
     if domain_name[0] == 'www':
         domain_name = domain_name[1:]
     domain_type = ''
@@ -39,16 +39,17 @@ def GetDomainlevel(domain):
             "/var/lib/wo/public_suffix_list.dat", encoding='utf-8', )
         # Read all the lines into a list.
         for domain_suffix in Suffix_file:
-            if (str(domain_suffix).strip()) == ('.'.join(domain_name[1:])):
-                domain_type = 'domain'
-                root_domain = ('.'.join(domain_name[0:]))
-                break
-            elif (str(domain_suffix).strip()) == ('.'.join(domain_name[2:])):
+            if (str(domain_suffix).strip()) == ('.'.join(domain_name[2:])):
                 domain_type = 'subdomain'
                 root_domain = ('.'.join(domain_name[1:]))
                 break
+            elif (str(domain_suffix).strip()) == ('.'.join(domain_name[1:])):
+                domain_type = 'domain'
+                root_domain = ('.'.join(domain_name))
+                break
             else:
-                domain_type = 'other'
+                domain_type = 'domain'
+                root_domain = ('.'.join(domain_name))
         Suffix_file.close()
 
     return (domain_type, root_domain)
