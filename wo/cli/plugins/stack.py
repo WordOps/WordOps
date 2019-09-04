@@ -548,7 +548,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
-            packages = packages + ['/var/www/22222/htdocs/*']
+            packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:
             pargs.nginx = True
@@ -767,7 +767,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
-            packages = packages + ['/var/www/22222/htdocs/*']
+            packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:
             pargs.nginx = True
@@ -958,7 +958,6 @@ class WOStackController(CementBaseController):
             if (packages):
                 Log.info(self, "Purging packages, please wait...")
                 WOFileUtils.remove(self, packages)
-                WOAptGet.auto_remove(self)
 
             Log.info(self, "Successfully purged packages")
 
