@@ -3,7 +3,7 @@ import os
 from urllib.parse import urlparse
 
 
-class DOMN:
+class DOMN():
 
     def validatedomain(self, url):
         """
