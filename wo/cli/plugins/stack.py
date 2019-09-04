@@ -238,7 +238,7 @@ class WOStackController(CementBaseController):
                     else:
                         wo_mysql = ["mariadb-server", "percona-toolkit",
                                     "python3-mysqldb"]
-                        apt_packages = apt_packages + wo_mysql
+                    apt_packages = apt_packages + wo_mysql
                 else:
                     Log.debug(self, "MySQL already installed and alive")
                     Log.info(self, "MySQL already installed and alive")
