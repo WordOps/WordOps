@@ -886,101 +886,35 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    encoding='utf-8', mode='w')
                 config_file.write(config)
                 config_file.close()
-            elif (not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+            else:
                 Log.info(self, "Tuning MariaDB configuration")
-                with open("/etc/mysql/my.cnf",
-                          "a") as mysql_file:
-                    mysql_file.write("\n# WordOps v3.9.8\n")
+                WOFileUtils.copyfile(self, "/etc/mysql/my.cnf",
+                                     "/etc/mysql/my.cnf.default-pkg")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
                 # set InnoDB variable depending on the RAM available
                 wo_ram_innodb = int(wo_ram*0.3)
                 wo_ram_log_buffer = int(wo_ram_innodb*0.25)
                 wo_ram_log_size = int(wo_ram_log_buffer*0.5)
+                if (wo_ram_innodb > 2000) and (wo_ram_innodb < 64000):
+                    wo_innodb_instance = int(wo_ram_innodb/1000)
+                    tmp_table_size = int(128)
+                elif (wo_ram_innodb < 2000):
+                    wo_innodb_instance = int(1)
+                    tmp_table_size = int(32)
+                elif (wo_ram_innodb > 64000):
+                    wo_innodb_instance = int(64)
+                    tmp_table_size = int(256)
+                data = dict(
+                    tmp_table_size=tmp_table_size, inno_log=wo_ram_log_size,
+                    inno_buffer=wo_ram_innodb,
+                    inno_log_buffer=wo_ram_log_buffer,
+                    innodb_instances=wo_innodb_instance)
+                WOTemplate.render(
+                    self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
                 # set innodb_buffer_pool_instances depending
                 # on the amount of RAM
-                if (wo_ram_innodb > 1000) and (wo_ram_innodb < 64000):
-                    wo_innodb_instance = int(
-                        wo_ram_innodb/1000)
-                elif (wo_ram_innodb < 1000):
-                    wo_innodb_instance = int(1)
-                elif (wo_ram_innodb > 64000):
-                    wo_innodb_instance = int(64)
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_buffer_pool_size	= 256M",
-                                          "innodb_buffer_pool_size	"
-                                          "= {0}M\n"
-                                          "innodb_buffer_pool_instances "
-                                          "= {1}\n"
-                                          .format(wo_ram_innodb,
-                                                  wo_innodb_instance))
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_log_buffer_size	= 8M",
-                                          "innodb_log_buffer_size	= {0}M"
-                                          .format(wo_ram_log_buffer))
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "#innodb_log_file_size	= 50M",
-                                          "innodb_log_file_size		= {0}M"
-                                          .format(wo_ram_log_size))
-                WOFileUtils.searchreplace(self,
-                                          "/etc/mysql/my.cnf",
-                                          "wait_timeout		"
-                                          "= 600",
-                                          "wait_timeout		"
-                                          "= 120\n"
-                                          "skip-name-resolve = 1\n")
-                # disabling mariadb binlog
-                WOFileUtils.searchreplace(self,
-                                          "/etc/mysql/my.cnf",
-                                          "log_bin			"
-                                          "= /var/log/mysql/"
-                                          "mariadb-bin",
-                                          "#log_bin          "
-                                          "      = /var/log/"
-                                          "mysql/mariadb-bin")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          'log_bin_index		'
-                                          "= /var/log/mysql/"
-                                          "mariadb-bin.index",
-                                          "#log_bin_index "
-                                          "= /var/log/mysql/"
-                                          "mariadb-bin.index")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "expire_logs_days	= 10",
-                                          "#expire_logs_days	"
-                                          "= 10")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "max_binlog_size         "
-                                          "= 100M",
-                                          "#max_binlog_size         "
-                                          "= 100M")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_open_files	="
-                                          " 400",
-                                          "innodb_open_files	="
-                                          " 16000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_io_capacity	="
-                                          " 400",
-                                          "innodb_io_capacity	="
-                                          " 16000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "query_cache_size		= 64M",
-                                          "query_cache_size		= 0")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "#query_cache_type		= DEMAND",
-                                          "query_cache_type		= 0")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "#open-files-limit	= 2000",
-                                          "open-files-limit	= 10000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "table_open_cache	= 400",
-                                          "table_open_cache	= 16000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "max_allowed_packet	= 16M",
-                                          "max_allowed_packet	= 64M\n")
-
                 WOService.stop_service(self, 'mysql')
                 WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
                                    '/var/lib/mysql/ib_logfile0.bak')
