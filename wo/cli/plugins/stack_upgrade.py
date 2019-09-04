@@ -87,8 +87,6 @@ class WOStackUpgradeController(CementBaseController):
         if pargs.web:
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 pargs.nginx = True
-            else:
-                Log.info(self, "Nginx is not already installed")
             pargs.php = True
             pargs.mysql = True
             pargs.wpcli = True
@@ -204,8 +202,12 @@ class WOStackUpgradeController(CementBaseController):
                             '/etc/apt/preferences.d/nginx-block'):
                     WOAptGet.install(self, nginx_packages)
 
+                Log.wait(self, "Upgrading APT Packages      ")
                 WOAptGet.install(self, apt_packages)
+                Log.valide(self, "Upgrading APT Packages      ")
+                Log.wait(self, "Configuring APT Packages      ")
                 post_pref(self, nginx_packages, [], True)
+                Log.valide(self, "Configuring APT Packages      ")
                 post_pref(self, apt_packages, [], True)
                 # Post Actions after package updates
 
@@ -226,7 +228,7 @@ class WOStackUpgradeController(CementBaseController):
                     WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
                 if pargs.netdata:
-                    Log.info(self, "Upgrading Netdata, please wait...")
+                    Log.wait(self, "Upgrading Netdata           ")
                     if os.path.isdir('/opt/netdata'):
                         WOShellExec.cmd_exec(
                             self, "bash /opt/netdata/usr/"
@@ -237,6 +239,7 @@ class WOStackUpgradeController(CementBaseController):
                             self, "bash /usr/"
                             "libexec/netdata/netdata-"
                             "updater.sh")
+                    Log.valide(self, "Upgrading Netdata           ")
 
                 if pargs.dashboard:
                     Log.debug(self, "Extracting wo-dashboard.tar.gz "
@@ -252,16 +255,17 @@ class WOStackUpgradeController(CementBaseController):
                                       WOVariables.wo_php_user, recursive=True)
 
                 if pargs.composer:
-                    Log.info(self, "Upgrading Composer, please wait...")
+                    Log.wait(self, "Upgrading Composer          ")
                     WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
                                          "/tmp/composer-install "
                                          "--install-dir=/var/lib/wo/tmp/")
                     shutil.copyfile('/var/lib/wo/tmp/composer.phar',
                                     '/usr/local/bin/composer')
                     WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+                    Log.valide(self, "Upgrading Composer          ")
 
                 if pargs.phpmyadmin:
-                    Log.info(self, "Upgrading phpMyAdmin, please wait...")
+                    Log.wait(self, "Upgrading phpMyAdmin        ")
                     WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz',
                                       '/var/lib/wo/tmp/')
                     shutil.copyfile(('{0}22222/htdocs/db/pma'
@@ -282,6 +286,7 @@ class WOStackUpgradeController(CementBaseController):
                                       .format(WOVariables.wo_webroot),
                                       WOVariables.wo_php_user,
                                       WOVariables.wo_php_user, recursive=True)
+                    Log.valide(self, "Upgrading phpMyAdmin        ")
 
             Log.info(self, "Successfully updated packages")
         else:

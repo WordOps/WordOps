@@ -52,7 +52,7 @@ class Log:
         """
         print(
             Log.OKBLUE + msg +
-            "[" + Log.ENDC + ".." + Log.OKBLUE + "]", end=end)
+            "  [" + Log.ENDC + ".." + Log.OKBLUE + "]", end=end)
         if log:
             self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
 
@@ -62,6 +62,7 @@ class Log:
         """
         print(
             Log.OKBLUE + msg +
-            "[" + Log.ENDC + "OK" + Log.OKBLUE + "]", end=end)
+            "  [" + Log.ENDC + Log.OKGREEN + "OK" +
+            Log.ENDC + Log.OKBLUE + "]", end=end)
         if log:
             self.app.log.info(Log.OKBLUE + msg + Log.ENDC)

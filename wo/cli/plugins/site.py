@@ -1387,7 +1387,7 @@ class WOSiteUpdateController(CementBaseController):
                                        .format(wo_domain))
 
                 httpsRedirect(self, wo_domain, True, wo_wildcard)
-                SSL.siteUrlHttps(self, wo_domain)
+                SSL.siteurlhttps(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "

@@ -484,11 +484,15 @@ class WOStackController(CementBaseController):
                 # wo_mem = int(memsplit[0])
                 # if (wo_mem < 4000000):
                 #    WOSwap.add(self)
-                Log.info(self, "Updating apt-cache, please wait...")
+                Log.wait(self, "Updating apt-cache          ")
                 WOAptGet.update(self)
-                Log.info(self, "Installing packages, please wait...")
+                Log.valide(self, "Updating apt-cache          ")
+                Log.info(self, "Installing APT packages     ")
                 WOAptGet.install(self, apt_packages)
+                Log.valide(self, "Installing APT packages     ")
+                Log.wait(self, "Configuring APT packages    ")
                 post_pref(self, apt_packages, empty_packages)
+                Log.valide(self, "Configuring APT packages    ")
             if (packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
@@ -714,9 +718,10 @@ class WOStackController(CementBaseController):
 
             if (apt_packages):
                 Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Removing apt packages, please wait...")
+                Log.wait(self, "Removing APT packages       ")
                 WOAptGet.remove(self, apt_packages)
                 WOAptGet.auto_remove(self)
+                Log.valide(self, "Removing APT packages       ")
 
             Log.info(self, "Successfully removed packages")
 
@@ -934,9 +939,10 @@ class WOStackController(CementBaseController):
                                          "uninstaller.sh -y -f")
 
             if (apt_packages):
-                Log.info(self, "Purging apt packages, please wait...")
+                Log.wait(self, "Purging APT Packages        ")
                 WOAptGet.remove(self, apt_packages, purge=True)
                 WOAptGet.auto_remove(self)
+                Log.valide(self, "Purging APT Packages        ")
 
             if (packages):
                 Log.info(self, "Purging packages, please wait...")
