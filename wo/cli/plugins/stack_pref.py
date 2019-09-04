@@ -29,8 +29,9 @@ from wo.core.variables import WOVariables
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
-    if (set(WOVariables.wo_mysql).issubset(set(apt_packages)) or
-            set(WOVariables.wo_mysql_client).issubset(set(apt_packages))):
+    if (set(["mariadb-server"]).issubset(set(apt_packages)) or
+            set(["mariadb-client"]).issubset(set(apt_packages)) or
+            set(["mariadb-backup"]).issubset((set(apt_packages)))):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -47,7 +48,7 @@ def pre_pref(self, apt_packages):
                            keyserver="keyserver.ubuntu.com")
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver="keyserver.ubuntu.com")
-    if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
+    if set(["mariadb-server"]).issubset(set(apt_packages)):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
@@ -139,7 +140,7 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding deb.sury GPG key')
             WORepo.add_key(self, WOVariables.wo_php_key)
     # add redis repository
-    if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+    if set(['redis-server']).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for Redis, please wait...")
         if WOVariables.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
@@ -189,7 +190,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    '\t$request_filename;\n')
             try:
                 data = dict(php="9000", debug="9001",
-                                php7="9070", debug7="9170")
+                            php7="9070", debug7="9170")
                 WOTemplate.render(
                     self, '{0}/upstream.conf'.format(ngxcnf),
                     'upstream.mustache', data, overwrite=True)
@@ -1106,7 +1107,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.reload_service(self, 'proftpd')
 
         # Redis configuration
-        if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+        if set(['redus-server']).issubset(set(apt_packages)):
             if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                 if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
                                         "upstream.conf",

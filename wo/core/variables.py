@@ -10,7 +10,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.8.9"
+    wo_version = "3.9.8.10"
     # WordOps packages versions
     wo_wp_cli = "2.2.0"
     wo_adminer = "4.7.2"
@@ -144,20 +144,12 @@ class WOVariables():
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
-    if wo_distro == 'raspbian':
-        wo_mysql = ["mariadb-server", "percona-toolkit",
-                    "python3-mysqldb"]
-    elif wo_platform_codename == 'jessie':
-        wo_mysql = ["mariadb-server", "percona-toolkit",
-                    "python3-mysql.connector"]
-    else:
-        wo_mysql = ["mariadb-server", "percona-toolkit",
-                    "python3-mysqldb", "mariadb-backup"]
-
     if wo_platform_codename == 'jessie':
         wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
     else:
         wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
+
+
 
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]
@@ -170,7 +162,7 @@ class WOVariables():
         wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
                          .format(codename=wo_platform_codename))
 
-    wo_redis = ['redis-server', 'php-redis']
+    wo_redis = ['redis-server']
 
     # Repo path
     wo_repo_file = "wo-repo.list"

@@ -115,6 +115,7 @@ class WOStackController(CementBaseController):
         empty_packages = []
         wo_webroot = "/var/www/"
         pargs = self.app.pargs
+
         try:
             # Default action for stack installation
             if ((not pargs.web) and (not pargs.admin) and
@@ -190,7 +191,7 @@ class WOStackController(CementBaseController):
             if pargs.redis:
                 pargs.php = True
                 if not WOAptGet.is_installed(self, 'redis-server'):
-                    apt_packages = apt_packages + WOVariables.wo_redis
+                    apt_packages = apt_packages + ["redis-server"]
 
                 else:
                     Log.info(self, "Redis already installed")
@@ -224,10 +225,31 @@ class WOStackController(CementBaseController):
 
             # MariaDB 10.3
             if pargs.mysql:
+                if not WOVariables.wo_distro == 'raspbian':
+                    if (not WOVariables.wo_platform_codename == 'jessie'):
+                        if ((not WOFileUtils.grep(
+                                self, "/etc/apt/sources.list.d/wo-repo.list",
+                                "10.1")) and
+                                (not WOFileUtils.grep(
+                                self, "/etc/apt/sources.list.d/wo-repo.list",
+                                "10.1"))):
+
+                            wo_mysql = ["mariadb-server", "percona-toolkit",
+                                        "python3-mysqldb", "mariadb-backup"]
+                        else:
+                            wo_mysql = ["mariadb-server", "percona-toolkit",
+                                        "python3-mysqldb"]
+                    else:
+                        wo_mysql = ["mariadb-server", "percona-toolkit",
+                                    "python3-mysql.connector"]
+                else:
+                    wo_mysql = ["mariadb-server", "percona-toolkit",
+                                "python3-mysqldb"]
+
                 pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
-                    apt_packages = apt_packages + WOVariables.wo_mysql
+                    apt_packages = apt_packages + wo_mysql
                 else:
                     Log.debug(self, "MySQL already installed and alive")
                     Log.info(self, "MySQL already installed and alive")
@@ -585,7 +607,7 @@ class WOStackController(CementBaseController):
         # REDIS
         if pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
-            apt_packages = apt_packages + WOVariables.wo_redis
+            apt_packages = apt_packages + ["redis-server"]
 
         # MariaDB
         if pargs.mysql:
@@ -804,7 +826,7 @@ class WOStackController(CementBaseController):
         # REDIS
         if pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
-            apt_packages = apt_packages + WOVariables.wo_redis
+            apt_packages = apt_packages + ["redis-server"]
 
         # MariaDB
         if pargs.mysql:

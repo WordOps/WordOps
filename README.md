@@ -17,7 +17,7 @@
 <br><img src="https://netdata.wordops.eu/netdata/api/v1/badge.svg?chart=web_log_wops.cc.requests_per_url&options=unaligned&dimensions=download&group=sum&after=-86400&label=today&units=installations&precision=0&value_color=%230055AA" alt="WordOps install" >
 <a href="https://www.codacy.com/app/VirtuBox/WordOps?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=WordOps/WordOps&amp;utm_campaign=Badge_Grade"><img src="https://api.codacy.com/project/badge/Grade/fe9100fd2c634de7882ecec17f00a11a" alt="codacy"/></a>
 <a href="https://twitter.com/WordOps_" target="_blank"><img src="https://img.shields.io/badge/twitter-%40WordOps__-blue.svg?style=flat&logo=twitter" alt="Badge Twitter" /></a>
-<a href="https://community.wordops.net/slack" target="_blank"><img src="https://img.shields.io/badge/slack-WordOps-4A154B.svg?style=flat&logo=slack" alt="Badge Slack" /></a>
+<a href="https://chat.wordops.net" target="_blank"><img src="https://img.shields.io/badge/slack-WordOps-4A154B.svg?style=flat&logo=rocket.chat" alt="Badge Slack" /></a>
 </p>
 
 <p align="center">

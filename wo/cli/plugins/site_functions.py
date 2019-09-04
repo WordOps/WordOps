@@ -876,7 +876,7 @@ def site_package_check(self, stype):
     if self.app.pargs.wpredis:
         Log.debug(self, "Setting apt_packages variable for redis")
         if not WOAptGet.is_installed(self, 'redis-server'):
-            apt_packages = apt_packages + WOVariables.wo_redis
+            apt_packages = apt_packages + ["redis-server"]
 
     if self.app.pargs.php73:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")

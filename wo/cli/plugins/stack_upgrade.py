@@ -119,13 +119,13 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.mysql:
             if WOAptGet.is_installed(self, 'mariadb-server'):
-                apt_packages = apt_packages + WOVariables.wo_mysql
+                apt_packages = apt_packages + ['mariadb-server']
             else:
                 Log.info(self, "MariaDB is not installed")
 
         if pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
-                apt_packages = apt_packages + WOVariables.wo_redis
+                apt_packages = apt_packages + ['redis-server']
             else:
                 Log.info(self, "Redis is not installed")
 

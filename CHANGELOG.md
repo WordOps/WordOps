@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.10 - 2019-09-04
+
 #### Changed
 
 - Improve Let's Encrypt certificate issuance logging informations
@@ -17,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fix cheat.sh install [PR #139](https://github.com/WordOps/WordOps/pull/139)
 - sslutils error when trying to display SSL certificate expiration
 - Fix cheat.sh symbolic link check before creation
+- subdomain detection with complex suffixes like com.br
 
 ### v3.9.8.9 - 2019-09-03
 
