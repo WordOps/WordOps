@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - Improve Let's Encrypt certificate issuance logging informations
+- MariaDB configuration & optimization is now rendered from a template (can be protected against overwriting with .custom)
 
 #### Fixed
 
@@ -22,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - subdomain detection with complex suffixes like com.br
 - Fix mariadb install/upgrade when running mariadb-10.1
 - Fix mariadb install/upgrade on raspbian and debian 8
+- Fix mariadb tuning wrong pool_instance calculation
 
 ### v3.9.8.9 - 2019-09-03
 
