@@ -15,21 +15,21 @@ class WOService():
         """
         try:
             if service_name in ['nginx']:
+                Log.wait(self, "Testing Nginx configuration ")
                 # Check Nginx configuration before executing command
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
                 output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
+                    Log.valide(self, "Testing Nginx configuration ")
+                    Log.wait(self, "Starting Nginx              ")
                     service_cmd = ('service {0} start'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.info(self, "Starting Nginx " +
-                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        Log.valide(self, "Starting Nginx              ")
                         return True
                 else:
-                    Log.info(
-                        self, "Starting Nginx " + "[" + Log.FAIL +
-                        "Failed" + Log.OKBLUE+"]")
+                    Log.failed(self, "Testing Nginx configuration ")
                     return False
             else:
                 service_cmd = ('service {0} start'.format(service_name))
@@ -76,32 +76,35 @@ class WOService():
         """
         try:
             if service_name in ['nginx']:
+                Log.wait(self, "Testing Nginx configuration ")
                 # Check Nginx configuration before executing command
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
                 output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
+                    Log.valide(self, "Testing Nginx configuration ")
+                    Log.wait(self, "Restarting Nginx            ")
                     service_cmd = ('service {0} restart'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.info(self, "Restarting Nginx " +
-                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        Log.valide(self, "Restarting Nginx            ")
                         return True
                 else:
-                    Log.info(self, "Restarting Nginx " + "[" + Log.FAIL +
-                             "Failed" + Log.OKBLUE+"]")
+                    Log.failed(self, "Testing Nginx configuration ")
                     return False
             else:
                 service_cmd = ('service {0} restart'.format(service_name))
-                Log.info(self, "Restart : {0:10}".format(
-                    service_name), end='')
+                Log.wait(self, "Restarting {0:10}".format(
+                    service_name))
                 retcode = subprocess.getstatusoutput(service_cmd)
                 if retcode[0] == 0:
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                    Log.valide(self, "Restarting {0:10}".format(
+                        service_name))
                     return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
-                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    Log.failed(self, "Restarting {0:10}".format(
+                        service_name))
                     return False
         except OSError as e:
             Log.debug(self, "{0} {1}".format(e.errno, e.strerror))
@@ -116,31 +119,33 @@ class WOService():
         try:
             if service_name in ['nginx']:
                 # Check Nginx configuration before executing command
+                Log.wait(self, "Testing Nginx configuration ")
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
                 output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
+                    Log.valide(self, "Testing Nginx configuration ")
+                    Log.wait(self, "Reloading Nginx             ")
                     service_cmd = ('service {0} reload'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.info(self, "Reloading Nginx " +
-                                 "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        Log.valide(self, "Reloading Nginx             ")
                         return True
                 else:
-                    Log.info(
-                        self, "Reloading Nginx " + "[" + Log.FAIL +
-                        "Failed" + Log.OKBLUE+"]")
+                    Log.failed(self, "Testing Nginx configuration ")
                     return False
             else:
                 service_cmd = ('service {0} reload'.format(service_name))
-                Log.info(self, "Reload : {0:10}".format(service_name), end='')
+                Log.wait(self, "Reloading {0:10}".format(
+                    service_name))
                 retcode = subprocess.getstatusoutput(service_cmd)
                 if retcode[0] == 0:
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                    return True
+                    Log.valide(self, "Reloading {0:10}".format(
+                        service_name))
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
-                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    Log.failed(self, "Reloading {0:10}".format(
+                        service_name))
                     return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))
