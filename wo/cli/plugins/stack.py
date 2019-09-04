@@ -498,7 +498,7 @@ class WOStackController(CementBaseController):
                 Log.wait(self, "Updating apt-cache          ")
                 WOAptGet.update(self)
                 Log.valide(self, "Updating apt-cache          ")
-                Log.info(self, "Installing APT packages     ")
+                Log.wait(self, "Installing APT packages     ")
                 WOAptGet.install(self, apt_packages)
                 Log.valide(self, "Installing APT packages     ")
                 Log.wait(self, "Configuring APT packages    ")
@@ -724,9 +724,9 @@ class WOStackController(CementBaseController):
                                          errormsg='', log=False)
 
             if (packages):
-                Log.info(self, "Removing packages, please wait...")
+                Log.wait(self, "Removing packages           ")
                 WOFileUtils.remove(self, packages)
-
+                Log.valide(self, "Removing packages           ")
             if (apt_packages):
                 Log.debug(self, "Removing apt_packages")
                 Log.wait(self, "Removing APT packages       ")
@@ -956,9 +956,9 @@ class WOStackController(CementBaseController):
                 Log.valide(self, "Purging APT Packages        ")
 
             if (packages):
-                Log.info(self, "Purging packages, please wait...")
+                Log.wait(self, "Purging Packages            ")
                 WOFileUtils.remove(self, packages)
-
+                Log.valide(self, "Purging Packages            ")
             Log.info(self, "Successfully purged packages")
 
 
