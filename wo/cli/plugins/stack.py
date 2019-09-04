@@ -601,7 +601,8 @@ class WOStackController(CementBaseController):
         # MariaDB
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
-            apt_packages = apt_packages + ['mariadb-server']
+            apt_packages = apt_packages + ['mariadb-server', 'mysql-common',
+                                           'mariadb-client']
 
         # mysqlclient
         if pargs.mysqlclient:
@@ -820,7 +821,8 @@ class WOStackController(CementBaseController):
         # MariaDB
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
-            apt_packages = apt_packages + ['mariadb-server']
+            apt_packages = apt_packages + ['mariadb-server', 'mysql-common',
+                                           'mariadb-client']
 
         # mysqlclient
         if pargs.mysqlclient:
