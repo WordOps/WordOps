@@ -1,8 +1,9 @@
 """WordOps packages repository operations"""
+import os
+
+from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
-from wo.core.logging import Log
-import os
 
 
 class WORepo():

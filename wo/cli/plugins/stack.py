@@ -115,6 +115,7 @@ class WOStackController(CementBaseController):
         empty_packages = []
         wo_webroot = "/var/www/"
         pargs = self.app.pargs
+
         try:
             # Default action for stack installation
             if ((not pargs.web) and (not pargs.admin) and
@@ -190,7 +191,7 @@ class WOStackController(CementBaseController):
             if pargs.redis:
                 pargs.php = True
                 if not WOAptGet.is_installed(self, 'redis-server'):
-                    apt_packages = apt_packages + WOVariables.wo_redis
+                    apt_packages = apt_packages + ["redis-server"]
 
                 else:
                     Log.info(self, "Redis already installed")
@@ -227,7 +228,17 @@ class WOStackController(CementBaseController):
                 pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
-                    apt_packages = apt_packages + WOVariables.wo_mysql
+                    if not WOVariables.wo_distro == 'raspbian':
+                        if (not WOVariables.wo_platform_codename == 'jessie'):
+                            wo_mysql = ["mariadb-server", "percona-toolkit",
+                                        "python3-mysqldb", "mariadb-backup"]
+                        else:
+                            wo_mysql = ["mariadb-server", "percona-toolkit",
+                                        "python3-mysql.connector"]
+                    else:
+                        wo_mysql = ["mariadb-server", "percona-toolkit",
+                                    "python3-mysqldb"]
+                    apt_packages = apt_packages + wo_mysql
                 else:
                     Log.debug(self, "MySQL already installed and alive")
                     Log.info(self, "MySQL already installed and alive")
@@ -484,11 +495,15 @@ class WOStackController(CementBaseController):
                 # wo_mem = int(memsplit[0])
                 # if (wo_mem < 4000000):
                 #    WOSwap.add(self)
-                Log.info(self, "Updating apt-cache, please wait...")
+                Log.wait(self, "Updating apt-cache          ")
                 WOAptGet.update(self)
-                Log.info(self, "Installing packages, please wait...")
+                Log.valide(self, "Updating apt-cache          ")
+                Log.wait(self, "Installing APT packages     ")
                 WOAptGet.install(self, apt_packages)
+                Log.valide(self, "Installing APT packages     ")
+                Log.wait(self, "Configuring APT packages    ")
                 post_pref(self, apt_packages, empty_packages)
+                Log.valide(self, "Configuring APT packages    ")
             if (packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
@@ -533,7 +548,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
-            packages = packages + ['/var/www/22222/htdocs/*']
+            packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:
             pargs.nginx = True
@@ -581,12 +596,13 @@ class WOStackController(CementBaseController):
         # REDIS
         if pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
-            apt_packages = apt_packages + WOVariables.wo_redis
+            apt_packages = apt_packages + ["redis-server"]
 
         # MariaDB
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
-            apt_packages = apt_packages + WOVariables.wo_mysql
+            apt_packages = apt_packages + ['mariadb-server', 'mysql-common',
+                                           'mariadb-client']
 
         # mysqlclient
         if pargs.mysqlclient:
@@ -691,7 +707,7 @@ class WOStackController(CementBaseController):
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'nginx')
 
-            if (set(WOVariables.wo_mysql).issubset(set(apt_packages))):
+            if (set(["mariadb-server"]).issubset(set(apt_packages))):
                 WOMysql.backupAll(self)
                 WOService.stop_service(self, 'mysql')
 
@@ -709,14 +725,15 @@ class WOStackController(CementBaseController):
                                          errormsg='', log=False)
 
             if (packages):
-                Log.info(self, "Removing packages, please wait...")
+                Log.wait(self, "Removing packages           ")
                 WOFileUtils.remove(self, packages)
-
+                Log.valide(self, "Removing packages           ")
             if (apt_packages):
                 Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Removing apt packages, please wait...")
+                Log.wait(self, "Removing APT packages       ")
                 WOAptGet.remove(self, apt_packages)
                 WOAptGet.auto_remove(self)
+                Log.valide(self, "Removing APT packages       ")
 
             Log.info(self, "Successfully removed packages")
 
@@ -751,7 +768,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
-            packages = packages + ['/var/www/22222/htdocs/*']
+            packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:
             pargs.nginx = True
@@ -799,12 +816,13 @@ class WOStackController(CementBaseController):
         # REDIS
         if pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
-            apt_packages = apt_packages + WOVariables.wo_redis
+            apt_packages = apt_packages + ["redis-server"]
 
         # MariaDB
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
-            apt_packages = apt_packages + WOVariables.wo_mysql
+            apt_packages = apt_packages + ['mariadb-server', 'mysql-common',
+                                           'mariadb-client']
 
         # mysqlclient
         if pargs.mysqlclient:
@@ -916,7 +934,7 @@ class WOStackController(CementBaseController):
             if (set(["fail2ban"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'fail2ban')
 
-            if (set(WOVariables.wo_mysql).issubset(set(apt_packages))):
+            if (set(["mariadb-server"]).issubset(set(apt_packages))):
                 WOMysql.backupAll(self)
                 WOService.stop_service(self, 'mysql')
 
@@ -934,15 +952,15 @@ class WOStackController(CementBaseController):
                                          "uninstaller.sh -y -f")
 
             if (apt_packages):
-                Log.info(self, "Purging apt packages, please wait...")
+                Log.wait(self, "Purging APT Packages        ")
                 WOAptGet.remove(self, apt_packages, purge=True)
                 WOAptGet.auto_remove(self)
+                Log.valide(self, "Purging APT Packages        ")
 
             if (packages):
-                Log.info(self, "Purging packages, please wait...")
+                Log.wait(self, "Purging Packages            ")
                 WOFileUtils.remove(self, packages)
-                WOAptGet.auto_remove(self)
-
+                Log.valide(self, "Purging Packages            ")
             Log.info(self, "Successfully purged packages")
 
 

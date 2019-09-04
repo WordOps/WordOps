@@ -10,7 +10,7 @@ from cement.core.controller import CementBaseController, expose
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
-from wo.core.domainvalidate import GetDomainlevel, ValidateDomain
+from wo.core.domainvalidate import DMN
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
@@ -57,7 +57,7 @@ class WOSiteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         # validate domain name
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
 
         # check if site exists
         if not check_domain_exists(self, wo_domain):
@@ -94,7 +94,7 @@ class WOSiteController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
         # check if site exists
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -134,8 +134,8 @@ class WOSiteController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
-        (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
+        (wo_domain_type, wo_root_domain) = DMN.getdomainlevel(self, wo_domain)
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
@@ -163,9 +163,9 @@ class WOSiteController(CementBaseController):
                 if os.path.islink("{0}/conf/nginx/ssl.conf"
                                   .format(wo_site_webroot)):
                     sslexpiry = str(
-                        SSL.getExpirationDate(self, wo_root_domain))
+                        SSL.getexpirationdays(self, wo_root_domain))
                 else:
-                    sslexpiry = str(SSL.getExpirationDate(self, wo_domain))
+                    sslexpiry = str(SSL.getexpirationdays(self, wo_domain))
             else:
                 sslprovider = ''
                 sslexpiry = ''
@@ -186,7 +186,7 @@ class WOSiteController(CementBaseController):
     def log(self):
         pargs = self.app.pargs
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
         wo_site_webroot = getSiteInfo(self, wo_domain).site_path
 
         if not check_domain_exists(self, wo_domain):
@@ -208,7 +208,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         # TODO Write code for wo site edit command here
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -239,7 +239,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'Unable to read input, please try again')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -280,7 +280,7 @@ class WOSiteEditController(CementBaseController):
                 Log.error(self, 'Unable to read input, Please try again')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -425,7 +425,7 @@ class WOSiteCreateController(CementBaseController):
                 Log.error(self, "Unable to input site name, Please try again!")
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
         if not wo_domain.strip():
             Log.error(self, "Invalid domain name, "
                       "Provide valid domain name")
@@ -718,7 +718,7 @@ class WOSiteCreateController(CementBaseController):
                       "`tail /var/log/wo/wordops.log` and please try again")
 
         if pargs.letsencrypt:
-            (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
+            (wo_domain_type, wo_root_domain) = DMN.getdomainlevel(self, wo_domain)
             data['letsencrypt'] = True
             letsencrypt = True
             if data['letsencrypt'] is True:
@@ -745,9 +745,9 @@ class WOSiteCreateController(CementBaseController):
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"
                               .format(wo_root_domain))
-                    isWildcard = checkWildcardExist(self, wo_root_domain)
-                    Log.debug(self, "isWildcard = {0}".format(isWildcard))
-                    if isWildcard:
+                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
+                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
+                    if iswildcard:
                         Log.info(self, "Using existing Wildcard SSL "
                                  "certificate from {0} to secure {1}"
                                  .format(wo_root_domain, wo_domain))
@@ -769,7 +769,7 @@ class WOSiteCreateController(CementBaseController):
                 if pargs.hsts:
                     setupHsts(self, wo_domain)
 
-                site_url_https(self, wo_domain)
+                SSL.siteurlhttps(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
@@ -931,7 +931,7 @@ class WOSiteUpdateController(CementBaseController):
                 Log.error(self, 'Unable to input site name, Please try again!')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
         check_site = getSiteInfo(self, wo_domain)
 
@@ -1004,21 +1004,23 @@ class WOSiteUpdateController(CementBaseController):
             data['currcachetype'] = oldcachetype
 
         if stype == 'php':
-            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=True, wp=False, wpfc=False,
-                        wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                        multisite=False, wpsubdir=False, webroot=wo_site_webroot,
-                        currsitetype=oldsitetype, currcachetype=oldcachetype)
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False,  basic=True, wp=False, wpfc=False,
+                wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
+                currsitetype=oldsitetype, currcachetype=oldcachetype)
 
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
-            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=True, wp=False, wpfc=False,
-                        wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                        multisite=False, wpsubdir=False, webroot=wo_site_webroot,
-                        wo_db_name='', wo_db_user='', wo_db_pass='',
-                        wo_db_host='',
-                        currsitetype=oldsitetype, currcachetype=oldcachetype)
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False,  basic=True, wp=False, wpfc=False,
+                wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
+                wo_db_name='', wo_db_user='', wo_db_pass='',
+                wo_db_host='',
+                currsitetype=oldsitetype, currcachetype=oldcachetype)
 
             if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
                 data['wp'] = True
@@ -1031,10 +1033,11 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.php73:
             if not data:
-                data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                            currsitetype=oldsitetype,
-                            currcachetype=oldcachetype,
-                            webroot=wo_site_webroot)
+                data = dict(
+                    site_name=wo_domain, www_domain=wo_www_domain,
+                    currsitetype=oldsitetype,
+                    currcachetype=oldcachetype,
+                    webroot=wo_site_webroot)
                 stype = oldsitetype
                 cache = oldcachetype
                 if oldsitetype == 'html' or oldsitetype == 'proxy':
@@ -1126,7 +1129,7 @@ class WOSiteUpdateController(CementBaseController):
                 pargs.php73 = False
 
         if pargs.letsencrypt:
-            (wo_domain_type, wo_root_domain) = GetDomainlevel(wo_domain)
+            (wo_domain_type, wo_root_domain) = DMN.getdomainlevel(self, wo_domain)
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
@@ -1174,7 +1177,7 @@ class WOSiteUpdateController(CementBaseController):
 
         # --letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
-            expiry_days = SSL.getExpirationDays(self, wo_domain)
+            expiry_days = SSL.getexpirationdays(self, wo_domain)
             min_expiry_days = 45
             if check_ssl:
                 if (expiry_days <= min_expiry_days):
@@ -1196,12 +1199,12 @@ class WOSiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
             Log.info(self, "SUCCESS: Certificate was successfully renewed For"
                            " https://{0}".format(wo_domain))
-            if (SSL.getExpirationDays(self, wo_domain) > 0):
+            if (SSL.getexpirationdays(self, wo_domain) > 0):
                 Log.info(self, "Your cert will expire within " +
-                         str(SSL.getExpirationDays(self, wo_domain)) +
+                         str(SSL.getexpirationdays(self, wo_domain)) +
                          " days.")
                 Log.info(self, "Expiration date: " +
-                         str(SSL.getExpirationDate(self, wo_domain)))
+                         str(SSL.getexpirationdate(self, wo_domain)))
 
             else:
                 Log.warn(
@@ -1236,12 +1239,12 @@ class WOSiteUpdateController(CementBaseController):
                         self, "You have more than 45 days with the current "
                         "certificate - refusing to run.\n")
 
-                if (SSL.getExpirationDays(self, wo_domain) > 0):
+                if (SSL.getexpirationdays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) +
+                             str(SSL.getexpirationdays(self, wo_domain)) +
                              " days.")
                     Log.info(self, "Expiration date: \n\n" +
-                             str(SSL.getExpirationDate(self, wo_domain)))
+                             str(SSL.getexpirationdate(self, wo_domain)))
                 return 0
                 # else:
                 #       Log.warn(self, "Your cert already EXPIRED !
@@ -1354,11 +1357,11 @@ class WOSiteUpdateController(CementBaseController):
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"
                               .format(wo_root_domain))
-                    isWildcard = checkWildcardExist(self, wo_root_domain)
-                    Log.debug(self, "isWildcard = {0}".format(isWildcard))
+                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
+                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
                     if wo_subdomain:
-                        if isWildcard:
+                        if iswildcard:
                             Log.info(self, "Using existing Wildcard SSL "
                                      "certificate from {0} to secure {1}"
                                      .format(wo_root_domain, wo_domain))
@@ -1375,9 +1378,6 @@ class WOSiteUpdateController(CementBaseController):
                     else:
                         setupLetsEncrypt(self, wo_domain, wo_subdomain,
                                          wo_wildcard, wo_dns, wo_acme_dns)
-
-                    httpsRedirect(self, wo_domain, True, wo_wildcard)
-                    site_url_https(self, wo_domain)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
@@ -1389,8 +1389,8 @@ class WOSiteUpdateController(CementBaseController):
                                        '/etc/nginx/conf.d/force-ssl-{0}.conf'
                                        .format(wo_domain))
 
-                    httpsRedirect(self, wo_domain, True, wo_wildcard)
-                    site_url_https(self, wo_domain)
+                httpsRedirect(self, wo_domain, True, wo_wildcard)
+                SSL.siteurlhttps(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1398,20 +1398,20 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "Congratulations! Successfully "
                          "Configured SSL for Site "
                          " https://{0}".format(wo_domain))
-                if wo_subdomain and isWildcard:
-                    if (SSL.getExpirationDays(self, wo_root_domain) > 0):
+                if wo_subdomain and iswildcard:
+                    if (SSL.getexpirationdays(self, wo_root_domain) > 0):
                         Log.info(
                             self, "Your cert will expire within " +
-                            str(SSL.getExpirationDays(self, wo_root_domain)) +
+                            str(SSL.getexpirationdays(self, wo_root_domain)) +
                             " days.")
                     else:
                         Log.warn(
                             self, "Your cert already EXPIRED ! "
                             ".PLEASE renew soon . ")
                 else:
-                    if (SSL.getExpirationDays(self, wo_domain) > 0):
+                    if (SSL.getexpirationdays(self, wo_domain) > 0):
                         Log.info(self, "Your cert will expire within " +
-                                 str(SSL.getExpirationDays(self, wo_domain)) +
+                                 str(SSL.getexpirationdays(self, wo_domain)) +
                                  " days.")
                     else:
                         Log.warn(
@@ -1575,26 +1575,27 @@ class WOSiteUpdateController(CementBaseController):
                  (data['wpfc'])) or (oldsitetype == 'wp' and
                                      data['multisite'] and data['wpfc'])):
                 try:
-                    plugin_data_object = {"log_level": "INFO",
-                                          "log_filesize": 5,
-                                          "enable_purge": 1,
-                                          "enable_map": "0",
-                                          "enable_log": 0,
-                                          "enable_stamp": 1,
-                                          "purge_homepage_on_new": 1,
-                                          "purge_homepage_on_edit": 1,
-                                          "purge_homepage_on_del": 1,
-                                          "purge_archive_on_new": 1,
-                                          "purge_archive_on_edit": 0,
-                                          "purge_archive_on_del": 0,
-                                          "purge_archive_on_new_comment": 0,
-                                          "purge_archive_on_deleted_comment": 0,
-                                          "purge_page_on_mod": 1,
-                                          "purge_page_on_new_comment": 1,
-                                          "purge_page_on_deleted_comment": 1,
-                                          "cache_method": "enable_fastcgi",
-                                          "purge_method": "get_request",
-                                          "redis_hostname": "127.0.0.1",
+                    plugin_data_object = {
+                        "log_level": "INFO",
+                        "log_filesize": 5,
+                        "enable_purge": 1,
+                        "enable_map": "0",
+                        "enable_log": 0,
+                        "enable_stamp": 1,
+                        "purge_homepage_on_new": 1,
+                        "purge_homepage_on_edit": 1,
+                        "purge_homepage_on_del": 1,
+                        "purge_archive_on_new": 1,
+                        "purge_archive_on_edit": 0,
+                        "purge_archive_on_del": 0,
+                        "purge_archive_on_new_comment": 0,
+                        "purge_archive_on_deleted_comment": 0,
+                        "purge_page_on_mod": 1,
+                        "purge_page_on_new_comment": 1,
+                        "purge_page_on_deleted_comment": 1,
+                        "cache_method": "enable_fastcgi",
+                        "purge_method": "get_request",
+                        "redis_hostname": "127.0.0.1",
                                           "redis_port": "6379",
                                           "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
@@ -1616,26 +1617,27 @@ class WOSiteUpdateController(CementBaseController):
                                           data['multisite'] and
                                           data['wpredis'])):
                 try:
-                    plugin_data_object = {"log_level": "INFO",
-                                          "log_filesize": 5,
-                                          "enable_purge": 1,
-                                          "enable_map": "0",
-                                          "enable_log": 0,
-                                          "enable_stamp": 1,
-                                          "purge_homepage_on_new": 1,
-                                          "purge_homepage_on_edit": 1,
-                                          "purge_homepage_on_del": 1,
-                                          "purge_archive_on_new": 1,
-                                          "purge_archive_on_edit": 0,
-                                          "purge_archive_on_del": 0,
-                                          "purge_archive_on_new_comment": 0,
-                                          "purge_archive_on_deleted_comment": 0,
-                                          "purge_page_on_mod": 1,
-                                          "purge_page_on_new_comment": 1,
-                                          "purge_page_on_deleted_comment": 1,
-                                          "cache_method": "enable_redis",
-                                          "purge_method": "get_request",
-                                          "redis_hostname": "127.0.0.1",
+                    plugin_data_object = {
+                        "log_level": "INFO",
+                        "log_filesize": 5,
+                        "enable_purge": 1,
+                        "enable_map": "0",
+                        "enable_log": 0,
+                        "enable_stamp": 1,
+                        "purge_homepage_on_new": 1,
+                        "purge_homepage_on_edit": 1,
+                        "purge_homepage_on_del": 1,
+                        "purge_archive_on_new": 1,
+                        "purge_archive_on_edit": 0,
+                        "purge_archive_on_del": 0,
+                        "purge_archive_on_new_comment": 0,
+                        "purge_archive_on_deleted_comment": 0,
+                        "purge_page_on_mod": 1,
+                        "purge_page_on_new_comment": 1,
+                        "purge_page_on_deleted_comment": 1,
+                        "cache_method": "enable_redis",
+                        "purge_method": "get_request",
+                        "redis_hostname": "127.0.0.1",
                                           "redis_port": "6379",
                                           "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
@@ -1653,26 +1655,27 @@ class WOSiteUpdateController(CementBaseController):
             else:
                 try:
                     # disable nginx-helper
-                    plugin_data_object = {"log_level": "INFO",
-                                          "log_filesize": 5,
-                                          "enable_purge": 0,
-                                          "enable_map": 0,
-                                          "enable_log": 0,
-                                          "enable_stamp": 0,
-                                          "purge_homepage_on_new": 1,
-                                          "purge_homepage_on_edit": 1,
-                                          "purge_homepage_on_del": 1,
-                                          "purge_archive_on_new": 1,
-                                          "purge_archive_on_edit": 0,
-                                          "purge_archive_on_del": 0,
-                                          "purge_archive_on_new_comment": 0,
-                                          "purge_archive_on_deleted_comment": 0,
-                                          "purge_page_on_mod": 1,
-                                          "purge_page_on_new_comment": 1,
-                                          "purge_page_on_deleted_comment": 1,
-                                          "cache_method": "enable_redis",
-                                          "purge_method": "get_request",
-                                          "redis_hostname": "127.0.0.1",
+                    plugin_data_object = {
+                        "log_level": "INFO",
+                        "log_filesize": 5,
+                        "enable_purge": 0,
+                        "enable_map": 0,
+                        "enable_log": 0,
+                        "enable_stamp": 0,
+                        "purge_homepage_on_new": 1,
+                        "purge_homepage_on_edit": 1,
+                        "purge_homepage_on_del": 1,
+                        "purge_archive_on_new": 1,
+                        "purge_archive_on_edit": 0,
+                        "purge_archive_on_del": 0,
+                        "purge_archive_on_new_comment": 0,
+                        "purge_archive_on_deleted_comment": 0,
+                        "purge_page_on_mod": 1,
+                        "purge_page_on_new_comment": 1,
+                        "purge_page_on_deleted_comment": 1,
+                        "cache_method": "enable_redis",
+                        "purge_method": "get_request",
+                        "redis_hostname": "127.0.0.1",
                                           "redis_port": "6379",
                                           "redis_prefix": "nginx-cache:"}
                     plugin_data = json.dumps(plugin_data_object)
@@ -1688,24 +1691,26 @@ class WOSiteUpdateController(CementBaseController):
                              "and please try again")
                     return 1
 
-            if ((oldcachetype in ['wpsc', 'basic', 'wpfc', 'wprocket', 'wpredis'] and
+            if ((oldcachetype in ['wpsc', 'basic',
+                                  'wpfc', 'wprocket', 'wpredis'] and
                  (data['wpce'])) or (oldsitetype == 'wp' and
                                      data['multisite'] and
                                      data['wpce'])):
                 try:
                     installwp_plugin(self, 'cache-enabler', data)
                     # setup cache-enabler
-                    plugin_data_object = {"expires": 24,
-                                          "new_post": 1,
-                                          "new_comment": 0,
-                                          "webp": 0,
-                                          "clear_on_upgrade": 1,
-                                          "compress": 0,
-                                          "excl_ids": "",
-                                          "excl_regexp": "",
-                                          "excl_cookies": "",
-                                          "incl_attributes": "",
-                                          "minify_html": 1}
+                    plugin_data_object = {
+                        "expires": 24,
+                        "new_post": 1,
+                        "new_comment": 0,
+                        "webp": 0,
+                        "clear_on_upgrade": 1,
+                        "compress": 0,
+                        "excl_ids": "",
+                        "excl_regexp": "",
+                        "excl_cookies": "",
+                        "incl_attributes": "",
+                        "minify_html": 1}
                     plugin_data = json.dumps(plugin_data_object)
                     setupwp_plugin(self, 'cache-enabler',
                                    'cache-enabler', plugin_data, data)
@@ -1853,7 +1858,7 @@ class WOSiteDeleteController(CementBaseController):
                 Log.error(self, 'could not input site name')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = ValidateDomain(pargs.site_name)
+        (wo_domain, wo_www_domain) = DMN.validatedomain(self, pargs.site_name)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''

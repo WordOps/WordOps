@@ -1,7 +1,8 @@
 """WordOps download core classes."""
-import urllib.request
-import urllib.error
 import os
+import urllib.error
+import urllib.request
+
 from wo.core.logging import Log
 
 

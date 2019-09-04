@@ -14,7 +14,6 @@ from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.checkfqdn import check_fqdn_ip
 from wo.core.cron import WOCron
-from wo.core.domainvalidate import GetDomainlevel
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
@@ -29,8 +28,9 @@ from wo.core.variables import WOVariables
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
-    if (set(WOVariables.wo_mysql).issubset(set(apt_packages)) or
-            set(WOVariables.wo_mysql_client).issubset(set(apt_packages))):
+    if (set(["mariadb-server"]).issubset(set(apt_packages)) or
+            set(["mariadb-client"]).issubset(set(apt_packages)) or
+            set(["mariadb-backup"]).issubset((set(apt_packages)))):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -47,7 +47,7 @@ def pre_pref(self, apt_packages):
                            keyserver="keyserver.ubuntu.com")
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver="keyserver.ubuntu.com")
-    if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
+    if set(["mariadb-server"]).issubset(set(apt_packages)):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
@@ -139,7 +139,7 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding deb.sury GPG key')
             WORepo.add_key(self, WOVariables.wo_php_key)
     # add redis repository
-    if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+    if set(['redis-server']).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for Redis, please wait...")
         if WOVariables.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
@@ -189,7 +189,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    '\t$request_filename;\n')
             try:
                 data = dict(php="9000", debug="9001",
-                                php7="9070", debug7="9170")
+                            php7="9070", debug7="9170")
                 WOTemplate.render(
                     self, '{0}/upstream.conf'.format(ngxcnf),
                     'upstream.mustache', data, overwrite=True)
@@ -876,7 +876,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'php7.3-fpm')
 
         # create mysql config if it doesn't exist
-        if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
+        if set(["mariadb-server"]).issubset(set(apt_packages)):
             if not os.path.isfile("/etc/mysql/my.cnf"):
                 config = ("[mysqld]\nwait_timeout = 30\n"
                           "interactive_timeout=60\nperformance_schema = 0"
@@ -885,101 +885,36 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    encoding='utf-8', mode='w')
                 config_file.write(config)
                 config_file.close()
-            elif (not WOFileUtils.grep(self, "/etc/mysql/my.cnf", "WordOps")):
+            else:
                 Log.info(self, "Tuning MariaDB configuration")
-                with open("/etc/mysql/my.cnf",
-                          "a") as mysql_file:
-                    mysql_file.write("\n# WordOps v3.9.8\n")
+                if not os.path.isfile("/etc/mysql/my.cnf.default-pkg"):
+                    WOFileUtils.copyfile(self, "/etc/mysql/my.cnf",
+                                         "/etc/mysql/my.cnf.default-pkg")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
                 # set InnoDB variable depending on the RAM available
                 wo_ram_innodb = int(wo_ram*0.3)
                 wo_ram_log_buffer = int(wo_ram_innodb*0.25)
                 wo_ram_log_size = int(wo_ram_log_buffer*0.5)
+                if (wo_ram < 2000):
+                    wo_innodb_instance = int(1)
+                    tmp_table_size = int(32)
+                elif (wo_ram > 2000) and (wo_ram < 64000):
+                    wo_innodb_instance = int(wo_ram/1000)
+                    tmp_table_size = int(128)
+                elif (wo_ram > 64000):
+                    wo_innodb_instance = int(64)
+                    tmp_table_size = int(256)
+                data = dict(
+                    tmp_table_size=tmp_table_size, inno_log=wo_ram_log_size,
+                    inno_buffer=wo_ram_innodb,
+                    inno_log_buffer=wo_ram_log_buffer,
+                    innodb_instances=wo_innodb_instance)
+                WOTemplate.render(
+                    self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
                 # set innodb_buffer_pool_instances depending
                 # on the amount of RAM
-                if (wo_ram_innodb > 1000) and (wo_ram_innodb < 64000):
-                    wo_innodb_instance = int(
-                        wo_ram_innodb/1000)
-                elif (wo_ram_innodb < 1000):
-                    wo_innodb_instance = int(1)
-                elif (wo_ram_innodb > 64000):
-                    wo_innodb_instance = int(64)
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_buffer_pool_size	= 256M",
-                                          "innodb_buffer_pool_size	"
-                                          "= {0}M\n"
-                                          "innodb_buffer_pool_instances "
-                                          "= {1}\n"
-                                          .format(wo_ram_innodb,
-                                                  wo_innodb_instance))
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_log_buffer_size	= 8M",
-                                          "innodb_log_buffer_size	= {0}M"
-                                          .format(wo_ram_log_buffer))
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "#innodb_log_file_size	= 50M",
-                                          "innodb_log_file_size		= {0}M"
-                                          .format(wo_ram_log_size))
-                WOFileUtils.searchreplace(self,
-                                          "/etc/mysql/my.cnf",
-                                          "wait_timeout		"
-                                          "= 600",
-                                          "wait_timeout		"
-                                          "= 120\n"
-                                          "skip-name-resolve = 1\n")
-                # disabling mariadb binlog
-                WOFileUtils.searchreplace(self,
-                                          "/etc/mysql/my.cnf",
-                                          "log_bin			"
-                                          "= /var/log/mysql/"
-                                          "mariadb-bin",
-                                          "#log_bin          "
-                                          "      = /var/log/"
-                                          "mysql/mariadb-bin")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          'log_bin_index		'
-                                          "= /var/log/mysql/"
-                                          "mariadb-bin.index",
-                                          "#log_bin_index "
-                                          "= /var/log/mysql/"
-                                          "mariadb-bin.index")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "expire_logs_days	= 10",
-                                          "#expire_logs_days	"
-                                          "= 10")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "max_binlog_size         "
-                                          "= 100M",
-                                          "#max_binlog_size         "
-                                          "= 100M")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_open_files	="
-                                          " 400",
-                                          "innodb_open_files	="
-                                          " 16000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "innodb_io_capacity	="
-                                          " 400",
-                                          "innodb_io_capacity	="
-                                          " 16000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "query_cache_size		= 64M",
-                                          "query_cache_size		= 0")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "#query_cache_type		= DEMAND",
-                                          "query_cache_type		= 0")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "#open-files-limit	= 2000",
-                                          "open-files-limit	= 10000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "table_open_cache	= 400",
-                                          "table_open_cache	= 16000")
-                WOFileUtils.searchreplace(self, "/etc/mysql/my.cnf",
-                                          "max_allowed_packet	= 16M",
-                                          "max_allowed_packet	= 64M\n")
-
                 WOService.stop_service(self, 'mysql')
                 WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
                                    '/var/lib/mysql/ib_logfile0.bak')
@@ -1106,7 +1041,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.reload_service(self, 'proftpd')
 
         # Redis configuration
-        if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+        if set(['redus-server']).issubset(set(apt_packages)):
             if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                 if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
                                         "upstream.conf",

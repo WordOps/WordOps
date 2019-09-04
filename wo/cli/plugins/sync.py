@@ -2,6 +2,7 @@ import glob
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
+
 from wo.cli.plugins.sitedb import getAllsites, updateSiteInfo
 from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log

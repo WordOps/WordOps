@@ -6,6 +6,7 @@ import os
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
+
 from wo.cli.plugins.site_functions import logwatch
 from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log

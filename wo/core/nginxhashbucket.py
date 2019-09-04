@@ -1,9 +1,10 @@
 """WordOps Hash Bucket Calculator"""
-from wo.core.fileutils import WOFileUtils
+import fileinput
 import math
 import os
-import fileinput
 import subprocess
+
+from wo.core.fileutils import WOFileUtils
 
 
 def hashbucket(self):

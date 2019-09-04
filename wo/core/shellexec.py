@@ -1,6 +1,7 @@
 """WordOps Shell Functions"""
-from wo.core.logging import Log
 import subprocess
+
+from wo.core.logging import Log
 
 
 class CommandExecutionError(Exception):

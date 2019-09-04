@@ -1,5 +1,6 @@
-from wo.core.shellexec import WOShellExec
 from wo.core.logging import Log
+from wo.core.shellexec import WOShellExec
+
 
 """
 Set CRON on LINUX system.

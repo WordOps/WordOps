@@ -1,10 +1,10 @@
-import smtplib
 import os
-from email.mime.multipart import MIMEMultipart
+import smtplib
+from email import encoders
 from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
-from email import encoders
 
 
 def WOSendMail(send_from, send_to, subject, text, files, server="localhost",

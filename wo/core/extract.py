@@ -1,6 +1,7 @@
 """WordOps Extract Core """
-import tarfile
 import os
+import tarfile
+
 from wo.core.logging import Log
 
 

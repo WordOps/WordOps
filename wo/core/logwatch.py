@@ -3,10 +3,11 @@
 Real time log files watcher supporting log rotation.
 """
 
-import os
-import time
 import errno
+import os
 import stat
+import time
+
 from wo.core.logging import Log
 
 

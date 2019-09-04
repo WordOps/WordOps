@@ -1,10 +1,12 @@
 """WordOps Swap Creation"""
-from wo.core.shellexec import WOShellExec
-from wo.core.fileutils import WOFileUtils
-from wo.core.aptget import WOAptGet
-from wo.core.logging import Log
 import os
+
 import psutil
+
+from wo.core.aptget import WOAptGet
+from wo.core.fileutils import WOFileUtils
+from wo.core.logging import Log
+from wo.core.shellexec import WOShellExec
 
 
 class WOSwap():
