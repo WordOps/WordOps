@@ -6,7 +6,6 @@ import json
 import re
 import string
 import subprocess
-import csv
 from subprocess import CalledProcessError
 
 from wo.cli.plugins.sitedb import getSiteInfo
@@ -1290,37 +1289,6 @@ def removeAcmeConf(self, domain):
     WOService.restart_service(self, "nginx")
 
 
-def site_url_https(self, domain):
-    if os.path.isfile('/var/www/{0}/wp-config.php'.format(domain)):
-        wo_site_webroot = ('/var/www/{0}'.format(domain))
-        Log.info(self, "Checking if site url already "
-                 "use https, please wait...")
-        WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
-        wo_siteurl = \
-            WOShellExec.cmd_exec_stdout(self,
-                                        "{0} option get siteurl "
-                                        .format(WOVariables.wo_wpcli_path) +
-                                        "--allow-root --quiet")
-        test_url = re.split(":", wo_siteurl)
-        if not (test_url[0] == 'https'):
-            try:
-                WOShellExec.cmd_exec(self, "{0} option update siteurl "
-                                     "\'https://{1}\' --allow-root".format(
-                                         WOVariables.wo_wpcli_path, domain))
-                WOShellExec.cmd_exec(self, "{0} option update home "
-                                     "\'https://{1}\' --allow-root".format(
-                                         WOVariables.wo_wpcli_path, domain))
-            except CommandExecutionError as e:
-                Log.debug(self, "{0}".format(e))
-                raise SiteError("migration to https failed")
-            Log.info(
-                self, "Site address updated "
-                "successfully to https://{0}".format(domain))
-        else:
-            Log.info(
-                self, "Site address was already using https")
-
-
 def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                     dbhost=''):
     """
@@ -1350,7 +1318,7 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
 
 
 def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
-                     wo_dns=False, wo_acme_dns='dns_cf', backend=False):
+                     wo_dns=False, wo_acme_dns='dns_cf'):
 
     if os.path.isfile("/etc/letsencrypt/"
                       "renewal/{0}_ecc/"
@@ -1371,11 +1339,12 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                 self, "Validation : DNS mode with {0}".format(wo_acme_dns))
         else:
             acme_mode = "-w /var/www/html"
-            validation_mode = "Subdomain Webroot challenge"
+            validation_mode = "Webroot challenge"
             Log.debug(self, "Validation : Webroot mode")
         if subdomain:
-            Log.info(self, "Issuing subdomain SSL cert with acme.sh")
+            Log.info(self, "Certificate type: Subdomain")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
+            Log.wait(self, "Issuing SSL certificate with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} {1} "
@@ -1384,8 +1353,9 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                acme_mode,
                                                keylenght))
         elif wildcard:
-            Log.info(self, "Issuing Wildcard SSL cert with acme.sh")
+            Log.info(self, "Certificate type: Wildcard")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
+            Log.wait(self, "Issuing SSL certificate with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d '*.{0}' --dns {1} "
@@ -1394,8 +1364,9 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                wo_acme_dns,
                                                keylenght))
         else:
-            Log.info(self, "Issuing domain SSL cert with acme.sh")
+            Log.info(self, "Certificate type: Domain + www")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
+            Log.wait(self, "Issuing SSL certificate with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d www.{0} {1} "
@@ -1403,7 +1374,8 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                        .format(wo_domain_name,
                                                acme_mode, keylenght))
     if ssl:
-        Log.info(self, "Deploying SSL cert with acme.sh")
+        Log.valide(self, "Issuing SSL certificate with acme.sh")
+        Log.wait(self, "Deploying SSL cert with acme.sh")
         Log.debug(self, "Cert deployment for domain: {0}"
                   .format(wo_domain_name))
         try:
@@ -1423,21 +1395,22 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                  "service nginx restart\" "
                                  .format(WOVariables.wo_ssl_live,
                                          wo_domain_name))
-            Log.info(
-                self, "Adding /var/www/{0}/conf/nginx/ssl.conf"
-                .format(wo_domain_name))
+            Log.valide(self, "Deploying SSL cert with acme.sh")
+            if os.path.isdir('/var/www/{0}/conf/nginx'
+                             .format(wo_domain_name)):
 
-            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
-                           .format(wo_domain_name),
-                           encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl http2;\n"
-                          "listen [::]:443 ssl http2;\n"
-                          "ssl_certificate     {0}/{1}/fullchain.pem;\n"
-                          "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                          "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
-                          "ssl_stapling_verify on;\n"
-                          .format(WOVariables.wo_ssl_live, wo_domain_name))
-            sslconf.close()
+                sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                               .format(wo_domain_name),
+                               encoding='utf-8', mode='w')
+                sslconf.write(
+                    "listen 443 ssl http2;\n"
+                    "listen [::]:443 ssl http2;\n"
+                    "ssl_certificate     {0}/{1}/fullchain.pem;\n"
+                    "ssl_certificate_key     {0}/{1}/key.pem;\n"
+                    "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                    "ssl_stapling_verify on;\n"
+                    .format(WOVariables.wo_ssl_live, wo_domain_name))
+                sslconf.close()
             # updateSiteInfo(self, wo_domain_name, ssl=True)
             if not WOFileUtils.grep(self, '/var/www/22222/conf/nginx/ssl.conf',
                                     '/etc/letsencrypt'):
@@ -1465,34 +1438,6 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                   "same server on which "
                   "you are running Let\'s Encrypt Client "
                   "\n to allow it to verify the site automatically.")
-
-# check if a wildcard exist to secure a new subdomain
-
-
-def checkWildcardExist(self, wo_domain_name):
-
-    wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
-                    "'/etc/letsencrypt/config'")
-    # export certificates list from acme.sh
-    WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
-                         "--list --listraw > /var/lib/wo/cert.csv")
-
-    # define new csv dialect
-    csv.register_dialect('acmeconf', delimiter='|')
-    # open file
-    certfile = open('/var/lib/wo/cert.csv', mode='r', encoding='utf-8')
-    reader = csv.reader(certfile, 'acmeconf')
-    wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
-    for row in reader:
-        if wo_wildcard_domain in row[2]:
-            isWildcard = True
-            break
-        else:
-            isWildcard = False
-    certfile.close()
-
-    return isWildcard
-
 
 # copy wildcard certificate to a subdomain
 
@@ -1537,9 +1482,9 @@ def renewLetsEncrypt(self, wo_domain_name):
     if not ssl:
         Log.error(self, "ERROR : Let's Encrypt certificate renewal FAILED!",
                   False)
-        if (SSL.getExpirationDays(self, wo_domain_name) > 0):
+        if (SSL.getexpirationdays(self, wo_domain_name) > 0):
             Log.error(self, "Your current certificate will expire within " +
-                      str(SSL.getExpirationDays(self, wo_domain_name)) +
+                      str(SSL.getexpirationdays(self, wo_domain_name)) +
                       " days.", False)
         else:
             Log.error(self, "Your current certificate already expired!", False)

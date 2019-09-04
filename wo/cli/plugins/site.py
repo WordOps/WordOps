@@ -163,9 +163,9 @@ class WOSiteController(CementBaseController):
                 if os.path.islink("{0}/conf/nginx/ssl.conf"
                                   .format(wo_site_webroot)):
                     sslexpiry = str(
-                        SSL.getExpirationDate(self, wo_root_domain))
+                        SSL.getexpirationdays(self, wo_root_domain))
                 else:
-                    sslexpiry = str(SSL.getExpirationDate(self, wo_domain))
+                    sslexpiry = str(SSL.getexpirationdays(self, wo_domain))
             else:
                 sslprovider = ''
                 sslexpiry = ''
@@ -745,9 +745,9 @@ class WOSiteCreateController(CementBaseController):
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"
                               .format(wo_root_domain))
-                    isWildcard = checkWildcardExist(self, wo_root_domain)
-                    Log.debug(self, "isWildcard = {0}".format(isWildcard))
-                    if isWildcard:
+                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
+                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
+                    if iswildcard:
                         Log.info(self, "Using existing Wildcard SSL "
                                  "certificate from {0} to secure {1}"
                                  .format(wo_root_domain, wo_domain))
@@ -769,7 +769,7 @@ class WOSiteCreateController(CementBaseController):
                 if pargs.hsts:
                     setupHsts(self, wo_domain)
 
-                site_url_https(self, wo_domain)
+                SSL.siteurlhttps(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
@@ -1174,7 +1174,7 @@ class WOSiteUpdateController(CementBaseController):
 
         # --letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
-            expiry_days = SSL.getExpirationDays(self, wo_domain)
+            expiry_days = SSL.getexpirationdays(self, wo_domain)
             min_expiry_days = 45
             if check_ssl:
                 if (expiry_days <= min_expiry_days):
@@ -1196,12 +1196,12 @@ class WOSiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
             Log.info(self, "SUCCESS: Certificate was successfully renewed For"
                            " https://{0}".format(wo_domain))
-            if (SSL.getExpirationDays(self, wo_domain) > 0):
+            if (SSL.getexpirationdays(self, wo_domain) > 0):
                 Log.info(self, "Your cert will expire within " +
-                         str(SSL.getExpirationDays(self, wo_domain)) +
+                         str(SSL.getexpirationdays(self, wo_domain)) +
                          " days.")
                 Log.info(self, "Expiration date: " +
-                         str(SSL.getExpirationDate(self, wo_domain)))
+                         str(SSL.getexpirationdate(self, wo_domain)))
 
             else:
                 Log.warn(
@@ -1236,12 +1236,12 @@ class WOSiteUpdateController(CementBaseController):
                         self, "You have more than 45 days with the current "
                         "certificate - refusing to run.\n")
 
-                if (SSL.getExpirationDays(self, wo_domain) > 0):
+                if (SSL.getexpirationdays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
-                             str(SSL.getExpirationDays(self, wo_domain)) +
+                             str(SSL.getexpirationdays(self, wo_domain)) +
                              " days.")
                     Log.info(self, "Expiration date: \n\n" +
-                             str(SSL.getExpirationDate(self, wo_domain)))
+                             str(SSL.getexpirationdate(self, wo_domain)))
                 return 0
                 # else:
                 #       Log.warn(self, "Your cert already EXPIRED !
@@ -1354,11 +1354,11 @@ class WOSiteUpdateController(CementBaseController):
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"
                               .format(wo_root_domain))
-                    isWildcard = checkWildcardExist(self, wo_root_domain)
-                    Log.debug(self, "isWildcard = {0}".format(isWildcard))
+                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
+                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
                     if wo_subdomain:
-                        if isWildcard:
+                        if iswildcard:
                             Log.info(self, "Using existing Wildcard SSL "
                                      "certificate from {0} to secure {1}"
                                      .format(wo_root_domain, wo_domain))
@@ -1375,9 +1375,6 @@ class WOSiteUpdateController(CementBaseController):
                     else:
                         setupLetsEncrypt(self, wo_domain, wo_subdomain,
                                          wo_wildcard, wo_dns, wo_acme_dns)
-
-                    httpsRedirect(self, wo_domain, True, wo_wildcard)
-                    site_url_https(self, wo_domain)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
@@ -1389,8 +1386,8 @@ class WOSiteUpdateController(CementBaseController):
                                        '/etc/nginx/conf.d/force-ssl-{0}.conf'
                                        .format(wo_domain))
 
-                    httpsRedirect(self, wo_domain, True, wo_wildcard)
-                    site_url_https(self, wo_domain)
+                httpsRedirect(self, wo_domain, True, wo_wildcard)
+                SSL.siteUrlHttps(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1398,20 +1395,20 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "Congratulations! Successfully "
                          "Configured SSL for Site "
                          " https://{0}".format(wo_domain))
-                if wo_subdomain and isWildcard:
-                    if (SSL.getExpirationDays(self, wo_root_domain) > 0):
+                if wo_subdomain and iswildcard:
+                    if (SSL.getexpirationdays(self, wo_root_domain) > 0):
                         Log.info(
                             self, "Your cert will expire within " +
-                            str(SSL.getExpirationDays(self, wo_root_domain)) +
+                            str(SSL.getexpirationdays(self, wo_root_domain)) +
                             " days.")
                     else:
                         Log.warn(
                             self, "Your cert already EXPIRED ! "
                             ".PLEASE renew soon . ")
                 else:
-                    if (SSL.getExpirationDays(self, wo_domain) > 0):
+                    if (SSL.getexpirationdays(self, wo_domain) > 0):
                         Log.info(self, "Your cert will expire within " +
-                                 str(SSL.getExpirationDays(self, wo_domain)) +
+                                 str(SSL.getexpirationdays(self, wo_domain)) +
                                  " days.")
                     else:
                         Log.warn(

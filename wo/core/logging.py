@@ -45,3 +45,23 @@ class Log:
         Logs debug messages into log file
         """
         self.app.log.debug(Log.HEADER + msg + Log.ENDC)
+
+    def wait(self, msg, end='\r', log=True):
+        """
+        Logs info messages with validation step
+        """
+        print(
+            Log.OKBLUE + msg +
+            "[" + Log.ENDC + ".." + Log.OKBLUE + "]", end=end)
+        if log:
+            self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
+
+    def valide(self, msg, end='\n', log=True):
+        """
+        Logs info messages after validation step
+        """
+        print(
+            Log.OKBLUE + msg +
+            "[" + Log.ENDC + "OK" + Log.OKBLUE + "]", end=end)
+        if log:
+            self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
