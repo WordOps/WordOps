@@ -896,13 +896,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 wo_ram_innodb = int(wo_ram*0.3)
                 wo_ram_log_buffer = int(wo_ram_innodb*0.25)
                 wo_ram_log_size = int(wo_ram_log_buffer*0.5)
-                if (wo_ram_innodb > 2000) and (wo_ram_innodb < 64000):
-                    wo_innodb_instance = int(wo_ram_innodb/1000)
-                    tmp_table_size = int(128)
-                elif (wo_ram_innodb < 2000):
+                if (wo_ram < 2000):
                     wo_innodb_instance = int(1)
                     tmp_table_size = int(32)
-                elif (wo_ram_innodb > 64000):
+                elif (wo_ram > 2000) and (wo_ram < 64000):
+                    wo_innodb_instance = int(wo_ram/1000)
+                    tmp_table_size = int(128)
+                elif (wo_ram > 64000):
                     wo_innodb_instance = int(64)
                     tmp_table_size = int(256)
                 data = dict(
