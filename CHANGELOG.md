@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - sslutils error when trying to display SSL certificate expiration
 - Fix cheat.sh symbolic link check before creation
 - subdomain detection with complex suffixes like com.br
+- Fix mariadb install/upgrade when running mariadb-10.1
+- Fix mariadb install/upgrade on raspbian and debian 8
 
 ### v3.9.8.9 - 2019-09-03
 
