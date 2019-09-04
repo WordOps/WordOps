@@ -1,6 +1,6 @@
 """WordOps domain validation module."""
-from urllib.parse import urlparse
 import os
+from urllib.parse import urlparse
 
 
 def ValidateDomain(url):
@@ -35,21 +35,17 @@ def GetDomainlevel(domain):
     domain_type = ''
     if os.path.isfile("/var/lib/wo/public_suffix_list.dat"):
         # Read mode opens a file for reading only.
-        Suffix_file = open(
+        suffix_file = open(
             "/var/lib/wo/public_suffix_list.dat", encoding='utf-8', )
         # Read all the lines into a list.
-        for domain_suffix in Suffix_file:
-            if (str(domain_suffix).strip()) == ('.'.join(domain_name[2:])):
-                domain_type = 'subdomain'
-                root_domain = ('.'.join(domain_name[1:]))
-                break
-            elif (str(domain_suffix).strip()) == ('.'.join(domain_name[1:])):
+        for domain_suffix in suffix_file:
+            if (str(domain_suffix).strip()) == ('.'.join(domain_name[1:])):
                 domain_type = 'domain'
-                root_domain = ('.'.join(domain_name))
+                root_domain = ('.'.join(domain_name[0:]))
                 break
             else:
-                domain_type = 'domain'
-                root_domain = ('.'.join(domain_name))
-        Suffix_file.close()
+                domain_type = 'subdomain'
+                root_domain = ('.'.join(domain_name[1:]))
+        suffix_file.close()
 
     return (domain_type, root_domain)
