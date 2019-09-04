@@ -1,5 +1,7 @@
-from wo.core.logging import Log
 import os
+
+from wo.core.logging import Log
+
 
 """
 Render Templates

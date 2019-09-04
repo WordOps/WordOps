@@ -1,5 +1,6 @@
-from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+
 from wo.core.logging import Log
 
 

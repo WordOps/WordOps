@@ -1,7 +1,9 @@
 """WordOps GIT module"""
-from sh import git, ErrorReturnCode
-from wo.core.logging import Log
 import os
+
+from sh import ErrorReturnCode, git
+
+from wo.core.logging import Log
 
 
 class WOGit:

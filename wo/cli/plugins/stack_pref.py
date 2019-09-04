@@ -14,7 +14,6 @@ from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.checkfqdn import check_fqdn_ip
 from wo.core.cron import WOCron
-from wo.core.domainvalidate import GetDomainlevel
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit

@@ -1,8 +1,10 @@
 """WordOps MySQL core classes."""
-import pymysql
-from pymysql import connections, DatabaseError, Error
-from os.path import expanduser
 import os
+from os.path import expanduser
+
+import pymysql
+from pymysql import DatabaseError, Error, connections
+
 from wo.core.logging import Log
 from wo.core.variables import WOVariables
 

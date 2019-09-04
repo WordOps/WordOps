@@ -1,11 +1,12 @@
 """WordOps package installation using apt-get module."""
-import apt
-import sys
 import subprocess
-from wo.core.logging import Log
+import sys
+
+from sh import ErrorReturnCode, apt_get
+
+import apt
 from wo.core.apt_repo import WORepo
-from sh import apt_get
-from sh import ErrorReturnCode
+from wo.core.logging import Log
 
 
 class WOAptGet():

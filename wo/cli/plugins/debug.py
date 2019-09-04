@@ -1,20 +1,22 @@
 """Debug Plugin for WordOps"""
 
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-from wo.core.aptget import WOAptGet
-from wo.core.shellexec import WOShellExec
-from wo.core.mysql import WOMysql
-from wo.core.services import WOService
-from wo.core.logging import Log
-from wo.cli.plugins.site_functions import logwatch
-from wo.core.variables import WOVariables
-from wo.core.fileutils import WOFileUtils
-from pynginxconfig import NginxConfig
-import os
 import configparser
 import glob
+import os
 import signal
+
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+from pynginxconfig import NginxConfig
+
+from wo.cli.plugins.site_functions import logwatch
+from wo.core.aptget import WOAptGet
+from wo.core.fileutils import WOFileUtils
+from wo.core.logging import Log
+from wo.core.mysql import WOMysql
+from wo.core.services import WOService
+from wo.core.shellexec import WOShellExec
+from wo.core.variables import WOVariables
 
 
 def wo_debug_hook(app):

@@ -1,9 +1,10 @@
 """WordOps core variable module"""
-import distro
-import socket
 import configparser
-import os
 import datetime
+import os
+import socket
+
+import distro
 
 
 class WOVariables():

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, DateTime, String, Integer, Boolean, func
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, func
+
 from wo.core.database import Base
 
 

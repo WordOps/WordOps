@@ -1,5 +1,6 @@
 """WordOps Service Manager"""
 import subprocess
+
 from wo.core.logging import Log
 
 

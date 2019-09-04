@@ -1,8 +1,8 @@
 import getpass
 import glob
+import json
 import os
 import random
-import json
 import re
 import string
 import subprocess
@@ -10,13 +10,13 @@ from subprocess import CalledProcessError
 
 from wo.cli.plugins.sitedb import getSiteInfo
 from wo.cli.plugins.stack import WOStackController
+from wo.cli.plugins.stack_pref import post_pref
 from wo.core.aptget import WOAptGet
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
-from wo.cli.plugins.stack_pref import post_pref
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables

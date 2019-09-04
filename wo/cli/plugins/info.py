@@ -1,13 +1,15 @@
 """WOInfo Plugin for WordOps"""
 
-from cement.core.controller import CementBaseController, expose
-from cement.core import handler, hook
-from pynginxconfig import NginxConfig
-from wo.core.aptget import WOAptGet
-from wo.core.shellexec import WOShellExec
-from wo.core.logging import Log
-import os
 import configparser
+import os
+
+from cement.core import handler, hook
+from cement.core.controller import CementBaseController, expose
+from pynginxconfig import NginxConfig
+
+from wo.core.aptget import WOAptGet
+from wo.core.logging import Log
+from wo.core.shellexec import WOShellExec
 
 
 def wo_info_hook(app):
