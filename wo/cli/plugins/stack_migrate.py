@@ -78,7 +78,7 @@ class WOStackMigrateController(CementBaseController):
                                    log=False)
 
         # Install MariaDB
-        apt_packages = WOVariables.wo_mysql
+        apt_packages = ["mariadb-server"]
 
         Log.info(self, "Updating apt-cache, hang on...")
         WOAptGet.update(self)

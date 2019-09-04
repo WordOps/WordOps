@@ -601,7 +601,7 @@ class WOStackController(CementBaseController):
         # MariaDB
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
-            apt_packages = apt_packages + WOVariables.wo_mysql
+            apt_packages = apt_packages + ['mariadb-server']
 
         # mysqlclient
         if pargs.mysqlclient:
@@ -706,7 +706,7 @@ class WOStackController(CementBaseController):
             if (set(["nginx-custom"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'nginx')
 
-            if (set(WOVariables.wo_mysql).issubset(set(apt_packages))):
+            if (set(["mariadb-server"]).issubset(set(apt_packages))):
                 WOMysql.backupAll(self)
                 WOService.stop_service(self, 'mysql')
 
@@ -820,7 +820,7 @@ class WOStackController(CementBaseController):
         # MariaDB
         if pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
-            apt_packages = apt_packages + WOVariables.wo_mysql
+            apt_packages = apt_packages + ['mariadb-server']
 
         # mysqlclient
         if pargs.mysqlclient:
@@ -932,7 +932,7 @@ class WOStackController(CementBaseController):
             if (set(["fail2ban"]).issubset(set(apt_packages))):
                 WOService.stop_service(self, 'fail2ban')
 
-            if (set(WOVariables.wo_mysql).issubset(set(apt_packages))):
+            if (set(["mariadb-server"]).issubset(set(apt_packages))):
                 WOMysql.backupAll(self)
                 WOService.stop_service(self, 'mysql')
 
