@@ -82,7 +82,7 @@ class Log:
         print(
             Log.OKBLUE + "{0}".format(msg[0:31]) +
             "{0}".format(space[0:space_to_add]) +
-            " [" + Log.ENDC + Log.FAIL + "OK" +
+            " [" + Log.ENDC + Log.FAIL + "KO" +
             Log.ENDC + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.FAIL + msg + Log.ENDC)
