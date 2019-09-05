@@ -1394,7 +1394,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                                acme_mode, keylenght))
     if ssl:
         Log.valide(self, "Issuing SSL cert with acme.sh")
-        Log.wait(self, "Deploying SSL cert with acme.sh")
+        Log.wait(self, "Deploying SSL cert")
         Log.debug(self, "Cert deployment for domain: {0}"
                   .format(wo_domain_name))
         try:
@@ -1414,7 +1414,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                  "service nginx restart\" "
                                  .format(WOVariables.wo_ssl_live,
                                          wo_domain_name))
-            Log.valide(self, "Deploying SSL cert with acme.sh")
+            Log.valide(self, "Deploying SSL cert")
             if os.path.isdir('/var/www/{0}/conf/nginx'
                              .format(wo_domain_name)):
 
@@ -1562,8 +1562,7 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                                "/etc/nginx/conf.d/force-ssl-{0}.conf"
                                .format(wo_domain_name))
         else:
-            Log.wait(self, "Adding HTTPS redirection"
-                     " http://{0}".format(wo_domain_name))
+            Log.wait(self, "Adding HTTPS redirection")
             if wildcard:
                 try:
                     sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
@@ -1602,11 +1601,9 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                     Log.debug(self, "Error occured while generating "
                               "/etc/nginx/conf.d/force-ssl-{0}.conf"
                               .format(wo_domain_name))
-                    Log.failed(self, "Adding HTTPS redirection"
-                               " http://{0}".format(wo_domain_name))
+                    Log.failed(self, "Adding HTTPS redirection")
                 else:
-                    Log.valide(self, "Adding HTTPS redirection"
-                               " http://{0}".format(wo_domain_name))
+                    Log.valide(self, "Adding HTTPS redirection")
         # Nginx Configation into GIT
         WOGit.add(self,
                   ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
