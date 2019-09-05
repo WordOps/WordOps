@@ -718,6 +718,11 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
+            Log.failed(self, "Setting plugin {0}"
+                       .format(plugin_name))
+        else:
+            Log.valide(self, "Setting plugin {0}"
+                       .format(plugin_name))
     else:
         try:
             WOShellExec.cmd_exec(self, "{0} "
