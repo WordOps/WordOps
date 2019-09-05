@@ -51,7 +51,7 @@ class Log:
         Logs info messages with validation step
         """
         print(
-            Log.OKBLUE + "{0:20}".format(msg) +
+            Log.OKBLUE + "{0}".format(msg[0:22]) +
             " [" + Log.ENDC + ".." + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
@@ -61,7 +61,7 @@ class Log:
         Logs info messages after validation step
         """
         print(
-            Log.OKBLUE + ("{0:20}".format(msg)) +
+            Log.OKBLUE + ("{0}".format(msg[0:22])) +
             " [" + Log.ENDC + Log.OKGREEN + "OK" +
             Log.ENDC + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
@@ -72,7 +72,7 @@ class Log:
         Logs info messages after validation step
         """
         print(
-            Log.OKBLUE + "{0:20}".format(msg) +
+            Log.OKBLUE + "{0}".format(msg[0:22]) +
             " [" + Log.ENDC + Log.FAIL + "OK" +
             Log.ENDC + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
