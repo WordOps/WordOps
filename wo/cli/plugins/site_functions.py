@@ -643,7 +643,7 @@ def setupwordpressnetwork(self, data):
 
 def installwp_plugin(self, plugin_name, data):
     wo_site_webroot = data['webroot']
-    Log.info(self, "Installing plugin {0}, please wait..."
+    Log.wait(self, "Installing plugin {0}"
              .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     try:
@@ -667,7 +667,11 @@ def installwp_plugin(self, plugin_name, data):
     except CommandExecutionError as e:
         Log.debug(self, "{0}".format(e))
         raise SiteError("plugin activation failed")
-
+        Log.failed(self, "Installing plugin {0}"
+                   .format(plugin_name))
+    else:
+        Log.valide(self, "Installing plugin {0}"
+                   .format(plugin_name))
     return 1
 
 
@@ -676,7 +680,7 @@ def uninstallwp_plugin(self, plugin_name, data):
     Log.debug(self, "Uninstalling plugin {0}, please wait..."
               .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
-    Log.info(self, "Uninstalling plugin {0}, please wait..."
+    Log.wait(self, "Uninstalling plugin {0}"
              .format(plugin_name))
     try:
         WOShellExec.cmd_exec(self, "{0} plugin "
@@ -691,6 +695,11 @@ def uninstallwp_plugin(self, plugin_name, data):
     except CommandExecutionError as e:
         Log.debug(self, "{0}".format(e))
         raise SiteError("plugin uninstall failed")
+        Log.failed(self, "Uninstalling plugin {0}"
+             .format(plugin_name))
+    else:
+        Log.valide(self, "Uninstalling plugin {0}"
+                     .format(plugin_name))
 
 
 def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
@@ -1553,6 +1562,8 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                                "/etc/nginx/conf.d/force-ssl-{0}.conf"
                                .format(wo_domain_name))
         else:
+            Log.wait(self, "Adding HTTPS redirection"
+                     " http://{0}".format(wo_domain_name))
             if wildcard:
                 try:
                     sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
@@ -1591,9 +1602,11 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                     Log.debug(self, "Error occured while generating "
                               "/etc/nginx/conf.d/force-ssl-{0}.conf"
                               .format(wo_domain_name))
-
-        Log.info(self, "Added HTTPS Force Redirection for Site "
-                 " http://{0}".format(wo_domain_name))
+                    Log.failed(self, "Adding HTTPS redirection"
+                               " http://{0}".format(wo_domain_name))
+                else:
+                    Log.valide(self, "Adding HTTPS redirection"
+                               " http://{0}".format(wo_domain_name))
         # Nginx Configation into GIT
         WOGit.add(self,
                   ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
