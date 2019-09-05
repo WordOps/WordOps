@@ -52,7 +52,7 @@ class Log:
         """
         print(
             Log.OKBLUE + "{0:22}".format(msg) +
-            "  [" + Log.ENDC + ".." + Log.OKBLUE + "]" + Log.ENDC, end=end)
+            " [" + Log.ENDC + ".." + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
 
@@ -62,7 +62,7 @@ class Log:
         """
         print(
             Log.OKBLUE + "{0:22}".format(msg) +
-            "  [" + Log.ENDC + Log.OKGREEN + "OK" +
+            " [" + Log.ENDC + Log.OKGREEN + "OK" +
             Log.ENDC + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.OKGREEN + msg + Log.ENDC)
@@ -73,7 +73,7 @@ class Log:
         """
         print(
             Log.OKBLUE + "{0:22}".format(msg) +
-            "  [" + Log.ENDC + Log.FAIL + "OK" +
+            " [" + Log.ENDC + Log.FAIL + "OK" +
             Log.ENDC + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.FAIL + msg + Log.ENDC)
