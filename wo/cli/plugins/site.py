@@ -7,6 +7,7 @@ from subprocess import Popen
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
+
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)

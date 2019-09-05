@@ -1,12 +1,14 @@
 """WordOps main application entry point."""
-import sys
 import os
+import sys
+
 from cement.core import foundation
-from cement.utils.misc import init_defaults
-from cement.core.exc import FrameworkError, CaughtSignal
+from cement.core.exc import CaughtSignal, FrameworkError
 from cement.ext.ext_argparse import ArgParseArgumentHandler
-from wo.core import exc
+from cement.utils.misc import init_defaults
+
 from wo.cli.ext.wo_outputhandler import WOOutputHandler
+from wo.core import exc
 
 # this has to happen after you import sys, but before you import anything
 # from Cement "source: https://github.com/datafolklabs/cement/issues/290"

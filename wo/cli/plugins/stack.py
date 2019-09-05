@@ -9,11 +9,11 @@ import re
 import shutil
 import string
 
-import requests
-
 import psutil
+import requests
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
+
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import *
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
