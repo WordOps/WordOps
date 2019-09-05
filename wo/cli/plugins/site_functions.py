@@ -1354,7 +1354,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         if subdomain:
             Log.info(self, "Certificate type: Subdomain")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            Log.wait(self, "Issuing SSL certificate with acme.sh")
+            Log.wait(self, "Issuing SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} {1} "
@@ -1365,7 +1365,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         elif wildcard:
             Log.info(self, "Certificate type: Wildcard")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            Log.wait(self, "Issuing SSL certificate with acme.sh")
+            Log.wait(self, "Issuing SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d '*.{0}' --dns {1} "
@@ -1376,7 +1376,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         else:
             Log.info(self, "Certificate type: Domain + www")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            Log.wait(self, "Issuing SSL certificate with acme.sh")
+            Log.wait(self, "Issuing SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d www.{0} {1} "
@@ -1384,7 +1384,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                        .format(wo_domain_name,
                                                acme_mode, keylenght))
     if ssl:
-        Log.valide(self, "Issuing SSL certificate with acme.sh")
+        Log.valide(self, "Issuing SSL cert with acme.sh")
         Log.wait(self, "Deploying SSL cert with acme.sh")
         Log.debug(self, "Cert deployment for domain: {0}"
                   .format(wo_domain_name))
@@ -1582,8 +1582,8 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                                   "\tlisten [::]:80;\n" +
                                   "\tserver_name www.{0} {0};\n"
                                   .format(wo_domain_name) +
-                                  "\treturn 301 https://{0}"
-                                  .format(wo_domain_name)+"$request_uri;\n}")
+                                  "\treturn 301 https://$host"
+                                  "$request_uri;\n}")
                     sslconf.close()
 
                 except IOError as e:

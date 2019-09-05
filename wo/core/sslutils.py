@@ -68,22 +68,26 @@ class SSL:
                     "--allow-root --quiet"))
             test_url = re.split(":", wo_siteurl)
             if not (test_url[0] == 'https'):
-                WOShellExec.cmd_exec(
-                    self, "{0} option update siteurl "
-                    "\'https://{1}\' --allow-root".format(
-                        WOVariables.wo_wpcli_path, domain))
-                WOShellExec.cmd_exec(
-                    self, "{0} option update home "
-                    "\'https://{1}\' --allow-root".format(
-                        WOVariables.wo_wpcli_path, domain))
-                WOShellExec.cmd_exec(
-                    self, "{0} search-replace \'http://{0}\'"
-                    "\'https://{0}\' --skip-columns=guid "
-                    "--skip-tables=wp_users"
-                    .format(domain))
-                Log.info(
-                    self, "Site address updated "
-                    "successfully to https://{0}".format(domain))
+                Log.wait(self, "Updating site url with https")
+                try:
+                    WOShellExec.cmd_exec(
+                        self, "{0} option update siteurl "
+                        "\'https://{1}\' --allow-root".format(
+                            WOVariables.wo_wpcli_path, domain))
+                    WOShellExec.cmd_exec(
+                        self, "{0} option update home "
+                        "\'https://{1}\' --allow-root".format(
+                            WOVariables.wo_wpcli_path, domain))
+                    WOShellExec.cmd_exec(
+                        self, "{0} search-replace \'http://{0}\'"
+                        "\'https://{0}\' --skip-columns=guid "
+                        "--skip-tables=wp_users"
+                        .format(domain))
+                except Exception as e:
+                    Log.debug(self, str(e))
+                    Log.failed(self, "Updating site url with https")
+                else:
+                    Log.valide(self, "Updating site url with https")
 
     # check if a wildcard exist to secure a new subdomain
 
