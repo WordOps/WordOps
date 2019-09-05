@@ -51,7 +51,7 @@ class Log:
         Logs info messages with validation step
         """
         space_to_add = int(30 - len(msg))
-        space = "
+        space = "                    "
         print(
             Log.OKBLUE + "{0}".format(msg[0:30]) +
             "{0}".format(space[0:space_to_add]) +
