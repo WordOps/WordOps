@@ -59,7 +59,7 @@ class WOService():
             retcode = subprocess.getstatusoutput('service {0} stop'
                                                  .format(service_name))
             if retcode[0] == 0:
-                Log.info(self, "[" + Log.ENDC + Log.GREEN "OK" +
+                Log.info(self, "[" + Log.ENDC + Log.GREEN + "OK" +
                          Log.ENDC + Log.OKBLUE + "]")
                 return True
             else:
