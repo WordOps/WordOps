@@ -42,9 +42,9 @@ def pre_run_checks(self):
         subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
                               stderr=subprocess.STDOUT)
     except CalledProcessError as e:
+        Log.failed(self, "Running pre-update checks")
         Log.debug(self, "{0}".format(str(e)))
         raise SiteError("nginx configuration check failed.")
-        Log.failed(self, "Running pre-update checks")
     else:
         Log.valide(self, "Running pre-update checks")
 
@@ -668,10 +668,10 @@ def installwp_plugin(self, plugin_name, data):
                                      else ''
                                      ))
     except CommandExecutionError as e:
-        Log.debug(self, "{0}".format(e))
-        raise SiteError("plugin activation failed")
         Log.failed(self, "Installing plugin {0}"
                    .format(plugin_name))
+        Log.debug(self, "{0}".format(e))
+        raise SiteError("plugin activation failed")
     else:
         Log.valide(self, "Installing plugin {0}"
                    .format(plugin_name))
@@ -696,10 +696,10 @@ def uninstallwp_plugin(self, plugin_name, data):
                              "--allow-root uninstall "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
-        Log.debug(self, "{0}".format(e))
-        raise SiteError("plugin uninstall failed")
         Log.failed(self, "Uninstalling plugin {0}"
                    .format(plugin_name))
+        Log.debug(self, "{0}".format(e))
+        raise SiteError("plugin uninstall failed")
     else:
         Log.valide(self, "Uninstalling plugin {0}"
                    .format(plugin_name))
@@ -719,10 +719,10 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
                                  "{0} \'{1}\' --format=json"
                                  .format(plugin_option, plugin_data))
         except CommandExecutionError as e:
-            Log.debug(self, "{0}".format(e))
-            raise SiteError("plugin setup failed")
             Log.failed(self, "Setting plugin {0}"
                        .format(plugin_name))
+            Log.debug(self, "{0}".format(e))
+            raise SiteError("plugin setup failed")
         else:
             Log.valide(self, "Setting plugin {0}"
                        .format(plugin_name))
@@ -735,10 +735,10 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
                                  .format(plugin_option, plugin_data
                                          ))
         except CommandExecutionError as e:
+            Log.failed(self, "Setting plugin {0}"
+                                   .format(plugin_name))
             Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
-            Log.failed(self, "Setting plugin {0}"
-                       .format(plugin_name))
         else:
             Log.valide(self, "Setting plugin {0}"
                        .format(plugin_name))
@@ -1610,11 +1610,11 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                     sslconf.close()
 
                 except IOError as e:
+                    Log.failed(self, "Adding HTTPS redirection")
                     Log.debug(self, str(e))
                     Log.debug(self, "Error occured while generating "
                               "/etc/nginx/conf.d/force-ssl-{0}.conf"
                               .format(wo_domain_name))
-                    Log.failed(self, "Adding HTTPS redirection")
                 else:
                     Log.valide(self, "Adding HTTPS redirection")
         # Nginx Configation into GIT
