@@ -696,15 +696,15 @@ def uninstallwp_plugin(self, plugin_name, data):
         Log.debug(self, "{0}".format(e))
         raise SiteError("plugin uninstall failed")
         Log.failed(self, "Uninstalling plugin {0}"
-             .format(plugin_name))
+                   .format(plugin_name))
     else:
         Log.valide(self, "Uninstalling plugin {0}"
-                     .format(plugin_name))
+                   .format(plugin_name))
 
 
 def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
     wo_site_webroot = data['webroot']
-    Log.info(self, "Setting plugin {0}, please wait..."
+    Log.wait(self, "Setting plugin {0}"
              .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
 
@@ -729,6 +729,11 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
+            Log.failed(self, "Setting plugin {0}"
+                       .format(plugin_name))
+        else:
+            Log.valide(self, "Setting plugin {0}"
+                       .format(plugin_name))
 
 
 def setwebrootpermissions(self, webroot):
