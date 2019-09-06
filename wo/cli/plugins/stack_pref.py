@@ -1032,7 +1032,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if (os.path.isfile("/etc/redis/redis.conf") and
                     (not WOFileUtils.grep(self, "/etc/redis/redis.conf",
                                           "WordOps"))):
-                Log.info(self, "Tuning Redis configuration")
+                Log.wait(self, "Tuning Redis configuration")
                 with open("/etc/redis/redis.conf",
                           "a") as redis_file:
                     redis_file.write("\n# WordOps v3.9.8\n")
@@ -1075,7 +1075,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                           "tcp-backlog 32768")
                 WOFileUtils.chown(self, '/etc/redis/redis.conf',
                                   'redis', 'redis', recursive=False)
-                WOService.restart_service(self, 'redis-server')
+                WOService.restart_service(self, 'redis-server'):
+                Log.valide(self, "Tuning Redis configuration")
 
         # ClamAV configuration
         if set(WOVariables.wo_clamav).issubset(set(apt_packages)):
