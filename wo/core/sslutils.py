@@ -142,7 +142,7 @@ class SSL:
         selfs_tmp = '/var/lib/wo/tmp/selfssl'
         # create self-signed tmp directory
         if not os.path.isdir(selfs_tmp):
-            WOFileUtils.mkdir(selfs_tmp)
+            WOFileUtils.mkdir(self, selfs_tmp)
         if wo_domain_name == '':
             wo_domain_name = 'localhost'
         try:
