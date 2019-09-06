@@ -23,12 +23,13 @@ from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
+from wo.core.sslutils import SSL
 
 
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
-    if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
+    if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -43,7 +44,7 @@ def pre_pref(self, apt_packages):
                            keyserver='keys.gnupg.net')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver='hkp://keys.gnupg.net')
-    if ["mariadb-server"] in apt_packages:
+    if "mariadb-server" in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
@@ -389,98 +390,61 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                            '/etc/nginx/'
                            'sites-enabled/'
                            '22222'])
-                # Create log and cert folder and softlinks
-                if not os.path.exists('{0}22222/logs'
-                                      .format(ngxroot)):
-                    Log.debug(self, "Creating directory "
-                              "{0}22222/logs "
-                              .format(ngxroot))
-                    os.makedirs('{0}22222/logs'
-                                .format(ngxroot))
-
-                if not os.path.exists('{0}22222/cert'
-                                      .format(ngxroot)):
-                    Log.debug(self, "Creating directory "
-                              "{0}22222/cert"
-                              .format(ngxroot))
-                    os.makedirs('{0}22222/cert'
-                                .format(ngxroot))
-
-                if not os.path.isdir('{0}22222/conf/nginx'
-                                     .format(ngxroot)):
-                    Log.debug(self, "Creating directory "
-                              "{0}22222/conf/nginx"
-                              .format(ngxroot))
-                    os.makedirs('{0}22222/conf/nginx'
-                                .format(ngxroot))
-
-                    WOFileUtils.create_symlink(
-                        self,
-                        ['/var/log/nginx/'
-                         '22222.access.log',
-                         '{0}22222/'
-                         'logs/access.log'
-                         .format(ngxroot)]
-                    )
-
-                    WOFileUtils.create_symlink(
-                        self,
-                        ['/var/log/nginx/'
-                         '22222.error.log',
-                         '{0}22222/'
-                         'logs/error.log'
-                         .format(ngxroot)]
-                    )
-
-                    try:
-                        WOShellExec.cmd_exec(
-                            self, "openssl genrsa -out "
-                            "{0}22222/cert/22222.key 2048"
-                            .format(ngxroot))
-                        WOShellExec.cmd_exec(
-                            self, "openssl req -new -batch  "
-                            "-subj /commonName=localhost/ "
-                            "-key {0}22222/cert/22222.key "
-                            "-out {0}22222/cert/"
-                            "22222.csr"
+            # Create log and cert folder and softlinks
+            if not os.path.exists('{0}22222/logs'
+                                  .format(ngxroot)):
+                Log.debug(self, "Creating directory "
+                          "{0}22222/logs "
+                          .format(ngxroot))
+                os.makedirs('{0}22222/logs'
                             .format(ngxroot))
 
-                        WOFileUtils.mvfile(
-                            self, "{0}22222/cert/22222.key"
-                            .format(ngxroot),
-                            "{0}22222/cert/"
-                            "22222.key.org"
+            if not os.path.exists('{0}22222/cert'
+                                  .format(ngxroot)):
+                Log.debug(self, "Creating directory "
+                          "{0}22222/cert"
+                          .format(ngxroot))
+                os.makedirs('{0}22222/cert'
                             .format(ngxroot))
 
-                        WOShellExec.cmd_exec(
-                            self, "openssl rsa -in "
-                            "{0}22222/cert/"
-                            "22222.key.org -out "
-                            "{0}22222/cert/22222.key"
+            if not os.path.isdir('{0}22222/conf/nginx'
+                                 .format(ngxroot)):
+                Log.debug(self, "Creating directory "
+                          "{0}22222/conf/nginx"
+                          .format(ngxroot))
+                os.makedirs('{0}22222/conf/nginx'
                             .format(ngxroot))
 
-                        WOShellExec.cmd_exec(
-                            self, "openssl x509 -req -days "
-                            "3652 -in {0}22222/cert/"
-                            "22222.csr -signkey {0}"
-                            "22222/cert/22222.key -out "
-                            "{0}22222/cert/22222.crt"
-                            .format(ngxroot))
+                WOFileUtils.create_symlink(
+                    self,
+                    ['/var/log/nginx/'
+                     '22222.access.log',
+                     '{0}22222/'
+                     'logs/access.log'
+                     .format(ngxroot)]
+                )
 
-                    except CommandExecutionError as e:
-                        Log.debug(self, "{0}".format(e))
-                        Log.error(
-                            self, "Failed to generate HTTPS "
-                            "certificate for 22222", False)
+                WOFileUtils.create_symlink(
+                    self,
+                    ['/var/log/nginx/'
+                     '22222.error.log',
+                     '{0}22222/'
+                     'logs/error.log'
+                     .format(ngxroot)]
+                )
+            if (not os.path.isfile('{0}22222/cert/22222.key'
+                                   .format(ngxroot))):
+                SSL.selfsignedcert(self, 'localhost',
+                                   '', backend=True)
 
-                if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
-                                      .format(ngxroot)):
-                    with open("/var/www/22222/conf/nginx/"
-                              "ssl.conf", "w") as php_file:
-                        php_file.write("ssl_certificate "
-                                       "/var/www/22222/cert/22222.crt;\n"
-                                       "ssl_certificate_key "
-                                       "/var/www/22222/cert/22222.key;\n")
+            if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
+                                  .format(ngxroot)):
+                with open("/var/www/22222/conf/nginx/"
+                          "ssl.conf", "w") as php_file:
+                    php_file.write("ssl_certificate "
+                                   "/var/www/22222/cert/22222.crt;\n"
+                                   "ssl_certificate_key "
+                                   "/var/www/22222/cert/22222.key;\n")
 
                 server_ip = requests.get('http://v4.wordops.eu')
 

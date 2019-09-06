@@ -493,13 +493,13 @@ class WOStackController(CementBaseController):
                 WOAptGet.install(self, apt_packages)
                 Log.valide(self, "Installing APT packages     ")
                 Log.wait(self, "Configuring APT packages    ")
-                post_pref(self, apt_packages, empty_packages)
+                post_pref(self, apt_packages, [])
                 Log.valide(self, "Configuring APT packages    ")
             if (packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
                 Log.debug(self, "Calling post_pref")
-                post_pref(self, empty_packages, packages)
+                post_pref(self, [], packages)
 
             if disp_msg:
                 if (self.msg):

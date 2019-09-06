@@ -39,6 +39,9 @@ class SSL:
 
     def getexpirationdate(self, domain):
         # check if exist
+        if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
+            split_domain = domain.split('.')
+            domain = ('.').join(split_domain[1:])
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
             Log.error(self, 'File Not Found: /etc/letsencrypt/'
@@ -115,3 +118,86 @@ class SSL:
         certfile.close()
 
         return iswildcard
+
+    def setupHsts(self, wo_domain_name):
+        Log.info(
+            self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
+            .format(wo_domain_name))
+
+        hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
+                        .format(wo_domain_name),
+                        encoding='utf-8', mode='w')
+        hstsconf.write("more_set_headers "
+                       "\"Strict-Transport-Security: "
+                       "max-age=31536000; "
+                       "includeSubDomains; "
+                       "preload\";")
+        hstsconf.close()
+        return 0
+
+    def selfsignedcert(self, wo_domain_name,
+                       cert_path, backend=False):
+        """issue a self-signed certificate"""
+
+        selfs_tmp = '/var/lib/wo/tmp/selfssl'
+        # create self-signed tmp directory
+        if not os.path.isdir(selfs_tmp):
+            WOFileUtils.mkdir(selfs_tmp)
+        if wo_domain_name == '':
+            wo_domain_name = 'localhost'
+        try:
+            WOShellExec.cmd_exec(
+                self, "openssl genrsa -out "
+                "{0}/ssl.key 2048"
+                .format(selfs_tmp))
+            WOShellExec.cmd_exec(
+                self, "openssl req -new -batch  "
+                "-subj /commonName={0}/ "
+                "-key {1}/ssl.key -out {1}/ssl.csr"
+                .format(wo_domain_name, selfs_tmp))
+
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.key"
+                .format(selfs_tmp),
+                "{0}/ssl.key.org"
+                .format(selfs_tmp))
+
+            WOShellExec.cmd_exec(
+                self, "openssl rsa -in "
+                "{0}/ssl.key.org -out "
+                "{0}/ssl.key"
+                .format(selfs_tmp))
+
+            WOShellExec.cmd_exec(
+                self, "openssl x509 -req -days "
+                "3652 -in {0}/ssl.csr -signkey {0}"
+                "/ssl.key -out {0}/ssl.crt"
+                .format(selfs_tmp))
+
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(
+                self, "Failed to generate HTTPS "
+                "certificate for 22222", False)
+        if backend:
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.key"
+                .format(selfs_tmp),
+                "/var/www/22222/cert/22222.key")
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.cert"
+                .format(selfs_tmp),
+                "/var/www/22222/cert/22222.crt")
+        else:
+            if not os.path.isdir(cert_path):
+                WOFileUtils.mkdir(self, cert_path)
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.key"
+                .format(selfs_tmp),
+                "{0}/key.pem".format(cert_path))
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.crt"
+                .format(selfs_tmp),
+                "{0}/cert.pem".format(cert_path))
+        # remove self-signed tmp directory
+        WOFileUtils.rm(self, selfs_tmp)
