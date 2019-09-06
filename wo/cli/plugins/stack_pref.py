@@ -1075,7 +1075,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                           "tcp-backlog 32768")
                 WOFileUtils.chown(self, '/etc/redis/redis.conf',
                                   'redis', 'redis', recursive=False)
-                WOService.restart_service(self, 'redis-server'):
+                WOService.restart_service(self, 'redis-server')
                 Log.valide(self, "Tuning Redis configuration")
 
         # ClamAV configuration
