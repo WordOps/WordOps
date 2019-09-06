@@ -111,7 +111,6 @@ def pre_pref(self, apt_packages):
             WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding ppa for Nginx')
         else:
-            apt_repo_keys = apt_repo_keys + WOVariables.wo_nginx_key
             WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
             WORepo.add_key(self, WOVariables.wo_nginx_key)
