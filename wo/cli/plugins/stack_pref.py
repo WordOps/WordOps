@@ -28,10 +28,7 @@ from wo.core.variables import WOVariables
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
-    if (not(["mariadb-server"] in apt_packages) and
-            (not ["mariadb-client"] in apt_packages)):
-        pass
-    else:
+    if set(WOVariables.wo_mysql).issubset(set(apt_packages)):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
