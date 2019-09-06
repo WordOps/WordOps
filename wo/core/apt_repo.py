@@ -87,7 +87,7 @@ class WORepo():
         WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
                              .format(serv=(keyserver or
                                            "hkp://keyserver.ubuntu.com")) +
-                             " --recv-keys {keys}".format(key=keyid))
+                             " --recv-keys {key}".format(key=keyid))
 
     def add_keys(self, keyids, keyserver=None):
         """
@@ -99,4 +99,4 @@ class WORepo():
         WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
                              .format(serv=(keyserver or
                                            "hkp://keyserver.ubuntu.com")) +
-                             " --recv-keys {keys}".format(key=all_keys))
+                             " --recv-keys {0}".format(all_keys))
