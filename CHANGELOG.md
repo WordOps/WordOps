@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - Improved general logs display
+- UFW configuration is only applied during initial installation if UFW is disabled
 
 #### Fixed
 
