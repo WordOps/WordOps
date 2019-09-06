@@ -137,7 +137,7 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding deb.sury GPG key')
             WORepo.add_key(self, WOVariables.wo_php_key)
     # add redis repository
-    if set(['redis-server']).issubset(set(apt_packages)):
+    if set(WOVariables.wo_redis).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for Redis, please wait...")
         if WOVariables.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
@@ -837,7 +837,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'php7.3-fpm')
 
         # create mysql config if it doesn't exist
-        if set(["mariadb-server"]).issubset(set(apt_packages)):
+        if "mariadb-server" in apt_packages:
             if not os.path.isfile("/etc/mysql/my.cnf"):
                 config = ("[mysqld]\nwait_timeout = 30\n"
                           "interactive_timeout=60\nperformance_schema = 0"
@@ -914,7 +914,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOService.reload_service(self, 'fail2ban')
 
         # Proftpd configuration
-        if set(["proftpd-basic"]).issubset(set(apt_packages)):
+        if "proftpd-basic" in apt_packages:
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
                 Log.info(self, "Configuring ProFTPd")
                 Log.debug(self, "Setting up Proftpd configuration")
@@ -1002,7 +1002,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.reload_service(self, 'proftpd')
 
         # Redis configuration
-        if set(['redus-server']).issubset(set(apt_packages)):
+        if "redis-server" in apt_packages:
             if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                 if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
                                         "upstream.conf",

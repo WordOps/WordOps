@@ -192,7 +192,7 @@ class WOStackController(CementBaseController):
             if pargs.redis:
                 pargs.php = True
                 if not WOAptGet.is_installed(self, 'redis-server'):
-                    apt_packages = apt_packages + ["redis-server"]
+                    apt_packages = apt_packages + WOVariables.wo_redis
 
                 else:
                     Log.info(self, "Redis already installed")
@@ -201,11 +201,8 @@ class WOStackController(CementBaseController):
             if pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
-                        apt_packages = (apt_packages + WOVariables.wo_php +
-                                        WOVariables.wo_php_extra)
-                    else:
-                        apt_packages = apt_packages + WOVariables.wo_php
+                    apt_packages = (apt_packages + WOVariables.wo_php +
+                                    WOVariables.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.2 already installed")
                     Log.info(self, "PHP 7.2 already installed")
@@ -214,12 +211,9 @@ class WOStackController(CementBaseController):
             if pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                        apt_packages = (apt_packages + WOVariables.wo_php +
-                                        WOVariables.wo_php73 +
-                                        WOVariables.wo_php_extra)
-                    else:
-                        apt_packages = apt_packages + WOVariables.wo_php73
+                    apt_packages = (apt_packages + WOVariables.wo_php +
+                                    WOVariables.wo_php73 +
+                                    WOVariables.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
