@@ -808,6 +808,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + ['mariadb-server', 'mysql-common',
                                            'mariadb-client']
+            packages = packages + ['/etc/mysql', '/var/lib/mysql']
 
         # mysqlclient
         if pargs.mysqlclient:
