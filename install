@@ -539,6 +539,8 @@ wo_upgrade_nginx() {
         sed -i "s/locations-php71.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/php.conf/php72.conf/" /etc/nginx/sites-available/*
+        sed -i "s/php7.conf/php72.conf/" /etc/nginx/sites-available/*
         sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
 
         # update redis.conf headers

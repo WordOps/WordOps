@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- Improved general logs display
+
+#### Fixed
+
+- Redis-server configuration and start
+- Nginx upgrade with `wo stack upgrade`
+
 ### v3.9.8.10 - 2019-09-04
 
 #### Changed
