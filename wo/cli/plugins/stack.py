@@ -229,17 +229,7 @@ class WOStackController(CementBaseController):
                 pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
-                    if not WOVariables.wo_distro == 'raspbian':
-                        if (not WOVariables.wo_platform_codename == 'jessie'):
-                            wo_mysql = ["mariadb-server", "percona-toolkit",
-                                        "python3-mysqldb", "mariadb-backup"]
-                        else:
-                            wo_mysql = ["mariadb-server", "percona-toolkit",
-                                        "python3-mysql.connector"]
-                    else:
-                        wo_mysql = ["mariadb-server", "percona-toolkit",
-                                    "python3-mysqldb"]
-                    apt_packages = apt_packages + wo_mysql
+                    apt_packages = apt_packages + WOVariables.wo_mysql
                 else:
                     Log.debug(self, "MySQL already installed and alive")
                     Log.info(self, "MySQL already installed and alive")
