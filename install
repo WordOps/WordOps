@@ -390,7 +390,7 @@ wo_update_wp_cli() {
 
 wo_install_acme_sh() {
     # check if acme.sh is already installed
-    if [ ! -x /etc/letsencrypt/acme.sh ] && [ ! -d /etc/letsencrypt/{renewal,archive} ]; then
+    if [ ! -x /etc/letsencrypt/acme.sh ] && [ ! -d /etc/letsencrypt/archive ]; then
         {
             # clone the git repository
             if [ -d /opt/acme.sh/.git ]; then
