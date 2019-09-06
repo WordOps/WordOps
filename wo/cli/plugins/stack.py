@@ -190,7 +190,6 @@ class WOStackController(CementBaseController):
 
             # Redis
             if pargs.redis:
-                pargs.php = True
                 if not WOAptGet.is_installed(self, 'redis-server'):
                     apt_packages = apt_packages + WOVariables.wo_redis
 
