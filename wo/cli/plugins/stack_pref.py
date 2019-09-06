@@ -142,7 +142,7 @@ def pre_pref(self, apt_packages):
             WORepo.add(self, ppa=WOVariables.wo_redis_repo)
 
     if (apt_repo_keys):
-        WORepo.add_key(self, apt_repo_key)
+        WORepo.add_key(self, apt_repo_keys)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
