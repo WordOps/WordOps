@@ -1738,3 +1738,16 @@ def archivedCertificateHandle(self, domain):
                            .format(domain))
 
     return ssl
+
+
+def setuprocketchat(self):
+    if ((not WOVariables.wo_platform_codename == 'bionic') and
+            (not WOVariables.wo_platform_codename == 'xenial')):
+        Log.info(self, "Rocket.chat is only available on Ubuntu 16.04 "
+        "& 18.04 LTS")
+        return False
+    else:
+        if not WOAptGet.is_installed(self, 'snapd'):
+            WOAptGet.install(self, ["snapd"])
+        if WOShellExec.cmd_exec(self, "snap install rocketchat-server"):
+            return True
