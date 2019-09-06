@@ -185,7 +185,7 @@ class SSL:
                 .format(selfs_tmp),
                 "/var/www/22222/cert/22222.key")
             WOFileUtils.mvfile(
-                self, "{0}/ssl.cert"
+                self, "{0}/ssl.crt"
                 .format(selfs_tmp),
                 "/var/www/22222/cert/22222.crt")
         else:
