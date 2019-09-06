@@ -768,7 +768,7 @@ class WOSiteCreateController(CementBaseController):
                 httpsRedirect(self, wo_domain, True, wo_wildcard)
 
                 if pargs.hsts:
-                    setupHsts(self, wo_domain)
+                    SSL.setuphsts(self, wo_domain)
 
                 SSL.siteurlhttps(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
@@ -969,7 +969,7 @@ class WOSiteUpdateController(CementBaseController):
                                 pargs.wpsubdir or pargs.wpsubdomain or
                                 pargs.password)):
             try:
-                setupHsts(self, wo_domain)
+                SSL.setuphsts(self, wo_domain)
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, "\nFail to enable HSTS")
@@ -1474,7 +1474,7 @@ class WOSiteUpdateController(CementBaseController):
                                   .format(wo_site_webroot)):
                     if not os.path.isfile("{0}/conf/nginx/hsts.conf"
                                           .format(wo_site_webroot)):
-                        setupHsts(self, wo_domain)
+                        SSL.setuphsts(self, wo_domain)
                     else:
                         Log.error(self, "HSTS is already configured for given "
                                         "site")
