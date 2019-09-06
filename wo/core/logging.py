@@ -50,9 +50,12 @@ class Log:
         """
         Logs info messages with validation step
         """
+        space_to_add = int(31 - len(msg[0:31]))
+        space = "                             "
         print(
-            Log.OKBLUE + msg +
-            "  [" + Log.ENDC + ".." + Log.OKBLUE + "]" + Log.ENDC, end=end)
+            Log.OKBLUE + "{0}".format(msg[0:31]) +
+            "{0}".format(space[0:space_to_add]) +
+            " [" + Log.ENDC + ".." + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
 
@@ -60,9 +63,12 @@ class Log:
         """
         Logs info messages after validation step
         """
+        space_to_add = int(31 - len(msg[0:31]))
+        space = "                              "
         print(
-            Log.OKBLUE + msg +
-            "  [" + Log.ENDC + Log.OKGREEN + "OK" +
+            Log.OKBLUE + "{0}".format(msg[0:31]) +
+            "{0}".format(space[0:space_to_add]) +
+            " [" + Log.ENDC + Log.OKGREEN + "OK" +
             Log.ENDC + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.OKGREEN + msg + Log.ENDC)
@@ -71,9 +77,12 @@ class Log:
         """
         Logs info messages after validation step
         """
+        space_to_add = int(31 - len(msg[0:31]))
+        space = "                             "
         print(
-            Log.OKBLUE + msg +
-            "  [" + Log.ENDC + Log.FAIL + "OK" +
+            Log.OKBLUE + "{0}".format(msg[0:31]) +
+            "{0}".format(space[0:space_to_add]) +
+            " [" + Log.ENDC + Log.FAIL + "KO" +
             Log.ENDC + Log.OKBLUE + "]" + Log.ENDC, end=end)
         if log:
             self.app.log.info(Log.FAIL + msg + Log.ENDC)

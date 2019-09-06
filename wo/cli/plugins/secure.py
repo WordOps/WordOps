@@ -86,12 +86,12 @@ class WOSecureController(CementBaseController):
             while not pargs.user_input.isdigit():
                 Log.info(self, "Please enter a valid port number ")
                 pargs.user_input = input("WordOps "
-                                                  "admin port [22222]:")
+                                         "admin port [22222]:")
         if not pargs.user_input:
             port = input("WordOps admin port [22222]:")
             if port == "":
                 pargs.user_input = 22222
-            while not port.isdigit() and port != "":
+            while (not port.isdigit()) and (port != "") and (not port < 65556):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("WordOps admin port [22222]:")
             pargs.user_input = port

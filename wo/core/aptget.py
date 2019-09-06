@@ -54,7 +54,7 @@ class WOAptGet():
                               "`tail /var/log/wo/wordops.log` "
                               "and please try again...")
 
-        except Exception as e:
+        except Exception:
             Log.error(self, "apt-get update exited with error")
 
     def check_upgrade(self):

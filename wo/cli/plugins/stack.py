@@ -9,11 +9,12 @@ import re
 import shutil
 import string
 
+import psutil
 import requests
 
-import psutil
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
+
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import *
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
@@ -189,9 +190,8 @@ class WOStackController(CementBaseController):
 
             # Redis
             if pargs.redis:
-                pargs.php = True
                 if not WOAptGet.is_installed(self, 'redis-server'):
-                    apt_packages = apt_packages + ["redis-server"]
+                    apt_packages = apt_packages + WOVariables.wo_redis
 
                 else:
                     Log.info(self, "Redis already installed")
@@ -200,11 +200,8 @@ class WOStackController(CementBaseController):
             if pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
-                        apt_packages = (apt_packages + WOVariables.wo_php +
-                                        WOVariables.wo_php_extra)
-                    else:
-                        apt_packages = apt_packages + WOVariables.wo_php
+                    apt_packages = (apt_packages + WOVariables.wo_php +
+                                    WOVariables.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.2 already installed")
                     Log.info(self, "PHP 7.2 already installed")
@@ -213,12 +210,9 @@ class WOStackController(CementBaseController):
             if pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                        apt_packages = (apt_packages + WOVariables.wo_php +
-                                        WOVariables.wo_php73 +
-                                        WOVariables.wo_php_extra)
-                    else:
-                        apt_packages = apt_packages + WOVariables.wo_php73
+                    apt_packages = (apt_packages + WOVariables.wo_php +
+                                    WOVariables.wo_php73 +
+                                    WOVariables.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
@@ -228,17 +222,7 @@ class WOStackController(CementBaseController):
                 pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
-                    if not WOVariables.wo_distro == 'raspbian':
-                        if (not WOVariables.wo_platform_codename == 'jessie'):
-                            wo_mysql = ["mariadb-server", "percona-toolkit",
-                                        "python3-mysqldb", "mariadb-backup"]
-                        else:
-                            wo_mysql = ["mariadb-server", "percona-toolkit",
-                                        "python3-mysql.connector"]
-                    else:
-                        wo_mysql = ["mariadb-server", "percona-toolkit",
-                                    "python3-mysqldb"]
-                    apt_packages = apt_packages + wo_mysql
+                    apt_packages = apt_packages + WOVariables.wo_mysql
                 else:
                     Log.debug(self, "MySQL already installed and alive")
                     Log.info(self, "MySQL already installed and alive")
@@ -502,13 +486,13 @@ class WOStackController(CementBaseController):
                 WOAptGet.install(self, apt_packages)
                 Log.valide(self, "Installing APT packages     ")
                 Log.wait(self, "Configuring APT packages    ")
-                post_pref(self, apt_packages, empty_packages)
+                post_pref(self, apt_packages, [])
                 Log.valide(self, "Configuring APT packages    ")
             if (packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
                 Log.debug(self, "Calling post_pref")
-                post_pref(self, empty_packages, packages)
+                post_pref(self, [], packages)
 
             if disp_msg:
                 if (self.msg):
@@ -548,6 +532,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
+            pargs.security = True
             packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:
@@ -823,6 +808,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + ['mariadb-server', 'mysql-common',
                                            'mariadb-client']
+            packages = packages + ['/etc/mysql', '/var/lib/mysql']
 
         # mysqlclient
         if pargs.mysqlclient:

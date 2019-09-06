@@ -3,6 +3,7 @@ import os
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
+
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.logging import Log
@@ -27,6 +28,17 @@ class WOStackMigrateController(CementBaseController):
     def migrate_mariadb(self):
         # Backup all database
         WOMysql.backupAll(self)
+
+        if not WOVariables.wo_distro == 'raspbian':
+            if (not WOVariables.wo_platform_codename == 'jessie'):
+                wo_mysql = ["mariadb-server", "percona-toolkit",
+                            "python3-mysqldb", "mariadb-backup"]
+            else:
+                wo_mysql = ["mariadb-server", "percona-toolkit",
+                            "python3-mysql.connector"]
+        else:
+            wo_mysql = ["mariadb-server", "percona-toolkit",
+                        "python3-mysqldb"]
 
         # Add MariaDB repo
         Log.info(self, "Adding repository for MariaDB, please wait...")
@@ -78,7 +90,7 @@ class WOStackMigrateController(CementBaseController):
                                    log=False)
 
         # Install MariaDB
-        apt_packages = ["mariadb-server"]
+        apt_packages = wo_mysql
 
         Log.info(self, "Updating apt-cache, hang on...")
         WOAptGet.update(self)

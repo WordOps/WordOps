@@ -38,7 +38,8 @@ class WOService():
                 Log.info(self, "Start : {0:10}" .format(service_name), end='')
                 retcode = subprocess.getstatusoutput(service_cmd)
                 if retcode[0] == 0:
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                    Log.info(self, "[" + Log.ENDC + Log.OKGREEN +
+                             "OK" + Log.ENDC + Log.OKBLUE + "]")
                     return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
@@ -55,11 +56,12 @@ class WOService():
             Similar to `service xyz stop`
         """
         try:
-            Log.info(self, "Stop : {0:10}" .format(service_name), end='')
+            Log.info(self, "Stop  : {0:10}" .format(service_name), end='')
             retcode = subprocess.getstatusoutput('service {0} stop'
                                                  .format(service_name))
             if retcode[0] == 0:
-                Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                Log.info(self, "[" + Log.ENDC + Log.OKGREEN + "OK" +
+                         Log.ENDC + Log.OKBLUE + "]")
                 return True
             else:
                 Log.debug(self, "{0}".format(retcode[1]))

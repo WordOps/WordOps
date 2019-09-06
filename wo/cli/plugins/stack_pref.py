@@ -23,14 +23,13 @@ from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
+from wo.core.sslutils import SSL
 
 
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
-    if (set(["mariadb-server"]).issubset(set(apt_packages)) or
-            set(["mariadb-client"]).issubset(set(apt_packages)) or
-            set(["mariadb-backup"]).issubset((set(apt_packages)))):
+    if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -41,13 +40,11 @@ def pre_pref(self, apt_packages):
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
             WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
-            Log.debug(self, 'Adding key for {0}'
-                      .format(WOVariables.wo_mysql_repo))
             WORepo.add_key(self, '0xcbcb082a1bb943db',
-                           keyserver="keyserver.ubuntu.com")
+                           keyserver='keys.gnupg.net')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
-                           keyserver="keyserver.ubuntu.com")
-    if set(["mariadb-server"]).issubset(set(apt_packages)):
+                           keyserver='hkp://keys.gnupg.net')
+    if "mariadb-server" in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
@@ -139,7 +136,7 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding deb.sury GPG key')
             WORepo.add_key(self, WOVariables.wo_php_key)
     # add redis repository
-    if set(['redis-server']).issubset(set(apt_packages)):
+    if set(WOVariables.wo_redis).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for Redis, please wait...")
         if WOVariables.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
@@ -367,7 +364,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOTemplate.render(
                 self,
                 '/etc/nginx/sites-available/22222',
-                '22222.mustache', data, overwrite=False)
+                '22222.mustache', data, overwrite=True)
             passwd = ''.join([random.choice
                               (string.ascii_letters + string.digits)
                               for n in range(24)])
@@ -392,98 +389,60 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                            '/etc/nginx/'
                            'sites-enabled/'
                            '22222'])
-                # Create log and cert folder and softlinks
-                if not os.path.exists('{0}22222/logs'
-                                      .format(ngxroot)):
-                    Log.debug(self, "Creating directory "
-                              "{0}22222/logs "
-                              .format(ngxroot))
-                    os.makedirs('{0}22222/logs'
-                                .format(ngxroot))
-
-                if not os.path.exists('{0}22222/cert'
-                                      .format(ngxroot)):
-                    Log.debug(self, "Creating directory "
-                              "{0}22222/cert"
-                              .format(ngxroot))
-                    os.makedirs('{0}22222/cert'
-                                .format(ngxroot))
-
-                if not os.path.isdir('{0}22222/conf/nginx'
-                                     .format(ngxroot)):
-                    Log.debug(self, "Creating directory "
-                              "{0}22222/conf/nginx"
-                              .format(ngxroot))
-                    os.makedirs('{0}22222/conf/nginx'
-                                .format(ngxroot))
-
-                    WOFileUtils.create_symlink(
-                        self,
-                        ['/var/log/nginx/'
-                         '22222.access.log',
-                         '{0}22222/'
-                         'logs/access.log'
-                         .format(ngxroot)]
-                    )
-
-                    WOFileUtils.create_symlink(
-                        self,
-                        ['/var/log/nginx/'
-                         '22222.error.log',
-                         '{0}22222/'
-                         'logs/error.log'
-                         .format(ngxroot)]
-                    )
-
-                    try:
-                        WOShellExec.cmd_exec(
-                            self, "openssl genrsa -out "
-                            "{0}22222/cert/22222.key 2048"
-                            .format(ngxroot))
-                        WOShellExec.cmd_exec(
-                            self, "openssl req -new -batch  "
-                            "-subj /commonName=localhost/ "
-                            "-key {0}22222/cert/22222.key "
-                            "-out {0}22222/cert/"
-                            "22222.csr"
+            # Create log and cert folder and softlinks
+            if not os.path.exists('{0}22222/logs'
+                                  .format(ngxroot)):
+                Log.debug(self, "Creating directory "
+                          "{0}22222/logs "
+                          .format(ngxroot))
+                os.makedirs('{0}22222/logs'
                             .format(ngxroot))
 
-                        WOFileUtils.mvfile(
-                            self, "{0}22222/cert/22222.key"
-                            .format(ngxroot),
-                            "{0}22222/cert/"
-                            "22222.key.org"
+            if not os.path.exists('{0}22222/cert'
+                                  .format(ngxroot)):
+                Log.debug(self, "Creating directory "
+                          "{0}22222/cert"
+                          .format(ngxroot))
+                os.makedirs('{0}22222/cert'
                             .format(ngxroot))
 
-                        WOShellExec.cmd_exec(
-                            self, "openssl rsa -in "
-                            "{0}22222/cert/"
-                            "22222.key.org -out "
-                            "{0}22222/cert/22222.key"
+            if not os.path.isdir('{0}22222/conf/nginx'
+                                 .format(ngxroot)):
+                Log.debug(self, "Creating directory "
+                          "{0}22222/conf/nginx"
+                          .format(ngxroot))
+                os.makedirs('{0}22222/conf/nginx'
                             .format(ngxroot))
 
-                        WOShellExec.cmd_exec(
-                            self, "openssl x509 -req -days "
-                            "3652 -in {0}22222/cert/"
-                            "22222.csr -signkey {0}"
-                            "22222/cert/22222.key -out "
-                            "{0}22222/cert/22222.crt"
-                            .format(ngxroot))
+                WOFileUtils.create_symlink(
+                    self,
+                    ['/var/log/nginx/'
+                     '22222.access.log',
+                     '{0}22222/'
+                     'logs/access.log'
+                     .format(ngxroot)]
+                )
 
-                    except CommandExecutionError as e:
-                        Log.debug(self, "{0}".format(e))
-                        Log.error(
-                            self, "Failed to generate HTTPS "
-                            "certificate for 22222", False)
+                WOFileUtils.create_symlink(
+                    self,
+                    ['/var/log/nginx/'
+                     '22222.error.log',
+                     '{0}22222/'
+                     'logs/error.log'
+                     .format(ngxroot)]
+                )
+            if (not os.path.isfile('{0}22222/cert/22222.key'
+                                   .format(ngxroot))):
+                SSL.selfsignedcert(self, proftpd=False, backend=True)
 
-                if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
-                                      .format(ngxroot)):
-                    with open("/var/www/22222/conf/nginx/"
-                              "ssl.conf", "w") as php_file:
-                        php_file.write("ssl_certificate "
-                                       "/var/www/22222/cert/22222.crt;\n"
-                                       "ssl_certificate_key "
-                                       "/var/www/22222/cert/22222.key;\n")
+            if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
+                                  .format(ngxroot)):
+                with open("/var/www/22222/conf/nginx/"
+                          "ssl.conf", "w") as php_file:
+                    php_file.write("ssl_certificate "
+                                   "/var/www/22222/cert/22222.crt;\n"
+                                   "ssl_certificate_key "
+                                   "/var/www/22222/cert/22222.key;\n")
 
                 server_ip = requests.get('http://v4.wordops.eu')
 
@@ -876,7 +835,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'php7.3-fpm')
 
         # create mysql config if it doesn't exist
-        if set(["mariadb-server"]).issubset(set(apt_packages)):
+        if "mariadb-server" in apt_packages:
             if not os.path.isfile("/etc/mysql/my.cnf"):
                 config = ("[mysqld]\nwait_timeout = 30\n"
                           "interactive_timeout=60\nperformance_schema = 0"
@@ -953,7 +912,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOService.reload_service(self, 'fail2ban')
 
         # Proftpd configuration
-        if set(["proftpd-basic"]).issubset(set(apt_packages)):
+        if "proftpd-basic" in apt_packages:
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
                 Log.info(self, "Configuring ProFTPd")
                 Log.debug(self, "Setting up Proftpd configuration")
@@ -976,28 +935,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             # proftpd TLS configuration
             if not os.path.isdir("/etc/proftpd/ssl"):
                 WOFileUtils.mkdir(self, "/etc/proftpd/ssl")
-
-            try:
-                WOShellExec.cmd_exec(self, "openssl genrsa -out "
-                                     "/etc/proftpd/ssl/proftpd.key 2048")
-                WOShellExec.cmd_exec(self, "openssl req -new -batch  "
-                                     "-subj /commonName=localhost/ "
-                                     "-key /etc/proftpd/ssl/proftpd.key "
-                                     "-out /etc/proftpd/ssl/proftpd.csr")
-                WOFileUtils.mvfile(self, "/etc/proftpd/ssl/proftpd.key",
-                                   "/etc/proftpd/ssl/proftpd.key.org")
-                WOShellExec.cmd_exec(self, "openssl rsa -in "
-                                     "/etc/proftpd/ssl/proftpd.key.org "
-                                     "-out /etc/proftpd/ssl/proftpd.key")
-                WOShellExec.cmd_exec(self, "openssl x509 -req -days "
-                                     "3652 -in /etc/proftpd/ssl/proftpd.csr "
-                                     "-signkey /etc/proftpd/ssl/proftpd.key "
-                                     " -out /etc/proftpd/ssl/proftpd.crt")
-            except CommandExecutionError as e:
-                Log.debug(self, "{0}".format(e))
-                Log.error(
-                    self, "Failed to generate SSL "
-                    "certificate for Proftpd")
+                SSL.selfsignedcert(self, proftpd=True, backend=False)
             WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.key", 0o700)
             WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.crt", 0o700)
             data = dict()
@@ -1041,7 +979,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.reload_service(self, 'proftpd')
 
         # Redis configuration
-        if set(['redus-server']).issubset(set(apt_packages)):
+        if "redis-server" in apt_packages:
             if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                 if not WOFileUtils.grep(self, "/etc/nginx/conf.d/"
                                         "upstream.conf",
@@ -1072,7 +1010,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if (os.path.isfile("/etc/redis/redis.conf") and
                     (not WOFileUtils.grep(self, "/etc/redis/redis.conf",
                                           "WordOps"))):
-                Log.info(self, "Tuning Redis configuration")
+                Log.wait(self, "Tuning Redis configuration")
                 with open("/etc/redis/redis.conf",
                           "a") as redis_file:
                     redis_file.write("\n# WordOps v3.9.8\n")
@@ -1116,6 +1054,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOFileUtils.chown(self, '/etc/redis/redis.conf',
                                   'redis', 'redis', recursive=False)
                 WOService.restart_service(self, 'redis-server')
+                Log.valide(self, "Tuning Redis configuration")
 
         # ClamAV configuration
         if set(WOVariables.wo_clamav).issubset(set(apt_packages)):

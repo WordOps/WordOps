@@ -39,6 +39,9 @@ class SSL:
 
     def getexpirationdate(self, domain):
         # check if exist
+        if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
+            split_domain = domain.split('.')
+            domain = ('.').join(split_domain[1:])
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
             Log.error(self, 'File Not Found: /etc/letsencrypt/'
@@ -68,22 +71,26 @@ class SSL:
                     "--allow-root --quiet"))
             test_url = re.split(":", wo_siteurl)
             if not (test_url[0] == 'https'):
-                WOShellExec.cmd_exec(
-                    self, "{0} option update siteurl "
-                    "\'https://{1}\' --allow-root".format(
-                        WOVariables.wo_wpcli_path, domain))
-                WOShellExec.cmd_exec(
-                    self, "{0} option update home "
-                    "\'https://{1}\' --allow-root".format(
-                        WOVariables.wo_wpcli_path, domain))
-                WOShellExec.cmd_exec(
-                    self, "{0} search-replace \'http://{0}\'"
-                    "\'https://{0}\' --skip-columns=guid "
-                    "--skip-tables=wp_users"
-                    .format(domain))
-                Log.info(
-                    self, "Site address updated "
-                    "successfully to https://{0}".format(domain))
+                Log.wait(self, "Updating site url with https")
+                try:
+                    WOShellExec.cmd_exec(
+                        self, "{0} option update siteurl "
+                        "\'https://{1}\' --allow-root".format(
+                            WOVariables.wo_wpcli_path, domain))
+                    WOShellExec.cmd_exec(
+                        self, "{0} option update home "
+                        "\'https://{1}\' --allow-root".format(
+                            WOVariables.wo_wpcli_path, domain))
+                    WOShellExec.cmd_exec(
+                        self, "{0} search-replace \'http://{0}\'"
+                        "\'https://{0}\' --skip-columns=guid "
+                        "--skip-tables=wp_users"
+                        .format(domain))
+                except Exception as e:
+                    Log.debug(self, str(e))
+                    Log.failed(self, "Updating site url with https")
+                else:
+                    Log.valide(self, "Updating site url with https")
 
     # check if a wildcard exist to secure a new subdomain
 
@@ -111,3 +118,81 @@ class SSL:
         certfile.close()
 
         return iswildcard
+
+    def setupHsts(self, wo_domain_name):
+        Log.info(
+            self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
+            .format(wo_domain_name))
+
+        hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
+                        .format(wo_domain_name),
+                        encoding='utf-8', mode='w')
+        hstsconf.write("more_set_headers "
+                       "\"Strict-Transport-Security: "
+                       "max-age=31536000; "
+                       "includeSubDomains; "
+                       "preload\";")
+        hstsconf.close()
+        return 0
+
+    def selfsignedcert(self, proftpd=False, backend=False):
+        """issue a self-signed certificate"""
+
+        selfs_tmp = '/var/lib/wo/tmp/selfssl'
+        # create self-signed tmp directory
+        if not os.path.isdir(selfs_tmp):
+            WOFileUtils.mkdir(self, selfs_tmp)
+        try:
+            WOShellExec.cmd_exec(
+                self, "openssl genrsa -out "
+                "{0}/ssl.key 2048"
+                .format(selfs_tmp))
+            WOShellExec.cmd_exec(
+                self, "openssl req -new -batch  "
+                "-subj /commonName=localhost/ "
+                "-key {0}/ssl.key -out {0}/ssl.csr"
+                .format(selfs_tmp))
+
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.key"
+                .format(selfs_tmp),
+                "{0}/ssl.key.org"
+                .format(selfs_tmp))
+
+            WOShellExec.cmd_exec(
+                self, "openssl rsa -in "
+                "{0}/ssl.key.org -out "
+                "{0}/ssl.key"
+                .format(selfs_tmp))
+
+            WOShellExec.cmd_exec(
+                self, "openssl x509 -req -days "
+                "3652 -in {0}/ssl.csr -signkey {0}"
+                "/ssl.key -out {0}/ssl.crt"
+                .format(selfs_tmp))
+
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(
+                self, "Failed to generate HTTPS "
+                "certificate for 22222", False)
+        if backend:
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.key"
+                .format(selfs_tmp),
+                "/var/www/22222/cert/22222.key")
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.crt"
+                .format(selfs_tmp),
+                "/var/www/22222/cert/22222.crt")
+        if proftpd:
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.key"
+                .format(selfs_tmp),
+                "/etc/proftpd/ssl/proftpd.key")
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.crt"
+                .format(selfs_tmp),
+                "/etc/proftpd/ssl/proftpd.crt")
+        # remove self-signed tmp directory
+        WOFileUtils.rm(self, selfs_tmp)

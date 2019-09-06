@@ -35,15 +35,18 @@ class SiteError(Exception):
 def pre_run_checks(self):
 
     # Check nginx configuration
-    Log.info(self, "Running pre-update checks, please wait...")
+    Log.wait(self, "Running pre-update checks")
     try:
         Log.debug(self, "checking NGINX configuration ...")
         FNULL = open('/dev/null', 'w')
         subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
                               stderr=subprocess.STDOUT)
     except CalledProcessError as e:
+        Log.failed(self, "Running pre-update checks")
         Log.debug(self, "{0}".format(str(e)))
         raise SiteError("nginx configuration check failed.")
+    else:
+        Log.valide(self, "Running pre-update checks")
 
 
 def check_domain_exists(self, domain):
@@ -643,7 +646,7 @@ def setupwordpressnetwork(self, data):
 
 def installwp_plugin(self, plugin_name, data):
     wo_site_webroot = data['webroot']
-    Log.info(self, "Installing plugin {0}, please wait..."
+    Log.wait(self, "Installing plugin {0}"
              .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     try:
@@ -665,9 +668,13 @@ def installwp_plugin(self, plugin_name, data):
                                      else ''
                                      ))
     except CommandExecutionError as e:
+        Log.failed(self, "Installing plugin {0}"
+                   .format(plugin_name))
         Log.debug(self, "{0}".format(e))
         raise SiteError("plugin activation failed")
-
+    else:
+        Log.valide(self, "Installing plugin {0}"
+                   .format(plugin_name))
     return 1
 
 
@@ -676,7 +683,7 @@ def uninstallwp_plugin(self, plugin_name, data):
     Log.debug(self, "Uninstalling plugin {0}, please wait..."
               .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
-    Log.info(self, "Uninstalling plugin {0}, please wait..."
+    Log.wait(self, "Uninstalling plugin {0}"
              .format(plugin_name))
     try:
         WOShellExec.cmd_exec(self, "{0} plugin "
@@ -689,13 +696,18 @@ def uninstallwp_plugin(self, plugin_name, data):
                              "--allow-root uninstall "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
+        Log.failed(self, "Uninstalling plugin {0}"
+                   .format(plugin_name))
         Log.debug(self, "{0}".format(e))
         raise SiteError("plugin uninstall failed")
+    else:
+        Log.valide(self, "Uninstalling plugin {0}"
+                   .format(plugin_name))
 
 
 def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
     wo_site_webroot = data['webroot']
-    Log.info(self, "Setting plugin {0}, please wait..."
+    Log.wait(self, "Setting plugin {0}"
              .format(plugin_name))
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
 
@@ -707,8 +719,13 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
                                  "{0} \'{1}\' --format=json"
                                  .format(plugin_option, plugin_data))
         except CommandExecutionError as e:
+            Log.failed(self, "Setting plugin {0}"
+                       .format(plugin_name))
             Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
+        else:
+            Log.valide(self, "Setting plugin {0}"
+                       .format(plugin_name))
     else:
         try:
             WOShellExec.cmd_exec(self, "{0} "
@@ -718,8 +735,13 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
                                  .format(plugin_option, plugin_data
                                          ))
         except CommandExecutionError as e:
+            Log.failed(self, "Setting plugin {0}"
+                       .format(plugin_name))
             Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
+        else:
+            Log.valide(self, "Setting plugin {0}"
+                       .format(plugin_name))
 
 
 def setwebrootpermissions(self, webroot):
@@ -1354,7 +1376,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         if subdomain:
             Log.info(self, "Certificate type: Subdomain")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            Log.wait(self, "Issuing SSL certificate with acme.sh")
+            Log.wait(self, "Issuing SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} {1} "
@@ -1365,7 +1387,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         elif wildcard:
             Log.info(self, "Certificate type: Wildcard")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            Log.wait(self, "Issuing SSL certificate with acme.sh")
+            Log.wait(self, "Issuing SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d '*.{0}' --dns {1} "
@@ -1376,7 +1398,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
         else:
             Log.info(self, "Certificate type: Domain + www")
             Log.info(self, "Validation mode : {0}".format(validation_mode))
-            Log.wait(self, "Issuing SSL certificate with acme.sh")
+            Log.wait(self, "Issuing SSL cert with acme.sh")
             ssl = WOShellExec.cmd_exec(self, "{0} ".format(wo_acme_exec) +
                                        "--issue "
                                        "-d {0} -d www.{0} {1} "
@@ -1384,8 +1406,8 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                        .format(wo_domain_name,
                                                acme_mode, keylenght))
     if ssl:
-        Log.valide(self, "Issuing SSL certificate with acme.sh")
-        Log.wait(self, "Deploying SSL cert with acme.sh")
+        Log.valide(self, "Issuing SSL cert with acme.sh")
+        Log.wait(self, "Deploying SSL cert")
         Log.debug(self, "Cert deployment for domain: {0}"
                   .format(wo_domain_name))
         try:
@@ -1405,7 +1427,7 @@ def setupLetsEncrypt(self, wo_domain_name, subdomain=False, wildcard=False,
                                  "service nginx restart\" "
                                  .format(WOVariables.wo_ssl_live,
                                          wo_domain_name))
-            Log.valide(self, "Deploying SSL cert with acme.sh")
+            Log.valide(self, "Deploying SSL cert")
             if os.path.isdir('/var/www/{0}/conf/nginx'
                              .format(wo_domain_name)):
 
@@ -1553,6 +1575,7 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                                "/etc/nginx/conf.d/force-ssl-{0}.conf"
                                .format(wo_domain_name))
         else:
+            Log.wait(self, "Adding HTTPS redirection")
             if wildcard:
                 try:
                     sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
@@ -1582,18 +1605,18 @@ def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
                                   "\tlisten [::]:80;\n" +
                                   "\tserver_name www.{0} {0};\n"
                                   .format(wo_domain_name) +
-                                  "\treturn 301 https://{0}"
-                                  .format(wo_domain_name)+"$request_uri;\n}")
+                                  "\treturn 301 https://$host"
+                                  "$request_uri;\n}")
                     sslconf.close()
 
                 except IOError as e:
+                    Log.failed(self, "Adding HTTPS redirection")
                     Log.debug(self, str(e))
                     Log.debug(self, "Error occured while generating "
                               "/etc/nginx/conf.d/force-ssl-{0}.conf"
                               .format(wo_domain_name))
-
-        Log.info(self, "Added HTTPS Force Redirection for Site "
-                 " http://{0}".format(wo_domain_name))
+                else:
+                    Log.valide(self, "Adding HTTPS redirection")
         # Nginx Configation into GIT
         WOGit.add(self,
                   ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
@@ -1715,3 +1738,16 @@ def archivedCertificateHandle(self, domain):
                            .format(domain))
 
     return ssl
+
+
+def setuprocketchat(self):
+    if ((not WOVariables.wo_platform_codename == 'bionic') and
+            (not WOVariables.wo_platform_codename == 'xenial')):
+        Log.info(self, "Rocket.chat is only available on Ubuntu 16.04 "
+        "& 18.04 LTS")
+        return False
+    else:
+        if not WOAptGet.is_installed(self, 'snapd'):
+            WOAptGet.install(self, ["snapd"])
+        if WOShellExec.cmd_exec(self, "snap install rocketchat-server"):
+            return True

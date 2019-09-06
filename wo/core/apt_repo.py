@@ -48,8 +48,9 @@ class WORepo():
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to add repo")
         if ppa is not None:
-            WOShellExec.cmd_exec(self, "LC_ALL=C.UTF-8 add-apt-repository -yu '{ppa_name}'"
-                                 .format(ppa_name=ppa))
+            WOShellExec.cmd_exec(
+                self, "LC_ALL=C.UTF-8 add-apt-repository -yu '{ppa_name}'"
+                .format(ppa_name=ppa))
 
     def remove(self, ppa=None, repo_url=None):
         """
@@ -77,13 +78,35 @@ class WORepo():
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to remove repo")
 
-    def add_key(self, keyids, keyserver=None):
+    def add_key(self, keyid, keyserver=None):
         """
         This function adds imports repository keys from keyserver.
         default keyserver is hkp://keyserver.ubuntu.com
         user can provide other keyserver with keyserver="hkp://xyz"
         """
-        WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
-                             .format(serv=(keyserver or
-                                           "hkp://keyserver.ubuntu.com")) +
-                             " --recv-keys {key}".format(key=keyids))
+        try:
+            WOShellExec.cmd_exec(
+                self, "apt-key adv --keyserver {serv}"
+                .format(serv=(keyserver or
+                              "hkp://keyserver.ubuntu.com")) +
+                " --recv-keys {key}".format(key=keyid))
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to import repo key")
+
+    def add_keys(self, keyids, keyserver=None):
+        """
+        This function adds imports repository keys from keyserver.
+        default keyserver is hkp://keyserver.ubuntu.com
+        user can provide other keyserver with keyserver="hkp://xyz"
+        """
+        all_keys = ' '.join(keyids)
+        try:
+            WOShellExec.cmd_exec(
+                self, "apt-key adv --keyserver {serv}"
+                .format(serv=(keyserver or
+                              "hkp://keyserver.ubuntu.com")) +
+                " --recv-keys {keys}".format(keys=all_keys))
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to import repo keys")

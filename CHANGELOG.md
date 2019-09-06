@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.11 - 2019-09-06
+
+#### Changed
+
+- Improved general logs display
+- UFW configuration is only applied during initial installation if UFW is disabled
+
+#### Fixed
+
+- Redis-server configuration and start
+- Nginx upgrade with `wo stack upgrade`
+
 ### v3.9.8.10 - 2019-09-04
 
 #### Changed
