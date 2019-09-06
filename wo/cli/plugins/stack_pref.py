@@ -433,8 +433,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 )
             if (not os.path.isfile('{0}22222/cert/22222.key'
                                    .format(ngxroot))):
-                SSL.selfsignedcert(self, 'localhost',
-                                   '', backend=True)
+                SSL.selfsignedcert(self, proftpd=False, backend=True)
 
             if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
                                   .format(ngxroot)):
@@ -936,28 +935,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             # proftpd TLS configuration
             if not os.path.isdir("/etc/proftpd/ssl"):
                 WOFileUtils.mkdir(self, "/etc/proftpd/ssl")
-
-            try:
-                WOShellExec.cmd_exec(self, "openssl genrsa -out "
-                                     "/etc/proftpd/ssl/proftpd.key 2048")
-                WOShellExec.cmd_exec(self, "openssl req -new -batch  "
-                                     "-subj /commonName=localhost/ "
-                                     "-key /etc/proftpd/ssl/proftpd.key "
-                                     "-out /etc/proftpd/ssl/proftpd.csr")
-                WOFileUtils.mvfile(self, "/etc/proftpd/ssl/proftpd.key",
-                                   "/etc/proftpd/ssl/proftpd.key.org")
-                WOShellExec.cmd_exec(self, "openssl rsa -in "
-                                     "/etc/proftpd/ssl/proftpd.key.org "
-                                     "-out /etc/proftpd/ssl/proftpd.key")
-                WOShellExec.cmd_exec(self, "openssl x509 -req -days "
-                                     "3652 -in /etc/proftpd/ssl/proftpd.csr "
-                                     "-signkey /etc/proftpd/ssl/proftpd.key "
-                                     " -out /etc/proftpd/ssl/proftpd.crt")
-            except CommandExecutionError as e:
-                Log.debug(self, "{0}".format(e))
-                Log.error(
-                    self, "Failed to generate SSL "
-                    "certificate for Proftpd")
+                SSL.selfsignedcert(self, proftpd=True, backend=False)
             WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.key", 0o700)
             WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.crt", 0o700)
             data = dict()

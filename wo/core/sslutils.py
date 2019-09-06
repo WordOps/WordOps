@@ -135,16 +135,13 @@ class SSL:
         hstsconf.close()
         return 0
 
-    def selfsignedcert(self, wo_domain_name,
-                       cert_path, backend=False):
+    def selfsignedcert(self, proftpd=False, backend=False):
         """issue a self-signed certificate"""
 
         selfs_tmp = '/var/lib/wo/tmp/selfssl'
         # create self-signed tmp directory
         if not os.path.isdir(selfs_tmp):
             WOFileUtils.mkdir(self, selfs_tmp)
-        if wo_domain_name == '':
-            wo_domain_name = 'localhost'
         try:
             WOShellExec.cmd_exec(
                 self, "openssl genrsa -out "
@@ -152,9 +149,9 @@ class SSL:
                 .format(selfs_tmp))
             WOShellExec.cmd_exec(
                 self, "openssl req -new -batch  "
-                "-subj /commonName={0}/ "
-                "-key {1}/ssl.key -out {1}/ssl.csr"
-                .format(wo_domain_name, selfs_tmp))
+                "-subj /commonName=localhost/ "
+                "-key {0}/ssl.key -out {0}/ssl.csr"
+                .format(selfs_tmp))
 
             WOFileUtils.mvfile(
                 self, "{0}/ssl.key"
@@ -188,16 +185,14 @@ class SSL:
                 self, "{0}/ssl.crt"
                 .format(selfs_tmp),
                 "/var/www/22222/cert/22222.crt")
-        else:
-            if not os.path.isdir(cert_path):
-                WOFileUtils.mkdir(self, cert_path)
+        if proftpd:
             WOFileUtils.mvfile(
                 self, "{0}/ssl.key"
                 .format(selfs_tmp),
-                "{0}/key.pem".format(cert_path))
+                "/etc/proftpd/ssl/proftpd.key")
             WOFileUtils.mvfile(
                 self, "{0}/ssl.crt"
                 .format(selfs_tmp),
-                "{0}/cert.pem".format(cert_path))
+                "/etc/proftpd/ssl/proftpd.crt")
         # remove self-signed tmp directory
         WOFileUtils.rm(self, selfs_tmp)
