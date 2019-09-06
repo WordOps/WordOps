@@ -109,7 +109,7 @@ class WOVariables():
                          .format(wo_deb_repo))
 
     wo_nginx = ["nginx-custom", "nginx-wo"]
-    wo_nginx_key = '188C9FB063F0247A'
+    wo_nginx_key = ['188C9FB063F0247A']
 
     # PHP repo and packages
     if wo_distro == 'ubuntu':
@@ -118,7 +118,7 @@ class WOVariables():
         wo_php_repo = (
             "deb https://packages.sury.org/php/ {codename} main"
             .format(codename=wo_platform_codename))
-        wo_php_key = 'AC0E47584A7A714D'
+        wo_php_key = ['AC0E47584A7A714D']
 
     wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
               "php7.2-readline", "php7.2-common", "php7.2-recode",
@@ -149,8 +149,6 @@ class WOVariables():
         wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
     else:
         wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
-
-
 
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]

@@ -548,6 +548,7 @@ class WOStackController(CementBaseController):
             pargs.proftpd = True
             pargs.utils = True
             pargs.redis = True
+            pargs.security = True
             packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:

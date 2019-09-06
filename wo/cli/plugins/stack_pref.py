@@ -26,6 +26,7 @@ from wo.core.variables import WOVariables
 
 
 def pre_pref(self, apt_packages):
+    apt_repo_key = []
     """Pre settings to do before installation packages"""
 
     if (set(["mariadb-server"]).issubset(set(apt_packages)) or
@@ -41,12 +42,8 @@ def pre_pref(self, apt_packages):
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
             WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
-            Log.debug(self, 'Adding key for {0}'
-                      .format(WOVariables.wo_mysql_repo))
-            WORepo.add_key(self, '0xcbcb082a1bb943db',
-                           keyserver="keyserver.ubuntu.com")
-            WORepo.add_key(self, '0xF1656F24C74CD1D8',
-                           keyserver="keyserver.ubuntu.com")
+            apt_repo_key = (apt_repo_key +
+                            ['0xcbcb082a1bb943db', '0xF1656F24C74CD1D8'])
     if set(["mariadb-server"]).issubset(set(apt_packages)):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
@@ -114,6 +111,8 @@ def pre_pref(self, apt_packages):
             WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding ppa for Nginx')
         else:
+            apt_repo_key = apt_repo_key + WOVariables.wo_nginx_key
+
             WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
             WORepo.add_key(self, WOVariables.wo_nginx_key)
@@ -137,6 +136,7 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding repo_url of php for debian')
             WORepo.add(self, repo_url=WOVariables.wo_php_repo)
             Log.debug(self, 'Adding deb.sury GPG key')
+            apt_repo_key = apt_repo_key + WOVariables.wo_php_key
             WORepo.add_key(self, WOVariables.wo_php_key)
     # add redis repository
     if set(['redis-server']).issubset(set(apt_packages)):
@@ -144,6 +144,9 @@ def pre_pref(self, apt_packages):
         if WOVariables.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
             WORepo.add(self, ppa=WOVariables.wo_redis_repo)
+
+    if (apt_repo_key):
+        WORepo.add_key(self, apt_repo_key)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -367,7 +370,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOTemplate.render(
                 self,
                 '/etc/nginx/sites-available/22222',
-                '22222.mustache', data, overwrite=False)
+                '22222.mustache', data, overwrite=True)
             passwd = ''.join([random.choice
                               (string.ascii_letters + string.digits)
                               for n in range(24)])

@@ -83,7 +83,8 @@ class WORepo():
         default keyserver is hkp://keyserver.ubuntu.com
         user can provide other keyserver with keyserver="hkp://xyz"
         """
+        all_keys = ' '.join(keyids)
         WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
                              .format(serv=(keyserver or
                                            "hkp://keyserver.ubuntu.com")) +
-                             " --recv-keys {key}".format(key=keyids))
+                             " --recv-keys {keys}".format(key=all_keys))

@@ -10,7 +10,7 @@ CGREEN="${CSI}1;32m"
 CEND="${CSI}0m"
 
 exit_script() {
-    curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
+    curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo ""
     exit 1
 }
 

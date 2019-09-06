@@ -736,7 +736,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
                                          ))
         except CommandExecutionError as e:
             Log.failed(self, "Setting plugin {0}"
-                                   .format(plugin_name))
+                       .format(plugin_name))
             Log.debug(self, "{0}".format(e))
             raise SiteError("plugin setup failed")
         else:
