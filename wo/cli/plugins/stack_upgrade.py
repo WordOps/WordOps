@@ -62,7 +62,6 @@ class WOStackUpgradeController(CementBaseController):
         # All package update
         apt_packages = []
         packages = []
-        nginx_packages = []
         self.msg = []
         pargs = self.app.pargs
 

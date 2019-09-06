@@ -27,7 +27,6 @@ from wo.core.variables import WOVariables
 
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
-    apt_repo_keys = []
 
     if ((["mariadb-server"] in apt_packages) or
             (["mariadb-client"] in apt_packages)):
@@ -41,8 +40,8 @@ def pre_pref(self, apt_packages):
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
             WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
-            apt_repo_keys = (apt_repo_keys +
-                             ['0xcbcb082a1bb943db', '0xF1656F24C74CD1D8'])
+            WORepo.add_keys(self, WOVariables.wo_mysql_keys,
+                            keyserver='hkp://keys.gnupg.net:80')
     if ["mariadb-server"] in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
@@ -113,6 +112,7 @@ def pre_pref(self, apt_packages):
             apt_repo_keys = apt_repo_keys + WOVariables.wo_nginx_key
             WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
+            WORepo.add_key(self, WOVariables.wo_nginx_key)
 
     # add php repository
     if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
@@ -133,16 +133,13 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding repo_url of php for debian')
             WORepo.add(self, repo_url=WOVariables.wo_php_repo)
             Log.debug(self, 'Adding deb.sury GPG key')
-            apt_repo_keys = apt_repo_keys + WOVariables.wo_php_key
+            WORepo.add_key(self, WOVariables.wo_php_key)
     # add redis repository
     if set(['redis-server']).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for Redis, please wait...")
         if WOVariables.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
             WORepo.add(self, ppa=WOVariables.wo_redis_repo)
-
-    if (apt_repo_keys):
-        WORepo.add_key(self, apt_repo_keys)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):

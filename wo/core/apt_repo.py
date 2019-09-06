@@ -84,10 +84,15 @@ class WORepo():
         default keyserver is hkp://keyserver.ubuntu.com
         user can provide other keyserver with keyserver="hkp://xyz"
         """
-        WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
-                             .format(serv=(keyserver or
-                                           "hkp://keyserver.ubuntu.com")) +
-                             " --recv-keys {key}".format(key=keyid))
+        try:
+            WOShellExec.cmd_exec(
+                self, "apt-key adv --keyserver {serv}"
+                .format(serv=(keyserver or
+                              "hkp://keyserver.ubuntu.com")) +
+                " --recv-keys {key}".format(key=keyid))
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to import repo key")
 
     def add_keys(self, keyids, keyserver=None):
         """
@@ -96,7 +101,12 @@ class WORepo():
         user can provide other keyserver with keyserver="hkp://xyz"
         """
         all_keys = ' '.join(keyids)
-        WOShellExec.cmd_exec(self, "apt-key adv --keyserver {serv}"
-                             .format(serv=(keyserver or
-                                           "hkp://keyserver.ubuntu.com")) +
-                             " --recv-keys {0}".format(all_keys))
+        try:
+            WOShellExec.cmd_exec(
+                self, "apt-key adv --keyserver {serv}"
+                .format(serv=(keyserver or
+                              "hkp://keyserver.ubuntu.com")) +
+                " --recv-keys {keys}".format(keys=all_keys))
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to import repo keys")
