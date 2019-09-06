@@ -26,12 +26,11 @@ from wo.core.variables import WOVariables
 
 
 def pre_pref(self, apt_packages):
-    apt_repo_key = []
     """Pre settings to do before installation packages"""
+    apt_repo_keys = []
 
-    if (set(["mariadb-server"]).issubset(set(apt_packages)) or
-            set(["mariadb-client"]).issubset(set(apt_packages)) or
-            set(["mariadb-backup"]).issubset((set(apt_packages)))):
+    if ((["mariadb-server"] in apt_packages) or
+            (["mariadb-client"] in apt_packages)):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -42,9 +41,9 @@ def pre_pref(self, apt_packages):
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
             WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
-            apt_repo_key = (apt_repo_key +
-                            ['0xcbcb082a1bb943db', '0xF1656F24C74CD1D8'])
-    if set(["mariadb-server"]).issubset(set(apt_packages)):
+            apt_repo_keys = (apt_repo_keys +
+                             ['0xcbcb082a1bb943db', '0xF1656F24C74CD1D8'])
+    if ["mariadb-server"] in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
@@ -111,11 +110,9 @@ def pre_pref(self, apt_packages):
             WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding ppa for Nginx')
         else:
-            apt_repo_key = apt_repo_key + WOVariables.wo_nginx_key
-
+            apt_repo_keys = apt_repo_keys + WOVariables.wo_nginx_key
             WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
-            WORepo.add_key(self, WOVariables.wo_nginx_key)
 
     # add php repository
     if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
@@ -136,8 +133,7 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding repo_url of php for debian')
             WORepo.add(self, repo_url=WOVariables.wo_php_repo)
             Log.debug(self, 'Adding deb.sury GPG key')
-            apt_repo_key = apt_repo_key + WOVariables.wo_php_key
-            WORepo.add_key(self, WOVariables.wo_php_key)
+            apt_repo_keys = apt_repo_keys + WOVariables.wo_php_key
     # add redis repository
     if set(['redis-server']).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for Redis, please wait...")
@@ -145,7 +141,7 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding ppa for redis')
             WORepo.add(self, ppa=WOVariables.wo_redis_repo)
 
-    if (apt_repo_key):
+    if (apt_repo_keys):
         WORepo.add_key(self, apt_repo_key)
 
 
