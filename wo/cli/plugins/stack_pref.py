@@ -40,8 +40,10 @@ def pre_pref(self, apt_packages):
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
             WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
-            WORepo.add_keys(self, WOVariables.wo_mysql_keys,
-                            keyserver='hkp://keys.gnupg.net:80')
+            WORepo.add_key(self, '0xcbcb082a1bb943db',
+                           keyserver='hkp://keys.gnupg.net')
+            WORepo.add_key(self, '0xF1656F24C74CD1D8',
+                           keyserver='hkp://keys.gnupg.net')
     if ["mariadb-server"] in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
