@@ -28,8 +28,10 @@ from wo.core.variables import WOVariables
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
-    if ((["mariadb-server"] in apt_packages) or
-            (["mariadb-client"] in apt_packages)):
+    if (not(["mariadb-server"] in apt_packages) and
+            (not ["mariadb-client"] in apt_packages)):
+        pass
+    else:
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVariables.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
@@ -41,7 +43,7 @@ def pre_pref(self, apt_packages):
                 mysql_pref_file.write(mysql_pref)
             WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
             WORepo.add_key(self, '0xcbcb082a1bb943db',
-                           keyserver='hkp://keys.gnupg.net')
+                           keyserver='keys.gnupg.net')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver='hkp://keys.gnupg.net')
     if ["mariadb-server"] in apt_packages:

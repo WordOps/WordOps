@@ -150,8 +150,6 @@ class WOVariables():
     else:
         wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
 
-    wo_mysql_keys = ['0xcbcb082a1bb943db', '0xF1656F24C74CD1D8']
-
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]
 
