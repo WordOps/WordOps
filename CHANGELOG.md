@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- WP-CLI updated to v2.3.0
+
+#### Fixed
+
+- htpasswd protection when migrating from EasyEngine v3 [Issue #152](https://github.com/WordOps/WordOps/issues/152)
+
 ### v3.9.8.11 - 2019-09-06
 
 #### Changed
