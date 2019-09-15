@@ -382,9 +382,6 @@ class WOSiteCreateController(CementBaseController):
             (['--vhostonly'], dict(help="only create vhost and database "
                                    "without installing WordPress",
                                    action='store_true')),
-            (['--experimental'],
-                dict(help="Enable Experimental packages without prompt",
-                     action='store_true')),
         ]
 
     @expose(hide=True)
