@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.8.10 - 2019-09-04
+# Version 3.9.8.11 - 2019-09-07
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -541,6 +541,7 @@ wo_upgrade_nginx() {
         sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/php.conf/php72.conf/" /etc/nginx/sites-available/*
         sed -i "s/php7.conf/php72.conf/" /etc/nginx/sites-available/*
+        sed -i "s/php7.conf/php72.conf/" /etc/nginx/sites-available/*
         sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
 
         # update redis.conf headers
@@ -970,10 +971,10 @@ else
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
         echo
-        wo_lib_echo "To upgrade Nginx use the command:"
-        wo_lib_echo_info "wo stack upgrade --nginx"
+        wo_lib_echo "To upgrade WordOps stacks use the command:"
+        wo_lib_echo_info "wo stack upgrade --all"
         echo
-        wo_lib_echo "To update other packages use the command:"
+        wo_lib_echo "To update all other server packages use the command:"
         wo_lib_echo_info "wo maintenance"
     else
         wo_lib_echo "WordOps (wo) installed successfully"
