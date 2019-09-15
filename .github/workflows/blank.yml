@@ -12,7 +12,9 @@ jobs:
     - name: Prepare VM
       run: |
         export DEBIAN_FRONTEND=noninteractive
-        sudo apt-get --force-yes purge mysql* graphviz* redis*
+        sudo apt-get --force-yes remove mysql*
+        sudo rm -rf /etc/mysql /var/lib/mysql 
+        sudo apt-get purge -qq graphviz* redis*
         sudo apt-get install --assume-yes --quiet git python3-setuptools python3-dev python3-apt ccze tree
     - name: Run WordOps
       run: |
