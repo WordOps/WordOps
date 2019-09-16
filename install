@@ -462,13 +462,9 @@ wo_install() {
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
     fi
 
-    if [ -f "$HOME/.gitconfig" ]; then
-        # install and redirect log to not print python package install
-        python3 setup.py install >> $wo_install_log 2>&1
-    else
-        # install without redirecting logs to prompt user for name & email
-        python3 setup.py install
-    fi
+    # install and redirect log to not print python package install
+    python3 gitconfig.py
+    python3 setup.py install >> $wo_install_log 2>&1
 
 }
 
