@@ -832,11 +832,11 @@ else
         wo_download &
         wo_clean &
         wait
-        wo_git_config
         wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
         if [ "$wo_travis" = "y" ]; then
             wo_install_travis &
         else
+            wo_git_config
             wo_install
         fi
         wo_update_latest &
@@ -926,11 +926,12 @@ else
             wo_lib_echo "Downloading WordOps " | tee -ai $wo_install_log
             wo_download &
             wait
-            wo_git_config
-            wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             if [ "$wo_travis" = "y" ]; then
+            wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
                 wo_install_travis &
             else
+                wo_git_config
+            wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
                 wo_install
             fi
             if [ "$ufw" = "y" ]; then
@@ -952,6 +953,7 @@ else
                 wo_domain_suffix &
                 wo_git_init &
                 wo_update_wp_cli &
+                wait
             } >> $wo_install_log
             wait
         fi
