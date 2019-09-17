@@ -133,7 +133,6 @@ echo ""
 # 1- Check whether lsb_release is installed, and if not, install it
 ###
 if ! command_exists lsb_release; then
-    wo_lib_echo "Installing lsb-release, please /bin/bash --init-file <(echo 'source /etc/bash_completion.d/wo_auto.rc')..."
     apt-get install lsb-release -qq
 fi
 
@@ -245,7 +244,7 @@ wo_timesync() {
         # enable ntp
         timedatectl set-ntp 1
     fi
-}
+} >> $wo_install_log 2>&1
 
 ###
 # 3 - Create/migrate the essentials
@@ -442,28 +441,35 @@ wo_install_acme_sh() {
     fi
 }
 
-# Clone Github repository if it doesn't exist
-wo_install() {
-    {
-        rm -f /etc/bash_completion.d/wo_auto.rc
-        rm -rf /var/lib/wo/tmp/WordOps-*
-        if [ -z "$wo_version" ]; then
-            curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
-            cd "/var/lib/wo/tmp/WordOps-$wo_branch" || exit 1
-        else
-            curl -sL https://github.com/WordOps/WordOps/archive/v${wo_version}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
-            cd "/var/lib/wo/tmp/WordOps-$wo_version" || exit 1
-        fi
+# Download WordOps
+wo_download() {
+    rm -f /etc/bash_completion.d/wo_auto.rc
+    rm -rf /var/lib/wo/tmp/WordOps-*
+    if [ -z "$wo_version" ]; then
+        curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+        mv "/var/lib/wo/tmp/WordOps-$wo_branch" /var/lib/wo/tmp/WordOps-install
+    else
+        curl -sL https://github.com/WordOps/WordOps/archive/v${wo_version}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+        mv "/var/lib/wo/tmp/WordOps-$wo_version" /var/lib/wo/tmp/WordOps-install
+    fi
+} >> "$wo_install_log" 2>&1
 
-    } \
-        >> "$wo_install_log" 2>&1
+wo_git_config() {
 
     if [ "$wo_force_install" = "y" ]; then
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
     fi
 
-    # install and redirect log to not print python package install
+    # .gitconfig inital setup
+    cd /var/lib/wo/tmp/WordOps-install || exit 1
     python3 gitconfig.py
+
+}
+
+# WordOps install
+wo_install() {
+
+    cd /var/lib/wo/tmp/WordOps-install || exit 1
     python3 setup.py install >> $wo_install_log 2>&1
 
 }
@@ -536,9 +542,6 @@ wo_upgrade_nginx() {
         sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/htpasswd-ee/htpasswd-wo/" /etc/nginx/common/acl.conf
-        sed -i "s/php.conf/php72.conf/" /etc/nginx/sites-available/*
-        sed -i "s/php7.conf/php72.conf/" /etc/nginx/sites-available/*
-        sed -i "s/php7.conf/php72.conf/" /etc/nginx/sites-available/*
         sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
 
         # update redis.conf headers
@@ -639,22 +642,22 @@ wo_git_init() {
 }
 
 wo_backup_ee() {
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt >> /var/log/wo/install.log 2>&1
-}
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt
+} >> $wo_install_log 2>&1
 
 wo_backup_wo() {
     /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
-}
+} >> $wo_install_log 2>&1
 
 wo_clean_ee() {
-    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee >> /var/log/wo/install.log 2>&1
-}
+    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+} >> $wo_install_log 2>&1
 
 wo_remove_ee_cron() {
 
     crontab -l | sed '/ee site update --le=renew --all 2> \/dev\/null/d' | crontab -
 
-}
+} >> $wo_install_log 2>&1
 
 wo_tweak_kernel() {
 
@@ -671,7 +674,7 @@ wo_tweak_kernel() {
         # apply sysctl tweaks
         sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
     fi
-}
+} >> $wo_install_log 2>&1
 
 wo_systemd_tweak() {
 
@@ -691,11 +694,11 @@ wo_systemd_tweak() {
         echo -e "*         hard    nofile      500000\n*         soft    nofile      500000\nroot      hard    nofile      500000\nroot      soft    nofile      500000\n" >> /etc/security/limits.conf
     fi
 
-}
+} >> $wo_install_log 2>&1
 
 wo_domain_suffix() {
     curl -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
-}
+} >> $wo_install_log 2>&1
 
 wo_mariadb_tweak() {
     # increase mariadb open_files_limit
@@ -724,11 +727,11 @@ wo_nginx_tweak() {
 
 wo_clean() {
     rm -rf /usr/local/lib/python3.*/dist-packages/wo-*
-}
+} >> $wo_install_log 2>&1
 
 wo_uninstall() {
-    rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates >> /var/log/wo/install.log 2>&1
-}
+    rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
+} >> $wo_install_log 2>&1
 
 wo_ufw_setup() {
     if ! grep -q "ENABLED=yes" /etc/ufw/ufw.conf; then
@@ -798,7 +801,7 @@ wo_cheat_install() {
         ln -s /usr/local/bin/cht.sh /usr/local/bin/cheat
     }
     curl -sL https://cheat.sh/:bash_completion > /etc/bash_completion.d/cht.sh
-}
+} >> $wo_install_log 2>&1
 
 ###
 # 4 - WO MAIN SETUP
@@ -825,20 +828,19 @@ else
         wo_lib_echo "Backing-up WO install" | tee -ai $wo_install_log
         wo_backup_wo &
         secure_wo_db &
-        wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
+        wo_lib_echo "Downloading WordOps " | tee -ai $wo_install_log
+        wo_download &
         wo_clean &
         wait
+        wo_git_config
+        wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
         if [ "$wo_travis" = "y" ]; then
             wo_install_travis &
         else
-            if [ -f "$HOME/.gitconfig" ]; then
-                wo_install >> $wo_install_log 2>&1 &
-            else
-                wo_install
-            fi
+            wo_install
         fi
         wo_update_latest &
-        if [ ! -d /opt/acme/.sh ]; then
+        if [ ! -d /opt/acme.sh ]; then
             wo_lib_echo "Updating acme.sh" | tee -ai $wo_install_log
             wo_install_acme_sh &
         fi
@@ -869,32 +871,30 @@ else
                 fi
             fi
             wo_lib_echo "Installing wo dependencies " | tee -ai $wo_install_log
-            wo_install_dep >> $wo_install_log 2>&1 &
-            wo_timesync >> $wo_install_log 2>&1 &
+            wo_install_dep &
+            wo_timesync &
             wo_lib_echo "Backing-up EE install" | tee -ai $wo_install_log
-            wo_backup_ee >> $wo_install_log 2>&1 &
+            wo_backup_ee &
             wo_lib_echo "Removing EasyEngine cronjob" | tee -ai $wo_install_log
-            wo_remove_ee_cron >> $wo_install_log 2>&1 &
+            wo_remove_ee_cron &
             wo_lib_echo "Syncing WO database" | tee -ai $wo_install_log
             wo_sync_db >> $wo_install_log 2>&1 &
-            secure_wo_db >> $wo_install_log 2>&1 &
+            secure_wo_db &
+            wo_lib_echo "Downloading WordOps " | tee -ai $wo_install_log
+            wo_download &
             wait
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
-            if [ -f "$HOME/.gitconfig" ]; then
-                wo_install >> $wo_install_log 2>&1 &
-            else
-                wo_install | tee -ai $wo_install_log
-            fi
+            wo_install
             if command_exists nginx; then
                 wo_lib_echo "Upgrading Nginx" | tee -ai $wo_install_log
-                wo_upgrade_nginx >> $wo_install_log 2>&1 &
+                wo_upgrade_nginx &
             fi
             wait
-            wo_update_latest >> $wo_install_log 2>&1 &
+            wo_update_latest &
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
-            wo_install_acme_sh >> $wo_install_log 2>&1 &
+            wo_install_acme_sh &
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
-            wo_tweak_kernel >> $wo_install_log 2>&1 &
+            wo_tweak_kernel &
             if [ ! -f /opt/wo-kernel.sh ]; then
                 wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
                 wo_systemd_tweak &
@@ -905,7 +905,7 @@ else
             if [ -d /etc/systemd/system/mariadb.service.d ]; then
                 wo_mariadb_tweak &
             fi
-            wo_domain_suffix >> $wo_install_log &
+            wo_domain_suffix &
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             {
                 wo_git_init &
@@ -921,33 +921,32 @@ else
             [ -z "$wo_travis" ] && {
                 wo_dist_upgrade >> $wo_install_log
             }
-            wo_install_dep >> $wo_install_log &
-            wo_timesync >> $wo_install_log &
+            wo_install_dep &
+            wo_timesync &
+            wo_lib_echo "Downloading WordOps " | tee -ai $wo_install_log
+            wo_download &
             wait
+            wo_git_config
             wo_lib_echo "Installing WordOps " | tee -ai $wo_install_log
             if [ "$wo_travis" = "y" ]; then
-                wo_install_travis | tee -ai $wo_install_log &
+                wo_install_travis &
             else
-                if [ -f "$HOME/.gitconfig" ]; then
-                    wo_install >> $wo_install_log 2>&1 &
-                else
-                    wo_install | tee -ai $wo_install_log
-                fi
+                wo_install
             fi
             if [ "$ufw" = "y" ]; then
                 wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
                 wo_ufw_setup &
             fi
             wo_lib_echo "Applying Kernel tweaks" | tee -ai $wo_install_log
-            wo_tweak_kernel >> $wo_install_log 2>&1 &
+            wo_tweak_kernel &
             if [ ! -f /opt/wo-kernel.sh ]; then
                 wo_lib_echo "Adding systemd service tweak" | tee -ai $wo_install_log
-                wo_systemd_tweak >> $wo_install_log 2>&1 &
+                wo_systemd_tweak &
             fi
             wo_lib_echo "Installing acme.sh" | tee -ai $wo_install_log
+            wo_install_acme_sh &
             wo_lib_echo "Running post-install steps " | tee -ai $wo_install_log
             {
-                wo_install_acme_sh &
                 secure_wo_db &
                 wo_cheat_install &
                 wo_domain_suffix &
