@@ -25,7 +25,7 @@ if not os.path.exists('/var/lib/wo/'):
     os.makedirs('/var/lib/wo/')
 
 setup(name='wo',
-      version='3.9.8.11',
+      version='3.9.8.12',
       description=long_description,
       long_description=long_description,
       classifiers=[],
@@ -46,7 +46,7 @@ setup(name='wo',
           # "nose",
           # "coverage",
           # Required to function
-          'cement == 2.8.0',
+          'cement == 2.8.2',
           'pystache',
           'python-apt',
           'pynginxconfig',

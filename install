@@ -837,8 +837,7 @@ else
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
     if [ "$ufw" = "y" ]; then
-        wo_lib_echo "Configuring UFW" | tee -ai $wo_install_log
-        wo_ufw_setup
+        _run wo_ufw_setup "Configuring UFW"
     fi
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
@@ -859,10 +858,10 @@ else
         _run wo_systemd_tweak "Adding systemd service tweak"
     fi
     if [ -x /usr/sbin/nginx ]; then
-        _run wo_nginx_tweak &
+        _run wo_nginx_tweak
     fi
     if [ -d /etc/systemd/system/mariadb.service.d ]; then
-        _run wo_mariadb_tweak &
+        _run wo_mariadb_tweak
     fi
     _run wo_cheat_install "Running post-install steps"
     _run wo_domain_suffix
