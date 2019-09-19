@@ -125,7 +125,7 @@ _run() {
 
 if [ -z "$wo_travis" ]; then
     if command_exists curl; then
-        apt-get update -qq &
+        apt-get update -qq
     else
         apt-get update -qq && apt-get -y install curl -qq > /dev/null 2>&1
     fi
@@ -144,7 +144,7 @@ echo ""
 ###
 # 1- Check whether lsb_release is installed, and if not, install it
 ###
-wait
+
 if ! command_exists lsb_release; then
     apt-get install lsb-release -qq
 fi
