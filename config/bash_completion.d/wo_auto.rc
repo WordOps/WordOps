@@ -94,7 +94,7 @@ _wo_complete()
                 ;;
 
             "edit" | "enable" | "info" | "log" | "show" | "cd" | "delete")
-                if [ ${COMP_WORDS[1]} == "log" ]; then
+                if [ ""${COMP_WORDS[1]}"" == "log" ]; then
                     COMPREPLY=( $(compgen \
                                   -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --access" \
                                   -- $cur) )
@@ -131,7 +131,7 @@ _wo_complete()
                 ;;
         esac
 
-        if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] && [ "$prev" != "--nginx" ] && [ "$prev" != "--php" ] && [ "$prev" != "--php73" ] && [ "$prev" != "--fpm" ] && [ "$prev" != "--fpm7" ] && [ "$prev" != "--mysql" ] && [ "$prev" != "-i" ] && [ "$prev" != "--interactive" ] && [ "$prev" != "--import-slow-log" ] && [ "$prev" != "--stop" ]); then
+        if [ ""${COMP_WORDS[1]}"" == "debug" ] && ([ "$prev" != "--start" ] && [ "$prev" != "--nginx" ] && [ "$prev" != "--php" ] && [ "$prev" != "--php73" ] && [ "$prev" != "--fpm" ] && [ "$prev" != "--fpm7" ] && [ "$prev" != "--mysql" ] && [ "$prev" != "-i" ] && [ "$prev" != "--interactive" ] && [ "$prev" != "--import-slow-log" ] && [ "$prev" != "--stop" ]); then
             retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
@@ -139,7 +139,7 @@ _wo_complete()
                           -- $cur) )
         fi
 
-        #if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
+        #if [ "${COMP_WORDS[1]}" == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
         #        retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
         #        ret="${retlist[@]/$prev}"
         #        COMPREPLY=( $(compgen \
@@ -148,7 +148,7 @@ _wo_complete()
         #fi
 
 
-    elif [ $COMP_CWORD -eq 4 ]; then
+    elif [ "$COMP_CWORD" -eq 4 ]; then
         case "$mprev" in
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
 
@@ -204,11 +204,11 @@ _wo_complete()
 
     case "$prev" in
         "--wp")
-            if [ ${COMP_WORDS[1]} != "debug" ]; then
-                if [ ${COMP_WORDS[2]} == "create" ]; then
+            if [ "${COMP_WORDS[1]}" != "debug" ]; then
+                if [ "${COMP_WORDS[2]}" == "create" ]; then
                     retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce --letsencrypt -le  --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_do --php73"
-                elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --wprocket --wpce -le --letsencrypt --letsencrypt=wildcard --letsencrypt=off --letsencrypt=clean -le=off -le=wildcard --dns --dns=dns_cf --dns=dns_do"
+                elif [ "${COMP_WORDS[2]}" == "update" ]; then
+                    retlist="--wp --wpfc --wpsc --php73 --php73=off --wpredis --wprocket --wpce -le --letsencrypt --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_do"
                 else
                     retlist=""
                 fi
@@ -223,11 +223,11 @@ _wo_complete()
             ;;
 
         "--wpsubdir" | "--wpsubdomain")
-            if [ ${COMP_WORDS[1]} != "debug" ]; then
-                if [ ${COMP_WORDS[2]} == "create" ]; then
+            if [ "${COMP_WORDS[1]}" != "debug" ]; then
+                if [ "${COMP_WORDS[2]}" == "create" ]; then
                     retlist="--wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce  -le -le=wildcard --letsencrypt --letsencrypt=wildcard --php73 --dns --dns=dns_cf --dns=dns_do"
-                elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wpfc --wpsc --php73 --php73=off --wpredis --wprocket --wpce -le -le=off -le=wildcard --letsencrypt --letsencrypt=wildcard --letsencrypt=off --letsencrypt=clean  --dns --dns=dns_cf --dns=dns_do"
+                elif [ "${COMP_WORDS[2]}" == "update" ]; then
+                    retlist="--wpfc --wpsc --php73 --php73=off --wpredis --wprocket --wpce -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_do"
                 else
                     retlist=""
                 fi
@@ -241,9 +241,9 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--wpredis --wprocket --wpce" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
-            if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --php73 -le -le=off -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_do"
+        "--wpredis" | "--wprocket" | "--wpce" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
+            if [ "${COMP_WORDS[2]}" == "create" ]; then
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --php73 -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_do"
             else
                 retlist=""
             fi
@@ -254,9 +254,9 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--wpredis --wprocket --wpce" | "--wpfc")
-            if [ ${COMP_WORDS[2]} == "update" ]; then
-                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce -le -le=off --letsencrypt --letsencrypt=off --letsencrypt=clean --dns --dns=dns_cf --dns=dns_do"
+        "--wpredis" | "--wprocket" | "--wpce" | "--wpfc")
+            if [ "${COMP_WORDS[2]}" == "update" ]; then
+                retlist="--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain -le --letsencrypt --dns --dns=dns_cf --dns=dns_do"
             else
                 retlist=""
             fi
@@ -268,23 +268,23 @@ _wo_complete()
             ;;
 
         "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--redis | --phpredisadmin | --netdata")
-            if [[ ${COMP_WORDS[2]} == "install" || ${COMP_WORDS[2]} == "purge" || ${COMP_WORDS[2]} == "remove" ]]; then
+            if [[ "${COMP_WORDS[2]}" == "install" || "${COMP_WORDS[2]}" == "purge" || "${COMP_WORDS[2]}" == "remove" ]]; then
                 retlist="--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --phpredisadmin --netdata -f --force"
-            elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
+            elif [[ "${COMP_WORDS[2]}" == "start" || "${COMP_WORDS[2]}" == "reload" || "${COMP_WORDS[2]}" == "restart" || "${COMP_WORDS[2]}" == "stop" ]]; then
                     retlist="--nginx --php --php73 --mysql --redis --netdata"
-            elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
+            elif [[ "${COMP_WORDS[1]}" == "debug" ]]; then
                     retlist="--start --nginx --php --php73 --fpm --fpm7 --mysql -i --interactive -stop --import-slow-log --import-slow-log-interval= -"
                     if [[ $prev == '--mysql' ]]; then
                         retlist="--start --nginx --php --php73 --fpm --fpm7 --mysql -i --interactive --stop --import-slow-log"
                     fi
-            elif [[ ${COMP_WORDS[1]} == "log" ]]; then
-                    if [ ${COMP_WORDS[2]} == "show" ]; then
+            elif [[ "${COMP_WORDS[1]}" == "log" ]]; then
+                    if [ "${COMP_WORDS[2]}" == "show" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp"
 
-                    elif [ ${COMP_WORDS[2]} == "reset" ]; then
+                    elif [ "${COMP_WORDS[2]}" == "reset" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --slow-log-db"
 
-                    elif [ ${COMP_WORDS[2]} == "mail" ]; then
+                    elif [ "${COMP_WORDS[2]}" == "mail" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --to="
 
                     fi
@@ -304,12 +304,12 @@ _wo_complete()
             ;;
 
         "--all")
-          if [ ${COMP_WORDS[1]} == "clean" ]; then
+          if [ "${COMP_WORDS[1]}" == "clean" ]; then
                   retlist="--opcache --fastcgi --redis"
-          elif [ ${COMP_WORDS[2]} == "delete" ]; then
+          elif [ "${COMP_WORDS[2]}" == "delete" ]; then
               retlist="--db --files --force"
-          elif [ ${COMP_WORDS[2]} == "update" ]; then
-            retlist="--password --php --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce -le -le=off -le=wildcard --letsencrypt  --letsencrypt=off "
+          elif [ "${COMP_WORDS[2]}" == "update" ]; then
+            retlist="--password --php --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce -le -le=off -le=wildcard --letsencrypt --letsencrypt=off "
           else
             retlist=""
           fi
@@ -333,16 +333,16 @@ _wo_complete()
                           -W "$(echo $ret)" \
                           -- $cur) )
             ;;
-        "--access" | "--fpm" | "--wp" | "--slow-log-db")
-            if [[ ${COMP_WORDS[1]} == "log" ]]; then
-                    if [ ${COMP_WORDS[2]} == "show" ]; then
+        "--access" | "--fpm" | "--slow-log-db")
+            if [[ "${COMP_WORDS[1]}" == "log" ]]; then
+                    if [ "${COMP_WORDS[2]}" == "show" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp"
 
-                    elif [ ${COMP_WORDS[2]} == "reset" ]; then
+                    elif [ "${COMP_WORDS[2]}" == "reset" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --slow-log-db"
 
 
-                    elif [ ${COMP_WORDS[2]} == "mail" ]; then
+                    elif [ "${COMP_WORDS[2]}" == "mail" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --to="
 
                     fi
@@ -357,7 +357,7 @@ _wo_complete()
         esac
         case "$mprev" in
             "--user" | "--email" | "--pass")
-                if [ ${COMP_WORDS[2]} == "create" ]; then
+                if [ "${COMP_WORDS[2]}" == "create" ]; then
                     retlist="--user --pass --email --html --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_do"
                 fi
                 ret="${retlist[@]/$prev}"

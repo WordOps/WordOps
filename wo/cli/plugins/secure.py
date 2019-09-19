@@ -10,6 +10,7 @@ from wo.core.logging import Log
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
+from wo.core.random import RANDOM
 
 
 def wo_secure_hook(app):
@@ -21,14 +22,17 @@ class WOSecureController(CementBaseController):
         label = 'secure'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('Secure command secure auth, ip and port')
+        description = (
+            'Secure command provide the ability to'
+            'adjust settings for backend and to harden server security.')
         arguments = [
             (['--auth'],
-                dict(help='secure auth', action='store_true')),
+                dict(help='secure backend authentification',
+                     action='store_true')),
             (['--port'],
-                dict(help='secure port', action='store_true')),
+                dict(help='set backend port', action='store_true')),
             (['--ip'],
-                dict(help='secure ip', action='store_true')),
+                dict(help='set backend whitelisted ip', action='store_true')),
             (['user_input'],
                 dict(help='user input', nargs='?', default=None)),
             (['user_pass'],
@@ -49,9 +53,7 @@ class WOSecureController(CementBaseController):
     def secure_auth(self):
         """This function secures authentication"""
         pargs = self.app.pargs
-        passwd = ''.join([random.choice
-                          (string.ascii_letters + string.digits)
-                          for n in range(24)])
+        passwd = RANDOM.long(self)
         if not pargs.user_input:
             username = input("Provide HTTP authentication user "
                              "name [{0}] :".format(WOVariables.wo_user))
