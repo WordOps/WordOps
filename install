@@ -123,6 +123,14 @@ _run() {
 
 }
 
+check_path() {
+    if [ -d "$1" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 if [ -z "$wo_travis" ]; then
     if command_exists curl; then
         apt-get update -qq
@@ -649,11 +657,31 @@ wo_git_init() {
 }
 
 wo_backup_ee() {
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /etc/nginx /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee /etc/letsencrypt
+    if [ -d /etc/nginx ]; then
+        local EE_NGINX="/etc/nginx"
+    else
+        local EE_NGINX=""
+    fi
+    if [ -d /etc/letsencrypt ]; then
+        local EE_LE="/etc/letsencrypt"
+    else
+        local EE_LE=""
+    fi
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" "$EE_NGINX" /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee "$EE_LE"
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo /etc/letsencrypt >> /var/log/wo/install.log 2>&1
+    if [ -d /etc/nginx ]; then
+        local WO_NGINX="/etc/nginx"
+    else
+        local WO_NGINX=""
+    fi
+    if [ -d /etc/letsencrypt ]; then
+        local WO_LE="/etc/letsencrypt"
+    else
+        local WO_LE=""
+    fi
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" "$WO_NGINX" /etc/wo /var/lib/wo "$WO_LE"
 }
 
 wo_clean_ee() {
