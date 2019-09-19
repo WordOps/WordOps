@@ -8,11 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.12 - 2019-09-19
+
 #### Changed
 
-- WP-CLI updated to v2.3.0
-- Improved SSL certificates management from previous letsencrypt or certbot install
-- Use a separate python file for gitconfig during installation to redirect setup.py output into logs
+- [APP] WP-CLI updated to v2.3.0
+- [CORE] Improved SSL certificates management from previous letsencrypt or certbot install
+- [CORE] Use a separate python file for gitconfig during installation to redirect setup.py output into logs
+- [CORE] updated cement to v2.8.2
+- [CORE] removed old `--experimental flag`
+- [CORE] Improve and simplify install script
 
 #### Fixed
 

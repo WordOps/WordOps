@@ -95,7 +95,8 @@ class WOSiteController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        (wo_domain, wo_www_domain) = WODomain.validatedomain(self,
+                                                             pargs.site_name)
         # check if site exists
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
