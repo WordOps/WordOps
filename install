@@ -671,21 +671,13 @@ wo_backup_ee() {
 }
 
 wo_backup_wo() {
-    if [ -d /etc/nginx ]; then
-        local WO_NGINX="/etc/nginx"
-    else
-        local WO_NGINX=""
-    fi
-    if [ -d /etc/letsencrypt ]; then
-        local WO_LE="/etc/letsencrypt"
-    else
-        local WO_LE=""
-    fi
     /bin/tar -I pigz -cf "$WO_BACKUP_FILE" "$WO_NGINX" /etc/wo /var/lib/wo "$WO_LE"
+    return 0
 }
 
 wo_clean_ee() {
     rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+    return 0
 }
 
 wo_remove_ee_cron() {
