@@ -279,18 +279,16 @@ wo_sync_db() {
         mkdir -p /var/lib/wo
 
         if [ -f /var/lib/ee/ee.db ]; then
-            # Copy the EasyEngine database
+            # Make a backup of the EasyEngine database
             cp /var/lib/ee/ee.db /var/lib/wo/dbase-ee.db
 
-            ###
-            # Clean WO installation
-            ###
-
+            # Copy ee database
             cp /var/lib/ee/ee.db /var/lib/wo/dbase.db
         else
+            if [ -d /etc/nginx/sites-available ]; then
 
-            # Create an empty database for WordOps
-            echo "CREATE TABLE sites (
+                # Create an empty database for WordOps
+                echo "CREATE TABLE sites (
            id INTEGER PRIMARY KEY     AUTOINCREMENT,
            sitename UNIQUE,
            site_type CHAR,
@@ -309,69 +307,69 @@ wo_sync_db() {
            php_version VARCHAR
             );" | sqlite3 /var/lib/wo/dbase.db
 
-            # Check site is enable/live or disable
-            AV_SITES="$(basename -a /etc/nginx/sites-available/* | grep -v default)"
-            for site in $AV_SITES; do
-                if [ -h "/etc/nginx/sites-enabled/$site" ]; then
-                    wo_site_status='1'
-                else
-                    wo_site_status='0'
-                fi
-
-                # Acquire information about the current nginx configuration
-
-                wo_site_current_type=$(grep "common/" "/etc/nginx/sites-available/$site" | awk -F "/" '{print $2}')
-
-                if echo "$wo_site_current_type" | grep -q "php"; then
-                    if echo "$wo_site_current_type" | grep -q "php7"; then
-                        wo_php_version="7.0"
+                # Check site is enable/live or disable
+                AV_SITES="$(basename -a /etc/nginx/sites-available/* | grep -v default)"
+                for site in $AV_SITES; do
+                    if [ -h "/etc/nginx/sites-enabled/$site" ]; then
+                        wo_site_status='1'
                     else
-                        wo_php_version="5.6"
+                        wo_site_status='0'
                     fi
-                else
-                    wo_php_version=""
-                fi
 
-                if echo "$wo_site_current_type" | grep -q "redis"; then
-                    wo_site_current_cache="wpredis"
-                elif echo "$wo_site_current_type" | grep -q wpsc; then
-                    wo_site_current_cache="wpsc"
-                elif echo "$wo_site_current_type" | grep -q wpfc; then
-                    wo_site_current_cache="wpfc"
-                else
-                    wo_site_current_cache="basic"
-                fi
+                    # Acquire information about the current nginx configuration
 
-                if echo "$wo_site_current_type" | grep -q wp; then
-                    if echo "$wo_site_current_type" | grep -q wpsubdir; then
-                        wo_site_current="wpsubdir"
-                    elif echo "$wo_site_current_type" | grep -q wpsudomain; then
-                        wo_site_current="wpsubdomain"
-                    else
-                        wo_site_current="wp"
-                    fi
-                else
-                    if echo "$wo_site_current_type" | grep -q location; then
-                        wo_site_current="proxy"
-                    elif echo "$wo_site_current_type" | grep -q php; then
-                        wo_site_current="html"
-                    else
-                        if [ -f "/var/www/${site}/ee-config.php" ] || [ -f "/var/www/${site}/wo-config.php" ]; then
-                            wo_site_current="mysql"
+                    wo_site_current_type=$(grep "common/" "/etc/nginx/sites-available/$site" | awk -F "/" '{print $2}')
+
+                    if echo "$wo_site_current_type" | grep -q "php"; then
+                        if echo "$wo_site_current_type" | grep -q "php7"; then
+                            wo_php_version="7.0"
                         else
-                            wo_site_current="php"
+                            wo_php_version="5.6"
+                        fi
+                    else
+                        wo_php_version=""
+                    fi
+
+                    if echo "$wo_site_current_type" | grep -q "redis"; then
+                        wo_site_current_cache="wpredis"
+                    elif echo "$wo_site_current_type" | grep -q wpsc; then
+                        wo_site_current_cache="wpsc"
+                    elif echo "$wo_site_current_type" | grep -q wpfc; then
+                        wo_site_current_cache="wpfc"
+                    else
+                        wo_site_current_cache="basic"
+                    fi
+
+                    if echo "$wo_site_current_type" | grep -q wp; then
+                        if echo "$wo_site_current_type" | grep -q wpsubdir; then
+                            wo_site_current="wpsubdir"
+                        elif echo "$wo_site_current_type" | grep -q wpsudomain; then
+                            wo_site_current="wpsubdomain"
+                        else
+                            wo_site_current="wp"
+                        fi
+                    else
+                        if echo "$wo_site_current_type" | grep -q location; then
+                            wo_site_current="proxy"
+                        elif echo "$wo_site_current_type" | grep -q php; then
+                            wo_site_current="html"
+                        else
+                            if [ -f "/var/www/${site}/ee-config.php" ] || [ -f "/var/www/${site}/wo-config.php" ]; then
+                                wo_site_current="mysql"
+                            else
+                                wo_site_current="php"
+                            fi
                         fi
                     fi
-                fi
 
-                wo_webroot="/var/www/$site"
+                    wo_webroot="/var/www/$site"
 
-                # Import the configuration into the WordOps SQLite database
-                echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
+                    # Import the configuration into the WordOps SQLite database
+                    echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
             VALUES (\"$site\", \"$wo_site_current\", \"$wo_site_current_cache\", \"$wo_webroot\", \"$wo_site_status\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/wo/dbase.db
 
-            done
-
+                done
+            fi
         fi
 
         #        echo "UPDATE sites SET php_version = REPLACE(php_version, '5.6', '7.2');" | sqlite3 /var/lib/wo/dbase.db
