@@ -9,7 +9,7 @@ templates = []
 
 long_description = '''WordOps  An essential toolset that eases WordPress
                       site and server administration. It provide the ability
-                      to Install a high performance WordPress stack
+                      to install a high performance WordPress stack
                       with a few keystrokes'''
 
 for name in glob.glob('config/plugins.d/*.conf'):
