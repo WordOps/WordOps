@@ -17,7 +17,7 @@ exit_script() {
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_list='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils'
+stack_list='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw'
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
     if {
@@ -151,8 +151,45 @@ for stack in $stack_upgrade; do
 done
 
 echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo clean              '
+echo -e "${CGREEN}#############################################${CEND}"
+stack_clean='fastcgi redis opcache all'
+for stack in $stack_clean; do
+    echo -ne "       cleaning $stack cache              [..]\r"
+    if {
+        wo stack clean --${stack}
+    } >> /var/log/wo/test.log; then
+        echo -ne "       cleaning $stack cache               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        cleaning $stack cache              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo stack purge              '
+echo -e "${CGREEN}#############################################${CEND}"
+stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw'
+for stack in $stack_purge; do
+    echo -ne "       purging $stack              [..]\r"
+    if {
+        wo stack purge --${stack} --force
+    } >> /var/log/wo/test.log; then
+        echo -ne "       purging $stack               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        purging $stack              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
-wo site info wp1.com
-wo stack purge --all --force
+wo site info wp.net

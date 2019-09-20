@@ -623,37 +623,6 @@ wo_update_latest() {
 
 }
 
-# Do git intialisation
-wo_git_init() {
-    # Nginx under git version control
-    [ -d /etc/nginx ] && {
-        cd /etc/nginx || exit 1
-        [ ! -d /etc/nginx/.git ] && {
-            git init
-        }
-        git add -A .
-        git commit -am "Updated Nginx"
-    }
-    # WordOps under git version control
-    [ -d /etc/wo ] && {
-        cd /etc/wo || exit 1
-        [ ! -d /etc/wo/.git ] && {
-            git init
-        }
-        git add -A .
-        git commit -am "Installed/Updated to WordOps"
-    }
-    # PHP under git version control
-    [ -d /etc/php ] && {
-        cd /etc/php || exit 1
-        [ ! -d /etc/php/.git ] && {
-            git init
-        }
-        git add -A .
-        git commit -am "Updated PHP"
-    }
-}
-
 wo_backup_ee() {
     if [ -d /etc/nginx ]; then
         local EE_NGINX="/etc/nginx"
@@ -860,10 +829,10 @@ else
         # _run wo_ufw_setup "Configuring UFW"
     #fi
     # skip steps if travis
+    _run wo_download "Downloading WordOps"
     if [ -z "$wo_travis" ]; then
         _run wo_dist_upgrade
-        _run wo_download "Downloading WordOps"
-        wo_git_config
+         wo_git_config
         _run wo_install "Installing WordOps"
     else
         _run wo_install_travis "Installing WordOps"
