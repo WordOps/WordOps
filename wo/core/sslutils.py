@@ -119,7 +119,7 @@ class SSL:
 
         return iswildcard
 
-    def setupHsts(self, wo_domain_name):
+    def setuphsts(self, wo_domain_name):
         Log.info(
             self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
             .format(wo_domain_name))

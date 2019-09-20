@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.8.12 - 2019-09-20
+
+#### Changed
+
+- [APP] WP-CLI updated to v2.3.0
+- [CORE] Improved SSL certificates management from previous letsencrypt or certbot install
+- [CORE] Use a separate python file for gitconfig during installation to redirect setup.py output into logs
+- [CORE] updated cement to v2.8.2
+- [CORE] removed old `--experimental flag`
+- [CORE] Improve and simplify install script
+
+#### Fixed
+
+- htpasswd protection when migrating from EasyEngine v3 [Issue #152](https://github.com/WordOps/WordOps/issues/152)
+- acme.sh install when migration from EasyEngine v3 [Issue #153](https://github.com/WordOps/WordOps/issues/153)
+
 ### v3.9.8.11 - 2019-09-06
 
 #### Changed

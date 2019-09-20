@@ -2,7 +2,7 @@
 import os
 import sys
 
-from cement.core import foundation
+from cement.core.foundation import CementApp
 from cement.core.exc import CaughtSignal, FrameworkError
 from cement.ext.ext_argparse import ArgParseArgumentHandler
 from cement.utils.misc import init_defaults
@@ -40,7 +40,7 @@ class WOArgHandler(ArgParseArgumentHandler):
         super(WOArgHandler, self).error("unknown args")
 
 
-class WOApp(foundation.CementApp):
+class WOApp(CementApp):
     class Meta:
         label = 'wo'
 

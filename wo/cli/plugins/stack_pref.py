@@ -780,22 +780,22 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             with open("/etc/php/7.3/fpm/pool.d/debug.conf",
                       encoding='utf-8', mode='a') as myfile:
-                myfile.write("php_admin_value[xdebug.profiler_output_dir] "
-                             "= /tmp/ \nphp_admin_value[xdebug.profiler_"
-                             "output_name] = cachegrind.out.%p-%H-%R "
-                             "\nphp_admin_flag[xdebug.profiler_enable"
-                             "_trigger] = on \nphp_admin_flag[xdebug."
-                             "profiler_enable] = off\n")
+                myfile.write(
+                    "php_admin_value[xdebug.profiler_output_dir] "
+                    "= /tmp/ \nphp_admin_value[xdebug.profiler_"
+                    "output_name] = cachegrind.out.%p-%H-%R "
+                    "\nphp_admin_flag[xdebug.profiler_enable"
+                    "_trigger] = on \nphp_admin_flag[xdebug."
+                    "profiler_enable] = off\n")
 
             # Disable xdebug
-            if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\'"
-                                        " /etc/php/7.3/mods-available"
-                                        "/xdebug.ini"):
-                WOFileUtils.searchreplace(self, "/etc/php/7.3/"
-                                          "mods-available/"
-                                          "xdebug.ini",
-                                          "zend_extension",
-                                          ";zend_extension")
+            if not WOShellExec.cmd_exec(
+                    self, "grep -q \';zend_extension\'"
+                    " /etc/php/7.3/mods-available/xdebug.ini"):
+                WOFileUtils.searchreplace(
+                    self, "/etc/php/7.3/mods-available/"
+                    "xdebug.ini",
+                    "zend_extension", ";zend_extension")
 
             # PHP and Debug pull configuration
             if not os.path.exists('{0}22222/htdocs/fpm/status/'
@@ -892,20 +892,21 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 Log.info(self, "Configuring Fail2Ban")
                 data = dict()
-                WOTemplate.render(self,
-                                  '/etc/fail2ban/jail.d/custom.conf',
-                                  'fail2ban.mustache',
-                                  data, overwrite=False)
-                WOTemplate.render(self,
-                                  '/etc/fail2ban/filter.d/'
-                                  'wo-wordpress.conf',
-                                  'fail2ban-wp.mustache',
-                                  data, overwrite=False)
-                WOTemplate.render(self,
-                                  '/etc/fail2ban/filter.d/'
-                                  'nginx-forbidden.conf',
-                                  'fail2ban-forbidden.mustache',
-                                  data, overwrite=False)
+                WOTemplate.render(
+                    self,
+                    '/etc/fail2ban/jail.d/custom.conf',
+                    'fail2ban.mustache',
+                    data, overwrite=False)
+                WOTemplate.render(
+                    self,
+                    '/etc/fail2ban/filter.d/wo-wordpress.conf',
+                    'fail2ban-wp.mustache',
+                    data, overwrite=False)
+                WOTemplate.render(
+                    self,
+                    '/etc/fail2ban/filter.d/nginx-forbidden.conf',
+                    'fail2ban-forbidden.mustache',
+                    data, overwrite=False)
 
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
@@ -916,22 +917,18 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
                 Log.info(self, "Configuring ProFTPd")
                 Log.debug(self, "Setting up Proftpd configuration")
-                WOFileUtils.searchreplace(self, "/etc/proftpd/"
-                                          "proftpd.conf",
-                                          "# DefaultRoot",
-                                          "DefaultRoot")
-                WOFileUtils.searchreplace(self, "/etc/proftpd/"
-                                          "proftpd.conf",
-                                          "# RequireValidShell",
-                                          "RequireValidShell")
-                WOFileUtils.searchreplace(self, "/etc/proftpd/"
-                                          "proftpd.conf",
-                                          "# PassivePorts "
-                                          "                 "
-                                          "49152 65534",
-                                          "PassivePorts "
-                                          "             "
-                                          "    49000 50000")
+                WOFileUtils.searchreplace(
+                    self, "/etc/proftpd/proftpd.conf",
+                    "# DefaultRoot", "DefaultRoot")
+                WOFileUtils.searchreplace(
+                    self, "/etc/proftpd/proftpd.conf",
+                    "# RequireValidShell", "RequireValidShell")
+                WOFileUtils.searchreplace(
+                    self, "/etc/proftpd/proftpd.conf",
+                    "# PassivePorts                  "
+                    "49152 65534",
+                    "PassivePorts              "
+                    "    49000 50000")
             # proftpd TLS configuration
             if not os.path.isdir("/etc/proftpd/ssl"):
                 WOFileUtils.mkdir(self, "/etc/proftpd/ssl")
@@ -1361,9 +1358,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
                                          '/anemometer/install.sql'
                                          .format(WOVariables.wo_webroot))
-                except CommandExecutionError as e:
+                except Exception as e:
                     Log.debug(self, "{0}".format(e))
-                    raise SiteError("Unable to import Anemometer database")
+                    Log.error(self, "failed to configure Anemometer",
+                              exit=False)
 
                 WOMysql.execute(self, 'grant select on'
                                 ' *.* to \'anemometer\''

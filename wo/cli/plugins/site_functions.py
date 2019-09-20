@@ -1548,23 +1548,6 @@ def renewLetsEncrypt(self, wo_domain_name):
 # redirect= False to disable https redirection
 
 
-def setupHsts(self, wo_domain_name):
-    Log.info(
-        self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
-        .format(wo_domain_name))
-
-    hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
-                    .format(wo_domain_name),
-                    encoding='utf-8', mode='w')
-    hstsconf.write("more_set_headers "
-                   "\"Strict-Transport-Security: "
-                   "max-age=31536000; "
-                   "includeSubDomains; "
-                   "preload\";")
-    hstsconf.close()
-    return 0
-
-
 def httpsRedirect(self, wo_domain_name, redirect=True, wildcard=False):
     if redirect:
         if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"

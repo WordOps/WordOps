@@ -3,7 +3,8 @@ import os
 from urllib.parse import urlparse
 
 
-class DMN():
+class WODomain():
+    """WordOps domain validation utilities"""
 
     def validatedomain(self, url):
         """
