@@ -1,5 +1,5 @@
 sudo: required
-dist: bionic
+dist: xenial
 
 language: bash
 
@@ -21,10 +21,11 @@ before_install:
 before_script:
   - sudo rm -rf /etc/mysql
   - sudo bash -c 'echo example.com > /etc/hostname'
-  - sudo apt-get -qq purge mysql* graphviz* redis*
-  - sudo apt-get -qq autoremove --purge
   - unset LANG
-  - sudo apt-get install --assume-yes --quiet git python3-setuptools python3-dev python3-apt ccze tree
+  - sudo apt-get -qq purge mysql* graphviz* redis*
+  - sudo apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
+  - sudo apt-get -qq autoremove --purge
+
 
 after_script:
   - sudo cat /etc/nginx/nginx.conf | ccze -A
