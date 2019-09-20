@@ -669,7 +669,7 @@ wo_backup_ee() {
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" "$WO_NGINX" /etc/wo /var/lib/wo "$WO_LE"
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo "$WO_LE"
     return 0
 }
 
@@ -856,9 +856,9 @@ else
     fi
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
-    if [ "$ufw" = "y" ]; then
-        _run wo_ufw_setup "Configuring UFW"
-    fi
+    #if [ "$ufw" = "y" ]; then
+        # _run wo_ufw_setup "Configuring UFW"
+    #fi
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
         _run wo_dist_upgrade

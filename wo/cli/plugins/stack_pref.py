@@ -975,6 +975,24 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                       msg="Adding ProFTPd into Git")
             WOService.reload_service(self, 'proftpd')
 
+        if "ufw" in apt_packages:
+            # check if ufw is already enabled
+            if not WOFileUtils.grep(self,
+                                    '/etc/ufw/ufw.conf', 'ENABLED=yes'):
+                Log.wait(self, "Configuring UFW")
+                # check if ufw script is already created
+                if not os.path.isfile("/opt/ufw.sh"):
+                    data = dict()
+                    WOTemplate.render(self, '/opt/ufw.sh',
+                                      'ufw.mustache',
+                                      data, overwrite=False)
+                    WOFileUtils.chmod(self, "/opt/ufw.sh", 0o700)
+                # setup ufw rules
+                WOShellExec.cmd_exec(self, "bash /opt/ufw.sh")
+                Log.valide(self, "Configuring UFW")
+            else:
+                Log.info(self, "UFW is already installed and enabled")
+
         # Redis configuration
         if "redis-server" in apt_packages:
             if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):

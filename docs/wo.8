@@ -11,9 +11,9 @@ wo stack [ status | start | stop | reload | restart ] [--all | --nginx | --php |
 .TP
 wo site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-wo site create example.com [ --html | --php | --php73 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --letsencrypt/-le/--letsencrypt=subdomain/wildcard][--dns/--dns=dns_cf/dns_do]]
+wo site create example.com [ --html | --php | --php73 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --letsencrypt/-le/--letsencrypt=wildcard][--dns/--dns=dns_cf/dns_do]]
 .TP
-wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ] [--password] [-le/--letsencrypt/--letsencrypt=on/off/subdomain/renew/wildcard/clean/purge] [--dns/--dns=dns_cf/dns_do]]
+wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ] [--password] [-le/--letsencrypt/--letsencrypt=on/off/wildcard/clean/purge] [--dns/--dns=dns_cf/dns_do]]
 .TP
 wo site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
 .TP

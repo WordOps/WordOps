@@ -88,6 +88,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install Fail2ban stack', action='store_true')),
             (['--clamav'],
                 dict(help='Install ClamAV stack', action='store_true')),
+            (['--ufw'],
+                dict(help='Install UFW stack', action='store_true')),
             (['--sendmail'],
                 dict(help='Install Sendmail stack', action='store_true')),
             (['--utils'],
@@ -129,11 +131,13 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
+                (not pargs.ufw) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                     (not pargs.php73)):
                 pargs.web = True
                 pargs.admin = True
                 pargs.fail2ban = True
+                pargs.ufw = True
 
             if pargs.all:
                 pargs.web = True
@@ -164,6 +168,7 @@ class WOStackController(CementBaseController):
             if pargs.security:
                 pargs.fail2ban = True
                 pargs.clamav = True
+                pargs.ufw = True
 
             # Nginx
             if pargs.nginx:
@@ -269,6 +274,11 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "ClamAV already installed")
                     Log.info(self, "ClamAV already installed")
+
+            # UFW
+            if pargs.ufw:
+                Log.debug(self, "Setting apt_packages variable for UFW")
+                apt_packages = apt_packages + ["ufw"]
 
             # sendmail
             if pargs.sendmail:
@@ -518,6 +528,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
+                (not pargs.ufw) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
             pargs.web = True
@@ -551,6 +562,7 @@ class WOStackController(CementBaseController):
         if pargs.security:
             pargs.fail2ban = True
             pargs.clamav = True
+            pargs.ufw = True
 
         # NGINX
         if pargs.nginx:
@@ -619,6 +631,11 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Remove apt_packages variable for ProFTPd")
                 apt_packages = apt_packages + ["proftpd-basic"]
+
+        # UFW
+        if pargs.ufw:
+            Log.debug(self, "Remove apt_packages variable for UFW")
+            apt_packages = apt_packages + ["ufw"]
 
         # WPCLI
         if pargs.wpcli:
@@ -739,6 +756,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
+                (not pargs.ufw) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
             pargs.web = True
@@ -771,6 +789,7 @@ class WOStackController(CementBaseController):
         if pargs.security:
             pargs.fail2ban = True
             pargs.clamav = True
+            pargs.ufw = True
 
         # NGINX
         if pargs.nginx:
@@ -828,6 +847,11 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for ClamAV")
             if WOAptGet.is_installed(self, 'clamav'):
                 apt_packages = apt_packages + WOVariables.wo_clamav
+
+        # UFW
+        if pargs.ufw:
+            Log.debug(self, "Remove apt_packages variable for UFW")
+            apt_packages = apt_packages + ["ufw"]
 
         # sendmail
         if pargs.sendmail:
