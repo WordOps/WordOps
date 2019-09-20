@@ -174,6 +174,12 @@ for stack in $stack_clean; do
 done
 
 echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       various informations             '
+echo -e "${CGREEN}#############################################${CEND}"
+wp --allow-root --info
+wo site info wp.net
+
+echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
 stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw'
@@ -191,9 +197,3 @@ for stack in $stack_purge; do
 
     fi
 done
-
-echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       various informations             '
-echo -e "${CGREEN}#############################################${CEND}"
-wp --allow-root --info
-wo site info wp.net
