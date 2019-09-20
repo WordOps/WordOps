@@ -794,12 +794,12 @@ class WOStackController(CementBaseController):
         # NGINX
         if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
-                Log.debug(self, "Purge apt_packages variable of Nginx")
+                Log.debug(self, "Add Nginx to apt_packages list")
                 apt_packages = apt_packages + WOVariables.wo_nginx
 
         # PHP
         if pargs.php:
-            Log.debug(self, "Purge apt_packages variable PHP")
+            Log.debug(self, "Add PHP to apt_packages list")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
                     apt_packages = apt_packages + WOVariables.wo_php + \
@@ -819,50 +819,53 @@ class WOStackController(CementBaseController):
 
         # REDIS
         if pargs.redis:
-            Log.debug(self, "Remove apt_packages variable of Redis")
-            apt_packages = apt_packages + ["redis-server"]
+            if WOAptGet.is_installed(self, 'redis-server'):
+                Log.debug(self, "Remove apt_packages variable of Redis")
+                apt_packages = apt_packages + ["redis-server"]
 
         # MariaDB
         if pargs.mysql:
-            Log.debug(self, "Removing apt_packages variable of MySQL")
-            apt_packages = apt_packages + ['mariadb-server', 'mysql-common',
-                                           'mariadb-client']
-            packages = packages + ['/etc/mysql', '/var/lib/mysql']
+            if WOAptGet.is_installed(self, 'mariadb-server'):
+                Log.debug(self, "Removing apt_packages variable of MySQL")
+                apt_packages = apt_packages + ['mariadb-server',
+                                               'mysql-common',
+                                               'mariadb-client']
+                packages = packages + ['/etc/mysql', '/var/lib/mysql']
 
         # mysqlclient
         if pargs.mysqlclient:
-            Log.debug(self, "Removing apt_packages variable "
-                      "for MySQL Client")
             if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+                Log.debug(self, "Add MySQL client to apt_packages list")
                 apt_packages = apt_packages + WOVariables.wo_mysql_client
 
         # fail2ban
         if pargs.fail2ban:
             if WOAptGet.is_installed(self, 'fail2ban'):
-                Log.debug(self, "Remove apt_packages variable of Fail2ban")
+                Log.debug(self, "Add Fail2ban to apt_packages list")
                 apt_packages = apt_packages + WOVariables.wo_fail2ban
 
         # ClamAV
         if pargs.clamav:
-            Log.debug(self, "Setting apt_packages variable for ClamAV")
+            Log.debug(self, "Add ClamAV to apt_packages list")
             if WOAptGet.is_installed(self, 'clamav'):
                 apt_packages = apt_packages + WOVariables.wo_clamav
 
         # UFW
         if pargs.ufw:
-            Log.debug(self, "Remove apt_packages variable for UFW")
-            apt_packages = apt_packages + ["ufw"]
+            if WOAptGet.is_installed(self, 'ufw'):
+                Log.debug(self, "Add UFW to apt_packages list")
+                apt_packages = apt_packages + ["ufw"]
 
         # sendmail
         if pargs.sendmail:
-            Log.debug(self, "Setting apt_packages variable for Sendmail")
             if WOAptGet.is_installed(self, 'sendmail'):
+                Log.debug(self, "Add sendmail to apt_packages list")
                 apt_packages = apt_packages + ["sendmail"]
 
         # proftpd
         if pargs.proftpd:
             if WOAptGet.is_installed(self, 'proftpd-basic'):
-                Log.debug(self, "Purge apt_packages variable for ProFTPd")
+                Log.debug(self, "Add Proftpd to apt_packages list")
                 apt_packages = apt_packages + ["proftpd-basic"]
 
         # WP-CLI
@@ -945,8 +948,10 @@ class WOStackController(CementBaseController):
                 WOService.stop_service(self, 'fail2ban')
 
             if (set(["mariadb-server"]).issubset(set(apt_packages))):
-                WOMysql.backupAll(self)
-                WOService.stop_service(self, 'mysql')
+                if (os.path.isfile('/usr/bin/mysql') and
+                        os.path.isdir('/var/lib/mysql')):
+                    WOMysql.backupAll(self)
+                    WOService.stop_service(self, 'mysql')
 
             # Netdata uninstaller
             if (set(['/var/lib/wo/tmp/'
