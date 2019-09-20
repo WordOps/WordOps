@@ -826,13 +826,13 @@ else
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
     #if [ "$ufw" = "y" ]; then
-        # _run wo_ufw_setup "Configuring UFW"
+    # _run wo_ufw_setup "Configuring UFW"
     #fi
     # skip steps if travis
-    _run wo_download "Downloading WordOps"
     if [ -z "$wo_travis" ]; then
+        _run wo_download "Downloading WordOps"
         _run wo_dist_upgrade
-         wo_git_config
+        wo_git_config
         _run wo_install "Installing WordOps"
     else
         _run wo_install_travis "Installing WordOps"
