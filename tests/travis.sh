@@ -157,7 +157,7 @@ stack_clean='fastcgi redis opcache all'
 for stack in $stack_clean; do
     echo -ne "       cleaning $stack cache              [..]\r"
     if {
-        wo stack clean --${stack}
+        wo clean --${stack}
     } >> /var/log/wo/test.log; then
         echo -ne "       cleaning $stack cache               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
