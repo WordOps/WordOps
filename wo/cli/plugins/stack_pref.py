@@ -21,9 +21,9 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
+from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
-from wo.core.sslutils import SSL
 
 
 def pre_pref(self, apt_packages):
@@ -1170,9 +1170,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 Log.info(self, "Updating phpMyAdmin, please wait...")
                 WOShellExec.cmd_exec(
                     self, "/usr/local/bin/composer update "
-                    "--no-plugins --no-scripts "
-                    "-n --no-dev -d "
-                    "/var/www/22222/htdocs/db/pma/ &")
+                    "--no-plugins --no-scripts -n --no-dev -d "
+                    "/var/www/22222/htdocs/db/pma/")
                 WOFileUtils.chown(
                     self, '{0}22222/htdocs/db/pma'
                     .format(WOVariables.wo_webroot),
@@ -1189,12 +1188,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             .format(WOVariables.wo_webroot))
             if not os.path.isfile('/var/www/22222/htdocs/cache/redis/'
                                   'phpRedisAdmin/composer.lock'):
-                WOShellExec.cmd_exec(self, "/usr/local/bin/composer "
-                                     "create-project --no-plugins "
-                                     "--no-scripts -n -s dev "
-                                     "erik-dubbelboer/php-redis-admin "
-                                     "/var/www/22222/htdocs/cache"
-                                     "/redis/phpRedisAdmin &")
+                WOShellExec.cmd_exec(
+                    self, "/usr/local/bin/composer "
+                    "create-project --no-plugins --no-scripts -n -s dev "
+                    "erik-dubbelboer/php-redis-admin "
+                    "/var/www/22222/htdocs/cache/redis/phpRedisAdmin")
             WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
                               'www-data',

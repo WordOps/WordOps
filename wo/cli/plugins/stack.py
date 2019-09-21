@@ -796,6 +796,8 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 Log.debug(self, "Add Nginx to apt_packages list")
                 apt_packages = apt_packages + WOVariables.wo_nginx
+            else:
+                Log.info(self, "Nginx is not installed")
 
         # PHP
         if pargs.php:
@@ -822,15 +824,20 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'redis-server'):
                 Log.debug(self, "Remove apt_packages variable of Redis")
                 apt_packages = apt_packages + ["redis-server"]
+            else:
+                Log.info(self, "Redis is not installed")
+
 
         # MariaDB
         if pargs.mysql:
             if WOAptGet.is_installed(self, 'mariadb-server'):
-                Log.debug(self, "Removing apt_packages variable of MySQL")
+                Log.debug(self, "Add MySQL to apt_packages list")
                 apt_packages = apt_packages + ['mariadb-server',
                                                'mysql-common',
                                                'mariadb-client']
                 packages = packages + ['/etc/mysql', '/var/lib/mysql']
+            else:
+                Log.info(self, "MariaDB is not installed")
 
         # mysqlclient
         if pargs.mysqlclient:
