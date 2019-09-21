@@ -11,6 +11,7 @@ from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
 from wo.core.random import RANDOM
+from wo.core.template import WOTemplate
 
 
 def wo_secure_hook(app):
@@ -33,6 +34,13 @@ class WOSecureController(CementBaseController):
                 dict(help='set backend port', action='store_true')),
             (['--ip'],
                 dict(help='set backend whitelisted ip', action='store_true')),
+            (['--ssh-port'], dict(
+                help='set custom ssh port', action='store_true')),
+            (['--ssh-strict'], dict(help='harden ssh security',
+                                    action='store_true')),
+            (['--ufw'],
+                dict(help='setup and configure ufw firewall',
+                     action='store_true')),
             (['user_input'],
                 dict(help='user input', nargs='?', default=None)),
             (['user_pass'],

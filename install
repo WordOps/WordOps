@@ -877,7 +877,7 @@ else
         wo_lib_echo "WordOps (wo) installed successfully"
         echo
         wo_lib_echo "To enable bash-completion, just use the command:"
-        wo_lib_echo_info "bash"
+        wo_lib_echo_info "bash -l"
         echo
         wo_lib_echo "To install WordOps recommended stacks, you can use the command:"
         wo_lib_echo_info "wo stack install"

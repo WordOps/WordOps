@@ -74,7 +74,7 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--recommended --web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --dashboard --proftpd --clamav --mysqlclient --mysqltuner --extplorer --all" \
+                              -W "--recommended --web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --dashboard --proftpd --clamav --mysqlclient --mysqltuner --extplorer --all --force" \
                               -- $cur) )
                 ;;
             "upgrade" )
