@@ -1,16 +1,6 @@
 """Stack Plugin for WordOps"""
 
-import codecs
-import configparser
 import os
-import pwd
-import random
-import re
-import shutil
-import string
-
-import psutil
-import requests
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
@@ -21,18 +11,13 @@ from wo.cli.plugins.stack_migrate import WOStackMigrateController
 from wo.cli.plugins.stack_pref import post_pref, pre_pref
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
-from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
-from wo.core.cron import WOCron
 from wo.core.download import WODownload
-from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
-from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
-from wo.core.shellexec import CommandExecutionError, WOShellExec
-from wo.core.template import WOTemplate
+from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
 
 
