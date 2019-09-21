@@ -502,7 +502,9 @@ class WOStackController(CementBaseController):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
                 Log.debug(self, "Calling post_pref")
+                Log.wait(self, "Configuring packages")
                 post_pref(self, [], packages)
+                Log.valide(self, "Configuring packages")
 
             if disp_msg:
                 if (self.msg):

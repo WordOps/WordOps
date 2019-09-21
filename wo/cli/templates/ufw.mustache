@@ -58,8 +58,4 @@ wo_ufw_setup() {
     fi
 }
 
-if { wo_ufw_setup; }; then
-    return 0
-else
-    return 1
-fi
+wo_ufw_setup

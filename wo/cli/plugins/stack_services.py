@@ -14,7 +14,6 @@ class WOStackStatusController(CementBaseController):
         label = 'stack_services'
         stacked_on = 'stack'
         stacked_type = 'embedded'
-        exit_on_close = True
         description = 'Check the stack status'
 
     @expose(help="Start stack services")
