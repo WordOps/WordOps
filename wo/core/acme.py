@@ -12,9 +12,9 @@ from wo.core.variables import WOVariables
 class WOAcme:
     """Acme.sh utilities for WordOps"""
 
-    def setupletsencrypt(self, acme_domain, acmedata):
+    def setupletsencrypt(self, acme_domains, acmedata):
         """issue SSL certificates with acme.sh"""
-        all_domains = '\' -d \''.join(acme_domain)
+        all_domains = '\' -d \''.join(acme_domains)
         wo_acme_dns = acmedata['acme_dns']
         keylenght = "{0}".format(self.app.config.get('letsencrypt',
                                                      'keylength'))
@@ -45,7 +45,7 @@ class WOAcme:
                     "set your DNS API credentials for acme.sh")
             else:
                 server_ip = requests.get('http://v4.wordops.eu/').text
-                for domain in wo_domain:
+                for domain in acme_domains:
                     domain_ip = requests.get('http://v4.wordops.eu/dns/{0}/'
                                              .format(domain)).text
                     if(not domain_ip == server_ip):
