@@ -10,11 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- [APP] WordOps dashboard updated to v1.2. Shipped as a html file, it can be used without PHP stack
+- [APP] WordOps dashboard updated to v1.2, shipped as a html file, it can be used without PHP stack
 
 #### Fixed
 
 - `wo stack purge --all` failure if mysql isn't installed
+- Fix EEv3 files cleanup
 
 ### v3.9.8.12 - 2019-09-20
 
