@@ -1416,10 +1416,13 @@ class WOSiteUpdateController(CementBaseController):
                         else:
                             Log.debug(self, "Setup Cert with acme.sh for {0}"
                                       .format(wo_domain))
-                            WOAcme.setupletsencrypt(
-                                self, acme_domains, acmedata)
+                            if WOAcme.setupletsencrypt(
+                                self, acme_domains, acmedata):
+                                WOAcme.deploycert(self, wo_domain)
                     else:
-                        WOAcme.setupletsencrypt(self, acme_domains, acmedata)
+                        if WOAcme.setupletsencrypt(
+                            self, acme_domains, acmedata):
+                            WOAcme.deploycert(self, wo_domain)
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),
