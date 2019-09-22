@@ -62,8 +62,9 @@ class WOAcme:
                         "You can find more informations in "
                         "/var/log/wo/wordops.log", False)
             return False
-        Log.valide(self, "Issuing SSL cert with acme.sh")
-        return True
+        else:
+            Log.valide(self, "Issuing SSL cert with acme.sh")
+            return True
 
     def deploycert(self, wo_domain_name):
         wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
