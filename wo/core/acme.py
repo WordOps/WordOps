@@ -30,12 +30,10 @@ class WOAcme:
 
         Log.info(self, "Validation mode : {0}".format(validation_mode))
         Log.wait(self, "Issuing SSL cert with acme.sh")
-        try:
-            WOShellExec.cmd_exec(
+        if not WOShellExec.cmd_exec(
                 self, "{0} ".format(wo_acme_exec) +
                 "--issue -d '{0}' {1} -k {2} -f"
-                .format(all_domains, acme_mode, keylenght))
-        except Exception as e:
+                .format(all_domains, acme_mode, keylenght)):
             Log.failed(self, "Issuing SSL cert with acme.sh")
             Log.debug(self, str(e))
             if acmedata['dns'] is True:
