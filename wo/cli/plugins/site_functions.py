@@ -1594,7 +1594,7 @@ def setuprocketchat(self):
     if ((not WOVariables.wo_platform_codename == 'bionic') and
             (not WOVariables.wo_platform_codename == 'xenial')):
         Log.info(self, "Rocket.chat is only available on Ubuntu 16.04 "
-        "& 18.04 LTS")
+                 "& 18.04 LTS")
         return False
     else:
         if not WOAptGet.is_installed(self, 'snapd'):

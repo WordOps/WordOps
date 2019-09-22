@@ -759,11 +759,14 @@ class WOSiteCreateController(CementBaseController):
                     acme_wildcard = False
 
                 if acme_subdomain is True:
+                    Log.info(self, "Certificate type : subdomain")
                     acme_domains = acme_domains + ['{0}'.format(wo_domain)]
                 elif acme_wildcard is True:
+                    Log.info(self, "Certificate type : wildcard")
                     acme_domains = acme_domains + ['{0}'.format(wo_domain),
                                                    '*.{0}'.format(wo_domain)]
                 else:
+                    Log.info(self, "Certificate type : domain")
                     acme_domains = acme_domains + ['{0}'.format(wo_domain),
                                                    'www.{0}'.format(wo_domain)]
 
@@ -1388,11 +1391,14 @@ class WOSiteUpdateController(CementBaseController):
                         acmedata['acme_dns'] = pargs.dns
                 # Set list of domains to secure
                 if acme_subdomain is True:
+                    Log.info(self, "Certificate type : subdomain")
                     acme_domains = acme_domains + ['{0}'.format(wo_domain)]
                 elif acme_wildcard is True:
+                    Log.info(self, "Certificate type : wildcard")
                     acme_domains = acme_domains + ['{0}'.format(wo_domain),
                                                    '*.{0}'.format(wo_domain)]
                 else:
+                    Log.info(self, "Certificate type : domain")
                     acme_domains = acme_domains + ['{0}'.format(wo_domain),
                                                    'www.{0}'.format(wo_domain)]
 
