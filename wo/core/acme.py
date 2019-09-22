@@ -35,7 +35,6 @@ class WOAcme:
                 "--issue -d '{0}' {1} -k {2} -f"
                 .format(all_domains, acme_mode, keylenght)):
             Log.failed(self, "Issuing SSL cert with acme.sh")
-            Log.debug(self, str(e))
             if acmedata['dns'] is True:
                 Log.warn(
                     self, "Please make sure your properly "
