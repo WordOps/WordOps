@@ -269,9 +269,9 @@ _wo_complete()
 
         "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--redis | --phpredisadmin | --netdata")
             if [[ "${COMP_WORDS[2]}" == "install" || "${COMP_WORDS[2]}" == "purge" || "${COMP_WORDS[2]}" == "remove" ]]; then
-                retlist="--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --phpredisadmin --netdata -f --force"
+                retlist="--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --phpredisadmin --netdata --force"
             elif [[ "${COMP_WORDS[2]}" == "start" || "${COMP_WORDS[2]}" == "reload" || "${COMP_WORDS[2]}" == "restart" || "${COMP_WORDS[2]}" == "stop" ]]; then
-                    retlist="--nginx --php --php73 --mysql --redis --netdata"
+                    retlist="--nginx --php --php73 --mysql --redis --netdata --fail2ban"
             elif [[ "${COMP_WORDS[1]}" == "debug" ]]; then
                     retlist="--start --nginx --php --php73 --fpm --fpm7 --mysql -i --interactive -stop --import-slow-log --import-slow-log-interval= -"
                     if [[ $prev == '--mysql' ]]; then

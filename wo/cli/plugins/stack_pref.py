@@ -950,10 +950,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'proftpd')
 
             # add rule for proftpd with UFW
-            if os.path.isdir('/etc/ufw'):
+            if WOFileUtils.grepcheck(
+                    self, '/etc/ufw/ufw.conf', 'ENABLED=yes'):
                 try:
                     WOShellExec.cmd_exec(
-                        self, "ufw allow 21")
+                        self, "ufw limit 21")
                     WOShellExec.cmd_exec(
                         self, "ufw allow 49000:50000/tcp")
                     WOShellExec.cmd_exec(
@@ -1270,7 +1271,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               "| cut -d ' ' -f 2").read()
             if (wo_wan != 'eth0' and wo_wan != ''):
                 WOFileUtils.searchreplace(self,
-                                          "{0}22222/htdocs/index.php"
+                                          "{0}22222/htdocs/index.html"
                                           .format(WOVariables.wo_webroot),
                                           "eth0",
                                           "{0}".format(wo_wan))

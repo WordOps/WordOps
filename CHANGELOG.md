@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- [APP] WordOps dashboard updated to v1.2. Shipped as a html file, it can be used without PHP stack
+
 #### Fixed
 
 - `wo stack purge --all` failure if mysql isn't installed

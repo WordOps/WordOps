@@ -148,7 +148,8 @@ class WOStackUpgradeController(CementBaseController):
                                         'Netdata']]
 
         if pargs.dashboard:
-            if os.path.isfile('/var/www/22222/htdocs/index.php'):
+            if (os.path.isfile('/var/www/22222/htdocs/index.php') or
+                    os.path.isfile('/var/www/22222/htdocs/index.html')):
                 packages = packages + \
                     [["https://github.com/WordOps/wordops-dashboard/"
                       "releases/download/v{0}/wordops-dashboard.tar.gz"
@@ -233,7 +234,11 @@ class WOStackUpgradeController(CementBaseController):
                     WOFileUtils.rm(self, '/var/lib/wo/tmp/kickstart.sh')
 
                 if pargs.dashboard:
-                    WOFileUtils.rm(self, '/var/www/22222/htdocs/index.php')
+                    if os.path.isfile('/var/www/22222/htdocs/index.php'):
+                        WOFileUtils.rm(self, '/var/www/22222/htdocs/index.php')
+                    if os.path.isfile('/var/www/22222/htdocs/index.html'):
+                        WOFileUtils.rm(
+                            self, '/var/www/22222/htdocs/index.html')
 
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
@@ -256,20 +261,17 @@ class WOStackUpgradeController(CementBaseController):
                     Log.valide(self, "Upgrading Netdata")
 
                 if pargs.dashboard:
-                    Log.debug(self, "Extracting wo-dashboard.tar.gz "
-                              "to location {0}22222/htdocs/"
-                              .format(WOVariables.wo_webroot))
-                    WOExtract.extract(self, '/var/lib/wo/tmp/'
-                                      'wo-dashboard.tar.gz',
-                                      '{0}22222/htdocs'
-                                      .format(WOVariables.wo_webroot))
-                    WOFileUtils.chown(self, "{0}22222/htdocs"
-                                      .format(WOVariables.wo_webroot),
-                                      'www-data',
-                                      'www-data', recursive=True)
+                    post_pref(
+                        self, [], [["https://github.com/WordOps"
+                                    "/wordops-dashboard/"
+                                    "releases/download/v{0}/"
+                                    "wordops-dashboard.tar.gz"
+                                    .format(WOVariables.wo_dashboard),
+                                    "/var/lib/wo/tmp/wo-dashboard.tar.gz",
+                                    "WordOps Dashboard"]])
 
                 if pargs.composer:
-                    Log.wait(self, "Upgrading Composer    ")
+                    Log.wait(self, "Upgrading Composer")
                     WOShellExec.cmd_exec(
                         self, "php -q /var/lib/wo"
                         "/tmp/composer-install "
@@ -280,7 +282,7 @@ class WOStackUpgradeController(CementBaseController):
                     Log.valide(self, "Upgrading Composer    ")
 
                 if pargs.phpmyadmin:
-                    Log.wait(self, "Upgrading phpMyAdmin  ")
+                    Log.wait(self, "Upgrading phpMyAdmin")
                     WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz',
                                       '/var/lib/wo/tmp/')
                     shutil.copyfile(('{0}22222/htdocs/db/pma'
@@ -301,6 +303,6 @@ class WOStackUpgradeController(CementBaseController):
                                       .format(WOVariables.wo_webroot),
                                       'www-data',
                                       'www-data', recursive=True)
-                    Log.valide(self, "Upgrading phpMyAdmin  ")
+                    Log.valide(self, "Upgrading phpMyAdmin")
 
             Log.info(self, "Successfully updated packages")

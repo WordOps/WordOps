@@ -17,7 +17,7 @@ class WOVariables():
     wo_adminer = "4.7.2"
     wo_phpmyadmin = "4.9.0.1"
     wo_extplorer = "2.1.13"
-    wo_dashboard = "1.1"
+    wo_dashboard = "1.2"
 
     # Get WPCLI path
     wo_wpcli_path = '/usr/local/bin/wp'
