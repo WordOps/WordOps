@@ -1,17 +1,14 @@
 import getpass
-import random
-import string
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 
 from wo.core.git import WOGit
 from wo.core.logging import Log
+from wo.core.random import RANDOM
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
-from wo.core.random import RANDOM
-from wo.core.template import WOTemplate
 
 
 def wo_secure_hook(app):
