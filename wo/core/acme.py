@@ -69,7 +69,7 @@ class WOAcme:
     def deploycert(self, wo_domain_name):
         wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
                         "'/etc/letsencrypt/config'")
-        if not os.path.isfile('/etc/letsencrypt/{0}_ecc/fullchain.cer'
+        if not os.path.isfile('/etc/letsencrypt/renewal/{0}_ecc/fullchain.cer'
                               .format(wo_domain_name)):
             Log.error(self, 'Certificate not found. Deployment canceled')
 
