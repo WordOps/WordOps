@@ -1419,10 +1419,14 @@ class WOSiteUpdateController(CementBaseController):
                             if WOAcme.setupletsencrypt(
                                 self, acme_domains, acmedata):
                                 WOAcme.deploycert(self, wo_domain)
+                            else:
+                                Log.error(self, "Unable to issue certificate")
                     else:
                         if WOAcme.setupletsencrypt(
                             self, acme_domains, acmedata):
                             WOAcme.deploycert(self, wo_domain)
+                        else:
+                            Log.error(self, "Unable to issue certificate")
                 else:
                     WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                        .format(wo_site_webroot),

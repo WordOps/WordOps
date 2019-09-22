@@ -38,7 +38,6 @@ class WOAcme:
         except Exception as e:
             Log.failed(self, "Issuing SSL cert with acme.sh")
             Log.debug(self, str(e))
-            Log.error(self, "Unable to issue certificate", False)
             if acmedata['dns'] is True:
                 Log.warn(
                     self, "Please make sure your properly "
