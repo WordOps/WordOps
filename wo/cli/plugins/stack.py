@@ -998,9 +998,9 @@ class WOStackController(CementBaseController):
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     app.handler.register(WOStackController)
-    handler.register(WOStackStatusController)
-    handler.register(WOStackMigrateController)
-    handler.register(WOStackUpgradeController)
+    app.handler.register(WOStackStatusController)
+    app.handler.register(WOStackMigrateController)
+    app.handler.register(WOStackUpgradeController)
 
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', wo_stack_hook)

@@ -847,6 +847,6 @@ class WODebugController(CementBaseController):
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
-    handler.register(WODebugController)
+    app.handler.register(WODebugController)
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', wo_debug_hook)

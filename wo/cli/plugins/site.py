@@ -2049,11 +2049,11 @@ class WOSiteListController(CementBaseController):
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
-    handler.register(WOSiteController)
-    handler.register(WOSiteCreateController)
-    handler.register(WOSiteUpdateController)
-    handler.register(WOSiteDeleteController)
-    handler.register(WOSiteListController)
-    handler.register(WOSiteEditController)
+    app.handler.register(WOSiteController)
+    app.handler.register(WOSiteCreateController)
+    app.handler.register(WOSiteUpdateController)
+    app.handler.register(WOSiteDeleteController)
+    app.handler.register(WOSiteListController)
+    app.handler.register(WOSiteEditController)
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', wo_site_hook)
