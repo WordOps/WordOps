@@ -11,6 +11,7 @@ from subprocess import CalledProcessError
 from wo.cli.plugins.sitedb import getSiteInfo
 from wo.cli.plugins.stack import WOStackController
 from wo.cli.plugins.stack_pref import post_pref
+from wo.core.acme import WOAcme
 from wo.core.aptget import WOAptGet
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
@@ -20,7 +21,6 @@ from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVariables
-from wo.core.acme import WOAcme
 
 
 class SiteError(Exception):
@@ -39,8 +39,8 @@ def pre_run_checks(self):
     Log.wait(self, "Running pre-update checks")
     try:
         Log.debug(self, "checking NGINX configuration ...")
-        FNULL = open('/dev/null', 'w')
-        subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
+        fnull = open('/dev/null', 'w')
+        subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=fnull,
                               stderr=subprocess.STDOUT)
     except CalledProcessError as e:
         Log.failed(self, "Running pre-update checks")
