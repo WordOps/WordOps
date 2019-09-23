@@ -63,6 +63,8 @@ class WOSecureController(CementBaseController):
     @expose(hide=True)
     def secure_auth(self):
         """This function secures authentication"""
+        WOGit.add(self, ["/etc/nginx"],
+                  msg="Add Nginx to into Git")
         pargs = self.app.pargs
         passwd = RANDOM.long(self)
         if not pargs.user_input:
@@ -94,16 +96,19 @@ class WOSecureController(CementBaseController):
     @expose(hide=True)
     def secure_port(self):
         """This function Secures port"""
+        WOGit.add(self, ["/etc/nginx"],
+                  msg="Add Nginx to into Git")
         pargs = self.app.pargs
         if pargs.user_input:
-            while not pargs.user_input.isdigit():
+            while ((not pargs.user_input.isdigit()) and
+                   (not pargs.user_input < 65556)):
                 Log.info(self, "Please enter a valid port number ")
                 pargs.user_input = input("WordOps "
                                          "admin port [22222]:")
         if not pargs.user_input:
             port = input("WordOps admin port [22222]:")
             if port == "":
-                pargs.user_input = 22222
+                port = 22222
             while (not port.isdigit()) and (port != "") and (not port < 65556):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("WordOps admin port [22222]:")
@@ -123,6 +128,8 @@ class WOSecureController(CementBaseController):
     @expose(hide=True)
     def secure_ip(self):
         """IP whitelisting"""
+        WOGit.add(self, ["/etc/nginx"],
+                  msg="Add Nginx to into Git")
         pargs = self.app.pargs
         if not pargs.user_input:
             ip = input("Enter the comma separated IP addresses "
@@ -148,6 +155,14 @@ class WOSecureController(CementBaseController):
     @expose(hide=True)
     def secure_ssh(self):
         """Harden ssh security"""
+        start_secure = input('Are you sure you to want to'
+                             ' harden SSH security ?'
+                             '\nSSH login with password will not '
+                             'be possible anymore. Please make sure '
+                             'you are already using SSH Keys.\n'
+                             'Harden SSH security [y/N]')
+        if start_secure != "Y" and start_secure != "y":
+            Log.error(self, "Not hardening SSH security")
         Log.debug(self, "check if /etc/ssh/sshd_config exist")
         if os.path.isfile('/etc/ssh/sshd_config'):
             Log.debug(self, "looking for the current ssh port")
@@ -155,15 +170,48 @@ class WOSecureController(CementBaseController):
                 if 'Port' in line:
                     ssh_line = line.strip()
                     break
-
             port = (ssh_line).split(' ')
             current_ssh_port = (port[1]).strip()
             data = dict(sshport=current_ssh_port, allowpass='no')
             WOTemplate.render(self, '/etc/ssh/sshd_config',
                               'sshd.mustache', data)
-            WOService.restart_service(self, 'ssh')
+            WOGit.add(self, ["/etc/ssh"],
+                      msg="Adding changed SSH port into Git")
+            if not WOService.restart_service(self, 'ssh'):
+                Log.error(self, "service SSH restart failed.")
+                Log.info(self, "Successfully harden SSH security")
         else:
             Log.error(self, "SSH config file not found")
+
+    @expose(hide=True)
+    def secure_ssh_port(self):
+        """Change SSH port"""
+        WOGit.add(self, ["/etc/ssh"],
+                  msg="Adding changed SSH port into Git")
+        pargs = self.app.pargs
+        if pargs.user_input:
+            while ((not pargs.user_input.isdigit()) and
+                   (not pargs.user_input < 65556)):
+                Log.info(self, "Please enter a valid port number ")
+                pargs.user_input = input("Server "
+                                         "SSH port [22]:")
+        if not pargs.user_input:
+            port = input("Server SSH port [22]:")
+            if port == "":
+                port = 22
+            while (not port.isdigit()) and (port != "") and (not port < 65556):
+                Log.info(self, "Please Enter valid port number :")
+                port = input("Server SSH port [22]:")
+            pargs.user_input = port
+        WOShellExec.cmd_exec(self, "sed -i \"s/Port.*/Port "
+                             "{port}\" /etc/ssh/sshd_config"
+                             .format(port=pargs.user_input))
+        WOGit.add(self, ["/etc/ssh"],
+                  msg="Adding changed SSH port into Git")
+        if not WOService.restart_service(self, 'ssh'):
+            Log.error(self, "service SSH restart failed.")
+        Log.info(self, "Successfully changed SSH port to {port}"
+                 .format(port=pargs.user_input))
 
 
 def load(app):
