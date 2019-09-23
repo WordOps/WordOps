@@ -173,7 +173,7 @@ class WOSecureController(CementBaseController):
             port = (ssh_line).split(' ')
             current_ssh_port = (port[1]).strip()
             if os.getenv('SUDO_USER'):
-                sudo_user = os.environ['SUDO_USER']
+                sudo_user = os.getenv('SUDO_USER')
             else:
                 sudo_user = ''
             data = dict(sshport=current_ssh_port, allowpass='no',

@@ -588,7 +588,7 @@ class WODebugController(CementBaseController):
                          " disabled".format(self.app.pargs.site_name))
 
     @expose(hide=True)
-    def signal_handler(self, signal, frame):
+    def signal_handler(self, app, signal, frame):
         """Handle Ctrl+c hevent for -i option of debug"""
         self.start = False
         if self.app.pargs.nginx:
