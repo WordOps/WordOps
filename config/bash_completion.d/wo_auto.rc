@@ -47,7 +47,7 @@ _wo_complete()
 
             "secure")
                 COMPREPLY=( $(compgen \
-                              -W "--auth --port --ip" \
+                              -W "--auth --port --ip --ssh --sshport" \
                               -- $cur) )
                 ;;
 
