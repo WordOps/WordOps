@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [INSTALL] Removed UFW setup from install script
 - [APP] phpMyAdmin updated to v4.9.1
 - [STACK] Commit possible Nginx configuration changes into Git before and after performing tasks (in `wo secure` for example)
+- [CORE] Update deprecated handlers and hooks registration
 
 #### Fixed
 
