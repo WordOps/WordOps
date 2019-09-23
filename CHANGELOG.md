@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - [STACK]  UFW as a STACK available with `--ufw`
+- [SECURE] `wo stack secure --ssh` to harden ssh security
 
 #### Changed
 

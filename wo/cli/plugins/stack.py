@@ -650,7 +650,7 @@ class WOStackController(CementBaseController):
 
         # MySQLTuner
         if pargs.mysqltuner:
-            if os.path.isfile(/usr/bin/mysqltuner):
+            if os.path.isfile('/usr/bin/mysqltuner'):
                 Log.debug(self, "Removing packages for MySQLTuner ")
                 packages = packages + ['/usr/bin/mysqltuner']
 
@@ -900,7 +900,7 @@ class WOStackController(CementBaseController):
 
         # MySQLTuner
         if pargs.mysqltuner:
-            if os.path.isfile(/usr/bin/mysqltuner):
+            if os.path.isfile('/usr/bin/mysqltuner'):
                 Log.debug(self, "Removing packages for MySQLTuner ")
                 packages = packages + ['/usr/bin/mysqltuner']
 

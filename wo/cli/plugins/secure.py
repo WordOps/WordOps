@@ -11,7 +11,6 @@ from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
-from wo.core.services import WOService
 
 
 def wo_secure_hook(app):
