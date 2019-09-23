@@ -178,7 +178,7 @@ class WOSecureController(CementBaseController):
                 sudo_user = ''
             data = dict(sshport=current_ssh_port, allowpass='no',
                         user=sudo_user)
-            WOTemplate.render(self, '/etc/ssh/sshd_config',
+            WOTemplate.deploy(self, '/etc/ssh/sshd_config',
                               'sshd.mustache', data)
             WOGit.add(self, ["/etc/ssh"],
                       msg="Adding changed SSH port into Git")

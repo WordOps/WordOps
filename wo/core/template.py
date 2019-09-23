@@ -9,7 +9,8 @@ Render Templates
 
 
 class WOTemplate():
-    def render(self, fileconf, template, data, overwrite=True):
+    def deploy(self, fileconf, template, data, overwrite=True):
+        """Deploy template with render()"""
         data = dict(data)
         if (not os.path.isfile('{0}.custom'
                                .format(fileconf))):

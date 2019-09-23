@@ -4,6 +4,7 @@
 # in this file in the same way as WOBaseController.
 
 from cement.core import handler
+
 from wo.cli.controllers.base import WOBaseController
 
 

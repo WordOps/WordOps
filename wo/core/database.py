@@ -1,7 +1,8 @@
 """WordOps generic database creation module"""
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 from wo.core.variables import WOVariables
 
 # db_path = self.app.config.get('site', 'db_path')

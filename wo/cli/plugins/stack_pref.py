@@ -159,22 +159,22 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               ["/etc/nginx"],
                               msg="Adding Nginx into Git")
             data = dict(tls13=True)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '/etc/nginx/nginx.conf',
                               'nginx-core.mustache', data)
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict()
-                WOTemplate.render(self, '{0}/gzip.conf'.format(ngxcnf),
+                WOTemplate.deploy(self, '{0}/gzip.conf'.format(ngxcnf),
                                   'gzip.mustache', data)
 
             if not os.path.isfile('{0}/brotli.conf'.format(ngxcnf)):
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/brotli.conf.disabled'
                                   .format(ngxcnf),
                                   'brotli.mustache', data)
 
-            WOTemplate.render(self, '{0}/tweaks.conf'.format(ngxcnf),
+            WOTemplate.deploy(self, '{0}/tweaks.conf'.format(ngxcnf),
                               'tweaks.mustache', data)
 
             # Fix for white screen death with NGINX PLUS
@@ -187,26 +187,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             try:
                 data = dict(php="9000", debug="9001",
                             php7="9070", debug7="9170")
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self, '{0}/upstream.conf'.format(ngxcnf),
                     'upstream.mustache', data, overwrite=True)
 
                 data = dict(phpconf=True if
                             WOAptGet.is_installed(self, 'php7.2-fpm')
                             else False)
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/stub_status.conf'.format(ngxcnf),
                                   'stub_status.mustache', data)
                 data = dict()
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/webp.conf'.format(ngxcnf),
                                   'webp.mustache', data, overwrite=False)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/cloudflare.conf'.format(ngxcnf),
                                   'cloudflare.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/map-wp-fastcgi-cache.conf'.format(
                                       ngxcnf),
                                   'map-wp.mustache', data)
@@ -223,83 +223,83 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 data = dict()
 
                 # Common Configuration
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/locations-wo.conf'
                                   .format(ngxcom),
                                   'locations.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpsubdir.conf'
                                   .format(ngxcom),
                                   'wpsubdir.mustache', data)
                 data = dict(upstream="php72")
                 # PHP 7.2 conf
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/php72.conf'
                                   .format(ngxcom),
                                   'php.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/redis-php72.conf'
                                   .format(ngxcom),
                                   'redis.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpcommon-php72.conf'
                                   .format(ngxcom),
                                   'wpcommon.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpfc-php72.conf'
                                   .format(ngxcom),
                                   'wpfc.mustache', data)
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpsc-php72.conf'
                                   .format(ngxcom),
                                   'wpsc.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wprocket-php72.conf'
                                   .format(ngxcom),
                                   'wprocket.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpce-php72.conf'
                                   .format(ngxcom),
                                   'wpce.mustache', data)
                 # PHP 7.3 conf
                 data = dict(upstream="php73")
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/php73.conf'
                                   .format(ngxcom),
                                   'php.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/redis-php73.conf'
                                   .format(ngxcom),
                                   'redis.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpcommon-php73.conf'
                                   .format(ngxcom),
                                   'wpcommon.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpfc-php73.conf'
                                   .format(ngxcom),
                                   'wpfc.mustache', data)
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpsc-php73.conf'
                                   .format(ngxcom),
                                   'wpsc.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wprocket-php73.conf'
                                   .format(ngxcom),
                                   'wprocket.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpce-php73.conf'
                                   .format(ngxcom),
                                   'wpce.mustache', data)
@@ -315,15 +315,15 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             # Following files should not be overwrited
 
             data = dict(webroot=ngxroot)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '{0}/acl.conf'
                               .format(ngxcom),
                               'acl.mustache', data, overwrite=False)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '{0}/blockips.conf'
                               .format(ngxcnf),
                               'blockips.mustache', data, overwrite=False)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '{0}/fastcgi.conf'
                               .format(ngxcnf),
                               'fastcgi.mustache', data, overwrite=True)
@@ -361,7 +361,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             # 22222 port settings
             data = dict(webroot=ngxroot)
-            WOTemplate.render(
+            WOTemplate.deploy(
                 self,
                 '/etc/nginx/sites-available/22222',
                 '22222.mustache', data, overwrite=True)
@@ -466,7 +466,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             if not os.path.isfile("/opt/cf-update.sh"):
                 data = dict()
-                WOTemplate.render(self, '/opt/cf-update.sh',
+                WOTemplate.deploy(self, '/opt/cf-update.sh',
                                   'cf-update.mustache',
                                   data, overwrite=False)
                 WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
@@ -868,7 +868,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     inno_buffer=wo_ram_innodb,
                     inno_log_buffer=wo_ram_log_buffer,
                     innodb_instances=wo_innodb_instance)
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
@@ -892,17 +892,17 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 Log.info(self, "Configuring Fail2Ban")
                 data = dict()
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/jail.d/custom.conf',
                     'fail2ban.mustache',
                     data, overwrite=False)
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/filter.d/wo-wordpress.conf',
                     'fail2ban-wp.mustache',
                     data, overwrite=False)
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/filter.d/nginx-forbidden.conf',
                     'fail2ban-forbidden.mustache',
@@ -984,7 +984,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 # check if ufw script is already created
                 if not os.path.isfile("/opt/ufw.sh"):
                     data = dict()
-                    WOTemplate.render(self, '/opt/ufw.sh',
+                    WOTemplate.deploy(self, '/opt/ufw.sh',
                                       'ufw.mustache',
                                       data, overwrite=False)
                     WOFileUtils.chmod(self, "/opt/ufw.sh", 0o700)
@@ -1077,7 +1077,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.debug(self, "Setting up freshclam cronjob")
             if not os.path.isfile("/opt/freshclam.sh"):
                 data = dict()
-                WOTemplate.render(self, '/opt/freshclam.sh',
+                WOTemplate.deploy(self, '/opt/freshclam.sh',
                                   'freshclam.mustache',
                                   data, overwrite=False)
                 WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
