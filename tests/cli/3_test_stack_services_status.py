@@ -27,12 +27,6 @@ class CliTestCaseStack(test.WOTestCase):
         self.app.run()
         self.app.close()
 
-    def test_wo_cli_stack_services_status_memcached(self):
-        self.app = get_test_app(argv=['stack', 'status', '--memcache'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
-
     def test_wo_cli_stack_services_status_all(self):
         self.app = get_test_app(argv=['stack', 'status'])
         self.app.setup()

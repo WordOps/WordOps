@@ -40,24 +40,11 @@ class WOAcme:
                     self, "Please make sure your properly "
                     "set your DNS API credentials for acme.sh")
             else:
-                server_ip = requests.get('http://v4.wordops.eu/').text
-                for domain in acme_domains:
-                    domain_ip = requests.get('http://v4.wordops.eu/dns/{0}/'
-                                             .format(domain)).text
-                    if(not domain_ip == server_ip):
-                        Log.warn(
-                            self, "{0} is not pointing to your server IP"
-                            .format(domain))
-                        Log.error(
-                            self, "You have to add the "
-                            "proper DNS record", False)
-                        break
-                else:
-                    Log.error(
-                        self, "Your domain is properly configured "
-                        "but acme.sh was unable to issue certificate.\n"
-                        "You can find more informations in "
-                        "/var/log/wo/wordops.log", False)
+                Log.error(
+                    self, "Your domain is properly configured "
+                    "but acme.sh was unable to issue certificate.\n"
+                    "You can find more informations in "
+                    "/var/log/wo/wordops.log", False)
             return False
         else:
             Log.valide(self, "Issuing SSL cert with acme.sh")
@@ -124,3 +111,22 @@ class WOAcme:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while generating "
                       "ssl.conf")
+
+    def check_dns(self, acme_domains):
+        """Check if a list of domains point to the server IP"""
+        server_ip = requests.get('http://v4.wordops.eu/').text
+        for domain in acme_domains:
+            domain_ip = requests.get('http://v4.wordops.eu/dns/{0}/'
+                                     .format(domain)).text
+            if(not domain_ip == server_ip):
+                Log.warn(
+                    self, "{0} is not pointing to your server IP"
+                    .format(domain))
+                Log.error(
+                    self, "You have to add the "
+                    "proper DNS record", False)
+                return False
+                break
+        else:
+            Log.debug(self, "DNS record are properly set")
+            return True
