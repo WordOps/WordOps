@@ -1,4 +1,5 @@
 import getpass
+import os
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
@@ -8,7 +9,9 @@ from wo.core.logging import Log
 from wo.core.random import RANDOM
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
+from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
+from wo.core.services import WOService
 
 
 def wo_secure_hook(app):
@@ -31,10 +34,10 @@ class WOSecureController(CementBaseController):
                 dict(help='set backend port', action='store_true')),
             (['--ip'],
                 dict(help='set backend whitelisted ip', action='store_true')),
-            (['--ssh-port'], dict(
+            (['--sshport'], dict(
                 help='set custom ssh port', action='store_true')),
-            (['--ssh-strict'], dict(help='harden ssh security',
-                                    action='store_true')),
+            (['--ssh'], dict(
+                help='harden ssh security', action='store_true')),
             (['--ufw'],
                 dict(help='setup and configure ufw firewall',
                      action='store_true')),
@@ -53,6 +56,10 @@ class WOSecureController(CementBaseController):
             self.secure_port()
         if pargs.ip:
             self.secure_ip()
+        if pargs.sshport:
+            self.secure_ssh_port()
+        if pargs.ssh:
+            self.secure_ssh()
 
     @expose(hide=True)
     def secure_auth(self):
@@ -138,6 +145,26 @@ class WOSecureController(CementBaseController):
                   msg="Adding changed secure ip into Git")
 
         Log.info(self, "Successfully added IP address in acl.conf file")
+
+    @expose(hide=True)
+    def secure_ssh(self):
+        """Harden ssh security"""
+        pargs = self.app.pargs
+        if pargs.user_input:
+            current_ssh_port = pargs.user_input
+        else:
+            if os.path.isfile('/etc/ssh/sshd_config'):
+                for line in open('/etc/ssh/sshd_config', encoding='utf-8'):
+                    if 'Port' in line:
+                        ssh_line = line.strip()
+                    break
+                port = (ssh_line).split(' ')
+                current_ssh_port = port[1]
+            else:
+                Log.error(self, "SSH config file not found")
+        data = dict(sshport=current_ssh_port, allowpass='no')
+        WOTemplate.render(self, '/etc/ssh/sshd_config', 'sshd.mustache', data)
+        WOService.restart_service(self, 'ssh')
 
 
 def load(app):

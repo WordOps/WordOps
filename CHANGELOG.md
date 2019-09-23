@@ -8,11 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- [STACK]  UFW as a STACK available with `--ufw`
+
 #### Changed
 
 - [APP] WordOps dashboard updated to v1.2, shipped as a html file, it can be used without PHP stack
 - [STACK] Refactor Let's Encrypt with acme.sh
 - [STACK] Log error improved with acme.sh depending on the acme challenge (DNS API or Webroot)
+- [INSTALL] Removed UFW setup from install script
+- [APP] phpMyAdmin updated to v4.9.1
 
 #### Fixed
 
