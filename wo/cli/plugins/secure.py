@@ -148,7 +148,9 @@ class WOSecureController(CementBaseController):
     @expose(hide=True)
     def secure_ssh(self):
         """Harden ssh security"""
+        Log.debug(self, "check if /etc/ssh/sshd_config exist")
         if os.path.isfile('/etc/ssh/sshd_config'):
+            Log.debug(self, "looking for the current ssh port")
             for line in open('/etc/ssh/sshd_config', encoding='utf-8'):
                 if 'Port' in line:
                     ssh_line = line.strip()
@@ -156,13 +158,12 @@ class WOSecureController(CementBaseController):
             else:
                 port = (ssh_line).split(' ')
                 current_ssh_port = port[1]
+                data = dict(sshport=current_ssh_port, allowpass='no')
+                WOTemplate.render(self, '/etc/ssh/sshd_config',
+                                  'sshd.mustache', data)
+                WOService.restart_service(self, 'ssh')
         else:
             Log.error(self, "SSH config file not found")
-        if not current_ssh_port:
-            current_ssh_port = '22'
-        data = dict(sshport=current_ssh_port, allowpass='no')
-        WOTemplate.render(self, '/etc/ssh/sshd_config', 'sshd.mustache', data)
-        WOService.restart_service(self, 'ssh')
 
 
 def load(app):
