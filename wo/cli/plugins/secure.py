@@ -172,7 +172,12 @@ class WOSecureController(CementBaseController):
                     break
             port = (ssh_line).split(' ')
             current_ssh_port = (port[1]).strip()
-            data = dict(sshport=current_ssh_port, allowpass='no')
+            if os.getenv('SUDO_USER'):
+                sudo_user = os.environ['SUDO_USER']
+            else:
+                sudo_user = ''
+            data = dict(sshport=current_ssh_port, allowpass='no',
+                        user=sudo_user)
             WOTemplate.render(self, '/etc/ssh/sshd_config',
                               'sshd.mustache', data)
             WOGit.add(self, ["/etc/ssh"],
