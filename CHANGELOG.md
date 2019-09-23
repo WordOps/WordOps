@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `wo stack purge --all` failure if mysql isn't installed
 - Fix EEv3 files cleanup
 - Incorrect variable usage in `wo secure --port`
+- Fix backup_ee function in install script
 
 ### v3.9.8.12 - 2019-09-20
 

@@ -624,17 +624,11 @@ wo_update_latest() {
 }
 
 wo_backup_ee() {
-    if [ -d /etc/nginx ]; then
-        local EE_NGINX="/etc/nginx"
-    else
-        local EE_NGINX=""
-    fi
-    if [ -d /etc/letsencrypt ]; then
-        local EE_LE="/etc/letsencrypt"
-    else
-        local EE_LE=""
-    fi
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" "$EE_NGINX" /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee "$EE_LE"
+    local BACKUP_EE=""
+    [ -d /etc/nginx ] && { BACKUP_EE="$BACKUP_EE /etc/nginx"; }
+    [ -d /etc/letsencrypt ] && { BACKUP_EE="$BACKUP_EE /etc/letsencrypt"; }
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee "$BACKUP_EE"
+    return 0
 }
 
 wo_backup_wo() {

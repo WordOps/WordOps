@@ -101,7 +101,7 @@ class WOSecureController(CementBaseController):
         pargs = self.app.pargs
         if pargs.user_input:
             while ((not pargs.user_input.isdigit()) and
-                   (not pargs.user_input < 65556)):
+                   (not pargs.user_input < 65536)):
                 Log.info(self, "Please enter a valid port number ")
                 pargs.user_input = input("WordOps "
                                          "admin port [22222]:")
@@ -109,7 +109,7 @@ class WOSecureController(CementBaseController):
             port = input("WordOps admin port [22222]:")
             if port == "":
                 port = 22222
-            while (not port.isdigit()) and (port != "") and (not port < 65556):
+            while (not port.isdigit()) and (port != "") and (not port < 65536):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("WordOps admin port [22222]:")
             pargs.user_input = port
@@ -196,7 +196,7 @@ class WOSecureController(CementBaseController):
         pargs = self.app.pargs
         if pargs.user_input:
             while ((not pargs.user_input.isdigit()) and
-                   (not pargs.user_input < 65556)):
+                   (not pargs.user_input < 65536)):
                 Log.info(self, "Please enter a valid port number ")
                 pargs.user_input = input("Server "
                                          "SSH port [22]:")
@@ -204,7 +204,7 @@ class WOSecureController(CementBaseController):
             port = input("Server SSH port [22]:")
             if port == "":
                 port = 22
-            while (not port.isdigit()) and (port != "") and (not port < 65556):
+            while (not port.isdigit()) and (port != "") and (not port < 65536):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("Server SSH port [22]:")
             pargs.user_input = port
