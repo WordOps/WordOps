@@ -997,7 +997,7 @@ class WOStackController(CementBaseController):
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
-    handler.register(WOStackController)
+    app.handler.register(WOStackController)
     handler.register(WOStackStatusController)
     handler.register(WOStackMigrateController)
     handler.register(WOStackUpgradeController)
