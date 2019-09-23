@@ -1158,17 +1158,18 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # composer install and phpmyadmin update
         if any('/var/lib/wo/tmp/composer-install' == x[1]
                for x in packages):
-            Log.info(self, "Installing composer, please wait...")
+            Log.wait(self, "Installing composer")
             WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
                                  "/tmp/composer-install "
                                  "--install-dir=/var/lib/wo/tmp/")
             shutil.copyfile('/var/lib/wo/tmp/composer.phar',
                             '/usr/local/bin/composer')
             WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+            Log.valide(self, "Installing composer")
             if ((os.path.isdir("/var/www/22222/htdocs/db/pma")) and
                     (not os.path.isfile('/var/www/22222/htdocs/db/'
                                         'pma/composer.lock'))):
-                Log.info(self, "Updating phpMyAdmin, please wait...")
+                Log.wait(self, "Updating phpMyAdmin")
                 WOShellExec.cmd_exec(
                     self, "/usr/local/bin/composer update "
                     "--no-plugins --no-scripts -n --no-dev -d "
@@ -1179,6 +1180,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'www-data',
                     'www-data',
                     recursive=True)
+                Log.valide(self, "Updating phpMyAdmin")
             if not os.path.exists('{0}22222/htdocs/cache/'
                                   'redis/phpRedisAdmin'
                                   .format(WOVariables.wo_webroot)):
@@ -1209,11 +1211,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # netdata install
         if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
                for x in packages):
-            Log.info(self, "Installing Netdata, please wait...")
-            WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
-                                 "kickstart.sh "
-                                 "--dont-wait",
-                                 errormsg='', log=False)
+            Log.wait(self, "Installing Netdata")
+            WOShellExec.cmd_exec(
+                self, "bash /var/lib/wo/tmp/kickstart.sh "
+                "--dont-wait", errormsg='', log=False)
+            Log.valide(self, "Installing Netdata")
             if os.path.isdir('/etc/netdata'):
                 wo_netdata = "/"
             elif os.path.isdir('/opt/netdata'):
@@ -1245,7 +1247,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOMysql.execute(
                         self, "flush privileges;",
                         log=False)
-                except CommandExecutionError as e:
+                except Exception as e:
                     Log.debug(self, "{0}".format(e))
                     Log.info(
                         self, "fail to setup mysql user for netdata")
