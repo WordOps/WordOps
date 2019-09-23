@@ -157,10 +157,13 @@ class WOSecureController(CementBaseController):
                     if 'Port' in line:
                         ssh_line = line.strip()
                     break
-                port = (ssh_line).split(' ')
-                current_ssh_port = port[1]
+                else:
+                    port = (ssh_line).split(' ')
+                    current_ssh_port = port[1]
             else:
                 Log.error(self, "SSH config file not found")
+        if not current_ssh_port:
+            current_ssh_port = '22'
         data = dict(sshport=current_ssh_port, allowpass='no')
         WOTemplate.render(self, '/etc/ssh/sshd_config', 'sshd.mustache', data)
         WOService.restart_service(self, 'ssh')
