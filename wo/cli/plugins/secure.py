@@ -221,4 +221,4 @@ class WOSecureController(CementBaseController):
 
 def load(app):
     app.handler.register(WOSecureController)
-    hook.register('post_argument_parsing', wo_secure_hook)
+    app.hook.register('post_argument_parsing', wo_secure_hook)

@@ -577,4 +577,4 @@ def load(app):
     app.handler.register(WOLogGzipController)
     app.handler.register(WOLogMailController)
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', wo_log_hook)
+    app.hook.register('post_argument_parsing', wo_log_hook)

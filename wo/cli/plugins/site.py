@@ -2056,4 +2056,4 @@ def load(app):
     app.handler.register(WOSiteListController)
     app.handler.register(WOSiteEditController)
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', wo_site_hook)
+    app.hook.register('post_argument_parsing', wo_site_hook)

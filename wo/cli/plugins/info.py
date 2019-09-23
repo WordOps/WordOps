@@ -295,4 +295,4 @@ def load(app):
     app.handler.register(WOInfoController)
 
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', wo_info_hook)
+    app.hook.register('post_argument_parsing', wo_info_hook)
