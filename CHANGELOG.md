@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- [STACK]  UFW as a STACK available with `--ufw`
+- [STACK]  UFW now available as a stack with flag `--ufw`
 - [SECURE] `wo stack secure --ssh` to harden ssh security
 - [SECURE] `wo stack secure --sshport` to change ssh port
 
@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - `wo stack purge --all` failure if mysql isn't installed
 - Fix EEv3 files cleanup
+- Incorrect variable usage in `wo secure --port`
 
 ### v3.9.8.12 - 2019-09-20
 
