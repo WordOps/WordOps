@@ -11,10 +11,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - [SECURE] Allow new ssh port with UFW when running `wo secure --sshport`
+- [SECURITY] Additional Nginx directives to prevent access to log files or backup from web browser
+- [CORE] apt-mirror-updater to select the fastest debian/ubuntu mirror with automatic switching between mirrors if the current mirror is being updated
+
+#### Changed
+
+- [SECURITY] Improved sshd_config template according to Mozilla Infosec guidelines
 
 #### Fixed
 
 - [STACK] UFW setup after removing all stacks with `wo stack purge --all`
+- [CONFIG] Invalid CORS header
 
 ### v3.9.9 - 2019-09-24
 
