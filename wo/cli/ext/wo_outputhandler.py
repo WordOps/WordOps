@@ -2,8 +2,9 @@
 # To avoid encoding releated error,we defined our custom output handler
 # I hope we will remove this when we upgarde to Cement 2.6 (Not released yet)
 import os
-from cement.utils import fs
+
 from cement.ext.ext_mustache import MustacheOutputHandler
+from cement.utils import fs
 
 
 class WOOutputHandler(MustacheOutputHandler):

@@ -623,58 +623,21 @@ wo_update_latest() {
 
 }
 
-# Do git intialisation
-wo_git_init() {
-    # Nginx under git version control
-    [ -d /etc/nginx ] && {
-        cd /etc/nginx || exit 1
-        [ ! -d /etc/nginx/.git ] && {
-            git init
-        }
-        git add -A .
-        git commit -am "Updated Nginx"
-    }
-    # WordOps under git version control
-    [ -d /etc/wo ] && {
-        cd /etc/wo || exit 1
-        [ ! -d /etc/wo/.git ] && {
-            git init
-        }
-        git add -A .
-        git commit -am "Installed/Updated to WordOps"
-    }
-    # PHP under git version control
-    [ -d /etc/php ] && {
-        cd /etc/php || exit 1
-        [ ! -d /etc/php/.git ] && {
-            git init
-        }
-        git add -A .
-        git commit -am "Updated PHP"
-    }
-}
-
 wo_backup_ee() {
-    if [ -d /etc/nginx ]; then
-        local EE_NGINX="/etc/nginx"
-    else
-        local EE_NGINX=""
-    fi
-    if [ -d /etc/letsencrypt ]; then
-        local EE_LE="/etc/letsencrypt"
-    else
-        local EE_LE=""
-    fi
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" "$EE_NGINX" /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee "$EE_LE"
+    local BACKUP_EE=""
+    [ -d /etc/nginx ] && { BACKUP_EE="$BACKUP_EE /etc/nginx"; }
+    [ -d /etc/letsencrypt ] && { BACKUP_EE="$BACKUP_EE /etc/letsencrypt"; }
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee "$BACKUP_EE"
+    return 0
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" "$WO_NGINX" /etc/wo /var/lib/wo "$WO_LE"
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo "$WO_LE"
     return 0
 }
 
 wo_clean_ee() {
-    rm -f /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+    rm -rf /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee
     return 0
 }
 
@@ -856,13 +819,13 @@ else
     fi
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
-    if [ "$ufw" = "y" ]; then
-        _run wo_ufw_setup "Configuring UFW"
-    fi
+    #if [ "$ufw" = "y" ]; then
+    # _run wo_ufw_setup "Configuring UFW"
+    #fi
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
-        _run wo_dist_upgrade
         _run wo_download "Downloading WordOps"
+        _run wo_dist_upgrade
         wo_git_config
         _run wo_install "Installing WordOps"
     else
@@ -908,7 +871,7 @@ else
         wo_lib_echo "WordOps (wo) installed successfully"
         echo
         wo_lib_echo "To enable bash-completion, just use the command:"
-        wo_lib_echo_info "bash"
+        wo_lib_echo_info "bash -l"
         echo
         wo_lib_echo "To install WordOps recommended stacks, you can use the command:"
         wo_lib_echo_info "wo stack install"

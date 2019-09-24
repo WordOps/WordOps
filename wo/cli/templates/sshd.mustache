@@ -1,0 +1,45 @@
+# Use a custom port in the following range : 1024-65536
+Port {{sshport}}
+
+#Prefer ed25519 & ECDSA keys rather than 2048 bit RSA
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Allow root access with ssh keys
+PermitRootLogin without-password
+
+# Allow ssh access to some users only
+AllowUsers root ubuntu debian {{user}}
+
+# allow ssh key Authentication
+PubkeyAuthentication yes
+
+# ssh keys path in ~/.ssh/authorized_keys
+AuthorizedKeysFile      %h/.ssh/authorized_keys
+
+# No password or empty passwords Authentication
+PasswordAuthentication {{allowpass}}
+PermitEmptyPasswords no
+
+# No challenge response Authentication
+ChallengeResponseAuthentication no
+
+UsePAM yes
+X11Forwarding yes
+
+#PrintMotd no
+
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+
+# override default of no subsystems
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+# Host keys the client accepts - order here is honored by OpenSSH
+HostKeyAlgorithms ssh-ed25519-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ssh-ed25519,ssh-rsa,ecdsa-sha2-nistp521-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp521,ecdsa-sha2-nistp384,ecdsa-sha2-nistp256
+
+# use strong ciphers
+KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com

@@ -2,8 +2,8 @@
 import os
 import sys
 
-from cement.core.foundation import CementApp
 from cement.core.exc import CaughtSignal, FrameworkError
+from cement.core.foundation import CementApp
 from cement.ext.ext_argparse import ArgParseArgumentHandler
 from cement.utils.misc import init_defaults
 

@@ -47,7 +47,7 @@ _wo_complete()
 
             "secure")
                 COMPREPLY=( $(compgen \
-                              -W "--auth --port --ip" \
+                              -W "--auth --port --ip --ssh --sshport" \
                               -- $cur) )
                 ;;
 
@@ -74,17 +74,17 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--recommended --web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --dashboard --proftpd --clamav --mysqlclient --mysqltuner --extplorer --all" \
+                              -W "--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --ufw --dashboard --proftpd --clamav --mysqlclient --mysqltuner --extplorer --all --force" \
                               -- $cur) )
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --utils --nginx --php --php73 --mysql --all --netdata --composer --phpmyadmin --dashboard --no-prompt --mysqtuner --wpcli" \
+                              -W "--web --admin --utils --nginx --php --php73 --mysql --all --netdata --composer --phpmyadmin --dashboard --no-prompt --mysqtuner --wpcli --force" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --php73 --mysql --redis --fail2ban --netdata -proftpd" \
+                              -W "--nginx --php --php73 --mysql --redis --fail2ban --ufw --netdata -proftpd" \
                               -- $cur) )
                 ;;
             "list")
@@ -267,11 +267,11 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--redis | --phpredisadmin | --netdata")
+        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--ufw" | "--redis | --phpredisadmin | --netdata")
             if [[ "${COMP_WORDS[2]}" == "install" || "${COMP_WORDS[2]}" == "purge" || "${COMP_WORDS[2]}" == "remove" ]]; then
-                retlist="--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --phpredisadmin --netdata -f --force"
+                retlist="--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --ufw --phpredisadmin --netdata --force"
             elif [[ "${COMP_WORDS[2]}" == "start" || "${COMP_WORDS[2]}" == "reload" || "${COMP_WORDS[2]}" == "restart" || "${COMP_WORDS[2]}" == "stop" ]]; then
-                    retlist="--nginx --php --php73 --mysql --redis --netdata"
+                    retlist="--nginx --php --php73 --mysql --redis --netdata --fail2ban --ufw"
             elif [[ "${COMP_WORDS[1]}" == "debug" ]]; then
                     retlist="--start --nginx --php --php73 --fpm --fpm7 --mysql -i --interactive -stop --import-slow-log --import-slow-log-interval= -"
                     if [[ $prev == '--mysql' ]]; then

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+wo_ufw_setup() {
+    # get custom ssh port
+    if [ -f /etc/ssh/sshd_config ]; then
+        CURRENT_SSH_PORT=$(grep "Port" /etc/ssh/sshd_config | awk -F " " '{print $2}')
+    fi
+    # define firewall rules
+    if ! grep -q "LOGLEVEL=low" /etc/ufw/ufw.conf; then
+        ufw logging low
+    fi
+    if ! grep -q 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw; then
+        ufw default allow outgoing
+    fi
+    if ! grep -q 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw; then
+        ufw default deny incoming
+    fi
+    if ! grep -q "\-\-dport 22 -j" /etc/ufw/user.rules; then
+        # default ssh port
+        ufw limit 22
+    fi
+
+    # custom ssh port
+    if [ "$CURRENT_SSH_PORT" != "22" ]; then
+        if ! grep -q "\-\-dport $CURRENT_SSH_PORT -j" /etc/ufw/user.rules; then
+            ufw limit "$CURRENT_SSH_PORT"
+        fi
+    fi
+
+    # nginx
+    if ! grep -q "\-\-dport 80 -j" /etc/ufw/user.rules; then
+        # http
+        ufw allow http
+    fi
+    if ! grep -q "\-\-dport 443 -j" /etc/ufw/user.rules; then
+        # https
+        ufw allow https
+    fi
+
+    # ntp
+    if ! grep -q "\-\-dport 123 -j" /etc/ufw/user.rules; then
+        ufw allow 123
+    fi
+
+    if ! grep -q "\-\-dport 22222 -j" /etc/ufw/user.rules; then
+        # wordops backend
+        ufw limit 22222
+    fi
+    # enable ufw
+    if [ -n "$CURRENT_SSH_PORT" ]; then
+        ufw --force enable
+    fi
+
+    # remove ufw from syslog
+    if [ -f /etc/rsyslog.d/20-ufw.conf ]; then
+        sed -i 's/\#\& stop/\& stop/' /etc/rsyslog.d/20-ufw.conf
+        service rsyslog restart
+    fi
+}
+
+wo_ufw_setup

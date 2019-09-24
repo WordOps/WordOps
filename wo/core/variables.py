@@ -11,13 +11,13 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.8.12"
+    wo_version = "3.9.9"
     # WordOps packages versions
     wo_wp_cli = "2.3.0"
     wo_adminer = "4.7.2"
-    wo_phpmyadmin = "4.9.0.1"
+    wo_phpmyadmin = "4.9.1"
     wo_extplorer = "2.1.13"
-    wo_dashboard = "1.1"
+    wo_dashboard = "1.2"
 
     # Get WPCLI path
     wo_wpcli_path = '/usr/local/bin/wp'
@@ -111,15 +111,6 @@ class WOVariables():
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
 
-    # PHP repo and packages
-    if wo_distro == 'ubuntu':
-        wo_php_repo = "ppa:ondrej/php"
-    else:
-        wo_php_repo = (
-            "deb https://packages.sury.org/php/ {codename} main"
-            .format(codename=wo_platform_codename))
-        wo_php_key = 'AC0E47584A7A714D'
-
     wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
               "php7.2-readline", "php7.2-common", "php7.2-recode",
               "php7.2-cli", "php7.2-mbstring", "php7.2-intl",
@@ -132,18 +123,6 @@ class WOVariables():
                 "php7.3-zip", "php7.3-xml", "php7.3-soap"]
     wo_php_extra = ["php-memcached", "php-imagick",
                     "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
-
-    # MySQL repo and packages
-    if wo_distro == 'ubuntu':
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
-                         "10.3/ubuntu {codename} main"
-                         .format(codename=wo_platform_codename))
-    else:
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
-                         "10.3/debian {codename} main"
-                         .format(codename=wo_platform_codename))
 
     if not wo_distro == 'raspbian':
         if (not wo_platform_codename == 'jessie'):
@@ -166,10 +145,24 @@ class WOVariables():
 
     # Redis repo details
     if wo_distro == 'ubuntu':
+        wo_php_repo = "ppa:ondrej/php"
         wo_redis_repo = ("ppa:chris-lea/redis-server")
+        wo_goaccess_repo = ("ppa:alex-p/goaccess")
+        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "10.3/ubuntu {codename} main"
+                         .format(codename=wo_platform_codename))
 
     else:
+        wo_php_repo = (
+            "deb https://packages.sury.org/php/ {codename} main"
+            .format(codename=wo_platform_codename))
+        wo_php_key = 'AC0E47584A7A714D'
         wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
+                         .format(codename=wo_platform_codename))
+        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
     wo_redis = ['redis-server']

@@ -21,9 +21,9 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
+from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
-from wo.core.sslutils import SSL
 
 
 def pre_pref(self, apt_packages):
@@ -159,22 +159,22 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               ["/etc/nginx"],
                               msg="Adding Nginx into Git")
             data = dict(tls13=True)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '/etc/nginx/nginx.conf',
                               'nginx-core.mustache', data)
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict()
-                WOTemplate.render(self, '{0}/gzip.conf'.format(ngxcnf),
+                WOTemplate.deploy(self, '{0}/gzip.conf'.format(ngxcnf),
                                   'gzip.mustache', data)
 
             if not os.path.isfile('{0}/brotli.conf'.format(ngxcnf)):
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/brotli.conf.disabled'
                                   .format(ngxcnf),
                                   'brotli.mustache', data)
 
-            WOTemplate.render(self, '{0}/tweaks.conf'.format(ngxcnf),
+            WOTemplate.deploy(self, '{0}/tweaks.conf'.format(ngxcnf),
                               'tweaks.mustache', data)
 
             # Fix for white screen death with NGINX PLUS
@@ -187,26 +187,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             try:
                 data = dict(php="9000", debug="9001",
                             php7="9070", debug7="9170")
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self, '{0}/upstream.conf'.format(ngxcnf),
                     'upstream.mustache', data, overwrite=True)
 
                 data = dict(phpconf=True if
                             WOAptGet.is_installed(self, 'php7.2-fpm')
                             else False)
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/stub_status.conf'.format(ngxcnf),
                                   'stub_status.mustache', data)
                 data = dict()
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/webp.conf'.format(ngxcnf),
                                   'webp.mustache', data, overwrite=False)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/cloudflare.conf'.format(ngxcnf),
                                   'cloudflare.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/map-wp-fastcgi-cache.conf'.format(
                                       ngxcnf),
                                   'map-wp.mustache', data)
@@ -223,83 +223,83 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 data = dict()
 
                 # Common Configuration
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/locations-wo.conf'
                                   .format(ngxcom),
                                   'locations.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpsubdir.conf'
                                   .format(ngxcom),
                                   'wpsubdir.mustache', data)
                 data = dict(upstream="php72")
                 # PHP 7.2 conf
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/php72.conf'
                                   .format(ngxcom),
                                   'php.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/redis-php72.conf'
                                   .format(ngxcom),
                                   'redis.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpcommon-php72.conf'
                                   .format(ngxcom),
                                   'wpcommon.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpfc-php72.conf'
                                   .format(ngxcom),
                                   'wpfc.mustache', data)
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpsc-php72.conf'
                                   .format(ngxcom),
                                   'wpsc.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wprocket-php72.conf'
                                   .format(ngxcom),
                                   'wprocket.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpce-php72.conf'
                                   .format(ngxcom),
                                   'wpce.mustache', data)
                 # PHP 7.3 conf
                 data = dict(upstream="php73")
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/php73.conf'
                                   .format(ngxcom),
                                   'php.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/redis-php73.conf'
                                   .format(ngxcom),
                                   'redis.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpcommon-php73.conf'
                                   .format(ngxcom),
                                   'wpcommon.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpfc-php73.conf'
                                   .format(ngxcom),
                                   'wpfc.mustache', data)
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpsc-php73.conf'
                                   .format(ngxcom),
                                   'wpsc.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wprocket-php73.conf'
                                   .format(ngxcom),
                                   'wprocket.mustache', data)
 
-                WOTemplate.render(self,
+                WOTemplate.deploy(self,
                                   '{0}/wpce-php73.conf'
                                   .format(ngxcom),
                                   'wpce.mustache', data)
@@ -315,15 +315,15 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             # Following files should not be overwrited
 
             data = dict(webroot=ngxroot)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '{0}/acl.conf'
                               .format(ngxcom),
                               'acl.mustache', data, overwrite=False)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '{0}/blockips.conf'
                               .format(ngxcnf),
                               'blockips.mustache', data, overwrite=False)
-            WOTemplate.render(self,
+            WOTemplate.deploy(self,
                               '{0}/fastcgi.conf'
                               .format(ngxcnf),
                               'fastcgi.mustache', data, overwrite=True)
@@ -361,7 +361,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             # 22222 port settings
             data = dict(webroot=ngxroot)
-            WOTemplate.render(
+            WOTemplate.deploy(
                 self,
                 '/etc/nginx/sites-available/22222',
                 '22222.mustache', data, overwrite=True)
@@ -466,7 +466,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             if not os.path.isfile("/opt/cf-update.sh"):
                 data = dict()
-                WOTemplate.render(self, '/opt/cf-update.sh',
+                WOTemplate.deploy(self, '/opt/cf-update.sh',
                                   'cf-update.mustache',
                                   data, overwrite=False)
                 WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
@@ -868,7 +868,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     inno_buffer=wo_ram_innodb,
                     inno_log_buffer=wo_ram_log_buffer,
                     innodb_instances=wo_innodb_instance)
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
@@ -892,17 +892,17 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 Log.info(self, "Configuring Fail2Ban")
                 data = dict()
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/jail.d/custom.conf',
                     'fail2ban.mustache',
                     data, overwrite=False)
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/filter.d/wo-wordpress.conf',
                     'fail2ban-wp.mustache',
                     data, overwrite=False)
-                WOTemplate.render(
+                WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/filter.d/nginx-forbidden.conf',
                     'fail2ban-forbidden.mustache',
@@ -950,10 +950,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'proftpd')
 
             # add rule for proftpd with UFW
-            if os.path.isdir('/etc/ufw'):
+            if WOFileUtils.grepcheck(
+                    self, '/etc/ufw/ufw.conf', 'ENABLED=yes'):
                 try:
                     WOShellExec.cmd_exec(
-                        self, "ufw allow 21")
+                        self, "ufw limit 21")
                     WOShellExec.cmd_exec(
                         self, "ufw allow 49000:50000/tcp")
                     WOShellExec.cmd_exec(
@@ -974,6 +975,24 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOGit.add(self, ["/etc/proftpd"],
                       msg="Adding ProFTPd into Git")
             WOService.reload_service(self, 'proftpd')
+
+        if "ufw" in apt_packages:
+            # check if ufw is already enabled
+            if not WOFileUtils.grep(self,
+                                    '/etc/ufw/ufw.conf', 'ENABLED=yes'):
+                Log.wait(self, "Configuring UFW")
+                # check if ufw script is already created
+                if not os.path.isfile("/opt/ufw.sh"):
+                    data = dict()
+                    WOTemplate.deploy(self, '/opt/ufw.sh',
+                                      'ufw.mustache',
+                                      data, overwrite=False)
+                    WOFileUtils.chmod(self, "/opt/ufw.sh", 0o700)
+                # setup ufw rules
+                WOShellExec.cmd_exec(self, "bash /opt/ufw.sh")
+                Log.valide(self, "Configuring UFW")
+            else:
+                Log.info(self, "UFW is already installed and enabled")
 
         # Redis configuration
         if "redis-server" in apt_packages:
@@ -1058,7 +1077,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.debug(self, "Setting up freshclam cronjob")
             if not os.path.isfile("/opt/freshclam.sh"):
                 data = dict()
-                WOTemplate.render(self, '/opt/freshclam.sh',
+                WOTemplate.deploy(self, '/opt/freshclam.sh',
                                   'freshclam.mustache',
                                   data, overwrite=False)
                 WOFileUtils.chmod(self, "/opt/freshclam.sh", 0o775)
@@ -1139,28 +1158,29 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # composer install and phpmyadmin update
         if any('/var/lib/wo/tmp/composer-install' == x[1]
                for x in packages):
-            Log.info(self, "Installing composer, please wait...")
+            Log.wait(self, "Installing composer")
             WOShellExec.cmd_exec(self, "php -q /var/lib/wo"
                                  "/tmp/composer-install "
                                  "--install-dir=/var/lib/wo/tmp/")
             shutil.copyfile('/var/lib/wo/tmp/composer.phar',
                             '/usr/local/bin/composer')
             WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
+            Log.valide(self, "Installing composer")
             if ((os.path.isdir("/var/www/22222/htdocs/db/pma")) and
                     (not os.path.isfile('/var/www/22222/htdocs/db/'
                                         'pma/composer.lock'))):
-                Log.info(self, "Updating phpMyAdmin, please wait...")
+                Log.wait(self, "Updating phpMyAdmin")
                 WOShellExec.cmd_exec(
                     self, "/usr/local/bin/composer update "
-                    "--no-plugins --no-scripts "
-                    "-n --no-dev -d "
-                    "/var/www/22222/htdocs/db/pma/ &")
+                    "--no-plugins --no-scripts -n --no-dev -d "
+                    "/var/www/22222/htdocs/db/pma/")
                 WOFileUtils.chown(
                     self, '{0}22222/htdocs/db/pma'
                     .format(WOVariables.wo_webroot),
                     'www-data',
                     'www-data',
                     recursive=True)
+                Log.valide(self, "Updating phpMyAdmin")
             if not os.path.exists('{0}22222/htdocs/cache/'
                                   'redis/phpRedisAdmin'
                                   .format(WOVariables.wo_webroot)):
@@ -1171,12 +1191,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             .format(WOVariables.wo_webroot))
             if not os.path.isfile('/var/www/22222/htdocs/cache/redis/'
                                   'phpRedisAdmin/composer.lock'):
-                WOShellExec.cmd_exec(self, "/usr/local/bin/composer "
-                                     "create-project --no-plugins "
-                                     "--no-scripts -n -s dev "
-                                     "erik-dubbelboer/php-redis-admin "
-                                     "/var/www/22222/htdocs/cache"
-                                     "/redis/phpRedisAdmin &")
+                WOShellExec.cmd_exec(
+                    self, "/usr/local/bin/composer "
+                    "create-project --no-plugins --no-scripts -n -s dev "
+                    "erik-dubbelboer/php-redis-admin "
+                    "/var/www/22222/htdocs/cache/redis/phpRedisAdmin")
             WOFileUtils.chown(self, '{0}22222/htdocs'
                               .format(WOVariables.wo_webroot),
                               'www-data',
@@ -1192,11 +1211,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # netdata install
         if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
                for x in packages):
-            Log.info(self, "Installing Netdata, please wait...")
-            WOShellExec.cmd_exec(self, "bash /var/lib/wo/tmp/"
-                                 "kickstart.sh "
-                                 "--dont-wait",
-                                 errormsg='', log=False)
+            Log.wait(self, "Installing Netdata")
+            WOShellExec.cmd_exec(
+                self, "bash /var/lib/wo/tmp/kickstart.sh "
+                "--dont-wait", errormsg='', log=False)
+            Log.valide(self, "Installing Netdata")
             if os.path.isdir('/etc/netdata'):
                 wo_netdata = "/"
             elif os.path.isdir('/opt/netdata'):
@@ -1228,7 +1247,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOMysql.execute(
                         self, "flush privileges;",
                         log=False)
-                except CommandExecutionError as e:
+                except Exception as e:
                     Log.debug(self, "{0}".format(e))
                     Log.info(
                         self, "fail to setup mysql user for netdata")
@@ -1254,7 +1273,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               "| cut -d ' ' -f 2").read()
             if (wo_wan != 'eth0' and wo_wan != ''):
                 WOFileUtils.searchreplace(self,
-                                          "{0}22222/htdocs/index.php"
+                                          "{0}22222/htdocs/index.html"
                                           .format(WOVariables.wo_webroot),
                                           "eth0",
                                           "{0}".format(wo_wan))

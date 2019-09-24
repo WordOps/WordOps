@@ -2,6 +2,7 @@
 
 from wo.utils import test
 
+
 class ExamplePluginTestCase(test.WOTestCase):
     def test_load_example_plugin(self):
         self.app.setup()

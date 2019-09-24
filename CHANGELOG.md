@@ -8,6 +8,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.9 - 2019-09-24
+
+#### Added
+
+- [STACK]  UFW now available as a stack with flag `--ufw`
+- [SECURE] `wo stack secure --ssh` to harden ssh security
+- [SECURE] `wo stack secure --sshport` to change ssh port
+- [SITE] check domain DNS records before issuing a new certificate without DNS API
+- [STACK] Acme challenge with DNS Alias mode [acme.sh wiki](https://github.com/Neilpang/acme.sh/wiki/DNS-alias-mode)
+
+#### Changed
+
+- [APP] WordOps dashboard updated to v1.2, shipped as a html file, it can be used without PHP stack
+- [STACK] Refactor Let's Encrypt with acme.sh
+- [STACK] Log error improved with acme.sh depending on the acme challenge (DNS API or Webroot)
+- [INSTALL] Removed UFW setup from install script
+- [APP] phpMyAdmin updated to v4.9.1
+- [STACK] Commit possible Nginx configuration changes into Git before and after performing tasks (in `wo secure` for example)
+- [CORE] Update deprecated handlers and hooks registration
+
+#### Fixed
+
+- [STACK] `wo stack purge --all` failure if mysql isn't installed
+- [INSTALL] Fix EEv3 files cleanup
+- [SECURE] Incorrect variable usage in `wo secure --port`
+- [INSTALL] Fix backup_ee function in install script
+
 ### v3.9.8.12 - 2019-09-20
 
 #### Changed
