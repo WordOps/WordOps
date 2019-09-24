@@ -8,15 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- [SECURE] Allow new ssh port with UFW when running `wo secure --sshport`
+
+#### Fixed
+
+- [STACK] UFW setup after removing all stacks with `wo stack purge --all`
+
 ### v3.9.9 - 2019-09-24
 
 #### Added
 
 - [STACK]  UFW now available as a stack with flag `--ufw`
-- [SECURE] `wo stack secure --ssh` to harden ssh security
-- [SECURE] `wo stack secure --sshport` to change ssh port
+- [SECURE] `wo secure --ssh` to harden ssh security
+- [SECURE] `wo secure --sshport` to change ssh port
 - [SITE] check domain DNS records before issuing a new certificate without DNS API
-- [STACK] Acme challenge with DNS Alias mode [acme.sh wiki](https://github.com/Neilpang/acme.sh/wiki/DNS-alias-mode)
+- [STACK] Acme challenge with DNS Alias mode `--dnsalias=aliasdomain.tld` [acme.sh wiki](https://github.com/Neilpang/acme.sh/wiki/DNS-alias-mode)
 
 #### Changed
 

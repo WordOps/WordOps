@@ -949,19 +949,20 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                       "Include /etc/proftpd/tls.conf")
             WOService.restart_service(self, 'proftpd')
 
-            # add rule for proftpd with UFW
-            if WOFileUtils.grepcheck(
-                    self, '/etc/ufw/ufw.conf', 'ENABLED=yes'):
-                try:
-                    WOShellExec.cmd_exec(
-                        self, "ufw limit 21")
-                    WOShellExec.cmd_exec(
-                        self, "ufw allow 49000:50000/tcp")
-                    WOShellExec.cmd_exec(
-                        self, "ufw reload")
-                except CommandExecutionError as e:
-                    Log.debug(self, "{0}".format(e))
-                    Log.error(self, "Unable to add UFW rule")
+            if os.path.isfile('/etc/ufw/ufw.conf'):
+                # add rule for proftpd with UFW
+                if WOFileUtils.grepcheck(
+                        self, '/etc/ufw/ufw.conf', 'ENABLED=yes'):
+                    try:
+                        WOShellExec.cmd_exec(
+                            self, "ufw limit 21")
+                        WOShellExec.cmd_exec(
+                            self, "ufw allow 49000:50000/tcp")
+                        WOShellExec.cmd_exec(
+                            self, "ufw reload")
+                    except Exception as e:
+                        Log.debug(self, "{0}".format(e))
+                        Log.error(self, "Unable to add UFW rules")
 
             if ((os.path.isfile("/etc/fail2ban/jail.d/custom.conf")) and
                 (not WOFileUtils.grep(

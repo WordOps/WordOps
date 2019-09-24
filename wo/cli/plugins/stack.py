@@ -129,7 +129,6 @@ class WOStackController(CementBaseController):
                 pargs.php73 = True
                 pargs.redis = True
                 pargs.proftpd = True
-                pargs.security = True
 
             if pargs.web:
                 pargs.nginx = True
@@ -152,7 +151,6 @@ class WOStackController(CementBaseController):
             if pargs.security:
                 pargs.fail2ban = True
                 pargs.clamav = True
-                pargs.ufw = True
 
             # Nginx
             if pargs.nginx:
@@ -261,10 +259,8 @@ class WOStackController(CementBaseController):
 
             # UFW
             if pargs.ufw:
-                if not WOFileUtils.grep(
-                        self, '/etc/ufw/ufw.conf', 'ENABLED=yes'):
-                    Log.debug(self, "Setting apt_packages variable for UFW")
-                    apt_packages = apt_packages + ["ufw"]
+                Log.debug(self, "Setting apt_packages variable for UFW")
+                apt_packages = apt_packages + ["ufw"]
 
             # sendmail
             if pargs.sendmail:
@@ -521,7 +517,6 @@ class WOStackController(CementBaseController):
                 (not pargs.php73)):
             pargs.web = True
             pargs.admin = True
-            pargs.security = True
 
         if pargs.all:
             pargs.web = True
