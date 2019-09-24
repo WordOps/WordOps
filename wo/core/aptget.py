@@ -18,7 +18,7 @@ class WOAptGet():
         """
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
-                proc = subprocess.Popen('apt-get update',
+                proc = subprocess.Popen('apt-mirror-updater -u',
                                         shell=True,
                                         stdin=None, stdout=f,
                                         stderr=subprocess.PIPE,
