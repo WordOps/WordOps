@@ -208,9 +208,18 @@ class WOSecureController(CementBaseController):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("Server SSH port [22]:")
             pargs.user_input = port
-        WOShellExec.cmd_exec(self, "sed -i \"s/Port.*/Port "
+        if os.path.isfile('/etc/ssh/sshd_config'):
+            Log.debug(self, "looking for the current ssh port")
+            for line in open('/etc/ssh/sshd_config', encoding='utf-8'):
+                if 'Port' in line:
+                    ssh_line = line.strip()
+                    break
+            sshport = (ssh_line).split(' ')
+            current_ssh_port = (sshport[1]).strip()
+        WOShellExec.cmd_exec(self, "sed -i \"s/Port {current}/Port "
                              "{port}\" /etc/ssh/sshd_config"
-                             .format(port=pargs.user_input))
+                             .format(current=current_ssh_port,
+                                     port=pargs.user_input))
         WOGit.add(self, ["/etc/ssh"],
                   msg="Adding changed SSH port into Git")
         if not WOService.restart_service(self, 'ssh'):
