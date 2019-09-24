@@ -25,7 +25,7 @@ if not os.path.exists('/var/lib/wo/'):
     os.makedirs('/var/lib/wo/')
 
 setup(name='wo',
-      version='3.9.8.12',
+      version='3.9.9',
       description=long_description,
       long_description=long_description,
       classifiers=[],

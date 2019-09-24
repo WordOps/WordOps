@@ -8,11 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.9 - 2019-09-24
+
 #### Added
 
 - [STACK]  UFW now available as a stack with flag `--ufw`
 - [SECURE] `wo stack secure --ssh` to harden ssh security
 - [SECURE] `wo stack secure --sshport` to change ssh port
+- [SITE] check domain DNS records before issuing a new certificate without DNS API
+- [STACK] Acme challenge with DNS Alias mode [acme.sh wiki](https://github.com/Neilpang/acme.sh/wiki/DNS-alias-mode)
 
 #### Changed
 
@@ -26,10 +30,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- `wo stack purge --all` failure if mysql isn't installed
-- Fix EEv3 files cleanup
-- Incorrect variable usage in `wo secure --port`
-- Fix backup_ee function in install script
+- [STACK] `wo stack purge --all` failure if mysql isn't installed
+- [INSTALL] Fix EEv3 files cleanup
+- [SECURE] Incorrect variable usage in `wo secure --port`
+- [INSTALL] Fix backup_ee function in install script
 
 ### v3.9.8.12 - 2019-09-20
 

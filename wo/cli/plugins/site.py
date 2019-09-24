@@ -372,6 +372,9 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="choose dns provider api for letsencrypt",
                      action='store' or 'store_const',
                      const='dns_cf', nargs='?')),
+            (['--dnsalias'],
+                dict(help="set domain used for acme dns alias validation",
+                     action='store', nargs='?')),
             (['--hsts'],
                 dict(help="enable HSTS for site secured with letsencrypt",
                      action='store_true')),
@@ -730,13 +733,18 @@ class WOSiteCreateController(CementBaseController):
             letsencrypt = True
             if data['letsencrypt'] is True:
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
-                acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf')
+                acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
+                                dnsalias=False, acme_alias='')
                 if pargs.dns:
                     Log.debug(self, "DNS validation enabled")
                     acmedata['dns'] = True
                     if not pargs.dns == 'dns_cf':
                         Log.debug(self, "DNS API : {0}".format(pargs.dns))
                         acmedata['acme_dns'] = pargs.dns
+                if pargs.dnsalias:
+                    Log.debug(self, "DNS Alias enabled")
+                    acmedata['dnsalias'] = True
+                    acmedata['acme_alias'] = pargs.dnsalias
 
                 # detect subdomain and set subdomain variable
                 if pargs.letsencrypt == "subdomain":
@@ -793,7 +801,6 @@ class WOSiteCreateController(CementBaseController):
                                           "Aborting SSL certificate issuance")
                         Log.debug(self, "Setup Cert with acme.sh for {0}"
                                   .format(wo_domain))
-                        Log.info(self, "Certificate type: Subdomain")
                         if WOAcme.setupletsencrypt(
                                 self, acme_domains, acmedata):
                             WOAcme.deploycert(self, wo_domain)
@@ -1171,7 +1178,8 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.letsencrypt:
             acme_domains = []
-            acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf')
+            acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
+                            dnsalias=False, acme_alias='')
             (wo_domain_type,
              wo_root_domain) = WODomain.getdomainlevel(self, wo_domain)
 
@@ -1398,6 +1406,10 @@ class WOSiteUpdateController(CementBaseController):
                     if not pargs.dns == 'dns_cf':
                         Log.debug(self, "DNS API : {0}".format(pargs.dns))
                         acmedata['acme_dns'] = pargs.dns
+                if pargs.dnsalias:
+                    Log.debug(self, "DNS Alias enabled")
+                    acmedata['dnsalias'] = True
+                    acmedata['acme_alias'] = pargs.dnsalias
                 # Set list of domains to secure
                 if acme_subdomain is True:
                     Log.info(self, "Certificate type : subdomain")

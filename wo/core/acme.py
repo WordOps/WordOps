@@ -23,6 +23,9 @@ class WOAcme:
         if acmedata['dns'] is True:
             acme_mode = "--dns {0}".format(wo_acme_dns)
             validation_mode = "DNS mode with {0}".format(wo_acme_dns)
+            if acmedata['dnsalias'] is True:
+                acme_mode = acme_mode + \
+                    " --challenge-alias {0}".format(acmedata['acme_alias'])
         else:
             acme_mode = "-w /var/www/html"
             validation_mode = "Webroot challenge"
