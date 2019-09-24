@@ -167,7 +167,7 @@ class WOSecureController(CementBaseController):
             if start_secure != "Y" and start_secure != "y":
                 Log.error(self, "Not hardening SSH security")
         WOGit.add(self, ["/etc/ssh"],
-                      msg="Adding SSH into Git")
+                  msg="Adding SSH into Git")
         Log.debug(self, "check if /etc/ssh/sshd_config exist")
         if os.path.isfile('/etc/ssh/sshd_config'):
             Log.debug(self, "looking for the current ssh port")
