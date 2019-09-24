@@ -218,8 +218,8 @@ class WOSecureController(CementBaseController):
                     break
             sshport = (ssh_line).split(' ')
             current_ssh_port = (sshport[1]).strip()
-        WOShellExec.cmd_exec(self, "sed -i \"s/Port {current}/Port "
-                             "{port}\" /etc/ssh/sshd_config"
+        WOShellExec.cmd_exec(self, "sed -i \"s/Port.*/Port "
+                             "{port}/\" /etc/ssh/sshd_config"
                              .format(current=current_ssh_port,
                                      port=pargs.user_input))
         WOGit.add(self, ["/etc/ssh"],
