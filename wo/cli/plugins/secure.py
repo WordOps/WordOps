@@ -37,8 +37,8 @@ class WOSecureController(CementBaseController):
                 help='set custom ssh port', action='store_true')),
             (['--ssh'], dict(
                 help='harden ssh security', action='store_true')),
-            (['--ufw'],
-                dict(help='setup and configure ufw firewall',
+            (['--force'],
+                dict(help='force execution without being prompt',
                      action='store_true')),
             (['user_input'],
                 dict(help='user input', nargs='?', default=None)),
@@ -155,14 +155,16 @@ class WOSecureController(CementBaseController):
     @expose(hide=True)
     def secure_ssh(self):
         """Harden ssh security"""
-        start_secure = input('Are you sure you to want to'
-                             ' harden SSH security ?'
-                             '\nSSH login with password will not '
-                             'be possible anymore. Please make sure '
-                             'you are already using SSH Keys.\n'
-                             'Harden SSH security [y/N]')
-        if start_secure != "Y" and start_secure != "y":
-            Log.error(self, "Not hardening SSH security")
+        pargs = self.app.pargs
+        if not pargs.force:
+            start_secure = input('Are you sure you to want to'
+                                 ' harden SSH security ?'
+                                 '\nSSH login with password will not '
+                                 'be possible anymore. Please make sure '
+                                 'you are already using SSH Keys.\n'
+                                 'Harden SSH security [y/N]')
+            if start_secure != "Y" and start_secure != "y":
+                Log.error(self, "Not hardening SSH security")
         Log.debug(self, "check if /etc/ssh/sshd_config exist")
         if os.path.isfile('/etc/ssh/sshd_config'):
             Log.debug(self, "looking for the current ssh port")
