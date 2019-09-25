@@ -892,7 +892,7 @@ class WOSiteUpdateController(CementBaseController):
                               'wildcard', 'clean', 'purge'),
                      const='on', nargs='?')),
             (['--force'],
-                dict(help="force LetsEncrypt certificate issuance",
+                dict(help="force LetsEncrypt certificate issuance/renewal",
                      action='store_true')),
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
@@ -910,9 +910,6 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to proxy site", nargs='+')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
-            (['--force'],
-                dict(help="force letsencrypt certificate renewal",
-                     action='store_true')),
         ]
 
     @expose(help="Update site type or cache")
