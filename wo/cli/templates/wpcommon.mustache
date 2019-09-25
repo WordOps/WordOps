@@ -47,7 +47,7 @@ location /wp-content/uploads {
         expires max;
         try_files $uri$webp_suffix $uri =404;
     }
-    location ~* \.(php|gz|log|zip|tar|rar}$ {
+    location ~* \.(php|gz|log|zip|tar|rar)$ {
         #Prevent Direct Access Of PHP Files & BackupsFrom Web Browsers
         deny all;
     }
