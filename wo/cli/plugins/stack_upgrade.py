@@ -209,18 +209,9 @@ class WOStackUpgradeController(CementBaseController):
                 if ["php7.2-fpm"] in apt_packages:
                     WOAptGet.remove(self, ['php7.2-fpm'],
                                     auto=False, purge=True)
-                    WOFileUtils.rm(
-                        self, '/etc/php/7.2/fpm/pool.d/www.conf')
-                    WOFileUtils.rm(
-                        self, '/etc/php/7.2/fpm/pool.d/www-two.conf')
                 if ["php7.3-fpm"] in apt_packages:
                     WOAptGet.remove(self, ['php7.3-fpm'],
                                     auto=False, purge=True)
-                    WOFileUtils.rm(
-                        self, '/etc/php/7.3/fpm/pool.d/www.conf')
-                    WOFileUtils.rm(
-                        self, '/etc/php/7.3/fpm/pool.d/www-two.conf')
-
                 # check if nginx upgrade is blocked
                 if os.path.isfile(
                         '/etc/apt/preferences.d/nginx-block'):
