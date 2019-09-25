@@ -202,6 +202,37 @@ class WOFileUtils():
             Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to change owner : {0}".format(path))
 
+    def wpperm(self, path, harden=False):
+        """
+            Fix WordPress site permissions
+            path : WordPress site path
+            harden : set 750/640 instead of 755/644
+        """
+        userid = pwd.getpwnam('www-data')[2]
+        groupid = pwd.getpwnam('www-data')[3]
+        try:
+            Log.debug(self, "Fixing WordPress permissions of {0}"
+                      .format(path))
+            if harden:
+                dperm = '0o750'
+                fperm = '0o640'
+            else:
+                dperm = '0o755'
+                fperm = '0o644'
+
+            for root, dirs, files in os.walk(path):
+                for d in dirs:
+                    os.chown(os.path.join(root, d), userid,
+                             groupid)
+                    os.chmod(os.path.join(root, d), dperm)
+                for f in files:
+                    os.chown(os.path.join(root, d), userid,
+                             groupid)
+                    os.chmod(os.path.join(root, f), fperm)
+        except OSError as e:
+            Log.debug(self, "{0}".format(e.strerror))
+            Log.error(self, "Unable to change owner : {0}".format(path))
+
     def mkdir(self, path):
         """
             create directories.

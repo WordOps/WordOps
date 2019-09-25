@@ -74,7 +74,7 @@ class WOGit:
                 try:
                     Log.debug(self, "WOGit: git reset HEAD~ at {0}"
                               .format(path))
-                    git.reset("--hard HEAD~")
+                    git.reset("HEAD~", "--hard")
                 except ErrorReturnCode as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Unable to git reset at {0} "
