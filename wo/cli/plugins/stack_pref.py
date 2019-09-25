@@ -552,7 +552,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
                                  "/etc/php/7.2/fpm/pool.d/debug.conf")
             WOFileUtils.searchreplace(self, "/etc/php/7.2/fpm/pool.d/"
-                                      "debug.conf", "[www]", "[debug]")
+                                      "debug.conf", "[www-php72]", "[debug]")
             config = configparser.ConfigParser()
             config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
             config['debug']['listen'] = '127.0.0.1:9172'
@@ -685,7 +685,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
                                  "/etc/php/7.3/fpm/pool.d/debug.conf")
             WOFileUtils.searchreplace(self, "/etc/php/7.3/fpm/pool.d/"
-                                      "debug.conf", "[www]", "[debug]")
+                                      "debug.conf", "[www-php73]", "[debug]")
             config = configparser.ConfigParser()
             config.read('/etc/php/7.3/fpm/pool.d/debug.conf')
             config['debug']['listen'] = '127.0.0.1:9173'
@@ -856,13 +856,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.key", 0o700)
             WOFileUtils.chmod(self, "/etc/proftpd/ssl/proftpd.crt", 0o700)
             data = dict()
-            Log.debug(self, 'Writting the proftpd configuration to '
-                      'file /etc/proftpd/tls.conf')
-            wo_proftpdconf = open('/etc/proftpd/tls.conf',
-                                  encoding='utf-8', mode='w')
-            self.app.render((data), 'proftpd-tls.mustache',
-                                    out=wo_proftpdconf)
-            wo_proftpdconf.close()
+            WOTemplate.deploy(self, '/etc/proftpd/tls.conf',
+                              'proftpd-tls.mustache', data)
             WOFileUtils.searchreplace(self, "/etc/proftpd/"
                                       "proftpd.conf",
                                       "#Include /etc/proftpd/tls.conf",
@@ -1326,13 +1321,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 Log.debug(self, "configration Anemometer")
                 data = dict(host=WOVariables.wo_mysql_host, port='3306',
                             user='anemometer', password=chars)
-                wo_anemometer = open('{0}22222/htdocs/db/anemometer'
-                                     '/conf/config.inc.php'
-                                     .format(WOVariables.wo_webroot),
-                                     encoding='utf-8', mode='w')
-                self.app.render((data), 'anemometer.mustache',
-                                out=wo_anemometer)
-                wo_anemometer.close()
+                WOTemplate.deploy(self, '{0}22222/htdocs/db/anemometer'
+                                  '/conf/config.inc.php'
+                                  .format(WOVariables.wo_webroot),
+                                  'anemometer.mustache', data)
 
         # pt-query-advisor
         if any('/usr/bin/pt-query-advisor' == x[1]
