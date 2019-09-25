@@ -43,7 +43,7 @@ def pre_pref(self, apt_packages):
             WORepo.add_key(self, '0xcbcb082a1bb943db',
                            keyserver='keys.gnupg.net')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
-                           keyserver='hkp://keys.gnupg.net')
+                           keyserver='keys.gnupg.net')
     if "mariadb-server" in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
@@ -153,11 +153,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
             ngxroot = '/var/www/'
-            if upgrade:
-                if os.path.isdir('/etc/nginx'):
-                    WOGit.add(self,
-                              ["/etc/nginx"],
-                              msg="Adding Nginx into Git")
+            WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
             data = dict(tls13=True)
             WOTemplate.deploy(self,
                               '/etc/nginx/nginx.conf',
@@ -490,6 +486,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOService.restart_service(self, 'nginx')
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
+            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
             # Create log directories
@@ -623,6 +620,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # PHP7.3 configuration
         if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.3-fpm")
             ngxroot = '/var/www/'
             # Create log directories
@@ -756,6 +754,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # create mysql config if it doesn't exist
         if "mariadb-server" in apt_packages:
+            WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
             if not os.path.isfile("/etc/mysql/my.cnf"):
                 config = ("[mysqld]\nwait_timeout = 30\n"
                           "interactive_timeout=60\nperformance_schema = 0"
@@ -809,6 +808,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # create fail2ban configuration files
         if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
+            WOGit.add(self, ["/etc/fail2ban"],
+                      msg="Adding Fail2ban into Git")
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 Log.info(self, "Configuring Fail2Ban")
                 data = dict()
@@ -834,6 +835,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # Proftpd configuration
         if "proftpd-basic" in apt_packages:
+            WOGit.add(self, ["/etc/proftpd"],
+                      msg="Adding ProFTPd into Git")
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
                 Log.info(self, "Configuring ProFTPd")
                 Log.debug(self, "Setting up Proftpd configuration")
@@ -937,6 +940,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             # set maxmemory 10% for ram below 512MB and 20% for others
             # set maxmemory-policy allkeys-lru
             # enable systemd service
+            WOGit.add(self, ["/etc/redis"],
+                      msg="Adding Redis into Git")
             Log.debug(self, "Enabling redis systemd service")
             WOShellExec.cmd_exec(self, "systemctl enable redis-server")
             if (os.path.isfile("/etc/redis/redis.conf") and
@@ -945,7 +950,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 Log.wait(self, "Tuning Redis configuration")
                 with open("/etc/redis/redis.conf",
                           "a") as redis_file:
-                    redis_file.write("\n# WordOps v3.9.8\n")
+                    redis_file.write("\n# WordOps v3.9.9\n")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
                 if wo_ram < 1024:
                     Log.debug(self, "Setting maxmemory variable to "
@@ -985,8 +990,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                           "tcp-backlog 32768")
                 WOFileUtils.chown(self, '/etc/redis/redis.conf',
                                   'redis', 'redis', recursive=False)
-                WOService.restart_service(self, 'redis-server')
                 Log.valide(self, "Tuning Redis configuration")
+                WOGit.add(self, ["/etc/redis"],
+                          msg="Adding Redis into Git")
+                WOService.restart_service(self, 'redis-server')
 
         # ClamAV configuration
         if set(WOVariables.wo_clamav).issubset(set(apt_packages)):
