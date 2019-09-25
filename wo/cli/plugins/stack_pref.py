@@ -527,66 +527,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           "/etc/php/7.2/fpm/php.ini")
                 config.write(configfile)
 
-            # Parse /etc/php/7.2/fpm/php-fpm.conf
+            # Render php-fpm pool template for php7.3
             data = dict(pid="/run/php/php7.2-fpm.pid",
-                        error_log="/var/log/php/7.2/fpm.log",
+                        error_log="/var/log/php7.2-fpm.log",
                         include="/etc/php/7.2/fpm/pool.d/*.conf")
-            Log.debug(self, "writting php7.2 configuration into "
-                      "/etc/php/7.2/fpm/php-fpm.conf")
-            wo_php_fpm = open('/etc/php/7.2/fpm/php-fpm.conf',
-                              encoding='utf-8', mode='w')
-            self.app.render((data), 'php-fpm.mustache', out=wo_php_fpm)
-            wo_php_fpm.close()
+            WOTemplate.deploy(
+                self, '/etc/php/7.2/fpm/php-fpm.conf',
+                'php-fpm.mustache', data)
 
-            if not os.path.isfile('/etc/php/7.2/fpm/pool.d/www.conf.orig'):
-                WOFileUtils.copyfile(self, '/etc/php/7.2/fpm/pool.d/www.conf',
-                                     '/etc/php/7.2/fpm/pool.d/www.conf.orig')
-            # Parse /etc/php/7.2/fpm/pool.d/www.conf
-            config = configparser.ConfigParser()
-            config.read_file(codecs.open('/etc/php/7.2/fpm/'
-                                         'pool.d/www.conf.orig',
-                                         "r", "utf8"))
-            config['www']['ping.path'] = '/ping'
-            config['www']['pm.status_path'] = '/status'
-            config['www']['pm.max_requests'] = '1500'
-            config['www']['pm.max_children'] = '50'
-            config['www']['pm.start_servers'] = '10'
-            config['www']['pm.min_spare_servers'] = '5'
-            config['www']['pm.max_spare_servers'] = '15'
-            config['www']['request_terminate_timeout'] = '300'
-            config['www']['pm'] = 'ondemand'
-            config['www']['chdir'] = '/'
-            config['www']['prefix'] = '/var/run/php'
-            config['www']['listen'] = 'php72-fpm.sock'
-            config['www']['listen.mode'] = '0660'
-            config['www']['listen.backlog'] = '32768'
-            config['www']['catch_workers_output'] = 'yes'
-            with codecs.open('/etc/php/7.2/fpm/pool.d/www.conf',
-                             encoding='utf-8', mode='w') as configfile:
-                Log.debug(self, "Writing PHP 7.2 configuration into "
-                          "/etc/php/7.2/fpm/pool.d/www.conf")
-                config.write(configfile)
-
-            with open("/etc/php/7.2/fpm/pool.d/www.conf",
-                      encoding='utf-8', mode='a') as myfile:
-                myfile.write("\nphp_admin_value[open_basedir] "
-                             "= \"/var/www/:/usr/share/php/:"
-                             "/tmp/:/var/run/nginx-cache/:"
-                             "/dev/shm:/dev/urandom\"\n")
-
-            # Generate /etc/php/7.2/fpm/pool.d/www-two.conf
-            WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
-                                 "/etc/php/7.2/fpm/pool.d/www-two.conf")
-            WOFileUtils.searchreplace(self, "/etc/php/7.2/fpm/pool.d/"
-                                      "www-two.conf", "[www]", "[www-two]")
-            config = configparser.ConfigParser()
-            config.read('/etc/php/7.2/fpm/pool.d/www-two.conf')
-            config['www-two']['listen'] = 'php72-two-fpm.sock'
-            with open('/etc/php/7.2/fpm/pool.d/www-two.conf',
-                      encoding='utf-8', mode='w') as confifile:
-                Log.debug(self, "writting PHP7.2 configuration into "
-                          "/etc/php/7.2/fpm/pool.d/www-two.conf")
-                config.write(confifile)
+            data = dict(pool='www-php72', listen='php72-fpm.sock',
+                        user='www-data',
+                        group='www-data', listenuser='root',
+                        listengroup='www-data', openbasedir=True)
+            WOTemplate.deploy(self, '/etc/php/7.2/fpm/pool.d/www.conf',
+                              'php-pool.mustache', data)
+            data = dict(pool='www-two-php72', listen='php72-two-fpm.sock',
+                        user='www-data',
+                        group='www-data', listenuser='root',
+                        listengroup='www-data', openbasedir=True)
+            WOTemplate.deploy(self, '/etc/php/7.2/fpm/pool.d/www-two.conf',
+                              'php-pool.mustache', data)
 
             # Generate /etc/php/7.2/fpm/pool.d/debug.conf
             WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
@@ -700,66 +660,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           "/etc/php/7.3/fpm/php.ini")
                 config.write(configfile)
 
-            # Parse /etc/php/7.3/fpm/php-fpm.conf
+            # Render php-fpm pool template for php7.3
             data = dict(pid="/run/php/php7.3-fpm.pid",
                         error_log="/var/log/php7.3-fpm.log",
                         include="/etc/php/7.3/fpm/pool.d/*.conf")
-            Log.debug(self, "writting php 7.3 configuration into "
-                      "/etc/php/7.3/fpm/php-fpm.conf")
-            wo_php_fpm = open('/etc/php/7.3/fpm/php-fpm.conf',
-                              encoding='utf-8', mode='w')
-            self.app.render((data), 'php-fpm.mustache', out=wo_php_fpm)
-            wo_php_fpm.close()
+            WOTemplate.deploy(
+                self, '/etc/php/7.3/fpm/php-fpm.conf',
+                'php-fpm.mustache', data)
 
-            # Parse /etc/php/7.3/fpm/pool.d/www.conf
-            if not os.path.isfile('/etc/php/7.3/fpm/pool.d/www.conf.orig'):
-                WOFileUtils.copyfile(self, '/etc/php/7.3/fpm/pool.d/www.conf',
-                                     '/etc/php/7.3/fpm/pool.d/www.conf.orig')
-            config = configparser.ConfigParser()
-            config.read_file(codecs.open('/etc/php/7.3/fpm/'
-                                         'pool.d/www.conf.orig',
-                                         "r", "utf8"))
-            config['www']['ping.path'] = '/ping'
-            config['www']['pm.status_path'] = '/status'
-            config['www']['pm.max_requests'] = '1500'
-            config['www']['pm.max_children'] = '50'
-            config['www']['pm.start_servers'] = '10'
-            config['www']['pm.min_spare_servers'] = '5'
-            config['www']['pm.max_spare_servers'] = '15'
-            config['www']['request_terminate_timeout'] = '300'
-            config['www']['pm'] = 'ondemand'
-            config['www']['chdir'] = '/'
-            config['www']['prefix'] = '/var/run/php'
-            config['www']['listen'] = 'php73-fpm.sock'
-            config['www']['listen.mode'] = '0660'
-            config['www']['listen.backlog'] = '32768'
-            config['www']['catch_workers_output'] = 'yes'
-            with codecs.open('/etc/php/7.3/fpm/pool.d/www.conf',
-                             encoding='utf-8', mode='w') as configfile:
-                Log.debug(self, "writting PHP 7.3 configuration into "
-                          "/etc/php/7.3/fpm/pool.d/www.conf")
-                config.write(configfile)
-
-            with open("/etc/php/7.3/fpm/pool.d/www.conf",
-                      encoding='utf-8', mode='a') as myfile:
-                myfile.write("\nphp_admin_value[open_basedir] "
-                             "= \"/var/www/:/usr/share/php/:"
-                             "/tmp/:/var/run/nginx-cache/:"
-                             "/dev/shm:/dev/urandom\"\n")
-
-            # Generate /etc/php/7.3/fpm/pool.d/www-two.conf
-            WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
-                                 "/etc/php/7.3/fpm/pool.d/www-two.conf")
-            WOFileUtils.searchreplace(self, "/etc/php/7.3/fpm/pool.d/"
-                                      "www-two.conf", "[www]", "[www-two]")
-            config = configparser.ConfigParser()
-            config.read('/etc/php/7.3/fpm/pool.d/www-two.conf')
-            config['www-two']['listen'] = 'php73-two-fpm.sock'
-            with open('/etc/php/7.3/fpm/pool.d/www-two.conf',
-                      encoding='utf-8', mode='w') as confifile:
-                Log.debug(self, "writting PHP7.3 configuration into "
-                          "/etc/php/7.3/fpm/pool.d/www-two.conf")
-                config.write(confifile)
+            data = dict(pool='www-php73', listen='php73-fpm.sock',
+                        user='www-data',
+                        group='www-data', listenuser='root',
+                        listengroup='www-data', openbasedir=True)
+            WOTemplate.deploy(self, '/etc/php/7.3/fpm/pool.d/www.conf',
+                              'php-pool.mustache', data)
+            data = dict(pool='www-two-php73', listen='php73-two-fpm.sock',
+                        user='www-data',
+                        group='www-data', listenuser='root',
+                        listengroup='www-data', openbasedir=True)
+            WOTemplate.deploy(self, '/etc/php/7.3/fpm/pool.d/www-two.conf',
+                              'php-pool.mustache', data)
 
             # Generate /etc/php/7.3/fpm/pool.d/debug.conf
             WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",

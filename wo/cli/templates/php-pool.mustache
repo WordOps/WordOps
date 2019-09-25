@@ -1,0 +1,23 @@
+[{{pool}}]
+user = {{user}}
+group = {{group}}
+listen = {{listen}}
+listen.owner = {{listenuser}}
+listen.group = {{listengroup}}
+pm = ondemand
+pm.max_children = 50
+pm.start_servers = 10
+pm.min_spare_servers = 5
+pm.max_spare_servers = 15
+ping.path = /ping
+pm.status_path = /status
+pm.max_requests = 1500
+request_terminate_timeout = 300
+chdir = /
+prefix = /var/run/php
+listen.mode = 0660
+listen.backlog = 32768
+catch_workers_output = yes
+
+
+{{#openbasedir}}php_admin_value[open_basedir] = "/var/www/:/usr/share/php/:/tmp/:/var/run/nginx-cache/"{{/openbasedir}}
