@@ -265,11 +265,16 @@ class WOStackController(CementBaseController):
             # sendmail
             if pargs.sendmail:
                 Log.debug(self, "Setting apt_packages variable for Sendmail")
-                if not WOAptGet.is_installed(self, 'sendmail'):
+                if (not WOAptGet.is_installed(self, 'sendmail') and
+                        not WOAptGet.is_installed(self, 'postfix')):
                     apt_packages = apt_packages + ["sendmail"]
                 else:
-                    Log.debug(self, "Sendmail already installed")
-                    Log.info(self, "Sendmail already installed")
+                    if WOAptGet.is_installed(self, 'sendmail'):
+                        Log.debug(self, "Sendmail already installed")
+                        Log.info(self, "Sendmail already installed")
+                    else:
+                        Log.debug(self, "Another mta is already installed")
+                        Log.info(self, "Another mta is already installed")
 
             # proftpd
             if pargs.proftpd:

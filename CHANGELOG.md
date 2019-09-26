@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [SECURITY] Additional Nginx directives to prevent access to log files or backup from web browser
 - [CORE] apt-mirror-updater to select the fastest debian/ubuntu mirror with automatic switching between mirrors if the current mirror is being updated
 - [SITE] add `--force` to force Let's Encrypt certificate issuance even if DNS check fail
+- [STACK] check if another mta is installed before installing sendmail
 
 #### Changed
 
