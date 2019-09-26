@@ -273,8 +273,10 @@ class WOStackController(CementBaseController):
                         Log.debug(self, "Sendmail already installed")
                         Log.info(self, "Sendmail already installed")
                     else:
-                        Log.debug(self, "Another mta is already installed")
-                        Log.info(self, "Another mta is already installed")
+                        Log.debug(
+                            self, "Another mta (Postfix) is already installed")
+                        Log.info(
+                            self, "Another mta (Postfix) is already installed")
 
             # proftpd
             if pargs.proftpd:
