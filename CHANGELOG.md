@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.9.1 - 2019-09-26
+
 #### Added
 
 - [SECURE] Allow new ssh port with UFW when running `wo secure --sshport`
@@ -15,12 +17,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [CORE] apt-mirror-updater to select the fastest debian/ubuntu mirror with automatic switching between mirrors if the current mirror is being updated
 - [SITE] add `--force` to force Let's Encrypt certificate issuance even if DNS check fail
 - [STACK] check if another mta is installed before installing sendmail
+- [SECURE] `--allowpassword` to allow password when using `--ssh` with `wo secure`
 
 #### Changed
 
 - [SECURITY] Improved sshd_config template according to Mozilla Infosec guidelines
 - [STACK] Always add stack configuration into Git before making changes to make rollback easier
 - [STACK] Render php-fpm pools configuration from template
+- [STACK] Adminer updated to v4.7.3
 
 #### Fixed
 

@@ -38,6 +38,9 @@ class WOSecureController(CementBaseController):
                 help='set custom ssh port', action='store_true')),
             (['--ssh'], dict(
                 help='harden ssh security', action='store_true')),
+            (['--allowpassword'], dict(
+                help='allow password authentification '
+                'when hardening ssh security', action='store_true')),
             (['--force'],
                 dict(help='force execution without being prompt',
                      action='store_true')),
@@ -157,7 +160,7 @@ class WOSecureController(CementBaseController):
     def secure_ssh(self):
         """Harden ssh security"""
         pargs = self.app.pargs
-        if not pargs.force:
+        if not pargs.force and not pargs.allowpassword:
             start_secure = input('Are you sure you to want to'
                                  ' harden SSH security ?'
                                  '\nSSH login with password will not '
@@ -181,7 +184,11 @@ class WOSecureController(CementBaseController):
                 sudo_user = os.getenv('SUDO_USER')
             else:
                 sudo_user = ''
-            data = dict(sshport=current_ssh_port, allowpass='no',
+            if pargs.allowpassword:
+                wo_allowpassword = 'yes'
+            else:
+                wo_allowpassword = 'no'
+            data = dict(sshport=current_ssh_port, allowpass=wo_allowpassword,
                         user=sudo_user)
             WOTemplate.deploy(self, '/etc/ssh/sshd_config',
                               'sshd.mustache', data)
