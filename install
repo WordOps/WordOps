@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.8.12 - 2019-09-20
+# Version 3.9.9.1 - 2019-09-26
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -455,6 +455,7 @@ wo_install_acme_sh() {
         chown -R www-data:www-data /var/www/html /var/www/html/.well-known
         chmod 750 /var/www/html /var/www/html/.well-known
     else
+        chown -R www-data:www-data /var/www/html /var/www/html/.well-known
         chmod 750 /var/www/html /var/www/html/.well-known
     fi
 }

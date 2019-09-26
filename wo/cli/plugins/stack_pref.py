@@ -1337,3 +1337,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         if any('/usr/bin/pt-query-advisor' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
+
+        # ngxblocker
+        if any('/usr/local/sbin/install-ngxblocker' == x[1]
+               for x in packages):
+            WOFileUtils.chmod(
+                self, "/usr/local/sbin/install-ngxblocker", 0o700)
+            WOShellExec.cmd_exec(self, '/usr/local/sbin/install-ngxblocker -x')
+            WOFileUtils.chmod(
+                self, "/usr/local/sbin/update-ngxblocker", 0o700)

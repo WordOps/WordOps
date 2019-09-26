@@ -5,7 +5,6 @@ import subprocess
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
-
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
@@ -379,6 +378,9 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="set domain used for acme dns alias validation",
                      action='store', nargs='?')),
             (['--hsts'],
+                dict(help="enable HSTS for site secured with letsencrypt",
+                     action='store_true')),
+            (['--ngxblocker'],
                 dict(help="enable HSTS for site secured with letsencrypt",
                      action='store_true')),
             (['--user'],
@@ -906,6 +908,10 @@ class WOSiteUpdateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'off'),
                      const='on', nargs='?')),
+            (['--ngxblocker'],
+                dict(help="enable HSTS for site secured with letsencrypt",
+                     action='store' or 'store_const',
+                     const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--all'],
@@ -1010,30 +1016,12 @@ class WOSiteUpdateController(CementBaseController):
                                     pargs.wp or pargs.wpfc or pargs.wpsc or
                                     pargs.wprocket or pargs.wpce or
                                     pargs.wpsubdir or pargs.wpsubdomain or
-                                    pargs.hsts)):
+                                    pargs.hsts or pargs.ngxblocker)):
             try:
                 updatewpuserpassword(self, wo_domain, wo_site_webroot)
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, "\nPassword Unchanged.")
-            return 0
-
-        if (pargs.hsts and not (pargs.html or
-                                pargs.php or pargs.php73 or pargs.mysql or
-                                pargs.wp or pargs.wpfc or pargs.wpsc or
-                                pargs.wprocket or pargs.wpce or
-                                pargs.wpsubdir or pargs.wpsubdomain or
-                                pargs.password)):
-            try:
-                SSL.setuphsts(self, wo_domain)
-            except SiteError as e:
-                Log.debug(self, str(e))
-                Log.info(self, "\nFail to enable HSTS")
-            if not WOService.reload_service(self, 'nginx'):
-                Log.error(self, "service nginx reload failed. "
-                          "check issues with `nginx -t` command")
-                Log.info(self, "HSTS is enabled for "
-                         "https://{0}".format(wo_domain))
             return 0
 
         if ((stype == 'php' and
@@ -1364,6 +1352,12 @@ class WOSiteUpdateController(CementBaseController):
             elif pargs.hsts == "off":
                 data['hsts'] = False
 
+        if pargs.ngxblocker:
+            if pargs.ngxblocker == 'on':
+                ngxblocker = True
+            elif pargs.ngxblocker == 'off':
+                ngxblocker = False
+
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
                       .format(wo_domain))
@@ -1374,7 +1368,7 @@ class WOSiteUpdateController(CementBaseController):
         data['wo_db_pass'] = check_site.db_password
         data['wo_db_host'] = check_site.db_host
 
-        if not (pargs.letsencrypt or pargs.hsts):
+        if not (pargs.letsencrypt or pargs.hsts or pargs.ngxblocker):
             try:
                 pre_run_checks(self)
             except SiteError as e:
@@ -1598,6 +1592,31 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, "HSTS is not configured for given "
                               "site")
+        if pargs.ngxblocker:
+            if ngxblocker is True:
+                if not os.path.isfile("{0}/conf/nginx/ngxblocker.conf.disabled"
+                                      .format(wo_site_webroot)):
+                    setupngxblocker(self, wo_domain)
+                else:
+                    WOFileUtils.mvfile(
+                        self,
+                        "{0}/conf/nginx/ngxblocker.conf.disabled"
+                        .format(wo_site_webroot),
+                        "{0}/conf/nginx/ngxblocker.conf"
+                        .format(wo_site_webroot))
+            elif ngxblocker is False:
+                if os.path.isfile("{0}/conf/nginx/ngxblocker.conf"
+                                  .format(wo_site_webroot)):
+                    WOFileUtils.mvfile(
+                        self,
+                        "{0}/conf/nginx/ngxblocker.conf"
+                        .format(wo_site_webroot),
+                        "{0}/conf/nginx/ngxblocker.conf.disabled"
+                        .format(wo_site_webroot))
+            # Service Nginx Reload
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
 
         if stype == oldsitetype and cache == oldcachetype:
 

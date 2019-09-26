@@ -85,6 +85,9 @@ class WOStackController(CementBaseController):
                 dict(help='Install phpRedisAdmin', action='store_true')),
             (['--proftpd'],
                 dict(help='Install ProFTPd', action='store_true')),
+            (['--ngxblocker'],
+                dict(help='Install Nginx Ultimate Bad Bot Blocker',
+                     action='store_true')),
             (['--force'],
                 dict(help='Force install/remove/purge without prompt',
                      action='store_true')),
@@ -423,6 +426,19 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "eXtplorer is already installed")
                     Log.info(self, "eXtplorer is already installed")
+
+            if pargs.ngxblocker:
+                if not os.path.isdir('/etc/nginx/bots.d'):
+                    Log.debug(self, "Setting packages variable for ngxblocker")
+                    packages = packages + \
+                        [["https://raw.githubusercontent.com/"
+                          "mitchellkrogza/nginx-ultimate-bad-bot-blocker"
+                          "/master/install-ngxblocker",
+                          "/usr/local/sbin/install-ngxblocker",
+                          "ngxblocker"]]
+                else:
+                    Log.debug(self, "ngxblocker is already installed")
+                    Log.info(self, "ngxblocker is already installed")
 
             # UTILS
             if pargs.utils:

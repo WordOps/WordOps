@@ -1592,3 +1592,14 @@ def setuprocketchat(self):
             WOAptGet.install(self, ["snapd"])
         if WOShellExec.cmd_exec(self, "snap install rocketchat-server"):
             return True
+
+
+def setupngxblocker(self, domain):
+    if os.path.isdir('/var/www/{0}/conf/nginx'.format(domain)):
+        ngxconf = open("/var/www/{0}/conf/nginx/ngxblocker.conf"
+                       .format(domain),
+                       encoding='utf-8', mode='w')
+        ngxconf.write("# Bad Bot Blocker\n"
+                      "include /etc/nginx/bots.d/ddos.conf;\n"
+                      "include /etc/nginx/bots.d/blockbots.conf;\n")
+        ngxconf.close()
