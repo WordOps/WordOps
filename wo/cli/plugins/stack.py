@@ -129,7 +129,6 @@ class WOStackController(CementBaseController):
                 pargs.php73 = True
                 pargs.redis = True
                 pargs.proftpd = True
-                pargs.security = True
 
             if pargs.web:
                 pargs.nginx = True
@@ -152,7 +151,6 @@ class WOStackController(CementBaseController):
             if pargs.security:
                 pargs.fail2ban = True
                 pargs.clamav = True
-                pargs.ufw = True
 
             # Nginx
             if pargs.nginx:
@@ -261,19 +259,24 @@ class WOStackController(CementBaseController):
 
             # UFW
             if pargs.ufw:
-                if not WOFileUtils.grep(
-                        self, '/etc/ufw/ufw.conf', 'ENABLED=yes'):
-                    Log.debug(self, "Setting apt_packages variable for UFW")
-                    apt_packages = apt_packages + ["ufw"]
+                Log.debug(self, "Setting apt_packages variable for UFW")
+                apt_packages = apt_packages + ["ufw"]
 
             # sendmail
             if pargs.sendmail:
                 Log.debug(self, "Setting apt_packages variable for Sendmail")
-                if not WOAptGet.is_installed(self, 'sendmail'):
+                if (not WOAptGet.is_installed(self, 'sendmail') and
+                        not WOAptGet.is_installed(self, 'postfix')):
                     apt_packages = apt_packages + ["sendmail"]
                 else:
-                    Log.debug(self, "Sendmail already installed")
-                    Log.info(self, "Sendmail already installed")
+                    if WOAptGet.is_installed(self, 'sendmail'):
+                        Log.debug(self, "Sendmail already installed")
+                        Log.info(self, "Sendmail already installed")
+                    else:
+                        Log.debug(
+                            self, "Another mta (Postfix) is already installed")
+                        Log.info(
+                            self, "Another mta (Postfix) is already installed")
 
             # proftpd
             if pargs.proftpd:
@@ -521,7 +524,6 @@ class WOStackController(CementBaseController):
                 (not pargs.php73)):
             pargs.web = True
             pargs.admin = True
-            pargs.security = True
 
         if pargs.all:
             pargs.web = True

@@ -33,8 +33,11 @@ X11Forwarding yes
 # Allow client to pass locale environment variables
 AcceptEnv LANG LC_*
 
-# override default of no subsystems
-Subsystem sftp /usr/lib/openssh/sftp-server
+# LogLevel VERBOSE logs user's key fingerprint on login. Needed to have a clear audit track of which key was using to log in.
+LogLevel VERBOSE
+
+# Log sftp level file access (read/write/etc.) that would not be easily logged otherwise.
+Subsystem sftp  /usr/lib/ssh/sftp-server -f AUTHPRIV -l INFO
 
 # Host keys the client accepts - order here is honored by OpenSSH
 HostKeyAlgorithms ssh-ed25519-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ssh-ed25519,ssh-rsa,ecdsa-sha2-nistp521-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp521,ecdsa-sha2-nistp384,ecdsa-sha2-nistp256
@@ -43,3 +46,7 @@ HostKeyAlgorithms ssh-ed25519-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,
 KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+
+# Use kernel sandbox mechanisms where possible in unprivileged processes
+# Systrace on OpenBSD, Seccomp on Linux, seatbelt on MacOSX/Darwin, rlimit elsewhere.
+UsePrivilegeSeparation sandbox

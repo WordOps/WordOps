@@ -66,7 +66,7 @@ http {
 	more_set_headers "X-Frame-Options : SAMEORIGIN";
 	more_set_headers "X-Xss-Protection : 1; mode=block";
 	more_set_headers "X-Content-Type-Options : nosniff";
-	more_set_headers "Referrer-Policy : strict-origin-when-cross-origin";
+	more_set_headers "Referrer-Policy : no-referrer, strict-origin-when-cross-origin";
 	more_set_headers "X-Download-Options : noopen";
 
 	# oscp settings

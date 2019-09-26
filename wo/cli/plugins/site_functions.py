@@ -930,16 +930,9 @@ def updatewpuserpassword(self, wo_domain, wo_site_webroot):
     wo_wp_pass = ''
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
 
-    # Check if wo_domain is wordpress install
-    try:
-        is_wp = WOShellExec.cmd_exec(self, "wp --allow-root core"
-                                     " version")
-    except CommandExecutionError as e:
-        Log.debug(self, "{0}".format(e))
-        raise SiteError("is WordPress site? check command failed ")
-
-    # Exit if wo_domain is not wordpress install
-    if not is_wp:
+    if not WOShellExec.cmd_exec(self, "wp --allow-root core"
+                                " is-installed"):
+        # Exit if wo_domain is not wordpress install
         Log.error(self, "{0} does not seem to be a WordPress site"
                   .format(wo_domain))
 
@@ -1333,8 +1326,6 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(domain)):
             removeNginxConf(self, domain)
-        if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
-                         .format(domain)):
             removeAcmeConf(self, domain)
 
     if webroot:

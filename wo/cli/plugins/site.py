@@ -368,6 +368,9 @@ class WOSiteCreateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
+            (['--force'],
+                dict(help="force Let's Encrypt certificate issuance",
+                     action='store_true')),
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
                      action='store' or 'store_const',
@@ -796,9 +799,11 @@ class WOSiteCreateController(CementBaseController):
                     else:
                         # check DNS records before issuing cert
                         if not acmedata['dns'] is True:
-                            if not WOAcme.check_dns(self, acme_domains):
-                                Log.error(self,
-                                          "Aborting SSL certificate issuance")
+                            if not pargs.force:
+                                if not WOAcme.check_dns(self, acme_domains):
+                                    Log.error(self,
+                                              "Aborting SSL "
+                                              "certificate issuance")
                         Log.debug(self, "Setup Cert with acme.sh for {0}"
                                   .format(wo_domain))
                         if WOAcme.setupletsencrypt(
@@ -806,9 +811,10 @@ class WOSiteCreateController(CementBaseController):
                             WOAcme.deploycert(self, wo_domain)
                 else:
                     if not acmedata['dns'] is True:
-                        if not WOAcme.check_dns(self, acme_domains):
-                            Log.error(self,
-                                      "Aborting SSL certificate issuance")
+                        if not pargs.force:
+                            if not WOAcme.check_dns(self, acme_domains):
+                                Log.error(self,
+                                          "Aborting SSL certificate issuance")
                     if WOAcme.setupletsencrypt(
                             self, acme_domains, acmedata):
                         WOAcme.deploycert(self, wo_domain)
@@ -885,6 +891,9 @@ class WOSiteUpdateController(CementBaseController):
                      choices=('on', 'off', 'renew', 'subdomain',
                               'wildcard', 'clean', 'purge'),
                      const='on', nargs='?')),
+            (['--force'],
+                dict(help="force LetsEncrypt certificate issuance/renewal",
+                     action='store_true')),
             (['--dns'],
                 dict(help="choose dns provider api for letsencrypt",
                      action='store' or 'store_const',
@@ -901,9 +910,6 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to proxy site", nargs='+')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
-            (['--force'],
-                dict(help="force letsencrypt certificate renewal",
-                     action='store_true')),
         ]
 
     @expose(help="Update site type or cache")
@@ -1446,10 +1452,13 @@ class WOSiteUpdateController(CementBaseController):
                         else:
                             # check DNS records before issuing cert
                             if not acmedata['dns'] is True:
-                                if not WOAcme.check_dns(self, acme_domains):
-                                    Log.error(
-                                        self,
-                                        "Aborting SSL certificate issuance")
+                                if not pargs.force:
+                                    if not WOAcme.check_dns(self,
+                                                            acme_domains):
+                                        Log.error(
+                                            self,
+                                            "Aborting SSL certificate "
+                                            "issuance")
                             Log.debug(self, "Setup Cert with acme.sh for {0}"
                                       .format(wo_domain))
                             if WOAcme.setupletsencrypt(
@@ -1460,10 +1469,11 @@ class WOSiteUpdateController(CementBaseController):
                     else:
                         # check DNS records before issuing cert
                         if not acmedata['dns'] is True:
-                            if not WOAcme.check_dns(self, acme_domains):
-                                Log.error(
-                                    self,
-                                    "Aborting SSL certificate issuance")
+                            if not pargs.force:
+                                if not WOAcme.check_dns(self, acme_domains):
+                                    Log.error(
+                                        self,
+                                        "Aborting SSL certificate issuance")
                         if WOAcme.setupletsencrypt(
                                 self, acme_domains, acmedata):
                             WOAcme.deploycert(self, wo_domain)

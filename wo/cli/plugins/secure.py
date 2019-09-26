@@ -4,6 +4,7 @@ import os
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 
+from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.random import RANDOM
@@ -37,6 +38,9 @@ class WOSecureController(CementBaseController):
                 help='set custom ssh port', action='store_true')),
             (['--ssh'], dict(
                 help='harden ssh security', action='store_true')),
+            (['--allowpassword'], dict(
+                help='allow password authentification '
+                'when hardening ssh security', action='store_true')),
             (['--force'],
                 dict(help='force execution without being prompt',
                      action='store_true')),
@@ -156,7 +160,7 @@ class WOSecureController(CementBaseController):
     def secure_ssh(self):
         """Harden ssh security"""
         pargs = self.app.pargs
-        if not pargs.force:
+        if not pargs.force and not pargs.allowpassword:
             start_secure = input('Are you sure you to want to'
                                  ' harden SSH security ?'
                                  '\nSSH login with password will not '
@@ -165,6 +169,8 @@ class WOSecureController(CementBaseController):
                                  'Harden SSH security [y/N]')
             if start_secure != "Y" and start_secure != "y":
                 Log.error(self, "Not hardening SSH security")
+        WOGit.add(self, ["/etc/ssh"],
+                  msg="Adding SSH into Git")
         Log.debug(self, "check if /etc/ssh/sshd_config exist")
         if os.path.isfile('/etc/ssh/sshd_config'):
             Log.debug(self, "looking for the current ssh port")
@@ -178,7 +184,11 @@ class WOSecureController(CementBaseController):
                 sudo_user = os.getenv('SUDO_USER')
             else:
                 sudo_user = ''
-            data = dict(sshport=current_ssh_port, allowpass='no',
+            if pargs.allowpassword:
+                wo_allowpassword = 'yes'
+            else:
+                wo_allowpassword = 'no'
+            data = dict(sshport=current_ssh_port, allowpass=wo_allowpassword,
                         user=sudo_user)
             WOTemplate.deploy(self, '/etc/ssh/sshd_config',
                               'sshd.mustache', data)
@@ -213,8 +223,23 @@ class WOSecureController(CementBaseController):
         WOShellExec.cmd_exec(self, "sed -i \"s/Port.*/Port "
                              "{port}/\" /etc/ssh/sshd_config"
                              .format(port=pargs.user_input))
+        # allow new ssh port if ufw is enabled
+        if os.path.isfile('/etc/ufw/ufw.conf'):
+            # add rule for proftpd with UFW
+            if WOFileUtils.grepcheck(
+                    self, '/etc/ufw/ufw.conf', 'ENABLED=yes'):
+                try:
+                    WOShellExec.cmd_exec(
+                        self, 'ufw limit {0}'.format(pargs.user_input))
+                    WOShellExec.cmd_exec(
+                        self, 'ufw reload')
+                except Exception as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(self, "Unable to add UFW rule")
+        # add ssh into git
         WOGit.add(self, ["/etc/ssh"],
                   msg="Adding changed SSH port into Git")
+        # restart ssh service
         if not WOService.restart_service(self, 'ssh'):
             Log.error(self, "service SSH restart failed.")
         Log.info(self, "Successfully changed SSH port to {port}"

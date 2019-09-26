@@ -40,15 +40,15 @@ location @robots {
 location /wp-content/uploads {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
-        add_header "Access-Control-Allow-Origin" "*";
+        more_set_headers 'Access-Control-Allow-Origin : *';
         add_header Cache-Control "public, no-transform";
         access_log off;
         log_not_found off;
         expires max;
         try_files $uri$webp_suffix $uri =404;
     }
-    location ~ \.php$ {
-#Prevent Direct Access Of PHP Files From Web Browsers
+    location ~* \.(php|gz|log|zip|tar|rar)$ {
+        #Prevent Direct Access Of PHP Files & BackupsFrom Web Browsers
         deny all;
     }
 }
@@ -56,7 +56,7 @@ location /wp-content/uploads {
 location /wp-content/plugins/ewww-image-optimizer/images {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
-        add_header "Access-Control-Allow-Origin" "*";
+        more_set_headers 'Access-Control-Allow-Origin : *';
         add_header Cache-Control "public, no-transform";
         access_log off;
         log_not_found off;
@@ -72,7 +72,7 @@ location /wp-content/plugins/ewww-image-optimizer/images {
 location /wp-content/cache {
 # Cache css & js files
     location ~* \.(?:css(\.map)?|js(\.map)?|.html)$ {
-        add_header "Access-Control-Allow-Origin" "*";
+        more_set_headers 'Access-Control-Allow-Origin : *';
         access_log off;
         log_not_found off;
         expires 30d;

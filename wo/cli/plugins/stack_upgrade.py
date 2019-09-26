@@ -212,7 +212,6 @@ class WOStackUpgradeController(CementBaseController):
                 if ["php7.3-fpm"] in apt_packages:
                     WOAptGet.remove(self, ['php7.3-fpm'],
                                     auto=False, purge=True)
-
                 # check if nginx upgrade is blocked
                 if os.path.isfile(
                         '/etc/apt/preferences.d/nginx-block'):
