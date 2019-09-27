@@ -119,7 +119,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.ufw) and
+                (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                     (not pargs.php73)):
                 pargs.web = True
@@ -154,6 +154,7 @@ class WOStackController(CementBaseController):
             if pargs.security:
                 pargs.fail2ban = True
                 pargs.clamav = True
+                pargs.ngxblocker = True
 
             # Nginx
             if pargs.nginx:
