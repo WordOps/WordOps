@@ -9,9 +9,11 @@ CRED="${CSI}1;31m"
 CGREEN="${CSI}1;32m"
 CEND="${CSI}0m"
 
-apt-get -qq purge mysql* graphviz* redis*
-apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
-sudo apt-get -qq autoremove --purge
+if [ -z "$1" ]; then
+    apt-get -qq purge mysql* graphviz* redis*
+    apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
+    sudo apt-get -qq autoremove --purge
+fi
 
 exit_script() {
     curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo ""
