@@ -1024,6 +1024,72 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "\nPassword Unchanged.")
             return 0
 
+        if (pargs.hsts and not (pargs.html or
+                                pargs.php or pargs.php73 or pargs.mysql or
+                                pargs.wp or pargs.wpfc or pargs.wpsc or
+                                pargs.wprocket or pargs.wpce or
+                                pargs.wpsubdir or pargs.wpsubdomain or
+                                pargs.ngxblocker)):
+            if pargs.hsts == "on":
+                try:
+                    SSL.setuphsts(self, wo_domain)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, "\nHSTS not enabled.")
+                return 0
+            elif pargs.hsts == "off":
+                if os.path.isfile(
+                    '/var/www/{0}/conf/nginx/hsts.conf'
+                        .format(wo_domain)):
+                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
+                                       'nginx/hsts.conf'
+                                       .format(wo_domain),
+                                       '/var/www/{0}/conf/'
+                                       'nginx/hsts.conf.disabled'
+                                       .format(wo_domain))
+                    return 0
+                else:
+                    Log.error(self, "HSTS isn't enabled")
+
+        if (pargs.ngxblocker and not (pargs.html or
+                                      pargs.php or pargs.php73 or
+                                      pargs.mysql or
+                                      pargs.wp or pargs.wpfc or pargs.wpsc or
+                                      pargs.wprocket or pargs.wpce or
+                                      pargs.wpsubdir or pargs.wpsubdomain or
+                                      pargs.hsts)):
+            if pargs.ngxblocker == "on":
+                if not os.path.isfile(
+                    '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
+                        .format(wo_domain)):
+                    try:
+                        setupngxblocker(self, wo_domain)
+                    except SiteError as e:
+                        Log.debug(self, str(e))
+                        Log.info(self, "\nngxblocker not enabled.")
+                    return 0
+                else:
+                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
+                                       'nginx/ngxblocker.conf.disabled'
+                                       .format(wo_domain),
+                                       '/var/www/{0}/conf/'
+                                       'nginx/ngxblocker.conf'
+                                       .format(wo_domain))
+                    return 0
+            elif pargs.ngxblocker == "off":
+                if os.path.isfile(
+                    '/var/www/{0}/conf/nginx/ngxblocker.conf'
+                        .format(wo_domain)):
+                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
+                                       'nginx/ngxblocker.conf'
+                                       .format(wo_domain),
+                                       '/var/www/{0}/conf/'
+                                       'nginx/ngxblocker.conf.disabled'
+                                       .format(wo_domain))
+                    return 0
+                else:
+                    Log.error(self, "ngxblocker isn't enabled")
+
         if ((stype == 'php' and
              oldsitetype not in ['html', 'proxy', 'php73']) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
