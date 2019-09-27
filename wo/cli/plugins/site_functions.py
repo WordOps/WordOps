@@ -847,6 +847,8 @@ def site_package_check(self, stype):
                 apt = ["nginx"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
                 post_pref(self, apt, packages)
+            elif os.file.isfile('/usr/sbin/nginx'):
+                post_pref(self, WOVariables.wo_nginx, [])
             else:
                 apt_packages = apt_packages + WOVariables.wo_nginx
         else:
@@ -919,6 +921,16 @@ def site_package_check(self, stype):
                     WOVariables.wo_php73 + WOVariables.wo_php_extra
             else:
                 apt_packages = apt_packages + WOVariables.wo_php73
+
+    if self.app.pargs.ngxblocker:
+        if not os.path.isdir('/etc/nginx/bots.d'):
+            Log.debug(self, "Setting packages variable for ngxblocker")
+            packages = packages + \
+                [["https://raw.githubusercontent.com/"
+                  "mitchellkrogza/nginx-ultimate-bad-bot-blocker"
+                  "/master/install-ngxblocker",
+                  "/usr/local/sbin/install-ngxblocker",
+                  "ngxblocker"]]
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
