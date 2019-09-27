@@ -18,6 +18,6 @@ jobs:
         sudo mkdir -p /etc/mysql/conf.d
         echo -e '[client]\nuser = root\npassword = root\n' | sudo tee /etc/mysql/conf.d/my.cnf
     - name: Install WordOps
-      run: sudo bash install --travis
+      run: sudo timeout 1800 bash install --travis
     - name: Run tests
-      run: sudo bash tests/travis.sh --actions
+      run: sudo timeout 1800 bash tests/travis.sh --actions
