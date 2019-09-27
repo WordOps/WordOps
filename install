@@ -70,6 +70,7 @@ while [ "$#" -gt 0 ]; do
         ;;
     --travis)
         wo_travis="y"
+        wo_force_install="y"
         ;;
     -s | --silent)
         wo_force_install="y"
@@ -495,6 +496,10 @@ wo_install() {
 
 # Clone Github repository if it doesn't exist
 wo_install_travis() {
+
+    if [ "$wo_force_install" = "y" ]; then
+        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
+    fi
 
     if [ -f "$HOME/.gitconfig" ]; then
         # install and redirect log to not print python package install
