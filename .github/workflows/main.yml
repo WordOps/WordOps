@@ -20,4 +20,4 @@ jobs:
     - name: Install WordOps
       run: sudo bash install --travis
     - name: Run tests
-      run: sudo bash tests/travis.sh
+      run: sudo bash tests/travis.sh --actions
