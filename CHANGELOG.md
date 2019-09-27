@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- [STACK] Nginx server_names_hash_bucket_size automated fix
+- [STACK] Nginx configuration rollback in case of failure after `wo stack upgrade --nginx
+- [STACK] Nginx ultimate bad bots blocker with `wo stack install --ngxblocker`
+
 ### v3.9.9.1 - 2019-09-26
 
 #### Added

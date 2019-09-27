@@ -24,6 +24,7 @@ from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVariables
+from wo.core.nginxhashbucket import hashbucket
 
 
 def pre_pref(self, apt_packages):
@@ -470,20 +471,27 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                       '> /dev/null 2>&1',
                                       comment='Cloudflare IP refresh cronjob '
                                       'added by WordOps')
-
-            if upgrade:
-                try:
-                    WOShellExec.cmd_exec(self, 'nginx -t')
-                except CommandExecutionError as e:
-                    Log.debug(self, "{0}".format(e))
-                    Log.info(self, "Rolling-Back Nginx"
-                             "configuration")
-                    WOGit.rollback(self, ["/etc/nginx"])
+                WOGit.add(self,
+                          ["/etc/nginx"], msg="Adding Nginx into Git")
 
             # Nginx Configation into GIT
             WOGit.add(self,
                       ["/etc/nginx"], msg="Adding Nginx into Git")
-            WOService.restart_service(self, 'nginx')
+            if not WOService.restart_service(self, 'nginx'):
+                try:
+                    hashbucket(self)
+                    WOService.restart_service(self, 'nginx')
+                except Exception:
+                    Log.warn(
+                        self, "increasing nginx server_names_hash_bucket_size "
+                        "do not fix the issue")
+                    Log.info(self, "Rolling back to previous configuration")
+                    WOGit.rollback(self, ["/etc/nginx"])
+                    if not WOService.restart_service(self, 'nginx'):
+                        Log.error(
+                            self, "There is an error in Nginx configuration.\n"
+                            "Use the command nginx -t to identify "
+                            "the cause of this issue", False)
 
         if set(WOVariables.wo_php).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")

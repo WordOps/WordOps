@@ -28,8 +28,14 @@ def hashbucket(self):
     ngx_hash = math.trunc(math.pow(2, ngx_calc))
 
     # Replace hashbucket in Nginx.conf file
-    if WOFileUtils.grep(self, "/etc/nginx/nginx.conf",
-                        "server_names_hash_bucket_size"):
+    if WOFileUtils.grepcheck(self, "/etc/nginx/nginx.conf",
+                             "# server_names_hash_bucket_size 64;"):
+        ngxconf = open("/etc/nginx/conf.d/hashbucket.conf",
+                       encoding='utf-8', mode='w')
+        ngxconf.write("\tserver_names_hash_bucket_size {0};".format(ngx_hash))
+        ngxconf.close()
+    elif WOFileUtils.grepcheck(self, "/etc/nginx/nginx/conf",
+                               "server_names_hash_bucket_size"):
         for line in fileinput.FileInput("/etc/nginx/nginx.conf", inplace=1):
             if "server_names_hash_bucket_size" in line:
                 print("\tserver_names_hash_bucket_size {0};".format(ngx_hash))
@@ -37,8 +43,7 @@ def hashbucket(self):
                 print(line, end='')
 
     else:
-        WOFileUtils.searchreplace(self, '/etc/nginx/nginx.conf',
-                                  "gzip_disable \"msie6\";",
-                                  "gzip_disable \"msie6\";\n"
-                                  "\tserver_names_hash_bucket_size {0};\n"
-                                  .format(ngx_hash))
+        ngxconf = open("/etc/nginx/conf.d/hashbucket.conf",
+                       encoding='utf-8', mode='w')
+        ngxconf.write("\tserver_names_hash_bucket_size {0};".format(ngx_hash))
+        ngxconf.close()
