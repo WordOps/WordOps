@@ -1,0 +1,23 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Prepare VM
+      run: |
+        unset LANG
+        sudo apt-get -qq purge graphviz* redis*
+        sudo apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
+        sudo apt-get -qq autoremove --purge
+        sudo mkdir -p /etc/mysql/conf.d
+        echo -e '[client]\nuser = root\npassword = root\n' | sudo tee /etc/mysql/conf.d/my.cnf
+    - name: Install WordOps
+      run: sudo bash install --travis
+    - name: Run tests
+      run: sudo bash tests/travis.sh
