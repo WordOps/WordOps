@@ -136,26 +136,26 @@ for site in $wp_site_types; do
 
     fi
 done
+if [ -z "$1" ]; then
+    echo -e "${CGREEN}#############################################${CEND}"
+    echo -e '       wo stack upgrade              '
+    echo -e "${CGREEN}#############################################${CEND}"
+    stack_upgrade='nginx php mysql redis netdata dashboard phpmyadmin'
+    for stack in $stack_upgrade; do
+        echo -ne "      Upgrading $stack               [..]\r"
+        if {
+            wo stack upgrade --${stack} --force
+        } >> /var/log/wo/test.log; then
+            echo -ne "       Upgrading $stack               [${CGREEN}OK${CEND}]\\r"
+            echo -ne '\n'
+        else
+            echo -e "        Upgrading $stack              [${CRED}FAIL${CEND}]"
+            echo -ne '\n'
+            exit_script
 
-echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       wo stack upgrade              '
-echo -e "${CGREEN}#############################################${CEND}"
-stack_upgrade='nginx php mysql redis netdata dashboard phpmyadmin'
-for stack in $stack_upgrade; do
-    echo -ne "      Upgrading $stack               [..]\r"
-    if {
-        wo stack upgrade --${stack} --force
-    } >> /var/log/wo/test.log; then
-        echo -ne "       Upgrading $stack               [${CGREEN}OK${CEND}]\\r"
-        echo -ne '\n'
-    else
-        echo -e "        Upgrading $stack              [${CRED}FAIL${CEND}]"
-        echo -ne '\n'
-        exit_script
-
-    fi
-done
-
+        fi
+    done
+fi
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo clean              '
 echo -e "${CGREEN}#############################################${CEND}"
