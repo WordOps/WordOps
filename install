@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.9.1 - 2019-09-26
+# Version 3.9.9.1 - 2019-09-27
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -70,15 +70,13 @@ while [ "$#" -gt 0 ]; do
         ;;
     --travis)
         wo_travis="y"
+        wo_force_install="y"
         ;;
     -s | --silent)
         wo_force_install="y"
         ;;
     --purge | --uninstall)
         wo_purge="y"
-        ;;
-    -w | --wufw | --without-ufw)
-        ufw="n"
         ;;
     -v | --version)
         wo_version="$2"
@@ -495,6 +493,10 @@ wo_install() {
 
 # Clone Github repository if it doesn't exist
 wo_install_travis() {
+
+    if [ "$wo_force_install" = "y" ]; then
+        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
+    fi
 
     if [ -f "$HOME/.gitconfig" ]; then
         # install and redirect log to not print python package install

@@ -159,11 +159,11 @@ class WOStackController(CementBaseController):
             # Nginx
             if pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
-
                 if not (WOAptGet.is_installed(self, 'nginx-custom')):
                     if not (WOAptGet.is_installed(self, 'nginx-plus') or
                             WOAptGet.is_installed(self, 'nginx')):
-                        apt_packages = apt_packages + WOVariables.wo_nginx
+                        if not os.path.isfile('/usr/sbin/nginx'):
+                            apt_packages = apt_packages + WOVariables.wo_nginx
                     else:
                         if WOAptGet.is_installed(self, 'nginx-plus'):
                             Log.info(self, "NGINX PLUS Detected ...")
@@ -177,7 +177,7 @@ class WOStackController(CementBaseController):
                             apt = ["nginx"] + WOVariables.wo_nginx
                             self.post_pref(apt, empty_packages)
                 else:
-                    Log.debug(self, "Nginx Stable already installed")
+                    Log.debug(self, "Nginx already installed")
 
             # Redis
             if pargs.redis:

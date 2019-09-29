@@ -94,7 +94,11 @@ class WOStackUpgradeController(CementBaseController):
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 apt_packages = apt_packages + WOVariables.wo_nginx
             else:
-                Log.info(self, "Nginx Stable is not already installed")
+                if os.path.isfile(self, '/usr/sbin/nginx'):
+                    Log.info(self, "Updating Nginx templates")
+                    post_pref(self, WOVariables.wo_nginx, [])
+                else:
+                    Log.info(self, "Nginx Stable is not already installed")
 
         if pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
