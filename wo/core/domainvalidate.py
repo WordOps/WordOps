@@ -29,7 +29,7 @@ class WODomain():
 
     def getdomainlevel(self, domain):
         """
-            This function returns the domain type : domain, subdomain,
+            Returns the domain type : domain, subdomain and the root domain
         """
         domain_name = domain.lower().strip().split('.')
         if domain_name[0] == 'www':
@@ -49,5 +49,4 @@ class WODomain():
                     domain_type = 'subdomain'
                     root_domain = ('.'.join(domain_name[1:]))
             suffix_file.close()
-
-        return (domain_type, root_domain)
+            return (domain_type, root_domain)
