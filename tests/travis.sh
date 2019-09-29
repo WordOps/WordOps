@@ -9,6 +9,11 @@ CRED="${CSI}1;31m"
 CGREEN="${CSI}1;32m"
 CEND="${CSI}0m"
 
+export DEBIAN_FRONTEND=noninteractive
+unset LANG
+export LANG='en_US.UTF-8'
+export LC_ALL='C.UTF-8'
+
 if [ -z "$1" ]; then
     apt-get -qq purge mysql* graphviz* redis*
     apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
