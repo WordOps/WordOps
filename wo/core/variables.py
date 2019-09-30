@@ -11,7 +11,7 @@ class WOVariables():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.9.1"
+    wo_version = "3.9.9.2"
     # WordOps packages versions
     wo_wp_cli = "2.3.0"
     wo_adminer = "4.7.3"
@@ -66,9 +66,9 @@ class WOVariables():
     except Exception:
         wo_user = input("Enter your name: ")
         wo_email = input("Enter your email: ")
-        os.system("/usr/bin/git config --global user.name {0}".format(wo_user))
+        os.system("git config --global user.name {0}".format(wo_user))
         os.system(
-            "/usr/bin/git config --global user.email {0}".format(wo_email))
+            "git config --global user.email {0}".format(wo_email))
 
     # MySQL hostname
     wo_mysql_host = ""

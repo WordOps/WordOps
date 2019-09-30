@@ -1,6 +1,5 @@
 """WordOps domain validation module."""
 import os
-from urllib.parse import urlparse
 
 
 class WODomain():

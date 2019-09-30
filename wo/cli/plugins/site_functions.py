@@ -4,6 +4,7 @@ import json
 import os
 import random
 import re
+import shutil
 import string
 import subprocess
 from subprocess import CalledProcessError
@@ -409,7 +410,6 @@ def setupwordpress(self, data, vhostonly=False):
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 
     try:
-        import shutil
 
         Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd(
         )+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(),
@@ -1606,12 +1606,20 @@ def setuprocketchat(self):
             return True
 
 
-def setupngxblocker(self, domain):
+def setupngxblocker(self, domain, block=True):
     if os.path.isdir('/var/www/{0}/conf/nginx'.format(domain)):
-        ngxconf = open("/var/www/{0}/conf/nginx/ngxblocker.conf"
-                       .format(domain),
-                       encoding='utf-8', mode='w')
-        ngxconf.write("# Bad Bot Blocker\n"
-                      "include /etc/nginx/bots.d/ddos.conf;\n"
-                      "include /etc/nginx/bots.d/blockbots.conf;\n")
-        ngxconf.close()
+        if not os.path.isfile('/var/www/{0}/conf/nginx/ngxblocker.disabled'
+                              .format(domain)):
+            ngxconf = open("/var/www/{0}/conf/nginx/ngxblocker.conf"
+                           .format(domain),
+                           encoding='utf-8', mode='w')
+            ngxconf.write("# Bad Bot Blocker\n"
+                          "include /etc/nginx/bots.d/ddos.conf;\n"
+                          "include /etc/nginx/bots.d/blockbots.conf;\n")
+            ngxconf.close()
+        else:
+            WOFileUtils.mvfile(
+                self, '/var/www/{0}/conf/nginx/ngxblocker.disabled'
+                .format(domain), '/var/www/{0}/conf/nginx/ngxblocker'
+                .format(domain))
+        return 0

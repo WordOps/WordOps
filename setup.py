@@ -7,10 +7,10 @@ from setuptools import find_packages, setup
 conf = []
 templates = []
 
-long_description = '''WordOps  An essential toolset that eases WordPress
+long_description = '''WordOps is an essential toolset that eases WordPress
                       site and server administration. It provide the ability
                       to install a high performance WordPress stack
-                      with a few keystrokes'''
+                      with a few keystrokes.'''
 
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
@@ -21,8 +21,8 @@ for name in glob.glob('wo/cli/templates/*.mustache'):
 if not os.path.exists('/var/log/wo/'):
     os.makedirs('/var/log/wo/')
 
-if not os.path.exists('/var/lib/wo/'):
-    os.makedirs('/var/lib/wo/')
+if not os.path.exists('/var/lib/wo/tmp/'):
+    os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wo',
       version='3.9.9.1',

@@ -137,8 +137,8 @@ class WOSiteController(CementBaseController):
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
          wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
-        (wo_domain_type,
-         wo_root_domain) = WODomain.getdomainlevel(self, wo_domain)
+        (wo_domain_type, wo_root_domain) = WODomain.getdomainlevel(
+            self, wo_domain)
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
@@ -731,9 +731,8 @@ class WOSiteCreateController(CementBaseController):
 
         if pargs.letsencrypt:
             acme_domains = []
-            (wo_domain_type,
-             wo_root_domain) = WODomain.getdomainlevel(self,
-                                                       wo_domain)
+            (wo_domain_type, wo_root_domain) = WODomain.getdomainlevel(
+                self, wo_domain)
             data['letsencrypt'] = True
             letsencrypt = True
             if data['letsencrypt'] is True:
@@ -1036,7 +1035,6 @@ class WOSiteUpdateController(CementBaseController):
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, "\nHSTS not enabled.")
-                return 0
             elif pargs.hsts == "off":
                 if os.path.isfile(
                     '/var/www/{0}/conf/nginx/hsts.conf'
@@ -1047,9 +1045,12 @@ class WOSiteUpdateController(CementBaseController):
                                        '/var/www/{0}/conf/'
                                        'nginx/hsts.conf.disabled'
                                        .format(wo_domain))
-                    return 0
                 else:
                     Log.error(self, "HSTS isn't enabled")
+                    # Service Nginx Reload
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
 
         if (pargs.ngxblocker and not (pargs.html or
                                       pargs.php or pargs.php73 or
@@ -1059,23 +1060,11 @@ class WOSiteUpdateController(CementBaseController):
                                       pargs.wpsubdir or pargs.wpsubdomain or
                                       pargs.hsts)):
             if pargs.ngxblocker == "on":
-                if not os.path.isfile(
-                    '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
-                        .format(wo_domain)):
-                    try:
-                        setupngxblocker(self, wo_domain)
-                    except SiteError as e:
-                        Log.debug(self, str(e))
-                        Log.info(self, "\nngxblocker not enabled.")
-                    return 0
-                else:
-                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
-                                       'nginx/ngxblocker.conf.disabled'
-                                       .format(wo_domain),
-                                       '/var/www/{0}/conf/'
-                                       'nginx/ngxblocker.conf'
-                                       .format(wo_domain))
-                    return 0
+                try:
+                    setupngxblocker(self, wo_domain)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, "\nngxblocker not enabled.")
             elif pargs.ngxblocker == "off":
                 if os.path.isfile(
                     '/var/www/{0}/conf/nginx/ngxblocker.conf'
@@ -1086,9 +1075,13 @@ class WOSiteUpdateController(CementBaseController):
                                        '/var/www/{0}/conf/'
                                        'nginx/ngxblocker.conf.disabled'
                                        .format(wo_domain))
-                    return 0
                 else:
                     Log.error(self, "ngxblocker isn't enabled")
+
+            # Service Nginx Reload
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
 
         if ((stype == 'php' and
              oldsitetype not in ['html', 'proxy', 'php73']) or
@@ -1243,8 +1236,8 @@ class WOSiteUpdateController(CementBaseController):
             acme_domains = []
             acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
                             dnsalias=False, acme_alias='')
-            (wo_domain_type,
-             wo_root_domain) = WODomain.getdomainlevel(self, wo_domain)
+            (wo_domain_type, wo_root_domain) = WODomain.getdomainlevel(
+                self, wo_domain)
 
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
@@ -1660,16 +1653,7 @@ class WOSiteUpdateController(CementBaseController):
                               "site")
         if pargs.ngxblocker:
             if ngxblocker is True:
-                if not os.path.isfile("{0}/conf/nginx/ngxblocker.conf.disabled"
-                                      .format(wo_site_webroot)):
-                    setupngxblocker(self, wo_domain)
-                else:
-                    WOFileUtils.mvfile(
-                        self,
-                        "{0}/conf/nginx/ngxblocker.conf.disabled"
-                        .format(wo_site_webroot),
-                        "{0}/conf/nginx/ngxblocker.conf"
-                        .format(wo_site_webroot))
+                setupngxblocker(self, wo_domain)
             elif ngxblocker is False:
                 if os.path.isfile("{0}/conf/nginx/ngxblocker.conf"
                                   .format(wo_site_webroot)):
