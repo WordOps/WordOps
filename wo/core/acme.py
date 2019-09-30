@@ -16,7 +16,7 @@ class WOAcme:
         """Issue SSL certificates with acme.sh"""
         all_domains = '\' -d \''.join(acme_domains)
         wo_acme_dns = acmedata['acme_dns']
-        keylenght = "{0}".format(WOVariables.wo_keylength)
+        keylenght = acmedata['keylength']
         wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
                         "'/etc/letsencrypt/config'")
         if acmedata['dns'] is True:

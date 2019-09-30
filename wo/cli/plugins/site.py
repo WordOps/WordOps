@@ -738,7 +738,9 @@ class WOSiteCreateController(CementBaseController):
             if data['letsencrypt'] is True:
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
                 acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
-                                dnsalias=False, acme_alias='')
+                                dnsalias=False, acme_alias='', keylength='')
+                acmedata['keylength'] = self.app.config.get('letsencrypt',
+                                                            'keylength')
                 if pargs.dns:
                     Log.debug(self, "DNS validation enabled")
                     acmedata['dns'] = True
@@ -1240,10 +1242,11 @@ class WOSiteUpdateController(CementBaseController):
         if pargs.letsencrypt:
             acme_domains = []
             acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
-                            dnsalias=False, acme_alias='')
+                            dnsalias=False, acme_alias='', keylength='')
             (wo_domain_type, wo_root_domain) = WODomain.getdomainlevel(
                 self, wo_domain)
-
+            acmedata['keylength'] = self.app.config.get('letsencrypt',
+                                                        'keylength')
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
