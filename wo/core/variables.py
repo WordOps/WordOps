@@ -111,6 +111,8 @@ class WOVariables():
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
 
+    wo_keylength = self.app.config.get('letsencrypt', 'keylength')
+
     wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
               "php7.2-readline", "php7.2-common", "php7.2-recode",
               "php7.2-cli", "php7.2-mbstring", "php7.2-intl",

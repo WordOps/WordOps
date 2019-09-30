@@ -1051,6 +1051,7 @@ class WOSiteUpdateController(CementBaseController):
             if not WOService.reload_service(self, 'nginx'):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
+            return 0
 
         if (pargs.ngxblocker and not (pargs.html or
                                       pargs.php or pargs.php73 or
@@ -1060,11 +1061,14 @@ class WOSiteUpdateController(CementBaseController):
                                       pargs.wpsubdir or pargs.wpsubdomain or
                                       pargs.hsts)):
             if pargs.ngxblocker == "on":
-                try:
-                    setupngxblocker(self, wo_domain)
-                except SiteError as e:
-                    Log.debug(self, str(e))
-                    Log.info(self, "\nngxblocker not enabled.")
+                if os.path.isdir('/etc/nginx/bots.d'):
+                    try:
+                        setupngxblocker(self, wo_domain)
+                    except SiteError as e:
+                        Log.debug(self, str(e))
+                        Log.info(self, "\nngxblocker not enabled.")
+                else:
+                    Log.error(self, 'ngxblocker stack is not installed')
             elif pargs.ngxblocker == "off":
                 if os.path.isfile(
                     '/var/www/{0}/conf/nginx/ngxblocker.conf'
@@ -1082,6 +1086,7 @@ class WOSiteUpdateController(CementBaseController):
             if not WOService.reload_service(self, 'nginx'):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
+            return 0
 
         if ((stype == 'php' and
              oldsitetype not in ['html', 'proxy', 'php73']) or

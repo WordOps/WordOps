@@ -54,14 +54,14 @@ class WOMysql():
                     db=db_name, read_default_file='~/.my.cnf')
 
             return connection
+        except pymysql.err.InternalError as e:
+            Log.debug(self, str(e))
+            raise MySQLConnectionError
         except DatabaseError as e:
             if e.args[1] == '#42000Unknown database \'{0}\''.format(db_name):
                 raise DatabaseNotExistsError
             else:
                 raise MySQLConnectionError
-        except pymysql.err.InternalError as e:
-            Log.debug(self, str(e))
-            raise MySQLConnectionError
         except Exception as e:
             Log.debug(self, "[Error]Setting up database: \'" + str(e) + "\'")
             raise MySQLConnectionError

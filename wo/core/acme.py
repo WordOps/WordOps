@@ -13,11 +13,10 @@ class WOAcme:
     """Acme.sh utilities for WordOps"""
 
     def setupletsencrypt(self, acme_domains, acmedata):
-        """issue SSL certificates with acme.sh"""
+        """Issue SSL certificates with acme.sh"""
         all_domains = '\' -d \''.join(acme_domains)
         wo_acme_dns = acmedata['acme_dns']
-        keylenght = "{0}".format(self.app.config.get('letsencrypt',
-                                                     'keylength'))
+        keylenght = "{0}".format(WOVariables.wo_keylength)
         wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
                         "'/etc/letsencrypt/config'")
         if acmedata['dns'] is True:
@@ -96,8 +95,7 @@ class WOAcme:
 
             if not WOFileUtils.grep(self, '/var/www/22222/conf/nginx/ssl.conf',
                                     '/etc/letsencrypt'):
-                Log.info(self, "Securing WordOps backend with current cert"
-                         .format(wo_domain_name))
+                Log.info(self, "Securing WordOps backend with current cert")
                 sslconf = open("/var/www/22222/conf/nginx/ssl.conf",
                                encoding='utf-8', mode='w')
                 sslconf.write("ssl_certificate     {0}/{1}/fullchain.pem;\n"
