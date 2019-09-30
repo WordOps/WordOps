@@ -4,13 +4,14 @@ import os
 
 from setuptools import find_packages, setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 conf = []
 templates = []
 
-long_description = '''WordOps is an essential toolset that eases WordPress
-                      site and server administration. It provide the ability
-                      to install a high performance WordPress stack
-                      with a few keystrokes.'''
+description = '''An essential toolset that eases WordPress
+                 site and server administration'''
 
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
@@ -26,13 +27,18 @@ if not os.path.exists('/var/lib/wo/tmp/'):
 
 setup(name='wo',
       version='3.9.9.2',
-      description=long_description,
+      description=description,
       long_description=long_description,
-      classifiers=[],
+      long_description_content_type="text/markdown",
+      classifiers=[
+          "Programming Language :: Python :: 3",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+      ],
       keywords='',
       author='WordOps',
-      author_email='contact@wordops.io',
-      url='https://wordops.net',
+      author_email='thomas@virtubox.net',
+      url='https://github.com/WordOps/WordOps',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests',
                                       'templates']),
