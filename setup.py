@@ -10,8 +10,8 @@ with open("README.md", "r") as fh:
 conf = []
 templates = []
 
-description = '''An essential toolset that eases WordPress
-                 site and server administration'''
+short_description = """An essential toolset that eases WordPress
+                    site and server administration"""
 
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
@@ -27,7 +27,7 @@ if not os.path.exists('/var/lib/wo/tmp/'):
 
 setup(name='wo',
       version='3.9.9.2',
-      description=description,
+      description=short_description,
       long_description=long_description,
       long_description_content_type="text/markdown",
       classifiers=[
@@ -53,16 +53,15 @@ setup(name='wo',
           # "coverage",
           # Required to function
           'cement == 2.8.2',
-          'pystache',
-          'python-apt',
-          'pynginxconfig',
-          'PyMySQL',
-          'psutil',
-          'sh',
-          'SQLAlchemy',
-          'requests',
-          'distro',
-          'apt-mirror-updater',
+          'pystache >= 0.5.4',
+          'pynginxconfig >= 0.3.4',
+          'PyMySQL >= 0.9.3',
+          'psutil >= 5.6.3',
+          'sh >= 1.12.14',
+          'SQLAlchemy >= 1.3.8',
+          'requests >= 2.22.0',
+          'distro >= 1.4.0',
+          'apt-mirror-updater >= 6.1',
       ],
       data_files=[('/etc/wo', ['config/wo.conf']),
                   ('/etc/wo/plugins.d', conf),
