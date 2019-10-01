@@ -10,7 +10,7 @@ from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
 
 
-class WOAcme:
+class WOAcme():
     """Acme.sh utilities for WordOps"""
 
     wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
@@ -141,7 +141,7 @@ class WOAcme:
 
     def cert_check(self, wo_domain_name):
         """Check certificate existance with acme.sh and return Boolean"""
-        WOAcme.export_cert(self)
+        self.export_cert()
         # define new csv dialect
         csv.register_dialect('acmeconf', delimiter='|')
         # open file
