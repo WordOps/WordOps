@@ -1289,86 +1289,6 @@ class WOSiteUpdateController(CementBaseController):
                                   "site")
                     pargs.letsencrypt = False
 
-        # --letsencrypt=renew code goes here
-        if pargs.letsencrypt == "renew" and not pargs.all:
-            expiry_days = SSL.getexpirationdays(self, wo_domain)
-            min_expiry_days = 45
-            if check_ssl:
-                if (expiry_days <= min_expiry_days):
-                    renewLetsEncrypt(self, wo_domain)
-                elif pargs.force:
-                    renewLetsEncrypt(self, wo_domain)
-                else:
-                    Log.error(
-                        self, "You have more than 30 days with the current "
-                        "certificate - refusing to run.")
-
-            else:
-                Log.error(
-                    self, "Cannot renew - HTTPS is not configured for "
-                    "the given site. Install LE first...")
-
-            if not WOService.reload_service(self, 'nginx'):
-                Log.error(self, "service nginx reload failed. "
-                          "check issues with `nginx -t` command")
-            Log.info(self, "SUCCESS: Certificate was successfully renewed For"
-                           " https://{0}".format(wo_domain))
-            if (SSL.getexpirationdays(self, wo_domain) > 0):
-                Log.info(self, "Your cert will expire within " +
-                         str(SSL.getexpirationdays(self, wo_domain)) +
-                         " days.")
-                Log.info(self, "Expiration date: " +
-                         str(SSL.getexpirationdate(self, wo_domain)))
-
-            else:
-                Log.warn(
-                    self, "The certificate seems to be already expired. "
-                    "Please renew it as soon as possible...")
-            return 0
-
-        if pargs.all and pargs.letsencrypt == "renew":
-
-            if check_ssl:
-                expiry_days = SSL.getExpirationDays(self, wo_domain, True)
-                if expiry_days < 0:
-                    return 0
-                min_expiry_days = 45
-                if (expiry_days <= min_expiry_days):
-                    renewLetsEncrypt(self, wo_domain)
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                    Log.info(self, "SUCCESS: Certificate was successfully "
-                             "renewed For https://{0}".format(wo_domain))
-                elif pargs.force:
-                    renewLetsEncrypt(self, wo_domain)
-                    Log.info(self, "Certificate was successfully renewed")
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                    Log.info(self, "SUCCESS: Certificate was successfully "
-                             "renewed For https://{0}".format(wo_domain))
-                else:
-                    Log.info(
-                        self, "You have more than 45 days with the current "
-                        "certificate - refusing to run.\n")
-
-                if (SSL.getexpirationdays(self, wo_domain) > 0):
-                    Log.info(self, "Your cert will expire within " +
-                             str(SSL.getexpirationdays(self, wo_domain)) +
-                             " days.")
-                    Log.info(self, "Expiration date: \n\n" +
-                             str(SSL.getexpirationdate(self, wo_domain)))
-                return 0
-                # else:
-                #       Log.warn(self, "Your cert already EXPIRED !
-                #  .PLEASE renew soon . ")
-            else:
-                Log.info(
-                    self, "SSL not configured for "
-                    "site http://{0}".format(wo_domain))
-                return 0
-
         if pargs.all and pargs.letsencrypt == "off":
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
@@ -1466,57 +1386,61 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.letsencrypt:
             if data['letsencrypt'] is True:
-                # DNS API configuration
-                if pargs.dns:
-                    Log.debug(self, "DNS validation enabled")
-                    acmedata['dns'] = True
-                    if not pargs.dns == 'dns_cf':
-                        Log.debug(self, "DNS API : {0}".format(pargs.dns))
-                        acmedata['acme_dns'] = pargs.dns
-                if pargs.dnsalias:
-                    Log.debug(self, "DNS Alias enabled")
-                    acmedata['dnsalias'] = True
-                    acmedata['acme_alias'] = pargs.dnsalias
-                # Set list of domains to secure
-                if acme_subdomain is True:
-                    Log.info(self, "Certificate type : subdomain")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain)]
-                elif acme_wildcard is True:
-                    Log.info(self, "Certificate type : wildcard")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain),
-                                                   '*.{0}'.format(wo_domain)]
+                if WOAcme.cert_check(self, wo_domain):
+                    archivedCertificateHandle(self, wo_domain)
                 else:
-                    Log.info(self, "Certificate type : domain")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain),
-                                                   'www.{0}'.format(wo_domain)]
+                    # DNS API configuration
+                    if pargs.dns:
+                        Log.debug(self, "DNS validation enabled")
+                        acmedata['dns'] = True
+                        if not pargs.dns == 'dns_cf':
+                            Log.debug(self, "DNS API : {0}".format(pargs.dns))
+                            acmedata['acme_dns'] = pargs.dns
+                    if pargs.dnsalias:
+                        Log.debug(self, "DNS Alias enabled")
+                        acmedata['dnsalias'] = True
+                        acmedata['acme_alias'] = pargs.dnsalias
+                    # Set list of domains to secure
+                    if acme_subdomain is True:
+                        Log.info(self, "Certificate type : subdomain")
+                        acme_domains = acme_domains + ['{0}'.format(wo_domain)]
+                    elif acme_wildcard is True:
+                        Log.info(self, "Certificate type : wildcard")
+                        acme_domains = \
+                            acme_domains + ['{0}'.format(wo_domain),
+                                            '*.{0}'.format(wo_domain)]
+                    else:
+                        Log.info(self, "Certificate type : domain")
+                        acme_domains = \
+                            acme_domains + ['{0}'.format(wo_domain),
+                                            'www.{0}'.format(wo_domain)]
 
-                if acme_subdomain:
-                    # check if a wildcard cert for the root domain exist
-                    Log.debug(self, "checkWildcardExist on *.{0}"
-                              .format(wo_root_domain))
-                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
-                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
-                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
-                    if acme_subdomain:
-                        if iswildcard:
-                            Log.info(self, "Using existing Wildcard SSL "
-                                     "certificate from {0} to secure {1}"
-                                     .format(wo_root_domain, wo_domain))
-                            Log.debug(self, "symlink wildcard "
-                                      "cert between {0} & {1}"
-                                      .format(wo_domain, wo_root_domain))
-                            # copy the cert from the root domain
-                            copyWildcardCert(self, wo_domain, wo_root_domain)
-                        else:
-                            # check DNS records before issuing cert
-                            if not acmedata['dns'] is True:
-                                if not pargs.force:
-                                    if not WOAcme.check_dns(self,
-                                                            acme_domains):
-                                        Log.error(
-                                            self,
-                                            "Aborting SSL certificate "
-                                            "issuance")
+                    if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
+                        if acme_subdomain:
+                            Log.debug(self, "checkWildcardExist on *.{0}"
+                                      .format(wo_root_domain))
+                            if SSL.checkwildcardexist(self, wo_root_domain):
+                                Log.info(
+                                    self, "Using existing Wildcard SSL "
+                                    "certificate from {0} to secure {1}"
+                                    .format(wo_root_domain, wo_domain))
+                                Log.debug(
+                                    self, "symlink wildcard "
+                                    "cert between {0} & {1}"
+                                    .format(wo_domain, wo_root_domain))
+                                # copy the cert from the root domain
+                                copyWildcardCert(self, wo_domain,
+                                                 wo_root_domain)
+                            else:
+                                # check DNS records before issuing cert
+                                if not acmedata['dns'] is True:
+                                    if not pargs.force:
+                                        if not WOAcme.check_dns(self,
+                                                                acme_domains):
+                                            Log.error(
+                                                self,
+                                                "Aborting SSL certificate "
+                                                "issuance")
                             Log.debug(self, "Setup Cert with acme.sh for {0}"
                                       .format(wo_domain))
                             if WOAcme.setupletsencrypt(
@@ -1524,32 +1448,34 @@ class WOSiteUpdateController(CementBaseController):
                                 WOAcme.deploycert(self, wo_domain)
                             else:
                                 Log.error(self, "Unable to issue certificate")
-                    else:
-                        # check DNS records before issuing cert
-                        if not acmedata['dns'] is True:
-                            if not pargs.force:
-                                if not WOAcme.check_dns(self, acme_domains):
-                                    Log.error(
-                                        self,
-                                        "Aborting SSL certificate issuance")
-                        if WOAcme.setupletsencrypt(
-                                self, acme_domains, acmedata):
-                            WOAcme.deploycert(self, wo_domain)
                         else:
-                            Log.error(self, "Unable to issue certificate")
-                else:
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf'
-                                       .format(wo_site_webroot))
-                    WOFileUtils.mvfile(self, "/etc/nginx/conf.d/"
-                                       "force-ssl-{0}.conf.disabled"
-                                       .format(wo_domain),
-                                       '/etc/nginx/conf.d/force-ssl-{0}.conf'
-                                       .format(wo_domain))
+                            # check DNS records before issuing cert
+                            if not acmedata['dns'] is True:
+                                if not pargs.force:
+                                    if not WOAcme.check_dns(self, acme_domains):
+                                        Log.error(
+                                            self,
+                                            "Aborting SSL certificate issuance")
+                            if WOAcme.setupletsencrypt(
+                                    self, acme_domains, acmedata):
+                                WOAcme.deploycert(self, wo_domain)
+                            else:
+                                Log.error(self, "Unable to issue certificate")
+                    else:
+                        WOFileUtils.mvfile(
+                            self, "{0}/conf/nginx/ssl.conf.disabled"
+                            .format(wo_site_webroot),
+                            '{0}/conf/nginx/ssl.conf'
+                            .format(wo_site_webroot))
+                        WOFileUtils.mvfile(
+                            self, "/etc/nginx/conf.d/"
+                            "force-ssl-{0}.conf.disabled"
+                            .format(wo_domain),
+                            '/etc/nginx/conf.d/force-ssl-{0}.conf'
+                            .format(wo_domain))
 
-                httpsRedirect(self, wo_domain, True, acme_wildcard)
-                SSL.siteurlhttps(self, wo_domain)
+                    httpsRedirect(self, wo_domain, True, acme_wildcard)
+                    SSL.siteurlhttps(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
