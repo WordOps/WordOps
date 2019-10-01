@@ -70,7 +70,7 @@ class WOSecureController(CementBaseController):
         WOGit.add(self, ["/etc/nginx"],
                   msg="Add Nginx to into Git")
         pargs = self.app.pargs
-        passwd = RANDOM.long(self)
+        passwd = RANDOM.gen(self, length='24')
         if not pargs.user_input:
             username = input("Provide HTTP authentication user "
                              "name [{0}] :".format(WOVariables.wo_user))

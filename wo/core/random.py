@@ -3,15 +3,10 @@ import string
 
 
 class RANDOM:
+    """Random strings generator"""
 
-    def short(self):
+    def gen(self, length='24'):
         short_random = ''.join([random.choice
                                 (string.ascii_letters + string.digits)
-                                for n in range(8)])
+                                for n in range(length)])
         return short_random
-
-    def long(self):
-        long_random = ''.join([random.choice
-                                (string.ascii_letters + string.digits)
-                                for n in range(24)])
-        return long_random

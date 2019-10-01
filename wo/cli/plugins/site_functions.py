@@ -848,7 +848,7 @@ def site_package_check(self, stype):
                 apt = ["nginx"] + WOVariables.wo_nginx
                 # apt_packages = apt_packages + WOVariables.wo_nginx
                 post_pref(self, apt, packages)
-            elif os.file.isfile('/usr/sbin/nginx'):
+            elif os.path.isfile('/usr/sbin/nginx'):
                 post_pref(self, WOVariables.wo_nginx, [])
             else:
                 apt_packages = apt_packages + WOVariables.wo_nginx

@@ -5,7 +5,7 @@ import os
 class WODomain():
     """WordOps domain validation utilities"""
 
-    def validatedomain(self, url):
+    def validate(self, url):
         """
             This function returns domain name removing http:// and https://
             returns domain name only with or without www as user provided.
@@ -26,7 +26,7 @@ class WODomain():
 
         return (final_domain, domain_name)
 
-    def getdomainlevel(self, domain):
+    def getlevel(self, domain):
         """
             Returns the domain type : domain, subdomain and the root domain
         """

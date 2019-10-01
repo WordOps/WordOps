@@ -57,7 +57,7 @@ class WOSiteController(CementBaseController):
         pargs.site_name = pargs.site_name.strip()
         # validate domain name
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
 
         # check if site exists
         if not check_domain_exists(self, wo_domain):
@@ -94,8 +94,8 @@ class WOSiteController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = WODomain.validatedomain(self,
-                                                             pargs.site_name)
+        (wo_domain, wo_www_domain) = WODomain.validate(self,
+                                                       pargs.site_name)
         # check if site exists
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -136,8 +136,8 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
-        (wo_domain_type, wo_root_domain) = WODomain.getdomainlevel(
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
+        (wo_domain_type, wo_root_domain) = WODomain.getlevel(
             self, wo_domain)
         wo_db_name = ''
         wo_db_user = ''
@@ -190,7 +190,7 @@ class WOSiteController(CementBaseController):
         pargs = self.app.pargs
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
         wo_site_webroot = getSiteInfo(self, wo_domain).site_path
 
         if not check_domain_exists(self, wo_domain):
@@ -213,7 +213,7 @@ class WOSiteController(CementBaseController):
         # TODO Write code for wo site edit command here
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -245,7 +245,7 @@ class WOSiteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -286,7 +286,7 @@ class WOSiteEditController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -437,7 +437,7 @@ class WOSiteCreateController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
         if not wo_domain.strip():
             Log.error(self, "Invalid domain name, "
                       "Provide valid domain name")
@@ -731,11 +731,14 @@ class WOSiteCreateController(CementBaseController):
 
         if pargs.letsencrypt:
             acme_domains = []
-            (wo_domain_type, wo_root_domain) = WODomain.getdomainlevel(
+            (wo_domain_type, wo_root_domain) = WODomain.getlevel(
                 self, wo_domain)
             data['letsencrypt'] = True
             letsencrypt = True
-            if data['letsencrypt'] is True:
+            if os.path.isfile('/etc/letsencrypt/live/{0}/fullchain.pem'
+                              .format(wo_domain)):
+                archivedCertificateHandle(self, wo_domain)
+            else:
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
                 acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
                                 dnsalias=False, acme_alias='', keylength='')
@@ -788,9 +791,7 @@ class WOSiteCreateController(CementBaseController):
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"
                               .format(wo_root_domain))
-                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
-                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
-                    if iswildcard:
+                    if SSL.checkwildcardexist(self, wo_root_domain):
                         Log.info(self, "Using existing Wildcard SSL "
                                  "certificate from {0} to secure {1}"
                                  .format(wo_root_domain, wo_domain))
@@ -839,9 +840,6 @@ class WOSiteCreateController(CementBaseController):
                           msg="Adding letsencrypts config of site: {0}"
                           .format(wo_domain))
                 updateSiteInfo(self, wo_domain, ssl=letsencrypt)
-            elif data['letsencrypt'] is False:
-                Log.info(self, "Not using Let\'s encrypt for Site "
-                         " http://{0}".format(wo_domain))
 
 
 class WOSiteUpdateController(CementBaseController):
@@ -995,7 +993,7 @@ class WOSiteUpdateController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+         wo_www_domain) = WODomain.validate(self, pargs.site_name)
         wo_site_webroot = WOVariables.wo_webroot + wo_domain
         check_site = getSiteInfo(self, wo_domain)
 
@@ -1243,7 +1241,7 @@ class WOSiteUpdateController(CementBaseController):
             acme_domains = []
             acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
                             dnsalias=False, acme_alias='', keylength='')
-            (wo_domain_type, wo_root_domain) = WODomain.getdomainlevel(
+            (wo_domain_type, wo_root_domain) = WODomain.getlevel(
                 self, wo_domain)
             acmedata['keylength'] = self.app.config.get('letsencrypt',
                                                         'keylength')
@@ -2035,7 +2033,7 @@ class WOSiteDeleteController(CementBaseController):
                 Log.error(self, 'could not input site name')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        (wo_domain, wo_www_domain) = WODomain.validate(self, pargs.site_name)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''

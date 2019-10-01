@@ -112,6 +112,7 @@ class WOAcme:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while generating "
                       "ssl.conf")
+        return 0
 
     def check_dns(self, acme_domains):
         """Check if a list of domains point to the server IP"""
