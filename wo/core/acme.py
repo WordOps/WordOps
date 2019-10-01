@@ -141,7 +141,7 @@ class WOAcme:
 
     def cert_check(self, wo_domain_name):
         """Check certificate existance with acme.sh and return Boolean"""
-        self.export_cert()
+        WOAcme.export_cert(self)
         # define new csv dialect
         csv.register_dialect('acmeconf', delimiter='|')
         # open file
