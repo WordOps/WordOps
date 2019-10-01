@@ -25,7 +25,7 @@ if not os.path.exists('/var/log/wo/'):
 if not os.path.exists('/var/lib/wo/tmp/'):
     os.makedirs('/var/lib/wo/tmp/')
 
-setup(name='wo',
+setup(name='wordops',
       version='3.9.9.2',
       description=short_description,
       long_description=long_description,
@@ -34,10 +34,15 @@ setup(name='wo',
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",
           "Operating System :: OS Independent",
+          "Development Status :: 5 - Production/Stable",
+          "Environment :: Console",
+          "Natural Language :: English",
+          "Topic :: System :: Systems Administration",
+
       ],
       keywords='',
       author='WordOps',
-      author_email='thomas@virtubox.net',
+      author_email='contact@wordops.io',
       url='https://github.com/WordOps/WordOps',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests',
@@ -45,12 +50,10 @@ setup(name='wo',
       include_package_data=True,
       zip_safe=False,
       test_suite='nose.collector',
+      python_requires='>=3.5',
       install_requires=[
           # Required to build documentation
           # "Sphinx >= 1.0",
-          # Required for testing
-          # "nose",
-          # "coverage",
           # Required to function
           'cement == 2.8.2',
           'pystache >= 0.5.4',
@@ -63,6 +66,9 @@ setup(name='wo',
           'distro >= 1.4.0',
           'apt-mirror-updater >= 6.1',
       ],
+      extras_require={  # Optional
+          'testing': ['nose', 'coverage'],
+      },
       data_files=[('/etc/wo', ['config/wo.conf']),
                   ('/etc/wo/plugins.d', conf),
                   ('/usr/lib/wo/templates', templates),
