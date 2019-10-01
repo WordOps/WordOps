@@ -10,7 +10,7 @@ from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVariables
 
 
-class WOAcme():
+class WOAcme:
     """Acme.sh utilities for WordOps"""
 
     wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
@@ -19,7 +19,7 @@ class WOAcme():
     def export_cert(self):
         """Export acme.sh csv certificate list"""
         if not WOShellExec.cmd_exec(
-                self, "{0} ".format(self.wo_acme_exec) +
+                self, "{0} ".format(WOAcme.wo_acme_exec) +
                 "--list --listraw > /var/lib/wo/cert.csv"):
             Log.error(self, "Unable to export certs list")
 
@@ -42,7 +42,7 @@ class WOAcme():
         Log.info(self, "Validation mode : {0}".format(validation_mode))
         Log.wait(self, "Issuing SSL cert with acme.sh")
         if not WOShellExec.cmd_exec(
-                self, "{0} ".format(self.wo_acme_exec) +
+                self, "{0} ".format(WOAcme.wo_acme_exec) +
                 "--issue -d '{0}' {1} -k {2} -f"
                 .format(all_domains, acme_mode, keylenght)):
             Log.failed(self, "Issuing SSL cert with acme.sh")
@@ -78,7 +78,7 @@ class WOAcme():
                 "--ca-file {0}/{1}/ca.pem --reloadcmd \"nginx -t && "
                 "service nginx restart\" "
                 .format(WOVariables.wo_ssl_live,
-                        wo_domain_name, self.wo_acme_exec)):
+                        wo_domain_name, WOAcme.wo_acme_exec)):
                 Log.valide(self, "Deploying SSL cert")
             else:
                 Log.failed(self, "Deploying SSL cert")
@@ -141,7 +141,7 @@ class WOAcme():
 
     def cert_check(self, wo_domain_name):
         """Check certificate existance with acme.sh and return Boolean"""
-        self.export_cert()
+        WOAcme.export_cert(self)
         # define new csv dialect
         csv.register_dialect('acmeconf', delimiter='|')
         # open file
