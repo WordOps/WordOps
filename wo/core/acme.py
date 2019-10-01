@@ -1,3 +1,4 @@
+import csv
 import os
 
 import requests
@@ -12,13 +13,21 @@ from wo.core.variables import WOVariables
 class WOAcme:
     """Acme.sh utilities for WordOps"""
 
+    wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
+                    "'/etc/letsencrypt/config'")
+
+    def export_cert(self):
+        """Export acme.sh csv certificate list"""
+        if not WOShellExec.cmd_exec(
+                self, "{0} ".format(self.wo_acme_exec) +
+                "--list --listraw > /var/lib/wo/cert.csv"):
+            Log.error(self, "Unable to export certs list")
+
     def setupletsencrypt(self, acme_domains, acmedata):
         """Issue SSL certificates with acme.sh"""
         all_domains = '\' -d \''.join(acme_domains)
         wo_acme_dns = acmedata['acme_dns']
         keylenght = acmedata['keylength']
-        wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
-                        "'/etc/letsencrypt/config'")
         if acmedata['dns'] is True:
             acme_mode = "--dns {0}".format(wo_acme_dns)
             validation_mode = "DNS mode with {0}".format(wo_acme_dns)
@@ -33,7 +42,7 @@ class WOAcme:
         Log.info(self, "Validation mode : {0}".format(validation_mode))
         Log.wait(self, "Issuing SSL cert with acme.sh")
         if not WOShellExec.cmd_exec(
-                self, "{0} ".format(wo_acme_exec) +
+                self, "{0} ".format(self.wo_acme_exec) +
                 "--issue -d '{0}' {1} -k {2} -f"
                 .format(all_domains, acme_mode, keylenght)):
             Log.failed(self, "Issuing SSL cert with acme.sh")
@@ -53,8 +62,6 @@ class WOAcme:
             return True
 
     def deploycert(self, wo_domain_name):
-        wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
-                        "'/etc/letsencrypt/config'")
         if not os.path.isfile('/etc/letsencrypt/renewal/{0}_ecc/fullchain.cer'
                               .format(wo_domain_name)):
             Log.error(self, 'Certificate not found. Deployment canceled')
@@ -71,7 +78,7 @@ class WOAcme:
                 "--ca-file {0}/{1}/ca.pem --reloadcmd \"nginx -t && "
                 "service nginx restart\" "
                 .format(WOVariables.wo_ssl_live,
-                        wo_domain_name, wo_acme_exec)):
+                        wo_domain_name, self.wo_acme_exec)):
                 Log.valide(self, "Deploying SSL cert")
             else:
                 Log.failed(self, "Deploying SSL cert")
@@ -128,7 +135,26 @@ class WOAcme:
                     self, "You have to add the "
                     "proper DNS record", False)
                 return False
-                break
         else:
             Log.debug(self, "DNS record are properly set")
             return True
+
+    def cert_check(self, wo_domain_name):
+        """Check certificate existance with acme.sh and return Boolean"""
+        self.export_cert()
+        # define new csv dialect
+        csv.register_dialect('acmeconf', delimiter='|')
+        # open file
+        certfile = open('/var/lib/wo/cert.csv', mode='r', encoding='utf-8')
+        reader = csv.reader(certfile, 'acmeconf')
+        for row in reader:
+            # check if domain exist
+            if wo_domain_name in row[0]:
+                # check if cert expiration exist
+                if not row[3] == '':
+                    cert_exist = True
+                    break
+        else:
+            cert_exist = False
+        certfile.close()
+        return cert_exist

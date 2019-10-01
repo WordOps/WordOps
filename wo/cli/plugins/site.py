@@ -735,8 +735,7 @@ class WOSiteCreateController(CementBaseController):
                 self, wo_domain)
             data['letsencrypt'] = True
             letsencrypt = True
-            if os.path.isfile('/etc/letsencrypt/live/{0}/fullchain.pem'
-                              .format(wo_domain)):
+            if WOAcme.cert_check(self, wo_domain):
                 archivedCertificateHandle(self, wo_domain)
             else:
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
