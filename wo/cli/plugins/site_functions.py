@@ -1039,11 +1039,11 @@ def display_cache_settings(self, data):
 
     if data['wpce']:
         if data['multisite']:
-            Log.info(self, "Nginx-Helper configuration :"
+            Log.info(self, "Cache-Enabler configuration :"
                      "\thttp://{0}/wp-admin/network/settings.php?"
                      "page=cache-enabler".format(data['site_name']))
         else:
-            Log.info(self, "Nginx-Helper configuration :"
+            Log.info(self, "Cache-Enabler configuration :"
                      "\thttp://{0}/wp-admin/options-general.php?"
                      "page=cache-enabler".format(data['site_name']))
 
