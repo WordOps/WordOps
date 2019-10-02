@@ -43,7 +43,7 @@ class WOFileUtils():
                 Log.debug(self, "Creating Symbolic link, Source:{0}, Dest:{1}"
                           .format(src, dst))
                 os.symlink(src, dst)
-            except Exception as e:
+            except OSError as e:
                 Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
                 Log.error(self, "Unable to create symbolic link ...\n ")
         else:
