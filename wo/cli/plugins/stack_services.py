@@ -6,7 +6,7 @@ from cement.core.controller import CementBaseController, expose
 from wo.core.aptget import WOAptGet
 from wo.core.logging import Log
 from wo.core.services import WOService
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class WOStackStatusController(CementBaseController):
@@ -57,8 +57,8 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "PHP7.3-FPM is not installed")
 
         if pargs.mysql:
-            if ((WOVariables.wo_mysql_host == "localhost") or
-                    (WOVariables.wo_mysql_host == "127.0.0.1")):
+            if ((WOVar.wo_mysql_host == "localhost") or
+                    (WOVar.wo_mysql_host == "127.0.0.1")):
                 if (WOAptGet.is_installed(self, 'mysql-server') or
                     WOAptGet.is_installed(self, 'percona-server-server-5.6') or
                         WOAptGet.is_installed(self, 'mariadb-server')):
@@ -144,8 +144,8 @@ class WOStackStatusController(CementBaseController):
 
         # mysql
         if pargs.mysql:
-            if ((WOVariables.wo_mysql_host == "localhost") or
-                    (WOVariables.wo_mysql_host == "127.0.0.1")):
+            if ((WOVar.wo_mysql_host == "localhost") or
+                    (WOVar.wo_mysql_host == "127.0.0.1")):
                 if (WOAptGet.is_installed(self, 'mysql-server') or
                     WOAptGet.is_installed(self, 'percona-server-server-5.6') or
                         WOAptGet.is_installed(self, 'mariadb-server')):
@@ -230,8 +230,8 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "PHP7.3-FPM is not installed")
 
         if pargs.mysql:
-            if ((WOVariables.wo_mysql_host == "localhost") or
-                    (WOVariables.wo_mysql_host == "127.0.0.1")):
+            if ((WOVar.wo_mysql_host == "localhost") or
+                    (WOVar.wo_mysql_host == "127.0.0.1")):
                 if ((WOAptGet.is_installed(self, 'mysql-server') or
                      WOAptGet.is_installed(self,
                                            'percona-server-server-5.6') or
@@ -316,8 +316,8 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "PHP7.3-FPM is not installed")
 
         if pargs.mysql:
-            if ((WOVariables.wo_mysql_host == "localhost") or
-                    (WOVariables.wo_mysql_host == "127.0.0.1")):
+            if ((WOVar.wo_mysql_host == "localhost") or
+                    (WOVar.wo_mysql_host == "127.0.0.1")):
                 if (WOAptGet.is_installed(self, 'mysql-server') or
                     WOAptGet.is_installed(self, 'percona-server-server-5.6') or
                         WOAptGet.is_installed(self, 'mariadb-server')):
@@ -401,8 +401,8 @@ class WOStackStatusController(CementBaseController):
                 Log.info(self, "PHP7.3-FPM is not installed")
 
         if pargs.mysql:
-            if ((WOVariables.wo_mysql_host == "localhost") or
-                    (WOVariables.wo_mysql_host == "127.0.0.1")):
+            if ((WOVar.wo_mysql_host == "localhost") or
+                    (WOVar.wo_mysql_host == "127.0.0.1")):
                 if (WOAptGet.is_installed(self, 'mysql-server') or
                     WOAptGet.is_installed(self, 'percona-server-server-5.6') or
                         WOAptGet.is_installed(self, 'mariadb-server')):

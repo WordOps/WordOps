@@ -3,7 +3,7 @@ import os
 
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class WORepo():
@@ -25,7 +25,7 @@ class WORepo():
 
         if repo_url is not None:
             repo_file_path = ("/etc/apt/sources.list.d/" +
-                              WOVariables().wo_repo_file)
+                              WOVar().wo_repo_file)
             try:
                 if not os.path.isfile(repo_file_path):
                     with open(repo_file_path,
@@ -65,7 +65,7 @@ class WORepo():
                                  .format(ppa_name=ppa))
         elif repo_url:
             repo_file_path = ("/etc/apt/sources.list.d/" +
-                              WOVariables().wo_repo_file)
+                              WOVar().wo_repo_file)
 
             try:
                 repofile = open(repo_file_path, "w+")

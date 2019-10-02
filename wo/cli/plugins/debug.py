@@ -16,7 +16,7 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 def wo_debug_hook(app):
@@ -146,7 +146,7 @@ class WODebugController(CementBaseController):
                     Log.info(self, "Nginx debug for site already enabled")
 
                 self.msg = self.msg + ['{0}{1}/logs/error.log'
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
 
             else:
@@ -446,14 +446,14 @@ class WODebugController(CementBaseController):
         """Start/Stop WordPress debug"""
         if (self.app.pargs.wp == 'on' and self.app.pargs.site_name):
             wp_config = ("{0}/{1}/wp-config.php"
-                         .format(WOVariables.wo_webroot,
+                         .format(WOVar.wo_webroot,
                                  self.app.pargs.site_name))
-            webroot = "{0}{1}".format(WOVariables.wo_webroot,
+            webroot = "{0}{1}".format(WOVar.wo_webroot,
                                       self.app.pargs.site_name)
             # Check wp-config.php file into htdocs folder
             if not os.path.isfile(wp_config):
                 wp_config = ("{0}/{1}/htdocs/wp-config.php"
-                             .format(WOVariables.wo_webroot,
+                             .format(WOVar.wo_webroot,
                                      self.app.pargs.site_name))
             if os.path.isfile(wp_config):
                 if not WOShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} |"
@@ -464,7 +464,7 @@ class WODebugController(CementBaseController):
                     WOShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/wp-"
                                          "content/debug.log"
                                          "".format(webroot,
-                                                   WOVariables.wo_php_user))
+                                                   WOVar.wo_php_user))
                     WOShellExec.cmd_exec(self, "sed -i \"s/define(\'WP_DEBUG\'"
                                          ".*/define(\'WP_DEBUG\', true);\\n"
                                          "define(\'WP_DEBUG_DISPLAY\', false);"
@@ -478,11 +478,11 @@ class WODebugController(CementBaseController):
                     WOShellExec.cmd_exec(self, "chown -R {1}: {0}/htdocs/"
                                          "wp-content/plugins"
                                          .format(webroot,
-                                                 WOVariables.wo_php_user))
+                                                 WOVar.wo_php_user))
 
                 self.msg = self.msg + ['{0}{1}/htdocs/wp-content'
                                        '/debug.log'
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
 
             else:
@@ -491,14 +491,14 @@ class WODebugController(CementBaseController):
 
         elif (self.app.pargs.wp == 'off' and self.app.pargs.site_name):
             wp_config = ("{0}{1}/wp-config.php"
-                         .format(WOVariables.wo_webroot,
+                         .format(WOVar.wo_webroot,
                                  self.app.pargs.site_name))
-            webroot = "{0}{1}".format(WOVariables.wo_webroot,
+            webroot = "{0}{1}".format(WOVar.wo_webroot,
                                       self.app.pargs.site_name)
             # Check wp-config.php file into htdocs folder
             if not os.path.isfile(wp_config):
                 wp_config = ("{0}/{1}/htdocs/wp-config.php"
-                             .format(WOVariables.wo_webroot,
+                             .format(WOVar.wo_webroot,
                                      self.app.pargs.site_name))
             if os.path.isfile(wp_config):
                 if WOShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} | "
@@ -565,11 +565,11 @@ class WODebugController(CementBaseController):
                 Log.info(self, "Nginx rewrite logs for {0} already setup"
                          .format(self.app.pargs.site_name))
 
-            if ('{0}{1}/logs/error.log'.format(WOVariables.wo_webroot,
+            if ('{0}{1}/logs/error.log'.format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)
                     not in self.msg):
                 self.msg = self.msg + ['{0}{1}/logs/error.log'
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
 
         # Stop Nginx rewrite for site
@@ -608,7 +608,7 @@ class WODebugController(CementBaseController):
             self.debug_fpm73()
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host is "localhost":
+            if WOVar.wo_mysql_host is "localhost":
                 self.app.pargs.mysql = 'off'
                 self.debug_mysql()
             else:
@@ -756,7 +756,7 @@ class WODebugController(CementBaseController):
             self.debug_fpm73()
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host == "localhost":
+            if WOVar.wo_mysql_host == "localhost":
                 self.debug_mysql()
             else:
                 Log.warn(self, "Remote MySQL found, WordOps does not support "
@@ -796,22 +796,22 @@ class WODebugController(CementBaseController):
     def import_slow_log(self):
         """Default function for import slow log"""
         if os.path.isdir("{0}22222/htdocs/db/anemometer"
-                         .format(WOVariables.wo_webroot)):
+                         .format(WOVar.wo_webroot)):
             if os.path.isfile("/var/log/mysql/mysql-slow.log"):
                 # Get Anemometer user name and password
                 Log.info(self, "Importing MySQL slow log to Anemometer")
                 host = os.popen("grep -e \"\'host\'\" {0}22222/htdocs/"
-                                .format(WOVariables.wo_webroot) +
+                                .format(WOVar.wo_webroot) +
                                 "db/anemometer/conf/config.inc.php  "
                                 "| head -1 | cut -d\\\' -f4 | "
                                 "tr -d '\n'").read()
                 user = os.popen("grep -e \"\'user\'\" {0}22222/htdocs/"
-                                .format(WOVariables.wo_webroot) +
+                                .format(WOVar.wo_webroot) +
                                 "db/anemometer/conf/config.inc.php  "
                                 "| head -1 | cut -d\\\' -f4 | "
                                 "tr -d '\n'").read()
                 password = os.popen("grep -e \"\'password\'\" {0}22222/"
-                                    .format(WOVariables.wo_webroot) +
+                                    .format(WOVar.wo_webroot) +
                                     "htdocs/db/anemometer/conf"
                                     "/config.inc.php "
                                     "| head -1 | cut -d\\\' -f4 | "

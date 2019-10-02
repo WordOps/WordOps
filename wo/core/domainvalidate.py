@@ -24,7 +24,7 @@ class WODomain():
         else:
             final_domain = domain_name
 
-        return (final_domain, domain_name)
+        return final_domain
 
     def getlevel(self, domain):
         """
@@ -49,3 +49,4 @@ class WODomain():
                     root_domain = ('.'.join(domain_name[1:]))
             suffix_file.close()
             return (domain_type, root_domain)
+        return ('other', domain)

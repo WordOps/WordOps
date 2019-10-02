@@ -2,9 +2,9 @@
 
 from cement.core.controller import CementBaseController, expose
 
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
-VERSION = WOVariables.wo_version
+VERSION = WOVar.wo_version
 
 BANNER = """
 WordOps v%s

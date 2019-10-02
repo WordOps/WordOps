@@ -15,6 +15,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [STACK] Nginx ultimate bad bots blocker with `wo stack install --ngxblocker`
 - [STACK] Added support for custom Nginx compiled from source
 
+#### Changed
+
+- [CORE] Query acme.sh database directly to check if a certificate exist
+
+#### Fixed
+
+- [SITE] Issues with root_domain variable with `wo site update`
+
 ### v3.9.9.1 - 2019-09-26
 
 #### Added

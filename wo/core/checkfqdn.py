@@ -1,20 +1,20 @@
 import requests
 
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 def check_fqdn(self, wo_host):
     """FQDN check with WordOps, for mail server hostname must be FQDN"""
     # wo_host=os.popen("hostname -f | tr -d '\n'").read()
     if '.' in wo_host:
-        WOVariables.wo_fqdn = wo_host
+        WOVar.wo_fqdn = wo_host
         with open('/etc/hostname', encoding='utf-8', mode='w') as hostfile:
             hostfile.write(wo_host)
 
         WOShellExec.cmd_exec(self, "sed -i \"1i\\127.0.0.1 {0}\" /etc/hosts"
                                    .format(wo_host))
-        if WOVariables.wo_distro == 'debian':
+        if WOVar.wo_distro == 'debian':
             WOShellExec.cmd_exec(self, "/etc/init.d/hostname.sh start")
         else:
             WOShellExec.cmd_exec(self, "service hostname restart")
@@ -29,7 +29,7 @@ def check_fqdn_ip(self):
     x = requests.get('http://v4.wordops.eu')
     ip = (x.text).strip()
 
-    wo_fqdn = WOVariables.wo_fqdn
+    wo_fqdn = WOVar.wo_fqdn
     y = requests.get('http://v4.wordops.eu/dns/{0}/'.format(wo_fqdn))
     ip_fqdn = (y.text).strip()
 

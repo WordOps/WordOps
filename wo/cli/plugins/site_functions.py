@@ -22,7 +22,7 @@ from wo.core.mysql import (MySQLConnectionError, StatementExcecutionError,
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class SiteError(Exception):
@@ -229,7 +229,7 @@ def setupdatabase(self, data):
     data['wo_db_name'] = wo_db_name
     data['wo_db_user'] = wo_db_username
     data['wo_db_pass'] = wo_db_password
-    data['wo_db_host'] = WOVariables.wo_mysql_host
+    data['wo_db_host'] = WOVar.wo_mysql_host
     data['wo_mysql_grant_host'] = wo_mysql_grant_host
     return(data)
 
@@ -295,7 +295,7 @@ def setupwordpress(self, data, vhostonly=False):
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
         Log.debug(self, "/bin/bash -c \"{0} --allow-root "
-                  .format(WOVariables.wo_wpcli_path) +
+                  .format(WOVar.wo_wpcli_path) +
                   "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
                   "--dbhost=\'{3}\' "
@@ -307,7 +307,7 @@ def setupwordpress(self, data, vhostonly=False):
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
-                                    .format(WOVariables.wo_wpcli_path) +
+                                    .format(WOVar.wo_wpcli_path) +
                                     " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbuser=\'{2}\' --dbhost=\'{3}\' "
@@ -330,7 +330,7 @@ def setupwordpress(self, data, vhostonly=False):
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "/bin/bash -c \"{0} --allow-root "
-                  .format(WOVariables.wo_wpcli_path) +
+                  .format(WOVar.wo_wpcli_path) +
                   "config create " +
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['wo_db_name'],
@@ -345,7 +345,7 @@ def setupwordpress(self, data, vhostonly=False):
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
-                                    .format(WOVariables.wo_wpcli_path) +
+                                    .format(WOVar.wo_wpcli_path) +
                                     " config create " +
                                     "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                     "--dbhost=\'{2}\' "
@@ -370,36 +370,36 @@ def setupwordpress(self, data, vhostonly=False):
     try:
 
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set WP_CACHE_KEY_SALT "
                              "\'{0}:\'\"".format(wo_domain_name))
 
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set WP_MEMORY_LIMIT "
                              "\'128M\'\"")
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set WP_MAX_MEMORY_LIMIT "
                              "\'256M\'\"")
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set CONCATENATE_SCRIPTS "
                              "false --raw\"")
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set WP_POST_REVISIONS "
                              "\'10\'\"")
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set MEDIA_TRASH "
                              "true --raw\"")
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set EMPTY_TRASH_DAYS "
                              "\'15\'\"")
         WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "config set WP_AUTO_UPDATE_CORE "
                              "minor\"")
 
@@ -426,7 +426,7 @@ def setupwordpress(self, data, vhostonly=False):
         raise SiteError("Unable to move wp-config.php")
 
     if not wo_wp_user:
-        wo_wp_user = WOVariables.wo_user
+        wo_wp_user = WOVar.wo_user
         while not wo_wp_user:
             Log.warn(self, "Username can have only alphanumeric"
                      "characters, spaces, underscores, hyphens,"
@@ -439,7 +439,7 @@ def setupwordpress(self, data, vhostonly=False):
         wo_wp_pass = wo_random_pass
 
     if not wo_wp_email:
-        wo_wp_email = WOVariables.wo_email
+        wo_wp_email = WOVar.wo_email
         while not wo_wp_email:
             try:
                 wo_wp_email = input('Enter WordPress email: ')
@@ -460,14 +460,14 @@ def setupwordpress(self, data, vhostonly=False):
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
         Log.debug(self, "{0} --allow-root core install "
-                  .format(WOVariables.wo_wpcli_path) +
+                  .format(WOVar.wo_wpcli_path) +
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], wo_wp_user) +
                   "--admin_password= --admin_email=\'{1}\'"
                   .format(wo_wp_pass, wo_wp_email))
         try:
             if WOShellExec.cmd_exec(self, "{0} --allow-root core "
-                                    .format(WOVariables.wo_wpcli_path) +
+                                    .format(WOVar.wo_wpcli_path) +
                                     "install --url=\'{0}\' --title=\'{0}\' "
                                     "--admin_name=\'{1}\' "
                                     .format(data['www_domain'], wo_wp_user) +
@@ -484,7 +484,7 @@ def setupwordpress(self, data, vhostonly=False):
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
         Log.debug(self, "{0} --allow-root "
-                  .format(WOVariables.wo_wpcli_path) +
+                  .format(WOVar.wo_wpcli_path) +
                   "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], wo_wp_user) +
@@ -495,7 +495,7 @@ def setupwordpress(self, data, vhostonly=False):
                           if not data['wpsubdir'] else ''))
         try:
             if WOShellExec.cmd_exec(self, "{0} --allow-root "
-                                    .format(WOVariables.wo_wpcli_path) +
+                                    .format(WOVar.wo_wpcli_path) +
                                     "core multisite-install "
                                     "--url=\'{0}\' --title=\'{0}\' "
                                     "--admin_name=\'{1}\' "
@@ -517,7 +517,7 @@ def setupwordpress(self, data, vhostonly=False):
     Log.debug(self, "Updating WordPress permalink")
     try:
         WOShellExec.cmd_exec(self, " {0} --allow-root "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "rewrite structure "
                              "/%postname%/")
     except CommandExecutionError as e:
@@ -608,7 +608,7 @@ def setupwordpress(self, data, vhostonly=False):
     if vhostonly:
         try:
             WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                                 .format(WOVariables.wo_wpcli_path) +
+                                 .format(WOVar.wo_wpcli_path) +
                                  "db clean --yes\"")
             WOFileUtils.rm(self, "{0}/htdocs".format(wo_site_webroot))
             WOFileUtils.mkdir(self, "{0}/htdocs".format(wo_site_webroot))
@@ -653,7 +653,7 @@ def installwp_plugin(self, plugin_name, data):
     WOFileUtils.chdir(self, '{0}/htdocs/'.format(wo_site_webroot))
     try:
         WOShellExec.cmd_exec(self, "{0} plugin "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "--allow-root install "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
@@ -662,7 +662,7 @@ def installwp_plugin(self, plugin_name, data):
 
     try:
         WOShellExec.cmd_exec(self, "{0} plugin "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "--allow-root activate "
                              "{0} {na}"
                              .format(plugin_name,
@@ -689,12 +689,12 @@ def uninstallwp_plugin(self, plugin_name, data):
              .format(plugin_name))
     try:
         WOShellExec.cmd_exec(self, "{0} plugin "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "--allow-root deactivate "
                              "{0}".format(plugin_name))
 
         WOShellExec.cmd_exec(self, "{0} plugin "
-                             .format(WOVariables.wo_wpcli_path) +
+                             .format(WOVar.wo_wpcli_path) +
                              "--allow-root uninstall "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
@@ -716,7 +716,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
     if not data['multisite']:
         try:
             WOShellExec.cmd_exec(self, "{0} "
-                                 .format(WOVariables.wo_wpcli_path) +
+                                 .format(WOVar.wo_wpcli_path) +
                                  "--allow-root option update "
                                  "{0} \'{1}\' --format=json"
                                  .format(plugin_option, plugin_data))
@@ -731,7 +731,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
     else:
         try:
             WOShellExec.cmd_exec(self, "{0} "
-                                 .format(WOVariables.wo_wpcli_path) +
+                                 .format(WOVar.wo_wpcli_path) +
                                  "--allow-root network meta update 1 "
                                  "{0} \'{1}\' --format=json"
                                  .format(plugin_option, plugin_data
@@ -750,8 +750,8 @@ def setwebrootpermissions(self, webroot):
     Log.debug(self, "Setting up permissions")
     try:
         WOFileUtils.findBrokenSymlink(self, '/var/www/')
-        WOFileUtils.chown(self, webroot, WOVariables.wo_php_user,
-                          WOVariables.wo_php_user, recursive=True)
+        WOFileUtils.chown(self, webroot, WOVar.wo_php_user,
+                          WOVar.wo_php_user, recursive=True)
     except Exception as e:
         Log.debug(self, str(e))
         raise SiteError("problem occured while setting up webroot permissions")
@@ -759,7 +759,7 @@ def setwebrootpermissions(self, webroot):
 
 def sitebackup(self, data):
     wo_site_webroot = data['webroot']
-    backup_path = wo_site_webroot + '/backup/{0}'.format(WOVariables.wo_date)
+    backup_path = wo_site_webroot + '/backup/{0}'.format(WOVar.wo_date)
     if not WOFileUtils.isexist(self, backup_path):
         WOFileUtils.mkdir(self, backup_path)
     Log.info(self, "Backup location : {0}".format(backup_path))
@@ -836,8 +836,8 @@ def site_package_check(self, stype):
                 # do something
                 # do post nginx installation configuration
                 Log.info(self, "NGINX PLUS Detected ...")
-                apt = ["nginx-plus"] + WOVariables.wo_nginx
-                # apt_packages = apt_packages + WOVariables.wo_nginx
+                apt = ["nginx-plus"] + WOVar.wo_nginx
+                # apt_packages = apt_packages + WOVar.wo_nginx
                 stack.post_pref(self, apt, packages)
             elif WOAptGet.is_installed(self, 'nginx'):
                 Log.info(self, "WordOps detected a previously"
@@ -845,13 +845,13 @@ def site_package_check(self, stype):
                                "It may or may not have required modules. "
                                "\nIf you need help, please create an issue at "
                                "https://github.com/WordOps/WordOps/issues/ \n")
-                apt = ["nginx"] + WOVariables.wo_nginx
-                # apt_packages = apt_packages + WOVariables.wo_nginx
+                apt = ["nginx"] + WOVar.wo_nginx
+                # apt_packages = apt_packages + WOVar.wo_nginx
                 post_pref(self, apt, packages)
             elif os.path.isfile('/usr/sbin/nginx'):
-                post_pref(self, WOVariables.wo_nginx, [])
+                post_pref(self, WOVar.wo_nginx, [])
             else:
-                apt_packages = apt_packages + WOVariables.wo_nginx
+                apt_packages = apt_packages + WOVar.wo_nginx
         else:
             # Fix for Nginx white screen death
             if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
@@ -871,26 +871,26 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for PHP 7.2")
         if not WOAptGet.is_installed(self, 'php7.2-fpm'):
             if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + \
-                    WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVar.wo_php + \
+                    WOVar.wo_php_extra
             else:
-                apt_packages = apt_packages + WOVariables.wo_php
+                apt_packages = apt_packages + WOVar.wo_php
 
     if self.app.pargs.php73 and stype in ['mysql', 'wp',
                                           'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + \
-                    WOVariables.wo_php73 + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVar.wo_php + \
+                    WOVar.wo_php73 + WOVar.wo_php_extra
             else:
-                apt_packages = apt_packages + WOVariables.wo_php73
+                apt_packages = apt_packages + WOVar.wo_php73
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
         if not WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
-            if not WOVariables.wo_distro == 'raspbian':
-                if (not WOVariables.wo_platform_codename == 'jessie'):
+            if not WOVar.wo_distro == 'raspbian':
+                if (not WOVar.wo_platform_codename == 'jessie'):
                     wo_mysql = ["mariadb-server", "percona-toolkit",
                                 "python3-mysqldb", "mariadb-backup"]
                 else:
@@ -907,7 +907,7 @@ def site_package_check(self, stype):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                     "releases/download/v{0}/"
                                     "wp-cli-{0}.phar"
-                                    .format(WOVariables.wo_wp_cli),
+                                    .format(WOVar.wo_wp_cli),
                                     "/usr/local/bin/wp", "WP-CLI"]]
     if self.app.pargs.wpredis:
         Log.debug(self, "Setting apt_packages variable for redis")
@@ -918,10 +918,10 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
             if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVariables.wo_php + \
-                    WOVariables.wo_php73 + WOVariables.wo_php_extra
+                apt_packages = apt_packages + WOVar.wo_php + \
+                    WOVar.wo_php73 + WOVar.wo_php_extra
             else:
-                apt_packages = apt_packages + WOVariables.wo_php73
+                apt_packages = apt_packages + WOVar.wo_php73
 
     if self.app.pargs.ngxblocker:
         if not os.path.isdir('/etc/nginx/bots.d'):
@@ -1293,9 +1293,9 @@ def removeAcmeConf(self, domain):
             Log.error(self, "Cert removal failed")
 
         WOFileUtils.rm(self, '{0}/{1}_ecc'
-                       .format(WOVariables.wo_ssl_archive, domain))
+                       .format(WOVar.wo_ssl_archive, domain))
         WOFileUtils.rm(self, '{0}/{1}'
-                       .format(WOVariables.wo_ssl_live, domain))
+                       .format(WOVar.wo_ssl_live, domain))
         WOFileUtils.rm(self, '{0}'.format(sslconf))
         WOFileUtils.rm(self, '{0}.disabled'.format(sslconf))
         WOFileUtils.rm(self, '{0}'.format(sslforce))
@@ -1502,7 +1502,7 @@ def archivedCertificateHandle(self, domain):
         self, "You already have an existing certificate "
         "for the domain requested.\n"
         "(ref: {0}/"
-        "{1}_ecc/{1}.conf)".format(WOVariables.wo_ssl_archive, domain) +
+        "{1}_ecc/{1}.conf)".format(WOVar.wo_ssl_archive, domain) +
         "\nPlease select an option from below?"
         "\n\t1: Reinstall existing certificate"
         "\n\t2: Issue a new certificate to replace "
@@ -1511,10 +1511,10 @@ def archivedCertificateHandle(self, domain):
     check_prompt = input(
         "\nType the appropriate number [1-2] or any other key to cancel: ")
     if not os.path.isfile("{0}/{1}/fullchain.pem"
-                          .format(WOVariables.wo_ssl_live, domain)):
+                          .format(WOVar.wo_ssl_live, domain)):
         Log.error(
             self, "{0}/{1}/fullchain.pem file is missing."
-                  .format(WOVariables.wo_ssl_live, domain))
+                  .format(WOVar.wo_ssl_live, domain))
 
     if check_prompt == "1":
         Log.info(self, "Reinstalling SSL cert with acme.sh")
@@ -1539,7 +1539,7 @@ def archivedCertificateHandle(self, domain):
                                   "ssl_certificate_key     {0}/{1}/key.pem;\n"
                                   "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
                                   "ssl_stapling_verify on;\n"
-                                  .format(WOVariables.wo_ssl_live, domain))
+                                  .format(WOVar.wo_ssl_live, domain))
                     sslconf.close()
 
             except IOError as e:
@@ -1573,7 +1573,7 @@ def archivedCertificateHandle(self, domain):
                                      "{0}/{1}/ca.pem;\n"
                                      "--reloadcmd "
                                      "\"nginx -t && service nginx restart\" "
-                                     .format(WOVariables.wo_ssl_live, domain))
+                                     .format(WOVar.wo_ssl_live, domain))
 
             except IOError as e:
                 Log.debug(self, str(e))
@@ -1595,8 +1595,8 @@ def archivedCertificateHandle(self, domain):
 
 
 def setuprocketchat(self):
-    if ((not WOVariables.wo_platform_codename == 'bionic') and
-            (not WOVariables.wo_platform_codename == 'xenial')):
+    if ((not WOVar.wo_platform_codename == 'bionic') and
+            (not WOVar.wo_platform_codename == 'xenial')):
         Log.info(self, "Rocket.chat is only available on Ubuntu 16.04 "
                  "& 18.04 LTS")
         return False

@@ -7,7 +7,7 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class WOAcme:
@@ -77,7 +77,7 @@ class WOAcme:
                 "--fullchain-file {0}/{1}/fullchain.pem "
                 "--ca-file {0}/{1}/ca.pem --reloadcmd \"nginx -t && "
                 "service nginx restart\" "
-                .format(WOVariables.wo_ssl_live,
+                .format(WOVar.wo_ssl_live,
                         wo_domain_name, WOAcme.wo_acme_exec)):
                 Log.valide(self, "Deploying SSL cert")
             else:
@@ -97,7 +97,7 @@ class WOAcme:
                     "ssl_certificate_key     {0}/{1}/key.pem;\n"
                     "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
                     "ssl_stapling_verify on;\n"
-                    .format(WOVariables.wo_ssl_live, wo_domain_name))
+                    .format(WOVar.wo_ssl_live, wo_domain_name))
                 sslconf.close()
 
             if not WOFileUtils.grep(self, '/var/www/22222/conf/nginx/ssl.conf',
@@ -109,7 +109,7 @@ class WOAcme:
                               "ssl_certificate_key     {0}/{1}/key.pem;\n"
                               "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
                               "ssl_stapling_verify on;\n"
-                              .format(WOVariables.wo_ssl_live, wo_domain_name))
+                              .format(WOVar.wo_ssl_live, wo_domain_name))
                 sslconf.close()
 
             WOGit.add(self, ["/etc/letsencrypt"],

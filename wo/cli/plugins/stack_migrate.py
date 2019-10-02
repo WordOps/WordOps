@@ -9,7 +9,7 @@ from wo.core.aptget import WOAptGet
 from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class WOStackMigrateController(CementBaseController):
@@ -29,8 +29,8 @@ class WOStackMigrateController(CementBaseController):
         # Backup all database
         WOMysql.backupAll(self)
 
-        if not WOVariables.wo_distro == 'raspbian':
-            if (not WOVariables.wo_platform_codename == 'jessie'):
+        if not WOVar.wo_distro == 'raspbian':
+            if (not WOVar.wo_platform_codename == 'jessie'):
                 wo_mysql = ["mariadb-server", "percona-toolkit",
                             "python3-mysqldb", "mariadb-backup"]
             else:
@@ -49,9 +49,9 @@ class WOStackMigrateController(CementBaseController):
                   'MariaDB.pref', 'w') as mysql_pref_file:
             mysql_pref_file.write(mysql_pref)
 
-        WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
+        WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
         Log.debug(self, 'Adding key for {0}'
-                  .format(WOVariables.wo_mysql_repo))
+                  .format(WOVar.wo_mysql_repo))
         WORepo.add_key(self, '0xcbcb082a1bb943db',
                        keyserver="keyserver.ubuntu.com")
 
@@ -104,7 +104,7 @@ class WOStackMigrateController(CementBaseController):
         if ((not self.app.pargs.mariadb)):
             self.app.args.print_help()
         if self.app.pargs.mariadb:
-            if WOVariables.wo_mysql_host != "localhost":
+            if WOVar.wo_mysql_host != "localhost":
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
 

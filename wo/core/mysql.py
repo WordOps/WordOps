@@ -6,7 +6,7 @@ import pymysql
 from pymysql import DatabaseError, Error, connections
 
 from wo.core.logging import Log
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class MySQLConnectionError(Exception):
@@ -115,7 +115,7 @@ class WOMysql():
                                       stderr=subprocess.PIPE, shell=True)
                 p2 = subprocess.Popen("/usr/bin/pigz -c > "
                                       "/var/wo-mysqlbackup/{0}{1}.sql.gz"
-                                      .format(dbs, WOVariables.wo_date),
+                                      .format(dbs, WOVar.wo_date),
                                       stdin=p1.stdout,
                                       shell=True)
 
