@@ -1483,25 +1483,14 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "Congratulations! Successfully "
                          "Configured SSL for Site "
                          " https://{0}".format(wo_domain))
-                if acme_subdomain and iswildcard:
-                    if (SSL.getexpirationdays(self, wo_root_domain) > 0):
-                        Log.info(
-                            self, "Your cert will expire within " +
-                            str(SSL.getexpirationdays(self, wo_root_domain)) +
-                            " days.")
-                    else:
-                        Log.warn(
-                            self, "Your cert already EXPIRED ! "
-                            ".PLEASE renew soon . ")
+                if (SSL.getexpirationdays(self, wo_domain) > 0):
+                    Log.info(self, "Your cert will expire within " +
+                             str(SSL.getexpirationdays(self, wo_domain)) +
+                             " days.")
                 else:
-                    if (SSL.getexpirationdays(self, wo_domain) > 0):
-                        Log.info(self, "Your cert will expire within " +
-                                 str(SSL.getexpirationdays(self, wo_domain)) +
-                                 " days.")
-                    else:
-                        Log.warn(
-                            self, "Your cert already EXPIRED ! "
-                            ".PLEASE renew soon . ")
+                    Log.warn(
+                        self, "Your cert already EXPIRED ! "
+                        ".PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
                 if pargs.letsencrypt == "off":

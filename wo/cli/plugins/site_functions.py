@@ -610,6 +610,7 @@ def setupwordpress(self, data, vhostonly=False):
             WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
                                  .format(WOVar.wo_wpcli_path) +
                                  "db clean --yes\"")
+            WOFileUtils.chdir(self, '{0}'.format(wo_site_webroot))
             WOFileUtils.rm(self, "{0}/htdocs".format(wo_site_webroot))
             WOFileUtils.mkdir(self, "{0}/htdocs".format(wo_site_webroot))
             WOFileUtils.chown(self, "{0}/htdocs".format(wo_site_webroot),

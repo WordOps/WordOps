@@ -2,7 +2,6 @@
 import os
 
 from sh import ErrorReturnCode, git
-
 from wo.core.logging import Log
 
 
@@ -72,9 +71,10 @@ class WOGit:
                     Log.error(self, "Unable to find a git repository at {0}"
                               .format(path))
                 try:
-                    Log.debug(self, "WOGit: git reset HEAD~ at {0}"
+                    Log.debug(self, "WOGit: git stash --include-untracked at {0}"
                               .format(path))
-                    git.reset("HEAD~", "--hard")
+                    git.stash("push", "--include-untracked", "-m {0}"
+                              .format(msg))
                 except ErrorReturnCode as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "Unable to git reset at {0} "

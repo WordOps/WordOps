@@ -111,8 +111,9 @@ class SSL:
         wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
         for row in reader:
             if wo_wildcard_domain in row[2]:
-                iswildcard = True
-                break
+                if not row[2] == "":
+                    iswildcard = True
+                    break
             else:
                 iswildcard = False
         certfile.close()
