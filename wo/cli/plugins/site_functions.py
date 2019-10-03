@@ -95,8 +95,8 @@ def setupdomain(self, data):
         # Check nginx -t and return status over it
         try:
             Log.debug(self, "Checking generated nginx conf, please wait...")
-            FNULL = open('/dev/null', 'w')
-            subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=FNULL,
+            fnull = open('/dev/null', 'w')
+            subprocess.check_call(["/usr/sbin/nginx", "-t"], stdout=fnull,
                                   stderr=subprocess.STDOUT)
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         except CalledProcessError as e:
