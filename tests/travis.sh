@@ -204,3 +204,6 @@ for stack in $stack_purge; do
 
     fi
 done
+if [ -n "$1" ]; then
+    cat /var/log/wo/test.log | ccze -A -p syslog
+fi
