@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Fixed
 
 - [SITE] Issues with root_domain variable with `wo site update`
+- [SECURE] Wrong sftp-server path in sshd_config
 
 ### v3.9.9.1 - 2019-09-26
 
