@@ -1452,10 +1452,12 @@ class WOSiteUpdateController(CementBaseController):
                             # check DNS records before issuing cert
                             if not acmedata['dns'] is True:
                                 if not pargs.force:
-                                    if not WOAcme.check_dns(self, acme_domains):
+                                    if not WOAcme.check_dns(self,
+                                                            acme_domains):
                                         Log.error(
                                             self,
-                                            "Aborting SSL certificate issuance")
+                                            "Aborting SSL "
+                                            "certificate issuance")
                             if WOAcme.setupletsencrypt(
                                     self, acme_domains, acmedata):
                                 WOAcme.deploycert(self, wo_domain)

@@ -11,9 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - [STACK] Nginx server_names_hash_bucket_size automated fix
-- [STACK] Nginx configuration rollback in case of failure after `wo stack upgrade --nginx
+- [STACK] Nginx configuration rollback in case of failure after `wo stack upgrade --nginx`
 - [STACK] Nginx ultimate bad bots blocker with `wo stack install --ngxblocker`
 - [STACK] Added support for custom Nginx compiled from source
+- [STACK] Rollback configuration with Git in case of failure during service reload/restart
 
 #### Changed
 

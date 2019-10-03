@@ -1624,4 +1624,4 @@ def setupngxblocker(self, domain, block=True):
                 self, '/var/www/{0}/conf/nginx/ngxblocker.disabled'
                 .format(domain), '/var/www/{0}/conf/nginx/ngxblocker'
                 .format(domain))
-        return 0
+    return 0

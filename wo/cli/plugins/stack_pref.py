@@ -7,7 +7,6 @@ import string
 
 import psutil
 import requests
-
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.core.apt_repo import WORepo
@@ -19,12 +18,12 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.mysql import WOMysql
+from wo.core.nginxhashbucket import hashbucket
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVar
-from wo.core.nginxhashbucket import hashbucket
 
 
 def pre_pref(self, apt_packages):
@@ -471,12 +470,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                       '> /dev/null 2>&1',
                                       comment='Cloudflare IP refresh cronjob '
                                       'added by WordOps')
-                WOGit.add(self,
-                          ["/etc/nginx"], msg="Adding Nginx into Git")
 
             # Nginx Configation into GIT
-            WOGit.add(self,
-                      ["/etc/nginx"], msg="Adding Nginx into Git")
             if not WOService.restart_service(self, 'nginx'):
                 try:
                     hashbucket(self)
@@ -492,6 +487,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             self, "There is an error in Nginx configuration.\n"
                             "Use the command nginx -t to identify "
                             "the cause of this issue", False)
+            else:
+                WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
 
         if set(WOVar.wo_php).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
@@ -623,8 +620,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'www-data',
                               'www-data', recursive=True)
 
-            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-            WOService.restart_service(self, 'php7.2-fpm')
+            # check service restart or rollback configuration
+            if not WOService.restart_service(self, 'php7.2-fpm'):
+                WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
+            else:
+                WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
 
         # PHP7.3 configuration
         if set(WOVar.wo_php73).issubset(set(apt_packages)):
@@ -756,9 +756,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
-
-            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-            WOService.restart_service(self, 'php7.3-fpm')
+            # check service restart or rollback configuration
+            if not WOService.restart_service(self, 'php7.3-fpm'):
+                WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
+            else:
+                WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
 
         # create mysql config if it doesn't exist
         if "mariadb-server" in apt_packages:
@@ -837,9 +839,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'fail2ban-forbidden.mustache',
                     data, overwrite=False)
 
-                WOGit.add(self, ["/etc/fail2ban"],
-                          msg="Adding Fail2ban into Git")
-                WOService.reload_service(self, 'fail2ban')
+                if not WOService.reload_service(self, 'fail2ban'):
+                    WOGit.rollback(
+                        self, ['/etc/fail2ban'], msg="Rollback f2b config")
+                else:
+                    WOGit.add(self, ["/etc/fail2ban"],
+                              msg="Adding Fail2ban into Git")
 
         # Proftpd configuration
         if "proftpd-basic" in apt_packages:
@@ -899,9 +904,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     f2bproftpd.write("\n\n[proftpd]\nenabled = true\n")
                 WOService.reload_service(self, 'fail2ban')
 
-            WOGit.add(self, ["/etc/proftpd"],
-                      msg="Adding ProFTPd into Git")
-            WOService.reload_service(self, 'proftpd')
+            if not WOService.reload_service(self, 'proftpd'):
+                WOGit.rollback(self, ["/etc/proftpd"],
+                               msg="Rollback ProFTPd")
+            else:
+                WOGit.add(self, ["/etc/proftpd"],
+                          msg="Adding ProFTPd into Git")
 
         if "ufw" in apt_packages:
             # check if ufw is already enabled
@@ -999,9 +1007,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOFileUtils.chown(self, '/etc/redis/redis.conf',
                                   'redis', 'redis', recursive=False)
                 Log.valide(self, "Tuning Redis configuration")
-                WOGit.add(self, ["/etc/redis"],
-                          msg="Adding Redis into Git")
-                WOService.restart_service(self, 'redis-server')
+            if not WOService.restart_service(self, 'redis-server'):
+                WOGit.rollback(self, ["/etc/redis"], msg="Rollback Redis")
+            else:
+                WOGit.add(self, ["/etc/redis"], msg="Adding Redis into Git")
 
         # ClamAV configuration
         if set(WOVar.wo_clamav).issubset(set(apt_packages)):
