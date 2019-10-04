@@ -27,7 +27,7 @@ if not os.path.exists('/var/lib/wo/tmp/'):
 
 setup(name='wordops',
       version='3.9.9.2',
-      description=short_description,
+      description='WordPress & server administration toolset',
       long_description=long_description,
       long_description_content_type="text/markdown",
       classifiers=[
