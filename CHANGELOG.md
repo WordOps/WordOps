@@ -24,14 +24,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [CORE] Query acme.sh database directly to check if a certificate exist
 - [SITE] `--letsencrypt=renew` is deprecated because not it's not required with acme.sh
 
-
 #### Fixed
 
 - [SITE] Issues with root_domain variable with `wo site update`
 - [SECURE] Wrong sftp-server path in sshd_config
 - [SITE] Git error when using flag `--vhostonly`
 - [SITE] Wrong plugin name displayed when installing Cache-Enabler
-
 
 ### v3.9.9.1 - 2019-09-26
 
