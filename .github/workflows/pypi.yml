@@ -13,8 +13,9 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install setuptools wheel twine
+        sudo python3 -m pip install --upgrade pip
+        sudo python3 -m pip install setuptools wheel twine
+        sudo python3 -m pip install --upgrade setuptools wheel twine     
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
