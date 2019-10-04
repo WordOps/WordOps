@@ -74,7 +74,7 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --ufw --dashboard --proftpd --clamav --mysqlclient --mysqltuner --extplorer --all --force" \
+                              -W "--web --admin --security --nginx --php --php73 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --ufw --dashboard --proftpd --clamav --ngxblocker --mysqlclient --mysqltuner --extplorer --all --force" \
                               -- $cur) )
                 ;;
             "upgrade" )
@@ -160,7 +160,7 @@ _wo_complete()
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --php73 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc  --wpredis --wprocket --wpce -le -le=off --letsencrypt --letsencrypt=off   --letsencrypt=clean  -le=wildcard -le=clean --dns --dns=dns_cf --dns=dns_dgon" \
+                                    -W "--password --php --php73 --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce -le -le=off --letsencrypt --letsencrypt=off --letsencrypt=clean -le=wildcard -le=clean --dns --dns=dns_cf --dns=dns_dgon --ngxblocker --ngxblocker=off" \
                                  -- $cur) )
                 ;;
             "delete")

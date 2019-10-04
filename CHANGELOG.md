@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.9.2 - 2019-10-04
+
 #### Added
 
 - [STACK] Nginx server_names_hash_bucket_size automated fix
@@ -15,15 +17,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [STACK] Nginx ultimate bad bots blocker with `wo stack install --ngxblocker`
 - [STACK] Added support for custom Nginx compiled from source
 - [STACK] Rollback configuration with Git in case of failure during service reload/restart
+- [SITE] Enable or disable Nginx ultimate bad bots blocker with `wo site update site.tld --ngxblocker/--ngxblocker=off`
 
 #### Changed
 
 - [CORE] Query acme.sh database directly to check if a certificate exist
+- [SITE] `--letsencrypt=renew` is deprecated because not it's not required with acme.sh
+
 
 #### Fixed
 
 - [SITE] Issues with root_domain variable with `wo site update`
 - [SECURE] Wrong sftp-server path in sshd_config
+- [SITE] Git error when using flag `--vhostonly`
+- [SITE] Wrong plugin name displayed when installing Cache-Enabler
+
 
 ### v3.9.9.1 - 2019-09-26
 

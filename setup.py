@@ -38,7 +38,6 @@ setup(name='wordops',
           "Environment :: Console",
           "Natural Language :: English",
           "Topic :: System :: Systems Administration",
-
       ],
       keywords='',
       author='WordOps',
