@@ -13,13 +13,13 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        sudo python3 -m pip install --upgrade pip
-        sudo python3 -m pip install setuptools wheel twine
-        sudo python3 -m pip install --upgrade setuptools wheel twine     
+        python3 -m pip install --upgrade pip
+        python3 -m pip install setuptools wheel twine
+        python3 -m pip install --upgrade setuptools wheel twine     
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        sudo python3 setup.py sdist bdist_wheel
-        sudo twine upload dist/*
+        python3 setup.py sdist bdist_wheel
+        twine upload dist/*
