@@ -106,13 +106,13 @@ def main():
         # Catch our application errors and exit 1 (error)
         code = 1
         print(e)
-    except FrameworkError as e:
-        # Catch framework errors and exit 1 (error)
-        code = 1
-        print(e)
     except CaughtSignal as e:
         # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
         code = 0
+        print(e)
+    except FrameworkError as e:
+        # Catch framework errors and exit 1 (error)
+        code = 1
         print(e)
     except Exception as e:
         code = 1

@@ -28,8 +28,7 @@ before_script:
 
 
 after_script:
-  - sudo cat /etc/nginx/nginx.conf | ccze -A
-  - sudo cat /etc/mysql/my.cnf | ccze -A
+  - sudo cat /var/log/wo/test.log | ccze -A -p syslog
   - sudo bash install --purge
   - sudo curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
 
@@ -41,4 +40,3 @@ script:
   - sudo time bash install --travis -b "$TRAVIS_BRANCH"
   - sudo time bash tests/travis.sh
   - sudo wo update --travis
-  - sudo wo stack status

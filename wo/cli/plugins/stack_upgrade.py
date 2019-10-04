@@ -12,7 +12,7 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class WOStackUpgradeController(CementBaseController):
@@ -92,27 +92,31 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.nginx:
             if WOAptGet.is_installed(self, 'nginx-custom'):
-                apt_packages = apt_packages + WOVariables.wo_nginx
+                apt_packages = apt_packages + WOVar.wo_nginx
             else:
-                Log.info(self, "Nginx Stable is not already installed")
+                if os.path.isfile(self, '/usr/sbin/nginx'):
+                    Log.info(self, "Updating Nginx templates")
+                    post_pref(self, WOVar.wo_nginx, [])
+                else:
+                    Log.info(self, "Nginx Stable is not already installed")
 
         if pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php + \
-                        WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVar.wo_php + \
+                        WOVar.wo_php_extra
                 else:
-                    apt_packages = apt_packages + WOVariables.wo_php
+                    apt_packages = apt_packages + WOVar.wo_php
             else:
                 Log.info(self, "PHP 7.2 is not installed")
 
         if pargs.php73:
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVariables.wo_php73 + \
-                        WOVariables.wo_php_extra
+                    apt_packages = apt_packages + WOVar.wo_php73 + \
+                        WOVar.wo_php_extra
                 else:
-                    apt_packages = apt_packages + WOVariables.wo_php73
+                    apt_packages = apt_packages + WOVar.wo_php73
             else:
                 Log.info(self, "PHP 7.3 is not installed")
 
@@ -133,7 +137,7 @@ class WOStackUpgradeController(CementBaseController):
                 packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                         "releases/download/v{0}/"
                                         "wp-cli-{0}.phar"
-                                        "".format(WOVariables.wo_wp_cli),
+                                        "".format(WOVar.wo_wp_cli),
                                         "/usr/local/bin/wp",
                                         "WP-CLI"]]
             else:
@@ -153,7 +157,7 @@ class WOStackUpgradeController(CementBaseController):
                 packages = packages + \
                     [["https://github.com/WordOps/wordops-dashboard/"
                       "releases/download/v{0}/wordops-dashboard.tar.gz"
-                      .format(WOVariables.wo_dashboard),
+                      .format(WOVar.wo_dashboard),
                       "/var/lib/wo/tmp/wo-dashboard.tar.gz",
                       "WordOps Dashboard"]]
 
@@ -164,7 +168,7 @@ class WOStackUpgradeController(CementBaseController):
                       "/phpMyAdmin/{0}/"
                       "phpMyAdmin-{0}-"
                       "all-languages"
-                      ".tar.gz".format(WOVariables.wo_phpmyadmin),
+                      ".tar.gz".format(WOVar.wo_phpmyadmin),
                       "/var/lib/wo/tmp/pma.tar.gz",
                       "PHPMyAdmin"]]
             else:
@@ -205,7 +209,7 @@ class WOStackUpgradeController(CementBaseController):
 
                 # additional pre_pref
                 if ["nginx-custom"] in apt_packages:
-                    pre_pref(self, WOVariables.wo_nginx)
+                    pre_pref(self, WOVar.wo_nginx)
                 if ["php7.2-fpm"] in apt_packages:
                     WOAptGet.remove(self, ['php7.2-fpm'],
                                     auto=False, purge=True)
@@ -215,8 +219,8 @@ class WOStackUpgradeController(CementBaseController):
                 # check if nginx upgrade is blocked
                 if os.path.isfile(
                         '/etc/apt/preferences.d/nginx-block'):
-                    apt_packages.remove(WOVariables.wo_nginx)
-                    post_pref(self, WOVariables.wo_nginx, [], True)
+                    apt_packages.remove(WOVar.wo_nginx)
+                    post_pref(self, WOVar.wo_nginx, [], True)
                 # upgrade packages
                 WOAptGet.install(self, apt_packages)
                 Log.valide(self, "Upgrading APT Packages")
@@ -265,7 +269,7 @@ class WOStackUpgradeController(CementBaseController):
                                     "/wordops-dashboard/"
                                     "releases/download/v{0}/"
                                     "wordops-dashboard.tar.gz"
-                                    .format(WOVariables.wo_dashboard),
+                                    .format(WOVar.wo_dashboard),
                                     "/var/lib/wo/tmp/wo-dashboard.tar.gz",
                                     "WordOps Dashboard"]])
 
@@ -286,20 +290,20 @@ class WOStackUpgradeController(CementBaseController):
                                       '/var/lib/wo/tmp/')
                     shutil.copyfile(('{0}22222/htdocs/db/pma'
                                      '/config.inc.php'
-                                     .format(WOVariables.wo_webroot)),
+                                     .format(WOVar.wo_webroot)),
                                     ('/var/lib/wo/tmp/phpMyAdmin-{0}'
                                      '-all-languages/config.inc.php'
-                                     .format(WOVariables.wo_phpmyadmin))
+                                     .format(WOVar.wo_phpmyadmin))
                                     )
                     WOFileUtils.rm(self, '{0}22222/htdocs/db/pma'
-                                   .format(WOVariables.wo_webroot))
+                                   .format(WOVar.wo_webroot))
                     shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
                                 '-all-languages/'
-                                .format(WOVariables.wo_phpmyadmin),
+                                .format(WOVar.wo_phpmyadmin),
                                 '{0}22222/htdocs/db/pma/'
-                                .format(WOVariables.wo_webroot))
+                                .format(WOVar.wo_webroot))
                     WOFileUtils.chown(self, "{0}22222/htdocs"
-                                      .format(WOVariables.wo_webroot),
+                                      .format(WOVar.wo_webroot),
                                       'www-data',
                                       'www-data', recursive=True)
                     Log.valide(self, "Upgrading phpMyAdmin")

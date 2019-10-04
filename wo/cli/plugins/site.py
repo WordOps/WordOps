@@ -5,7 +5,6 @@ import subprocess
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
-
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
@@ -18,7 +17,7 @@ from wo.core.nginxhashbucket import hashbucket
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.sslutils import SSL
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 def wo_site_hook(app):
@@ -57,8 +56,8 @@ class WOSiteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         # validate domain name
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
 
         # check if site exists
         if not check_domain_exists(self, wo_domain):
@@ -95,8 +94,8 @@ class WOSiteController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = WODomain.validatedomain(self,
-                                                             pargs.site_name)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
         # check if site exists
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -136,10 +135,10 @@ class WOSiteController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
-        (wo_domain_type,
-         wo_root_domain) = WODomain.getdomainlevel(self, wo_domain)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
+        (wo_domain_type, wo_root_domain) = WODomain.getlevel(
+            self, wo_domain)
         wo_db_name = ''
         wo_db_user = ''
         wo_db_pass = ''
@@ -190,8 +189,8 @@ class WOSiteController(CementBaseController):
     def log(self):
         pargs = self.app.pargs
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
         wo_site_webroot = getSiteInfo(self, wo_domain).site_path
 
         if not check_domain_exists(self, wo_domain):
@@ -213,8 +212,8 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         # TODO Write code for wo site edit command here
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -245,8 +244,8 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'Unable to read input, please try again')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -286,13 +285,12 @@ class WOSiteEditController(CementBaseController):
                 Log.error(self, 'Unable to read input, Please try again')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
-
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
 
-        wo_site_webroot = WOVariables.wo_webroot + wo_domain
+        wo_site_webroot = WOVar.wo_webroot + wo_domain
 
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(wo_domain)):
@@ -381,6 +379,9 @@ class WOSiteCreateController(CementBaseController):
             (['--hsts'],
                 dict(help="enable HSTS for site secured with letsencrypt",
                      action='store_true')),
+            (['--ngxblocker'],
+                dict(help="enable HSTS for site secured with letsencrypt",
+                     action='store_true')),
             (['--user'],
                 dict(help="provide user for WordPress site")),
             (['--email'],
@@ -434,13 +435,15 @@ class WOSiteCreateController(CementBaseController):
                 Log.error(self, "Unable to input site name, Please try again!")
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
+        (wo_domain_type, wo_root_domain) = WODomain.getlevel(
+            self, wo_domain)
         if not wo_domain.strip():
             Log.error(self, "Invalid domain name, "
                       "Provide valid domain name")
 
-        wo_site_webroot = WOVariables.wo_webroot + wo_domain
+        wo_site_webroot = WOVar.wo_webroot + wo_domain
 
         if check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} already exists".format(wo_domain))
@@ -729,15 +732,16 @@ class WOSiteCreateController(CementBaseController):
 
         if pargs.letsencrypt:
             acme_domains = []
-            (wo_domain_type,
-             wo_root_domain) = WODomain.getdomainlevel(self,
-                                                       wo_domain)
             data['letsencrypt'] = True
             letsencrypt = True
-            if data['letsencrypt'] is True:
+            if WOAcme.cert_check(self, wo_domain):
+                archivedCertificateHandle(self, wo_domain)
+            else:
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
                 acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
-                                dnsalias=False, acme_alias='')
+                                dnsalias=False, acme_alias='', keylength='')
+                acmedata['keylength'] = self.app.config.get('letsencrypt',
+                                                            'keylength')
                 if pargs.dns:
                     Log.debug(self, "DNS validation enabled")
                     acmedata['dns'] = True
@@ -785,9 +789,7 @@ class WOSiteCreateController(CementBaseController):
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"
                               .format(wo_root_domain))
-                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
-                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
-                    if iswildcard:
+                    if SSL.checkwildcardexist(self, wo_root_domain):
                         Log.info(self, "Using existing Wildcard SSL "
                                  "certificate from {0} to secure {1}"
                                  .format(wo_root_domain, wo_domain))
@@ -836,9 +838,6 @@ class WOSiteCreateController(CementBaseController):
                           msg="Adding letsencrypts config of site: {0}"
                           .format(wo_domain))
                 updateSiteInfo(self, wo_domain, ssl=letsencrypt)
-            elif data['letsencrypt'] is False:
-                Log.info(self, "Not using Let\'s encrypt for Site "
-                         " http://{0}".format(wo_domain))
 
 
 class WOSiteUpdateController(CementBaseController):
@@ -905,6 +904,10 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="configure hsts for the site",
                      action='store' or 'store_const',
                      choices=('on', 'off'),
+                     const='on', nargs='?')),
+            (['--ngxblocker'],
+                dict(help="enable HSTS for site secured with letsencrypt",
+                     action='store' or 'store_const',
                      const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
@@ -987,9 +990,11 @@ class WOSiteUpdateController(CementBaseController):
                 Log.error(self, 'Unable to input site name, Please try again!')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain,
-         wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
-        wo_site_webroot = WOVariables.wo_webroot + wo_domain
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
+        (wo_domain_type, wo_root_domain) = WODomain.getlevel(
+            self, wo_domain)
+        wo_site_webroot = WOVar.wo_webroot + wo_domain
         check_site = getSiteInfo(self, wo_domain)
 
         if check_site is None:
@@ -1010,7 +1015,7 @@ class WOSiteUpdateController(CementBaseController):
                                     pargs.wp or pargs.wpfc or pargs.wpsc or
                                     pargs.wprocket or pargs.wpce or
                                     pargs.wpsubdir or pargs.wpsubdomain or
-                                    pargs.hsts)):
+                                    pargs.hsts or pargs.ngxblocker)):
             try:
                 updatewpuserpassword(self, wo_domain, wo_site_webroot)
             except SiteError as e:
@@ -1023,17 +1028,64 @@ class WOSiteUpdateController(CementBaseController):
                                 pargs.wp or pargs.wpfc or pargs.wpsc or
                                 pargs.wprocket or pargs.wpce or
                                 pargs.wpsubdir or pargs.wpsubdomain or
-                                pargs.password)):
-            try:
-                SSL.setuphsts(self, wo_domain)
-            except SiteError as e:
-                Log.debug(self, str(e))
-                Log.info(self, "\nFail to enable HSTS")
+                                pargs.ngxblocker)):
+            if pargs.hsts == "on":
+                try:
+                    SSL.setuphsts(self, wo_domain)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, "\nHSTS not enabled.")
+            elif pargs.hsts == "off":
+                if os.path.isfile(
+                    '/var/www/{0}/conf/nginx/hsts.conf'
+                        .format(wo_domain)):
+                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
+                                       'nginx/hsts.conf'
+                                       .format(wo_domain),
+                                       '/var/www/{0}/conf/'
+                                       'nginx/hsts.conf.disabled'
+                                       .format(wo_domain))
+                else:
+                    Log.error(self, "HSTS isn't enabled")
+                    # Service Nginx Reload
             if not WOService.reload_service(self, 'nginx'):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
-                Log.info(self, "HSTS is enabled for "
-                         "https://{0}".format(wo_domain))
+            return 0
+
+        if (pargs.ngxblocker and not (pargs.html or
+                                      pargs.php or pargs.php73 or
+                                      pargs.mysql or
+                                      pargs.wp or pargs.wpfc or pargs.wpsc or
+                                      pargs.wprocket or pargs.wpce or
+                                      pargs.wpsubdir or pargs.wpsubdomain or
+                                      pargs.hsts)):
+            if pargs.ngxblocker == "on":
+                if os.path.isdir('/etc/nginx/bots.d'):
+                    try:
+                        setupngxblocker(self, wo_domain)
+                    except SiteError as e:
+                        Log.debug(self, str(e))
+                        Log.info(self, "\nngxblocker not enabled.")
+                else:
+                    Log.error(self, 'ngxblocker stack is not installed')
+            elif pargs.ngxblocker == "off":
+                if os.path.isfile(
+                    '/var/www/{0}/conf/nginx/ngxblocker.conf'
+                        .format(wo_domain)):
+                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
+                                       'nginx/ngxblocker.conf'
+                                       .format(wo_domain),
+                                       '/var/www/{0}/conf/'
+                                       'nginx/ngxblocker.conf.disabled'
+                                       .format(wo_domain))
+                else:
+                    Log.error(self, "ngxblocker isn't enabled")
+
+            # Service Nginx Reload
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
             return 0
 
         if ((stype == 'php' and
@@ -1091,7 +1143,8 @@ class WOSiteUpdateController(CementBaseController):
         if pargs.php73:
             if not data:
                 data = dict(
-                    site_name=wo_domain, www_domain=wo_www_domain,
+                    site_name=wo_domain,
+                    www_domain=wo_www_domain,
                     currsitetype=oldsitetype,
                     currcachetype=oldcachetype,
                     webroot=wo_site_webroot)
@@ -1188,10 +1241,9 @@ class WOSiteUpdateController(CementBaseController):
         if pargs.letsencrypt:
             acme_domains = []
             acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
-                            dnsalias=False, acme_alias='')
-            (wo_domain_type,
-             wo_root_domain) = WODomain.getdomainlevel(self, wo_domain)
-
+                            dnsalias=False, acme_alias='', keylength='')
+            acmedata['keylength'] = self.app.config.get('letsencrypt',
+                                                        'keylength')
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
@@ -1236,86 +1288,6 @@ class WOSiteUpdateController(CementBaseController):
                         Log.error(self, "SSl is already configured for given "
                                   "site")
                     pargs.letsencrypt = False
-
-        # --letsencrypt=renew code goes here
-        if pargs.letsencrypt == "renew" and not pargs.all:
-            expiry_days = SSL.getexpirationdays(self, wo_domain)
-            min_expiry_days = 45
-            if check_ssl:
-                if (expiry_days <= min_expiry_days):
-                    renewLetsEncrypt(self, wo_domain)
-                elif pargs.force:
-                    renewLetsEncrypt(self, wo_domain)
-                else:
-                    Log.error(
-                        self, "You have more than 30 days with the current "
-                        "certificate - refusing to run.")
-
-            else:
-                Log.error(
-                    self, "Cannot renew - HTTPS is not configured for "
-                    "the given site. Install LE first...")
-
-            if not WOService.reload_service(self, 'nginx'):
-                Log.error(self, "service nginx reload failed. "
-                          "check issues with `nginx -t` command")
-            Log.info(self, "SUCCESS: Certificate was successfully renewed For"
-                           " https://{0}".format(wo_domain))
-            if (SSL.getexpirationdays(self, wo_domain) > 0):
-                Log.info(self, "Your cert will expire within " +
-                         str(SSL.getexpirationdays(self, wo_domain)) +
-                         " days.")
-                Log.info(self, "Expiration date: " +
-                         str(SSL.getexpirationdate(self, wo_domain)))
-
-            else:
-                Log.warn(
-                    self, "The certificate seems to be already expired. "
-                    "Please renew it as soon as possible...")
-            return 0
-
-        if pargs.all and pargs.letsencrypt == "renew":
-
-            if check_ssl:
-                expiry_days = SSL.getExpirationDays(self, wo_domain, True)
-                if expiry_days < 0:
-                    return 0
-                min_expiry_days = 45
-                if (expiry_days <= min_expiry_days):
-                    renewLetsEncrypt(self, wo_domain)
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                    Log.info(self, "SUCCESS: Certificate was successfully "
-                             "renewed For https://{0}".format(wo_domain))
-                elif pargs.force:
-                    renewLetsEncrypt(self, wo_domain)
-                    Log.info(self, "Certificate was successfully renewed")
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                    Log.info(self, "SUCCESS: Certificate was successfully "
-                             "renewed For https://{0}".format(wo_domain))
-                else:
-                    Log.info(
-                        self, "You have more than 45 days with the current "
-                        "certificate - refusing to run.\n")
-
-                if (SSL.getexpirationdays(self, wo_domain) > 0):
-                    Log.info(self, "Your cert will expire within " +
-                             str(SSL.getexpirationdays(self, wo_domain)) +
-                             " days.")
-                    Log.info(self, "Expiration date: \n\n" +
-                             str(SSL.getexpirationdate(self, wo_domain)))
-                return 0
-                # else:
-                #       Log.warn(self, "Your cert already EXPIRED !
-                #  .PLEASE renew soon . ")
-            else:
-                Log.info(
-                    self, "SSL not configured for "
-                    "site http://{0}".format(wo_domain))
-                return 0
 
         if pargs.all and pargs.letsencrypt == "off":
             if letsencrypt is check_ssl:
@@ -1364,6 +1336,12 @@ class WOSiteUpdateController(CementBaseController):
             elif pargs.hsts == "off":
                 data['hsts'] = False
 
+        if pargs.ngxblocker:
+            if pargs.ngxblocker == 'on':
+                ngxblocker = True
+            elif pargs.ngxblocker == 'off':
+                ngxblocker = False
+
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
                       .format(wo_domain))
@@ -1374,7 +1352,7 @@ class WOSiteUpdateController(CementBaseController):
         data['wo_db_pass'] = check_site.db_password
         data['wo_db_host'] = check_site.db_host
 
-        if not (pargs.letsencrypt or pargs.hsts):
+        if not (pargs.letsencrypt or pargs.hsts or pargs.ngxblocker):
             try:
                 pre_run_checks(self)
             except SiteError as e:
@@ -1408,47 +1386,68 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.letsencrypt:
             if data['letsencrypt'] is True:
-                # DNS API configuration
-                if pargs.dns:
-                    Log.debug(self, "DNS validation enabled")
-                    acmedata['dns'] = True
-                    if not pargs.dns == 'dns_cf':
-                        Log.debug(self, "DNS API : {0}".format(pargs.dns))
-                        acmedata['acme_dns'] = pargs.dns
-                if pargs.dnsalias:
-                    Log.debug(self, "DNS Alias enabled")
-                    acmedata['dnsalias'] = True
-                    acmedata['acme_alias'] = pargs.dnsalias
-                # Set list of domains to secure
-                if acme_subdomain is True:
-                    Log.info(self, "Certificate type : subdomain")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain)]
-                elif acme_wildcard is True:
-                    Log.info(self, "Certificate type : wildcard")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain),
-                                                   '*.{0}'.format(wo_domain)]
+                if WOAcme.cert_check(self, wo_domain):
+                    archivedCertificateHandle(self, wo_domain)
                 else:
-                    Log.info(self, "Certificate type : domain")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain),
-                                                   'www.{0}'.format(wo_domain)]
+                    # DNS API configuration
+                    if pargs.dns:
+                        Log.debug(self, "DNS validation enabled")
+                        acmedata['dns'] = True
+                        if not pargs.dns == 'dns_cf':
+                            Log.debug(self, "DNS API : {0}".format(pargs.dns))
+                            acmedata['acme_dns'] = pargs.dns
+                    if pargs.dnsalias:
+                        Log.debug(self, "DNS Alias enabled")
+                        acmedata['dnsalias'] = True
+                        acmedata['acme_alias'] = pargs.dnsalias
+                    # Set list of domains to secure
+                    if acme_subdomain is True:
+                        Log.info(self, "Certificate type : subdomain")
+                        acme_domains = acme_domains + ['{0}'.format(wo_domain)]
+                    elif acme_wildcard is True:
+                        Log.info(self, "Certificate type : wildcard")
+                        acme_domains = \
+                            acme_domains + ['{0}'.format(wo_domain),
+                                            '*.{0}'.format(wo_domain)]
+                    else:
+                        Log.info(self, "Certificate type : domain")
+                        acme_domains = \
+                            acme_domains + ['{0}'.format(wo_domain),
+                                            'www.{0}'.format(wo_domain)]
 
-                if acme_subdomain:
-                    # check if a wildcard cert for the root domain exist
-                    Log.debug(self, "checkWildcardExist on *.{0}"
-                              .format(wo_root_domain))
-                    iswildcard = SSL.checkwildcardexist(self, wo_root_domain)
-                    Log.debug(self, "iswildcard = {0}".format(iswildcard))
-                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
-                    if acme_subdomain:
-                        if iswildcard:
-                            Log.info(self, "Using existing Wildcard SSL "
-                                     "certificate from {0} to secure {1}"
-                                     .format(wo_root_domain, wo_domain))
-                            Log.debug(self, "symlink wildcard "
-                                      "cert between {0} & {1}"
-                                      .format(wo_domain, wo_root_domain))
-                            # copy the cert from the root domain
-                            copyWildcardCert(self, wo_domain, wo_root_domain)
+                    if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
+                        if acme_subdomain:
+                            Log.debug(self, "checkWildcardExist on *.{0}"
+                                      .format(wo_root_domain))
+                            if SSL.checkwildcardexist(self, wo_root_domain):
+                                Log.info(
+                                    self, "Using existing Wildcard SSL "
+                                    "certificate from {0} to secure {1}"
+                                    .format(wo_root_domain, wo_domain))
+                                Log.debug(
+                                    self, "symlink wildcard "
+                                    "cert between {0} & {1}"
+                                    .format(wo_domain, wo_root_domain))
+                                # copy the cert from the root domain
+                                copyWildcardCert(self, wo_domain,
+                                                 wo_root_domain)
+                            else:
+                                # check DNS records before issuing cert
+                                if not acmedata['dns'] is True:
+                                    if not pargs.force:
+                                        if not WOAcme.check_dns(self,
+                                                                acme_domains):
+                                            Log.error(
+                                                self,
+                                                "Aborting SSL certificate "
+                                                "issuance")
+                            Log.debug(self, "Setup Cert with acme.sh for {0}"
+                                      .format(wo_domain))
+                            if WOAcme.setupletsencrypt(
+                                    self, acme_domains, acmedata):
+                                WOAcme.deploycert(self, wo_domain)
+                            else:
+                                Log.error(self, "Unable to issue certificate")
                         else:
                             # check DNS records before issuing cert
                             if not acmedata['dns'] is True:
@@ -1457,41 +1456,28 @@ class WOSiteUpdateController(CementBaseController):
                                                             acme_domains):
                                         Log.error(
                                             self,
-                                            "Aborting SSL certificate "
-                                            "issuance")
-                            Log.debug(self, "Setup Cert with acme.sh for {0}"
-                                      .format(wo_domain))
+                                            "Aborting SSL "
+                                            "certificate issuance")
                             if WOAcme.setupletsencrypt(
                                     self, acme_domains, acmedata):
                                 WOAcme.deploycert(self, wo_domain)
                             else:
                                 Log.error(self, "Unable to issue certificate")
                     else:
-                        # check DNS records before issuing cert
-                        if not acmedata['dns'] is True:
-                            if not pargs.force:
-                                if not WOAcme.check_dns(self, acme_domains):
-                                    Log.error(
-                                        self,
-                                        "Aborting SSL certificate issuance")
-                        if WOAcme.setupletsencrypt(
-                                self, acme_domains, acmedata):
-                            WOAcme.deploycert(self, wo_domain)
-                        else:
-                            Log.error(self, "Unable to issue certificate")
-                else:
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/ssl.conf'
-                                       .format(wo_site_webroot))
-                    WOFileUtils.mvfile(self, "/etc/nginx/conf.d/"
-                                       "force-ssl-{0}.conf.disabled"
-                                       .format(wo_domain),
-                                       '/etc/nginx/conf.d/force-ssl-{0}.conf'
-                                       .format(wo_domain))
+                        WOFileUtils.mvfile(
+                            self, "{0}/conf/nginx/ssl.conf.disabled"
+                            .format(wo_site_webroot),
+                            '{0}/conf/nginx/ssl.conf'
+                            .format(wo_site_webroot))
+                        WOFileUtils.mvfile(
+                            self, "/etc/nginx/conf.d/"
+                            "force-ssl-{0}.conf.disabled"
+                            .format(wo_domain),
+                            '/etc/nginx/conf.d/force-ssl-{0}.conf'
+                            .format(wo_domain))
 
-                httpsRedirect(self, wo_domain, True, acme_wildcard)
-                SSL.siteurlhttps(self, wo_domain)
+                    httpsRedirect(self, wo_domain, True, acme_wildcard)
+                    SSL.siteurlhttps(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1499,25 +1485,14 @@ class WOSiteUpdateController(CementBaseController):
                 Log.info(self, "Congratulations! Successfully "
                          "Configured SSL for Site "
                          " https://{0}".format(wo_domain))
-                if acme_subdomain and iswildcard:
-                    if (SSL.getexpirationdays(self, wo_root_domain) > 0):
-                        Log.info(
-                            self, "Your cert will expire within " +
-                            str(SSL.getexpirationdays(self, wo_root_domain)) +
-                            " days.")
-                    else:
-                        Log.warn(
-                            self, "Your cert already EXPIRED ! "
-                            ".PLEASE renew soon . ")
+                if (SSL.getexpirationdays(self, wo_domain) > 0):
+                    Log.info(self, "Your cert will expire within " +
+                             str(SSL.getexpirationdays(self, wo_domain)) +
+                             " days.")
                 else:
-                    if (SSL.getexpirationdays(self, wo_domain) > 0):
-                        Log.info(self, "Your cert will expire within " +
-                                 str(SSL.getexpirationdays(self, wo_domain)) +
-                                 " days.")
-                    else:
-                        Log.warn(
-                            self, "Your cert already EXPIRED ! "
-                            ".PLEASE renew soon . ")
+                    Log.warn(
+                        self, "Your cert already EXPIRED ! "
+                        ".PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
                 if pargs.letsencrypt == "off":
@@ -1598,6 +1573,22 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, "HSTS is not configured for given "
                               "site")
+        if pargs.ngxblocker:
+            if ngxblocker is True:
+                setupngxblocker(self, wo_domain)
+            elif ngxblocker is False:
+                if os.path.isfile("{0}/conf/nginx/ngxblocker.conf"
+                                  .format(wo_site_webroot)):
+                    WOFileUtils.mvfile(
+                        self,
+                        "{0}/conf/nginx/ngxblocker.conf"
+                        .format(wo_site_webroot),
+                        "{0}/conf/nginx/ngxblocker.conf.disabled"
+                        .format(wo_site_webroot))
+            # Service Nginx Reload
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
 
         if stype == oldsitetype and cache == oldcachetype:
 
@@ -1958,7 +1949,8 @@ class WOSiteDeleteController(CementBaseController):
                 Log.error(self, 'could not input site name')
 
         pargs.site_name = pargs.site_name.strip()
-        (wo_domain, wo_www_domain) = WODomain.validatedomain(self, pargs.site_name)
+        wo_domain = WODomain.validate(self, pargs.site_name)
+        wo_www_domain = "www.{0}".format(wo_domain)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''

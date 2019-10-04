@@ -7,7 +7,6 @@ import string
 
 import psutil
 import requests
-
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.core.apt_repo import WORepo
@@ -19,11 +18,12 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.mysql import WOMysql
+from wo.core.nginxhashbucket import hashbucket
 from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 def pre_pref(self, apt_packages):
@@ -31,7 +31,7 @@ def pre_pref(self, apt_packages):
 
     if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
-        if (not WOVariables.wo_distro == 'raspbian'):
+        if (not WOVar.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = ("Package: *\nPin: origin "
                           "sfo1.mirrors.digitalocean.com"
@@ -39,7 +39,7 @@ def pre_pref(self, apt_packages):
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
-            WORepo.add(self, repo_url=WOVariables.wo_mysql_repo)
+            WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
             WORepo.add_key(self, '0xcbcb082a1bb943db',
                            keyserver='keys.gnupg.net')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
@@ -49,8 +49,8 @@ def pre_pref(self, apt_packages):
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
         # configure MySQL non-interactive install
-        if ((WOVariables.wo_distro == 'raspbian') and
-                (WOVariables.wo_platform_codename == 'stretch')):
+        if ((WOVar.wo_distro == 'raspbian') and
+                (WOVar.wo_platform_codename == 'stretch')):
             mariadb_ver = '10.1'
         else:
             mariadb_ver = '10.3'
@@ -105,26 +105,26 @@ def pre_pref(self, apt_packages):
         WOFileUtils.chmod(self, "/etc/mysql/conf.d/my.cnf", 0o600)
 
     # add nginx repository
-    if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+    if set(WOVar.wo_nginx).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for NGINX, please wait...")
-        if (WOVariables.wo_distro == 'ubuntu'):
-            WORepo.add(self, ppa=WOVariables.wo_nginx_repo)
+        if (WOVar.wo_distro == 'ubuntu'):
+            WORepo.add(self, ppa=WOVar.wo_nginx_repo)
             Log.debug(self, 'Adding ppa for Nginx')
         else:
-            WORepo.add(self, repo_url=WOVariables.wo_nginx_repo)
+            WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
             Log.debug(self, 'Adding repository for Nginx')
-            WORepo.add_key(self, WOVariables.wo_nginx_key)
+            WORepo.add_key(self, WOVar.wo_nginx_key)
 
     # add php repository
-    if (set(WOVariables.wo_php73).issubset(set(apt_packages)) or
-            set(WOVariables.wo_php).issubset(set(apt_packages))):
+    if (set(WOVar.wo_php73).issubset(set(apt_packages)) or
+            set(WOVar.wo_php).issubset(set(apt_packages))):
         Log.info(self, "Adding repository for PHP, please wait...")
-        if (WOVariables.wo_distro == 'ubuntu'):
+        if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
-            WORepo.add(self, ppa=WOVariables.wo_php_repo)
+            WORepo.add(self, ppa=WOVar.wo_php_repo)
         else:
             # Add repository for php
-            if (WOVariables.wo_platform_codename == 'buster'):
+            if (WOVar.wo_platform_codename == 'buster'):
                 php_pref = ("Package: *\nPin: origin "
                             "packages.sury.org"
                             "\nPin-Priority: 1000\n")
@@ -132,22 +132,22 @@ def pre_pref(self, apt_packages):
                           'PHP.pref', 'w') as php_pref_file:
                     php_pref_file.write(php_pref)
             Log.debug(self, 'Adding repo_url of php for debian')
-            WORepo.add(self, repo_url=WOVariables.wo_php_repo)
+            WORepo.add(self, repo_url=WOVar.wo_php_repo)
             Log.debug(self, 'Adding deb.sury GPG key')
-            WORepo.add_key(self, WOVariables.wo_php_key)
+            WORepo.add_key(self, WOVar.wo_php_key)
     # add redis repository
-    if set(WOVariables.wo_redis).issubset(set(apt_packages)):
+    if set(WOVar.wo_redis).issubset(set(apt_packages)):
         Log.info(self, "Adding repository for Redis, please wait...")
-        if WOVariables.wo_distro == 'ubuntu':
+        if WOVar.wo_distro == 'ubuntu':
             Log.debug(self, 'Adding ppa for redis')
-            WORepo.add(self, ppa=WOVariables.wo_redis_repo)
+            WORepo.add(self, ppa=WOVar.wo_redis_repo)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
     """Post activity after installation of packages"""
     if (apt_packages):
         # Nginx configuration
-        if set(WOVariables.wo_nginx).issubset(set(apt_packages)):
+        if set(WOVar.wo_nginx).issubset(set(apt_packages)):
             Log.info(self, "Applying Nginx configuration templates")
             # Nginx main configuration
             ngxcnf = '/etc/nginx/conf.d'
@@ -305,7 +305,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             with open("/etc/nginx/common/release",
                       "w") as release_file:
                 release_file.write("v{0}"
-                                   .format(WOVariables.wo_version))
+                                   .format(WOVar.wo_version))
             release_file.close()
 
             # Following files should not be overwrited
@@ -458,7 +458,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                             "on https://{0}:22222 "
                                             "or https://{1}:22222"
                                             .format(server_ip.text,
-                                                    WOVariables.wo_fqdn)])
+                                                    WOVar.wo_fqdn)])
 
             if not os.path.isfile("/opt/cf-update.sh"):
                 data = dict()
@@ -471,21 +471,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                       comment='Cloudflare IP refresh cronjob '
                                       'added by WordOps')
 
-            if upgrade:
-                try:
-                    WOShellExec.cmd_exec(self, 'nginx -t')
-                except CommandExecutionError as e:
-                    Log.debug(self, "{0}".format(e))
-                    Log.info(self, "Rolling-Back Nginx"
-                             "configuration")
-                    WOGit.rollback(self, ["/etc/nginx"])
-
             # Nginx Configation into GIT
-            WOGit.add(self,
-                      ["/etc/nginx"], msg="Adding Nginx into Git")
-            WOService.restart_service(self, 'nginx')
+            if not WOService.restart_service(self, 'nginx'):
+                try:
+                    hashbucket(self)
+                    WOService.restart_service(self, 'nginx')
+                except Exception:
+                    Log.warn(
+                        self, "increasing nginx server_names_hash_bucket_size "
+                        "do not fix the issue")
+                    Log.info(self, "Rolling back to previous configuration")
+                    WOGit.rollback(self, ["/etc/nginx"])
+                    if not WOService.restart_service(self, 'nginx'):
+                        Log.error(
+                            self, "There is an error in Nginx configuration.\n"
+                            "Use the command nginx -t to identify "
+                            "the cause of this issue", False)
+            else:
+                WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
 
-        if set(WOVariables.wo_php).issubset(set(apt_packages)):
+        if set(WOVar.wo_php).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
@@ -509,7 +514,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             config['PHP']['max_execution_time'] = '300'
             config['PHP']['max_input_time'] = '300'
             config['PHP']['max_input_vars'] = '20000'
-            config['Date']['date.timezone'] = WOVariables.wo_timezone
+            config['Date']['date.timezone'] = WOVar.wo_timezone
             config['opcache']['opcache.enable'] = '1'
             config['opcache']['opcache.interned_strings_buffer'] = '8'
             config['opcache']['opcache.max_accelerated_files'] = '10000'
@@ -615,11 +620,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'www-data',
                               'www-data', recursive=True)
 
-            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-            WOService.restart_service(self, 'php7.2-fpm')
+            # check service restart or rollback configuration
+            if not WOService.restart_service(self, 'php7.2-fpm'):
+                WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
+            else:
+                WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
 
         # PHP7.3 configuration
-        if set(WOVariables.wo_php73).issubset(set(apt_packages)):
+        if set(WOVar.wo_php73).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.3-fpm")
             ngxroot = '/var/www/'
@@ -643,7 +651,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             config['PHP']['max_execution_time'] = '300'
             config['PHP']['max_input_time'] = '300'
             config['PHP']['max_input_vars'] = '20000'
-            config['Date']['date.timezone'] = WOVariables.wo_timezone
+            config['Date']['date.timezone'] = WOVar.wo_timezone
             config['opcache']['opcache.enable'] = '1'
             config['opcache']['opcache.interned_strings_buffer'] = '8'
             config['opcache']['opcache.max_accelerated_files'] = '10000'
@@ -748,9 +756,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
-
-            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-            WOService.restart_service(self, 'php7.3-fpm')
+            # check service restart or rollback configuration
+            if not WOService.restart_service(self, 'php7.3-fpm'):
+                WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
+            else:
+                WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
 
         # create mysql config if it doesn't exist
         if "mariadb-server" in apt_packages:
@@ -807,7 +817,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
 
         # create fail2ban configuration files
-        if set(WOVariables.wo_fail2ban).issubset(set(apt_packages)):
+        if set(WOVar.wo_fail2ban).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/fail2ban"],
                       msg="Adding Fail2ban into Git")
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
@@ -829,9 +839,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'fail2ban-forbidden.mustache',
                     data, overwrite=False)
 
-                WOGit.add(self, ["/etc/fail2ban"],
-                          msg="Adding Fail2ban into Git")
-                WOService.reload_service(self, 'fail2ban')
+                if not WOService.reload_service(self, 'fail2ban'):
+                    WOGit.rollback(
+                        self, ['/etc/fail2ban'], msg="Rollback f2b config")
+                else:
+                    WOGit.add(self, ["/etc/fail2ban"],
+                              msg="Adding Fail2ban into Git")
 
         # Proftpd configuration
         if "proftpd-basic" in apt_packages:
@@ -891,9 +904,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     f2bproftpd.write("\n\n[proftpd]\nenabled = true\n")
                 WOService.reload_service(self, 'fail2ban')
 
-            WOGit.add(self, ["/etc/proftpd"],
-                      msg="Adding ProFTPd into Git")
-            WOService.reload_service(self, 'proftpd')
+            if not WOService.reload_service(self, 'proftpd'):
+                WOGit.rollback(self, ["/etc/proftpd"],
+                               msg="Rollback ProFTPd")
+            else:
+                WOGit.add(self, ["/etc/proftpd"],
+                          msg="Adding ProFTPd into Git")
 
         if "ufw" in apt_packages:
             # check if ufw is already enabled
@@ -991,12 +1007,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOFileUtils.chown(self, '/etc/redis/redis.conf',
                                   'redis', 'redis', recursive=False)
                 Log.valide(self, "Tuning Redis configuration")
-                WOGit.add(self, ["/etc/redis"],
-                          msg="Adding Redis into Git")
-                WOService.restart_service(self, 'redis-server')
+            if not WOService.restart_service(self, 'redis-server'):
+                WOGit.rollback(self, ["/etc/redis"], msg="Rollback Redis")
+            else:
+                WOGit.add(self, ["/etc/redis"], msg="Adding Redis into Git")
 
         # ClamAV configuration
-        if set(WOVariables.wo_clamav).issubset(set(apt_packages)):
+        if set(WOVar.wo_clamav).issubset(set(apt_packages)):
             Log.debug(self, "Setting up freshclam cronjob")
             if not os.path.isfile("/opt/freshclam.sh"):
                 data = dict()
@@ -1024,26 +1041,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.debug(self, 'Extracting file /var/lib/wo/tmp/pma.tar.gz to '
                       'location /var/lib/wo/tmp/')
             if not os.path.exists('{0}22222/htdocs/db'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(WOVar.wo_webroot)):
                 Log.debug(self, "Creating new  directory "
                           "{0}22222/htdocs/db"
-                          .format(WOVariables.wo_webroot))
+                          .format(WOVar.wo_webroot))
                 os.makedirs('{0}22222/htdocs/db'
-                            .format(WOVariables.wo_webroot))
+                            .format(WOVar.wo_webroot))
             if not os.path.exists('{0}22222/htdocs/db/pma/'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(WOVar.wo_webroot)):
                 shutil.move('/var/lib/wo/tmp/phpmyadmin-STABLE/',
                             '{0}22222/htdocs/db/pma/'
-                            .format(WOVariables.wo_webroot))
+                            .format(WOVar.wo_webroot))
                 shutil.copyfile('{0}22222/htdocs/db/pma'
                                 '/config.sample.inc.php'
-                                .format(WOVariables.wo_webroot),
+                                .format(WOVar.wo_webroot),
                                 '{0}22222/htdocs/db/pma/config.inc.php'
-                                .format(WOVariables.wo_webroot))
+                                .format(WOVar.wo_webroot))
                 Log.debug(self, 'Setting Blowfish Secret Key '
                           'FOR COOKIE AUTH to  '
                           '{0}22222/htdocs/db/pma/config.inc.php file '
-                          .format(WOVariables.wo_webroot))
+                          .format(WOVar.wo_webroot))
                 blowfish_key = ''.join([random.choice
                                         (string.ascii_letters +
                                          string.digits)
@@ -1051,7 +1068,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOFileUtils.searchreplace(self,
                                           '{0}22222/htdocs/db/pma'
                                           '/config.inc.php'
-                                          .format(WOVariables.wo_webroot),
+                                          .format(WOVar.wo_webroot),
                                           "$cfg[\'blowfish_secret\']"
                                           " = \'\';",
                                           "$cfg[\'blowfish_secret\']"
@@ -1059,21 +1076,21 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                           .format(blowfish_key))
                 Log.debug(self, 'Setting HOST Server For Mysql to  '
                           '{0}22222/htdocs/db/pma/config.inc.php file '
-                          .format(WOVariables.wo_webroot))
+                          .format(WOVar.wo_webroot))
                 WOFileUtils.searchreplace(self,
                                           '{0}22222/htdocs/db/pma'
                                           '/config.inc.php'
-                                          .format(WOVariables.wo_webroot),
+                                          .format(WOVar.wo_webroot),
                                           "$cfg[\'Servers\'][$i][\'host\']"
                                           " = \'localhost\';", "$cfg"
                                           "[\'Servers\'][$i][\'host\'] "
                                           "= \'{0}\';"
-                                          .format(WOVariables.wo_mysql_host))
+                                          .format(WOVar.wo_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
-                          .format(WOVariables.wo_webroot))
+                          .format(WOVar.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
-                                  .format(WOVariables.wo_webroot),
+                                  .format(WOVar.wo_webroot),
                                   'www-data',
                                   'www-data',
                                   recursive=True)
@@ -1099,19 +1116,19 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     "/var/www/22222/htdocs/db/pma/")
                 WOFileUtils.chown(
                     self, '{0}22222/htdocs/db/pma'
-                    .format(WOVariables.wo_webroot),
+                    .format(WOVar.wo_webroot),
                     'www-data',
                     'www-data',
                     recursive=True)
                 Log.valide(self, "Updating phpMyAdmin")
             if not os.path.exists('{0}22222/htdocs/cache/'
                                   'redis/phpRedisAdmin'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(WOVar.wo_webroot)):
                 Log.debug(self, "Creating new directory "
                           "{0}22222/htdocs/cache/redis"
-                          .format(WOVariables.wo_webroot))
+                          .format(WOVar.wo_webroot))
                 os.makedirs('{0}22222/htdocs/cache/redis/phpRedisAdmin'
-                            .format(WOVariables.wo_webroot))
+                            .format(WOVar.wo_webroot))
             if not os.path.isfile('/var/www/22222/htdocs/cache/redis/'
                                   'phpRedisAdmin/composer.lock'):
                 WOShellExec.cmd_exec(
@@ -1120,7 +1137,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     "erik-dubbelboer/php-redis-admin "
                     "/var/www/22222/htdocs/cache/redis/phpRedisAdmin")
             WOFileUtils.chown(self, '{0}22222/htdocs'
-                              .format(WOVariables.wo_webroot),
+                              .format(WOVar.wo_webroot),
                               'www-data',
                               'www-data',
                               recursive=True)
@@ -1186,25 +1203,25 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                for x in packages):
             Log.debug(self, "Extracting wo-dashboard.tar.gz "
                       "to location {0}22222/htdocs/"
-                      .format(WOVariables.wo_webroot))
+                      .format(WOVar.wo_webroot))
             WOExtract.extract(self, '/var/lib/wo/tmp/'
                               'wo-dashboard.tar.gz',
                               '{0}22222/htdocs'
-                              .format(WOVariables.wo_webroot))
+                              .format(WOVar.wo_webroot))
             wo_wan = os.popen("/sbin/ip -4 route get 8.8.8.8 | "
                               "grep -oP \"dev [^[:space:]]+ \" "
                               "| cut -d ' ' -f 2").read()
             if (wo_wan != 'eth0' and wo_wan != ''):
                 WOFileUtils.searchreplace(self,
                                           "{0}22222/htdocs/index.html"
-                                          .format(WOVariables.wo_webroot),
+                                          .format(WOVar.wo_webroot),
                                           "eth0",
                                           "{0}".format(wo_wan))
                 Log.debug(self, "Setting Privileges to "
                           "{0}22222/htdocs"
-                          .format(WOVariables.wo_webroot))
+                          .format(WOVar.wo_webroot))
                 WOFileUtils.chown(self, '{0}22222/htdocs'
-                                  .format(WOVariables.wo_webroot),
+                                  .format(WOVar.wo_webroot),
                                   'www-data',
                                   'www-data',
                                   recursive=True)
@@ -1214,18 +1231,18 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                for x in packages):
             Log.debug(self, "Extracting extplorer.tar.gz "
                       "to location {0}22222/htdocs/files"
-                      .format(WOVariables.wo_webroot))
+                      .format(WOVar.wo_webroot))
             WOExtract.extract(self, '/var/lib/wo/tmp/extplorer.tar.gz',
                               '/var/lib/wo/tmp/')
             shutil.move('/var/lib/wo/tmp/extplorer-{0}'
-                        .format(WOVariables.wo_extplorer),
+                        .format(WOVar.wo_extplorer),
                         '{0}22222/htdocs/files'
-                        .format(WOVariables.wo_webroot))
+                        .format(WOVar.wo_webroot))
             Log.debug(self, "Setting Privileges to "
                       "{0}22222/htdocs/files"
-                      .format(WOVariables.wo_webroot))
+                      .format(WOVar.wo_webroot))
             WOFileUtils.chown(self, '{0}22222/htdocs'
-                              .format(WOVariables.wo_webroot),
+                              .format(WOVar.wo_webroot),
                               'www-data',
                               'www-data',
                               recursive=True)
@@ -1239,41 +1256,41 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 self, '/var/lib/wo/tmp/webgrind.tar.gz',
                 '/var/lib/wo/tmp/')
             if not os.path.exists('{0}22222/htdocs/php'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(WOVar.wo_webroot)):
                 Log.debug(self, "Creating directroy "
                           "{0}22222/htdocs/php"
-                          .format(WOVariables.wo_webroot))
+                          .format(WOVar.wo_webroot))
                 os.makedirs('{0}22222/htdocs/php'
-                            .format(WOVariables.wo_webroot))
+                            .format(WOVar.wo_webroot))
             if not os.path.exists('{0}22222/htdocs/php/webgrind'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(WOVar.wo_webroot)):
                 shutil.move('/var/lib/wo/tmp/webgrind-master/',
                             '{0}22222/htdocs/php/webgrind'
-                            .format(WOVariables.wo_webroot))
+                            .format(WOVar.wo_webroot))
 
             WOFileUtils.searchreplace(
                 self, "{0}22222/htdocs/php/webgrind/"
                 "config.php"
-                .format(WOVariables.wo_webroot),
+                .format(WOVar.wo_webroot),
                 "/usr/local/bin/dot", "/usr/bin/dot")
             WOFileUtils.searchreplace(
                 self, "{0}22222/htdocs/php/webgrind/"
                 "config.php"
-                .format(WOVariables.wo_webroot),
+                .format(WOVar.wo_webroot),
                 "Europe/Copenhagen",
-                WOVariables.wo_timezone)
+                WOVar.wo_timezone)
 
             WOFileUtils.searchreplace(
                 self, "{0}22222/htdocs/php/webgrind/"
                 "config.php"
-                .format(WOVariables.wo_webroot),
+                .format(WOVar.wo_webroot),
                 "90", "100")
 
             Log.debug(self, "Setting Privileges of webroot permission to "
                       "{0}22222/htdocs/php/webgrind/ file "
-                      .format(WOVariables.wo_webroot))
+                      .format(WOVar.wo_webroot))
             WOFileUtils.chown(self, '{0}22222/htdocs'
-                              .format(WOVariables.wo_webroot),
+                              .format(WOVar.wo_webroot),
                               'www-data',
                               'www-data',
                               recursive=True)
@@ -1286,20 +1303,20 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 self, '/var/lib/wo/tmp/anemometer.tar.gz',
                 '/var/lib/wo/tmp/')
             if not os.path.exists('{0}22222/htdocs/db/'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(WOVar.wo_webroot)):
                 Log.debug(self, "Creating directory")
                 os.makedirs('{0}22222/htdocs/db/'
-                            .format(WOVariables.wo_webroot))
+                            .format(WOVar.wo_webroot))
             if not os.path.exists('{0}22222/htdocs/db/anemometer'
-                                  .format(WOVariables.wo_webroot)):
+                                  .format(WOVar.wo_webroot)):
                 shutil.move('/var/lib/wo/tmp/Anemometer-master',
                             '{0}22222/htdocs/db/anemometer'
-                            .format(WOVariables.wo_webroot))
+                            .format(WOVar.wo_webroot))
                 chars = ''.join(random.sample(string.ascii_letters, 8))
                 try:
                     WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
                                          '/anemometer/install.sql'
-                                         .format(WOVariables.wo_webroot))
+                                         .format(WOVar.wo_webroot))
                 except Exception as e:
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "failed to configure Anemometer",
@@ -1326,14 +1343,23 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
-                data = dict(host=WOVariables.wo_mysql_host, port='3306',
+                data = dict(host=WOVar.wo_mysql_host, port='3306',
                             user='anemometer', password=chars)
                 WOTemplate.deploy(self, '{0}22222/htdocs/db/anemometer'
                                   '/conf/config.inc.php'
-                                  .format(WOVariables.wo_webroot),
+                                  .format(WOVar.wo_webroot),
                                   'anemometer.mustache', data)
 
         # pt-query-advisor
         if any('/usr/bin/pt-query-advisor' == x[1]
                for x in packages):
             WOFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
+
+        # ngxblocker
+        if any('/usr/local/sbin/install-ngxblocker' == x[1]
+               for x in packages):
+            WOFileUtils.chmod(
+                self, "/usr/local/sbin/install-ngxblocker", 0o700)
+            WOShellExec.cmd_exec(self, '/usr/local/sbin/install-ngxblocker -x')
+            WOFileUtils.chmod(
+                self, "/usr/local/sbin/update-ngxblocker", 0o700)

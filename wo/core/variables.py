@@ -1,17 +1,19 @@
 """WordOps core variable module"""
 import configparser
-import datetime
 import os
-import socket
+from datetime import datetime
+from re import match
+from socket import getfqdn
 
-import distro
+from distro import linux_distribution
+from sh import git
 
 
-class WOVariables():
+class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.9.1"
+    wo_version = "3.9.9.2"
     # WordOps packages versions
     wo_wp_cli = "2.3.0"
     wo_adminer = "4.7.3"
@@ -23,14 +25,14 @@ class WOVariables():
     wo_wpcli_path = '/usr/local/bin/wp'
 
     # Current date and time of System
-    wo_date = datetime.datetime.now().strftime('%d%b%Y-%H-%M-%S')
+    wo_date = datetime.now().strftime('%d%b%Y-%H-%M-%S')
 
     # WordOps core variables
-    wo_distro = distro.linux_distribution(
+    wo_distro = linux_distribution(
         full_distribution_name=False)[0].lower()
-    wo_platform_version = distro.linux_distribution(
+    wo_platform_version = linux_distribution(
         full_distribution_name=False)[1].lower()
-    wo_platform_codename = distro.linux_distribution(
+    wo_platform_codename = linux_distribution(
         full_distribution_name=False)[2].lower()
 
     # Get timezone of system
@@ -43,7 +45,7 @@ class WOVariables():
         wo_timezone = "Europe/Amsterdam"
 
     # Get FQDN of system
-    wo_fqdn = socket.getfqdn()
+    wo_fqdn = getfqdn()
 
     # WordOps default webroot path
     wo_webroot = '/var/www/'
@@ -64,11 +66,25 @@ class WOVariables():
         wo_user = config['user']['name']
         wo_email = config['user']['email']
     except Exception:
+        print("WordOps (wo) require an username & and an email "
+              "address to configure Git (used to save server configurations)")
+        print("Your informations will ONLY be stored locally")
+
         wo_user = input("Enter your name: ")
+        while wo_user == "":
+            print("Unfortunately, this can't be left blank")
+            wo_user = input("Enter your name: ")
+
         wo_email = input("Enter your email: ")
-        os.system("/usr/bin/git config --global user.name {0}".format(wo_user))
-        os.system(
-            "/usr/bin/git config --global user.email {0}".format(wo_email))
+
+        while not match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
+                        wo_email):
+            print("Whoops, seems like you made a typo - "
+                  "the e-mailaddress is invalid...")
+            wo_email = input("Enter your email: ")
+
+        git.config("--global", "user.name", "{0}".format(wo_user))
+        git.config("--global", "user.email", "{0}".format(wo_email))
 
     # MySQL hostname
     wo_mysql_host = ""

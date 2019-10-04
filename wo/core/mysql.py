@@ -6,7 +6,7 @@ import pymysql
 from pymysql import DatabaseError, Error, connections
 
 from wo.core.logging import Log
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class MySQLConnectionError(Exception):
@@ -54,14 +54,14 @@ class WOMysql():
                     db=db_name, read_default_file='~/.my.cnf')
 
             return connection
+        except pymysql.err.InternalError as e:
+            Log.debug(self, str(e))
+            raise MySQLConnectionError
         except DatabaseError as e:
             if e.args[1] == '#42000Unknown database \'{0}\''.format(db_name):
                 raise DatabaseNotExistsError
             else:
                 raise MySQLConnectionError
-        except pymysql.err.InternalError as e:
-            Log.debug(self, str(e))
-            raise MySQLConnectionError
         except Exception as e:
             Log.debug(self, "[Error]Setting up database: \'" + str(e) + "\'")
             raise MySQLConnectionError
@@ -115,7 +115,7 @@ class WOMysql():
                                       stderr=subprocess.PIPE, shell=True)
                 p2 = subprocess.Popen("/usr/bin/pigz -c > "
                                       "/var/wo-mysqlbackup/{0}{1}.sql.gz"
-                                      .format(dbs, WOVariables.wo_date),
+                                      .format(dbs, WOVar.wo_date),
                                       stdin=p1.stdout,
                                       shell=True)
 

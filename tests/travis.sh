@@ -9,9 +9,16 @@ CRED="${CSI}1;31m"
 CGREEN="${CSI}1;32m"
 CEND="${CSI}0m"
 
-apt-get -qq purge mysql* graphviz* redis*
-apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
-sudo apt-get -qq autoremove --purge
+export DEBIAN_FRONTEND=noninteractive
+unset LANG
+export LANG='en_US.UTF-8'
+export LC_ALL='C.UTF-8'
+
+if [ -z "$1" ]; then
+    apt-get -qq purge mysql* graphviz* redis*
+    apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
+    sudo apt-get -qq autoremove --purge
+fi
 
 exit_script() {
     curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo ""
@@ -21,7 +28,7 @@ exit_script() {
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_list='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw'
+stack_list='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker'
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
     if {
@@ -134,26 +141,26 @@ for site in $wp_site_types; do
 
     fi
 done
+if [ -z "$1" ]; then
+    echo -e "${CGREEN}#############################################${CEND}"
+    echo -e '       wo stack upgrade              '
+    echo -e "${CGREEN}#############################################${CEND}"
+    stack_upgrade='nginx php mysql redis netdata dashboard phpmyadmin'
+    for stack in $stack_upgrade; do
+        echo -ne "      Upgrading $stack               [..]\r"
+        if {
+            wo stack upgrade --${stack} --force
+        } >> /var/log/wo/test.log; then
+            echo -ne "       Upgrading $stack               [${CGREEN}OK${CEND}]\\r"
+            echo -ne '\n'
+        else
+            echo -e "        Upgrading $stack              [${CRED}FAIL${CEND}]"
+            echo -ne '\n'
+            exit_script
 
-echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       wo stack upgrade              '
-echo -e "${CGREEN}#############################################${CEND}"
-stack_upgrade='nginx php mysql redis netdata dashboard phpmyadmin'
-for stack in $stack_upgrade; do
-    echo -ne "      Upgrading $stack               [..]\r"
-    if {
-        wo stack upgrade --${stack} --force
-    } >> /var/log/wo/test.log; then
-        echo -ne "       Upgrading $stack               [${CGREEN}OK${CEND}]\\r"
-        echo -ne '\n'
-    else
-        echo -e "        Upgrading $stack              [${CRED}FAIL${CEND}]"
-        echo -ne '\n'
-        exit_script
-
-    fi
-done
-
+        fi
+    done
+fi
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo clean              '
 echo -e "${CGREEN}#############################################${CEND}"
@@ -197,3 +204,6 @@ for stack in $stack_purge; do
 
     fi
 done
+if [ -n "$1" ]; then
+    cat /var/log/wo/test.log | ccze -A -p syslog
+fi

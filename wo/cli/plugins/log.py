@@ -13,7 +13,7 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.sendmail import WOSendMail
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 def wo_log_hook(app):
@@ -99,7 +99,7 @@ class WOLogShowController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host == "localhost":
+            if WOVar.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
@@ -109,18 +109,18 @@ class WOLogShowController(CementBaseController):
                          "remote MySQL servers or log files")
 
         if self.app.pargs.site_name:
-            webroot = "{0}{1}".format(WOVariables.wo_webroot,
+            webroot = "{0}{1}".format(WOVar.wo_webroot,
                                       self.app.pargs.site_name)
 
             if not os.path.isdir(webroot):
                 Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.nginx:
                 self.msg = self.msg + ["{0}/{1}/logs/error.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
                 if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
@@ -134,7 +134,7 @@ class WOLogShowController(CementBaseController):
                             WOShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
                                                  "wp-content/debug.log"
                                                  "".format(webroot,
-                                                           WOVariables
+                                                           WOVar
                                                            .wo_php_user)
                                                  )
                     # create symbolic link for debug log
@@ -145,7 +145,7 @@ class WOLogShowController(CementBaseController):
                                                       .format(webroot)])
 
                     self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                           .format(WOVariables.wo_webroot,
+                                           .format(WOVar.wo_webroot,
                                                    self.app.pargs.site_name)]
                 else:
                     Log.info(self, "Site is not WordPress site, skipping "
@@ -238,7 +238,7 @@ class WOLogResetController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host == "localhost":
+            if WOVar.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
@@ -248,18 +248,18 @@ class WOLogResetController(CementBaseController):
                          "remote MySQL servers or log files")
 
         if self.app.pargs.site_name:
-            webroot = "{0}{1}".format(WOVariables.wo_webroot,
+            webroot = "{0}{1}".format(WOVar.wo_webroot,
                                       self.app.pargs.site_name)
 
             if not os.path.isdir(webroot):
                 Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.nginx:
                 self.msg = self.msg + ["{0}/{1}/logs/error.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
                 if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
@@ -273,7 +273,7 @@ class WOLogResetController(CementBaseController):
                             WOShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
                                                  "wp-content/debug.log"
                                                  "".format(webroot,
-                                                           WOVariables
+                                                           WOVar
                                                            .wo_php_user)
                                                  )
                     # create symbolic link for debug log
@@ -284,7 +284,7 @@ class WOLogResetController(CementBaseController):
                                                       .format(webroot)])
 
                     self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                           .format(WOVariables.wo_webroot,
+                                           .format(WOVar.wo_webroot,
                                                    self.app.pargs.site_name)]
                 else:
                     Log.info(self, "Site is not WordPress site, skipping "
@@ -366,7 +366,7 @@ class WOLogGzipController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host == "localhost":
+            if WOVar.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
@@ -377,18 +377,18 @@ class WOLogGzipController(CementBaseController):
                          "remote MySQL servers or log files")
 
         if self.app.pargs.site_name:
-            webroot = "{0}{1}".format(WOVariables.wo_webroot,
+            webroot = "{0}{1}".format(WOVar.wo_webroot,
                                       self.app.pargs.site_name)
 
             if not os.path.isdir(webroot):
                 Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.nginx:
                 self.msg = self.msg + ["{0}/{1}/logs/error.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
                 if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
@@ -402,7 +402,7 @@ class WOLogGzipController(CementBaseController):
                             WOShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
                                                  "wp-content/debug.log"
                                                  "".format(webroot,
-                                                           WOVariables
+                                                           WOVar
                                                            .wo_php_user)
                                                  )
                     # create symbolic link for debug log
@@ -413,7 +413,7 @@ class WOLogGzipController(CementBaseController):
                                                       .format(webroot)])
 
                     self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                           .format(WOVariables.wo_webroot,
+                                           .format(WOVar.wo_webroot,
                                                    self.app.pargs.site_name)]
                 else:
                     Log.info(self, "Site is not WordPress site, skipping "
@@ -504,7 +504,7 @@ class WOLogMailController(CementBaseController):
                                    '/var/log/php5/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVariables.wo_mysql_host == "localhost":
+            if WOVar.wo_mysql_host == "localhost":
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
@@ -514,18 +514,18 @@ class WOLogMailController(CementBaseController):
                          "remote MySQL servers or log files")
 
         if self.app.pargs.site_name:
-            webroot = "{0}{1}".format(WOVariables.wo_webroot,
+            webroot = "{0}{1}".format(WOVar.wo_webroot,
                                       self.app.pargs.site_name)
 
             if not os.path.isdir(webroot):
                 Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.nginx:
                 self.msg = self.msg + ["{0}/{1}/logs/error.log"
-                                       .format(WOVariables.wo_webroot,
+                                       .format(WOVar.wo_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
                 if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
@@ -539,7 +539,7 @@ class WOLogMailController(CementBaseController):
                             WOShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
                                                  "wp-content/debug.log"
                                                  "".format(webroot,
-                                                           WOVariables
+                                                           WOVar
                                                            .wo_php_user)
                                                  )
                     # create symbolic link for debug log
@@ -550,7 +550,7 @@ class WOLogMailController(CementBaseController):
                                                       .format(webroot)])
 
                     self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                           .format(WOVariables.wo_webroot,
+                                           .format(WOVar.wo_webroot,
                                                    self.app.pargs.site_name)]
                 else:
                     Log.info(self, "Site is not WordPress site, skipping "
@@ -563,7 +563,7 @@ class WOLogMailController(CementBaseController):
         for tomail in self.app.pargs.to:
             Log.info(self, "Sending mail to {0}".format(tomail[0]))
             WOSendMail("wordops", tomail[0], "{0} Log Files"
-                       .format(WOVariables.wo_fqdn),
+                       .format(WOVar.wo_fqdn),
                        "Hi,\n  The requested logfiles are attached."
                        "\n\nBest regards,\nYour WordOps worker",
                        files=mail_list, port=25, isTls=False)

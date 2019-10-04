@@ -5,7 +5,7 @@ import re
 from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 class SSL:
@@ -63,11 +63,11 @@ class SSL:
             self, '{0}/htdocs/'.format(wo_site_webroot))
         if WOShellExec.cmd_exec(
                 self, "{0} --allow-root core is-installed"
-                .format(WOVariables.wo_wp_cli)):
+                .format(WOVar.wo_wp_cli)):
             wo_siteurl = (
                 WOShellExec.cmd_exec_stdout(
                     self, "{0} option get siteurl "
-                    .format(WOVariables.wo_wpcli_path) +
+                    .format(WOVar.wo_wpcli_path) +
                     "--allow-root --quiet"))
             test_url = re.split(":", wo_siteurl)
             if not (test_url[0] == 'https'):
@@ -76,11 +76,11 @@ class SSL:
                     WOShellExec.cmd_exec(
                         self, "{0} option update siteurl "
                         "\'https://{1}\' --allow-root".format(
-                            WOVariables.wo_wpcli_path, domain))
+                            WOVar.wo_wpcli_path, domain))
                     WOShellExec.cmd_exec(
                         self, "{0} option update home "
                         "\'https://{1}\' --allow-root".format(
-                            WOVariables.wo_wpcli_path, domain))
+                            WOVar.wo_wpcli_path, domain))
                     WOShellExec.cmd_exec(
                         self, "{0} search-replace \'http://{0}\'"
                         "\'https://{0}\' --skip-columns=guid "
@@ -111,8 +111,9 @@ class SSL:
         wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
         for row in reader:
             if wo_wildcard_domain in row[2]:
-                iswildcard = True
-                break
+                if not row[2] == "":
+                    iswildcard = True
+                    break
             else:
                 iswildcard = False
         certfile.close()

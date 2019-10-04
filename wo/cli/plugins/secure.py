@@ -11,7 +11,7 @@ from wo.core.random import RANDOM
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.template import WOTemplate
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 
 def wo_secure_hook(app):
@@ -70,13 +70,13 @@ class WOSecureController(CementBaseController):
         WOGit.add(self, ["/etc/nginx"],
                   msg="Add Nginx to into Git")
         pargs = self.app.pargs
-        passwd = RANDOM.long(self)
+        passwd = RANDOM.gen(self, length='24')
         if not pargs.user_input:
             username = input("Provide HTTP authentication user "
-                             "name [{0}] :".format(WOVariables.wo_user))
+                             "name [{0}] :".format(WOVar.wo_user))
             pargs.user_input = username
             if username == "":
-                pargs.user_input = WOVariables.wo_user
+                pargs.user_input = WOVar.wo_user
         if not pargs.user_pass:
             password = getpass.getpass("Provide HTTP authentication "
                                        "password [{0}] :".format(passwd))

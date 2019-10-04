@@ -9,6 +9,8 @@ Render Templates
 
 
 class WOTemplate():
+    """WordOps template utilities"""
+
     def deploy(self, fileconf, template, data, overwrite=True):
         """Deploy template with render()"""
         data = dict(data)

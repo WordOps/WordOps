@@ -4,13 +4,14 @@ import os
 
 from setuptools import find_packages, setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 conf = []
 templates = []
 
-long_description = '''WordOps  An essential toolset that eases WordPress
-                      site and server administration. It provide the ability
-                      to install a high performance WordPress stack
-                      with a few keystrokes'''
+short_description = """An essential toolset that eases WordPress
+                    site and server administration"""
 
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
@@ -21,43 +22,52 @@ for name in glob.glob('wo/cli/templates/*.mustache'):
 if not os.path.exists('/var/log/wo/'):
     os.makedirs('/var/log/wo/')
 
-if not os.path.exists('/var/lib/wo/'):
-    os.makedirs('/var/lib/wo/')
+if not os.path.exists('/var/lib/wo/tmp/'):
+    os.makedirs('/var/lib/wo/tmp/')
 
-setup(name='wo',
-      version='3.9.9.1',
-      description=long_description,
+setup(name='wordops',
+      version='3.9.9.2',
+      description=short_description,
       long_description=long_description,
-      classifiers=[],
+      long_description_content_type="text/markdown",
+      classifiers=[
+          "Programming Language :: Python :: 3",
+          "License :: OSI Approved :: MIT License",
+          "Operating System :: OS Independent",
+          "Development Status :: 5 - Production/Stable",
+          "Environment :: Console",
+          "Natural Language :: English",
+          "Topic :: System :: Systems Administration",
+      ],
       keywords='',
       author='WordOps',
       author_email='contact@wordops.io',
-      url='https://wordops.net',
+      url='https://github.com/WordOps/WordOps',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests',
                                       'templates']),
       include_package_data=True,
       zip_safe=False,
       test_suite='nose.collector',
+      python_requires='>=3.5',
       install_requires=[
           # Required to build documentation
           # "Sphinx >= 1.0",
-          # Required for testing
-          # "nose",
-          # "coverage",
           # Required to function
           'cement == 2.8.2',
-          'pystache',
-          'python-apt',
-          'pynginxconfig',
-          'PyMySQL',
-          'psutil',
-          'sh',
-          'SQLAlchemy',
-          'requests',
-          'distro',
-          'apt-mirror-updater',
+          'pystache >= 0.5.4',
+          'pynginxconfig >= 0.3.4',
+          'PyMySQL >= 0.9.3',
+          'psutil >= 5.6.3',
+          'sh >= 1.12.14',
+          'SQLAlchemy >= 1.3.8',
+          'requests >= 2.22.0',
+          'distro >= 1.4.0',
+          'apt-mirror-updater >= 6.1',
       ],
+      extras_require={  # Optional
+          'testing': ['nose', 'coverage'],
+      },
       data_files=[('/etc/wo', ['config/wo.conf']),
                   ('/etc/wo/plugins.d', conf),
                   ('/usr/lib/wo/templates', templates),

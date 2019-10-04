@@ -3,10 +3,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from wo.core.variables import WOVariables
+from wo.core.variables import WOVar
 
 # db_path = self.app.config.get('site', 'db_path')
-engine = create_engine(WOVariables.wo_db_uri, convert_unicode=True)
+engine = create_engine(WOVar.wo_db_uri, convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))

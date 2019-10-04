@@ -145,6 +145,7 @@ class WOService():
                 if retcode[0] == 0:
                     Log.valide(self, "Reloading {0:10}".format(
                         service_name))
+                    return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
                     Log.failed(self, "Reloading {0:10}".format(
