@@ -10,24 +10,26 @@ with open("README.md", "r") as fh:
 conf = []
 templates = []
 
+short_description = """An essential toolset that eases WordPress
+                    site and server administration"""
+
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
 
 for name in glob.glob('wo/cli/templates/*.mustache'):
     templates.insert(1, name)
 
-if os.geteuid() == 0:
-    if not os.path.exists('/var/log/wo/'):
-        os.makedirs('/var/log/wo/')
+if not os.path.exists('/var/log/wo/'):
+    os.makedirs('/var/log/wo/')
 
-    if not os.path.exists('/var/lib/wo/tmp/'):
-        os.makedirs('/var/lib/wo/tmp/')
+if not os.path.exists('/var/lib/wo/tmp/'):
+    os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
       version='3.9.9.2',
-      description='WordPress & server administration toolset',
+      description=short_description,
       long_description=long_description,
-      long_description_content_type='text/markdown',
+      long_description_content_type="text/markdown",
       classifiers=[
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",

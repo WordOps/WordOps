@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.9.1 - 2019-09-27
+# Version 3.9.9.3 - 2019-10-05
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -62,9 +62,6 @@ while [ "$#" -gt 0 ]; do
         wo_branch="$2"
         shift
         ;;
-    -p | --preserve)
-        wo_preserve_config="y"
-        ;;
     --force)
         wo_force_install="y"
         ;;
@@ -77,10 +74,6 @@ while [ "$#" -gt 0 ]; do
         ;;
     --purge | --uninstall)
         wo_purge="y"
-        ;;
-    -v | --version)
-        wo_version="$2"
-        shift
         ;;
     *) # positional args
         ;;
@@ -167,7 +160,6 @@ readonly wo_tmp_dir=/var/lib/wo/tmp
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -is)
 readonly wo_distro_version=$(lsb_release -sc)
-readonly wo_distro_id=$(lsb_release -rs)
 readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
 readonly TIME=$(date +"$TIME_FORMAT")
 readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
@@ -232,13 +224,13 @@ wo_install_dep() {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
+            build-essential curl gzip python3-pip python3-wheel python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         add-apt-repository ppa:wordops/nginx-wo -yn
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-requests python3-dev ca-certificates sqlite3 git tar \
+            build-essential curl gzip dirmngr sudo python3 python3-pip python3-wheel python3-apt python3-setuptools python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
@@ -317,16 +309,6 @@ wo_sync_db() {
                     # Acquire information about the current nginx configuration
 
                     wo_site_current_type=$(grep "common/" "/etc/nginx/sites-available/$site" | awk -F "/" '{print $2}')
-
-                    if echo "$wo_site_current_type" | grep -q "php"; then
-                        if echo "$wo_site_current_type" | grep -q "php7"; then
-                            wo_php_version="7.0"
-                        else
-                            wo_php_version="5.6"
-                        fi
-                    else
-                        wo_php_version=""
-                    fi
 
                     if echo "$wo_site_current_type" | grep -q "redis"; then
                         wo_site_current_cache="wpredis"
@@ -458,19 +440,6 @@ wo_install_acme_sh() {
     fi
 }
 
-# Download WordOps
-wo_download() {
-    rm -f /etc/bash_completion.d/wo_auto.rc
-    rm -rf /var/lib/wo/tmp/WordOps-*
-    if [ -z "$wo_version" ]; then
-        curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
-        mv "/var/lib/wo/tmp/WordOps-$wo_branch" /var/lib/wo/tmp/WordOps-install
-    else
-        curl -sL https://github.com/WordOps/WordOps/archive/v${wo_version}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
-        mv "/var/lib/wo/tmp/WordOps-$wo_version" /var/lib/wo/tmp/WordOps-install
-    fi
-}
-
 wo_git_config() {
 
     if [ "$wo_force_install" = "y" ]; then
@@ -486,22 +455,10 @@ wo_git_config() {
 # WordOps install
 wo_install() {
 
-    cd /var/lib/wo/tmp/WordOps-install || exit 1
-    python3 setup.py install
-
-}
-
-# Clone Github repository if it doesn't exist
-wo_install_travis() {
-
-    if [ "$wo_force_install" = "y" ]; then
-        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
-    fi
-
-    if [ -f "$HOME/.gitconfig" ]; then
-        # install and redirect log to not print python package install
-        python3 setup.py install
-    fi
+    python3 -m pip install pip --upgrade
+    python3 -m pip install wordops --upgrade
+    cp -rf /usr/local/lib/python3.*/dist-packages/etc/* /etc/
+    cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
 
 }
 
@@ -610,32 +567,18 @@ wo_update_latest() {
             chmod 600 /root/.my.cnf
         fi
     fi
-
-    # Fix Redis-server security issue
-    # http://redis.io/topics/security
-    if [ -f /etc/redis/redis.conf ]; then
-        CHECK_REDIS_BIND=$(grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' >> /dev/null 2>&1)
-
-        if [ -z "$CHECK_REDIS_BIND" ]; then
-            echo 'bind 127.0.0.1 ::1' >> /etc/redis/redis.conf
-
-            service redis-server restart
-
-        fi
-    fi
-
 }
 
 wo_backup_ee() {
     local BACKUP_EE=""
     [ -d /etc/nginx ] && { BACKUP_EE="$BACKUP_EE /etc/nginx"; }
     [ -d /etc/letsencrypt ] && { BACKUP_EE="$BACKUP_EE /etc/letsencrypt"; }
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee "$BACKUP_EE"
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /etc/ee /var/lib/ee "$BACKUP_EE"
     return 0
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo "$WO_LE"
+    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo
     return 0
 }
 
@@ -686,7 +629,7 @@ wo_systemd_tweak() {
 }
 
 wo_domain_suffix() {
-    curl -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
+    curl -m 10 --retry 3 -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
 }
 
 wo_mariadb_tweak() {
@@ -715,6 +658,7 @@ wo_clean() {
 }
 
 wo_uninstall() {
+    python3 -m pip uninstall wordops
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
 }
 
@@ -827,13 +771,10 @@ else
     #fi
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
-        _run wo_download "Downloading WordOps"
         _run wo_dist_upgrade
         wo_git_config
-        _run wo_install "Installing WordOps"
-    else
-        _run wo_install_travis "Installing WordOps"
     fi
+    _run wo_install "Installing WordOps"
     if [ -x /usr/local/bin/ee ]; then
         _run wo_upgrade_nginx "Upgrading Nginx"
         _run wo_clean_ee "Cleaning previous EasyEngine install"
