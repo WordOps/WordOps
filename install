@@ -658,7 +658,7 @@ wo_clean() {
 }
 
 wo_uninstall() {
-    python3 -m pip uninstall wordops
+    python3 -m pip uninstall wordops -y
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
 }
 
