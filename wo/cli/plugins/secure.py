@@ -3,7 +3,6 @@ import os
 
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
-
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
@@ -70,7 +69,7 @@ class WOSecureController(CementBaseController):
         WOGit.add(self, ["/etc/nginx"],
                   msg="Add Nginx to into Git")
         pargs = self.app.pargs
-        passwd = RANDOM.gen(self, length='24')
+        passwd = RANDOM.gen(self)
         if not pargs.user_input:
             username = input("Provide HTTP authentication user "
                              "name [{0}] :".format(WOVar.wo_user))
