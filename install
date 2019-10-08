@@ -120,9 +120,9 @@ _run() {
 ###
 if [ -z "$wo_travis" ]; then
     if command_exists curl; then
-        apt-get update -qq
+        apt-get update --allow-releaseinfo-change -qq
     else
-        apt-get update -qq && apt-get -y install curl -qq > /dev/null 2>&1
+        apt-get update --allow-releaseinfo-change -qq && apt-get -y install curl -qq > /dev/null 2>&1
     fi
 fi
 
@@ -225,6 +225,7 @@ wo_apt_mirror() {
         python3 -m pip install apt-mirror-updater --upgrade
     }; then
         /usr/local/bin/apt-mirror-updater -a
+        apt-get update --allow-releaseinfo-change -qq
     fi
 
 }
