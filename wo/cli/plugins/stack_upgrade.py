@@ -94,7 +94,7 @@ class WOStackUpgradeController(CementBaseController):
             if WOAptGet.is_installed(self, 'nginx-custom'):
                 apt_packages = apt_packages + WOVar.wo_nginx
             else:
-                if os.path.isfile(self, '/usr/sbin/nginx'):
+                if os.path.isfile('/usr/sbin/nginx'):
                     Log.info(self, "Updating Nginx templates")
                     post_pref(self, WOVar.wo_nginx, [])
                 else:
@@ -186,15 +186,14 @@ class WOStackUpgradeController(CementBaseController):
             self.app.args.print_help()
         else:
             if (apt_packages):
-                if not (set(["php7.2-fpm"]).issubset(set(apt_packages)) and
-                        set(["php7.3-fpm"]).issubset(set(apt_packages)) and
-                        set(["nginx-custom",
-                             "nginx-wo"]).issubset(set(apt_packages)) and
-                        set(['mariadb-server']).issubset(set(apt_packages))):
+                if (("php7.2-fpm" not in apt_packages) and
+                        ("php7.3-fpm" not in apt_packages) and
+                        ("nginx-custom" not in apt_packages) and
+                        ("mariadb-server" not in apt_packages)):
                     pass
                 else:
                     Log.info(
-                        self, "Your site may be down for few seconds if "
+                        self, "Your sites may be down for few seconds if "
                         "you are upgrading Nginx, PHP-FPM, MariaDB or Redis")
                 # Check prompt
                 if ((not pargs.no_prompt) and (not pargs.force)):
@@ -219,7 +218,6 @@ class WOStackUpgradeController(CementBaseController):
                 # check if nginx upgrade is blocked
                 if os.path.isfile(
                         '/etc/apt/preferences.d/nginx-block'):
-                    apt_packages.remove(WOVar.wo_nginx)
                     post_pref(self, WOVar.wo_nginx, [], True)
                 # upgrade packages
                 WOAptGet.install(self, apt_packages)

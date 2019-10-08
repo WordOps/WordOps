@@ -5,8 +5,14 @@ import string
 class RANDOM:
     """Random strings generator"""
 
-    def gen(self, length='24'):
+    def long(self):
+        long_random = ''.join([random.choice
+                               (string.ascii_letters + string.digits)
+                               for n in range(24)])
+        return long_random
+
+    def short(self):
         short_random = ''.join([random.choice
                                 (string.ascii_letters + string.digits)
-                                for n in range(length)])
+                                for n in range(24)])
         return short_random

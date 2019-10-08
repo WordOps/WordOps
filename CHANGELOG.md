@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- WordOps is now installed from PyPI using pip [WordOps](https://pypi.org/project/wordops/)
+- New Nginx package built with OpenSSL_1.1.1d and the latest ngx_brotli module
+
+#### Fixed
+
+- `wo stack upgrade` when using nginx-ee
+- `wo secure --auth`
+- `wo secure --sshport` not working with default ssh config
+- Issues after APT repositories informations changed
+
 ### v3.9.9.2 - 2019-10-04
 
 #### Added
