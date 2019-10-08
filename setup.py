@@ -10,9 +10,6 @@ with open("README.md", "r") as fh:
 conf = []
 templates = []
 
-short_description = """An essential toolset that eases WordPress
-                    site and server administration"""
-
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
 
@@ -27,7 +24,7 @@ if not os.path.exists('/var/lib/wo/tmp/'):
 
 setup(name='wordops',
       version='3.9.9.3',
-      description=short_description,
+      description='WordPress & server administration toolset',
       long_description=long_description,
       long_description_content_type="text/markdown",
       classifiers=[
