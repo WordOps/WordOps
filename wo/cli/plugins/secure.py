@@ -69,7 +69,7 @@ class WOSecureController(CementBaseController):
         WOGit.add(self, ["/etc/nginx"],
                   msg="Add Nginx to into Git")
         pargs = self.app.pargs
-        passwd = RANDOM.gen(self)
+        passwd = RANDOM.long(self)
         if not pargs.user_input:
             username = input("Provide HTTP authentication user "
                              "name [{0}] :".format(WOVar.wo_user))
@@ -220,9 +220,14 @@ class WOSecureController(CementBaseController):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("Server SSH port [22]:")
             pargs.user_input = port
-        WOShellExec.cmd_exec(self, "sed -i \"s/Port.*/Port "
-                             "{port}/\" /etc/ssh/sshd_config"
-                             .format(port=pargs.user_input))
+        if WOFileUtils.grepcheck(self, '/etc/ssh/sshd_config', '#Port'):
+            WOShellExec.cmd_exec(self, "sed -i \"s/#Port.*/Port "
+                                 "{port}/\" /etc/ssh/sshd_config"
+                                 .format(port=pargs.user_input))
+        else:
+            WOShellExec.cmd_exec(self, "sed -i \"s/Port.*/Port "
+                                 "{port}/\" /etc/ssh/sshd_config"
+                                 .format(port=pargs.user_input))
         # allow new ssh port if ufw is enabled
         if os.path.isfile('/etc/ufw/ufw.conf'):
             # add rule for proftpd with UFW
