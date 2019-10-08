@@ -47,7 +47,7 @@ done
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       Simple site create              '
 echo -e "${CGREEN}#############################################${CEND}"
-site_types='html php php73 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+site_types='html php php73 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $site_types; do
     echo -ne "       Creating $site               [..]\r"
     if {
