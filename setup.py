@@ -26,7 +26,7 @@ if not os.path.exists('/var/lib/wo/tmp/'):
     os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.9.9.2',
+      version='3.9.9.3',
       description=short_description,
       long_description=long_description,
       long_description_content_type="text/markdown",
