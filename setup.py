@@ -63,7 +63,6 @@ setup(name='wordops',
           'SQLAlchemy >= 1.3.8',
           'requests >= 2.22.0',
           'distro >= 1.4.0',
-          'apt-mirror-updater >= 6.1',
       ],
       extras_require={  # Optional
           'testing': ['nose', 'coverage'],
