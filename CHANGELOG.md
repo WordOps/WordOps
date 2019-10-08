@@ -12,12 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- Add Nginx TLS 1.3 0-RTT configuration
+- [STACK] Add Nginx TLS 1.3 0-RTT configuration
 
 #### Changed
 
-- WordOps is now installed from PyPI using pip [WordOps](https://pypi.org/project/wordops/)
-- New Nginx package built with OpenSSL_1.1.1d and the latest ngx_brotli module
+- [CORE] WordOps is now installed from PyPI using pip [WordOps](https://pypi.org/project/wordops/)
+- [STACK] New Nginx package built with OpenSSL_1.1.1d and the latest ngx_brotli module
 
 #### Fixed
 
