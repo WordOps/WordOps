@@ -165,7 +165,7 @@ class WOVar():
         wo_redis_repo = ("ppa:chris-lea/redis-server")
         wo_goaccess_repo = ("ppa:alex-p/goaccess")
         wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
                          "10.3/ubuntu {codename} main"
                          .format(codename=wo_platform_codename))
 
@@ -177,7 +177,7 @@ class WOVar():
         wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
                          .format(codename=wo_platform_codename))
         wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
