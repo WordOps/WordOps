@@ -462,8 +462,8 @@ wo_git_config() {
     fi
 
     # .gitconfig inital setup
-    cd /var/lib/wo/tmp/WordOps-install || exit 1
-    python3 gitconfig.py
+    #cd /var/lib/wo/tmp/WordOps-install || exit 1
+    #python3 gitconfig.py
 
 }
 
