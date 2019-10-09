@@ -219,33 +219,18 @@ wo_dist_upgrade() {
     apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
 }
 
-# install apt-mirror-updater and find the fastest mirror available
-wo_apt_mirror() {
-
-    apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-        python3-pip python3-wheel python3-apt python3-setuptools > /dev/null 2>&1
-    python3 -m pip install pip --upgrade
-    if {
-        python3 -m pip install apt-mirror-updater --upgrade
-    }; then
-        /usr/local/bin/apt-mirror-updater -a
-        apt-get update -qq
-    fi
-
-}
-
 wo_install_dep() {
 
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3-dev sqlite3 git tar software-properties-common pigz \
+            build-essential curl gzip python3-pip python3-wheel python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         add-apt-repository ppa:wordops/nginx-wo -yn
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3-dev ca-certificates sqlite3 git tar \
+            build-essential curl gzip dirmngr sudo python3-pip python3-wheel python3-apt python3-setuptools python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
@@ -470,7 +455,8 @@ wo_git_config() {
 # WordOps install
 wo_install() {
 
-    python3 -m pip install wordops --upgrade
+    python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade wordops
     cp -rf /usr/local/lib/python3.*/dist-packages/etc/* /etc/
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
 
@@ -479,7 +465,7 @@ wo_install() {
 # WordOps install
 wo_travis_install() {
 
-    python3 -m pip install dist/*.whl --upgrade
+    python3 -m pip install --upgrade dist/*.whl
     cp -rf /usr/local/lib/python3.*/dist-packages/etc/* /etc/
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
 
@@ -789,7 +775,6 @@ else
         _run wo_remove_ee_cron "Removing EasyEngine cronjob"
         _run wo_sync_db "Syncing WO database"
     fi
-    _run wo_apt_mirror "Finding the fastest APT mirror"
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
     #if [ "$ufw" = "y" ]; then
