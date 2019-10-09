@@ -5,7 +5,7 @@ import os
 from setuptools import find_packages, setup
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    LONG = fh.read()
 
 conf = []
 templates = []
@@ -26,8 +26,7 @@ if os.geteuid() == 0:
 setup(name='wordops',
       version='3.9.9.3',
       description='WordPress & server administration toolset',
-      long_description=long_description,
-      long_description_content_type="text/markdown",
+      long_description=LONG,
       classifiers=[
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",
