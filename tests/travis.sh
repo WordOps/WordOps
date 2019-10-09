@@ -21,7 +21,7 @@ if [ -z "$1" ]; then
 fi
 
 exit_script() {
-    curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo ""
+    curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.txt)" && echo ""
     exit 1
 }
 
