@@ -19,8 +19,7 @@ class WOAptGet():
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
                 proc = subprocess.Popen(
-                    'DEBIAN_FRONTEND=noninteractive apt-get update '
-                    '--allow-releaseinfo-change',
+                    'DEBIAN_FRONTEND=noninteractive apt-get update -qq',
                     shell=True, stdin=None, stdout=f,
                     stderr=subprocess.PIPE, executable="/bin/bash")
                 proc.wait()

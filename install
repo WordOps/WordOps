@@ -118,10 +118,14 @@ _run() {
 ###
 # 1- Update the apt sewers with fresh info
 ###
+
 if [ -z "$wo_travis" ]; then
-    if command_exists curl; then
-        apt-get update -qq
-    else
+    if ! {
+        apt-get update --allow-releaseinfo-change -qq > /dev/null 2>&1
+    }; then
+        apt-get update -qq > /dev/null 2>&1
+    fi
+    if ! command_exists curl; then
         apt-get update -qq && apt-get -y install curl -qq > /dev/null 2>&1
     fi
 fi
