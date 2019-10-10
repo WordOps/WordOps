@@ -465,6 +465,7 @@ wo_install() {
 # WordOps install
 wo_travis_install() {
 
+    python3 -m pip install --upgrade pip
     python3 -m pip install --upgrade dist/*.whl
     cp -rf /usr/local/lib/python3.*/dist-packages/etc/* /etc/
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
