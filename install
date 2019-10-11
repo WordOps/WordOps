@@ -469,7 +469,7 @@ wo_install() {
 }
 
 # Clone Github repository if it doesn't exist
-wo_install_travis() {
+wo_travis_install() {
 
     if [ "$wo_force_install" = "y" ]; then
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
