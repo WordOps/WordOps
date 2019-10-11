@@ -154,19 +154,19 @@ class WOAptGet():
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
                 if purge:
-                    proc = subprocess.Popen('DEBIAN_FRONTEND=noninteractive '
-                                            'apt-get autoremove --purge '
-                                            '-qq {0}'
-                                            .format(all_packages), shell=True,
-                                            stdin=None, stdout=f, stderr=f,
-                                            executable="/bin/bash")
+                    proc = subprocess.Popen(
+                        'DEBIAN_FRONTEND=noninteractive '
+                        'apt-get autoremove --purge -qq {0}'
+                        .format(all_packages), shell=True,
+                        stdin=None, stdout=f, stderr=f,
+                        executable="/bin/bash")
                 else:
-                    proc = subprocess.Popen('DEBIAN_FRONTEND=noninteractive '
-                                            'apt-get autoremove '
-                                            '-qq {0}'
-                                            .format(all_packages), shell=True,
-                                            stdin=None, stdout=f, stderr=f,
-                                            executable="/bin/bash")
+                    proc = subprocess.Popen(
+                        'DEBIAN_FRONTEND=noninteractive '
+                        'apt-get autoremove -qq {0}'
+                        .format(all_packages), shell=True,
+                        stdin=None, stdout=f, stderr=f,
+                        executable="/bin/bash")
                 proc.wait()
             if proc.returncode == 0:
                 return True
@@ -235,13 +235,13 @@ class WOAptGet():
                     WORepo.add_key(self, repo_key)
                 proc = subprocess.Popen(
                     "DEBIAN_FRONTEND=noninteractive apt-get update "
-                    "--allow-releaseinfo-change && "
+                    "-qq && "
                     "DEBIAN_FRONTEND=noninteractive "
                     "apt-get install -o "
                     "Dpkg::Options::=\"--force-confdef\""
                     " -o "
                     "Dpkg::Options::=\"--force-confold\""
-                    " -y  --download-only {0}"
+                    " -y --download-only {0}"
                     .format(packages), shell=True,
                     stdin=None, stdout=f, stderr=f,
                     executable="/bin/bash")

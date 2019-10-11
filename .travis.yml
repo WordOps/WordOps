@@ -4,7 +4,6 @@ dist: bionic
 language: bash
 
 notifications:
-  slack: wordops:MyZBNbI7JfhbAi3YyFckMdaa
   webhooks:
     secure: "JiGtzYplTyFg/L6Rsi7ptEQIV29O5qCWU2Zf5pLITsQrBrQO4cIXXp9G4Z+cenXjfIiqbqIgU0US3zXeIAl4g14xdfzmMYeMMwuKBpI8afMYv8MD6ldoP0MTFHQfROE6OXxKLVUvZn1R0oLLU1fzVSI0qGjNkt20cf/Lrt/reH/zS5hAI92kWI3u2zPu7Zn/g/a8MO/Y3Iv7v1PSQaVkVJVqtOK3U2GJqhIv2G1AVcaPb7Nh/V2zm2dDYBVT0UotBnlBUcUXbEMP77D9pjtWXd1/0rWuJIHixMjwUybpZqY75UMee5INynU6OZRsv029LRHAIMkWhfBkdVN/U5jhQJzui14+vRQrb5nfUMG8Cd8INojDlu6dk/ps2GzTCCXBITeMQKAouUoHD2LEbsNp17xi1K4ZlKb3+0lrOAiS4JYFE6wOo4yMlLTYoquYSqk7AuxuUS8A5OD5MYxhk9uafiTSxKFOo39KYWTSaACsPD8q1swaTSjoYm9skyZvIkIFq5bHBCYEGFe6X/NY9l5tz3hSe+TJOerCHsg+dXVuQl+pIp5nw2as9TH9ox5Vgqc9Zh4GbTDQVvdAmUpmlsZ/SKoOMCkmkB1aRNFq/7RnERIJyAEGJbauHWmjtOM4cCxesl0L0b2Eab89zQpSn7pzE8JTiJgpzCUc22p653PTaqM="
 
@@ -31,7 +30,6 @@ before_script:
 after_script:
   - sudo cat /var/log/wo/install.log | ccze -A -p syslog
   - sudo bash install --purge
-  - sudo curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo "" | sudo tee -a $HOME/.transfer.log && echo ""
 
 
 script:
