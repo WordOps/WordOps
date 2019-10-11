@@ -4,7 +4,7 @@ import os
 
 from setuptools import find_packages, setup
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     LONG = fh.read()
 
 conf = []

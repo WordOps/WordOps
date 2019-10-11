@@ -452,23 +452,38 @@ wo_git_config() {
 
 }
 
-# WordOps install
-wo_install() {
-
-    python3 -m pip install --upgrade pip
-    python3 -m pip install --upgrade wordops
-    cp -rf /usr/local/lib/python3.*/dist-packages/etc/* /etc/
-    cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
-
+# Download WordOps
+wo_download() {
+    rm -f /etc/bash_completion.d/wo_auto.rc
+    rm -rf /var/lib/wo/tmp/WordOps-*
+    if [ -z "$wo_version" ]; then
+        curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+        mv "/var/lib/wo/tmp/WordOps-$wo_branch" /var/lib/wo/tmp/WordOps-install
+    else
+        curl -sL https://github.com/WordOps/WordOps/archive/v${wo_version}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
+        mv "/var/lib/wo/tmp/WordOps-$wo_version" /var/lib/wo/tmp/WordOps-install
+    fi
 }
 
 # WordOps install
-wo_travis_install() {
+wo_install() {
 
-    python3 -m pip install --upgrade pip
-    python3 -m pip install --upgrade dist/*.whl
-    cp -rf /usr/local/lib/python3.*/dist-packages/etc/* /etc/
-    cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
+    cd /var/lib/wo/tmp/WordOps-install || exit 1
+    python3 setup.py install
+
+}
+
+# Clone Github repository if it doesn't exist
+wo_install_travis() {
+
+    if [ "$wo_force_install" = "y" ]; then
+        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
+    fi
+
+    if [ -f "$HOME/.gitconfig" ]; then
+        # install and redirect log to not print python package install
+        python3 setup.py install
+    fi
 
 }
 
@@ -784,6 +799,7 @@ else
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
         _run wo_dist_upgrade
+        _run wo_download "Downloading WordOps"
         wo_git_config
         _run wo_install "Installing WordOps"
     else

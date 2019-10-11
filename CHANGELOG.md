@@ -16,7 +16,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- [CORE] WordOps is now installed from PyPI using pip [WordOps](https://pypi.org/project/wordops/)
 - [STACK] New Nginx package built with OpenSSL_1.1.1d and the latest ngx_brotli module
 
 #### Fixed
