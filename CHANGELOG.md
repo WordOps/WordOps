@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `wo secure --auth`
 - `wo secure --sshport` not working with default ssh config
 - Issues after APT repositories informations changed
+- `www` was added to WordPress site url with subdomains [Issue #178](https://github.com/WordOps/WordOps/issues/178)
 
 ### v3.9.9.2 - 2019-10-04
 
