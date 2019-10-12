@@ -462,19 +462,20 @@ def setupwordpress(self, data, vhostonly=False):
         Log.debug(self, "{0} --allow-root core install "
                   .format(WOVar.wo_wpcli_path) +
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
-                  .format(data['www_domain'], wo_wp_user) +
+                  .format(data['site_name'], wo_wp_user) +
                   "--admin_password= --admin_email=\'{1}\'"
-                  .format(wo_wp_pass, wo_wp_email))
+                  .format(wo_wp_email))
         try:
-            if WOShellExec.cmd_exec(self, "{0} --allow-root core "
-                                    .format(WOVar.wo_wpcli_path) +
-                                    "install --url=\'{0}\' --title=\'{0}\' "
-                                    "--admin_name=\'{1}\' "
-                                    .format(data['www_domain'], wo_wp_user) +
-                                    "--admin_password=\'{0}\' "
-                                    "--admin_email=\'{1}\'"
-                                    .format(wo_wp_pass, wo_wp_email),
-                                    log=False):
+            if WOShellExec.cmd_exec(
+                self, "{0} --allow-root core "
+                .format(WOVar.wo_wpcli_path) +
+                "install --url=\'{0}\' --title=\'{0}\' "
+                "--admin_name=\'{1}\' "
+                .format(data['site_name'], wo_wp_user) +
+                "--admin_password=\'{0}\' "
+                "--admin_email=\'{1}\'"
+                .format(wo_wp_pass, wo_wp_email),
+                    log=False):
                 pass
             else:
                 raise SiteError(
@@ -487,26 +488,27 @@ def setupwordpress(self, data, vhostonly=False):
                   .format(WOVar.wo_wpcli_path) +
                   "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
-                  .format(data['www_domain'], wo_wp_user) +
+                  .format(data['site_name'], wo_wp_user) +
                   "--admin_password= --admin_email=\'{1}\' "
                   "{subdomains}"
-                  .format(wo_wp_pass, wo_wp_email,
+                  .format(wo_wp_email,
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            if WOShellExec.cmd_exec(self, "{0} --allow-root "
-                                    .format(WOVar.wo_wpcli_path) +
-                                    "core multisite-install "
-                                    "--url=\'{0}\' --title=\'{0}\' "
-                                    "--admin_name=\'{1}\' "
-                                    .format(data['www_domain'], wo_wp_user) +
-                                    "--admin_password=\'{0}\' "
-                                    "--admin_email=\'{1}\' "
-                                    "{subdomains}"
-                                    .format(wo_wp_pass, wo_wp_email,
-                                            subdomains='--subdomains'
-                                            if not data['wpsubdir'] else ''),
-                                    log=False):
+            if WOShellExec.cmd_exec(
+                self, "{0} --allow-root "
+                .format(WOVar.wo_wpcli_path) +
+                "core multisite-install "
+                "--url=\'{0}\' --title=\'{0}\' "
+                "--admin_name=\'{1}\' "
+                .format(data['site_name'], wo_wp_user) +
+                "--admin_password=\'{0}\' "
+                "--admin_email=\'{1}\' "
+                "{subdomains}"
+                .format(wo_wp_pass, wo_wp_email,
+                        subdomains='--subdomains'
+                        if not data['wpsubdir'] else ''),
+                    log=False):
                 pass
             else:
                 raise SiteError(
