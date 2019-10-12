@@ -1054,7 +1054,7 @@ def logwatch(self, logfiles):
     import zlib
     import base64
     import time
-    from wo.core import logwatch
+    from wo.core.logwatch import LogWatcher
 
     def callback(filename, lines):
         for line in lines:
@@ -1071,7 +1071,7 @@ def logwatch(self, logfiles):
                              'caught exception rendering a new log line in %s'
                              % filename)
 
-    logl = logwatch.LogWatcher(logfiles, callback)
+    logl = LogWatcher(logfiles, callback)
     logl.loop()
 
 
