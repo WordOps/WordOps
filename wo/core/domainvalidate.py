@@ -21,10 +21,10 @@ class WODomain():
         final_domain = ''
         if www_domain_name[0] == 'www':
             final_domain = '.'.join(www_domain_name[1:])
-        else:
-            final_domain = domain_name
+            return final_domain
+        return domain_name
 
-        return final_domain
+
 
     def getlevel(self, domain):
         """
