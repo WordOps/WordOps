@@ -140,21 +140,20 @@ class WOVar():
     wo_php_extra = ["php-memcached", "php-imagick",
                     "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 
-    if not wo_distro == 'raspbian':
-        if (not wo_platform_codename == 'jessie'):
-            wo_mysql = ["mariadb-server", "percona-toolkit",
-                        "python3-mysqldb", "mariadb-backup"]
+    wo_mysql = ["mariadb-server", "percona-toolkit"]
+    if wo_distro == 'raspbian':
+        wo_mysql = wo_mysql + ["python3-mysqldb"]
+    else:
+        if wo_platform_codename == 'jessie':
+            wo_mysql = wo_mysql + ["python3-mysql.connector"]
         else:
-            wo_mysql = ["mariadb-server", "percona-toolkit",
-                        "python3-mysql.connector"]
-    else:
-        wo_mysql = ["mariadb-server", "percona-toolkit",
-                    "python3-mysqldb"]
+            wo_mysql = wo_mysql + ["python3-mysqldb", "mariadb-backup"]
 
+    wo_mysql_client = ["mariadb-client"]
     if wo_platform_codename == 'jessie':
-        wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
+        wo_mysql_client = wo_mysql_client + ["python3-mysqldb"]
     else:
-        wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
+        wo_mysql_client = wo_mysql_client + ["python3-mysql.connector"]
 
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]
