@@ -8,7 +8,7 @@ Render Templates
 """
 
 
-class WOTemplate():
+class WOTemplate:
     """WordOps template utilities"""
 
     def deploy(self, fileconf, template, data, overwrite=True):

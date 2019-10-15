@@ -23,9 +23,9 @@ class WOShellExec():
                                   stderr=subprocess.PIPE, shell=True) as proc:
                 (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
                 (cmd_stdout, cmd_stderr) = (cmd_stdout_bytes.decode('utf-8',
-                                            "replace"),
+                                                                    "replace"),
                                             cmd_stderr_bytes.decode('utf-8',
-                                            "replace"))
+                                                                    "replace"))
 
             if proc.returncode == 0:
                 Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"
@@ -60,9 +60,9 @@ class WOShellExec():
                                   stderr=subprocess.PIPE, shell=True) as proc:
                 (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
                 (cmd_stdout, cmd_stderr) = (cmd_stdout_bytes.decode('utf-8',
-                                            "replace"),
+                                                                    "replace"),
                                             cmd_stderr_bytes.decode('utf-8',
-                                            "replace"))
+                                                                    "replace"))
 
             if proc.returncode == 0:
                 Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"

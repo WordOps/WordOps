@@ -21,7 +21,7 @@ if [ -z "$1" ]; then
 fi
 
 exit_script() {
-    curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.log)" && echo ""
+    curl --progress-bar --upload-file /var/log/wo/wordops.log https://transfer.vtbox.net/"$(basename wordops.txt)" && echo ""
     exit 1
 }
 
@@ -47,7 +47,7 @@ done
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       Simple site create              '
 echo -e "${CGREEN}#############################################${CEND}"
-site_types='html php php73 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+site_types='html php php73 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $site_types; do
     echo -ne "       Creating $site               [..]\r"
     if {
@@ -65,7 +65,7 @@ done
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php73              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php73              [..]\r"
     if {
@@ -179,6 +179,46 @@ for stack in $stack_clean; do
 
     fi
 done
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo secure              '
+echo -e "${CGREEN}#############################################${CEND}"
+echo -ne "       wo secure --auth                   [..]\r"
+if {
+    wo secure --auth wordops mypassword
+} >> /var/log/wo/test.log; then
+    echo -ne "       wo secure --auth                   [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "       wo secure --auth                   [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
+
+fi
+echo -ne "       wo secure --sshport                [..]\r"
+if {
+    wo secure --sshport 2022
+} >> /var/log/wo/test.log; then
+    echo -ne "       wo secure --sshport                [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "       wo secure --sshport                [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
+
+fi
+echo -ne "       wo secure --ssh                    [..]\r"
+if {
+    wo secure --ssh --force
+} >> /var/log/wo/test.log; then
+    echo -ne "       wo secure --ssh                    [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "       wo secure --ssh                    [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
+
+fi
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       various informations             '

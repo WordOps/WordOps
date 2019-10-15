@@ -21,10 +21,10 @@ class WODomain():
         final_domain = ''
         if www_domain_name[0] == 'www':
             final_domain = '.'.join(www_domain_name[1:])
-        else:
-            final_domain = domain_name
+            return final_domain
+        return domain_name
 
-        return final_domain
+
 
     def getlevel(self, domain):
         """
@@ -37,16 +37,17 @@ class WODomain():
         if os.path.isfile("/var/lib/wo/public_suffix_list.dat"):
             # Read mode opens a file for reading only.
             suffix_file = open(
-                "/var/lib/wo/public_suffix_list.dat", encoding='utf-8', )
+                "/var/lib/wo/public_suffix_list.dat", encoding='utf-8')
             # Read all the lines into a list.
             for domain_suffix in suffix_file:
                 if (str(domain_suffix).strip()) == ('.'.join(domain_name[1:])):
                     domain_type = 'domain'
-                    root_domain = ('.'.join(domain_name[0:]))
                     break
                 else:
                     domain_type = 'subdomain'
-                    root_domain = ('.'.join(domain_name[1:]))
             suffix_file.close()
-            return (domain_type, root_domain)
-        return ('other', domain)
+        if domain_type == 'domain':
+            root_domain = ('.'.join(domain_name[0:]))
+        else:
+            root_domain = ('.'.join(domain_name[1:]))
+        return (domain_type, root_domain)

@@ -13,7 +13,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.9.2"
+    wo_version = "3.9.9.3"
     # WordOps packages versions
     wo_wp_cli = "2.3.0"
     wo_adminer = "4.7.3"
@@ -140,21 +140,20 @@ class WOVar():
     wo_php_extra = ["php-memcached", "php-imagick",
                     "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 
-    if not wo_distro == 'raspbian':
-        if (not wo_platform_codename == 'jessie'):
-            wo_mysql = ["mariadb-server", "percona-toolkit",
-                        "python3-mysqldb", "mariadb-backup"]
+    wo_mysql = ["mariadb-server", "percona-toolkit"]
+    if wo_distro == 'raspbian':
+        wo_mysql = wo_mysql + ["python3-mysqldb"]
+    else:
+        if wo_platform_codename == 'jessie':
+            wo_mysql = wo_mysql + ["python3-mysql.connector"]
         else:
-            wo_mysql = ["mariadb-server", "percona-toolkit",
-                        "python3-mysql.connector"]
-    else:
-        wo_mysql = ["mariadb-server", "percona-toolkit",
-                    "python3-mysqldb"]
+            wo_mysql = wo_mysql + ["python3-mysqldb", "mariadb-backup"]
 
+    wo_mysql_client = ["mariadb-client"]
     if wo_platform_codename == 'jessie':
-        wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
+        wo_mysql_client = wo_mysql_client + ["python3-mysqldb"]
     else:
-        wo_mysql_client = ["mariadb-client", "python3-mysql.connector"]
+        wo_mysql_client = wo_mysql_client + ["python3-mysql.connector"]
 
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]
@@ -165,7 +164,7 @@ class WOVar():
         wo_redis_repo = ("ppa:chris-lea/redis-server")
         wo_goaccess_repo = ("ppa:alex-p/goaccess")
         wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
                          "10.3/ubuntu {codename} main"
                          .format(codename=wo_platform_codename))
 
@@ -177,7 +176,7 @@ class WOVar():
         wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
                          .format(codename=wo_platform_codename))
         wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
                          "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 

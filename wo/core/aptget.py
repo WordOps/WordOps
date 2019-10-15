@@ -18,14 +18,22 @@ class WOAptGet():
         """
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
-                proc = subprocess.Popen('apt-mirror-updater -u',
-                                        shell=True,
-                                        stdin=None, stdout=f,
-                                        stderr=subprocess.PIPE,
-                                        executable="/bin/bash")
+                proc = subprocess.Popen(
+                    'DEBIAN_FRONTEND=noninteractive apt-get update -qq '
+                    '--allow-releaseinfo-change',
+                    shell=True, stdin=None, stdout=f,
+                    stderr=subprocess.PIPE, executable="/bin/bash")
                 proc.wait()
                 output, error_output = proc.communicate()
 
+                if "--allow-releaseinfo-change" in str(error_output):
+                    proc = subprocess.Popen(
+                        'DEBIAN_FRONTEND=noninteractive apt-get update -qq',
+                        shell=True,
+                        stdin=None, stdout=f, stderr=f,
+                        executable="/bin/bash")
+                    proc.wait()
+                    output, error_output = proc.communicate()
                 # Check what is error in error_output
                 if "NO_PUBKEY" in str(error_output):
                     # Split the output
@@ -39,10 +47,11 @@ class WOAptGet():
                             WORepo.add_key(
                                 self, key, keyserver="hkp://pgp.mit.edu")
 
-                    proc = subprocess.Popen('apt-get update',
-                                            shell=True,
-                                            stdin=None, stdout=f, stderr=f,
-                                            executable="/bin/bash")
+                    proc = subprocess.Popen(
+                        'DEBIAN_FRONTEND=noninteractive apt-get update -qq',
+                        shell=True,
+                        stdin=None, stdout=f, stderr=f,
+                        executable="/bin/bash")
                     proc.wait()
 
                 if proc.returncode == 0:
@@ -83,18 +92,16 @@ class WOAptGet():
         """
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
-                proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
-                                        "apt-get dist-upgrade "
-                                        "--option=Dpkg::options::="
-                                        "--force-confdef "
-                                        "--option=Dpkg::options::="
-                                        "--force-unsafe-io "
-                                        "--option=Dpkg::options::="
-                                        "--force-confold "
-                                        "--assume-yes --quiet ",
-                                        shell=True, stdin=None,
-                                        stdout=f, stderr=f,
-                                        executable="/bin/bash")
+                proc = subprocess.Popen(
+                    "DEBIAN_FRONTEND=noninteractive "
+                    "apt-get "
+                    "--option=Dpkg::options::=--force-confdef "
+                    "--option=Dpkg::options::=--force-unsafe-io "
+                    "--option=Dpkg::options::=--force-confold "
+                    "--assume-yes --quiet dist-upgrade",
+                    shell=True, stdin=None,
+                    stdout=f, stderr=f,
+                    executable="/bin/bash")
                 proc.wait()
 
             if proc.returncode == 0:
@@ -114,17 +121,15 @@ class WOAptGet():
         all_packages = ' '.join(packages)
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
-                proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
-                                        "apt-get install "
-                                        "--option=Dpkg::options::="
-                                        "--force-confdef "
-                                        "--option=Dpkg::options::="
-                                        "--force-confold "
-                                        "--assume-yes "
-                                        "--allow-unauthenticated {0}"
-                                        .format(all_packages), shell=True,
-                                        stdin=None, stdout=f, stderr=f,
-                                        executable="/bin/bash")
+                proc = subprocess.Popen(
+                    "DEBIAN_FRONTEND=noninteractive "
+                    "apt-get install "
+                    "--option=Dpkg::options::=--force-confdef "
+                    "--option=Dpkg::options::=--force-confold "
+                    "--assume-yes --allow-unauthenticated {0}"
+                    .format(all_packages), shell=True,
+                    stdin=None, stdout=f, stderr=f,
+                    executable="/bin/bash")
                 proc.wait()
 
             if proc.returncode == 0:
@@ -149,19 +154,19 @@ class WOAptGet():
         try:
             with open('/var/log/wo/wordops.log', 'a') as f:
                 if purge:
-                    proc = subprocess.Popen('DEBIAN_FRONTEND=noninteractive '
-                                            'apt-get autoremove --purge '
-                                            '-qq {0}'
-                                            .format(all_packages), shell=True,
-                                            stdin=None, stdout=f, stderr=f,
-                                            executable="/bin/bash")
+                    proc = subprocess.Popen(
+                        'DEBIAN_FRONTEND=noninteractive '
+                        'apt-get autoremove --purge -qq {0}'
+                        .format(all_packages), shell=True,
+                        stdin=None, stdout=f, stderr=f,
+                        executable="/bin/bash")
                 else:
-                    proc = subprocess.Popen('DEBIAN_FRONTEND=noninteractive '
-                                            'apt-get autoremove '
-                                            '-qq {0}'
-                                            .format(all_packages), shell=True,
-                                            stdin=None, stdout=f, stderr=f,
-                                            executable="/bin/bash")
+                    proc = subprocess.Popen(
+                        'DEBIAN_FRONTEND=noninteractive '
+                        'apt-get autoremove -qq {0}'
+                        .format(all_packages), shell=True,
+                        stdin=None, stdout=f, stderr=f,
+                        executable="/bin/bash")
                 proc.wait()
             if proc.returncode == 0:
                 return True
@@ -228,16 +233,18 @@ class WOAptGet():
                     WORepo.add(self, repo_url=repo_url)
                 if repo_key is not None:
                     WORepo.add_key(self, repo_key)
-                proc = subprocess.Popen("apt-get update && "
-                                        "DEBIAN_FRONTEND=noninteractive "
-                                        "apt-get install -o "
-                                        "Dpkg::Options::=\"--force-confdef\""
-                                        " -o "
-                                        "Dpkg::Options::=\"--force-confold\""
-                                        " -y  --download-only {0}"
-                                        .format(packages), shell=True,
-                                        stdin=None, stdout=f, stderr=f,
-                                        executable="/bin/bash")
+                proc = subprocess.Popen(
+                    "DEBIAN_FRONTEND=noninteractive apt-get update "
+                    "-qq && "
+                    "DEBIAN_FRONTEND=noninteractive "
+                    "apt-get install -o "
+                    "Dpkg::Options::=\"--force-confdef\""
+                    " -o "
+                    "Dpkg::Options::=\"--force-confold\""
+                    " -y --download-only {0}"
+                    .format(packages), shell=True,
+                    stdin=None, stdout=f, stderr=f,
+                    executable="/bin/bash")
                 proc.wait()
 
             if proc.returncode == 0:

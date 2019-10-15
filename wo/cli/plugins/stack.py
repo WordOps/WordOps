@@ -168,14 +168,14 @@ class WOStackController(CementBaseController):
                         if WOAptGet.is_installed(self, 'nginx-plus'):
                             Log.info(self, "NGINX PLUS Detected ...")
                             apt = ["nginx-plus"] + WOVar.wo_nginx
-                            self.post_pref(apt, empty_packages)
+                            post_pref(self, apt, empty_packages)
                         elif WOAptGet.is_installed(self, 'nginx'):
                             Log.info(self, "WordOps detected an already "
                                      "installed nginx package."
                                      "It may or may not have "
                                      "required modules.\n")
                             apt = ["nginx"] + WOVar.wo_nginx
-                            self.post_pref(apt, empty_packages)
+                            post_pref(self, apt, empty_packages)
                 else:
                     Log.debug(self, "Nginx already installed")
 

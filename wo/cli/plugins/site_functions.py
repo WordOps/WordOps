@@ -301,10 +301,9 @@ def setupwordpress(self, data, vhostonly=False):
                   "--dbhost=\'{3}\' "
                   .format(data['wo_db_name'], wo_wp_prefix,
                           data['wo_db_user'], data['wo_db_host']) +
-                  "--dbpass=\'{0}\' "
-                  "--extra-php<<PHP \n {1}\nPHP\""
-                  .format(data['wo_db_pass'],
-                          "\n\ndefine(\'WP_DEBUG\', false);"))
+                  "--dbpass= "
+                  "--extra-php<<PHP \n {0}\nPHP\""
+                  .format("\n\ndefine(\'WP_DEBUG\', false);"))
         try:
             if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
                                     .format(WOVar.wo_wpcli_path) +
@@ -335,9 +334,9 @@ def setupwordpress(self, data, vhostonly=False):
                   "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['wo_db_name'],
                           wo_wp_prefix, data['wo_db_host']) +
-                  "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                  "--extra-php<<PHP \n {2} {3} {4} \nPHP\""
-                  .format(data['wo_db_user'], data['wo_db_pass'],
+                  "--dbuser=\'{0}\' --dbpass= "
+                  "--extra-php<<PHP \n {1} {2} {3} \nPHP\""
+                  .format(data['wo_db_user'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
                           "\ndefine(\'CONCATENATE_SCRIPTS\',"
@@ -462,19 +461,20 @@ def setupwordpress(self, data, vhostonly=False):
         Log.debug(self, "{0} --allow-root core install "
                   .format(WOVar.wo_wpcli_path) +
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
-                  .format(data['www_domain'], wo_wp_user) +
-                  "--admin_password= --admin_email=\'{1}\'"
-                  .format(wo_wp_pass, wo_wp_email))
+                  .format(data['site_name'], wo_wp_user) +
+                  "--admin_password= --admin_email=\'{0}\'"
+                  .format(wo_wp_email))
         try:
-            if WOShellExec.cmd_exec(self, "{0} --allow-root core "
-                                    .format(WOVar.wo_wpcli_path) +
-                                    "install --url=\'{0}\' --title=\'{0}\' "
-                                    "--admin_name=\'{1}\' "
-                                    .format(data['www_domain'], wo_wp_user) +
-                                    "--admin_password=\'{0}\' "
-                                    "--admin_email=\'{1}\'"
-                                    .format(wo_wp_pass, wo_wp_email),
-                                    log=False):
+            if WOShellExec.cmd_exec(
+                self, "{0} --allow-root core "
+                .format(WOVar.wo_wpcli_path) +
+                "install --url=\'{0}\' --title=\'{0}\' "
+                "--admin_name=\'{1}\' "
+                .format(data['site_name'], wo_wp_user) +
+                "--admin_password=\'{0}\' "
+                "--admin_email=\'{1}\'"
+                .format(wo_wp_pass, wo_wp_email),
+                    log=False):
                 pass
             else:
                 raise SiteError(
@@ -487,26 +487,27 @@ def setupwordpress(self, data, vhostonly=False):
                   .format(WOVar.wo_wpcli_path) +
                   "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
-                  .format(data['www_domain'], wo_wp_user) +
-                  "--admin_password= --admin_email=\'{1}\' "
+                  .format(data['site_name'], wo_wp_user) +
+                  "--admin_password= --admin_email=\'{0}\' "
                   "{subdomains}"
-                  .format(wo_wp_pass, wo_wp_email,
+                  .format(wo_wp_email,
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            if WOShellExec.cmd_exec(self, "{0} --allow-root "
-                                    .format(WOVar.wo_wpcli_path) +
-                                    "core multisite-install "
-                                    "--url=\'{0}\' --title=\'{0}\' "
-                                    "--admin_name=\'{1}\' "
-                                    .format(data['www_domain'], wo_wp_user) +
-                                    "--admin_password=\'{0}\' "
-                                    "--admin_email=\'{1}\' "
-                                    "{subdomains}"
-                                    .format(wo_wp_pass, wo_wp_email,
-                                            subdomains='--subdomains'
-                                            if not data['wpsubdir'] else ''),
-                                    log=False):
+            if WOShellExec.cmd_exec(
+                self, "{0} --allow-root "
+                .format(WOVar.wo_wpcli_path) +
+                "core multisite-install "
+                "--url=\'{0}\' --title=\'{0}\' "
+                "--admin_name=\'{1}\' "
+                .format(data['site_name'], wo_wp_user) +
+                "--admin_password=\'{0}\' "
+                "--admin_email=\'{1}\' "
+                "{subdomains}"
+                .format(wo_wp_pass, wo_wp_email,
+                        subdomains='--subdomains'
+                        if not data['wpsubdir'] else ''),
+                    log=False):
                 pass
             else:
                 raise SiteError(
@@ -1053,7 +1054,7 @@ def logwatch(self, logfiles):
     import zlib
     import base64
     import time
-    from wo.core import logwatch
+    from wo.core.logwatch import LogWatcher
 
     def callback(filename, lines):
         for line in lines:
@@ -1070,7 +1071,7 @@ def logwatch(self, logfiles):
                              'caught exception rendering a new log line in %s'
                              % filename)
 
-    logl = logwatch.LogWatcher(logfiles, callback)
+    logl = LogWatcher(logfiles, callback)
     logl.loop()
 
 

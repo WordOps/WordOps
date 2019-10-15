@@ -4,8 +4,8 @@ import os
 
 from setuptools import find_packages, setup
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+with open("README.md", "r", encoding="utf-8") as fh:
+    LONG = fh.read()
 
 conf = []
 templates = []
@@ -24,10 +24,9 @@ if os.geteuid() == 0:
         os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.9.9.2',
+      version='3.9.9.3',
       description='WordPress & server administration toolset',
-      long_description=long_description,
-      long_description_content_type='text/markdown',
+      long_description=LONG,
       classifiers=[
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",
@@ -61,7 +60,6 @@ setup(name='wordops',
           'SQLAlchemy >= 1.3.8',
           'requests >= 2.22.0',
           'distro >= 1.4.0',
-          'apt-mirror-updater >= 6.1',
       ],
       extras_require={  # Optional
           'testing': ['nose', 'coverage'],

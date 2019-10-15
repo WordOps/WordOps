@@ -8,6 +8,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.9.3 -  [Unreleased]
+
+#### Added
+
+- [STACK] Add Nginx TLS 1.3 0-RTT configuration
+
+#### Changed
+
+- [STACK] New Nginx package built with OpenSSL_1.1.1d and the latest ngx_brotli module
+
+#### Fixed
+
+- `wo stack upgrade` when using nginx-ee
+- `wo secure --auth`
+- `wo secure --sshport` not working with default ssh config
+- Issues after APT repositories informations changed
+- `www` was added to WordPress site url with subdomains [Issue #178](https://github.com/WordOps/WordOps/issues/178)
+- Issuing certificate with acme.sh for sub.sub-domains not working
+
 ### v3.9.9.2 - 2019-10-04
 
 #### Added

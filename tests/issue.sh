@@ -14,13 +14,9 @@
 
 if [ -f /var/log/wo/wordops.log ]; then
     cd /var/log/wo/ || exit 1
-    if {
-        tar -I pigz -cf wordops.tar.gz wordops.log
-    }; then
-        wo_link=$(curl -sL --upload-file wordops.tar.gz https://transfer.sh/wordops.tar.gz)
-        echo
-        echo "Here the link to provide in your github issue : $wo_link"
-        echo
-    fi
+    wo_link=$(curl -sL --upload-file wordops.log https://transfer.vtbox.net/wordops.txt)
+    echo
+    echo "Here the link to provide in your github issue : $wo_link"
+    echo
     cd || exit 1
 fi

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import configparser
 import os
 import re

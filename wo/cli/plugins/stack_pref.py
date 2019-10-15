@@ -41,9 +41,9 @@ def pre_pref(self, apt_packages):
                 mysql_pref_file.write(mysql_pref)
             WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
             WORepo.add_key(self, '0xcbcb082a1bb943db',
-                           keyserver='keys.gnupg.net')
+                           keyserver='keyserver.ubuntu.com')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
-                           keyserver='keys.gnupg.net')
+                           keyserver='keyserver.ubuntu.com')
     if "mariadb-server" in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))

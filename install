@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.9.1 - 2019-09-27
+# Version 3.9.9.3 - 2019-10-14
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -62,8 +62,9 @@ while [ "$#" -gt 0 ]; do
         wo_branch="$2"
         shift
         ;;
-    -p | --preserve)
-        wo_preserve_config="y"
+    -v | --version)
+        wo_version="$2"
+        shift
         ;;
     --force)
         wo_force_install="y"
@@ -77,10 +78,6 @@ while [ "$#" -gt 0 ]; do
         ;;
     --purge | --uninstall)
         wo_purge="y"
-        ;;
-    -v | --version)
-        wo_version="$2"
-        shift
         ;;
     *) # positional args
         ;;
@@ -97,13 +94,14 @@ if [[ $EUID -ne 0 ]]; then
     exit 100
 fi
 
-###
-# 1- Update the apt sewers with fresh info
-###
 export DEBIAN_FRONTEND=noninteractive
 unset LANG
 export LANG='en_US.UTF-8'
 export LC_ALL='C.UTF-8'
+
+###
+# 1- Main functions
+###
 
 # check if a command exist
 command_exists() {
@@ -121,19 +119,18 @@ _run() {
 
 }
 
-check_path() {
-    if [ -d "$1" ]; then
-        return 0
-    else
-        return 1
-    fi
-}
+###
+# 1- Update the apt sewers with fresh info
+###
 
 if [ -z "$wo_travis" ]; then
-    if command_exists curl; then
-        apt-get update -qq
-    else
-        apt-get update -qq && apt-get -y install curl -qq > /dev/null 2>&1
+    if ! {
+        apt-get update --allow-releaseinfo-change -qq > /dev/null 2>&1
+    }; then
+        apt-get update -qq > /dev/null 2>&1
+    fi
+    if ! command_exists curl; then
+        apt-get -y install curl -qq > /dev/null 2>&1
     fi
 fi
 
@@ -167,7 +164,6 @@ readonly wo_tmp_dir=/var/lib/wo/tmp
 readonly wo_install_log=/var/log/wo/install.log
 readonly wo_linux_distro=$(lsb_release -is)
 readonly wo_distro_version=$(lsb_release -sc)
-readonly wo_distro_id=$(lsb_release -rs)
 readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
 readonly TIME=$(date +"$TIME_FORMAT")
 readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
@@ -179,13 +175,8 @@ WO_ARCH="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
     ee_migration=1
-    ufw="n"
 elif [ -x /usr/local/bin/wo ]; then
     wo_upgrade=1
-    ufw="n"
-fi
-if [ -z "$ufw" ]; then
-    ufw="y"
 fi
 ###
 # 1 - Checking linux distro
@@ -232,13 +223,13 @@ wo_install_dep() {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
-            gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
+            build-essential curl gzip python3-pip python3-wheel python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
+            gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         add-apt-repository ppa:wordops/nginx-wo -yn
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3 python3-apt python3-setuptools python3-requests python3-dev ca-certificates sqlite3 git tar \
+            build-essential curl gzip dirmngr sudo python3-pip python3-wheel python3-apt python3-setuptools python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
@@ -317,16 +308,6 @@ wo_sync_db() {
                     # Acquire information about the current nginx configuration
 
                     wo_site_current_type=$(grep "common/" "/etc/nginx/sites-available/$site" | awk -F "/" '{print $2}')
-
-                    if echo "$wo_site_current_type" | grep -q "php"; then
-                        if echo "$wo_site_current_type" | grep -q "php7"; then
-                            wo_php_version="7.0"
-                        else
-                            wo_php_version="5.6"
-                        fi
-                    else
-                        wo_php_version=""
-                    fi
 
                     if echo "$wo_site_current_type" | grep -q "redis"; then
                         wo_site_current_cache="wpredis"
@@ -458,6 +439,18 @@ wo_install_acme_sh() {
     fi
 }
 
+wo_git_config() {
+
+    if [ "$wo_force_install" = "y" ]; then
+        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
+    fi
+
+    # .gitconfig inital setup
+    cd /var/lib/wo/tmp/WordOps-install || exit 1
+    python3 gitconfig.py
+
+}
+
 # Download WordOps
 wo_download() {
     rm -f /etc/bash_completion.d/wo_auto.rc
@@ -471,18 +464,6 @@ wo_download() {
     fi
 }
 
-wo_git_config() {
-
-    if [ "$wo_force_install" = "y" ]; then
-        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
-    fi
-
-    # .gitconfig inital setup
-    cd /var/lib/wo/tmp/WordOps-install || exit 1
-    python3 gitconfig.py
-
-}
-
 # WordOps install
 wo_install() {
 
@@ -492,7 +473,7 @@ wo_install() {
 }
 
 # Clone Github repository if it doesn't exist
-wo_install_travis() {
+wo_travis_install() {
 
     if [ "$wo_force_install" = "y" ]; then
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
@@ -610,32 +591,20 @@ wo_update_latest() {
             chmod 600 /root/.my.cnf
         fi
     fi
-
-    # Fix Redis-server security issue
-    # http://redis.io/topics/security
-    if [ -f /etc/redis/redis.conf ]; then
-        CHECK_REDIS_BIND=$(grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' >> /dev/null 2>&1)
-
-        if [ -z "$CHECK_REDIS_BIND" ]; then
-            echo 'bind 127.0.0.1 ::1' >> /etc/redis/redis.conf
-
-            service redis-server restart
-
-        fi
-    fi
-
 }
 
 wo_backup_ee() {
     local BACKUP_EE=""
     [ -d /etc/nginx ] && { BACKUP_EE="$BACKUP_EE /etc/nginx"; }
     [ -d /etc/letsencrypt ] && { BACKUP_EE="$BACKUP_EE /etc/letsencrypt"; }
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee "$BACKUP_EE"
+    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /etc/ee /var/lib/ee "$BACKUP_EE"
     return 0
 }
 
 wo_backup_wo() {
-    /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo "$WO_LE"
+    if [ -d /etc/nginx ] && [ -d /etc/wo ] && [ -d /var/lib/wo ]; then
+        /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo
+    fi
     return 0
 }
 
@@ -686,7 +655,7 @@ wo_systemd_tweak() {
 }
 
 wo_domain_suffix() {
-    curl -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
+    curl -m 10 --retry 3 -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
 }
 
 wo_mariadb_tweak() {
@@ -715,67 +684,8 @@ wo_clean() {
 }
 
 wo_uninstall() {
+    python3 -m pip uninstall wordops -y
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
-}
-
-wo_ufw_setup() {
-    if ! grep -q "ENABLED=yes" /etc/ufw/ufw.conf; then
-        # get custom ssh port
-        if [ -f /etc/ssh/sshd_config ]; then
-            CURRENT_SSH_PORT=$(grep "Port" /etc/ssh/sshd_config | awk -F " " '{print $2}')
-        fi
-        # define firewall rules
-        if ! grep -q "LOGLEVEL=low" /etc/ufw/ufw.conf; then
-            ufw logging low
-        fi
-        if ! grep -q 'DEFAULT_OUTPUT_POLICY="ACCEPT"' /etc/default/ufw; then
-            ufw default allow outgoing
-        fi
-        if ! grep -q 'DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw; then
-            ufw default deny incoming
-        fi
-        if ! grep -q "\-\-dport 22 -j" /etc/ufw/user.rules; then
-            # default ssh port
-            ufw limit 22
-        fi
-
-        # custom ssh port
-        if [ "$CURRENT_SSH_PORT" != "22" ]; then
-            if ! grep -q "\-\-dport $CURRENT_SSH_PORT -j" /etc/ufw/user.rules; then
-                ufw limit "$CURRENT_SSH_PORT"
-            fi
-        fi
-
-        # nginx
-        if ! grep -q "\-\-dport 80 -j" /etc/ufw/user.rules; then
-            # http
-            ufw allow http
-        fi
-        if ! grep -q "\-\-dport 443 -j" /etc/ufw/user.rules; then
-            # https
-            ufw allow https
-        fi
-
-        # ntp
-        if ! grep -q "\-\-dport 123 -j" /etc/ufw/user.rules; then
-            ufw allow 123
-        fi
-
-        if ! grep -q "\-\-dport 22222 -j" /etc/ufw/user.rules; then
-            # wordops backend
-            ufw limit 22222
-        fi
-        # enable ufw
-        if [ -n "$CURRENT_SSH_PORT" ]; then
-            ufw --force enable
-        fi
-
-        # remove ufw from syslog
-        if [ -f /etc/rsyslog.d/20-ufw.conf ]; then
-            sed -i 's/\#\& stop/\& stop/' /etc/rsyslog.d/20-ufw.conf
-            service rsyslog restart
-        fi
-    fi
 }
 
 wo_cheat_install() {
@@ -822,17 +732,14 @@ else
     fi
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
-    #if [ "$ufw" = "y" ]; then
-    # _run wo_ufw_setup "Configuring UFW"
-    #fi
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
-        _run wo_download "Downloading WordOps"
         _run wo_dist_upgrade
+        _run wo_download "Downloading WordOps"
         wo_git_config
         _run wo_install "Installing WordOps"
     else
-        _run wo_install_travis "Installing WordOps"
+        _run wo_travis_install "Installing WordOps"
     fi
     if [ -x /usr/local/bin/ee ]; then
         _run wo_upgrade_nginx "Upgrading Nginx"
@@ -889,6 +796,3 @@ else
     wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo
 fi
-# if [ -z "$wo_travis" ]; then
-#    /bin/bash --init-file "/var/lib/wo/tmp/WordOps-$wo_branch/tests/init-file"
-# fi
