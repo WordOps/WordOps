@@ -5,8 +5,6 @@ import os
 from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 
-from wo.cli.plugins.site_functions import *
-from wo.cli.plugins.sitedb import *
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
 from wo.cli.plugins.stack_pref import post_pref, pre_pref
 from wo.cli.plugins.stack_services import WOStackStatusController
@@ -536,7 +534,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.ufw) and
+                (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
             pargs.web = True
@@ -570,6 +568,7 @@ class WOStackController(CementBaseController):
             pargs.fail2ban = True
             pargs.clamav = True
             pargs.ufw = True
+            pargs.ngxblocker = True
 
         # NGINX
         if pargs.nginx:
@@ -779,7 +778,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.ufw) and
+                (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
             pargs.web = True
@@ -813,6 +812,7 @@ class WOStackController(CementBaseController):
             pargs.fail2ban = True
             pargs.clamav = True
             pargs.ufw = True
+            pargs.ngxblocker = True
 
         # NGINX
         if pargs.nginx:
