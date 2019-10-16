@@ -2,7 +2,6 @@
 
 import os
 
-from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
