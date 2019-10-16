@@ -5,7 +5,6 @@ import glob
 import os
 import signal
 
-from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 from pynginxconfig import NginxConfig
 
