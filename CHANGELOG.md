@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.9.9.4 -  2019-10-18
+
+#### Changed
+
+- [STACK] New Nginx package built with libbrotli-dev for all linux distro supported by WordOps
+
 #### Fixed
 
 - GPG keys error with previous EasyEngine Nginx repository
