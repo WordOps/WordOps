@@ -119,48 +119,6 @@ _run() {
 
 }
 
-wo_clean_repo() {
-    # remove old EasyEngine Nginx repository
-    if [ -f /etc/apt/sources.list.d/ee-repo.list ]; then
-        cp -f /etc/apt/sources.list.d/ee-repo.list /etc/apt/sources.list.d/ee-repo.list.save
-        grep -v "/home:/rtCamp:/EasyEngine" -r /etc/apt/sources.list.d/ee-repo.list.save > /etc/apt/sources.list.d/ee-repo.list
-    fi
-}
-wo_clean_repo
-
-###
-# 1- Update the apt sewers with fresh info
-###
-
-if [ -z "$wo_travis" ]; then
-    if ! {
-        apt-get update --allow-releaseinfo-change -qq > /dev/null 2>&1
-    }; then
-        apt-get update -qq > /dev/null 2>&1
-    fi
-    if ! command_exists curl; then
-        apt-get -y install curl -qq > /dev/null 2>&1
-    fi
-fi
-
-if [ -f ./setup.py ]; then
-    readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
-else
-    readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" | awk -F "'" '{print$2}' 2>&1)
-fi
-
-echo ""
-wo_lib_echo "Welcome to WordOps install/update script v${wo_version_new}"
-echo ""
-
-###
-# 1- Check whether lsb_release is installed, and if not, install it
-###
-
-if ! command_exists lsb_release; then
-    apt-get install lsb-release -qq
-fi
-
 ###
 # 1 - Define variables for later use
 ###
@@ -171,8 +129,6 @@ readonly wo_log_dir=/var/log/wo/
 readonly wo_backup_dir=/var/lib/wo-backup/
 readonly wo_tmp_dir=/var/lib/wo/tmp
 readonly wo_install_log=/var/log/wo/install.log
-readonly wo_linux_distro=$(lsb_release -is)
-readonly wo_distro_version=$(lsb_release -sc)
 readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
 readonly TIME=$(date +"$TIME_FORMAT")
 readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
@@ -180,43 +136,55 @@ readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
 readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
 readonly wo_lxc=$(grep "container=lxc" /proc/1/environ)
 readonly wo_wsl=$(grep "wsl" /proc/1/environ)
-WO_ARCH="$(uname -m)"
+readonly wo_arch="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
     ee_migration=1
 elif [ -x /usr/local/bin/wo ]; then
     wo_upgrade=1
 fi
+
 ###
 # 1 - Checking linux distro
 ###
-if [ -z "$wo_force_install" ]; then
-    if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ] && [ "$wo_linux_distro" != "Raspbian" ]; then
-        wo_lib_echo_fail "WordOps (wo) only supports Ubuntu, Debian & Raspbian at the moment."
-        wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
-        wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
-        exit 100
-    else
-        check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
-        if [ -z "$check_wo_linux_distro" ]; then
-            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x"
+
+wo_check_distro() {
+    local wo_linux_distro
+    wo_linux_distro=$(lsb_release -is)
+    local wo_distro_version
+    wo_distro_version=$(lsb_release -sc)
+    if [ -z "$wo_force_install" ]; then
+        if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ] && [ "$wo_linux_distro" != "Raspbian" ]; then
+            wo_lib_echo_fail "WordOps (wo) only supports Ubuntu, Debian & Raspbian at the moment."
+            wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
+            wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
             exit 100
+        else
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
+            if [ -z "$check_wo_linux_distro" ]; then
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x"
+                exit 100
+            fi
         fi
     fi
-fi
+
+}
 
 ###
 # 1 - To prevent errors or unexpected behaviour, create the log and ACL it
 ###
-if [ ! -d "$wo_log_dir" ] || [ ! -d "$wo_backup_dir" ] || [ ! -d "$wo_tmp_dir" ]; then
+wo_dir_init() {
+    if [ ! -d "$wo_log_dir" ] || [ ! -d "$wo_backup_dir" ] || [ ! -d "$wo_tmp_dir" ]; then
 
-    mkdir -p "$wo_backup_dir" "$wo_log_dir" "$wo_tmp_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
+        mkdir -p "$wo_backup_dir" "$wo_log_dir" "$wo_tmp_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
 
-    # create wordops log files
-    touch /var/log/wo/{wordops.log,install.log}
+        # create wordops log files
+        touch /var/log/wo/{wordops.log,install.log}
 
-    chmod -R 700 "$wo_log_dir" "$wo_backup_dir" "$wo_tmp_dir" || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
-fi
+        chmod -R 700 "$wo_log_dir" "$wo_backup_dir" "$wo_tmp_dir" || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
+    fi
+
+}
 
 ###
 # 2 - Setup the dependencies for installation
@@ -228,7 +196,8 @@ wo_dist_upgrade() {
 }
 
 wo_install_dep() {
-
+    local wo_linux_distro
+    wo_linux_distro=$(lsb_release -is)
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
@@ -497,6 +466,10 @@ wo_travis_install() {
 }
 
 wo_upgrade_nginx() {
+    local wo_linux_distro
+    wo_linux_distro=$(lsb_release -is)
+    local wo_distro_version
+    wo_distro_version=$(lsb_release -sc)
 
     if [ -d /var/lib/wo-backup/nginx ]; then
         /bin/tar -I pigz "$NGINX_BACKUP_FILE" /var/lib/wo-backup/nginx
@@ -630,8 +603,11 @@ wo_remove_ee_cron() {
 }
 
 wo_tweak_kernel() {
-
-    if [ "$WO_ARCH" = "x86_64" ] && [ -z "$wo_lxc" ] && [ -z "$wo_wsl" ]; then
+    local wo_linux_distro
+    wo_linux_distro=$(lsb_release -is)
+    local wo_distro_version
+    wo_distro_version=$(lsb_release -sc)
+    if [ "$wo_arch" = "x86_64" ] && [ -z "$wo_lxc" ] && [ -z "$wo_wsl" ]; then
         rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
         wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/"$wo_branch"/wo/cli/templates/sysctl.mustache
         if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ] || [ "$wo_distro_version" = "buster" ]; then
@@ -708,6 +684,46 @@ wo_cheat_install() {
     curl -sL https://cheat.sh/:bash_completion > /etc/bash_completion.d/cht.sh
 }
 
+wo_clean_repo() {
+    # remove old EasyEngine Nginx repository
+    if [ -f /etc/apt/sources.list.d/ee-repo.list ]; then
+        cp -f /etc/apt/sources.list.d/ee-repo.list /etc/apt/sources.list.d/ee-repo.list.save
+        grep -v "/home:/rtCamp:/EasyEngine" -r /etc/apt/sources.list.d/ee-repo.list.save > /etc/apt/sources.list.d/ee-repo.list
+    fi
+}
+
+wo_init() {
+
+    ###
+    # 1- Update the apt sewers with fresh info
+    ###
+
+    if [ -z "$wo_travis" ]; then
+        if ! {
+            apt-get update --allow-releaseinfo-change -qq > /dev/null 2>&1
+        }; then
+            apt-get update -qq > /dev/null 2>&1
+        fi
+        if ! command_exists curl; then
+            apt-get -y install curl -qq > /dev/null 2>&1
+        fi
+        if ! command_exists lsb_release; then
+            apt-get install lsb-release -qq
+        fi
+    fi
+
+    if [ -f ./setup.py ]; then
+        readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
+    else
+        readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" | awk -F "'" '{print$2}' 2>&1)
+    fi
+
+    echo ""
+    wo_lib_echo "Welcome to WordOps install/update script v${wo_version_new}"
+    echo ""
+
+}
+
 ###
 # 4 - WO MAIN SETUP
 ###
@@ -719,6 +735,10 @@ if [ "$wo_purge" = "y" ]; then
     wo_lib_echo "The WordOps backup files can be found in $WO_BACKUP_FILE"
     exit 0
 else
+    wo_clean_repo
+    wo_init
+    wo_check_distro
+    wo_dir_init
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         if [ -z "$wo_force_install" ]; then
