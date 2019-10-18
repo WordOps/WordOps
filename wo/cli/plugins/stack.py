@@ -340,21 +340,22 @@ class WOStackController(CementBaseController):
                                       "adminer/index.php"
                                       .format(wo_webroot)):
                     Log.debug(self, "Setting packages variable for Adminer ")
-                    packages = packages + [["https://github.com/vrana/adminer/"
-                                            "releases/download/v{0}"
-                                            "/adminer-{0}.php"
-                                            .format(WOVar.wo_adminer),
-                                            "{0}22222/"
-                                            "htdocs/db/adminer/index.php"
-                                            .format(WOVar.wo_webroot),
-                                            "Adminer"],
-                                           ["https://raw.githubusercontent.com"
-                                            "/vrana/adminer/master/designs/"
-                                            "pepa-linha/adminer.css",
-                                            "{0}22222/"
-                                            "htdocs/db/adminer/adminer.css"
-                                            .format(WOVar.wo_webroot),
-                                            "Adminer theme"]]
+                    packages = packages + [[
+                        "https://github.com/vrana/adminer/"
+                        "releases/download/v{0}"
+                        "/adminer-{0}.php"
+                        .format(WOVar.wo_adminer),
+                        "{0}22222/"
+                        "htdocs/db/adminer/index.php"
+                        .format(WOVar.wo_webroot),
+                        "Adminer"],
+                        ["https://raw.githubusercontent.com"
+                         "/vrana/adminer/master/designs/"
+                         "pepa-linha/adminer.css",
+                         "{0}22222/"
+                         "htdocs/db/adminer/adminer.css"
+                         .format(WOVar.wo_webroot),
+                         "Adminer theme"]]
                 else:
                     Log.debug(self, "Adminer already installed")
                     Log.info(self, "Adminer already installed")
@@ -399,14 +400,14 @@ class WOStackController(CementBaseController):
                 if not os.path.isfile('/var/www/22222/htdocs/index.php'):
                     Log.debug(self,
                               "Setting packages variable for WO-Dashboard")
-                    packages = \
-                        packages + [["https://github.com/WordOps"
-                                     "/wordops-dashboard/"
-                                     "releases/download/v{0}/"
-                                     "wordops-dashboard.tar.gz"
-                                     .format(WOVar.wo_dashboard),
-                                     "/var/lib/wo/tmp/wo-dashboard.tar.gz",
-                                     "WordOps Dashboard"]]
+                    packages = packages + [[
+                        "https://github.com/WordOps"
+                        "/wordops-dashboard/"
+                        "releases/download/v{0}/"
+                        "wordops-dashboard.tar.gz"
+                        .format(WOVar.wo_dashboard),
+                        "/var/lib/wo/tmp/wo-dashboard.tar.gz",
+                        "WordOps Dashboard"]]
                 else:
                     Log.debug(self, "WordOps dashboard already installed")
                     Log.info(self, "WordOps dashboard already installed")
@@ -441,43 +442,44 @@ class WOStackController(CementBaseController):
             # UTILS
             if pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
-                packages = packages + [["https://raw.githubusercontent.com"
-                                        "/rtCamp/eeadmin/master/cache/nginx/"
-                                        "clean.php",
-                                        "{0}22222/htdocs/cache/"
-                                        "nginx/clean.php"
-                                        .format(WOVar.wo_webroot),
-                                        "clean.php"],
-                                       ["https://raw.github.com/rlerdorf/"
-                                        "opcache-status/master/opcache.php",
-                                        "{0}22222/htdocs/cache/"
-                                        "opcache/opcache.php"
-                                        .format(WOVar.wo_webroot),
-                                        "opcache.php"],
-                                       ["https://raw.github.com/amnuts/"
-                                        "opcache-gui/master/index.php",
-                                        "{0}22222/htdocs/"
-                                        "cache/opcache/opgui.php"
-                                        .format(WOVar.wo_webroot),
-                                        "Opgui"],
-                                       ["https://raw.githubusercontent.com/"
-                                        "mlazarov/ocp/master/ocp.php",
-                                        "{0}22222/htdocs/cache/"
-                                        "opcache/ocp.php"
-                                        .format(WOVar.wo_webroot),
-                                        "OCP.php"],
-                                       ["https://github.com/jokkedk/webgrind/"
-                                        "archive/master.tar.gz",
-                                        '/var/lib/wo/tmp/webgrind.tar.gz',
-                                        'Webgrind'],
-                                       ["https://www.percona.com/"
-                                        "get/pt-query-digest",
-                                        "/usr/bin/pt-query-advisor",
-                                        "pt-query-advisor"],
-                                       ["https://github.com/box/Anemometer/"
-                                        "archive/master.tar.gz",
-                                        '/var/lib/wo/tmp/anemometer.tar.gz',
-                                        'Anemometer']]
+                packages = packages + [[
+                    "https://raw.githubusercontent.com"
+                    "/rtCamp/eeadmin/master/cache/nginx/"
+                    "clean.php",
+                    "{0}22222/htdocs/cache/"
+                    "nginx/clean.php"
+                    .format(WOVar.wo_webroot),
+                    "clean.php"],
+                    ["https://raw.github.com/rlerdorf/"
+                     "opcache-status/master/opcache.php",
+                     "{0}22222/htdocs/cache/"
+                     "opcache/opcache.php"
+                     .format(WOVar.wo_webroot),
+                     "opcache.php"],
+                    ["https://raw.github.com/amnuts/"
+                     "opcache-gui/master/index.php",
+                     "{0}22222/htdocs/"
+                     "cache/opcache/opgui.php"
+                     .format(WOVar.wo_webroot),
+                     "Opgui"],
+                    ["https://raw.githubusercontent.com/"
+                     "mlazarov/ocp/master/ocp.php",
+                     "{0}22222/htdocs/cache/"
+                     "opcache/ocp.php"
+                     .format(WOVar.wo_webroot),
+                     "OCP.php"],
+                    ["https://github.com/jokkedk/webgrind/"
+                     "archive/master.tar.gz",
+                     '/var/lib/wo/tmp/webgrind.tar.gz',
+                     'Webgrind'],
+                    ["https://www.percona.com/"
+                     "get/pt-query-digest",
+                     "/usr/bin/pt-query-advisor",
+                     "pt-query-advisor"],
+                    ["https://github.com/box/Anemometer/"
+                     "archive/master.tar.gz",
+                     '/var/lib/wo/tmp/anemometer.tar.gz',
+                     'Anemometer']]
 
         except Exception as e:
             Log.debug(self, "{0}".format(e))
@@ -698,12 +700,14 @@ class WOStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVar.wo_webroot)]
 
+        # netdata
         if pargs.netdata:
             Log.debug(self, "Removing Netdata")
             if os.path.isfile('/opt/netdata/usr/'
                               'libexec/netdata/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
+        # wordops dashboard
         if pargs.dashboard:
             if (os.path.isfile('{0}22222/htdocs/index.php'
                                .format(WOVar.wo_webroot)) or
@@ -716,6 +720,16 @@ class WOStackController(CementBaseController):
                                        .format(WOVar.wo_webroot),
                                        '{0}22222/htdocs/index.html'
                                        .format(WOVar.wo_webroot)]
+        # ngxblocker
+        if pargs.ngxblocker:
+            if os.path.isfile('/usr/local/sbin/setup-ngxblocker'):
+                packages = packages + [
+                    '/usr/local/sbin/setup-ngxblocker',
+                    '/usr/local/sbin/install-ngxblocker',
+                    '/usr/local/sbin/update-ngxblocker',
+                    '/etc/nginx/conf.d/globalblacklist.conf',
+                    '/etc/nginx/conf.d/botblocker-nginx-settings.conf',
+                    '/etc/nginx/bots.d']
 
         if (packages) or (apt_packages):
             if (not pargs.force):
@@ -738,14 +752,16 @@ class WOStackController(CementBaseController):
             if (set(['/var/lib/wo/tmp/'
                      'kickstart.sh']).issubset(set(packages))):
                 if WOVar.wo_distro == 'Raspbian':
-                    WOShellExec.cmd_exec(self, "bash /usr/"
-                                         "libexec/netdata/"
-                                         "netdata-uninstaller.sh -y -f")
+                    WOShellExec.cmd_exec(
+                        self, "bash /usr/"
+                        "libexec/netdata/"
+                        "netdata-uninstaller.sh -y -f")
                 else:
-                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata/"
-                                         "netdata-uninstaller.sh - y - f",
-                                         errormsg='', log=False)
+                    WOShellExec.cmd_exec(
+                        self, "bash /opt/netdata/usr/"
+                        "libexec/netdata/"
+                        "netdata-uninstaller.sh - y - f",
+                        errormsg='', log=False)
 
             if (packages):
                 Log.wait(self, "Removing packages           ")
@@ -957,12 +973,24 @@ class WOStackController(CementBaseController):
                               'libexec/netdata/netdata-uninstaller.sh'):
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
+        # wordops dashboard
         if pargs.dashboard:
             Log.debug(self, "Removing Wo-Dashboard")
             packages = packages + ['{0}22222/htdocs/assets/'
                                    .format(WOVar.wo_webroot),
                                    '{0}22222/htdocs/index.php'
                                    .format(WOVar.wo_webroot)]
+
+        # ngxblocker
+        if pargs.ngxblocker:
+            if os.path.isfile('/usr/local/sbin/setup-ngxblocker'):
+                packages = packages + [
+                    '/usr/local/sbin/setup-ngxblocker',
+                    '/usr/local/sbin/install-ngxblocker',
+                    '/usr/local/sbin/update-ngxblocker',
+                    '/etc/nginx/conf.d/globalblacklist.conf',
+                    '/etc/nginx/conf.d/botblocker-nginx-settings.conf',
+                    '/etc/nginx/bots.d']
 
         if (packages) or (apt_packages):
             if (not pargs.force):
