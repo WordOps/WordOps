@@ -24,7 +24,7 @@ if os.geteuid() == 0:
         os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.9.9.3',
+      version='3.9.9.4',
       description='WordPress & server administration toolset',
       long_description=LONG,
       classifiers=[

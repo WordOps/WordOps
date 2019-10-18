@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.9.3 - 2019-10-14
+# Version 3.9.9.4 - 2019-10-18
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -118,6 +118,15 @@ _run() {
     fi
 
 }
+
+wo_clean_repo() {
+    # remove old EasyEngine Nginx repository
+    if [ -f /etc/apt/sources.list.d/ee-repo.list ]; then
+        cp -f /etc/apt/sources.list.d/ee-repo.list /etc/apt/sources.list.d/ee-repo.list.save
+        grep -v "/home:/rtCamp:/EasyEngine" -r /etc/apt/sources.list.d/ee-repo.list.save > /etc/apt/sources.list.d/ee-repo.list
+    fi
+}
+_run wo_clean_repo
 
 ###
 # 1- Update the apt sewers with fresh info
@@ -462,6 +471,7 @@ wo_download() {
         curl -sL https://github.com/WordOps/WordOps/archive/v${wo_version}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
         mv "/var/lib/wo/tmp/WordOps-$wo_version" /var/lib/wo/tmp/WordOps-install
     fi
+    return 0
 }
 
 # WordOps install
@@ -680,12 +690,12 @@ wo_nginx_tweak() {
 }
 
 wo_clean() {
-    rm -rf /usr/local/lib/python3.*/dist-packages/wo-*
+    rm -rf /usr/local/lib/python3.*/dist-packages/wo-* /usr/local/lib/python3.*/dist-packages/wordops-*
+
 }
 
 wo_uninstall() {
-    python3 -m pip uninstall wordops -y
-    rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
+    rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
 }
 
 wo_cheat_install() {
@@ -734,7 +744,6 @@ else
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
-        _run wo_dist_upgrade
         _run wo_download "Downloading WordOps"
         wo_git_config
         _run wo_install "Installing WordOps"

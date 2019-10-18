@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Fixed
+
+- GPG keys error with previous EasyEngine Nginx repository
+- Issue with `--ngxblocker` stack removal/purge
+- Install/Update issues with python3 setup.py
+- WordOps deploying SSL certificate even if acme.sh failed
+
 ### v3.9.9.3 -  2019-10-15
 
 #### Added
