@@ -203,6 +203,7 @@ wo_install_dep() {
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip python3-pip python3-wheel python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
+        curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
         add-apt-repository ppa:wordops/nginx-wo -yn
     else
         # install dependencies
@@ -603,8 +604,6 @@ wo_remove_ee_cron() {
 }
 
 wo_tweak_kernel() {
-    local wo_linux_distro
-    wo_linux_distro=$(lsb_release -is)
     local wo_distro_version
     wo_distro_version=$(lsb_release -sc)
     if [ "$wo_arch" = "x86_64" ] && [ -z "$wo_lxc" ] && [ -z "$wo_wsl" ]; then
@@ -688,7 +687,17 @@ wo_clean_repo() {
     # remove old EasyEngine Nginx repository
     if [ -f /etc/apt/sources.list.d/ee-repo.list ]; then
         cp -f /etc/apt/sources.list.d/ee-repo.list /etc/apt/sources.list.d/ee-repo.list.save
-        grep -v "/home:/rtCamp:/EasyEngine" -r /etc/apt/sources.list.d/ee-repo.list.save > /etc/apt/sources.list.d/ee-repo.list
+        grep -v "/home:/rtCamp:/EasyEngine" /etc/apt/sources.list.d/ee-repo.list.save > /etc/apt/sources.list.d/ee-repo.list
+    fi
+    if [ -f /etc/apt/sources.list.d/wo-repo.list ]; then
+        local wo_linux_distro
+        wo_linux_distro=$(lsb_release -is)
+        cp -f /etc/apt/sources.list.d/wo-repo.list /etc/apt/sources.list.d/wo-repo.list.save
+        if [ "$wo_linux_distro" = "Ubuntu" ]; then
+            grep -v "opensuse" /etc/apt/sources.list.d/wo-repo.list.save > /etc/apt/sources.list.d/wo-repo.list
+        else
+            grep -v "/home:/rtCamp:/EasyEngine" /etc/apt/sources.list.d/wo-repo.list.save > /etc/apt/sources.list.d/wo-repo.list
+        fi
     fi
 }
 
