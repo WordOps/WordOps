@@ -2,11 +2,11 @@
 *          text=auto
 
 # Documents
-*.md       text
+*.md       text eol=lf
 *.tex      text diff=tex
 *.adoc     text
 *.textile  text
-*.mustache text
+*.mustache text eol=lf
 *.csv      text
 *.tab      text
 *.tsv      text

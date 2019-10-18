@@ -28,7 +28,6 @@ before_script:
 
 
 after_script:
-  - sudo cat /var/log/wo/install.log | ccze -A -p syslog
   - sudo bash install --purge
 
 

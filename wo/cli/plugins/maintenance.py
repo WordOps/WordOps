@@ -1,6 +1,5 @@
 """Maintenance Plugin for WordOps"""
 
-from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 
 from wo.core.aptget import WOAptGet

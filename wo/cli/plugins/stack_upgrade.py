@@ -1,7 +1,6 @@
 import os
 import shutil
 
-from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 
 from wo.cli.plugins.stack_pref import post_pref, pre_pref
@@ -10,7 +9,6 @@ from wo.core.download import WODownload
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
-from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
 
@@ -102,26 +100,20 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVar.wo_php + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php
+                apt_packages = apt_packages + WOVar.wo_php + \
+                    WOVar.wo_php_extra
             else:
                 Log.info(self, "PHP 7.2 is not installed")
 
         if pargs.php73:
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-                    apt_packages = apt_packages + WOVar.wo_php73 + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php73
+                apt_packages = apt_packages + WOVar.wo_php73 + \
+                    WOVar.wo_php_extra
             else:
                 Log.info(self, "PHP 7.3 is not installed")
 
         if pargs.mysql:
-            if WOAptGet.is_installed(self, 'mariadb-server'):
+            if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
                 apt_packages = apt_packages + ['mariadb-server']
             else:
                 Log.info(self, "MariaDB is not installed")
@@ -172,7 +164,7 @@ class WOStackUpgradeController(CementBaseController):
                       "/var/lib/wo/tmp/pma.tar.gz",
                       "PHPMyAdmin"]]
             else:
-                Log.error(self, "phpMyAdmin isn't installed")
+                Log.info(self, "phpMyAdmin isn't installed")
 
         if pargs.composer:
             if os.path.isfile('/usr/local/bin/composer'):
@@ -180,7 +172,7 @@ class WOStackUpgradeController(CementBaseController):
                                         "/var/lib/wo/tmp/composer-install",
                                         "Composer"]]
             else:
-                Log.error(self, "Composer isn't installed")
+                Log.info(self, "Composer isn't installed")
 
         if ((not (apt_packages)) and (not(packages))):
             self.app.args.print_help()

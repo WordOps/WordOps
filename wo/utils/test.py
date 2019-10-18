@@ -1,6 +1,6 @@
 """Testing utilities for WordOps"""
-from wo.cli.main import WOTestApp
 from cement.utils.test import *
+from wo.cli.main import WOTestApp
 
 
 class WOTestCase(CementTestCase):

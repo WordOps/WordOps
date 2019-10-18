@@ -851,7 +851,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOGit.add(self, ["/etc/proftpd"],
                       msg="Adding ProFTPd into Git")
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
-                Log.info(self, "Configuring ProFTPd")
                 Log.debug(self, "Setting up Proftpd configuration")
                 WOFileUtils.searchreplace(
                     self, "/etc/proftpd/proftpd.conf",

@@ -47,16 +47,17 @@ class WOAcme:
                 .format(all_domains, acme_mode, keylenght)):
             Log.failed(self, "Issuing SSL cert with acme.sh")
             if acmedata['dns'] is True:
-                Log.warn(
+                Log.error(
                     self, "Please make sure your properly "
                     "set your DNS API credentials for acme.sh")
+                return False
             else:
                 Log.error(
                     self, "Your domain is properly configured "
                     "but acme.sh was unable to issue certificate.\n"
                     "You can find more informations in "
-                    "/var/log/wo/wordops.log", False)
-            return False
+                    "/var/log/wo/wordops.log")
+                return False
         else:
             Log.valide(self, "Issuing SSL cert with acme.sh")
             return True

@@ -3,7 +3,6 @@
 import configparser
 import os
 
-from cement.core import handler, hook
 from cement.core.controller import CementBaseController, expose
 from pynginxconfig import NginxConfig
 
@@ -80,20 +79,20 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
-        www_listen = config['www']['listen']
-        www_ping_path = config['www']['ping.path']
-        www_pm_status_path = config['www']['pm.status_path']
-        www_pm = config['www']['pm']
-        www_pm_max_requests = config['www']['pm.max_requests']
-        www_pm_max_children = config['www']['pm.max_children']
-        www_pm_start_servers = config['www']['pm.start_servers']
-        www_pm_min_spare_servers = config['www']['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['www']['pm.max_spare_servers']
-        www_request_terminate_time = (config['www']
+        www_listen = config['www-php72']['listen']
+        www_ping_path = config['www-php72']['ping.path']
+        www_pm_status_path = config['www-php72']['pm.status_path']
+        www_pm = config['www-php72']['pm']
+        www_pm_max_requests = config['www-php72']['pm.max_requests']
+        www_pm_max_children = config['www-php72']['pm.max_children']
+        www_pm_start_servers = config['www-php72']['pm.start_servers']
+        www_pm_min_spare_servers = config['www-php72']['pm.min_spare_servers']
+        www_pm_max_spare_servers = config['www-php72']['pm.max_spare_servers']
+        www_request_terminate_time = (config['www-php72']
                                             ['request_terminate_timeout'])
         try:
-            www_xdebug = (config['www']['php_admin_flag[xdebug.profiler_enable'
-                                        '_trigger]'])
+            www_xdebug = (config['www-php72']['php_admin_flag[xdebug.profiler_enable'
+                                              '_trigger]'])
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
@@ -157,20 +156,21 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/php/7.3/fpm/pool.d/www.conf')
-        www_listen = config['www']['listen']
-        www_ping_path = config['www']['ping.path']
-        www_pm_status_path = config['www']['pm.status_path']
-        www_pm = config['www']['pm']
-        www_pm_max_requests = config['www']['pm.max_requests']
-        www_pm_max_children = config['www']['pm.max_children']
-        www_pm_start_servers = config['www']['pm.start_servers']
-        www_pm_min_spare_servers = config['www']['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['www']['pm.max_spare_servers']
-        www_request_terminate_time = (config['www']
+        www_listen = config['www-php73']['listen']
+        www_ping_path = config['www-php73']['ping.path']
+        www_pm_status_path = config['www-php73']['pm.status_path']
+        www_pm = config['www-php73']['pm']
+        www_pm_max_requests = config['www-php73']['pm.max_requests']
+        www_pm_max_children = config['www-php73']['pm.max_children']
+        www_pm_start_servers = config['www-php73']['pm.start_servers']
+        www_pm_min_spare_servers = config['www-php73']['pm.min_spare_servers']
+        www_pm_max_spare_servers = config['www-php73']['pm.max_spare_servers']
+        www_request_terminate_time = (config['www-php73']
                                             ['request_terminate_timeout'])
         try:
-            www_xdebug = (config['www']['php_admin_flag[xdebug.profiler_enable'
-                                        '_trigger]'])
+            www_xdebug = (config['www-php73']
+                          ['php_admin_flag[xdebug.profiler_enable'
+                           '_trigger]'])
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'

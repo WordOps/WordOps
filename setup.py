@@ -4,8 +4,11 @@ import os
 
 from setuptools import find_packages, setup
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    LONG = fh.read()
+
+# read the contents of your README file
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    LONG = f.read()
 
 conf = []
 templates = []
@@ -24,9 +27,10 @@ if os.geteuid() == 0:
         os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.9.9.3',
+      version='3.9.9.4',
       description='WordPress & server administration toolset',
       long_description=LONG,
+      long_description_content_type='text/markdown',
       classifiers=[
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",
