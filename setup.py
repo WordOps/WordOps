@@ -27,6 +27,7 @@ setup(name='wordops',
       version='3.9.9.4',
       description='WordPress & server administration toolset',
       long_description=LONG,
+      long_description_content_type='text/markdown',
       classifiers=[
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",
