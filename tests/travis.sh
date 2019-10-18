@@ -145,7 +145,7 @@ if [ -z "$1" ]; then
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       wo stack upgrade              '
     echo -e "${CGREEN}#############################################${CEND}"
-    stack_upgrade='nginx php mysql redis netdata dashboard phpmyadmin'
+    stack_upgrade='nginx php php73 mysql redis netdata dashboard phpmyadmin composer'
     for stack in $stack_upgrade; do
         echo -ne "      Upgrading $stack               [..]\r"
         if {
@@ -229,7 +229,7 @@ wo site info wp.net
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw'
+stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker'
 for stack in $stack_purge; do
     echo -ne "       purging $stack              [..]\r"
     if {
