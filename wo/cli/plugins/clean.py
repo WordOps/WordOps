@@ -1,7 +1,6 @@
 """Clean Plugin for WordOps."""
 
 import os
-import urllib.request
 import requests
 
 from cement.core.controller import CementBaseController, expose
