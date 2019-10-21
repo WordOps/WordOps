@@ -27,10 +27,11 @@ TPUT_RESET=$(tput sgr0)
 TPUT_FAIL=$(tput setaf 1)
 TPUT_INFO=$(tput setaf 7)
 TPUT_ECHO=$(tput setaf 4)
+TPUT_OK=$(tput setaf 2)
 
 wo_lib_echo() {
 
-    echo -e "${TPUT_ECHO}${*}${TPUT_RESET}"
+    echo "${TPUT_ECHO}${*}${TPUT_RESET}"
 }
 
 wo_lib_echo_info() {
@@ -111,15 +112,15 @@ command_exists() {
 # run functions and exit on failure
 _run() {
     if [ -n "$2" ]; then
-        wo_lib_echo "$2\r"
+        echo -ne "${TPUT_ECHO}${2}${TPUT_RESET}\t"
     fi
     if ! { "$1" >> "$wo_install_log" 2>&1; }; then
         if [ -n "$2" ]; then
-            wo_lib_echo_fail "$2"
+            echo -e "${TPUT_FAIL}[KO]${TPUT_RESET}"
         fi
     else
         if [ -n "$2" ]; then
-            wo_lib_echo "$2 [OK]"
+            echo -e "${TPUT_OK}[OK]${TPUT_RESET}"
         fi
     fi
 
