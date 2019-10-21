@@ -28,7 +28,7 @@ if os.geteuid() == 0:
 
 setup(name='wordops',
       version='3.9.9.4',
-      description='WordPress & server administration toolset',
+      description='An essential toolset that eases server administration',
       long_description=LONG,
       long_description_content_type='text/markdown',
       classifiers=[

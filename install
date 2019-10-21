@@ -30,7 +30,7 @@ TPUT_ECHO=$(tput setaf 4)
 
 wo_lib_echo() {
 
-    echo "${TPUT_ECHO}${*}${TPUT_RESET}"
+    echo -e "${TPUT_ECHO}${*}${TPUT_RESET}"
 }
 
 wo_lib_echo_info() {
@@ -111,10 +111,16 @@ command_exists() {
 # run functions and exit on failure
 _run() {
     if [ -n "$2" ]; then
-        wo_lib_echo "$2"
+        wo_lib_echo "$2\r"
     fi
     if ! { "$1" >> "$wo_install_log" 2>&1; }; then
-        exit 1
+        if [ -n "$2" ]; then
+            wo_lib_echo_fail "$2"
+        fi
+    else
+        if [ -n "$2" ]; then
+            wo_lib_echo "$2 [OK]"
+        fi
     fi
 
 }
@@ -221,6 +227,8 @@ wo_install_dep() {
     if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
         cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
     fi
+    # upgrade pip
+    python3 -m pip install --upgrade pip
 
 }
 
@@ -447,8 +455,9 @@ wo_download() {
 # WordOps install
 wo_install() {
 
-    cd /var/lib/wo/tmp/WordOps-install || exit 1
-    python3 setup.py install
+    python3 -m pip install --upgrade wordops
+    cp -rn /usr/local/lib/python3.*/dist-packages/usr/* /usr/
+    cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
 
 }
 
@@ -458,11 +467,13 @@ wo_travis_install() {
     if [ "$wo_force_install" = "y" ]; then
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
     fi
-
-    if [ -f "$HOME/.gitconfig" ]; then
-        # install and redirect log to not print python package install
-        python3 setup.py install
+    if [ -d ./dist ]; then
+        rm -rf dist
     fi
+    python3 setup.py sdist bdist_wheel
+    python3 -m pip install --upgrade dist/*.whl
+    cp -rn /usr/local/lib/python3.*/dist-packages/usr/* /usr/
+    cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
 
 }
 
@@ -549,7 +560,7 @@ wo_upgrade_nginx() {
         systemctl start nginx
     fi
     [ -f /var/lib/wo/tmp/nginx-block ] && { mv /var/lib/wo/tmp/nginx-block /etc/apt/preferences.d/nginx-block; }
-
+    return 0
 }
 
 wo_update_latest() {
@@ -665,7 +676,7 @@ wo_nginx_tweak() {
 }
 
 wo_clean() {
-    rm -rf /usr/local/lib/python3.*/dist-packages/wo-* /usr/local/lib/python3.*/dist-packages/wordops-*
+    rm -rf /usr/local/lib/python3.*/dist-packages/wo-*.egg /usr/local/lib/python3.*/dist-packages/wordops-*.egg
 
 }
 
