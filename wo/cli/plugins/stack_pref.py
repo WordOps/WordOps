@@ -1362,3 +1362,67 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOShellExec.cmd_exec(self, '/usr/local/sbin/install-ngxblocker -x')
             WOFileUtils.chmod(
                 self, "/usr/local/sbin/update-ngxblocker", 0o700)
+
+
+def pre_stack(self):
+    """Inital server configuration and tweak"""
+    # wo sysctl tweaks
+    Log.wait(self, 'Applying Linux tweaks')
+    wo_arch = os.uname()[4]
+    if os.path.isfile('/proc/1/environ'):
+        wo_lxc = WOFileUtils.grepcheck(
+            self, '/proc/1/environ', 'container=lxc')
+        wo_wsl = WOFileUtils.grepcheck(
+            self, '/proc/1/environ', 'wsl')
+    if os.path.isfile('/etc/sysctl.d/60-ubuntu-nginx-web-server.conf'):
+        WOFileUtils.rm(self, '/etc/sysctl.d/60-ubuntu-nginx-web-server.conf')
+    if wo_arch == 'x86_64':
+        if (wo_lxc is not True) and (wo_wsl is not True):
+            data = dict()
+            WOTemplate.deploy(
+                self, '/etc/sysctl.d/60-wo-tweaks.conf',
+                'sysctl.mustache', data, True)
+            if (WOVar.wo_platform_codename == 'bionic' or
+                WOVar.wo_platform_codename == 'disco' or
+                    WOVar.wo_platform_codename == 'buster'):
+                if WOShellExec.cmd_exec(self, 'modprobe tcp_bbr'):
+                    with open("/etc/modules-load.d/bbr.conf",
+                              encoding='utf-8', mode='w') as bbr_file:
+                        bbr_file.write('tcp_bbr')
+                    with open("/etc/sysctl.d/60-wo-tweaks.conf",
+                              encoding='utf-8', mode='a') as sysctl_file:
+                        sysctl_file.write(
+                            '\nnet.ipv4.tcp_congestion_control = bbr'
+                            '\nnet.ipv4.tcp_notsent_lowat = 16384')
+            else:
+                if WOShellExec.cmd_exec(self, 'modprobe tcp_htcp'):
+                    with open("/etc/modules-load.d/htcp.conf",
+                              encoding='utf-8', mode='w') as bbr_file:
+                        bbr_file.write('tcp_htcp')
+                    with open("/etc/sysctl.d/60-wo-tweaks.conf",
+                              encoding='utf-8', mode='a') as sysctl_file:
+                        sysctl_file.write(
+                            '\nnet.ipv4.tcp_congestion_control = htcp')
+            WOShellExec.cmd_exec(
+                self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
+    # sysctl tweak service
+    if not os.path.isfile('/opt/wo-kernel.sh'):
+        data = dict()
+        WOTemplate.deploy(self, '/opt/wo-kernel.sh',
+                          'wo-kernel-script.mustache', data)
+    if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
+        WOTemplate.deploy(
+            self, '/lib/systemd/system/wo-kernel.service',
+            'wo-kernel-service.mustache')
+        WOShellExec.cmd_exec(self, 'systemctl enable wo-kernel.service')
+        WOShellExec.cmd_exec(self, 'systemctl start wo-kernel.service')
+    # open_files_limit tweak
+    if not WOFileUtils.grepcheck(self, '/etc/security/limits.conf', '500000'):
+        with open("/etc/security/limits.conf",
+                  encoding='utf-8', mode='w') as limit_file:
+            limit_file.write(
+                '*         hard    nofile      500000\n'
+                '*         soft    nofile      500000\n'
+                'root      hard    nofile      500000\n'
+                'root      soft    nofile      500000\n')
+    Log.valide(self, 'Applying Linux tweaks')

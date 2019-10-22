@@ -5,7 +5,7 @@ import os
 from cement.core.controller import CementBaseController, expose
 
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
-from wo.cli.plugins.stack_pref import post_pref, pre_pref
+from wo.cli.plugins.stack_pref import post_pref, pre_pref, pre_stack
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
 from wo.core.aptget import WOAptGet
@@ -485,6 +485,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, "{0}".format(e))
 
         if (apt_packages) or (packages):
+            pre_stack(self)
             if (apt_packages):
                 Log.debug(self, "Calling pre_pref")
                 pre_pref(self, apt_packages)

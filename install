@@ -141,9 +141,6 @@ readonly TIME=$(date +"$TIME_FORMAT")
 readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
 readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
 readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
-readonly wo_lxc=$(grep "container=lxc" /proc/1/environ)
-readonly wo_wsl=$(grep "wsl" /proc/1/environ)
-readonly wo_arch="$(uname -m)"
 
 if [ -x /usr/local/bin/ee ]; then
     ee_migration=1
@@ -610,42 +607,6 @@ wo_remove_ee_cron() {
 
 }
 
-wo_tweak_kernel() {
-    local wo_distro_version
-    wo_distro_version=$(lsb_release -sc)
-    if [ "$wo_arch" = "x86_64" ] && [ -z "$wo_lxc" ] && [ -z "$wo_wsl" ]; then
-        rm -f /etc/sysctl.d/60-ubuntu-nginx-web-server.conf
-        wget -qO /etc/sysctl.d/60-wo-tweaks.conf https://raw.githubusercontent.com/WordOps/WordOps/"$wo_branch"/wo/cli/templates/sysctl.mustache
-        if [ "$wo_distro_version" = "bionic" ] || [ "$wo_distro_version" = "disco" ] || [ "$wo_distro_version" = "buster" ]; then
-            modprobe tcp_bbr && echo 'tcp_bbr' >> /etc/modules-load.d/bbr.conf
-            echo -e '\nnet.ipv4.tcp_congestion_control = bbr\nnet.ipv4.tcp_notsent_lowat = 16384' >> /etc/sysctl.d/60-wo-tweaks.conf
-        else
-            modprobe tcp_htcp && echo 'tcp_htcp' >> /etc/modules-load.d/htcp.conf
-            echo 'net.ipv4.tcp_congestion_control = htcp' >> /etc/sysctl.d/60-wo-tweaks.conf
-        fi
-        # apply sysctl tweaks
-        sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf
-    fi
-}
-
-wo_systemd_tweak() {
-
-    if [ ! -x /opt/wo-kernel.sh ]; then
-        # download and setup wo-kernel systemd service to apply kernel tweaks for netdata and redis on server startup
-        wget -qO /opt/wo-kernel.sh https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-script.mustache
-        chmod +x /opt/wo-kernel.sh
-        wget -qO /lib/systemd/system/wo-kernel.service https://raw.githubusercontent.com/WordOps/WordOps/updating-configuration/wo/cli/templates/wo-kernel-service.mustache
-        systemctl enable wo-kernel.service
-        systemctl start wo-kernel.service
-    fi
-
-    LIMIT_CHECK=$(grep "500000" /etc/security/limits.conf)
-    if [ -z "$LIMIT_CHECK" ]; then
-        echo -e "*         hard    nofile      500000\n*         soft    nofile      500000\nroot      hard    nofile      500000\nroot      soft    nofile      500000\n" >> /etc/security/limits.conf
-    fi
-
-}
-
 wo_domain_suffix() {
     curl -m 10 --retry 3 -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
 }
@@ -780,7 +741,7 @@ else
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
-        _run wo_download "Downloading WordOps"
+        #_run wo_download "Downloading WordOps"
         wo_git_config
         _run wo_install "Installing WordOps"
     else
@@ -791,10 +752,6 @@ else
         _run wo_clean_ee "Cleaning previous EasyEngine install"
     fi
     _run wo_install_acme_sh
-    _run wo_tweak_kernel "Applying Kernel tweaks"
-    if [ ! -f /opt/wo-kernel.sh ]; then
-        _run wo_systemd_tweak "Adding systemd service tweak"
-    fi
     if [ -x /usr/sbin/nginx ]; then
         _run wo_nginx_tweak
     fi
