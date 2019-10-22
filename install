@@ -197,11 +197,6 @@ wo_dir_init() {
 # 2 - Setup the dependencies for installation
 ####
 
-wo_dist_upgrade() {
-    # perform server packages upgrade
-    apt-get dist-upgrade --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --option=Dpkg::options::=--force-unsafe-io --assume-yes --quiet
-}
-
 wo_install_dep() {
     local wo_linux_distro
     wo_linux_distro=$(lsb_release -is)
@@ -229,7 +224,7 @@ wo_install_dep() {
         cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
     fi
     # upgrade pip
-    python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade pip setuptools wheel
 
 }
 
