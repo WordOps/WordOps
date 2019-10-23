@@ -1,6 +1,6 @@
 """Tests for Example Plugin."""
 
-from wo.utils import WOTestCase
+from wo.utils.test import WOTestCase
 
 
 class ExamplePluginTestCase(WOTestCase):

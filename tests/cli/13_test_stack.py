@@ -10,10 +10,11 @@ class CliTestCaseStack(test.WOTestCase):
         self.app.close()
 
     def test_wo_cli_stack_install(self):
-        self.app = get_test_app(argv=['stack', 'install'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        argv = ['stack', 'install']
+        with self.make_app(argv=argv) as app:
+            app.run()
+            self.eq(app.pargs.stack.install)
+
 
     def test_wo_cli_stack_install_web(self):
         self.app = get_test_app(argv=['stack', 'install', '--web'])
