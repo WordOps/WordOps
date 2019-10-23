@@ -63,10 +63,6 @@ while [ "$#" -gt 0 ]; do
         wo_branch="$2"
         shift
         ;;
-    -v | --version)
-        wo_version="$2"
-        shift
-        ;;
     --force)
         wo_force_install="y"
         ;;

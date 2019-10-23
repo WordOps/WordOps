@@ -486,7 +486,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             else:
                 WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
                 if not os.path.isdir('/etc/systemd/system/nginx.service.d'):
-                    WOFileUtils.mkdir('/etc/systemd/system/nginx.service.d')
+                    WOFileUtils.mkdir(self,
+                                      '/etc/systemd/system/nginx.service.d')
                 if not os.path.isdir(
                         '/etc/systemd/system/nginx.service.d/limits.conf'):
                     with open(
