@@ -1,4 +1,3 @@
-import codecs
 import configparser
 import os
 import random
@@ -7,11 +6,8 @@ import string
 
 import psutil
 import requests
-from wo.cli.plugins.site_functions import *
-from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
-from wo.core.checkfqdn import check_fqdn_ip
 from wo.core.cron import WOCron
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
@@ -489,6 +485,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             "the cause of this issue", False)
             else:
                 WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
+                if not os.path.isdir('/etc/systemd/system/nginx.service.d'):
+                    WOFileUtils.mkdir('/etc/systemd/system/nginx.service.d')
+                if not os.path.isdir(
+                        '/etc/systemd/system/nginx.service.d/limits.conf'):
+                    with open(
+                        '/etc/systemd/system/nginx.service.d/limits.conf',
+                            encoding='utf-8', mode='w') as ngx_limit:
+                        ngx_limit.write('[Service]\nLimitNOFILE=500000')
+                    WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
+                    WOService.restart_service(self, 'nginx')
 
         if set(WOVar.wo_php).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
@@ -1415,7 +1421,7 @@ def pre_stack(self):
             self, '/lib/systemd/system/wo-kernel.service',
             'wo-kernel-service.mustache', data)
         WOShellExec.cmd_exec(self, 'systemctl enable wo-kernel.service')
-        WOShellExec.cmd_exec(self, 'systemctl start wo-kernel.service')
+        WOService.start_service(self, 'wo-kernel')
     # open_files_limit tweak
     if not WOFileUtils.grepcheck(self, '/etc/security/limits.conf', '500000'):
         with open("/etc/security/limits.conf",

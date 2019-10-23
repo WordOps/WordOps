@@ -35,6 +35,6 @@ script:
   - lsb_release -a
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo time bash install --travis -b "$TRAVIS_BRANCH"
-  - sudo time bash tests/travis.sh
+  - sudo -E time bash install --travis -b "$TRAVIS_BRANCH"
+  - sudo -E time bash tests/travis.sh
   - sudo wo update --travis

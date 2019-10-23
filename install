@@ -130,7 +130,11 @@ _run() {
 # 1 - Define variables for later use
 ###
 if [ -z "$wo_branch" ]; then
-    wo_branch=master
+    if [ "$wo_travis" = "y" ]; then
+        wo_branch=updating-configuration
+    else
+        wo_branch=master
+    fi
 fi
 readonly wo_log_dir=/var/log/wo/
 readonly wo_backup_dir=/var/lib/wo-backup/
@@ -419,32 +423,6 @@ wo_install_acme_sh() {
     fi
 }
 
-wo_git_config() {
-
-    if [ "$wo_force_install" = "y" ]; then
-        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
-    fi
-
-    # .gitconfig inital setup
-    cd /var/lib/wo/tmp/WordOps-install || exit 1
-    python3 gitconfig.py
-
-}
-
-# Download WordOps
-wo_download() {
-    rm -f /etc/bash_completion.d/wo_auto.rc
-    rm -rf /var/lib/wo/tmp/WordOps-*
-    if [ -z "$wo_version" ]; then
-        curl -sL https://github.com/WordOps/WordOps/archive/${wo_branch}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
-        mv "/var/lib/wo/tmp/WordOps-$wo_branch" /var/lib/wo/tmp/WordOps-install
-    else
-        curl -sL https://github.com/WordOps/WordOps/archive/v${wo_version}.tar.gz | tar -I pigz -xf - -C /var/lib/wo/tmp
-        mv "/var/lib/wo/tmp/WordOps-$wo_version" /var/lib/wo/tmp/WordOps-install
-    fi
-    return 0
-}
-
 # WordOps install
 wo_install() {
 
@@ -463,8 +441,12 @@ wo_travis_install() {
     if [ -d ./dist ]; then
         rm -rf dist
     fi
-    python3 setup.py sdist bdist_wheel
-    python3 -m pip install --upgrade dist/*.whl
+    if [ -f ./setup.py ]; then
+        python3 setup.py sdist bdist_wheel
+        python3 -m pip install --upgrade dist/*.whl
+    else
+        python3 -m pip install git+git://github.com/WordOps/WordOps.git@$wo_branch #egg=wordops -U
+    fi
     cp -rn /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
 
@@ -620,18 +602,6 @@ wo_mariadb_tweak() {
     fi
 }
 
-wo_nginx_tweak() {
-    # increase nginx open_files_limit
-    if [ ! -d /etc/systemd/system/nginx.service.d ]; then
-        mkdir -p /etc/systemd/system/nginx.service.d
-        if [ ! -f /etc/systemd/system/nginx.service.d/limits.conf ]; then
-            echo -e '[Service]\nLimitNOFILE=500000' > /etc/systemd/system/nginx.service.d/limits.conf
-            systemctl daemon-reload
-            nginx -t && service nginx restart
-        fi
-    fi
-}
-
 wo_clean() {
     rm -rf /usr/local/lib/python3.*/dist-packages/wo-*.egg /usr/local/lib/python3.*/dist-packages/wordops-*.egg
 
@@ -723,7 +693,6 @@ else
                 wo_lib_error "You already have WordOps $wo_version_new" 1
             fi
         fi
-        _run wo_backup_wo "Backing-up WO install"
         _run wo_clean
     # 2 - Migration from EEv3
     elif [ -x /usr/local/bin/ee ]; then
@@ -742,7 +711,6 @@ else
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
         #_run wo_download "Downloading WordOps"
-        wo_git_config
         _run wo_install "Installing WordOps"
     else
         _run wo_travis_install "Installing WordOps"
@@ -752,9 +720,6 @@ else
         _run wo_clean_ee "Cleaning previous EasyEngine install"
     fi
     _run wo_install_acme_sh
-    if [ -x /usr/sbin/nginx ]; then
-        _run wo_nginx_tweak
-    fi
     if [ -d /etc/systemd/system/mariadb.service.d ]; then
         _run wo_mariadb_tweak
     fi
