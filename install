@@ -164,8 +164,8 @@ wo_check_distro() {
     if [ -z "$wo_force_install" ]; then
         if [ "$wo_linux_distro" != "Ubuntu" ] && [ "$wo_linux_distro" != "Debian" ] && [ "$wo_linux_distro" != "Raspbian" ]; then
             wo_lib_echo_fail "WordOps (wo) only supports Ubuntu, Debian & Raspbian at the moment."
-            wo_lib_echo_fail "If you are feeling adventurous, you are free to fork WordOps to support"
-            wo_lib_echo_fail "other Linux distributions and perhaps even Unix deratives."
+            wo_lib_echo_fail "You can bypass this warning by adding the flag --force to the install command"
+            wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
             check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
@@ -682,10 +682,10 @@ if [ "$wo_purge" = "y" ]; then
     wo_lib_echo "The WordOps backup files can be found in $WO_BACKUP_FILE"
     exit 0
 else
-    wo_clean_repo
+    wo_dir_init
+    _run wo_clean_repo
     wo_init
     wo_check_distro
-    wo_dir_init
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         if [ -z "$wo_force_install" ]; then
