@@ -50,6 +50,8 @@ class WOUpdateController(CementBaseController):
         if pargs.preserve:
             install_args = install_args + "--preserve "
 
+        if not os.path.isdir('/var/lib/wo/tmp'):
+            os.makedirs('/var/lib/wo/tmp')
         WODownload.download(self, [["https://raw.githubusercontent.com/"
                                     "WordOps/WordOps/{0}/install"
                                     .format(wo_branch),

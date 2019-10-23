@@ -1,7 +1,6 @@
 """WordOps download core classes."""
 import os
-import urllib.error
-import urllib.request
+from requests import get, RequestException
 
 from wo.core.logging import Log
 
@@ -23,25 +22,15 @@ class WODownload():
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 Log.info(self, "Downloading {0:20}".format(pkg_name), end=' ')
-                req = urllib.request.Request(
-                    url, headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(req) as response, open(filename, 'wb') as out_file:
-                    out_file.write(response.read())
+                with open(filename, "wb") as out_file:
+                    req = get(url, timeout=15)
+                    if req.encoding is None:
+                        req.encoding = 'utf-8'
+                    out_file.write(req.content)
                 Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
                                             + Log.OKBLUE + "]"))
-            except urllib.error.URLError as e:
+            except RequestException as e:
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 Log.error(self, "Unable to download file, {0}"
                           .format(filename))
-                return False
-            except urllib.HTTPError.error as e:
-                Log.error(self, "Package download failed. {0}"
-                          .format(pkg_name))
-                Log.debug(self, "[{err}]".format(err=str(e.reason)))
-                return False
-            except urllib.ContentTooShortError.error as e:
-                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
-                Log.error(self, "Package download failed. The amount of the"
-                          " downloaded data is less than "
-                          "the expected amount \{0} ".format(pkg_name))
                 return False
