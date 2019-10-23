@@ -1406,14 +1406,14 @@ def pre_stack(self):
             WOShellExec.cmd_exec(
                 self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
     # sysctl tweak service
+    data = dict()
     if not os.path.isfile('/opt/wo-kernel.sh'):
-        data = dict()
         WOTemplate.deploy(self, '/opt/wo-kernel.sh',
                           'wo-kernel-script.mustache', data)
     if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
         WOTemplate.deploy(
             self, '/lib/systemd/system/wo-kernel.service',
-            'wo-kernel-service.mustache')
+            'wo-kernel-service.mustache', data)
         WOShellExec.cmd_exec(self, 'systemctl enable wo-kernel.service')
         WOShellExec.cmd_exec(self, 'systemctl start wo-kernel.service')
     # open_files_limit tweak
