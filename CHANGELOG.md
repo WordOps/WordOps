@@ -8,11 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- WordOps install is now installed with pip from PyPi (easier, cleaner and safer) inside a wheel
+
 #### Changed
 
-- WordOps install is now handled with pip
 - Sysctl tweaks are applied during stack install and removed from install script
 - Nginx systemd tweaks during Nginx install/upgrade and removed from install script
+- Initial creation of .gitconfig is displayed the first time you run the command `wo`
+
+#### Fixed
+
+- Incorrect PHP-FPM log path is `wo log`
 
 
 ### v3.9.9.4 -  2019-10-18

@@ -423,7 +423,7 @@ wo_install_acme_sh() {
 wo_install() {
 
     python3 -m pip install --upgrade wordops
-    cp -rn /usr/local/lib/python3.*/dist-packages/usr/* /usr/
+    cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
 
 }
