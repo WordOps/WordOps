@@ -22,12 +22,17 @@ class WOUpdateController(CementBaseController):
         arguments = [
             (['--force'],
              dict(help='Force WordOps update', action='store_true')),
-            (['--preserve'],
-             dict(help='Preserve current Nginx configuration',
-                  action='store_true')),
             (['--beta'],
-             dict(help='Update WordOps to latest beta release',
+             dict(help='Update WordOps to latest mainline release '
+                  '(same than --mainline)',
                   action='store_true')),
+            (['--mainline'],
+             dict(help='Update WordOps to latest mainline release',
+                  action='store_true')),
+            (['--branch'],
+                dict(help="Update WordOps from a specific repository branch ",
+                     action='store' or 'store_const',
+                     const='develop', nargs='?')),
             (['--travis'],
              dict(help='Argument used only for WordOps development',
                   action='store_true')),
@@ -38,17 +43,15 @@ class WOUpdateController(CementBaseController):
     def default(self):
         pargs = self.app.pargs
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
-
-        if pargs.beta:
-            wo_branch = "beta"
-            install_args = ""
+        install_args = ""
+        if pargs.mainline or pargs.beta:
+            wo_branch = "mainline"
+        elif pargs.branch:
+            wo_branch = pargs.branch
         else:
             wo_branch = "master"
-            install_args = ""
         if pargs.force:
             install_args = install_args + "--force "
-        if pargs.preserve:
-            install_args = install_args + "--preserve "
 
         if not os.path.isdir('/var/lib/wo/tmp'):
             os.makedirs('/var/lib/wo/tmp')
@@ -59,13 +62,14 @@ class WOUpdateController(CementBaseController):
                                     "update script"]])
 
         if pargs.travis:
-            try:
-                Log.info(self, "updating WordOps, please wait...")
-                os.system("/bin/bash install --travis "
-                          "-b $TRAVIS_BRANCH --force")
-            except OSError as e:
-                Log.debug(self, str(e))
-                Log.error(self, "WordOps update failed !")
+            if os.path.isfile('install'):
+                try:
+                    Log.info(self, "updating WordOps, please wait...")
+                    os.system("/bin/bash install --travis "
+                              "--force")
+                except OSError as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "WordOps update failed !")
         else:
             try:
                 Log.info(self, "updating WordOps, please wait...")
@@ -75,6 +79,8 @@ class WOUpdateController(CementBaseController):
             except OSError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "WordOps update failed !")
+
+        os.remove("/var/lib/wo/tmp/{0}".format(filename))
 
 
 def load(app):
