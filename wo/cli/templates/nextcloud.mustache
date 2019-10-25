@@ -8,7 +8,7 @@ location = /robots.txt {
     access_log off;
 }
 location / {
-    rewrite ^ /index.php$request_uri;
+    rewrite ^ /index.php;
 }
 location ~ ^\/(?:build|tests|config|lib|3rdparty|templates|data)\/ {
     deny all;
@@ -18,13 +18,12 @@ location ~ ^\/(?:\.|autotest|occ|issue|indie|db_|console) {
 }
 location ~ ^\/(?:index|remote|public|cron|core\/ajax\/update|status|ocs\/v[12]|updater\/.+|oc[ms]-provider\/.+)\.php(?:$|\/) {
     fastcgi_split_path_info ^(.+?\.php)(\/.*|)$;
+    try_files $uri =404;
     include fastcgi_params;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     fastcgi_param PATH_INFO $fastcgi_path_info;
-    fastcgi_param HTTPS on;
-# Avoid sending the security headers twice
+    # Avoid sending the security headers twice
     fastcgi_param modHeadersAvailable true;
-# Enable pretty urls
+    # Enable pretty urls
     fastcgi_param front_controller_active true;
     fastcgi_pass {{upstream}};
     fastcgi_intercept_errors on;

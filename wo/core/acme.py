@@ -22,6 +22,7 @@ class WOAcme:
                 self, "{0} ".format(WOAcme.wo_acme_exec) +
                 "--list --listraw > /var/lib/wo/cert.csv"):
             Log.error(self, "Unable to export certs list")
+        WOFileUtils.chmod(self, '/var/lib/wo/cert.csv', 0o600)
 
     def setupletsencrypt(self, acme_domains, acmedata):
         """Issue SSL certificates with acme.sh"""
@@ -38,6 +39,14 @@ class WOAcme:
             acme_mode = "-w /var/www/html"
             validation_mode = "Webroot challenge"
             Log.debug(self, "Validation : Webroot mode")
+            if not os.path.isdir('/var/www/html/.well-known/acme-challenge'):
+                WOFileUtils.mkdir(
+                    self, '/var/www/html/.well-known/acme-challenge')
+            WOFileUtils.chown(
+                self, '/var/www/html/.well-known', 'www-data', 'www-data',
+                recursive=True)
+            WOFileUtils.chmod(self, '/var/www/html/.well-known', 0o750,
+                              recursive=True)
 
         Log.info(self, "Validation mode : {0}".format(validation_mode))
         Log.wait(self, "Issuing SSL cert with acme.sh")

@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.9.9.4 - 2019-10-18
+# Version 3.10.0 - 2019-10-25
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -122,6 +122,10 @@ _run() {
 
 }
 
+_curl() {
+    curl -m 10 --retry 3 -sL "$@"
+}
+
 ###
 # 1 - Define variables for later use
 ###
@@ -180,12 +184,13 @@ wo_check_distro() {
 wo_dir_init() {
     if [ ! -d "$wo_log_dir" ] || [ ! -d "$wo_backup_dir" ] || [ ! -d "$wo_tmp_dir" ]; then
 
-        mkdir -p "$wo_backup_dir" "$wo_log_dir" "$wo_tmp_dir" || wo_lib_error "Whoops - seems we are unable to create the log directory $wo_log_dir, exit status " $?
+        mkdir -p "$wo_backup_dir" "$wo_log_dir" "$wo_tmp_dir"
 
         # create wordops log files
         touch /var/log/wo/{wordops.log,install.log}
 
-        chmod -R 700 "$wo_log_dir" "$wo_backup_dir" "$wo_tmp_dir" || wo_lib_error "Whoops, there was an error setting the permissions on the WordOps log folder, exit status " $?
+        chmod -R 750 "$wo_log_dir" "$wo_backup_dir" "$wo_tmp_dir"
+        chown -R root:adm "$wo_log_dir"
     fi
 
 }
@@ -203,7 +208,6 @@ wo_install_dep() {
             build-essential curl gzip python3-pip python3-wheel python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
         curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
-        add-apt-repository ppa:wordops/nginx-wo -yn
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
@@ -221,7 +225,8 @@ wo_install_dep() {
         cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
     fi
     # upgrade pip
-    python3 -m pip install --upgrade pip setuptools wheel
+    python3 -m pip install --upgrade pip
+    python3 -m pip install --upgrade setuptools wheel
 
 }
 
@@ -411,12 +416,10 @@ wo_install_acme_sh() {
     # Let's Encrypt .well-known folder setup
     if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
         mkdir -p /var/www/html/.well-known/acme-challenge
-        chown -R www-data:www-data /var/www/html /var/www/html/.well-known
-        chmod 750 /var/www/html /var/www/html/.well-known
-    else
-        chown -R www-data:www-data /var/www/html /var/www/html/.well-known
-        chmod 750 /var/www/html /var/www/html/.well-known
     fi
+    chown -R www-data:www-data /var/www/html /var/www/html/.well-known
+    chmod 750 /var/www/html /var/www/html/.well-known
+
 }
 
 # WordOps install
@@ -537,24 +540,20 @@ wo_upgrade_nginx() {
 wo_update_latest() {
 
     # Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
-    if [ ! -f /etc/mysql/conf.d/my.cnf ]; then
-        # create conf.d folder if not exist
-        [ ! -d /etc/mysql/conf.d ] && {
-            mkdir -p /etc/mysql/conf.d
-            chmod 755 /etc/mysql/conf.d
-        }
-        if [ -f "$HOME/.my.cnf" ]; then
-            cp -f "$HOME/.my.cnf" /etc/mysql/conf.d/my.cnf
-            chmod 600 /etc/mysql/conf.d/my.cnf
-
-        elif [ -f /root/.my.cnf ]; then
-            cp -f /root/.my.cnf /etc/mysql/conf.d/my.cnf
-            chmod 600 /etc/mysql/conf.d/my.cnf
-        fi
-    else
-        if [ ! -f /root/.my.cnf ]; then
-            cp /etc/mysql/conf.d/my.cnf /root/.my.cnf
-            chmod 600 /root/.my.cnf
+    if [ -d /etc/mysql ]; then
+        if [ ! -f /etc/mysql/conf.d/my.cnf ]; then
+            # create conf.d folder if not exist
+            [ ! -d /etc/mysql/conf.d ] && {
+                mkdir -p /etc/mysql/conf.d
+                chmod 755 /etc/mysql/conf.d
+            }
+            if [ -f /root/.my.cnf ]; then
+                cp -f /root/.my.cnf /etc/mysql/conf.d/my.cnf
+                chmod 600 /etc/mysql/conf.d/my.cnf
+            elif [ -f "$HOME/.my.cnf"]; then
+                cp -f "$HOME/.my.cnf" /etc/mysql/conf.d/my.cnf
+                chmod 600 /etc/mysql/conf.d/my.cnf
+            fi
         fi
     fi
 }
@@ -586,7 +585,7 @@ wo_remove_ee_cron() {
 }
 
 wo_domain_suffix() {
-    curl -m 10 --retry 3 -sL https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
+    _curl https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
 }
 
 wo_mariadb_tweak() {
@@ -658,7 +657,7 @@ wo_init() {
     if [ -f ./setup.py ]; then
         readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
     else
-        readonly wo_version_new=$(curl -sL https://wops.cc/setup.py 2>&1 | grep "version='" | awk -F "'" '{print$2}' 2>&1)
+        readonly wo_version_new=$(curl -m 10 --retry 3 -sI https://github.com/WordOps/WordOps/releases/latest | grep tag | awk -F "/" '{print $8}' 2>&1)
     fi
 
     echo ""

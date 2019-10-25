@@ -102,41 +102,68 @@ def pre_pref(self, apt_packages):
 
     # add nginx repository
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
-        Log.info(self, "Adding repository for NGINX, please wait...")
         if (WOVar.wo_distro == 'ubuntu'):
-            WORepo.add(self, ppa=WOVar.wo_nginx_repo)
-            Log.debug(self, 'Adding ppa for Nginx')
+            if not os.path.isfile(
+                'wordops-ubuntu-nginx-wo-{0}.list'
+                    .format(WOVar.wo_platform_codename)):
+                Log.info(self, "Adding repository for NGINX, please wait...")
+                WORepo.add(self, ppa=WOVar.wo_nginx_repo)
+                Log.debug(self, 'Adding ppa for Nginx')
         else:
-            WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
-            Log.debug(self, 'Adding repository for Nginx')
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list/wo-repo.list',
+                    'download.opensuse.org'):
+                Log.info(self, "Adding repository for NGINX, please wait...")
+                Log.debug(self, 'Adding repository for Nginx')
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
             WORepo.add_key(self, WOVar.wo_nginx_key)
 
     # add php repository
     if (set(WOVar.wo_php73).issubset(set(apt_packages)) or
             set(WOVar.wo_php).issubset(set(apt_packages))):
-        Log.info(self, "Adding repository for PHP, please wait...")
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
-            WORepo.add(self, ppa=WOVar.wo_php_repo)
+            if not os.path.isfile(
+                '/etc/apt/sources.list.d/ondrej-ubuntu-php-{0}.list'
+                    .format(WOVar.wo_platform_codename)):
+                Log.info(self, "Adding repository for PHP, please wait...")
+                WORepo.add(self, ppa=WOVar.wo_php_repo)
         else:
             # Add repository for php
             if (WOVar.wo_platform_codename == 'buster'):
                 php_pref = ("Package: *\nPin: origin "
                             "packages.sury.org"
                             "\nPin-Priority: 1000\n")
-                with open('/etc/apt/preferences.d/'
-                          'PHP.pref', 'w') as php_pref_file:
+                with open(
+                    '/etc/apt/preferences.d/'
+                        'PHP.pref', mode='w',
+                        encoding='utf-8') as php_pref_file:
                     php_pref_file.write(php_pref)
-            Log.debug(self, 'Adding repo_url of php for debian')
-            WORepo.add(self, repo_url=WOVar.wo_php_repo)
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list.d/wo-repo.list',
+                    'packages.sury.org'):
+                Log.debug(self, 'Adding repo_url of php for debian')
+                Log.info(self, "Adding repository for PHP, please wait...")
+                WORepo.add(self, repo_url=WOVar.wo_php_repo)
             Log.debug(self, 'Adding deb.sury GPG key')
             WORepo.add_key(self, WOVar.wo_php_key)
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
-        Log.info(self, "Adding repository for Redis, please wait...")
         if WOVar.wo_distro == 'ubuntu':
-            Log.debug(self, 'Adding ppa for redis')
-            WORepo.add(self, ppa=WOVar.wo_redis_repo)
+            if not os.path.isfile(
+                '/etc/apt/sources.list.d/'
+                'chris-lea-ubuntu-redis-server-{0}.list'
+                    .format(WOVar.wo_platform_codename)):
+                Log.info(self, "Adding repository for Redis, please wait...")
+                Log.debug(self, 'Adding ppa for redis')
+                WORepo.add(self, ppa=WOVar.wo_redis_repo)
+        else:
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list/wo-repo.list',
+                    'download.opensuse.org'):
+                Log.info(self, "Adding repository for Redis, please wait...")
+                WORepo.add(self, repo_url=WOVar.wo_php_repo)
+            WORepo.add_key(self, WOVar.wo_nginx_key)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -1374,21 +1401,29 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 def pre_stack(self):
     """Inital server configuration and tweak"""
     # wo sysctl tweaks
-    Log.wait(self, 'Applying Linux tweaks')
+    # check system type
     wo_arch = os.uname()[4]
     if os.path.isfile('/proc/1/environ'):
+        # detect lxc containers
         wo_lxc = WOFileUtils.grepcheck(
             self, '/proc/1/environ', 'container=lxc')
+        # detect wsl
         wo_wsl = WOFileUtils.grepcheck(
             self, '/proc/1/environ', 'wsl')
+    else:
+        wo_wsl = True
+        wo_lxc = True
+    # remove old sysctl tweak
     if os.path.isfile('/etc/sysctl.d/60-ubuntu-nginx-web-server.conf'):
         WOFileUtils.rm(self, '/etc/sysctl.d/60-ubuntu-nginx-web-server.conf')
+
     if wo_arch == 'x86_64':
         if (wo_lxc is not True) and (wo_wsl is not True):
             data = dict()
             WOTemplate.deploy(
                 self, '/etc/sysctl.d/60-wo-tweaks.conf',
                 'sysctl.mustache', data, True)
+            # use tcp_bbr congestion algorithm only on new kernels
             if (WOVar.wo_platform_codename == 'bionic' or
                 WOVar.wo_platform_codename == 'disco' or
                     WOVar.wo_platform_codename == 'buster'):
@@ -1410,6 +1445,7 @@ def pre_stack(self):
                               encoding='utf-8', mode='a') as sysctl_file:
                         sysctl_file.write(
                             '\nnet.ipv4.tcp_congestion_control = htcp')
+            # apply sysctl tweaks
             WOShellExec.cmd_exec(
                 self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
     # sysctl tweak service

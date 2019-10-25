@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - WordOps install is now installed with pip from PyPi (easier, cleaner and safer) inside a wheel
+- Redis 5.0.6 package backported to Debian 8/9/10
+- Custom motd to display a message if a new WordOps release is available
+- Run `mysql_upgrade` during MySQL upgrade with `wo stack upgrade` to perform migration if needed
 
 #### Changed
 
@@ -18,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Nginx systemd tweaks during Nginx install/upgrade and removed from install script
 - Initial creation of .gitconfig is displayed the first time you run the command `wo`
 - Added `/var/lib/php/sessions/` to open_basedir to allow php sessions storage
+- WordOps now check if a repository already exist before trying to adding it again.
 
 #### Fixed
 

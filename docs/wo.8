@@ -1,27 +1,27 @@
-.TH wo 8 "WordOps (wo) version: 3.9.6.3" "Jul 26,2019" "WordOps"
+.TH wo 8 "WordOps (wo) version: 3.10.0" "Oct 24,2019" "WordOps"
 .SH NAME
 .B WordOps (wo)
 \- Manage Nginx Based Websites.
 .SH SYNOPSIS
 wo [ --version | --help | info | stack | site | debug | update | clean | import_slow_log | log | secure | sync | maintenance ]
 .TP
-wo stack [ install | remove | purge | migrate | upgrade] [ --web | --all | --nginx | --php | --php73 | --mysql | --admin | --adminer | --redis | --phpmyadmin | --phpredisadmin | --wpcli | --utils | --dashboard | --netdata | --fail2ban | --proftpd ]
+wo stack [ install | remove | purge | migrate | upgrade ] [ --web | --all | --nginx | --php | --php73 | --mysql | --admin | --adminer | --redis | --phpmyadmin | --phpredisadmin | --wpcli | --utils | --dashboard | --netdata | --fail2ban | --proftpd ]
 .TP
 wo stack [ status | start | stop | reload | restart ] [--all | --nginx | --php | --php73 |--mysql | --web | --redis | --netdata | --fail2ban | --proftpd]
 .TP
 wo site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-wo site create example.com [ --html | --php | --php73 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --letsencrypt/-le/--letsencrypt=wildcard][--dns/--dns=dns_cf/dns_do]]
+wo site create example.com [ --html | --php | --php73 | --mysql][[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --wpfc | --wpredis | --wpce | --wprocket ] [ -le/--letsencrypt=wildcard ][ --dns/--dns=dns_cf/dns_dgon]]
 .TP
-wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ] [--password] [-le/--letsencrypt/--letsencrypt=on/off/wildcard/clean/purge] [--dns/--dns=dns_cf/dns_do]]
+wo site update example.com [ --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis | --wpce | --wprocket ] [--password] [-le/--letsencrypt=on/off/wildcard/clean/purge ] [ --dns/--dns=dns_cf/dns_dgon ]
 .TP
-wo site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
+wo site delete example.com [--db | --files | --all | --no-prompt | --force ]
 .TP
 wo debug [ -i | --all=on/off |--nginx=on/off | --rewrite=on/off | --php=on/off | --fpm=on/off | --mysql=on/off ]
 .TP
 wo debug example.com [ -i | --all=on/off | --nginx=on/off | --rewrite=on/off | --wp=on/off ]
 .TP
-wo secure [ --auth | --port | --ip ]
+wo secure [ --auth | --port | --ip | --ssh | --sshport ]
 .SH DESCRIPTION
 WordOps aka wo is the opensource project developed with the purpose to automate web-server configuration.
 .br
@@ -48,7 +48,7 @@ Display WordOps (wo) help.
 .TP
 .B install [ --all | --web | --nginx | --php | --php73 |--mysql | --redis | --adminer | --phpmyadmin | --phpredismyadmin | --wpcli | --utils | --netdata | --dashboard | --fail2ban | --proftpd ]
 .br
-Install Nginx PHP5 MySQL Postfix stack Packages if not used with
+Install Nginx PHP7.2 MariaDB SendMail Netdata Fail2Ban stack Packages if not used with
 .br
 any options.Installs specific package if used with option.
 .TP
@@ -129,13 +129,13 @@ Disable site by Destroying softlink with site file in
 .br
 Edit NGINX configuration of site.
 .TP
-.B create [ example.com ] [ --html | --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ]]
+.B create [ example.com ] [ --html | --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --wpfc | --wpredis ]
 .br
 Create new site according to given options. If no options provided
 .br
 create static site with html only.
 .TP
-.B update [ example.com ] [ --html | --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --wpfc | --wpredis ] [--password]]
+.B update [ example.com ] [ --html | --php | --php73 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --wpfc | --wpredis ] [--password ]
 .br
 Update site configuration according to specified options.
 .TP
@@ -270,17 +270,23 @@ used with wo secure command. Update whitelist IP address
 .TP
 .B --wpsc
 .br
-Install and activate Nginx-helper and WP Super Cache plugin.
+Install and activate WP Super Cache plugin and serve pages from cache directly with Nginx.
 .TP
 .B --wpfc
 .br
-Install and activate Nginx-helper plugin with
-.br
-Nginx FastCGI cache.
+Install and activate Nginx-helper plugin with Nginx FastCGI cache.
 .TP
 .B --wpredis
 .br
-Install, activate, configure Nginx-helper and Redis Object Cache Plugin, Configure NGINX for Redis Page Caching.
+Install, activate, configure Nginx-helper and Redis Object Cache Plugin, Configure NGINX for Redis Full-Page Caching.
+.TP
+.B --wpce
+.br
+Install and activate Cache-enabler plugin and serve pages from cache directly with Nginx.
+.TP
+.B --wprocket
+.br
+Configure Nginx for WP-Rocket plugin to serve pages from cache directly with Nginx.
 .SH FILES
 .br
 /etc/wo/wo.conf

@@ -25,7 +25,6 @@ class WODomain():
         return domain_name
 
 
-
     def getlevel(self, domain):
         """
             Returns the domain type : domain, subdomain and the root domain
