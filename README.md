@@ -173,6 +173,7 @@ Apps & Tools shipped with WordOps :
 - [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
 - [cheat.sh](https://github.com/chubin/cheat.sh)
 - [ProFTPd](https://github.com/proftpd/proftpd)
+- [nginx-ultimate-bad-bot-blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/)
 
 Cache Plugins supported by WordOps :
 
