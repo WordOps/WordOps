@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Initial creation of .gitconfig is displayed the first time you run the command `wo`
 - Added `/var/lib/php/sessions/` to open_basedir to allow php sessions storage
 - WordOps now check if a repository already exist before trying to adding it again.
+- Improved SSL certificate error messages by displaying domain IP and server IP
 
 #### Fixed
 

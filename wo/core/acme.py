@@ -72,6 +72,7 @@ class WOAcme:
             return True
 
     def deploycert(self, wo_domain_name):
+        """Deploy Let's Encrypt certificates with acme.sh"""
         if not os.path.isfile('/etc/letsencrypt/renewal/{0}_ecc/fullchain.cer'
                               .format(wo_domain_name)):
             Log.error(self, 'Certificate not found. Deployment canceled')
@@ -139,11 +140,13 @@ class WOAcme:
                                      .format(domain)).text
             if(not domain_ip == server_ip):
                 Log.warn(
-                    self, "{0} is not pointing to your server IP"
-                    .format(domain))
+                    self, "{0}".format(domain) +
+                    " point to the IP {0}".format(domain_ip) +
+                    " but your server IP is {0}.".format(server_ip) +
+                    "\nUse the flag --force to bypass this check.")
                 Log.error(
-                    self, "You have to add the "
-                    "proper DNS record", False)
+                    self, "You have to set the "
+                    "proper DNS record for your domain", False)
                 return False
         else:
             Log.debug(self, "DNS record are properly set")
@@ -162,9 +165,6 @@ class WOAcme:
             if wo_domain_name in row[0]:
                 # check if cert expiration exist
                 if not row[3] == '':
-                    cert_exist = True
-                    break
-        else:
-            cert_exist = False
+                    return True
         certfile.close()
-        return cert_exist
+        return False

@@ -199,12 +199,12 @@ class WOStackUpgradeController(CementBaseController):
                 Log.wait(self, "Upgrading APT Packages")
 
                 # additional pre_pref
-                if ["nginx-custom"] in apt_packages:
+                if "nginx-custom" in apt_packages:
                     pre_pref(self, WOVar.wo_nginx)
-                if ["php7.2-fpm"] in apt_packages:
+                if "php7.2-fpm" in apt_packages:
                     WOAptGet.remove(self, ['php7.2-fpm'],
                                     auto=False, purge=True)
-                if ["php7.3-fpm"] in apt_packages:
+                if "php7.3-fpm" in apt_packages:
                     WOAptGet.remove(self, ['php7.3-fpm'],
                                     auto=False, purge=True)
                 # check if nginx upgrade is blocked
@@ -216,6 +216,8 @@ class WOStackUpgradeController(CementBaseController):
                 Log.valide(self, "Upgrading APT Packages")
                 Log.wait(self, "Configuring APT Packages")
                 post_pref(self, apt_packages, [], True)
+                if "mariadb-server" in apt_packages:
+                    WOShellExec(self, 'mysql_upgrade')
                 Log.valide(self, "Configuring APT Packages")
                 # Post Actions after package updates
 

@@ -136,8 +136,8 @@ if [ -z "$wo_branch" ]; then
         wo_branch=master
     fi
 fi
-readonly wo_log_dir=/var/log/wo/
-readonly wo_backup_dir=/var/lib/wo-backup/
+readonly wo_log_dir=/var/log/wo
+readonly wo_backup_dir=/var/lib/wo-backup
 readonly wo_tmp_dir=/var/lib/wo/tmp
 readonly wo_install_log=/var/log/wo/install.log
 readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
