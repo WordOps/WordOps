@@ -217,7 +217,7 @@ class WOStackUpgradeController(CementBaseController):
                 Log.wait(self, "Configuring APT Packages")
                 post_pref(self, apt_packages, [], True)
                 if "mariadb-server" in apt_packages:
-                    WOShellExec(self, 'mysql_upgrade')
+                    WOShellExec.cmd_exec(self, 'mysql_upgrade')
                 Log.valide(self, "Configuring APT Packages")
                 # Post Actions after package updates
 
