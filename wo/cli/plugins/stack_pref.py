@@ -1470,10 +1470,15 @@ def pre_stack(self):
                 'root      soft    nofile      500000\n')
     # custom motd-news
     data = dict()
+    # check if update-motd.d directory exist
     if os.path.isdir('/etc/update-motd.d/'):
         if not os.path.isfile('/etc/update-motd.d/98-wo-update'):
+            # render custom motd template
             WOTemplate.deploy(
                 self, '/etc/update-motd.d/98-wo-update',
                 'wo-update.mustache', data)
         WOFileUtils.chmod(
             self, "/etc/update-motd.d/98-wo-update", 0o755)
+        # restart motd-news service if available
+        if os.path.isfile('/lib/systemd/system/motd-news.service'):
+            WOService.restart_service(self, 'motd-news')

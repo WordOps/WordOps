@@ -126,31 +126,30 @@ _curl() {
     curl -m 10 --retry 3 -sL "$@"
 }
 
-###
-# 1 - Define variables for later use
-###
-if [ -z "$wo_branch" ]; then
-    if [ "$wo_travis" = "y" ]; then
-        wo_branch=updating-configuration
-    else
-        wo_branch=master
+wo_init_variables() {
+    if [ -z "$wo_branch" ]; then
+        if [ "$wo_travis" = "y" ]; then
+            wo_branch=updating-configuration
+        else
+            wo_branch=master
+        fi
     fi
-fi
-readonly wo_log_dir=/var/log/wo
-readonly wo_backup_dir=/var/lib/wo-backup
-readonly wo_tmp_dir=/var/lib/wo/tmp
-readonly wo_install_log=/var/log/wo/install.log
-readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
-readonly TIME=$(date +"$TIME_FORMAT")
-readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
-readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
-readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
+    readonly wo_log_dir=/var/log/wo
+    readonly wo_backup_dir=/var/lib/wo-backup
+    readonly wo_tmp_dir=/var/lib/wo/tmp
+    readonly wo_install_log=/var/log/wo/install.log
+    readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
+    readonly TIME=$(date +"$TIME_FORMAT")
+    readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
+    readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
+    readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
 
-if [ -x /usr/local/bin/ee ]; then
-    ee_migration=1
-elif [ -x /usr/local/bin/wo ]; then
-    wo_upgrade=1
-fi
+    if [ -x /usr/local/bin/ee ]; then
+        ee_migration=1
+    elif [ -x /usr/local/bin/wo ]; then
+        wo_upgrade=1
+    fi
+}
 
 ###
 # 1 - Checking linux distro
@@ -670,6 +669,10 @@ wo_init() {
 # 4 - WO MAIN SETUP
 ###
 
+###
+# 1 - Define variables for later use
+###
+
 # wo uninstall script
 if [ "$wo_purge" = "y" ]; then
     _run wo_backup_wo "Backing-up WO install"
@@ -677,9 +680,11 @@ if [ "$wo_purge" = "y" ]; then
     wo_lib_echo "The WordOps backup files can be found in $WO_BACKUP_FILE"
     exit 0
 else
+    # inital checkup
     wo_dir_init
-    _run wo_clean_repo
     wo_init
+    wo_init_variables
+    _run wo_clean_repo
     wo_check_distro
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then

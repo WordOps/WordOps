@@ -17,10 +17,10 @@ ERR=$(mktemp) || exit 1
 CLOUD=$(mktemp) || exit 1
 trap "rm -f $NEWS $ERR $CLOUD" HUP INT QUIT ILL TRAP BUS TERM
 
-if [ -n "$(command -v curl > /dev/null 2>&1)" ]; then
+if [ -n "$(command -v curl)" ]; then
     LATEST_RELEASE=$(curl -m 5 --retry 3 -sI "$URL" | grep tag | awk -F "/" '{print $8}' 2>&1)
 fi
-if [ -n "$(command -v wo > /dev/null 2>&1)" ]; then
+if [ -n "$(command -v wo)" ]; then
     CURRENT_RELEASE=$(wo -v 2>&1 | grep v | awk -F " " '{print $2}')
 fi
 if [ -n "$CURRENT_RELEASE" ] && [ -n "$LATEST_RELEASE" ]; then
