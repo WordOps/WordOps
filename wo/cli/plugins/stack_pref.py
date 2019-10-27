@@ -1468,4 +1468,12 @@ def pre_stack(self):
                 '*         soft    nofile      500000\n'
                 'root      hard    nofile      500000\n'
                 'root      soft    nofile      500000\n')
-    Log.valide(self, 'Applying Linux tweaks')
+    # custom motd-news
+    data = dict()
+    if os.path.isdir('/etc/update-motd.d/'):
+        if not os.path.isfile('/etc/update-motd.d/98-wo-update'):
+            WOTemplate.deploy(
+                self, '/etc/update-motd.d/98-wo-update',
+                'wo-update.mustache', data)
+        WOFileUtils.chmod(
+            self, "/etc/update-motd.d/98-wo-update", 0o755)

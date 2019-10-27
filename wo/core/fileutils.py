@@ -343,3 +343,16 @@ class WOFileUtils():
                     # If it's not a symlink we're not interested.
                     continue
         return True
+
+    def writein(self, path, content):
+        """
+            Write content in path
+        """
+        Log.debug(self, "Writing content in {0}".format(path))
+        try:
+            with open("{0}".format(path),
+                      encoding='utf-8', mode='w') as final_file:
+                final_file.write('{0}'.format(content))
+        except IOError as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to write content in {0}".format(path))
