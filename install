@@ -427,6 +427,7 @@ wo_install() {
     python3 -m pip install --upgrade wordops
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
+    cp -f /usr/local/lib/python3.*/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
 
 }
 
@@ -445,8 +446,9 @@ wo_travis_install() {
     else
         python3 -m pip install git+git://github.com/WordOps/WordOps.git@$wo_branch #egg=wordops -U
     fi
-    cp -rn /usr/local/lib/python3.*/dist-packages/usr/* /usr/
+    cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
+    cp -f /usr/local/lib/python3.*/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
 
 }
 
