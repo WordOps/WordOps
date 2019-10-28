@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Improved SSL certificate error messages by displaying domain IP and server IP
 - Version check before updating WordOps with `wo update` is now directly handled by `wo`
 - Refactored WordOps download function with python3-requests
+- MySQL backup path changed to `/var/lib/wo-backup/mysql`
 
 #### Fixed
 

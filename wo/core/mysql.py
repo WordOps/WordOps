@@ -70,7 +70,7 @@ class WOMysql():
         # Get login details from /etc/mysql/conf.d/my.cnf
         # & Execute MySQL query
         connection = WOMysql.connect(self)
-        log and Log.debug(self, "Exceuting MySQL Statement : {0}"
+        log and Log.debug(self, "Executing MySQL Statement : {0}"
                           .format(statement))
         try:
             cursor = connection.cursor()
@@ -93,12 +93,12 @@ class WOMysql():
         import subprocess
         try:
             Log.info(self, "Backing up database at location: "
-                     "/var/wo-mysqlbackup")
+                     "/var/lib/wo-backup/mysql")
             # Setup Nginx common directory
-            if not os.path.exists('/var/wo-mysqlbackup'):
+            if not os.path.exists('/var/lib/wo-backup/mysql'):
                 Log.debug(self, 'Creating directory'
-                          '/var/wo-mysqlbackup')
-                os.makedirs('/var/wo-mysqlbackup')
+                          '/var/lib/wo-backup/mysql')
+                os.makedirs('/var/lib/wo-backup/mysql')
 
             db = subprocess.check_output(["/usr/bin/mysql "
                                           "-Bse \'show databases\'"],
@@ -114,7 +114,7 @@ class WOMysql():
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE, shell=True)
                 p2 = subprocess.Popen("/usr/bin/pigz -c > "
-                                      "/var/wo-mysqlbackup/{0}{1}.sql.gz"
+                                      "/var/lib/wo-backup/mysql/{0}{1}.sql.gz"
                                       .format(dbs, WOVar.wo_date),
                                       stdin=p1.stdout,
                                       shell=True)

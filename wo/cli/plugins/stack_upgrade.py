@@ -126,12 +126,12 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.wpcli:
             if os.path.isfile('/usr/local/bin/wp'):
-                packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                        "releases/download/v{0}/"
-                                        "wp-cli-{0}.phar"
-                                        "".format(WOVar.wo_wp_cli),
-                                        "/usr/local/bin/wp",
-                                        "WP-CLI"]]
+                packages = packages + [[
+                    "https://github.com/wp-cli/wp-cli/"
+                    "releases/download/v{0}/"
+                    "wp-cli-{0}.phar".format(WOVar.wo_wp_cli),
+                    "/usr/local/bin/wp",
+                    "WP-CLI"]]
             else:
                 Log.info(self, "WPCLI is not installed with WordOps")
 
@@ -168,9 +168,10 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.composer:
             if os.path.isfile('/usr/local/bin/composer'):
-                packages = packages + [["https://getcomposer.org/installer",
-                                        "/var/lib/wo/tmp/composer-install",
-                                        "Composer"]]
+                packages = packages + [[
+                    "https://getcomposer.org/installer",
+                    "/var/lib/wo/tmp/composer-install",
+                    "Composer"]]
             else:
                 Log.info(self, "Composer isn't installed")
 
