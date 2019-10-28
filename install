@@ -134,9 +134,6 @@ wo_init_variables() {
             wo_branch=master
         fi
     fi
-    readonly wo_log_dir=/var/log/wo
-    readonly wo_backup_dir=/var/lib/wo-backup
-    readonly wo_tmp_dir=/var/lib/wo/tmp
     readonly wo_install_log=/var/log/wo/install.log
     readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
     readonly TIME=$(date +"$TIME_FORMAT")
@@ -181,6 +178,9 @@ wo_check_distro() {
 # 1 - To prevent errors or unexpected behaviour, create the log and ACL it
 ###
 wo_dir_init() {
+    local wo_log_dir=/var/log/wo
+    local wo_backup_dir=/var/lib/wo-backup
+    local wo_tmp_dir=/var/lib/wo/tmp
     if [ ! -d "$wo_log_dir" ] || [ ! -d "$wo_backup_dir" ] || [ ! -d "$wo_tmp_dir" ]; then
 
         mkdir -p "$wo_backup_dir" "$wo_log_dir" "$wo_tmp_dir"
@@ -434,9 +434,6 @@ wo_install() {
 # Clone Github repository if it doesn't exist
 wo_travis_install() {
 
-    if [ "$wo_force_install" = "y" ]; then
-        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
-    fi
     if [ -d ./dist ]; then
         rm -rf dist
     fi
@@ -444,7 +441,7 @@ wo_travis_install() {
         python3 setup.py sdist bdist_wheel
         python3 -m pip install --upgrade dist/*.whl
     else
-        python3 -m pip install git+git://github.com/WordOps/WordOps.git@$wo_branch #egg=wordops -U
+        python3 -m pip install -U git+git://github.com/WordOps/WordOps.git@$wo_branch #egg=wordops
     fi
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
@@ -482,9 +479,10 @@ wo_upgrade_nginx() {
     fi
 
     # install new nginx package
-    if [ -n "$CHECK_NGINX_EE" ]; then
-        if [ -x /usr/local/bin/wo ]; then
-            [ -f /etc/apt/preferences.d/nginx-block ] && { mv /etc/apt/preferences.d/nginx-block /var/lib/wo/tmp/nginx-block; }
+    if {
+        if [ -n "$CHECK_NGINX_EE" ]; then
+            if [ -x /usr/local/bin/wo ]; then
+                [ -f /etc/apt/preferences.d/nginx-block ] && { mv /etc/apt/preferences.d/nginx-block /var/lib/wo/tmp/nginx-block; }
             # stop nginx
             service nginx stop
             # remove previous package
@@ -501,18 +499,20 @@ wo_upgrade_nginx() {
             /usr/local/bin/wo stack install --nginx --php
             rm -f /etc/nginx/common/acl.conf /etc/nginx/htpasswd-wo
             /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
-            /usr/local/bin/wo stack upgrade --nginx --force
+                /usr/local/bin/wo stack upgrade --nginx --force
+            fi
         fi
-    fi
-    # restore sites and configuration
-    [ -f /etc/nginx/htpasswd-ee ] && { cp -f /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
-    sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+    }; then
+        # restore sites and configuration
+        [ -f /etc/nginx/htpasswd-ee ] && { cp -f /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
+        sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
     sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
     sed -i "s/locations-php71.conf/locations-wo.conf/" /etc/nginx/sites-available/*
     sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
-    sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
-    sed -i "s/htpasswd-ee/htpasswd-wo/" /etc/nginx/common/acl.conf
-    sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
+        sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/htpasswd-ee/htpasswd-wo/" /etc/nginx/common/acl.conf
+        sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
+    fi
 
     # update redis.conf headers
     if [ -f /etc/nginx/common/redis.conf ]; then
@@ -551,7 +551,7 @@ wo_update_latest() {
             if [ -f /root/.my.cnf ]; then
                 cp -f /root/.my.cnf /etc/mysql/conf.d/my.cnf
                 chmod 600 /etc/mysql/conf.d/my.cnf
-            elif [ -f "$HOME/.my.cnf"]; then
+            elif [ -f "$HOME/.my.cnf" ]; then
                 cp -f "$HOME/.my.cnf" /etc/mysql/conf.d/my.cnf
                 chmod 600 /etc/mysql/conf.d/my.cnf
             fi
@@ -654,11 +654,13 @@ wo_init() {
             apt-get install lsb-release -qq
         fi
     fi
-
+    if [ "$wo_force_install" = "y" ]; then
+        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
+    fi
     if [ -f ./setup.py ]; then
         readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
     else
-        readonly wo_version_new=$(curl -m 10 --retry 3 -sI https://github.com/WordOps/WordOps/releases/latest | grep tag | awk -F "/" '{print $8}' 2>&1)
+        readonly wo_version_new=$(curl -m 5 --retry 3 -sI https://github.com/WordOps/WordOps/releases/latest | grep tag | awk -F "/" '{print $8}' 2>&1)
     fi
 
     echo ""
@@ -675,18 +677,23 @@ wo_init() {
 # 1 - Define variables for later use
 ###
 
+# inital setup
+
+wo_dir_init
+wo_init
+wo_init_variables
+_run wo_clean_repo
+wo_check_distro
+
 # wo uninstall script
 if [ "$wo_purge" = "y" ]; then
+
     _run wo_backup_wo "Backing-up WO install"
     _run wo_uninstall "Uninstalling WordOps"
     wo_lib_echo "The WordOps backup files can be found in $WO_BACKUP_FILE"
     exit 0
 else
     # inital checkup
-    wo_dir_init
-    wo_init
-    wo_init_variables
-    _run wo_clean_repo
     wo_check_distro
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
