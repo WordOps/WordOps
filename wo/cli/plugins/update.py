@@ -1,8 +1,8 @@
 import os
 import time
 
+import requests
 from cement.core.controller import CementBaseController, expose
-from requests import RequestException, get, json
 from wo.core.download import WODownload
 from wo.core.logging import Log
 from wo.core.variables import WOVar
