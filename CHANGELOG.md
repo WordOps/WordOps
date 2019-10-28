@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Incorrect PHP-FPM log path is `wo log`
 - force-ssl.conf not removed after removing a site
 - `wo clean --opcache` not working with invalid SSL certificate
+- `wo stack install --cheat` wasn't working properly previously
 
 
 ### v3.9.9.4 -  2019-10-18

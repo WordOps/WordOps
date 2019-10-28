@@ -606,16 +606,6 @@ wo_uninstall() {
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
 }
 
-wo_cheat_install() {
-    curl -sL https://cht.sh/:cht.sh >/usr/local/bin/cht.sh
-    chmod +x /usr/local/bin/cht.sh
-    [ ! -h /usr/local/bin/cheat ] && {
-        rm -f /usr/local/bin/cheat
-        ln -s /usr/local/bin/cht.sh /usr/local/bin/cheat
-    }
-    curl -sL https://cheat.sh/:bash_completion >/etc/bash_completion.d/cht.sh
-}
-
 wo_clean_repo() {
     # remove old EasyEngine Nginx repository
     if [ -f /etc/apt/sources.list.d/ee-repo.list ]; then
@@ -721,8 +711,7 @@ else
         _run wo_upgrade_nginx "Upgrading Nginx"
         _run wo_clean_ee "Cleaning previous EasyEngine install"
     fi
-    _run wo_install_acme_sh
-    _run wo_cheat_install "Running post-install steps"
+    _run wo_install_acme_sh "Running post-install steps"
     _run wo_domain_suffix
     _run wo_update_wp_cli
     _run wo_update_latest
@@ -738,10 +727,10 @@ else
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
         echo
-        wo_lib_echo "To upgrade WordOps stacks use the command:"
-        wo_lib_echo_info "wo stack upgrade --all"
+        wo_lib_echo "To upgrade WordOps web stacks use the command:"
+        wo_lib_echo_info "wo stack upgrade"
         echo
-        wo_lib_echo "To update all other server packages use the command:"
+        wo_lib_echo "To update all other packages use the command:"
         wo_lib_echo_info "wo maintenance"
     else
         wo_lib_echo "WordOps (wo) installed successfully"

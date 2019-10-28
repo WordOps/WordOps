@@ -1192,6 +1192,21 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.debug(self, "CHMOD MySQLTuner in /usr/bin/mysqltuner")
             WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
 
+        # cheat.sh
+        if any('/usr/local/bin/cht.sh' == x[1]
+               for x in packages):
+            Log.debug(self, "CHMOD cht.sh in /usr/local/bin/cht.sh")
+            WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
+            if WOFileUtils.grepcheck(self, '/etc/bash_completion.d/cht.sh',
+                                     'cht_complete cht.sh'):
+                WOFileUtils.searchreplace(
+                    self, '/etc/bash_completion.d/cht.sh',
+                    '_cht_complete cht.sh',
+                    '_cht_complete cheat')
+            if not os.path.islink('/usr/local/bin/cheat'):
+                WOFileUtils.create_symlink(
+                    self, ['/usr/local/bin/cht.sh', '/usr/local/bin/cheat'])
+
         # netdata install
         if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
                for x in packages):
@@ -1488,8 +1503,8 @@ def pre_stack(self):
             WOTemplate.deploy(
                 self, '/etc/update-motd.d/98-wo-update',
                 'wo-update.mustache', data)
-        WOFileUtils.chmod(
-            self, "/etc/update-motd.d/98-wo-update", 0o755)
-        # restart motd-news service if available
-        if os.path.isfile('/lib/systemd/system/motd-news.service'):
-            WOService.restart_service(self, 'motd-news')
+            WOFileUtils.chmod(
+                self, "/etc/update-motd.d/98-wo-update", 0o755)
+            # restart motd-news service if available
+            if os.path.isfile('/lib/systemd/system/motd-news.service'):
+                WOService.restart_service(self, 'motd-news')
