@@ -47,14 +47,14 @@ class WOUpdateController(CementBaseController):
 
         wo_current = WOVar.wo_version
         try:
-            wo_github_latest = get(
+            wo_github_latest = requests.get(
                 'https://api.github.com/repos/WordOps/WordOps/releases/latest',
                 timeout=(5, 30)).json()
-        except RequestException:
+        except requests.RequestException:
             Log.debug(
                 self, "Request to GitHub API failed. "
                 "Switching to Gitea instance")
-            wo_github_latest = get(
+            wo_github_latest = requests.get(
                 'https://git.virtubox.net/api/v1/repos/virtubox/WordOps/tags',
                 timeout=(5, 30)).json()
             wo_latest = wo_github_latest[0]["name"]
