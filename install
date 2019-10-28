@@ -483,22 +483,22 @@ wo_upgrade_nginx() {
         if [ -n "$CHECK_NGINX_EE" ]; then
             if [ -x /usr/local/bin/wo ]; then
                 [ -f /etc/apt/preferences.d/nginx-block ] && { mv /etc/apt/preferences.d/nginx-block /var/lib/wo/tmp/nginx-block; }
-            # stop nginx
-            service nginx stop
-            # remove previous package
-            apt-mark unhold nginx-ee nginx-common nginx-custom
-            apt-get autoremove nginx-ee nginx-common nginx-custom --allow-change-held-packages --purge -qq
-            # remove previous php-fpm pool configuration
-            if [ -n "$CHECK_PHP72" ]; then
-                apt-get purge php7.2-fpm -y -qq
-                rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
-            fi
-            if [ -d /etc/nginx ]; then
-                rm -rf /etc/nginx
-            fi
-            /usr/local/bin/wo stack install --nginx --php
-            rm -f /etc/nginx/common/acl.conf /etc/nginx/htpasswd-wo
-            /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
+                # stop nginx
+                service nginx stop
+                # remove previous package
+                apt-mark unhold nginx-ee nginx-common nginx-custom
+                apt-get autoremove nginx-ee nginx-common nginx-custom --allow-change-held-packages --purge -qq
+                # remove previous php-fpm pool configuration
+                if [ -n "$CHECK_PHP72" ]; then
+                    apt-get purge php7.2-fpm -y -qq
+                    rm -f /etc/php/7.2/fpm/pool.d/{www.conf,www-two.conf,debug.conf}
+                fi
+                if [ -d /etc/nginx ]; then
+                    rm -rf /etc/nginx
+                fi
+                /usr/local/bin/wo stack install --nginx --php
+                rm -f /etc/nginx/common/acl.conf /etc/nginx/htpasswd-wo
+                /usr/bin/rsync -au --noatime /var/lib/wo-backup/nginx/ /etc/nginx/
                 /usr/local/bin/wo stack upgrade --nginx --force
             fi
         fi
@@ -506,9 +506,9 @@ wo_upgrade_nginx() {
         # restore sites and configuration
         [ -f /etc/nginx/htpasswd-ee ] && { cp -f /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
         sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
-    sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
-    sed -i "s/locations-php71.conf/locations-wo.conf/" /etc/nginx/sites-available/*
-    sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php71.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/htpasswd-ee/htpasswd-wo/" /etc/nginx/common/acl.conf
         sed -i 's/ssl on;/#ssl on;/' /var/www/*/conf/nginx/ssl.conf
@@ -653,14 +653,17 @@ wo_init() {
         if ! command_exists lsb_release; then
             apt-get install lsb-release -qq
         fi
+        if ! command_exists jq; then
+            apt-get install jq -qq
+        fi
     fi
     if [ "$wo_force_install" = "y" ]; then
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
     fi
     if [ -f ./setup.py ]; then
-        readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print$2}' 2>&1)
+        readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print $2}' 2>&1)
     else
-        readonly wo_version_new=$(curl -m 5 --retry 3 -sI https://github.com/WordOps/WordOps/releases/latest | grep tag | awk -F "/" '{print $8}' 2>&1)
+        readonly wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest | jq -r '.tag_name' 2>&1)
     fi
 
     echo ""

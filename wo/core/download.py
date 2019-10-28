@@ -23,7 +23,7 @@ class WODownload():
                     os.makedirs(directory)
                 Log.info(self, "Downloading {0:20}".format(pkg_name), end=' ')
                 with open(filename, "wb") as out_file:
-                    req = get(url, timeout=15)
+                    req = get(url, timeout=(5, 30))
                     if req.encoding is None:
                         req.encoding = 'utf-8'
                     out_file.write(req.content)
@@ -34,3 +34,4 @@ class WODownload():
                 Log.error(self, "Unable to download file, {0}"
                           .format(filename))
                 return False
+        return 0
