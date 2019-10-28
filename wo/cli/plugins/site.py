@@ -227,8 +227,7 @@ class WOSiteController(CementBaseController):
             Log.info(self, Log.ENDC + text)
             f.close()
         else:
-            Log.error(self, "nginx configuration file does not exists"
-                      .format(wo_domain))
+            Log.error(self, "nginx configuration file does not exists")
 
     @expose(help="Change directory to site webroot")
     def cd(self):

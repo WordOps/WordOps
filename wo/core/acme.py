@@ -148,9 +148,8 @@ class WOAcme:
                     self, "You have to set the "
                     "proper DNS record for your domain", False)
                 return False
-        else:
-            Log.debug(self, "DNS record are properly set")
-            return True
+        Log.debug(self, "DNS record are properly set")
+        return True
 
     def cert_check(self, wo_domain_name):
         """Check certificate existance with acme.sh and return Boolean"""

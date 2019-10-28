@@ -2,7 +2,7 @@
 import os
 
 
-class WODomain():
+class WODomain:
     """WordOps domain validation utilities"""
 
     def validate(self, url):
@@ -23,7 +23,6 @@ class WODomain():
             final_domain = '.'.join(www_domain_name[1:])
             return final_domain
         return domain_name
-
 
     def getlevel(self, domain):
         """

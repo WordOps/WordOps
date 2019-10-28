@@ -14,7 +14,7 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.services import WOService
-from wo.core.shellexec import WOShellExec
+from wo.core.shellexec import WOShellExec, CommandExecutionError
 from wo.core.variables import WOVar
 
 
@@ -703,8 +703,7 @@ class WODebugController(CementBaseController):
                                                     "-l | sed '/WordOps "
                                                     "start MySQL slow "
                                                     "log/,+2d'"
-                                                    "| crontab -\""
-                                                    .format(cron_time)):
+                                                    "| crontab -\""):
                             Log.error(self, "failed to remove crontab entry")
             except CommandExecutionError as e:
                 Log.debug(self, str(e))
