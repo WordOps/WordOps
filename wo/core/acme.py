@@ -173,6 +173,13 @@ class WOAcme:
                    .format(domain))
         sslforce = ("/etc/nginx/conf.d/force-ssl-{0}.conf"
                     .format(domain))
+        acmedir = [
+            '{0}'.format(sslforce), '{0}'.format(sslconf),
+            '{0}/{1}_ecc'.format(WOVar.wo_ssl_archive, domain),
+            '{0}.disabled'.format(sslconf), '{0}.disabled'
+            .format(sslforce), '{0}/{1}'
+            .format(WOVar.wo_ssl_live, domain),
+            '/etc/letsencrypt/shared/{0}.conf'.format(domain)]
         wo_domain = domain
         if WOAcme.cert_check(self, wo_domain):
             Log.info(self, "Removing Acme configuration")
@@ -184,17 +191,10 @@ class WOAcme:
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Cert removal failed")
-            WOFileUtils.rm(self, '{0}/{1}_ecc'
-                           .format(WOVar.wo_ssl_archive, domain))
-            WOFileUtils.rm(self, '{0}/{1}'
-                           .format(WOVar.wo_ssl_live, domain))
-            WOFileUtils.rm(self, '{0}'.format(sslconf))
-            WOFileUtils.rm(self, '{0}.disabled'.format(sslconf))
-            WOFileUtils.rm(self, '{0}'.format(sslforce))
-            WOFileUtils.rm(self, '{0}.disabled'
-                           .format(sslforce))
-            WOFileUtils.rm(self, '/etc/letsencrypt/shared/{0}.conf'
-                           .format(domain))
+            # remove all files and directories
+            for dir in acmedir:
+                if os.path.exists('{0}'.format(dir)):
+                    WOFileUtils.rm(self, '{0}'.format(dir))
             # find all broken symlinks
             WOFileUtils.findBrokenSymlink(self, "/var/www")
         else:
