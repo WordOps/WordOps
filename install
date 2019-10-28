@@ -650,10 +650,10 @@ wo_init() {
             apt-get -y install curl -qq >/dev/null 2>&1
         fi
         if ! command_exists lsb_release; then
-            apt-get install lsb-release -qq
+            apt-get install lsb-release -qq > /dev/null 2>&1
         fi
         if ! command_exists jq; then
-            apt-get install jq -qq
+            apt-get install jq -qq > /dev/null 2>&1
         fi
     fi
     if [ "$wo_force_install" = "y" ]; then
@@ -662,11 +662,11 @@ wo_init() {
     if [ -f ./setup.py ]; then
         readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print $2}' 2>&1)
     else
-        readonly wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest | jq -r '.tag_name' 2>&1)
+        readonly wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest 2>&1 | jq -r '.tag_name' )
     fi
 
     echo ""
-    wo_lib_echo "Welcome to WordOps install/update script v${wo_version_new}"
+    wo_lib_echo "Welcome to WordOps install/update script ${wo_version_new}"
     echo ""
 
 }
