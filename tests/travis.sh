@@ -229,7 +229,7 @@ wo site info wp.net
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker'
+stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat'
 for stack in $stack_purge; do
     echo -ne "       purging $stack              [..]\r"
     if {
