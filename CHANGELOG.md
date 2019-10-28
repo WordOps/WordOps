@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - Sysctl tweaks are applied during stack install and removed from install script
-- Nginx systemd tweaks during Nginx install/upgrade and removed from install script
+- Nginx & MariaDB systemd tweaks are removed from install script and applied during stacks install/upgrade
 - Initial creation of .gitconfig is displayed the first time you run the command `wo`
 - Added `/var/lib/php/sessions/` to open_basedir to allow php sessions storage
 - WordOps now check if a repository already exist before trying to adding it again.
@@ -30,6 +30,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Fixed
 
 - Incorrect PHP-FPM log path is `wo log`
+- force-ssl.conf not removed after removing a site
+- `wo clean --opcache` not working with invalid SSL certificate
 
 
 ### v3.9.9.4 -  2019-10-18

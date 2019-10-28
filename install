@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.10.0 - 2019-10-25
+# Version 3.10.0 - 2019-10-28
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -70,6 +70,9 @@ while [ "$#" -gt 0 ]; do
         wo_travis="y"
         wo_force_install="y"
         ;;
+    --mainline | --beta)
+        wo_branch="mainline"
+        ;;
     -s | --silent)
         wo_force_install="y"
         ;;
@@ -102,7 +105,7 @@ export LC_ALL='C.UTF-8'
 
 # check if a command exist
 command_exists() {
-    command -v "$@" > /dev/null 2>&1
+    command -v "$@" >/dev/null 2>&1
 }
 
 # run functions and exit on failure
@@ -110,7 +113,7 @@ _run() {
     if [ -n "$2" ]; then
         echo -ne "${TPUT_ECHO}${2}${TPUT_RESET}\t"
     fi
-    if ! { "$1" >> "$wo_install_log" 2>&1; }; then
+    if ! { "$1" >>"$wo_install_log" 2>&1; }; then
         if [ -n "$2" ]; then
             echo -e "${TPUT_FAIL}[KO]${TPUT_RESET}"
         fi
@@ -205,13 +208,13 @@ wo_install_dep() {
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip python3-pip python3-wheel python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
-            gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
+            gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp >/dev/null 2>&1
         curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip dirmngr sudo python3-pip python3-wheel python3-apt python3-setuptools python3-dev ca-certificates sqlite3 git tar \
-            software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp > /dev/null 2>&1
+            software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp >/dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
         # add nginx repository gpg key
@@ -248,17 +251,16 @@ wo_sync_db() {
     # Switching from EE -> WO
     ###
     if [ ! -f /var/lib/wo/dbase.db ]; then
-        # Create the WordOps folder
-        mkdir -p /var/lib/wo
 
         if [ -f /var/lib/ee/ee.db ]; then
+
             # Make a backup of the EasyEngine database
             cp /var/lib/ee/ee.db /var/lib/wo/dbase-ee.db
 
             # Copy ee database
             cp /var/lib/ee/ee.db /var/lib/wo/dbase.db
         else
-            if [ -d /etc/nginx/sites-available ]; then
+            if [ -d /etc/nginx/sites-available ] && [ -d /var/www ]; then
 
                 # Create an empty database for WordOps
                 echo "CREATE TABLE sites (
@@ -423,8 +425,11 @@ wo_install_acme_sh() {
 
 # WordOps install
 wo_install() {
-
-    python3 -m pip install --upgrade wordops
+    if [ "$wo_branch" = "master" ]; then
+        python3 -m pip install --upgrade wordops
+    else
+        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+    fi
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
     cp -f /usr/local/lib/python3.*/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
@@ -441,7 +446,7 @@ wo_travis_install() {
         python3 setup.py sdist bdist_wheel
         python3 -m pip install --upgrade dist/*.whl
     else
-        python3 -m pip install -U git+git://github.com/WordOps/WordOps.git@$wo_branch #egg=wordops
+        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
@@ -586,16 +591,7 @@ wo_remove_ee_cron() {
 }
 
 wo_domain_suffix() {
-    _curl https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat
-}
-
-wo_mariadb_tweak() {
-    # increase mariadb open_files_limit
-    if [ -d /etc/systemd/system/mariadb.service.d ] && [ ! -f /etc/systemd/system/mariadb.service.d/limits.conf ]; then
-        echo -e '[Service]\nLimitNOFILE=500000' > /etc/systemd/system/mariadb.service.d/limits.conf
-        systemctl daemon-reload
-        service mysql restart
-    fi
+    _curl https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' >/var/lib/wo/public_suffix_list.dat
 }
 
 wo_clean() {
@@ -604,33 +600,36 @@ wo_clean() {
 }
 
 wo_uninstall() {
+    if { python3 -m pip list | grep -q "wordops" >/dev/null 2>&1; }; then
+        python3 -m pip uninstall wordops -y
+    fi
     rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
 }
 
 wo_cheat_install() {
-    curl -sL https://cht.sh/:cht.sh > /usr/local/bin/cht.sh
+    curl -sL https://cht.sh/:cht.sh >/usr/local/bin/cht.sh
     chmod +x /usr/local/bin/cht.sh
     [ ! -h /usr/local/bin/cheat ] && {
         rm -f /usr/local/bin/cheat
         ln -s /usr/local/bin/cht.sh /usr/local/bin/cheat
     }
-    curl -sL https://cheat.sh/:bash_completion > /etc/bash_completion.d/cht.sh
+    curl -sL https://cheat.sh/:bash_completion >/etc/bash_completion.d/cht.sh
 }
 
 wo_clean_repo() {
     # remove old EasyEngine Nginx repository
     if [ -f /etc/apt/sources.list.d/ee-repo.list ]; then
         cp -f /etc/apt/sources.list.d/ee-repo.list /etc/apt/sources.list.d/ee-repo.list.save
-        grep -v "/home:/rtCamp:/EasyEngine" /etc/apt/sources.list.d/ee-repo.list.save > /etc/apt/sources.list.d/ee-repo.list
+        grep -v "/home:/rtCamp:/EasyEngine" /etc/apt/sources.list.d/ee-repo.list.save >/etc/apt/sources.list.d/ee-repo.list
     fi
     if [ -f /etc/apt/sources.list.d/wo-repo.list ]; then
         local wo_linux_distro
         wo_linux_distro=$(lsb_release -is)
         cp -f /etc/apt/sources.list.d/wo-repo.list /etc/apt/sources.list.d/wo-repo.list.save
         if [ "$wo_linux_distro" = "Ubuntu" ]; then
-            grep -v "opensuse" /etc/apt/sources.list.d/wo-repo.list.save > /etc/apt/sources.list.d/wo-repo.list
+            grep -v "opensuse" /etc/apt/sources.list.d/wo-repo.list.save >/etc/apt/sources.list.d/wo-repo.list
         else
-            grep -v "/home:/rtCamp:/EasyEngine" /etc/apt/sources.list.d/wo-repo.list.save > /etc/apt/sources.list.d/wo-repo.list
+            grep -v "/home:/rtCamp:/EasyEngine" /etc/apt/sources.list.d/wo-repo.list.save >/etc/apt/sources.list.d/wo-repo.list
         fi
     fi
 }
@@ -643,12 +642,12 @@ wo_init() {
 
     if [ -z "$wo_travis" ]; then
         if ! {
-            apt-get update --allow-releaseinfo-change -qq > /dev/null 2>&1
+            apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
         }; then
-            apt-get update -qq > /dev/null 2>&1
+            apt-get update -qq >/dev/null 2>&1
         fi
         if ! command_exists curl; then
-            apt-get -y install curl -qq > /dev/null 2>&1
+            apt-get -y install curl -qq >/dev/null 2>&1
         fi
         if ! command_exists lsb_release; then
             apt-get install lsb-release -qq
@@ -676,35 +675,26 @@ wo_init() {
 # 4 - WO MAIN SETUP
 ###
 
-###
-# 1 - Define variables for later use
-###
-
-# inital setup
-
+# create required directories
 wo_dir_init
+# install lsb_release, curl and display header
 wo_init
+# define main variables
 wo_init_variables
+# remove old repositories
 _run wo_clean_repo
+# check distribution support
 wo_check_distro
 
 # wo uninstall script
 if [ "$wo_purge" = "y" ]; then
-
     _run wo_backup_wo "Backing-up WO install"
     _run wo_uninstall "Uninstalling WordOps"
     wo_lib_echo "The WordOps backup files can be found in $WO_BACKUP_FILE"
     exit 0
 else
-    # inital checkup
-    wo_check_distro
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
-        if [ -z "$wo_force_install" ]; then
-            if { wo -v 2>&1 | grep -q "$wo_version_new"; }; then
-                wo_lib_error "You already have WordOps $wo_version_new" 1
-            fi
-        fi
         _run wo_clean
     # 2 - Migration from EEv3
     elif [ -x /usr/local/bin/ee ]; then
@@ -716,13 +706,13 @@ else
         fi
         _run wo_backup_ee "Backing-up EE install"
         _run wo_remove_ee_cron "Removing EasyEngine cronjob"
-        _run wo_sync_db "Syncing WO database"
     fi
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
         #_run wo_download "Downloading WordOps"
+        _run wo_sync_db
         _run wo_install "Installing WordOps"
     else
         _run wo_travis_install "Installing WordOps"
@@ -732,16 +722,13 @@ else
         _run wo_clean_ee "Cleaning previous EasyEngine install"
     fi
     _run wo_install_acme_sh
-    if [ -d /etc/systemd/system/mariadb.service.d ]; then
-        _run wo_mariadb_tweak
-    fi
     _run wo_cheat_install "Running post-install steps"
     _run wo_domain_suffix
     _run wo_update_wp_cli
     _run wo_update_latest
     _run secure_wo_db
 
-    wo sync >> $wo_install_log 2>&1
+    wo sync >>$wo_install_log 2>&1
 
     if [ "$ee_migration" = "1" ]; then
         echo
@@ -771,6 +758,7 @@ else
     echo
     wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
     wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
+    wo_lib_echo "WordOps Community Chat : https://chat.wordops.net"
     echo
     wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo

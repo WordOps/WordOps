@@ -1,7 +1,7 @@
 import os
 import time
 
-import requests
+
 from cement.core.controller import CementBaseController, expose
 from wo.core.download import WODownload
 from wo.core.logging import Log
@@ -46,36 +46,28 @@ class WOUpdateController(CementBaseController):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
 
         wo_current = WOVar.wo_version
-        try:
-            wo_github_latest = requests.get(
-                'https://api.github.com/repos/WordOps/WordOps/releases/latest',
-                timeout=(5, 30)).json()
-        except requests.RequestException:
-            Log.debug(
-                self, "Request to GitHub API failed. "
-                "Switching to Gitea instance")
-            wo_github_latest = requests.get(
-                'https://git.virtubox.net/api/v1/repos/virtubox/WordOps/tags',
-                timeout=(5, 30)).json()
-            wo_latest = wo_github_latest[0]["name"]
-        else:
-            wo_latest = wo_github_latest["tag_name"]
+        wo_latest = WODownload.latest_release(self, "WordOps/WordOps")
 
         install_args = ""
         if pargs.mainline or pargs.beta:
             wo_branch = "mainline"
+            install_args = install_args + "--mainline "
         elif pargs.branch:
             wo_branch = pargs.branch
-        else:
-            wo_branch = "master"
+            install_args = install_args + "-b {0} ".format(wo_branch)
         if pargs.force:
             install_args = install_args + "--force "
-        else:
-            if not pargs.travis:
-                if wo_current == wo_latest:
-                    Log.error(
-                        self, "WordOps {0} is already installed"
-                        .format(wo_latest))
+        if pargs.travis:
+            install_args = install_args + "--travis "
+            wo_branch = "updating-configuration"
+
+        if ((not pargs.force) and (not pargs.travis) and
+            (not pargs.mainline) and (not pargs.beta) and
+                (not pargs.branch)):
+            if wo_current == wo_latest:
+                Log.error(
+                    self, "WordOps {0} is already installed"
+                    .format(wo_latest))
 
         if not os.path.isdir('/var/lib/wo/tmp'):
             os.makedirs('/var/lib/wo/tmp')
@@ -85,21 +77,18 @@ class WOUpdateController(CementBaseController):
                                     "/var/lib/wo/tmp/{0}".format(filename),
                                     "update script"]])
 
-        if pargs.travis:
-            if os.path.isfile('install'):
-                try:
-                    Log.info(self, "updating WordOps, please wait...")
-                    os.system("/bin/bash install --travis "
-                              "--force")
-                except OSError as e:
-                    Log.debug(self, str(e))
-                    Log.error(self, "WordOps update failed !")
+        if os.path.isfile('install'):
+            try:
+                Log.info(self, "updating WordOps, please wait...")
+                os.system("/bin/bash install --travis")
+            except OSError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "WordOps update failed !")
         else:
             try:
                 Log.info(self, "updating WordOps, please wait...")
                 os.system("/bin/bash /var/lib/wo/tmp/{0} "
-                          "-b {1} {2}".format(filename,
-                                              wo_branch, install_args))
+                          "{1}".format(filename, install_args))
             except OSError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "WordOps update failed !")

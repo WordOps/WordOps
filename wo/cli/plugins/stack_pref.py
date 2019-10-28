@@ -835,8 +835,19 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
+                if os.path.isdir('/etc/systemd/system/mariadb.service.d'):
+                    if not os.path.isfile(
+                            '/etc/systemd/system/'
+                            'mariadb.service.d/limits.conf'):
+                        WOFileUtils.textwrite(
+                            self,
+                            '/etc/systemd/system/'
+                            'mariadb.service.d/limits.conf',
+                            '[Service]\nLimitNOFILE=500000')
+                        WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
                 # set innodb_buffer_pool_instances depending
                 # on the amount of RAM
+
                 WOService.stop_service(self, 'mysql')
                 WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
                                    '/var/lib/mysql/ib_logfile0.bak')
