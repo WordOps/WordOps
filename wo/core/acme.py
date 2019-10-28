@@ -6,7 +6,7 @@ import requests
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
-from wo.core.shellexec import WOShellExec
+from wo.core.shellexec import WOShellExec, CommandExecutionError
 from wo.core.variables import WOVar
 
 
@@ -167,3 +167,48 @@ class WOAcme:
                     return True
         certfile.close()
         return False
+
+    def removeconf(self, domain):
+        sslconf = ("/var/www/{0}/conf/nginx/ssl.conf"
+                   .format(domain))
+        sslforce = ("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                    .format(domain))
+        wo_domain = domain
+        if WOAcme.cert_check(self, wo_domain):
+            Log.info(self, "Removing Acme configuration")
+            Log.debug(self, "Removing Acme configuration")
+            try:
+                WOShellExec.cmd_exec(
+                    self, "{0} ".format(WOAcme.wo_acme_exec) +
+                    "--remove -d {0} --ecc".format(domain))
+            except CommandExecutionError as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Cert removal failed")
+            WOFileUtils.rm(self, '{0}/{1}_ecc'
+                           .format(WOVar.wo_ssl_archive, domain))
+            WOFileUtils.rm(self, '{0}/{1}'
+                           .format(WOVar.wo_ssl_live, domain))
+            WOFileUtils.rm(self, '{0}'.format(sslconf))
+            WOFileUtils.rm(self, '{0}.disabled'.format(sslconf))
+            WOFileUtils.rm(self, '{0}'.format(sslforce))
+            WOFileUtils.rm(self, '{0}.disabled'
+                           .format(sslforce))
+            WOFileUtils.rm(self, '/etc/letsencrypt/shared/{0}.conf'
+                           .format(domain))
+            # find all broken symlinks
+            WOFileUtils.findBrokenSymlink(self, "/var/www")
+        else:
+            if os.path.islink("{0}".format(sslconf)):
+                WOFileUtils.remove_symlink(self, "{0}".format(sslconf))
+                WOFileUtils.rm(self, '{0}'.format(sslforce))
+
+        if WOFileUtils.grepcheck(self, '/var/www/22222/conf/nginx/ssl.conf',
+                                 '{0}'.format(domain)):
+            Log.info(
+                self, "Setting back default certificate for WordOps backend")
+            with open("/var/www/22222/conf/nginx/"
+                      "ssl.conf", "w") as ssl_conf_file:
+                ssl_conf_file.write("ssl_certificate "
+                                    "/var/www/22222/cert/22222.crt;\n"
+                                    "ssl_certificate_key "
+                                    "/var/www/22222/cert/22222.key;\n")

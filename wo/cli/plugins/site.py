@@ -1521,7 +1521,7 @@ class WOSiteUpdateController(CementBaseController):
 
                 elif (pargs.letsencrypt == "clean" or
                       pargs.letsencrypt == "purge"):
-                    removeAcmeConf(self, wo_domain)
+                    WOAcme.removeconf(self, wo_domain)
                     # find all broken symlinks
                     sympath = "/var/www"
                     WOFileUtils.findBrokenSymlink(self, sympath)
