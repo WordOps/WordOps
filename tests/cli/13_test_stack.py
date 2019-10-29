@@ -10,30 +10,6 @@ class CliTestCaseStack(test.WOTestCase):
         self.app.close()
 
     def test_wo_cli_stack_install_nginx(self):
-        argv = ['stack', 'install', '--nginx']
-        with self.make_app(argv=argv) as app:
-            app.run()
-            self.eq(app.pargs.stack.install.nginx)
-
-    def test_wo_cli_stack_install_php(self):
-        argv = ['stack', 'install', '--php']
-        with self.make_app(argv=argv) as app:
-            app.run()
-            self.eq(app.pargs.stack.install.php)
-
-    def test_wo_cli_stack_install_mysql(self):
-        argv = ['stack', 'install', '--mysql']
-        with self.make_app(argv=argv) as app:
-            app.run()
-            self.eq(app.pargs.stack.install.mysql)
-
-    def test_wo_cli_stack_install_admin(self):
-        self.app = get_test_app(argv=['stack', 'install', '--admin'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
-
-    def test_wo_cli_stack_install_nginx(self):
         self.app = get_test_app(argv=['stack', 'install', '--nginx'])
         self.app.setup()
         self.app.run()
@@ -41,6 +17,12 @@ class CliTestCaseStack(test.WOTestCase):
 
     def test_wo_cli_stack_install_php(self):
         self.app = get_test_app(argv=['stack', 'install', '--php'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_php73(self):
+        self.app = get_test_app(argv=['stack', 'install', '--php73'])
         self.app.setup()
         self.app.run()
         self.app.close()
