@@ -457,7 +457,7 @@ class WOStackController(CementBaseController):
                         ["https://raw.githubusercontent.com/chubin/cheat.sh"
                          "/master/share/bash_completion.txt",
                          "/etc/bash_completion.d/cht.sh",
-                         "cheat.sh bash_completion"]]
+                         "bash_completion"]]
 
             # UTILS
             if pargs.utils:
