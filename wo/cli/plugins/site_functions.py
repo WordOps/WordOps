@@ -1554,19 +1554,31 @@ def setuprocketchat(self):
 
 
 def setupngxblocker(self, domain, block=True):
-    if os.path.isdir('/var/www/{0}/conf/nginx'.format(domain)):
-        if not os.path.isfile('/var/www/{0}/conf/nginx/ngxblocker.disabled'
-                              .format(domain)):
-            ngxconf = open("/var/www/{0}/conf/nginx/ngxblocker.conf"
-                           .format(domain),
-                           encoding='utf-8', mode='w')
-            ngxconf.write("# Bad Bot Blocker\n"
-                          "include /etc/nginx/bots.d/ddos.conf;\n"
-                          "include /etc/nginx/bots.d/blockbots.conf;\n")
-            ngxconf.close()
-        else:
+    if block:
+        if os.path.isdir('/var/www/{0}/conf/nginx'.format(domain)):
+            if not os.path.isfile(
+                '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
+                    .format(domain)):
+                ngxconf = open(
+                    "/var/www/{0}/conf/nginx/ngxblocker.conf"
+                    .format(domain),
+                    encoding='utf-8', mode='w')
+                ngxconf.write(
+                    "# Bad Bot Blocker\n"
+                    "include /etc/nginx/bots.d/ddos.conf;\n"
+                    "include /etc/nginx/bots.d/blockbots.conf;\n")
+                ngxconf.close()
+            else:
+                WOFileUtils.mvfile(
+                    self, '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
+                    .format(domain), '/var/www/{0}/conf/nginx/ngxblocker.conf'
+                    .format(domain))
+    else:
+        if os.path.isfile('/var/www/{0}/conf/nginx/ngxblocker.conf'
+                          .format(domain)):
             WOFileUtils.mvfile(
-                self, '/var/www/{0}/conf/nginx/ngxblocker.disabled'
-                .format(domain), '/var/www/{0}/conf/nginx/ngxblocker'
+                self, '/var/www/{0}/conf/nginx/ngxblocker.conf'
+                .format(domain),
+                '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
                 .format(domain))
     return 0

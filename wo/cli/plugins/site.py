@@ -1069,22 +1069,38 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, 'ngxblocker stack is not installed')
             elif pargs.ngxblocker == "off":
-                if os.path.isfile(
-                    '/var/www/{0}/conf/nginx/ngxblocker.conf'
-                        .format(wo_domain)):
-                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
-                                       'nginx/ngxblocker.conf'
-                                       .format(wo_domain),
-                                       '/var/www/{0}/conf/'
-                                       'nginx/ngxblocker.conf.disabled'
-                                       .format(wo_domain))
-                else:
-                    Log.error(self, "ngxblocker isn't enabled")
+                try:
+                    setupngxblocker(self, wo_domain, False)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, "\nngxblocker not enabled.")
 
             # Service Nginx Reload
             if not WOService.reload_service(self, 'nginx'):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
+            return 0
+        #
+        if (pargs.letsencrypt == 'renew' and
+            not (pargs.html or
+                 pargs.php or pargs.php73 or pargs.mysql or
+                 pargs.wp or pargs.wpfc or pargs.wpsc or
+                 pargs.wprocket or pargs.wpce or
+                 pargs.wpsubdir or pargs.wpsubdomain or
+                 pargs.ngxblocker or pargs.hsts)):
+
+            if WOAcme.cert_check(self, wo_domain):
+                if not pargs.force:
+                    if (SSL.getexpirationdays(self, wo_domain) > 45):
+                        Log.error(
+                            self,
+                            'Your certificate expire in more than 45 days.\n'
+                            'Add \'--force\' to force to renew')
+                Log.wait(self, "Renewing SSL certificate")
+                if WOAcme.renew(self, wo_domain):
+                    Log.valide(self, "Renewing SSL certificate")
+            else:
+                Log.error(self, "Certificate doesn't exist")
             return 0
 
         if ((stype == 'php' and
@@ -1281,10 +1297,10 @@ class WOSiteUpdateController(CementBaseController):
             if not (acme_subdomain is True):
                 if letsencrypt is check_ssl:
                     if letsencrypt is False:
-                        Log.error(self, "SSl is not configured for given "
+                        Log.error(self, "SSL is not configured for given "
                                   "site")
                     elif letsencrypt is True:
-                        Log.error(self, "SSl is already configured for given "
+                        Log.error(self, "SSL is already configured for given "
                                   "site")
                     pargs.letsencrypt = False
 

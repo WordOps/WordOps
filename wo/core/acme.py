@@ -132,6 +132,17 @@ class WOAcme:
                       "ssl.conf")
         return 0
 
+    def renew(self, domain):
+        """Renew letsencrypt certificate with acme.sh"""
+        try:
+            WOShellExec.cmd_exec(
+                self, "{0} ".format(WOAcme.wo_acme_exec) +
+                "--renew -d {0} --ecc --force".format(domain))
+        except CommandExecutionError as e:
+            Log.debug(self, str(e))
+            Log.error(self, 'Unable to renew certificate')
+        return True
+
     def check_dns(self, acme_domains):
         """Check if a list of domains point to the server IP"""
         server_ip = requests.get('http://v4.wordops.eu/').text
