@@ -121,8 +121,8 @@ def main():
 
 
 def get_test_app(**kw):
-    with WOApp(**kw) as app:
-        return app
+    app = WOApp(**kw)
+    return app
 
 
 if __name__ == '__main__':
