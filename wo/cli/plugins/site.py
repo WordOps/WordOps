@@ -1091,11 +1091,12 @@ class WOSiteUpdateController(CementBaseController):
 
             if WOAcme.cert_check(self, wo_domain):
                 if not pargs.force:
-                    if (SSL.getexpirationdays(self, wo_domain) > 45):
+                    if (SSL.getexpirationdays(self, wo_domain) > 30):
                         Log.error(
-                            self,
-                            'Your certificate expire in more than 45 days.\n'
-                            'Add \'--force\' to force to renew')
+                            self, "Your cert will expire in more "
+                            "than 30 days ( " +
+                                  str(SSL.getexpirationdays(self, wo_domain)) +
+                                  " days).\nAdd \'--force\' to force to renew")
                 Log.wait(self, "Renewing SSL certificate")
                 if WOAcme.renew(self, wo_domain):
                     Log.valide(self, "Renewing SSL certificate")
@@ -1943,7 +1944,7 @@ class WOSiteDeleteController(CementBaseController):
                 dict(help="forcefully delete site and configuration",
                      action='store_true')),
             (['--all'],
-                dict(help="delete all", action='store_true')),
+                dict(help="delete files & db", action='store_true')),
             (['--db'],
                 dict(help="delete db only", action='store_true')),
             (['--files'],
@@ -1954,7 +1955,7 @@ class WOSiteDeleteController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if not pargs.site_name:
+        if not pargs.site_name and not pargs.all:
             try:
                 while not pargs.site_name:
                     pargs.site_name = (input('Enter site name : ')
@@ -1979,6 +1980,9 @@ class WOSiteDeleteController(CementBaseController):
         if ((not pargs.db) and (not pargs.files) and
                 (not pargs.all)):
             pargs.all = True
+
+        if pargs.force:
+            pargs.no_prompt = True
 
         # Gather information from wo-db for wo_domain
         check_site = getSiteInfo(self, wo_domain)

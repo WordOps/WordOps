@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Refactored WordOps download function with python3-requests
 - MySQL backup path changed to `/var/lib/wo-backup/mysql`
 - Do not check anymore if stack are installed with apt in `wo service` but only if there is a systemd service
+- Refactored `--letsencrypt=renew`. Require the flag `--force` if certificate expiration is more than 45 days
 
 #### Fixed
 
