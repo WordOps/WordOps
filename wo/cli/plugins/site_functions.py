@@ -23,6 +23,7 @@ from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
+from wo.core.wpcli import WOWp
 
 
 class SiteError(Exception):
@@ -366,45 +367,33 @@ def setupwordpress(self, data, vhostonly=False):
         except CommandExecutionError:
             raise SiteError("generate wp-config failed for wp multi site")
 
-    try:
+    # set all wp-config.php variables
+    wp_conf_variables = [
+        ['WP_CACHE_KEY_SALT', '{0}:'.format(wo_domain_name)],
+        ['WP_MEMORY_LIMIT', '128M'],
+        ['WP_MAX_MEMORY_LIMIT', '256M'],
+        ['CONCATENATE_SCRIPTS', 'false'],
+        ['WP_POST_REVISIONS', '10'],
+        ['MEDIA_TRASH', 'true'],
+        ['EMPTY_TRASH_DAYS', '15'],
+        ['WP_AUTO_UPDATE_CORE', 'minor']]
 
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_CACHE_KEY_SALT "
-                             "\'{0}:\'\"".format(wo_domain_name))
-
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_MEMORY_LIMIT "
-                             "\'128M\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_MAX_MEMORY_LIMIT "
-                             "\'256M\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set CONCATENATE_SCRIPTS "
-                             "false --raw\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_POST_REVISIONS "
-                             "\'10\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set MEDIA_TRASH "
-                             "true --raw\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set EMPTY_TRASH_DAYS "
-                             "\'15\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_AUTO_UPDATE_CORE "
-                             "minor\"")
-
-    except CommandExecutionError as e:
-        Log.debug(self, str(e))
-        Log.error(self, "Unable to define extra variable in wp-config.php")
+    for wp_conf in wp_conf_variables:
+        wp_var = wp_conf[0]
+        wp_val = wp_conf[1]
+        if wp_val == 'true' or wp_val == 'false':
+            var_raw = True
+        try:
+            WOShellExec.cmd_exec(
+                self, "/bin/bash -c \"{0} --allow-root "
+                .format(WOVar.wo_wpcli_path) +
+                "config set {0} "
+                "\'{1}\' {wp_raw}\""
+                .format(wp_var, wp_val,
+                        wp_raw='--raw' if var_raw is True else ''))
+        except CommandExecutionError as e:
+            Log.debug(self, str(e))
+            Log.error(self, 'Unable to define wp-config.php variables')
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
@@ -458,7 +447,8 @@ def setupwordpress(self, data, vhostonly=False):
 
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
-        Log.debug(self, "{0} --allow-root core install "
+        Log.debug(
+            self, "{0} --allow-root core install "
                   .format(WOVar.wo_wpcli_path) +
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['site_name'], wo_wp_user) +
@@ -605,6 +595,11 @@ def setupwordpress(self, data, vhostonly=False):
         plugin_data = json.dumps(plugin_data_object)
         setupwp_plugin(self, 'cache-enabler', 'cache-enabler',
                        plugin_data, data)
+        WOShellExec.cmd_exec(
+            self, "/bin/bash -c \"{0} --allow-root "
+            .format(WOVar.wo_wpcli_path) +
+            "config set WP_CACHE "
+            "true --raw\"")
 
     if vhostonly:
         try:
