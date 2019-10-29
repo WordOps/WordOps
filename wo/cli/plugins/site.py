@@ -724,7 +724,7 @@ class WOSiteCreateController(CementBaseController):
 
             Log.info(self, "Successfully created site"
                      " http://{0}".format(wo_domain))
-        except SiteError as e:
+        except SiteError:
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
