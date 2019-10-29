@@ -382,6 +382,8 @@ def setupwordpress(self, data, vhostonly=False):
         wp_val = wp_conf[1]
         if wp_val == 'true' or wp_val == 'false':
             var_raw = True
+        else:
+            var_raw = False
         try:
             WOShellExec.cmd_exec(
                 self, "/bin/bash -c \"{0} --allow-root "
