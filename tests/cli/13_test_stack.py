@@ -5,18 +5,72 @@ from wo.cli.main import get_test_app
 class CliTestCaseStack(test.WOTestCase):
 
     def test_wo_cli(self):
-        argv = []
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_nginx(self):
+        argv = ['stack', 'install', '--nginx']
         with self.make_app(argv=argv) as app:
             app.run()
-            self.eq(app.pargs.stack)
+            self.eq(app.pargs.stack.install.nginx)
 
-    def test_wo_cli_stacks_install(self):
-        wo_stacks = ['nginx', 'php', 'php73', 'mysql', 'redis', 'fail2ban',
-                     'clamav', 'proftpd', 'netdata',
-                     'phpmyadmin',  'composer',  'dashboard', 'extplorer',
-                     'adminer', 'redis', 'ufw', 'ngxblocker', 'cheat']
-        for wo_stack in wo_stacks:
-            argv = ['stack', 'install', '--{0}'.format(wo_stack)]
-            with self.make_app(argv=argv) as app:
-                app.run()
-                self.eq(app.pargs.stack.install.wo_stack)
+    def test_wo_cli_stack_install_php(self):
+        argv = ['stack', 'install', '--php']
+        with self.make_app(argv=argv) as app:
+            app.run()
+            self.eq(app.pargs.stack.install.php)
+
+    def test_wo_cli_stack_install_mysql(self):
+        argv = ['stack', 'install', '--mysql']
+        with self.make_app(argv=argv) as app:
+            app.run()
+            self.eq(app.pargs.stack.install.mysql)
+
+    def test_wo_cli_stack_install_admin(self):
+        self.app = get_test_app(argv=['stack', 'install', '--admin'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_nginx(self):
+        self.app = get_test_app(argv=['stack', 'install', '--nginx'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_php(self):
+        self.app = get_test_app(argv=['stack', 'install', '--php'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_mysql(self):
+        self.app = get_test_app(argv=['stack', 'install', '--mysql'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_wpcli(self):
+        self.app = get_test_app(argv=['stack', 'install', '--wpcli'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_phpmyadmin(self):
+        self.app = get_test_app(argv=['stack', 'install', '--phpmyadmin'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_adminer(self):
+        self.app = get_test_app(argv=['stack', 'install', '--adminer'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
+
+    def test_wo_cli_stack_install_utils(self):
+        self.app = get_test_app(argv=['stack', 'install', '--utils'])
+        self.app.setup()
+        self.app.run()
+        self.app.close()
