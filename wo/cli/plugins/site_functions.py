@@ -389,7 +389,8 @@ def setupwordpress(self, data, vhostonly=False):
                 "config set {0} "
                 "\'{1}\' {wp_raw}\""
                 .format(wp_var, wp_val,
-                        wp_raw='--raw' if var_raw is True else ''))
+                        wp_raw='--raw'
+                        if var_raw is True else ''))
         except CommandExecutionError as e:
             Log.debug(self, str(e))
             Log.error(self, 'Unable to define wp-config.php variables')
