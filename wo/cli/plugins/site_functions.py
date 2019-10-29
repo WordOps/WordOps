@@ -23,7 +23,6 @@ from wo.core.services import WOService
 from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
-from wo.core.wpcli import WOWp
 
 
 class SiteError(Exception):
