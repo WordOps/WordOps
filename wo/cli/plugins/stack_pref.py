@@ -1016,13 +1016,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     Log.debug(self, "Setting maxmemory variable to "
                               "{0} in redis.conf"
                               .format(int(wo_ram * 1024 * 1024 * 0.1)))
-                    WOFileUtils.searchreplace
-                    (self,
-                     "/etc/redis/redis.conf",
-                     "# maxmemory <bytes>",
-                     "maxmemory {0}"
-                     .format
-                     (int(wo_ram * 1024 * 1024 * 0.1)))
+                    WOFileUtils.searchreplace(
+                        self,
+                        "/etc/redis/redis.conf",
+                        "# maxmemory <bytes>",
+                        "maxmemory {0}"
+                        .format
+                        (int(wo_ram * 1024 * 1024 * 0.1)))
 
                 else:
                     Log.debug(self, "Setting maxmemory variable to {0} "
