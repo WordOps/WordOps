@@ -282,7 +282,7 @@ class WOStackUpgradeController(CementBaseController):
                 if pargs.ngxblocker:
                     WOFileUtils.chmod(
                         self, '/usr/local/sbin/update-ngxblocker', 0o700)
-                    WOShellExec.chmod(
+                    WOShellExec.shellexec(
                         self, '/usr/local/sbin/update-ngxblocker -nq'
                     )
 
