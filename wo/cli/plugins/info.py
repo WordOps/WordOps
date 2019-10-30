@@ -93,11 +93,11 @@ class WOInfoController(CementBaseController):
         www_pm_min_spare_servers = wconfig['pm.min_spare_servers']
         www_pm_max_spare_servers = wconfig['pm.max_spare_servers']
         www_request_terminate_time = (wconfig
-                                            ['request_terminate_timeout'])
+                                      ['request_terminate_timeout'])
         try:
             www_xdebug = (
                 wconfig['php_admin_flag[xdebug.profiler_enable'
-                                  '_trigger]'])
+                        '_trigger]'])
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
@@ -175,7 +175,7 @@ class WOInfoController(CementBaseController):
         www_pm_min_spare_servers = wconfig['pm.min_spare_servers']
         www_pm_max_spare_servers = wconfig['pm.max_spare_servers']
         www_request_terminate_time = (wconfig
-                                            ['request_terminate_timeout'])
+                                      ['request_terminate_timeout'])
         try:
             www_xdebug = (wconfig
                           ['php_admin_flag[xdebug.profiler_enable'
