@@ -62,7 +62,7 @@ class WOUpdateController(CementBaseController):
         if ((not pargs.force) and (not pargs.travis) and
             (not pargs.mainline) and (not pargs.beta) and
                 (not pargs.branch)):
-            wo_current = WOVar.wo_version
+            wo_current = ("v{0}").format(WOVar.wo_version)
             wo_latest = WODownload.latest_release(self, "WordOps/WordOps")
             if wo_current == wo_latest:
                 Log.error(
