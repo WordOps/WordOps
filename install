@@ -717,7 +717,7 @@ else
     _run wo_update_latest
     _run secure_wo_db
 
-    wo sync >>$wo_install_log 2>&1
+    wo sync
 
     if [ "$ee_migration" = "1" ]; then
         echo
