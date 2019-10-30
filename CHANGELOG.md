@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- WordOps install is now installed with pip from PyPi (easier, cleaner and safer) inside a wheel
+- WordOps is now installed inside a wheel with pip (easier, cleaner and safer) from PyPi
 - Redis 5.0.6 package backported to Debian 8/9/10
 - Custom motd to display a message if a new WordOps release is available
 - Run `mysql_upgrade` during MySQL upgrade with `wo stack upgrade` to perform migration if needed
