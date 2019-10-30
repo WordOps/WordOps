@@ -83,6 +83,8 @@ class WOInfoController(CementBaseController):
             wconfig = config['www']
         elif config.has_section('www-php72'):
             wconfig = config['www-php72']
+        else:
+            Log.error(self, 'Unable to parse configuration')
         www_listen = wconfig['listen']
         www_ping_path = wconfig['ping.path']
         www_pm_status_path = wconfig['pm.status_path']
@@ -165,6 +167,8 @@ class WOInfoController(CementBaseController):
             wconfig = config['www']
         elif config.has_section('www-php73'):
             wconfig = config['www-php73']
+        else:
+            Log.error(self, 'Unable to parse configuration')
         www_listen = wconfig['listen']
         www_ping_path = wconfig['ping.path']
         www_pm_status_path = wconfig['pm.status_path']
