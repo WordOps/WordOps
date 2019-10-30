@@ -308,8 +308,7 @@ class WOSiteEditController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
         else:
-            Log.error(self, "nginx configuration file does not exists"
-                      .format(wo_domain))
+            Log.error(self, "nginx configuration file does not exists")
 
 
 class WOSiteCreateController(CementBaseController):
