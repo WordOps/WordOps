@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from re import match
 from socket import getfqdn
+from shutil import copy2
 
 from distro import linux_distribution
 from sh import git
@@ -13,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.9.9.4"
+    wo_version = "3.10.0"
     # WordOps packages versions
     wo_wp_cli = "2.3.0"
     wo_adminer = "4.7.3"
@@ -28,16 +29,18 @@ class WOVar():
     wo_date = datetime.now().strftime('%d%b%Y-%H-%M-%S')
 
     # WordOps core variables
+    # linux distribution
     wo_distro = linux_distribution(
         full_distribution_name=False)[0].lower()
     wo_platform_version = linux_distribution(
         full_distribution_name=False)[1].lower()
+    # distro codename (bionic, xenial, stretch ...)
     wo_platform_codename = linux_distribution(
         full_distribution_name=False)[2].lower()
 
     # Get timezone of system
     if os.path.isfile('/etc/timezone'):
-        with open("/etc/timezone", "r") as tzfile:
+        with open("/etc/timezone", mode='r', encoding='utf-8') as tzfile:
             wo_timezone = tzfile.read().replace('\n', '')
             if wo_timezone == "Etc/UTC":
                 wo_timezone = "UTC"
@@ -59,9 +62,9 @@ class WOVar():
     # PHP user
     wo_php_user = 'www-data'
 
-    # Get git user name and EMail
+    # WordOps git configuration management
     config = configparser.ConfigParser()
-    config.read(os.path.expanduser("~")+'/.gitconfig')
+    config.read(os.path.expanduser("~") + '/.gitconfig')
     try:
         wo_user = config['user']['name']
         wo_email = config['user']['email']
@@ -86,13 +89,16 @@ class WOVar():
         git.config("--global", "user.name", "{0}".format(wo_user))
         git.config("--global", "user.email", "{0}".format(wo_email))
 
+    if not os.path.isfile('/root/.gitconfig'):
+        copy2(os.path.expanduser("~") + '/.gitconfig', '/root/.gitconfig')
+
     # MySQL hostname
     wo_mysql_host = ""
     config = configparser.RawConfigParser()
     if os.path.exists('/etc/mysql/conf.d/my.cnf'):
         cnfpath = "/etc/mysql/conf.d/my.cnf"
     else:
-        cnfpath = os.path.expanduser("~")+"/.my.cnf"
+        cnfpath = os.path.expanduser("~") + "/.my.cnf"
     if [cnfpath] == config.read(cnfpath):
         try:
             wo_mysql_host = config.get('client', 'host')

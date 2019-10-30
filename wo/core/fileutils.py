@@ -280,17 +280,19 @@ class WOFileUtils():
         """
             Searches for string in file and returns True or False.
         """
-        try:
-            Log.debug(self, "Finding string {0} to file {1}"
-                      .format(sstr, fnm))
-            for line in open(fnm, encoding='utf-8'):
-                if sstr in line:
-                    return True
-            return False
-        except OSError as e:
-            Log.debug(self, "{0}".format(e.strerror))
-            Log.error(self, "Unable to Search string {0} in {1}"
-                      .format(sstr, fnm))
+        if os.path.isfile('{0}'.format(fnm)):
+            try:
+                Log.debug(self, "Finding string {0} to file {1}"
+                          .format(sstr, fnm))
+                for line in open(fnm, encoding='utf-8'):
+                    if sstr in line:
+                        return True
+                return False
+            except OSError as e:
+                Log.debug(self, "{0}".format(e.strerror))
+                Log.error(self, "Unable to Search string {0} in {1}"
+                          .format(sstr, fnm))
+        return False
 
     def rm(self, path):
         """
@@ -341,3 +343,29 @@ class WOFileUtils():
                     # If it's not a symlink we're not interested.
                     continue
         return True
+
+    def textwrite(self, path, content):
+        """
+            Write content into a file
+        """
+        Log.debug(self, "Writing content in {0}".format(path))
+        try:
+            with open("{0}".format(path),
+                      encoding='utf-8', mode='w') as final_file:
+                final_file.write('{0}'.format(content))
+        except IOError as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to write content in {0}".format(path))
+
+    def textappend(self, path, content):
+        """
+            Append content to a file
+        """
+        Log.debug(self, "Writing content in {0}".format(path))
+        try:
+            with open("{0}".format(path),
+                      encoding='utf-8', mode='a') as final_file:
+                final_file.write('{0}'.format(content))
+        except IOError as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to write content in {0}".format(path))

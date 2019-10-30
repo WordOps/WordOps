@@ -46,7 +46,7 @@ class WOLogShowController(CementBaseController):
             (['--php'],
                 dict(help='Show PHP Error logs file', action='store_true')),
             (['--fpm'],
-                dict(help='Show PHP5-fpm slow logs file',
+                dict(help='Show PHP-FPM slow logs file',
                      action='store_true')),
             (['--mysql'],
                 dict(help='Show MySQL logs file', action='store_true')),
@@ -92,10 +92,10 @@ class WOLogShowController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/7.2/slow.log', 'a').close()
+            open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
+                                   '/var/log/php7.2-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":
@@ -171,7 +171,7 @@ class WOLogResetController(CementBaseController):
             (['--php'],
                 dict(help='Reset PHP Error logs file', action='store_true')),
             (['--fpm'],
-                dict(help='Reset PHP5-fpm slow logs file',
+                dict(help='Reset PHP-FPM slow logs file',
                      action='store_true')),
             (['--mysql'],
                 dict(help='Reset MySQL logs file', action='store_true')),
@@ -210,7 +210,7 @@ class WOLogResetController(CementBaseController):
         if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
             (not self.app.pargs.mysql) and (not self.app.pargs.access) and
             (not self.app.pargs.wp) and (self.app.pargs.site_name) and
-                (not self.app.pargs.slow-log-db)):
+                (not self.app.pargs.slow_log_db)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
@@ -231,10 +231,10 @@ class WOLogResetController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/7.2/slow.log', 'a').close()
+            open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
+                                   '/var/log/php7.2-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":
@@ -313,7 +313,7 @@ class WOLogGzipController(CementBaseController):
             (['--php'],
                 dict(help='GZip PHP Error logs file', action='store_true')),
             (['--fpm'],
-                dict(help='GZip PHP5-fpm slow logs file',
+                dict(help='GZip PHP-FPM slow logs file',
                      action='store_true')),
             (['--mysql'],
                 dict(help='GZip MySQL logs file', action='store_true')),
@@ -359,10 +359,10 @@ class WOLogGzipController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/7.2/slow.log', 'a').close()
+            open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
+                                   '/var/log/php7.2-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":
@@ -497,10 +497,10 @@ class WOLogMailController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/7.2/slow.log', 'a').close()
+            open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
+                                   '/var/log/php7.2-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":

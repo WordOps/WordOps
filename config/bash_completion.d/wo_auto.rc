@@ -79,7 +79,7 @@ _wo_complete()
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --utils --nginx --php --php73 --mysql --all --netdata --composer --phpmyadmin --dashboard --no-prompt --mysqtuner --wpcli --force" \
+                              -W "--web --admin --utils --nginx --php --php73 --mysql --all --netdata --composer --phpmyadmin --dashboard --mysqtuner --wpcli --force" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")

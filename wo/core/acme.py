@@ -6,7 +6,7 @@ import requests
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
-from wo.core.shellexec import WOShellExec
+from wo.core.shellexec import WOShellExec, CommandExecutionError
 from wo.core.variables import WOVar
 
 
@@ -22,6 +22,7 @@ class WOAcme:
                 self, "{0} ".format(WOAcme.wo_acme_exec) +
                 "--list --listraw > /var/lib/wo/cert.csv"):
             Log.error(self, "Unable to export certs list")
+        WOFileUtils.chmod(self, '/var/lib/wo/cert.csv', 0o600)
 
     def setupletsencrypt(self, acme_domains, acmedata):
         """Issue SSL certificates with acme.sh"""
@@ -38,6 +39,14 @@ class WOAcme:
             acme_mode = "-w /var/www/html"
             validation_mode = "Webroot challenge"
             Log.debug(self, "Validation : Webroot mode")
+            if not os.path.isdir('/var/www/html/.well-known/acme-challenge'):
+                WOFileUtils.mkdir(
+                    self, '/var/www/html/.well-known/acme-challenge')
+            WOFileUtils.chown(
+                self, '/var/www/html/.well-known', 'www-data', 'www-data',
+                recursive=True)
+            WOFileUtils.chmod(self, '/var/www/html/.well-known', 0o750,
+                              recursive=True)
 
         Log.info(self, "Validation mode : {0}".format(validation_mode))
         Log.wait(self, "Issuing SSL cert with acme.sh")
@@ -63,6 +72,7 @@ class WOAcme:
             return True
 
     def deploycert(self, wo_domain_name):
+        """Deploy Let's Encrypt certificates with acme.sh"""
         if not os.path.isfile('/etc/letsencrypt/renewal/{0}_ecc/fullchain.cer'
                               .format(wo_domain_name)):
             Log.error(self, 'Certificate not found. Deployment canceled')
@@ -122,6 +132,17 @@ class WOAcme:
                       "ssl.conf")
         return 0
 
+    def renew(self, domain):
+        """Renew letsencrypt certificate with acme.sh"""
+        try:
+            WOShellExec.cmd_exec(
+                self, "{0} ".format(WOAcme.wo_acme_exec) +
+                "--renew -d {0} --ecc --force".format(domain))
+        except CommandExecutionError as e:
+            Log.debug(self, str(e))
+            Log.error(self, 'Unable to renew certificate')
+        return True
+
     def check_dns(self, acme_domains):
         """Check if a list of domains point to the server IP"""
         server_ip = requests.get('http://v4.wordops.eu/').text
@@ -130,15 +151,16 @@ class WOAcme:
                                      .format(domain)).text
             if(not domain_ip == server_ip):
                 Log.warn(
-                    self, "{0} is not pointing to your server IP"
-                    .format(domain))
+                    self, "{0}".format(domain) +
+                    " point to the IP {0}".format(domain_ip) +
+                    " but your server IP is {0}.".format(server_ip) +
+                    "\nUse the flag --force to bypass this check.")
                 Log.error(
-                    self, "You have to add the "
-                    "proper DNS record", False)
+                    self, "You have to set the "
+                    "proper DNS record for your domain", False)
                 return False
-        else:
-            Log.debug(self, "DNS record are properly set")
-            return True
+        Log.debug(self, "DNS record are properly set")
+        return True
 
     def cert_check(self, wo_domain_name):
         """Check certificate existance with acme.sh and return Boolean"""
@@ -153,9 +175,51 @@ class WOAcme:
             if wo_domain_name in row[0]:
                 # check if cert expiration exist
                 if not row[3] == '':
-                    cert_exist = True
-                    break
-        else:
-            cert_exist = False
+                    return True
         certfile.close()
-        return cert_exist
+        return False
+
+    def removeconf(self, domain):
+        sslconf = ("/var/www/{0}/conf/nginx/ssl.conf"
+                   .format(domain))
+        sslforce = ("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                    .format(domain))
+        acmedir = [
+            '{0}'.format(sslforce), '{0}'.format(sslconf),
+            '{0}/{1}_ecc'.format(WOVar.wo_ssl_archive, domain),
+            '{0}.disabled'.format(sslconf), '{0}.disabled'
+            .format(sslforce), '{0}/{1}'
+            .format(WOVar.wo_ssl_live, domain),
+            '/etc/letsencrypt/shared/{0}.conf'.format(domain)]
+        wo_domain = domain
+        if WOAcme.cert_check(self, wo_domain):
+            Log.info(self, "Removing Acme configuration")
+            Log.debug(self, "Removing Acme configuration")
+            try:
+                WOShellExec.cmd_exec(
+                    self, "{0} ".format(WOAcme.wo_acme_exec) +
+                    "--remove -d {0} --ecc".format(domain))
+            except CommandExecutionError as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Cert removal failed")
+            # remove all files and directories
+            for dir in acmedir:
+                if os.path.exists('{0}'.format(dir)):
+                    WOFileUtils.rm(self, '{0}'.format(dir))
+            # find all broken symlinks
+            WOFileUtils.findBrokenSymlink(self, "/var/www")
+        else:
+            if os.path.islink("{0}".format(sslconf)):
+                WOFileUtils.remove_symlink(self, "{0}".format(sslconf))
+                WOFileUtils.rm(self, '{0}'.format(sslforce))
+
+        if WOFileUtils.grepcheck(self, '/var/www/22222/conf/nginx/ssl.conf',
+                                 '{0}'.format(domain)):
+            Log.info(
+                self, "Setting back default certificate for WordOps backend")
+            with open("/var/www/22222/conf/nginx/"
+                      "ssl.conf", "w") as ssl_conf_file:
+                ssl_conf_file.write("ssl_certificate "
+                                    "/var/www/22222/cert/22222.crt;\n"
+                                    "ssl_certificate_key "
+                                    "/var/www/22222/cert/22222.key;\n")

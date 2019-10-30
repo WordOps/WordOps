@@ -52,18 +52,22 @@ class WOSyncController(CementBaseController):
 
                 if configfiles:
                     if WOFileUtils.isexist(self, configfiles[0]):
-                        wo_db_name = (WOFileUtils.grep(self, configfiles[0],
-                                                       'DB_NAME').split(',')[1]
-                                      .split(')')[0].strip().replace('\'', ''))
-                        wo_db_user = (WOFileUtils.grep(self, configfiles[0],
-                                                       'DB_USER').split(',')[1]
-                                      .split(')')[0].strip().replace('\'', ''))
-                        wo_db_pass = (WOFileUtils.grep(self, configfiles[0],
-                                                       'DB_PASSWORD').split(',')[1]
-                                      .split(')')[0].strip().replace('\'', ''))
-                        wo_db_host = (WOFileUtils.grep(self, configfiles[0],
-                                                       'DB_HOST').split(',')[1]
-                                      .split(')')[0].strip().replace('\'', ''))
+                        wo_db_name = (
+                            WOFileUtils.grep(self, configfiles[0],
+                                             'DB_NAME').split(',')[1]
+                            .split(')')[0].strip().replace('\'', ''))
+                        wo_db_user = (
+                            WOFileUtils.grep(self, configfiles[0],
+                                             'DB_USER').split(',')[1]
+                            .split(')')[0].strip().replace('\'', ''))
+                        wo_db_pass = (
+                            WOFileUtils.grep(self, configfiles[0],
+                                             'DB_PASSWORD').split(',')[1]
+                            .split(')')[0].strip().replace('\'', ''))
+                        wo_db_host = (
+                            WOFileUtils.grep(self, configfiles[0],
+                                             'DB_HOST').split(',')[1]
+                            .split(')')[0].strip().replace('\'', ''))
 
                         # Check if database really exist
                         try:

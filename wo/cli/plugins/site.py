@@ -78,7 +78,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
         else:
-            Log.error(self, "nginx configuration file does not exist")
+            Log.error(self, 'nginx configuration file does not exist')
 
     @expose(help="Disable site example.com")
     def disable(self):
@@ -106,7 +106,7 @@ class WOSiteController(CementBaseController):
             if not os.path.isfile('/etc/nginx/sites-enabled/{0}'
                                   .format(wo_domain)):
                 Log.debug(self, "Site {0} already disabled".format(wo_domain))
-                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE + "]")
             else:
                 WOFileUtils.remove_symlink(self,
                                            '/etc/nginx/sites-enabled/{0}'
@@ -176,7 +176,7 @@ class WOSiteController(CementBaseController):
                         dbname=wo_db_name, dbuser=wo_db_user,
                         php_version=php_version,
                         dbpass=wo_db_pass,
-                        ssl=ssl, sslprovider=sslprovider,  sslexpiry=sslexpiry,
+                        ssl=ssl, sslprovider=sslprovider, sslexpiry=sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
                         .format("enabled" if siteinfo.is_enabled else
                                 "disabled"))
@@ -227,8 +227,7 @@ class WOSiteController(CementBaseController):
             Log.info(self, Log.ENDC + text)
             f.close()
         else:
-            Log.error(self, "nginx configuration file does not exists"
-                      .format(wo_domain))
+            Log.error(self, "nginx configuration file does not exists")
 
     @expose(help="Change directory to site webroot")
     def cd(self):
@@ -309,8 +308,7 @@ class WOSiteEditController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
         else:
-            Log.error(self, "nginx configuration file does not exists"
-                      .format(wo_domain))
+            Log.error(self, "nginx configuration file does not exists")
 
 
 class WOSiteCreateController(CementBaseController):
@@ -453,7 +451,7 @@ class WOSiteCreateController(CementBaseController):
 
         if stype == 'proxy':
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True,  basic=False, php73=False, wp=False,
+                        static=True, basic=False, php73=False, wp=False,
                         wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
@@ -464,7 +462,7 @@ class WOSiteCreateController(CementBaseController):
 
         if pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=False, php73=True, wp=False,
+                        static=False, basic=False, php73=True, wp=False,
                         wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
@@ -472,7 +470,7 @@ class WOSiteCreateController(CementBaseController):
 
         if stype in ['html', 'php']:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True,  basic=False, php73=False, wp=False,
+                        static=True, basic=False, php73=False, wp=False,
                         wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
@@ -484,7 +482,7 @@ class WOSiteCreateController(CementBaseController):
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=True, wp=False, wpfc=False,
+                        static=False, basic=True, wp=False, wpfc=False,
                         wpsc=False, wpredis=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot,
@@ -510,8 +508,7 @@ class WOSiteCreateController(CementBaseController):
         elif data:
             data['php73'] = False
 
-        if ((not pargs.wpfc) and
-            (not pargs.wpsc) and
+        if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
             (not pargs.wpce) and
                 (not pargs.wpredis)):
@@ -640,10 +637,7 @@ class WOSiteCreateController(CementBaseController):
 
             # Setup WordPress if Wordpress site
             if data['wp']:
-                if pargs.vhostonly:
-                    vhostonly = True
-                else:
-                    vhostonly = False
+                vhostonly = bool(pargs.vhostonly)
                 try:
                     wo_wp_creds = setupwordpress(self, data, vhostonly)
                     # Add database information for site into database
@@ -725,7 +719,7 @@ class WOSiteCreateController(CementBaseController):
 
             Log.info(self, "Successfully created site"
                      " http://{0}".format(wo_domain))
-        except SiteError as e:
+        except SiteError:
             Log.error(self, "Check the log for details: "
                       "`tail /var/log/wo/wordops.log` and please try again")
 
@@ -905,8 +899,9 @@ class WOSiteUpdateController(CementBaseController):
                      choices=('on', 'off'),
                      const='on', nargs='?')),
             (['--ngxblocker'],
-                dict(help="enable HSTS for site secured with letsencrypt",
+                dict(help="enable Ultimate Nginx bad bot blocker",
                      action='store' or 'store_const',
+                     choices=('on', 'off'),
                      const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
@@ -1004,10 +999,7 @@ class WOSiteUpdateController(CementBaseController):
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
 
-            if check_php_version == "7.3":
-                old_php73 = True
-            else:
-                old_php73 = False
+            old_php73 = bool(check_php_version == "7.3")
 
         if (pargs.password and not (pargs.html or
                                     pargs.php or pargs.php73 or pargs.mysql or
@@ -1069,22 +1061,39 @@ class WOSiteUpdateController(CementBaseController):
                 else:
                     Log.error(self, 'ngxblocker stack is not installed')
             elif pargs.ngxblocker == "off":
-                if os.path.isfile(
-                    '/var/www/{0}/conf/nginx/ngxblocker.conf'
-                        .format(wo_domain)):
-                    WOFileUtils.mvfile(self, '/var/www/{0}/conf/'
-                                       'nginx/ngxblocker.conf'
-                                       .format(wo_domain),
-                                       '/var/www/{0}/conf/'
-                                       'nginx/ngxblocker.conf.disabled'
-                                       .format(wo_domain))
-                else:
-                    Log.error(self, "ngxblocker isn't enabled")
+                try:
+                    setupngxblocker(self, wo_domain, False)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, "\nngxblocker not enabled.")
 
             # Service Nginx Reload
             if not WOService.reload_service(self, 'nginx'):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
+            return 0
+        #
+        if (pargs.letsencrypt == 'renew' and
+            not (pargs.html or
+                 pargs.php or pargs.php73 or pargs.mysql or
+                 pargs.wp or pargs.wpfc or pargs.wpsc or
+                 pargs.wprocket or pargs.wpce or
+                 pargs.wpsubdir or pargs.wpsubdomain or
+                 pargs.ngxblocker or pargs.hsts)):
+
+            if WOAcme.cert_check(self, wo_domain):
+                if not pargs.force:
+                    if (SSL.getexpirationdays(self, wo_domain) > 30):
+                        Log.error(
+                            self, "Your cert will expire in more "
+                            "than 30 days ( " +
+                                  str(SSL.getexpirationdays(self, wo_domain)) +
+                                  " days).\nAdd \'--force\' to force to renew")
+                Log.wait(self, "Renewing SSL certificate")
+                if WOAcme.renew(self, wo_domain):
+                    Log.valide(self, "Renewing SSL certificate")
+            else:
+                Log.error(self, "Certificate doesn't exist")
             return 0
 
         if ((stype == 'php' and
@@ -1114,7 +1123,7 @@ class WOSiteUpdateController(CementBaseController):
         if stype == 'php':
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=False,  basic=True, wp=False, wpfc=False,
+                static=False, basic=True, wp=False, wpfc=False,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 currsitetype=oldsitetype, currcachetype=oldcachetype)
@@ -1123,7 +1132,7 @@ class WOSiteUpdateController(CementBaseController):
 
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=False,  basic=True, wp=False, wpfc=False,
+                static=False, basic=True, wp=False, wpfc=False,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 wo_db_name='', wo_db_user='', wo_db_pass='',
@@ -1150,7 +1159,7 @@ class WOSiteUpdateController(CementBaseController):
                 stype = oldsitetype
                 cache = oldcachetype
                 if oldsitetype == 'html' or oldsitetype == 'proxy':
-                    data['static'] = True
+                    data['static'] = False
                     data['wp'] = False
                     data['multisite'] = False
                     data['wpsubdir'] = False
@@ -1246,10 +1255,7 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
-                if (wo_domain_type == 'subdomain'):
-                    acme_subdomain = True
-                else:
-                    acme_subdomain = False
+                acme_subdomain = bool(wo_domain_type == 'subdomain')
                 acme_wildcard = False
             elif pargs.letsencrypt == 'subdomain':
                 data['letsencrypt'] = True
@@ -1277,14 +1283,19 @@ class WOSiteUpdateController(CementBaseController):
                 letsencrypt = False
                 acme_subdomain = False
                 acme_wildcard = False
+            else:
+                data['letsencrypt'] = False
+                letsencrypt = False
+                acme_subdomain = False
+                acme_wildcard = False
 
             if not (acme_subdomain is True):
                 if letsencrypt is check_ssl:
                     if letsencrypt is False:
-                        Log.error(self, "SSl is not configured for given "
+                        Log.error(self, "SSL is not configured for given "
                                   "site")
                     elif letsencrypt is True:
-                        Log.error(self, "SSl is already configured for given "
+                        Log.error(self, "SSL is already configured for given "
                                   "site")
                     pargs.letsencrypt = False
 
@@ -1296,19 +1307,11 @@ class WOSiteUpdateController(CementBaseController):
                     return 0
 
         if data and (not pargs.php73):
-            if old_php73 is True:
-                data['php73'] = True
-                php73 = True
-            else:
-                data['php73'] = False
-                php73 = False
+            data['php73'] = bool(old_php73 is True)
+            php73 = bool(old_php73 is True)
 
-        if pargs.php73 == "on":
-            data['php73'] = True
-            php73 = True
-        else:
-            data['php73'] = False
-            php73 = False
+        data['php73'] = bool(pargs.php73 == "on")
+        php73 = bool(pargs.php73 == "on")
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             data['wpredis'] = True
@@ -1330,16 +1333,10 @@ class WOSiteUpdateController(CementBaseController):
             return 1
 
         if pargs.hsts:
-            if pargs.hsts == "on":
-                data['hsts'] = True
-            elif pargs.hsts == "off":
-                data['hsts'] = False
+            data['hsts'] = bool(pargs.hsts == "on")
 
         if pargs.ngxblocker:
-            if pargs.ngxblocker == 'on':
-                ngxblocker = True
-            elif pargs.ngxblocker == 'off':
-                ngxblocker = False
+            ngxblocker = bool(pargs.ngxblocker == 'on')
 
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
@@ -1378,7 +1375,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if 'proxy' in data.keys() and data['proxy']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False)
+                           ssl=(bool(check_site.is_ssl)))
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
             return 0
@@ -1521,7 +1518,7 @@ class WOSiteUpdateController(CementBaseController):
 
                 elif (pargs.letsencrypt == "clean" or
                       pargs.letsencrypt == "purge"):
-                    removeAcmeConf(self, wo_domain)
+                    WOAcme.removeconf(self, wo_domain)
                     # find all broken symlinks
                     sympath = "/var/www"
                     WOFileUtils.findBrokenSymlink(self, sympath)
@@ -1927,7 +1924,7 @@ class WOSiteDeleteController(CementBaseController):
                 dict(help="forcefully delete site and configuration",
                      action='store_true')),
             (['--all'],
-                dict(help="delete all", action='store_true')),
+                dict(help="delete files & db", action='store_true')),
             (['--db'],
                 dict(help="delete db only", action='store_true')),
             (['--files'],
@@ -1938,7 +1935,7 @@ class WOSiteDeleteController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if not pargs.site_name:
+        if not pargs.site_name and not pargs.all:
             try:
                 while not pargs.site_name:
                     pargs.site_name = (input('Enter site name : ')
@@ -1963,6 +1960,9 @@ class WOSiteDeleteController(CementBaseController):
         if ((not pargs.db) and (not pargs.files) and
                 (not pargs.all)):
             pargs.all = True
+
+        if pargs.force:
+            pargs.no_prompt = True
 
         # Gather information from wo-db for wo_domain
         check_site = getSiteInfo(self, wo_domain)

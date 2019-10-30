@@ -75,60 +75,49 @@ class WOTestApp(WOApp):
     class Meta:
         argv = []
         config_files = []
+        exit_on_close = True
 
 
 # Define the applicaiton object outside of main, as some libraries might wish
 # to import it as a global (rather than passing it into another class/func)
-app = WOApp()
+# app = WOApp()
 
 
 def main():
-    try:
-        global sys
-        # Default our exit status to 0 (non-error)
-        code = 0
+    with WOApp() as app:
+        try:
+            global sys
 
-        # if not root...kick out
-        if not os.geteuid() == 0:
-            print("\nNon-privileged users cant use WordOps. "
-                  "Switch to root or invoke sudo.\n")
-            app.close(1)
+            # if not root...kick out
+            if not os.geteuid() == 0:
+                print("\nNon-privileged users cant use WordOps. "
+                      "Switch to root or invoke sudo.\n")
+                app.close(1)
+            app.run()
+        except AssertionError as e:
+            print("AssertionError => %s" % e.args[0])
+            app.exit_code = 1
+        except exc.WOError as e:
+            # Catch our application errors and exit 1 (error)
+            print(e)
+            app.exit_code = 1
+        except FrameworkError as e:
+            # Catch framework errors and exit 1 (error)
+            print('FrameworkError > %s' % e)
+            app.exit_code = 1
+        except CaughtSignal as e:
+            # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
+            print('CaughtSignal > %s' % e)
+            app.exit_code = 0
+        finally:
+            # Print an exception (if it occurred) and --debug was passed
+            if app.debug:
+                import sys
+                import traceback
 
-        # Setup the application
-        app.setup()
-
-        # Dump all arguments into wo log
-        app.log.debug(sys.argv)
-
-        # Run the application
-        app.run()
-    except exc.WOError as e:
-        # Catch our application errors and exit 1 (error)
-        code = 1
-        print(e)
-    except CaughtSignal as e:
-        # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
-        code = 0
-        print(e)
-    except FrameworkError as e:
-        # Catch framework errors and exit 1 (error)
-        code = 1
-        print(e)
-    except Exception as e:
-        code = 1
-        print(e)
-    finally:
-        # Print an exception (if it occurred) and --debug was passed
-        if app.debug:
-            import sys
-            import traceback
-
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            if exc_traceback is not None:
-                traceback.print_exc()
-
-        # # Close the application
-    app.close(code)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                if exc_traceback is not None:
+                    traceback.print_exc()
 
 
 def get_test_app(**kw):

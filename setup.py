@@ -1,9 +1,9 @@
 
 import glob
 import os
+import sys
 
 from setuptools import find_packages, setup
-
 
 # read the contents of your README file
 this_directory = os.path.abspath(os.path.dirname(__file__))
@@ -27,8 +27,8 @@ if os.geteuid() == 0:
         os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.9.9.4',
-      description='WordPress & server administration toolset',
+      version='3.10.0',
+      description='An essential toolset that eases server administration',
       long_description=LONG,
       long_description_content_type='text/markdown',
       classifiers=[

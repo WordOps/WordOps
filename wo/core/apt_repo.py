@@ -49,7 +49,7 @@ class WORepo():
                 Log.error(self, "Unable to add repo")
         if ppa is not None:
             if WOShellExec.cmd_exec(
-                    self, "LC_ALL=C.UTF-8 add-apt-repository -yu '{ppa_name}'"
+                    self, "LC_ALL=C.UTF-8 add-apt-repository -y '{ppa_name}'"
                     .format(ppa_name=ppa)):
                 return True
         return False
@@ -70,7 +70,7 @@ class WORepo():
                               WOVar().wo_repo_file)
 
             try:
-                repofile = open(repo_file_path, "w+")
+                repofile = open(repo_file_path, "w+", encoding='utf-8')
                 repofile.write(repofile.read().replace(repo_url, ""))
                 repofile.close()
             except IOError as e:
@@ -96,19 +96,14 @@ class WORepo():
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to import repo key")
 
-    def add_keys(self, keyids, keyserver=None):
+    def download_key(self, key_url):
         """
-        This function adds imports repository keys from keyserver.
-        default keyserver is hkp://keyserver.ubuntu.com
-        user can provide other keyserver with keyserver="hkp://xyz"
+        This function download gpg keys and add import them with apt-key add"
         """
-        all_keys = ' '.join(keyids)
         try:
             WOShellExec.cmd_exec(
-                self, "apt-key adv --keyserver {serv}"
-                .format(serv=(keyserver or
-                              "hkp://keyserver.ubuntu.com")) +
-                " --recv-keys {keys}".format(keys=all_keys))
+                self, "curl -sL {0} ".format(key_url) +
+                "| apt-key add -")
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to import repo keys")

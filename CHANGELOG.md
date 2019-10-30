@@ -8,6 +8,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.10.0 - 2019-10-30
+
+#### Added
+
+- WordOps is now installed inside a wheel with pip (easier, cleaner and safer) from PyPi
+- Redis 5.0.6 package backported to Debian 8/9/10
+- Custom motd to display a message if a new WordOps release is available
+- Run `mysql_upgrade` during MySQL upgrade with `wo stack upgrade` to perform migration if needed
+- `wo stack upgrade --ngxblocker` to update ngxblocker blocklist
+
+#### Changed
+
+- Sysctl tweaks are applied during stack install and removed from install script
+- Nginx & MariaDB systemd tweaks are removed from install script and applied during stacks install/upgrade
+- Initial creation of .gitconfig is displayed the first time you run the command `wo`
+- Added `/var/lib/php/sessions/` to open_basedir to allow php sessions storage
+- WordOps now check if a repository already exist before trying to adding it again.
+- Improved SSL certificate error messages by displaying domain IP and server IP
+- Version check before updating WordOps with `wo update` is now directly handled by `wo`
+- Refactored WordOps download function with python3-requests
+- MySQL backup path changed to `/var/lib/wo-backup/mysql`
+- Do not check anymore if stack are installed with apt in `wo service` but only if there is a systemd service
+- Refactored `--letsencrypt=renew`. Require the flag `--force` if certificate expiration is more than 45 days
+- Improve netdata stack upgrade with install from source detection and updater fallback
+
+#### Fixed
+
+- Incorrect PHP-FPM log path is `wo log`
+- force-ssl.conf not removed after removing a site
+- `wo clean --opcache` not working with invalid SSL certificate
+- `wo stack install --cheat` wasn't working properly previously
+- `wo info` failure depending on php-fpm pool name. ConfigParser will now detect the section name.
+
+
 ### v3.9.9.4 -  2019-10-18
 
 #### Changed

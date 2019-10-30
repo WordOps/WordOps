@@ -1,15 +1,11 @@
-sudo: required
+os: linux
 dist: bionic
 
-language: bash
+language: shell
 
 notifications:
   webhooks:
     secure: "JiGtzYplTyFg/L6Rsi7ptEQIV29O5qCWU2Zf5pLITsQrBrQO4cIXXp9G4Z+cenXjfIiqbqIgU0US3zXeIAl4g14xdfzmMYeMMwuKBpI8afMYv8MD6ldoP0MTFHQfROE6OXxKLVUvZn1R0oLLU1fzVSI0qGjNkt20cf/Lrt/reH/zS5hAI92kWI3u2zPu7Zn/g/a8MO/Y3Iv7v1PSQaVkVJVqtOK3U2GJqhIv2G1AVcaPb7Nh/V2zm2dDYBVT0UotBnlBUcUXbEMP77D9pjtWXd1/0rWuJIHixMjwUybpZqY75UMee5INynU6OZRsv029LRHAIMkWhfBkdVN/U5jhQJzui14+vRQrb5nfUMG8Cd8INojDlu6dk/ps2GzTCCXBITeMQKAouUoHD2LEbsNp17xi1K4ZlKb3+0lrOAiS4JYFE6wOo4yMlLTYoquYSqk7AuxuUS8A5OD5MYxhk9uafiTSxKFOo39KYWTSaACsPD8q1swaTSjoYm9skyZvIkIFq5bHBCYEGFe6X/NY9l5tz3hSe+TJOerCHsg+dXVuQl+pIp5nw2as9TH9ox5Vgqc9Zh4GbTDQVvdAmUpmlsZ/SKoOMCkmkB1aRNFq/7RnERIJyAEGJbauHWmjtOM4cCxesl0L0b2Eab89zQpSn7pzE8JTiJgpzCUc22p653PTaqM="
-
-addons:
-  apt:
-    update: true
 
 git:
   quiet: true
@@ -23,18 +19,19 @@ before_script:
   - unset LANG
   - sudo apt-get update --allow-releaseinfo-change -qq
   - sudo apt-get -qq purge mysql* graphviz* redis*
-  - sudo apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
   - sudo apt-get -qq autoremove --purge
 
 
 after_script:
-  - sudo bash install --purge
+  - sudo -E bash install --purge
 
 
 script:
   - lsb_release -a
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo time bash install --travis -b "$TRAVIS_BRANCH"
-  - sudo time bash tests/travis.sh
-  - sudo wo update --travis
+  - sudo -E time bash install --travis -b "$TRAVIS_BRANCH"
+  - sudo -E python3 -m pip install -U -r requirements.txt
+  - sudo -E time bash tests/travis.sh
+  - sudo -E wo update --travis
+  - sudo python3 setup.py sdist bdist_wheel

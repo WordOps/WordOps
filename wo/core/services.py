@@ -43,7 +43,8 @@ class WOService():
                     return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
-                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    Log.info(self, "[" + Log.FAIL +
+                             "Failed" + Log.OKBLUE + "]")
                     return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))
@@ -65,7 +66,7 @@ class WOService():
                 return True
             else:
                 Log.debug(self, "{0}".format(retcode[1]))
-                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE + "]")
                 return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))

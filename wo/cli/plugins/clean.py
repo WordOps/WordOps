@@ -1,7 +1,7 @@
 """Clean Plugin for WordOps."""
 
 import os
-import urllib.request
+import requests
 
 from cement.core.controller import CementBaseController, expose
 
@@ -74,8 +74,10 @@ class WOCleanController(CementBaseController):
     def clean_opcache(self):
         try:
             Log.info(self, "Cleaning opcache")
-            urllib.request.urlopen("https://127.0.0.1:22222/cache"
-                                   "/opcache/opgui.php?reset=1").read()
+            opgui = requests.get(
+                "https://127.0.0.1:22222/cache/opcache/opgui.php?reset=1")
+            if opgui.status_code != '200':
+                Log.warn(self, 'Cleaning opcache failed')
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             Log.debug(self, "Unable hit url, "

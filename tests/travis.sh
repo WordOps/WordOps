@@ -28,7 +28,7 @@ exit_script() {
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_list='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker'
+stack_list='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker cheat'
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
     if {
@@ -145,7 +145,7 @@ if [ -z "$1" ]; then
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       wo stack upgrade              '
     echo -e "${CGREEN}#############################################${CEND}"
-    stack_upgrade='nginx php php73 mysql redis netdata dashboard phpmyadmin composer'
+    stack_upgrade='nginx php php73 mysql redis netdata dashboard phpmyadmin composer ngxblocker'
     for stack in $stack_upgrade; do
         echo -ne "      Upgrading $stack               [..]\r"
         if {
@@ -225,11 +225,12 @@ echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
 wo site info wp.net
+wo info
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker'
+stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat'
 for stack in $stack_purge; do
     echo -ne "       purging $stack              [..]\r"
     if {
@@ -244,6 +245,3 @@ for stack in $stack_purge; do
 
     fi
 done
-if [ -n "$1" ]; then
-    cat /var/log/wo/test.log | ccze -A -p syslog
-fi

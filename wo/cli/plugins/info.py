@@ -78,21 +78,31 @@ class WOInfoController(CementBaseController):
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
-        www_listen = config['www-php72']['listen']
-        www_ping_path = config['www-php72']['ping.path']
-        www_pm_status_path = config['www-php72']['pm.status_path']
-        www_pm = config['www-php72']['pm']
-        www_pm_max_requests = config['www-php72']['pm.max_requests']
-        www_pm_max_children = config['www-php72']['pm.max_children']
-        www_pm_start_servers = config['www-php72']['pm.start_servers']
-        www_pm_min_spare_servers = config['www-php72']['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['www-php72']['pm.max_spare_servers']
-        www_request_terminate_time = (config['www-php72']
-                                            ['request_terminate_timeout'])
+        if os.path.exists('/etc/php/7.2/fpm/pool.d/www.conf'):
+            config.read('/etc/php/7.2/fpm/pool.d/www.conf')
+        else:
+            Log.error(self, 'php-fpm pool config not found')
+        if config.has_section('www'):
+            wconfig = config['www']
+        elif config.has_section('www-php72'):
+            wconfig = config['www-php72']
+        else:
+            Log.error(self, 'Unable to parse configuration')
+        www_listen = wconfig['listen']
+        www_ping_path = wconfig['ping.path']
+        www_pm_status_path = wconfig['pm.status_path']
+        www_pm = wconfig['pm']
+        www_pm_max_requests = wconfig['pm.max_requests']
+        www_pm_max_children = wconfig['pm.max_children']
+        www_pm_start_servers = wconfig['pm.start_servers']
+        www_pm_min_spare_servers = wconfig['pm.min_spare_servers']
+        www_pm_max_spare_servers = wconfig['pm.max_spare_servers']
+        www_request_terminate_time = (wconfig
+                                      ['request_terminate_timeout'])
         try:
-            www_xdebug = (config['www-php72']['php_admin_flag[xdebug.profiler_enable'
-                                              '_trigger]'])
+            www_xdebug = (
+                wconfig['php_admin_flag[xdebug.profiler_enable'
+                        '_trigger]'])
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
@@ -155,20 +165,29 @@ class WOInfoController(CementBaseController):
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/php/7.3/fpm/pool.d/www.conf')
-        www_listen = config['www-php73']['listen']
-        www_ping_path = config['www-php73']['ping.path']
-        www_pm_status_path = config['www-php73']['pm.status_path']
-        www_pm = config['www-php73']['pm']
-        www_pm_max_requests = config['www-php73']['pm.max_requests']
-        www_pm_max_children = config['www-php73']['pm.max_children']
-        www_pm_start_servers = config['www-php73']['pm.start_servers']
-        www_pm_min_spare_servers = config['www-php73']['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['www-php73']['pm.max_spare_servers']
-        www_request_terminate_time = (config['www-php73']
-                                            ['request_terminate_timeout'])
+        if os.path.exists('/etc/php/7.3/fpm/pool.d/www.conf'):
+            config.read('/etc/php/7.3/fpm/pool.d/www.conf')
+        else:
+            Log.error(self, 'php-fpm pool config not found')
+        if config.has_section('www'):
+            wconfig = config['www']
+        elif config.has_section('www-php73'):
+            wconfig = config['www-php73']
+        else:
+            Log.error(self, 'Unable to parse configuration')
+        www_listen = wconfig['listen']
+        www_ping_path = wconfig['ping.path']
+        www_pm_status_path = wconfig['pm.status_path']
+        www_pm = wconfig['pm']
+        www_pm_max_requests = wconfig['pm.max_requests']
+        www_pm_max_children = wconfig['pm.max_children']
+        www_pm_start_servers = wconfig['pm.start_servers']
+        www_pm_min_spare_servers = wconfig['pm.min_spare_servers']
+        www_pm_max_spare_servers = wconfig['pm.max_spare_servers']
+        www_request_terminate_time = (wconfig
+                                      ['request_terminate_timeout'])
         try:
-            www_xdebug = (config['www-php73']
+            www_xdebug = (wconfig
                           ['php_admin_flag[xdebug.profiler_enable'
                            '_trigger]'])
         except Exception as e:
@@ -265,11 +284,11 @@ class WOInfoController(CementBaseController):
                 self.app.pargs.php73 = True
 
         if self.app.pargs.nginx:
-            if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-wo')):
-                self.info_nginx()
-            else:
+            if ((not WOAptGet.is_installed(self, 'nginx-custom')) and
+                    (not os.path.exists('/usr/bin/nginx'))):
                 Log.error(self, "Nginx is not installed")
+            else:
+                self.info_nginx()
 
         if self.app.pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):

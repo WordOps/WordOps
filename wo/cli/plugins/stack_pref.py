@@ -1,4 +1,3 @@
-import codecs
 import configparser
 import os
 import random
@@ -7,11 +6,8 @@ import string
 
 import psutil
 import requests
-from wo.cli.plugins.site_functions import *
-from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
-from wo.core.checkfqdn import check_fqdn_ip
 from wo.core.cron import WOCron
 from wo.core.extract import WOExtract
 from wo.core.fileutils import WOFileUtils
@@ -106,41 +102,68 @@ def pre_pref(self, apt_packages):
 
     # add nginx repository
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
-        Log.info(self, "Adding repository for NGINX, please wait...")
         if (WOVar.wo_distro == 'ubuntu'):
-            WORepo.add(self, ppa=WOVar.wo_nginx_repo)
-            Log.debug(self, 'Adding ppa for Nginx')
+            if not os.path.isfile(
+                'wordops-ubuntu-nginx-wo-{0}.list'
+                    .format(WOVar.wo_platform_codename)):
+                Log.info(self, "Adding repository for NGINX, please wait...")
+                WORepo.add(self, ppa=WOVar.wo_nginx_repo)
+                Log.debug(self, 'Adding ppa for Nginx')
         else:
-            WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
-            Log.debug(self, 'Adding repository for Nginx')
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list/wo-repo.list',
+                    'download.opensuse.org'):
+                Log.info(self, "Adding repository for NGINX, please wait...")
+                Log.debug(self, 'Adding repository for Nginx')
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
             WORepo.add_key(self, WOVar.wo_nginx_key)
 
     # add php repository
     if (set(WOVar.wo_php73).issubset(set(apt_packages)) or
             set(WOVar.wo_php).issubset(set(apt_packages))):
-        Log.info(self, "Adding repository for PHP, please wait...")
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
-            WORepo.add(self, ppa=WOVar.wo_php_repo)
+            if not os.path.isfile(
+                '/etc/apt/sources.list.d/ondrej-ubuntu-php-{0}.list'
+                    .format(WOVar.wo_platform_codename)):
+                Log.info(self, "Adding repository for PHP, please wait...")
+                WORepo.add(self, ppa=WOVar.wo_php_repo)
         else:
             # Add repository for php
             if (WOVar.wo_platform_codename == 'buster'):
                 php_pref = ("Package: *\nPin: origin "
                             "packages.sury.org"
                             "\nPin-Priority: 1000\n")
-                with open('/etc/apt/preferences.d/'
-                          'PHP.pref', 'w') as php_pref_file:
+                with open(
+                    '/etc/apt/preferences.d/'
+                        'PHP.pref', mode='w',
+                        encoding='utf-8') as php_pref_file:
                     php_pref_file.write(php_pref)
-            Log.debug(self, 'Adding repo_url of php for debian')
-            WORepo.add(self, repo_url=WOVar.wo_php_repo)
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list.d/wo-repo.list',
+                    'packages.sury.org'):
+                Log.debug(self, 'Adding repo_url of php for debian')
+                Log.info(self, "Adding repository for PHP, please wait...")
+                WORepo.add(self, repo_url=WOVar.wo_php_repo)
             Log.debug(self, 'Adding deb.sury GPG key')
             WORepo.add_key(self, WOVar.wo_php_key)
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
-        Log.info(self, "Adding repository for Redis, please wait...")
         if WOVar.wo_distro == 'ubuntu':
-            Log.debug(self, 'Adding ppa for redis')
-            WORepo.add(self, ppa=WOVar.wo_redis_repo)
+            if not os.path.isfile(
+                '/etc/apt/sources.list.d/'
+                'chris-lea-ubuntu-redis-server-{0}.list'
+                    .format(WOVar.wo_platform_codename)):
+                Log.info(self, "Adding repository for Redis, please wait...")
+                Log.debug(self, 'Adding ppa for redis')
+                WORepo.add(self, ppa=WOVar.wo_redis_repo)
+        else:
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list/wo-repo.list',
+                    'download.opensuse.org'):
+                Log.info(self, "Adding repository for Redis, please wait...")
+                WORepo.add(self, repo_url=WOVar.wo_php_repo)
+            WORepo.add_key(self, WOVar.wo_nginx_key)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -489,6 +512,17 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             "the cause of this issue", False)
             else:
                 WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
+                if not os.path.isdir('/etc/systemd/system/nginx.service.d'):
+                    WOFileUtils.mkdir(self,
+                                      '/etc/systemd/system/nginx.service.d')
+                if not os.path.isdir(
+                        '/etc/systemd/system/nginx.service.d/limits.conf'):
+                    with open(
+                        '/etc/systemd/system/nginx.service.d/limits.conf',
+                            encoding='utf-8', mode='w') as ngx_limit:
+                        ngx_limit.write('[Service]\nLimitNOFILE=500000')
+                    WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
+                    WOService.restart_service(self, 'nginx')
 
         if set(WOVar.wo_php).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
@@ -780,14 +814,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                          "/etc/mysql/my.cnf.default-pkg")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
                 # set InnoDB variable depending on the RAM available
-                wo_ram_innodb = int(wo_ram*0.3)
-                wo_ram_log_buffer = int(wo_ram_innodb*0.25)
-                wo_ram_log_size = int(wo_ram_log_buffer*0.5)
+                wo_ram_innodb = int(wo_ram * 0.3)
+                wo_ram_log_buffer = int(wo_ram_innodb * 0.25)
+                wo_ram_log_size = int(wo_ram_log_buffer * 0.5)
                 if (wo_ram < 2000):
                     wo_innodb_instance = int(1)
                     tmp_table_size = int(32)
                 elif (wo_ram > 2000) and (wo_ram < 64000):
-                    wo_innodb_instance = int(wo_ram/1000)
+                    wo_innodb_instance = int(wo_ram / 1000)
                     tmp_table_size = int(128)
                 elif (wo_ram > 64000):
                     wo_innodb_instance = int(64)
@@ -801,8 +835,19 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
+                if os.path.isdir('/etc/systemd/system/mariadb.service.d'):
+                    if not os.path.isfile(
+                            '/etc/systemd/system/'
+                            'mariadb.service.d/limits.conf'):
+                        WOFileUtils.textwrite(
+                            self,
+                            '/etc/systemd/system/'
+                            'mariadb.service.d/limits.conf',
+                            '[Service]\nLimitNOFILE=500000')
+                        WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
                 # set innodb_buffer_pool_instances depending
                 # on the amount of RAM
+
                 WOService.stop_service(self, 'mysql')
                 WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
                                    '/var/lib/mysql/ib_logfile0.bak')
@@ -970,24 +1015,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 if wo_ram < 1024:
                     Log.debug(self, "Setting maxmemory variable to "
                               "{0} in redis.conf"
-                              .format(int(wo_ram*1024*1024*0.1)))
-                    WOFileUtils.searchreplace(self,
-                                              "/etc/redis/redis.conf",
-                                              "# maxmemory <bytes>",
-                                              "maxmemory {0}"
-                                              .format
-                                              (int(wo_ram*1024*1024*0.1)))
+                              .format(int(wo_ram * 1024 * 1024 * 0.1)))
+                    WOFileUtils.searchreplace(
+                        self,
+                        "/etc/redis/redis.conf",
+                        "# maxmemory <bytes>",
+                        "maxmemory {0}"
+                        .format
+                        (int(wo_ram * 1024 * 1024 * 0.1)))
 
                 else:
                     Log.debug(self, "Setting maxmemory variable to {0} "
                               "in redis.conf"
-                              .format(int(wo_ram*1024*1024*0.2)))
-                    WOFileUtils.searchreplace(self,
-                                              "/etc/redis/redis.conf",
-                                              "# maxmemory <bytes>",
-                                              "maxmemory {0}"
-                                              .format
-                                              (int(wo_ram*1024*1024*0.2)))
+                              .format(int(wo_ram * 1024 * 1024 * 0.2)))
+                    WOFileUtils.searchreplace(
+                        self,
+                        "/etc/redis/redis.conf",
+                        "# maxmemory <bytes>",
+                        "maxmemory {0}"
+                        .format
+                        (int(wo_ram * 1024 * 1024 * 0.2)))
 
                 Log.debug(
                     self, "Setting maxmemory-policy variable to "
@@ -1146,6 +1193,21 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                for x in packages):
             Log.debug(self, "CHMOD MySQLTuner in /usr/bin/mysqltuner")
             WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
+
+        # cheat.sh
+        if any('/usr/local/bin/cht.sh' == x[1]
+               for x in packages):
+            Log.debug(self, "CHMOD cht.sh in /usr/local/bin/cht.sh")
+            WOFileUtils.chmod(self, "/usr/local/bin/cht.sh", 0o775)
+            if WOFileUtils.grepcheck(self, '/etc/bash_completion.d/cht.sh',
+                                     'cht_complete cht.sh'):
+                WOFileUtils.searchreplace(
+                    self, '/etc/bash_completion.d/cht.sh',
+                    '_cht_complete cht.sh',
+                    '_cht_complete cheat')
+            if not os.path.islink('/usr/local/bin/cheat'):
+                WOFileUtils.create_symlink(
+                    self, ['/usr/local/bin/cht.sh', '/usr/local/bin/cheat'])
 
         # netdata install
         if any('/var/lib/wo/tmp/kickstart.sh' == x[1]
@@ -1362,3 +1424,89 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOShellExec.cmd_exec(self, '/usr/local/sbin/install-ngxblocker -x')
             WOFileUtils.chmod(
                 self, "/usr/local/sbin/update-ngxblocker", 0o700)
+
+
+def pre_stack(self):
+    """Inital server configuration and tweak"""
+    # wo sysctl tweaks
+    # check system type
+    wo_arch = os.uname()[4]
+    if os.path.isfile('/proc/1/environ'):
+        # detect lxc containers
+        wo_lxc = WOFileUtils.grepcheck(
+            self, '/proc/1/environ', 'container=lxc')
+        # detect wsl
+        wo_wsl = WOFileUtils.grepcheck(
+            self, '/proc/1/environ', 'wsl')
+    else:
+        wo_wsl = True
+        wo_lxc = True
+    # remove old sysctl tweak
+    if os.path.isfile('/etc/sysctl.d/60-ubuntu-nginx-web-server.conf'):
+        WOFileUtils.rm(self, '/etc/sysctl.d/60-ubuntu-nginx-web-server.conf')
+
+    if wo_arch == 'x86_64':
+        if (wo_lxc is not True) and (wo_wsl is not True):
+            data = dict()
+            WOTemplate.deploy(
+                self, '/etc/sysctl.d/60-wo-tweaks.conf',
+                'sysctl.mustache', data, True)
+            # use tcp_bbr congestion algorithm only on new kernels
+            if (WOVar.wo_platform_codename == 'bionic' or
+                WOVar.wo_platform_codename == 'disco' or
+                    WOVar.wo_platform_codename == 'buster'):
+                if WOShellExec.cmd_exec(self, 'modprobe tcp_bbr'):
+                    with open("/etc/modules-load.d/bbr.conf",
+                              encoding='utf-8', mode='w') as bbr_file:
+                        bbr_file.write('tcp_bbr')
+                    with open("/etc/sysctl.d/60-wo-tweaks.conf",
+                              encoding='utf-8', mode='a') as sysctl_file:
+                        sysctl_file.write(
+                            '\nnet.ipv4.tcp_congestion_control = bbr'
+                            '\nnet.ipv4.tcp_notsent_lowat = 16384')
+            else:
+                if WOShellExec.cmd_exec(self, 'modprobe tcp_htcp'):
+                    with open("/etc/modules-load.d/htcp.conf",
+                              encoding='utf-8', mode='w') as bbr_file:
+                        bbr_file.write('tcp_htcp')
+                    with open("/etc/sysctl.d/60-wo-tweaks.conf",
+                              encoding='utf-8', mode='a') as sysctl_file:
+                        sysctl_file.write(
+                            '\nnet.ipv4.tcp_congestion_control = htcp')
+            # apply sysctl tweaks
+            WOShellExec.cmd_exec(
+                self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
+    # sysctl tweak service
+    data = dict()
+    if not os.path.isfile('/opt/wo-kernel.sh'):
+        WOTemplate.deploy(self, '/opt/wo-kernel.sh',
+                          'wo-kernel-script.mustache', data)
+    if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
+        WOTemplate.deploy(
+            self, '/lib/systemd/system/wo-kernel.service',
+            'wo-kernel-service.mustache', data)
+        WOShellExec.cmd_exec(self, 'systemctl enable wo-kernel.service')
+        WOService.start_service(self, 'wo-kernel')
+    # open_files_limit tweak
+    if not WOFileUtils.grepcheck(self, '/etc/security/limits.conf', '500000'):
+        with open("/etc/security/limits.conf",
+                  encoding='utf-8', mode='w') as limit_file:
+            limit_file.write(
+                '*         hard    nofile      500000\n'
+                '*         soft    nofile      500000\n'
+                'root      hard    nofile      500000\n'
+                'root      soft    nofile      500000\n')
+    # custom motd-news
+    data = dict()
+    # check if update-motd.d directory exist
+    if os.path.isdir('/etc/update-motd.d/'):
+        if not os.path.isfile('/etc/update-motd.d/98-wo-update'):
+            # render custom motd template
+            WOTemplate.deploy(
+                self, '/etc/update-motd.d/98-wo-update',
+                'wo-update.mustache', data)
+            WOFileUtils.chmod(
+                self, "/etc/update-motd.d/98-wo-update", 0o755)
+            # restart motd-news service if available
+            if os.path.isfile('/lib/systemd/system/motd-news.service'):
+                WOService.restart_service(self, 'motd-news')

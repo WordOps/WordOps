@@ -366,45 +366,36 @@ def setupwordpress(self, data, vhostonly=False):
         except CommandExecutionError:
             raise SiteError("generate wp-config failed for wp multi site")
 
-    try:
+    # set all wp-config.php variables
+    wp_conf_variables = [
+        ['WP_CACHE_KEY_SALT', '{0}:'.format(wo_domain_name)],
+        ['WP_MEMORY_LIMIT', '128M'],
+        ['WP_MAX_MEMORY_LIMIT', '256M'],
+        ['CONCATENATE_SCRIPTS', 'false'],
+        ['WP_POST_REVISIONS', '10'],
+        ['MEDIA_TRASH', 'true'],
+        ['EMPTY_TRASH_DAYS', '15'],
+        ['WP_AUTO_UPDATE_CORE', 'minor']]
 
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_CACHE_KEY_SALT "
-                             "\'{0}:\'\"".format(wo_domain_name))
-
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_MEMORY_LIMIT "
-                             "\'128M\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_MAX_MEMORY_LIMIT "
-                             "\'256M\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set CONCATENATE_SCRIPTS "
-                             "false --raw\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_POST_REVISIONS "
-                             "\'10\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set MEDIA_TRASH "
-                             "true --raw\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set EMPTY_TRASH_DAYS "
-                             "\'15\'\"")
-        WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root "
-                             .format(WOVar.wo_wpcli_path) +
-                             "config set WP_AUTO_UPDATE_CORE "
-                             "minor\"")
-
-    except CommandExecutionError as e:
-        Log.debug(self, str(e))
-        Log.error(self, "Unable to define extra variable in wp-config.php")
+    for wp_conf in wp_conf_variables:
+        wp_var = wp_conf[0]
+        wp_val = wp_conf[1]
+        if wp_val == 'true' or wp_val == 'false':
+            var_raw = True
+        else:
+            var_raw = False
+        try:
+            WOShellExec.cmd_exec(
+                self, "/bin/bash -c \"{0} --allow-root "
+                .format(WOVar.wo_wpcli_path) +
+                "config set {0} "
+                "\'{1}\' {wp_raw}\""
+                .format(wp_var, wp_val,
+                        wp_raw='--raw'
+                        if var_raw is True else ''))
+        except CommandExecutionError as e:
+            Log.debug(self, str(e))
+            Log.error(self, 'Unable to define wp-config.php variables')
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
@@ -412,14 +403,14 @@ def setupwordpress(self, data, vhostonly=False):
     try:
 
         Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd(
-        )+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(),
-                                                         os.pardir))))
-        shutil.move(os.getcwd()+'/wp-config.php',
+        ) + '/wp-config.php', os.path.abspath(os.path.join(os.getcwd(),
+                                                           os.pardir))))
+        shutil.move(os.getcwd() + '/wp-config.php',
                     os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
     except Exception as e:
         Log.debug(self, str(e))
         Log.error(self, 'Unable to move file from {0} to {1}'
-                  .format(os.getcwd()+'/wp-config.php',
+                  .format(os.getcwd() + '/wp-config.php',
                           os.path.abspath(os.path.join(os.getcwd(),
                                                        os.pardir))), False)
         raise SiteError("Unable to move wp-config.php")
@@ -458,7 +449,8 @@ def setupwordpress(self, data, vhostonly=False):
 
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
-        Log.debug(self, "{0} --allow-root core install "
+        Log.debug(
+            self, "{0} --allow-root core install "
                   .format(WOVar.wo_wpcli_path) +
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['site_name'], wo_wp_user) +
@@ -605,6 +597,11 @@ def setupwordpress(self, data, vhostonly=False):
         plugin_data = json.dumps(plugin_data_object)
         setupwp_plugin(self, 'cache-enabler', 'cache-enabler',
                        plugin_data, data)
+        WOShellExec.cmd_exec(
+            self, "/bin/bash -c \"{0} --allow-root "
+            .format(WOVar.wo_wpcli_path) +
+            "config set WP_CACHE "
+            "true --raw\"")
 
     if vhostonly:
         try:
@@ -1274,62 +1271,6 @@ def removeNginxConf(self, domain):
                   .format(domain))
 
 
-def removeAcmeConf(self, domain):
-    sslconf = ("/var/www/{0}/conf/nginx/ssl.conf"
-               .format(domain))
-    sslforce = ("/etc/nginx/conf.d/force-ssl-{0}.conf"
-                .format(domain))
-    if os.path.isdir('/etc/letsencrypt/renewal/{0}_ecc'
-                     .format(domain)):
-        Log.info(self, "Removing Acme configuration")
-        Log.debug(self, "Removing Acme configuration")
-        try:
-            WOShellExec.cmd_exec(self, "/etc/letsencrypt/acme.sh "
-                                       "--config-home "
-                                       "'/etc/letsencrypt/config' "
-                                       "--remove "
-                                       "-d {0} --ecc"
-                                       .format(domain))
-        except CommandExecutionError as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Cert removal failed")
-
-        WOFileUtils.rm(self, '{0}/{1}_ecc'
-                       .format(WOVar.wo_ssl_archive, domain))
-        WOFileUtils.rm(self, '{0}/{1}'
-                       .format(WOVar.wo_ssl_live, domain))
-        WOFileUtils.rm(self, '{0}'.format(sslconf))
-        WOFileUtils.rm(self, '{0}.disabled'.format(sslconf))
-        WOFileUtils.rm(self, '{0}'.format(sslforce))
-        WOFileUtils.rm(self, '{0}.disabled'
-                       .format(sslforce))
-        WOFileUtils.rm(self, '/etc/letsencrypt/shared/{0}.conf'
-                       .format(domain))
-
-        # find all broken symlinks
-        sympath = "/var/www"
-        WOFileUtils.findBrokenSymlink(self, sympath)
-
-    else:
-        if os.path.islink("{0}".format(sslconf)):
-            WOFileUtils.remove_symlink(self, "{0}".format(sslconf))
-            WOFileUtils.rm(self, '{0}'.format(sslforce))
-
-    if WOFileUtils.grepcheck(self, '/var/www/22222/conf/nginx/ssl.conf',
-                             '{0}'.format(domain)):
-        Log.info(self, "Setting back default certificate for WordOps backend")
-        with open("/var/www/22222/conf/nginx/"
-                  "ssl.conf", "w") as ssl_conf_file:
-            ssl_conf_file.write("ssl_certificate "
-                                "/var/www/22222/cert/22222.crt;\n"
-                                "ssl_certificate_key "
-                                "/var/www/22222/cert/22222.key;\n")
-    WOGit.add(self, ["/etc/letsencrypt"],
-              msg="Deleted {0} "
-              .format(domain))
-    WOService.restart_service(self, "nginx")
-
-
 def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                     dbhost=''):
     """
@@ -1341,7 +1282,7 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(domain)):
             removeNginxConf(self, domain)
-            removeAcmeConf(self, domain)
+            WOAcme.removeconf(self, domain)
 
     if webroot:
         deleteWebRoot(self, webroot)
@@ -1610,19 +1551,31 @@ def setuprocketchat(self):
 
 
 def setupngxblocker(self, domain, block=True):
-    if os.path.isdir('/var/www/{0}/conf/nginx'.format(domain)):
-        if not os.path.isfile('/var/www/{0}/conf/nginx/ngxblocker.disabled'
-                              .format(domain)):
-            ngxconf = open("/var/www/{0}/conf/nginx/ngxblocker.conf"
-                           .format(domain),
-                           encoding='utf-8', mode='w')
-            ngxconf.write("# Bad Bot Blocker\n"
-                          "include /etc/nginx/bots.d/ddos.conf;\n"
-                          "include /etc/nginx/bots.d/blockbots.conf;\n")
-            ngxconf.close()
-        else:
+    if block:
+        if os.path.isdir('/var/www/{0}/conf/nginx'.format(domain)):
+            if not os.path.isfile(
+                '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
+                    .format(domain)):
+                ngxconf = open(
+                    "/var/www/{0}/conf/nginx/ngxblocker.conf"
+                    .format(domain),
+                    encoding='utf-8', mode='w')
+                ngxconf.write(
+                    "# Bad Bot Blocker\n"
+                    "include /etc/nginx/bots.d/ddos.conf;\n"
+                    "include /etc/nginx/bots.d/blockbots.conf;\n")
+                ngxconf.close()
+            else:
+                WOFileUtils.mvfile(
+                    self, '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
+                    .format(domain), '/var/www/{0}/conf/nginx/ngxblocker.conf'
+                    .format(domain))
+    else:
+        if os.path.isfile('/var/www/{0}/conf/nginx/ngxblocker.conf'
+                          .format(domain)):
             WOFileUtils.mvfile(
-                self, '/var/www/{0}/conf/nginx/ngxblocker.disabled'
-                .format(domain), '/var/www/{0}/conf/nginx/ngxblocker'
+                self, '/var/www/{0}/conf/nginx/ngxblocker.conf'
+                .format(domain),
+                '/var/www/{0}/conf/nginx/ngxblocker.conf.disabled'
                 .format(domain))
     return 0

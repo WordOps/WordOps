@@ -5,7 +5,7 @@ import os
 from cement.core.controller import CementBaseController, expose
 
 from wo.cli.plugins.stack_migrate import WOStackMigrateController
-from wo.cli.plugins.stack_pref import post_pref, pre_pref
+from wo.cli.plugins.stack_pref import post_pref, pre_pref, pre_stack
 from wo.cli.plugins.stack_services import WOStackStatusController
 from wo.cli.plugins.stack_upgrade import WOStackUpgradeController
 from wo.core.aptget import WOAptGet
@@ -85,6 +85,8 @@ class WOStackController(CementBaseController):
             (['--ngxblocker'],
                 dict(help='Install Nginx Ultimate Bad Bot Blocker',
                      action='store_true')),
+            (['--cheat'],
+                dict(help='Install cheat.sh', action='store_true')),
             (['--force'],
                 dict(help='Force install/remove/purge without prompt',
                      action='store_true')),
@@ -116,6 +118,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
+                (not pargs.cheat) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                     (not pargs.php73)):
@@ -147,6 +150,7 @@ class WOStackController(CementBaseController):
                 pargs.dashboard = True
                 pargs.phpredisadmin = True
                 pargs.extplorer = True
+                pargs.cheat = True
 
             if pargs.security:
                 pargs.fail2ban = True
@@ -426,6 +430,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "eXtplorer is already installed")
                     Log.info(self, "eXtplorer is already installed")
 
+            # ultimate ngx_blocker
             if pargs.ngxblocker:
                 if not os.path.isdir('/etc/nginx/bots.d'):
                     Log.debug(self, "Setting packages variable for ngxblocker")
@@ -438,6 +443,21 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "ngxblocker is already installed")
                     Log.info(self, "ngxblocker is already installed")
+
+            # cheat.sh
+            if pargs.cheat:
+                if ((not os.path.exists('/usr/local/bin/cht.sh')) and
+                        (not os.path.exists('/usr/bin/cht.sh'))):
+                    Log.debug(self, 'Setting packages variable for cheat.sh')
+                    packages = packages + [[
+                        "https://raw.githubusercontent.com/chubin/cheat.sh"
+                        "/master/share/cht.sh.txt",
+                        "/usr/local/bin/cht.sh",
+                        "cheat.sh"],
+                        ["https://raw.githubusercontent.com/chubin/cheat.sh"
+                         "/master/share/bash_completion.txt",
+                         "/etc/bash_completion.d/cht.sh",
+                         "bash_completion"]]
 
             # UTILS
             if pargs.utils:
@@ -485,6 +505,7 @@ class WOStackController(CementBaseController):
             Log.debug(self, "{0}".format(e))
 
         if (apt_packages) or (packages):
+            pre_stack(self)
             if (apt_packages):
                 Log.debug(self, "Calling pre_pref")
                 pre_pref(self, apt_packages)
@@ -518,6 +539,7 @@ class WOStackController(CementBaseController):
                 Log.info(self, "Successfully installed packages")
             else:
                 return self.msg
+        return 0
 
     @expose(help="Remove packages")
     def remove(self):
@@ -535,6 +557,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
+                (not pargs.cheat) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
@@ -564,6 +587,7 @@ class WOStackController(CementBaseController):
             pargs.utils = True
             pargs.netdata = True
             pargs.mysqltuner = True
+            pargs.cheat = True
 
         if pargs.security:
             pargs.fail2ban = True
@@ -672,6 +696,14 @@ class WOStackController(CementBaseController):
             if os.path.isfile('/usr/bin/mysqltuner'):
                 Log.debug(self, "Removing packages for MySQLTuner ")
                 packages = packages + ['/usr/bin/mysqltuner']
+
+        # cheat.sh
+        if pargs.cheat:
+            if os.path.isfile('/usr/local/bin/cht.sh'):
+                Log.debug(self, "Removing packages for cheat.sh ")
+                packages = packages + [
+                    '/usr/local/bin/cht.sh', '/usr/local/bin/cheat',
+                    '/etc/bash_completion.d/cht.sh']
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
@@ -793,6 +825,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
+                (not pargs.cheat) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
@@ -822,6 +855,7 @@ class WOStackController(CementBaseController):
             pargs.composer = True
             pargs.netdata = True
             pargs.mysqltuner = True
+            pargs.cheat = True
 
         if pargs.security:
             pargs.fail2ban = True
@@ -937,6 +971,14 @@ class WOStackController(CementBaseController):
             if os.path.isfile('/usr/bin/mysqltuner'):
                 Log.debug(self, "Removing packages for MySQLTuner ")
                 packages = packages + ['/usr/bin/mysqltuner']
+
+        # cheat.sh
+        if pargs.cheat:
+            if os.path.isfile('/usr/local/bin/cht.sh'):
+                Log.debug(self, "Removing packages for cheat.sh ")
+                packages = packages + [
+                    '/usr/local/bin/cht.sh', '/usr/local/bin/cheat',
+                    '/etc/bash_completion.d/cht.sh']
 
         # PHPREDISADMIN
         if pargs.phpredisadmin:
