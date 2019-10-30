@@ -27,14 +27,9 @@ class WOShellExec():
                                             cmd_stderr_bytes.decode('utf-8',
                                                                     "replace"))
 
-            if proc.returncode == 0:
-                Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"
-                                .format(cmd_stdout, cmd_stderr))
-                return True
-            else:
-                Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"
-                                .format(cmd_stdout, cmd_stderr))
-                return False
+            Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"
+                      .format(cmd_stdout, cmd_stderr))
+            return bool(proc.returncode == 0)
         except OSError as e:
             Log.debug(self, str(e))
             raise CommandExecutionError

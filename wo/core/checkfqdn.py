@@ -33,7 +33,4 @@ def check_fqdn_ip(self):
     y = requests.get('http://v4.wordops.eu/dns/{0}/'.format(wo_fqdn))
     ip_fqdn = (y.text).strip()
 
-    if ip == ip_fqdn:
-        return True
-    else:
-        return False
+    return bool(ip == ip_fqdn)

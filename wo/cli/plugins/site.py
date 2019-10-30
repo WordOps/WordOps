@@ -637,10 +637,7 @@ class WOSiteCreateController(CementBaseController):
 
             # Setup WordPress if Wordpress site
             if data['wp']:
-                if pargs.vhostonly:
-                    vhostonly = True
-                else:
-                    vhostonly = False
+                vhostonly = bool(pargs.vhostonly)
                 try:
                     wo_wp_creds = setupwordpress(self, data, vhostonly)
                     # Add database information for site into database
@@ -1261,10 +1258,7 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
-                if (wo_domain_type == 'subdomain'):
-                    acme_subdomain = True
-                else:
-                    acme_subdomain = False
+                acme_subdomain = bool(wo_domain_type == 'subdomain')
                 acme_wildcard = False
             elif pargs.letsencrypt == 'subdomain':
                 data['letsencrypt'] = True
@@ -1316,19 +1310,11 @@ class WOSiteUpdateController(CementBaseController):
                     return 0
 
         if data and (not pargs.php73):
-            if old_php73 is True:
-                data['php73'] = True
-                php73 = True
-            else:
-                data['php73'] = False
-                php73 = False
+            data['php73'] = bool(old_php73 is True)
+            php73 = bool(old_php73 is True)
 
-        if pargs.php73 == "on":
-            data['php73'] = True
-            php73 = True
-        else:
-            data['php73'] = False
-            php73 = False
+        data['php73'] = bool(pargs.php73 == "on")
+        php73 = bool(pargs.php73 == "on")
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             data['wpredis'] = True
@@ -1350,16 +1336,10 @@ class WOSiteUpdateController(CementBaseController):
             return 1
 
         if pargs.hsts:
-            if pargs.hsts == "on":
-                data['hsts'] = True
-            elif pargs.hsts == "off":
-                data['hsts'] = False
+            data['hsts'] = bool(pargs.hsts == "on")
 
         if pargs.ngxblocker:
-            if pargs.ngxblocker == 'on':
-                ngxblocker = True
-            elif pargs.ngxblocker == 'off':
-                ngxblocker = False
+            ngxblocker = bool(pargs.ngxblocker == 'on')
 
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
