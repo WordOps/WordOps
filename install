@@ -425,6 +425,7 @@ wo_install_acme_sh() {
 
 # WordOps install
 wo_install() {
+    cd /usr/local/lib/python3.*/dist-packages || exit 1
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip install --upgrade wordops
     else
@@ -433,7 +434,6 @@ wo_install() {
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
     cp -f /usr/local/lib/python3.*/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
-
 }
 
 # Clone Github repository if it doesn't exist
@@ -595,7 +595,7 @@ wo_domain_suffix() {
 }
 
 wo_clean() {
-    rm -rf /usr/local/lib/python3.*/dist-packages/wo-*.egg /usr/local/lib/python3.*/dist-packages/wordops-*.egg
+    echo "pass"
 
 }
 
