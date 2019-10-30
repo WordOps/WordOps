@@ -33,3 +33,4 @@ script:
   - sudo -E time bash install --travis -b "$TRAVIS_BRANCH"
   - sudo -E time bash tests/travis.sh
   - sudo wo update --travis
+  - sudo python3 setup.py sdist bdist_wheel
