@@ -80,29 +80,22 @@ class WOInfoController(CementBaseController):
 
         config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
         wo_sec = config.sections()
-        www_listen = config['{0}'
-                            .format(wo_sec[0])]['listen']
-        www_ping_path = config['{0}'.format(wo_sec[0])]['ping.path']
-        www_pm_status_path = config['{0}'.format(wo_sec[0])]['pm.status_path']
-        www_pm = config['{0}'.format(wo_sec[0])]['pm']
-        www_pm_max_requests = config['{0}'.format(
-            wo_sec[0])]['pm.max_requests']
-        www_pm_max_children = config['{0}'.format(
-            wo_sec[0])]['pm.max_children']
-        www_pm_start_servers = config['{0}'.format(
-            wo_sec[0])]['pm.start_servers']
-        www_pm_min_spare_servers = config['{0}'.format(
-            wo_sec[0])]['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['{0}'.format(
-            wo_sec[0])]['pm.max_spare_servers']
-        www_request_terminate_time = (config['{0}'.format(wo_sec[0])]
+        config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
+        www_listen = config[wo_sec[0]]['listen']
+        www_ping_path = config[wo_sec[0]]['ping.path']
+        www_pm_status_path = config[wo_sec[0]]['pm.status_path']
+        www_pm = config[wo_sec[0]]['pm']
+        www_pm_max_requests = config[wo_sec[0]]['pm.max_requests']
+        www_pm_max_children = config[wo_sec[0]]['pm.max_children']
+        www_pm_start_servers = config[wo_sec[0]]['pm.start_servers']
+        www_pm_min_spare_servers = config[wo_sec[0]]['pm.min_spare_servers']
+        www_pm_max_spare_servers = config[wo_sec[0]]['pm.max_spare_servers']
+        www_request_terminate_time = (config[wo_sec[0]]
                                             ['request_terminate_timeout'])
         try:
             www_xdebug = (
-                config['{0}'
-                       .format(wo_sec[0])][
-                           'php_admin_flag[xdebug.profiler_enable'
-                    '_trigger]'])
+                config[wo_sec[0]]['php_admin_flag[xdebug.profiler_enable'
+                                  '_trigger]'])
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
@@ -167,24 +160,20 @@ class WOInfoController(CementBaseController):
 
         config.read('/etc/php/7.3/fpm/pool.d/www.conf')
         wo_sec = config.sections()
-        www_listen = config['{0}'.format(wo_sec[0])]['listen']
-        www_ping_path = config['{0}'.format(wo_sec[0])]['ping.path']
-        www_pm_status_path = config['{0}'.format(wo_sec[0])]['pm.status_path']
-        www_pm = config['{0}'.format(wo_sec[0])]['pm']
-        www_pm_max_requests = config['{0}'.format(
-            wo_sec[0])]['pm.max_requests']
-        www_pm_max_children = config['{0}'.format(
-            wo_sec[0])]['pm.max_children']
-        www_pm_start_servers = config['{0}'.format(
-            wo_sec[0])]['pm.start_servers']
-        www_pm_min_spare_servers = config['{0}'.format(
-            wo_sec[0])]['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['{0}'.format(
-            wo_sec[0])]['pm.max_spare_servers']
-        www_request_terminate_time = (config['{0}'.format(wo_sec[0])]
+        config.read('/etc/php/7.3/fpm/pool.d/www.conf')
+        www_listen = config[wo_sec[0]]['listen']
+        www_ping_path = config[wo_sec[0]]['ping.path']
+        www_pm_status_path = config[wo_sec[0]]['pm.status_path']
+        www_pm = config[wo_sec[0]]['pm']
+        www_pm_max_requests = config[wo_sec[0]]['pm.max_requests']
+        www_pm_max_children = config[wo_sec[0]]['pm.max_children']
+        www_pm_start_servers = config[wo_sec[0]]['pm.start_servers']
+        www_pm_min_spare_servers = config[wo_sec[0]]['pm.min_spare_servers']
+        www_pm_max_spare_servers = config[wo_sec[0]]['pm.max_spare_servers']
+        www_request_terminate_time = (config[wo_sec[0]]
                                             ['request_terminate_timeout'])
         try:
-            www_xdebug = (config['{0}'.format(wo_sec[0])]
+            www_xdebug = (config[wo_sec[0]]
                           ['php_admin_flag[xdebug.profiler_enable'
                            '_trigger]'])
         except Exception as e:

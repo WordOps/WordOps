@@ -19,4 +19,3 @@ class WOOutputHandler(MustacheOutputHandler):
                 return open(full_path, encoding='utf-8', mode='r').read()
             else:
                 continue
-        return 1
