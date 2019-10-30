@@ -45,9 +45,6 @@ class WOUpdateController(CementBaseController):
         pargs = self.app.pargs
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
 
-        wo_current = WOVar.wo_version
-        wo_latest = WODownload.latest_release(self, "WordOps/WordOps")
-
         install_args = ""
         if pargs.mainline or pargs.beta:
             wo_branch = "mainline"
@@ -64,6 +61,8 @@ class WOUpdateController(CementBaseController):
         if ((not pargs.force) and (not pargs.travis) and
             (not pargs.mainline) and (not pargs.beta) and
                 (not pargs.branch)):
+            wo_current = WOVar.wo_version
+            wo_latest = WODownload.latest_release(self, "WordOps/WordOps")
             if wo_current == wo_latest:
                 Log.error(
                     self, "WordOps {0} is already installed"
@@ -78,9 +77,7 @@ class WOUpdateController(CementBaseController):
                                     "update script"]])
 
         if os.path.isfile('install'):
-            Log.info(self, "updating WordOps from local install\n"
-                     "Latest public release = {0}".format(wo_latest))
-
+            Log.info(self, "updating WordOps from local install\n")
             try:
                 Log.info(self, "updating WordOps, please wait...")
                 os.system("/bin/bash install --travis")

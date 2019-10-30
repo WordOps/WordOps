@@ -44,9 +44,9 @@ class WODownload():
                 'https://api.github.com/repos/{0}/releases/latest'
                 .format(repository),
                 timeout=(5, 30))
+            github_json = req.json()
         except requests.RequestException as e:
             Log.debug(self, str(e))
             Log.error(self, "Unable to query GitHub API")
 
-        github_json = req.json()
         return github_json["tag_name"]

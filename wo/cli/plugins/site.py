@@ -999,10 +999,7 @@ class WOSiteUpdateController(CementBaseController):
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
 
-            if check_php_version == "7.3":
-                old_php73 = True
-            else:
-                old_php73 = False
+            old_php73 = bool(check_php_version == "7.3")
 
         if (pargs.password and not (pargs.html or
                                     pargs.php or pargs.php73 or pargs.mysql or
@@ -1378,7 +1375,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if 'proxy' in data.keys() and data['proxy']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False)
+                           ssl=(bool(check_site.is_ssl)))
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
             return 0
