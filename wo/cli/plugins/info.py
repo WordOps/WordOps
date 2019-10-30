@@ -79,22 +79,30 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
-        wo_sec = (config.sections())[0]
-        www_listen = config[wo_sec]['listen']
-        www_ping_path = config[wo_sec]['ping.path']
-        www_pm_status_path = config[wo_sec]['pm.status_path']
-        www_pm = config[wo_sec]['pm']
-        www_pm_max_requests = config[wo_sec]['pm.max_requests']
-        www_pm_max_children = config[wo_sec]['pm.max_children']
-        www_pm_start_servers = config[wo_sec]['pm.start_servers']
-        www_pm_min_spare_servers = config[wo_sec]['pm.min_spare_servers']
-        www_pm_max_spare_servers = config[wo_sec]['pm.max_spare_servers']
-        www_request_terminate_time = (config[wo_sec]
+        wo_sec = config.sections()
+        www_listen = config['{0}'
+                            .format(wo_sec[0])]['listen']
+        www_ping_path = config['{0}'.format(wo_sec[0])]['ping.path']
+        www_pm_status_path = config['{0}'.format(wo_sec[0])]['pm.status_path']
+        www_pm = config['{0}'.format(wo_sec[0])]['pm']
+        www_pm_max_requests = config['{0}'.format(
+            wo_sec[0])]['pm.max_requests']
+        www_pm_max_children = config['{0}'.format(
+            wo_sec[0])]['pm.max_children']
+        www_pm_start_servers = config['{0}'.format(
+            wo_sec[0])]['pm.start_servers']
+        www_pm_min_spare_servers = config['{0}'.format(
+            wo_sec[0])]['pm.min_spare_servers']
+        www_pm_max_spare_servers = config['{0}'.format(
+            wo_sec[0])]['pm.max_spare_servers']
+        www_request_terminate_time = (config['{0}'.format(wo_sec[0])]
                                             ['request_terminate_timeout'])
         try:
             www_xdebug = (
-                config[wo_sec]['php_admin_flag[xdebug.profiler_enable'
-                               '_trigger]'])
+                config['{0}'
+                       .format(wo_sec[0])][
+                           'php_admin_flag[xdebug.profiler_enable'
+                    '_trigger]'])
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
@@ -158,20 +166,25 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/php/7.3/fpm/pool.d/www.conf')
-        wo_sec = (config.sections())[0]
-        www_listen = config[wo_sec]['listen']
-        www_ping_path = config[wo_sec]['ping.path']
-        www_pm_status_path = config[wo_sec]['pm.status_path']
-        www_pm = config[wo_sec]['pm']
-        www_pm_max_requests = config[wo_sec]['pm.max_requests']
-        www_pm_max_children = config[wo_sec]['pm.max_children']
-        www_pm_start_servers = config[wo_sec]['pm.start_servers']
-        www_pm_min_spare_servers = config[wo_sec]['pm.min_spare_servers']
-        www_pm_max_spare_servers = config[wo_sec]['pm.max_spare_servers']
-        www_request_terminate_time = (config[wo_sec]
+        wo_sec = config.sections()
+        www_listen = config['{0}'.format(wo_sec[0])]['listen']
+        www_ping_path = config['{0}'.format(wo_sec[0])]['ping.path']
+        www_pm_status_path = config['{0}'.format(wo_sec[0])]['pm.status_path']
+        www_pm = config['{0}'.format(wo_sec[0])]['pm']
+        www_pm_max_requests = config['{0}'.format(
+            wo_sec[0])]['pm.max_requests']
+        www_pm_max_children = config['{0}'.format(
+            wo_sec[0])]['pm.max_children']
+        www_pm_start_servers = config['{0}'.format(
+            wo_sec[0])]['pm.start_servers']
+        www_pm_min_spare_servers = config['{0}'.format(
+            wo_sec[0])]['pm.min_spare_servers']
+        www_pm_max_spare_servers = config['{0}'.format(
+            wo_sec[0])]['pm.max_spare_servers']
+        www_request_terminate_time = (config['{0}'.format(wo_sec[0])]
                                             ['request_terminate_timeout'])
         try:
-            www_xdebug = (config[wo_sec]
+            www_xdebug = (config['{0}'.format(wo_sec[0])]
                           ['php_admin_flag[xdebug.profiler_enable'
                            '_trigger]'])
         except Exception as e:
@@ -268,12 +281,11 @@ class WOInfoController(CementBaseController):
                 self.app.pargs.php73 = True
 
         if self.app.pargs.nginx:
-            if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-wo') or
-                    (os.path.exists('/usr/bin/nginx'))):
-                self.info_nginx()
-            else:
+            if ((not WOAptGet.is_installed(self, 'nginx-custom')) and
+                    (not os.path.exists('/usr/bin/nginx'))):
                 Log.error(self, "Nginx is not installed")
+            else:
+                self.info_nginx()
 
         if self.app.pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
