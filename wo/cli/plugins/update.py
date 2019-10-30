@@ -78,6 +78,9 @@ class WOUpdateController(CementBaseController):
                                     "update script"]])
 
         if os.path.isfile('install'):
+            Log.info(self, "updating WordOps from local install\n"
+                     "Latest public release = {0}".format(wo_latest))
+
             try:
                 Log.info(self, "updating WordOps, please wait...")
                 os.system("/bin/bash install --travis")
