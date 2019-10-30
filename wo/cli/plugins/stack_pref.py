@@ -814,14 +814,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                          "/etc/mysql/my.cnf.default-pkg")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
                 # set InnoDB variable depending on the RAM available
-                wo_ram_innodb = int(wo_ram*0.3)
-                wo_ram_log_buffer = int(wo_ram_innodb*0.25)
-                wo_ram_log_size = int(wo_ram_log_buffer*0.5)
+                wo_ram_innodb = int(wo_ram * 0.3)
+                wo_ram_log_buffer = int(wo_ram_innodb * 0.25)
+                wo_ram_log_size = int(wo_ram_log_buffer * 0.5)
                 if (wo_ram < 2000):
                     wo_innodb_instance = int(1)
                     tmp_table_size = int(32)
                 elif (wo_ram > 2000) and (wo_ram < 64000):
-                    wo_innodb_instance = int(wo_ram/1000)
+                    wo_innodb_instance = int(wo_ram / 1000)
                     tmp_table_size = int(128)
                 elif (wo_ram > 64000):
                     wo_innodb_instance = int(64)
@@ -1015,24 +1015,26 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 if wo_ram < 1024:
                     Log.debug(self, "Setting maxmemory variable to "
                               "{0} in redis.conf"
-                              .format(int(wo_ram*1024*1024*0.1)))
-                    WOFileUtils.searchreplace(self,
-                                              "/etc/redis/redis.conf",
-                                              "# maxmemory <bytes>",
-                                              "maxmemory {0}"
-                                              .format
-                                              (int(wo_ram*1024*1024*0.1)))
+                              .format(int(wo_ram * 1024 * 1024 * 0.1)))
+                    WOFileUtils.searchreplace
+                    (self,
+                     "/etc/redis/redis.conf",
+                     "# maxmemory <bytes>",
+                     "maxmemory {0}"
+                     .format
+                     (int(wo_ram * 1024 * 1024 * 0.1)))
 
                 else:
                     Log.debug(self, "Setting maxmemory variable to {0} "
                               "in redis.conf"
-                              .format(int(wo_ram*1024*1024*0.2)))
-                    WOFileUtils.searchreplace(self,
-                                              "/etc/redis/redis.conf",
-                                              "# maxmemory <bytes>",
-                                              "maxmemory {0}"
-                                              .format
-                                              (int(wo_ram*1024*1024*0.2)))
+                              .format(int(wo_ram * 1024 * 1024 * 0.2)))
+                    WOFileUtils.searchreplace(
+                        self,
+                        "/etc/redis/redis.conf",
+                        "# maxmemory <bytes>",
+                        "maxmemory {0}"
+                        .format
+                        (int(wo_ram * 1024 * 1024 * 0.2)))
 
                 Log.debug(
                     self, "Setting maxmemory-policy variable to "

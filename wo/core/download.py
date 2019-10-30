@@ -27,8 +27,8 @@ class WODownload():
                     if req.encoding is None:
                         req.encoding = 'utf-8'
                     out_file.write(req.content)
-                Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
-                                            + Log.OKBLUE + "]"))
+                Log.info(self, "{0}".format("[" + Log.ENDC + "Done" +
+                                            Log.OKBLUE + "]"))
             except requests.RequestException as e:
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 Log.error(self, "Unable to download file, {0}"

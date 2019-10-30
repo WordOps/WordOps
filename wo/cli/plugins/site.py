@@ -78,7 +78,7 @@ class WOSiteController(CementBaseController):
                 Log.error(self, "service nginx reload failed. "
                           "check issues with `nginx -t` command")
         else:
-            Log.error(self, "nginx configuration file does not exist")
+            Log.error(self, 'nginx configuration file does not exist')
 
     @expose(help="Disable site example.com")
     def disable(self):
@@ -106,7 +106,7 @@ class WOSiteController(CementBaseController):
             if not os.path.isfile('/etc/nginx/sites-enabled/{0}'
                                   .format(wo_domain)):
                 Log.debug(self, "Site {0} already disabled".format(wo_domain))
-                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE + "]")
             else:
                 WOFileUtils.remove_symlink(self,
                                            '/etc/nginx/sites-enabled/{0}'
@@ -176,7 +176,7 @@ class WOSiteController(CementBaseController):
                         dbname=wo_db_name, dbuser=wo_db_user,
                         php_version=php_version,
                         dbpass=wo_db_pass,
-                        ssl=ssl, sslprovider=sslprovider,  sslexpiry=sslexpiry,
+                        ssl=ssl, sslprovider=sslprovider, sslexpiry=sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
                         .format("enabled" if siteinfo.is_enabled else
                                 "disabled"))
@@ -452,7 +452,7 @@ class WOSiteCreateController(CementBaseController):
 
         if stype == 'proxy':
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True,  basic=False, php73=False, wp=False,
+                        static=True, basic=False, php73=False, wp=False,
                         wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
@@ -463,7 +463,7 @@ class WOSiteCreateController(CementBaseController):
 
         if pargs.php73:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=False, php73=True, wp=False,
+                        static=False, basic=False, php73=True, wp=False,
                         wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
@@ -471,7 +471,7 @@ class WOSiteCreateController(CementBaseController):
 
         if stype in ['html', 'php']:
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True,  basic=False, php73=False, wp=False,
+                        static=True, basic=False, php73=False, wp=False,
                         wpfc=False, wpsc=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot)
@@ -483,7 +483,7 @@ class WOSiteCreateController(CementBaseController):
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
             data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False,  basic=True, wp=False, wpfc=False,
+                        static=False, basic=True, wp=False, wpfc=False,
                         wpsc=False, wpredis=False, wprocket=False, wpce=False,
                         multisite=False,
                         wpsubdir=False, webroot=wo_site_webroot,
@@ -509,8 +509,7 @@ class WOSiteCreateController(CementBaseController):
         elif data:
             data['php73'] = False
 
-        if ((not pargs.wpfc) and
-            (not pargs.wpsc) and
+        if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
             (not pargs.wpce) and
                 (not pargs.wpredis)):
@@ -1131,7 +1130,7 @@ class WOSiteUpdateController(CementBaseController):
         if stype == 'php':
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=False,  basic=True, wp=False, wpfc=False,
+                static=False, basic=True, wp=False, wpfc=False,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 currsitetype=oldsitetype, currcachetype=oldcachetype)
@@ -1140,7 +1139,7 @@ class WOSiteUpdateController(CementBaseController):
 
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=False,  basic=True, wp=False, wpfc=False,
+                static=False, basic=True, wp=False, wpfc=False,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 wo_db_name='', wo_db_user='', wo_db_pass='',
@@ -1290,6 +1289,11 @@ class WOSiteUpdateController(CementBaseController):
                 acme_subdomain = False
                 acme_wildcard = False
             elif pargs.letsencrypt == 'purge':
+                data['letsencrypt'] = False
+                letsencrypt = False
+                acme_subdomain = False
+                acme_wildcard = False
+            else:
                 data['letsencrypt'] = False
                 letsencrypt = False
                 acme_subdomain = False

@@ -225,6 +225,7 @@ echo -e '       various informations             '
 echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
 wo site info wp.net
+wo info
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
@@ -244,6 +245,3 @@ for stack in $stack_purge; do
 
     fi
 done
-if [ -n "$1" ]; then
-    cat /var/log/wo/test.log | ccze -A -p syslog
-fi

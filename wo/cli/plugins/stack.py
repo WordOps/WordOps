@@ -539,6 +539,7 @@ class WOStackController(CementBaseController):
                 Log.info(self, "Successfully installed packages")
             else:
                 return self.msg
+        return 0
 
     @expose(help="Remove packages")
     def remove(self):

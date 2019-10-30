@@ -21,7 +21,7 @@ class WOGit:
             git = git.bake("--git-dir={0}/.git".format(path),
                            "--work-tree={0}".format(path))
             if os.path.isdir(path):
-                if not os.path.isdir(path+"/.git"):
+                if not os.path.isdir(path + "/.git"):
                     try:
                         Log.debug(self, "WOGit: git init at {0}"
                                   .format(path))
@@ -67,11 +67,13 @@ class WOGit:
             git = git.bake("--git-dir={0}/.git".format(path),
                            "--work-tree={0}".format(path))
             if os.path.isdir(path):
-                if not os.path.isdir(path+"/.git"):
-                    Log.error(self, "Unable to find a git repository at {0}"
+                if not os.path.isdir(path + "/.git"):
+                    Log.error(
+                        self, "Unable to find a git repository at {0}"
                               .format(path))
                 try:
-                    Log.debug(self, "WOGit: git stash --include-untracked at {0}"
+                    Log.debug(
+                        self, "WOGit: git stash --include-untracked at {0}"
                               .format(path))
                     git.stash("push", "--include-untracked", "-m {0}"
                               .format(msg))

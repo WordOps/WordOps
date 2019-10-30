@@ -79,20 +79,22 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
-        www_listen = config['www-php72']['listen']
-        www_ping_path = config['www-php72']['ping.path']
-        www_pm_status_path = config['www-php72']['pm.status_path']
-        www_pm = config['www-php72']['pm']
-        www_pm_max_requests = config['www-php72']['pm.max_requests']
-        www_pm_max_children = config['www-php72']['pm.max_children']
-        www_pm_start_servers = config['www-php72']['pm.start_servers']
-        www_pm_min_spare_servers = config['www-php72']['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['www-php72']['pm.max_spare_servers']
-        www_request_terminate_time = (config['www-php72']
+        wo_sec = (config.sections())[0]
+        www_listen = config[[wo_sec]]['listen']
+        www_ping_path = config[[wo_sec]]['ping.path']
+        www_pm_status_path = config[[wo_sec]]['pm.status_path']
+        www_pm = config[[wo_sec]]['pm']
+        www_pm_max_requests = config[[wo_sec]]['pm.max_requests']
+        www_pm_max_children = config[[wo_sec]]['pm.max_children']
+        www_pm_start_servers = config[[wo_sec]]['pm.start_servers']
+        www_pm_min_spare_servers = config[[wo_sec]]['pm.min_spare_servers']
+        www_pm_max_spare_servers = config[[wo_sec]]['pm.max_spare_servers']
+        www_request_terminate_time = (config[[wo_sec]]
                                             ['request_terminate_timeout'])
         try:
-            www_xdebug = (config['www-php72']['php_admin_flag[xdebug.profiler_enable'
-                                              '_trigger]'])
+            www_xdebug = (
+                config[[wo_sec]]['php_admin_flag[xdebug.profiler_enable'
+                                 '_trigger]'])
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
@@ -156,19 +158,20 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/php/7.3/fpm/pool.d/www.conf')
-        www_listen = config['www-php73']['listen']
-        www_ping_path = config['www-php73']['ping.path']
-        www_pm_status_path = config['www-php73']['pm.status_path']
-        www_pm = config['www-php73']['pm']
-        www_pm_max_requests = config['www-php73']['pm.max_requests']
-        www_pm_max_children = config['www-php73']['pm.max_children']
-        www_pm_start_servers = config['www-php73']['pm.start_servers']
-        www_pm_min_spare_servers = config['www-php73']['pm.min_spare_servers']
-        www_pm_max_spare_servers = config['www-php73']['pm.max_spare_servers']
-        www_request_terminate_time = (config['www-php73']
+        wo_sec = (config.sections())[0]
+        www_listen = config[wo_sec]['listen']
+        www_ping_path = config[wo_sec]['ping.path']
+        www_pm_status_path = config[wo_sec]['pm.status_path']
+        www_pm = config[wo_sec]['pm']
+        www_pm_max_requests = config[wo_sec]['pm.max_requests']
+        www_pm_max_children = config[wo_sec]['pm.max_children']
+        www_pm_start_servers = config[wo_sec]['pm.start_servers']
+        www_pm_min_spare_servers = config[wo_sec]['pm.min_spare_servers']
+        www_pm_max_spare_servers = config[wo_sec]['pm.max_spare_servers']
+        www_request_terminate_time = (config[wo_sec]
                                             ['request_terminate_timeout'])
         try:
-            www_xdebug = (config['www-php73']
+            www_xdebug = (config[wo_sec]
                           ['php_admin_flag[xdebug.profiler_enable'
                            '_trigger]'])
         except Exception as e:
@@ -266,7 +269,8 @@ class WOInfoController(CementBaseController):
 
         if self.app.pargs.nginx:
             if (WOAptGet.is_installed(self, 'nginx-custom') or
-                    WOAptGet.is_installed(self, 'nginx-wo')):
+                    WOAptGet.is_installed(self, 'nginx-wo') or
+                    (os.path.exists('/usr/bin/nginx'))):
                 self.info_nginx()
             else:
                 Log.error(self, "Nginx is not installed")

@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.10.0 - 2019-10-30
+
 #### Added
 
 - WordOps install is now installed with pip from PyPi (easier, cleaner and safer) inside a wheel
@@ -35,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - force-ssl.conf not removed after removing a site
 - `wo clean --opcache` not working with invalid SSL certificate
 - `wo stack install --cheat` wasn't working properly previously
+- `wo info` failure depending on php-fpm pool name. ConfigParser will now detect the section name.
 
 
 ### v3.9.9.4 -  2019-10-18

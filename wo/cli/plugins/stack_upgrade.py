@@ -3,7 +3,7 @@ import shutil
 
 from cement.core.controller import CementBaseController, expose
 
-from wo.cli.plugins.stack_pref import post_pref, pre_pref
+from wo.cli.plugins.stack_pref import post_pref, pre_pref, pre_stack
 from wo.core.aptget import WOAptGet
 from wo.core.download import WODownload
 from wo.core.extract import WOExtract
@@ -178,6 +178,7 @@ class WOStackUpgradeController(CementBaseController):
         if ((not (apt_packages)) and (not(packages))):
             self.app.args.print_help()
         else:
+            pre_stack(self)
             if (apt_packages):
                 if (("php7.2-fpm" not in apt_packages) and
                         ("php7.3-fpm" not in apt_packages) and

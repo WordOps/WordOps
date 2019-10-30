@@ -64,7 +64,7 @@ class WOVar():
 
     # WordOps git configuration management
     config = configparser.ConfigParser()
-    config.read(os.path.expanduser("~")+'/.gitconfig')
+    config.read(os.path.expanduser("~") + '/.gitconfig')
     try:
         wo_user = config['user']['name']
         wo_email = config['user']['email']
@@ -90,7 +90,7 @@ class WOVar():
         git.config("--global", "user.email", "{0}".format(wo_email))
 
     if not os.path.isfile('/root/.gitconfig'):
-        copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
+        copy2(os.path.expanduser("~") + '/.gitconfig', '/root/.gitconfig')
 
     # MySQL hostname
     wo_mysql_host = ""
@@ -98,7 +98,7 @@ class WOVar():
     if os.path.exists('/etc/mysql/conf.d/my.cnf'):
         cnfpath = "/etc/mysql/conf.d/my.cnf"
     else:
-        cnfpath = os.path.expanduser("~")+"/.my.cnf"
+        cnfpath = os.path.expanduser("~") + "/.my.cnf"
     if [cnfpath] == config.read(cnfpath):
         try:
             wo_mysql_host = config.get('client', 'host')
