@@ -145,7 +145,7 @@ if [ -z "$1" ]; then
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       wo stack upgrade              '
     echo -e "${CGREEN}#############################################${CEND}"
-    stack_upgrade='nginx php php73 mysql redis netdata dashboard phpmyadmin composer'
+    stack_upgrade='nginx php php73 mysql redis netdata dashboard phpmyadmin composer ngxblocker'
     for stack in $stack_upgrade; do
         echo -ne "      Upgrading $stack               [..]\r"
         if {

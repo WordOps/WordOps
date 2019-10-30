@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Redis 5.0.6 package backported to Debian 8/9/10
 - Custom motd to display a message if a new WordOps release is available
 - Run `mysql_upgrade` during MySQL upgrade with `wo stack upgrade` to perform migration if needed
+- `wo stack upgrade --ngxblocker` to update ngxblocker blocklist
 
 #### Changed
 
@@ -30,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - MySQL backup path changed to `/var/lib/wo-backup/mysql`
 - Do not check anymore if stack are installed with apt in `wo service` but only if there is a systemd service
 - Refactored `--letsencrypt=renew`. Require the flag `--force` if certificate expiration is more than 45 days
+- Improve netdata stack upgrade with install from source detection and updater fallback
 
 #### Fixed
 
