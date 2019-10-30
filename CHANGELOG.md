@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.10.1 - 2019-10-30
+
+#### Fixed
+
+- WordOps install/upgrade from PyPi
+
 ### v3.10.0 - 2019-10-30
 
 #### Added

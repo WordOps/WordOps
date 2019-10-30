@@ -46,6 +46,7 @@ class WOUpdateController(CementBaseController):
         filename = "woupdate" + time.strftime("%Y%m%d-%H%M%S")
 
         install_args = ""
+        wo_branch = "master"
         if pargs.mainline or pargs.beta:
             wo_branch = "mainline"
             install_args = install_args + "--mainline "
