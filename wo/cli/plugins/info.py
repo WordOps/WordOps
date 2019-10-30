@@ -78,7 +78,10 @@ class WOInfoController(CementBaseController):
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
+        if os.path.exists('/etc/php/7.2/fpm/pool.d/www.conf'):
+            config.read('/etc/php/7.2/fpm/pool.d/www.conf')
+        else:
+            Log.error(self, 'php-fpm pool config not found')
         if config.has_section('www'):
             wconfig = config['www']
         elif config.has_section('www-php72'):
@@ -162,7 +165,10 @@ class WOInfoController(CementBaseController):
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/php/7.3/fpm/pool.d/www.conf')
+        if os.path.exists('/etc/php/7.3/fpm/pool.d/www.conf'):
+            config.read('/etc/php/7.3/fpm/pool.d/www.conf')
+        else:
+            Log.error(self, 'php-fpm pool config not found')
         if config.has_section('www'):
             wconfig = config['www']
         elif config.has_section('www-php73'):
