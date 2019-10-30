@@ -79,7 +79,7 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
-        wo_sec = (config.sections()[0])
+        wo_sec = (config.sections())[0]
         www_listen = config[wo_sec]['listen']
         www_ping_path = config[wo_sec]['ping.path']
         www_pm_status_path = config[wo_sec]['pm.status_path']
@@ -158,7 +158,7 @@ class WOInfoController(CementBaseController):
         max_execution_time = config['PHP']['max_execution_time']
 
         config.read('/etc/php/7.3/fpm/pool.d/www.conf')
-        wo_sec = (config.sections()[0])
+        wo_sec = (config.sections())[0]
         www_listen = config[wo_sec]['listen']
         www_ping_path = config[wo_sec]['ping.path']
         www_pm_status_path = config[wo_sec]['pm.status_path']
