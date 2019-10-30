@@ -47,7 +47,6 @@ class WODownload():
         except requests.RequestException as e:
             Log.debug(self, str(e))
             Log.error(self, "Unable to query GitHub API")
-        else:
-            github_json = req.json()
-            github_release = github_json["tag_name"]
-        return github_release
+
+        github_json = req.json()
+        return github_json["tag_name"]
