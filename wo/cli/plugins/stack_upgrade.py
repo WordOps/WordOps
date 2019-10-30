@@ -66,7 +66,7 @@ class WOStackUpgradeController(CementBaseController):
 
         if ((not pargs.web) and (not pargs.nginx) and
             (not pargs.php) and (not pargs.php73) and
-            (not pargs.mysql) and
+            (not pargs.mysql) and (not pargs.ngxblocker) and
             (not pargs.all) and (not pargs.wpcli) and
             (not pargs.netdata) and (not pargs.composer) and
             (not pargs.phpmyadmin) and (not pargs.dashboard) and
