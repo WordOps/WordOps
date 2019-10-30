@@ -210,7 +210,7 @@ class WOLogResetController(CementBaseController):
         if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm) and
             (not self.app.pargs.mysql) and (not self.app.pargs.access) and
             (not self.app.pargs.wp) and (self.app.pargs.site_name) and
-                (not self.app.pargs.slow-log-db)):
+                (not self.app.pargs.slow_log_db)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
