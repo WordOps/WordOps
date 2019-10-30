@@ -50,7 +50,7 @@ setup(name='wordops',
       include_package_data=True,
       zip_safe=False,
       test_suite='nose.collector',
-      python_requires='>=3.5',
+      python_requires='>=3.4',
       install_requires=[
           # Required to build documentation
           # "Sphinx >= 1.0",
