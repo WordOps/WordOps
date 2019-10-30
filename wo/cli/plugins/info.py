@@ -81,7 +81,7 @@ class WOInfoController(CementBaseController):
         config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/7.2"))
         if config.has_section('www'):
             wconfig = config['www']
-        elif config.has_section['www-php72']:
+        elif config.has_section('www-php72'):
             wconfig = config['www-php72']
         www_listen = wconfig['listen']
         www_ping_path = wconfig['ping.path']
@@ -163,7 +163,7 @@ class WOInfoController(CementBaseController):
         config.read('/etc/php/7.3/fpm/pool.d/www.conf')
         if config.has_section('www'):
             wconfig = config['www']
-        elif config.has_section['www-php73']:
+        elif config.has_section('www-php73'):
             wconfig = config['www-php73']
         www_listen = wconfig['listen']
         www_ping_path = wconfig['ping.path']
