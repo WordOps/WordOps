@@ -165,6 +165,17 @@ def pre_pref(self, apt_packages):
                 WORepo.add(self, repo_url=WOVar.wo_php_repo)
             WORepo.add_key(self, WOVar.wo_nginx_key)
 
+    # nano
+    if 'nano' in apt_packages:
+        if WOVar.wo_distro == 'ubuntu':
+            if (WOVar.wo_platform_codename == 'bionic' or
+                    WOVar.wo_platform_codename == 'xenial'):
+                if not os.path.exists(
+                        'jonathonf-ubuntu-backports-{0}.list'
+                        .format(WOVar.wo_platform_codename)):
+                    Log.debug(self, 'Adding ppa for nano')
+                    WORepo.add(self, repo_url=WOVar.wo_ubuntu_backports)
+
 
 def post_pref(self, apt_packages, packages, upgrade=False):
     """Post activity after installation of packages"""

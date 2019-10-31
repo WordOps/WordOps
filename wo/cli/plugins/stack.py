@@ -87,6 +87,9 @@ class WOStackController(CementBaseController):
                      action='store_true')),
             (['--cheat'],
                 dict(help='Install cheat.sh', action='store_true')),
+            (['--nanorc'],
+                dict(help='Install nanorc syntax highlightning',
+                     action='store_true')),
             (['--force'],
                 dict(help='Force install/remove/purge without prompt',
                      action='store_true')),
@@ -118,7 +121,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and
+                (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                     (not pargs.php73)):
@@ -459,6 +462,16 @@ class WOStackController(CementBaseController):
                          "/etc/bash_completion.d/cht.sh",
                          "bash_completion"]]
 
+            if pargs.nanorc:
+                if not os.path.exists('/usr/share/nano-syntax-highlighting'):
+                    Log.debug(self, "Setting packages variable for nanorc")
+                    apt_packages = apt_packages + ['nano']
+                    packages = [
+                        ['https://github.com/scopatz/nanorc/archive/master.tar.gz',
+                         '/var/lib/wo/tmp/nanorc.tar.gz',
+                         'nanorc']]
+
+
             # UTILS
             if pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -557,7 +570,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and
+                (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
@@ -573,6 +586,7 @@ class WOStackController(CementBaseController):
             pargs.utils = True
             pargs.redis = True
             pargs.security = True
+            pargs.nanorc = True
             packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:
@@ -825,7 +839,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and
+                (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):

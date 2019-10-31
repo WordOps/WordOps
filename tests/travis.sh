@@ -14,6 +14,26 @@ unset LANG
 export LANG='en_US.UTF-8'
 export LC_ALL='C.UTF-8'
 
+if [ "$PWD" != "/home/travis" ]; then
+    sudo rm -rf /etc/mysql
+    unset LANG
+    if ! {
+        apt-get update --allow-releaseinfo-change -qq
+    }; then
+        apt-get update -qq
+    fi
+    sudo apt-get -qq purge mysql* graphviz* redis*
+    sudo apt-get -qq autoremove --purge
+    lsb_release -a
+    sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
+    sudo echo "Travis Banch = $TRAVIS_BRANCH"
+    time bash install --travis -b "$TRAVIS_BRANCH"
+    python3 -m pip install -U -r requirements.txt
+    time bash tests/travis.sh
+    wo update --travis
+    python3 setup.py sdist bdist_wheel
+fi
+
 if [ -z "$1" ]; then
     apt-get -qq purge mysql* graphviz* redis*
     apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
@@ -33,7 +53,7 @@ for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
     if {
         wo stack install --${stack}
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       Installing $stack                [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
@@ -52,7 +72,7 @@ for site in $site_types; do
     echo -ne "       Creating $site               [..]\r"
     if {
         wo site create ${site}.net --${site}
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       Creating $site                [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
@@ -70,7 +90,7 @@ for site in $other_site_types; do
     echo -ne "       Updating site to $site php73              [..]\r"
     if {
         wo site update ${site}.net --php73
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       Updating site to $site php73               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
@@ -86,12 +106,12 @@ echo -e '       wo site update WP              '
 echo -e "${CGREEN}#############################################${CEND}"
 
 wp_site_types='wpfc wpsc wpce wprocket wpredis'
-wo site create wp.io --wp >> /dev/null 2>&1
+wo site create wp.io --wp >>/dev/null 2>&1
 for site in $wp_site_types; do
     echo -ne "        Updating WP to $site              [..]\r"
     if {
         wo site update wp.io --${site}
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       Updating WP to $site               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
@@ -111,7 +131,7 @@ for site in $wp_site_types; do
     echo -ne "        Creating wpsubdir $site              [..]\r"
     if {
         wo site create wpsubdir"$site".io --wpsubdir --${site}
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       Creating wpsubdir $site               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
@@ -131,7 +151,7 @@ for site in $wp_site_types; do
     echo -ne "        Creating wpsubdomain $site              [..]\r"
     if {
         wo site create wpsubdomain"$site".io --wpsubdomain --${site}
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       Creating wpsubdomain $site               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
@@ -150,7 +170,7 @@ if [ -z "$1" ]; then
         echo -ne "      Upgrading $stack               [..]\r"
         if {
             wo stack upgrade --${stack} --force
-        } >> /var/log/wo/test.log; then
+        } >>/var/log/wo/test.log; then
             echo -ne "       Upgrading $stack               [${CGREEN}OK${CEND}]\\r"
             echo -ne '\n'
         else
@@ -169,7 +189,7 @@ for stack in $stack_clean; do
     echo -ne "       cleaning $stack cache              [..]\r"
     if {
         wo clean --${stack}
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       cleaning $stack cache               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
@@ -186,7 +206,7 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -ne "       wo secure --auth                   [..]\r"
 if {
     wo secure --auth wordops mypassword
-} >> /var/log/wo/test.log; then
+} >>/var/log/wo/test.log; then
     echo -ne "       wo secure --auth                   [${CGREEN}OK${CEND}]\\r"
     echo -ne '\n'
 else
@@ -198,7 +218,7 @@ fi
 echo -ne "       wo secure --sshport                [..]\r"
 if {
     wo secure --sshport 2022
-} >> /var/log/wo/test.log; then
+} >>/var/log/wo/test.log; then
     echo -ne "       wo secure --sshport                [${CGREEN}OK${CEND}]\\r"
     echo -ne '\n'
 else
@@ -210,7 +230,7 @@ fi
 echo -ne "       wo secure --ssh                    [..]\r"
 if {
     wo secure --ssh --force
-} >> /var/log/wo/test.log; then
+} >>/var/log/wo/test.log; then
     echo -ne "       wo secure --ssh                    [${CGREEN}OK${CEND}]\\r"
     echo -ne '\n'
 else
@@ -235,7 +255,7 @@ for stack in $stack_purge; do
     echo -ne "       purging $stack              [..]\r"
     if {
         wo stack purge --${stack} --force
-    } >> /var/log/wo/test.log; then
+    } >>/var/log/wo/test.log; then
         echo -ne "       purging $stack               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else

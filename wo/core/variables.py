@@ -163,6 +163,7 @@ class WOVar():
 
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]
+    wo_ubuntu_backports = 'ppa:jonathonf/backports'
 
     # Redis repo details
     if wo_distro == 'ubuntu':
