@@ -14,26 +14,6 @@ unset LANG
 export LANG='en_US.UTF-8'
 export LC_ALL='C.UTF-8'
 
-if [ "$PWD" != "/home/travis" ]; then
-    sudo rm -rf /etc/mysql
-    unset LANG
-    if ! {
-        apt-get update --allow-releaseinfo-change -qq
-    }; then
-        apt-get update -qq
-    fi
-    sudo apt-get -qq purge mysql* graphviz* redis*
-    sudo apt-get -qq autoremove --purge
-    lsb_release -a
-    sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
-    sudo echo "Travis Banch = $TRAVIS_BRANCH"
-    time bash install --travis -b "$TRAVIS_BRANCH"
-    python3 -m pip install -U -r requirements.txt
-    time bash tests/travis.sh
-    wo update --travis
-    python3 setup.py sdist bdist_wheel
-fi
-
 if [ -z "$1" ]; then
     apt-get -qq purge mysql* graphviz* redis*
     apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
