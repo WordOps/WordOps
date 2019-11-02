@@ -33,5 +33,8 @@ if [ -n "$CURRENT_RELEASE" ] && [ -n "$LATEST_RELEASE" ]; then
         safe_print "$NEWS"
         # Try to update the cache
         safe_print "$NEWS" 2> /dev/null > $CACHE || true
-    fi
+    else
+        # clean news
+        echo '' > "$NEWS" 2> "$ERR"
+        safe_print "$NEWS" 2> /dev/null > $CACHE || true
 fi
