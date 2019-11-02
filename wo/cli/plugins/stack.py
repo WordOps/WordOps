@@ -88,7 +88,7 @@ class WOStackController(CementBaseController):
             (['--cheat'],
                 dict(help='Install cheat.sh', action='store_true')),
             (['--nanorc'],
-                dict(help='Install nanorc syntax highlightning',
+                dict(help='Install nanorc syntax highlighting',
                      action='store_true')),
             (['--force'],
                 dict(help='Force install/remove/purge without prompt',
