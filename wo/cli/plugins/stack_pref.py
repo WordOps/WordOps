@@ -162,7 +162,7 @@ def pre_pref(self, apt_packages):
                     self, '/etc/apt/sources.list/wo-repo.list',
                     'download.opensuse.org'):
                 Log.info(self, "Adding repository for Redis, please wait...")
-                WORepo.add(self, repo_url=WOVar.wo_php_repo)
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
             WORepo.add_key(self, WOVar.wo_nginx_key)
 
     # nano
@@ -171,6 +171,7 @@ def pre_pref(self, apt_packages):
             if (WOVar.wo_platform_codename == 'bionic' or
                     WOVar.wo_platform_codename == 'xenial'):
                 if not os.path.exists(
+                        '/etc/apt/sources.list.d/'
                         'jonathonf-ubuntu-backports-{0}.list'
                         .format(WOVar.wo_platform_codename)):
                     Log.debug(self, 'Adding ppa for nano')

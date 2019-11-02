@@ -309,7 +309,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "phpMyAdmin already installed")
                     Log.info(self, "phpMyAdmin already installed")
 
-                    # PHPREDISADMIN
+            # PHPREDISADMIN
             if pargs.phpredisadmin:
                 pargs.composer = True
                 if not os.path.isdir('/var/www/22222/htdocs/'
@@ -328,8 +328,7 @@ class WOStackController(CementBaseController):
 
             # Composer
             if pargs.composer:
-                if ((not WOAptGet.is_installed(self, 'php7.2-fpm')) and
-                        (not WOAptGet.is_installed(self, 'php7.3-fpm'))):
+                if not WOShellExec.cmd_exec(self, 'php -v'):
                     pargs.php = True
                 if not os.path.isfile('/usr/local/bin/composer'):
                     Log.debug(self, "Setting packages variable for Composer ")
