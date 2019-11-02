@@ -1436,6 +1436,19 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOFileUtils.chmod(
                 self, "/usr/local/sbin/update-ngxblocker", 0o700)
 
+        if any('/var/lib/wo/tmp/nanorc.tar.gz' == x[1]
+               for x in packages):
+            WOExtract.extract(self, '/var/lib/wo/tmp/nanorc.tar.gz',
+                              '/var/lib/wo/tmp/')
+            WOFileUtils.mvfile(self, '/var/lib/wo/tmp/nanorc-master',
+                               '/usr/share/nano-syntax-highlighting')
+            if os.path.exists('/etc/nanorc'):
+                Log.debug(
+                    self, 'including nano syntax highlighting to /etc/nanorc')
+                WOFileUtils.textappend(
+                    self, '/etc/nanorc', 'include /usr/share/'
+                    'nano-syntax-highlighting/*.nanorc')
+
 
 def pre_stack(self):
     """Inital server configuration and tweak"""

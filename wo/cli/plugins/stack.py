@@ -467,10 +467,10 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Setting packages variable for nanorc")
                     apt_packages = apt_packages + ['nano']
                     packages = [
-                        ['https://github.com/scopatz/nanorc/archive/master.tar.gz',
+                        ['https://github.com/scopatz/'
+                         'nanorc/archive/master.tar.gz',
                          '/var/lib/wo/tmp/nanorc.tar.gz',
                          'nanorc']]
-
 
             # UTILS
             if pargs.utils:
