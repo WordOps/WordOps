@@ -175,7 +175,7 @@ def pre_pref(self, apt_packages):
                         'jonathonf-ubuntu-backports-{0}.list'
                         .format(WOVar.wo_platform_codename)):
                     Log.debug(self, 'Adding ppa for nano')
-                    WORepo.add(self, repo_url=WOVar.wo_ubuntu_backports)
+                    WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -1084,6 +1084,20 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                       comment='ClamAV freshclam cronjob '
                                       'added by WordOps')
 
+        # nanorc
+        if 'nano' in apt_packages:
+            Log.debug(self, 'Setting up nanorc')
+            WOGit.clone(self, 'https://github.com/scopatz/nanorc.git',
+                        '/usr/share/nano-syntax-highlighting')
+            if os.path.exists('/etc/nanorc'):
+                Log.debug(
+                    self, 'including nano syntax highlighting to /etc/nanorc')
+                if not WOFileUtils.grepcheck(self, '/etc/nanorc',
+                                             'nano-syntax-highlighting'):
+                    WOFileUtils.textappend(
+                        self, '/etc/nanorc', 'include /usr/share/'
+                        'nano-syntax-highlighting/*.nanorc')
+
     if (packages):
         # WP-CLI
         if any('/usr/local/bin/wp' == x[1] for x in packages):
@@ -1436,19 +1450,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOShellExec.cmd_exec(self, '/usr/local/sbin/install-ngxblocker -x')
             WOFileUtils.chmod(
                 self, "/usr/local/sbin/update-ngxblocker", 0o700)
-
-        if any('/var/lib/wo/tmp/nanorc.tar.gz' == x[1]
-               for x in packages):
-            WOExtract.extract(self, '/var/lib/wo/tmp/nanorc.tar.gz',
-                              '/var/lib/wo/tmp/')
-            WOFileUtils.mvfile(self, '/var/lib/wo/tmp/nanorc-master',
-                               '/usr/share/nano-syntax-highlighting')
-            if os.path.exists('/etc/nanorc'):
-                Log.debug(
-                    self, 'including nano syntax highlighting to /etc/nanorc')
-                WOFileUtils.textappend(
-                    self, '/etc/nanorc', 'include /usr/share/'
-                    'nano-syntax-highlighting/*.nanorc')
 
 
 def pre_stack(self):
