@@ -473,26 +473,22 @@ class WOStackController(CementBaseController):
                     "https://raw.githubusercontent.com"
                     "/rtCamp/eeadmin/master/cache/nginx/"
                     "clean.php",
-                    "{0}22222/htdocs/cache/"
-                    "nginx/clean.php"
+                    "{0}22222/htdocs/cache/nginx/clean.php"
                     .format(WOVar.wo_webroot),
                     "clean.php"],
                     ["https://raw.github.com/rlerdorf/"
                      "opcache-status/master/opcache.php",
-                     "{0}22222/htdocs/cache/"
-                     "opcache/opcache.php"
+                     "{0}22222/htdocs/cache/opcache/opcache.php"
                      .format(WOVar.wo_webroot),
                      "opcache.php"],
                     ["https://raw.github.com/amnuts/"
                      "opcache-gui/master/index.php",
-                     "{0}22222/htdocs/"
-                     "cache/opcache/opgui.php"
+                     "{0}22222/htdocs/cache/opcache/opgui.php"
                      .format(WOVar.wo_webroot),
                      "Opgui"],
                     ["https://raw.githubusercontent.com/"
                      "mlazarov/ocp/master/ocp.php",
-                     "{0}22222/htdocs/cache/"
-                     "opcache/ocp.php"
+                     "{0}22222/htdocs/cache/opcache/ocp.php"
                      .format(WOVar.wo_webroot),
                      "OCP.php"],
                     ["https://github.com/jokkedk/webgrind/"
@@ -795,12 +791,13 @@ class WOStackController(CementBaseController):
                     WOShellExec.cmd_exec(
                         self, "bash /usr/"
                         "libexec/netdata/"
-                        "netdata-uninstaller.sh -y -f")
+                        "netdata-uninstaller.sh -y -f",
+                        errormsg='', log=False)
                 else:
                     WOShellExec.cmd_exec(
                         self, "bash /opt/netdata/usr/"
                         "libexec/netdata/"
-                        "netdata-uninstaller.sh - y - f",
+                        "netdata-uninstaller.sh -y -f",
                         errormsg='', log=False)
 
             if (packages):

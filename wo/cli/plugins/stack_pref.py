@@ -44,25 +44,18 @@ def pre_pref(self, apt_packages):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
-        # configure MySQL non-interactive install
-        if ((WOVar.wo_distro == 'raspbian') and
-                (WOVar.wo_platform_codename == 'stretch')):
-            mariadb_ver = '10.1'
-        else:
-            mariadb_ver = '10.3'
-
         Log.debug(self, "Pre-seeding MySQL")
         Log.debug(self, "echo \"mariadb-server-{0} "
                   "mysql-server/root_password "
                   "password \" | "
                   "debconf-set-selections"
-                  .format(mariadb_ver))
+                  .format(WOVar.mariadb_ver))
         try:
             WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
                                  "mysql-server/root_password "
                                  "password {chars}\" | "
                                  "debconf-set-selections"
-                                 .format(mariadb_ver, chars=chars),
+                                 .format(WOVar.mariadb_ver, chars=chars),
                                  log=False)
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
@@ -72,13 +65,13 @@ def pre_pref(self, apt_packages):
                   "mysql-server/root_password_again "
                   "password \" | "
                   "debconf-set-selections"
-                  .format(mariadb_ver))
+                  .format(WOVar.mariadb_ver))
         try:
             WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
                                  "mysql-server/root_password_again "
                                  "password {chars}\" | "
                                  "debconf-set-selections"
-                                 .format(mariadb_ver, chars=chars),
+                                 .format(WOVar.mariadb_ver, chars=chars),
                                  log=False)
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
@@ -112,7 +105,7 @@ def pre_pref(self, apt_packages):
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
-                    'download.opensuse.org'):
+                    'WordOps'):
                 Log.info(self, "Adding repository for NGINX, please wait...")
                 Log.debug(self, 'Adding repository for Nginx')
                 WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
@@ -160,7 +153,7 @@ def pre_pref(self, apt_packages):
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
-                    'download.opensuse.org'):
+                    'WordOps'):
                 Log.info(self, "Adding repository for Redis, please wait...")
                 WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
             WORepo.add_key(self, WOVar.wo_nginx_key)

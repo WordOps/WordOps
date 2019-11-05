@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Fixed
+
+- Import rtCamp:EasyEngine GPG key to avoid issues with previous nginx repository
+- Unable to issue certificate for a domain if a subdomain certificate exist
+
 ### v3.10.1 - 2019-10-30
 
 #### Fixed

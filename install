@@ -220,7 +220,6 @@ wo_install_dep() {
         # add nginx repository gpg key
         curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_10/Release.key | apt-key add -
     fi
-
     locale-gen en
     # enable unattended upgades
     if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
@@ -631,6 +630,8 @@ wo_init() {
     ###
 
     if [ -z "$wo_travis" ]; then
+        # import easyengine opensusebuildservice gpg key to avoid issues with packages update
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys 3050ac3cd2ae6f03
         if ! {
             apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
         }; then
@@ -673,8 +674,11 @@ wo_init
 wo_init_variables
 # remove old repositories
 _run wo_clean_repo
-# check distribution support
-wo_check_distro
+
+if [ -z "$wo_force_install" ]; then
+    # check distribution support
+    wo_check_distro
+fi
 
 # wo uninstall script
 if [ "$wo_purge" = "y" ]; then

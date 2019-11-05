@@ -149,7 +149,12 @@ class WOVar():
     wo_mysql = ["mariadb-server", "percona-toolkit"]
     if wo_distro == 'raspbian':
         wo_mysql = wo_mysql + ["python3-mysqldb"]
+        if wo_platform_codename == 'stretch':
+            mariadb_ver = '10.1'
+        else:
+            mariadb_ver = '10.3'
     else:
+        mariadb_ver = '10.3'
         if wo_platform_codename == 'jessie':
             wo_mysql = wo_mysql + ["python3-mysql.connector"]
         else:
