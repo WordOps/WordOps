@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - [STACK] nanorc syntax highlighting for nano editor : `--nanorc`
 
+#### Changed
+
+- `wo stack remove/purge` without argument print help instead of removing main stacks
+
 #### Fixed
 
 - Import rtCamp:EasyEngine GPG key to avoid issues with previous nginx repository

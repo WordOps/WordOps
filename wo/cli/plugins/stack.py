@@ -564,8 +564,7 @@ class WOStackController(CementBaseController):
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
-            pargs.web = True
-            pargs.admin = True
+            self.app.args.print_help()
 
         if pargs.all:
             pargs.web = True
@@ -828,8 +827,6 @@ class WOStackController(CementBaseController):
                 WOAptGet.auto_remove(self)
                 Log.valide(self, "Removing APT packages       ")
 
-
-
             Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
@@ -853,9 +850,7 @@ class WOStackController(CementBaseController):
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
-            pargs.web = True
-            pargs.admin = True
-            pargs.security = True
+            self.app.args.print_help()
 
         if pargs.all:
             pargs.web = True
