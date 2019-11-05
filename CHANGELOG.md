@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Import rtCamp:EasyEngine GPG key to avoid issues with previous nginx repository
 - Unable to issue certificate for a domain if a subdomain certificate exist
 - Incorrect WP-CLI path site_url_https function
+- `wo stack upgrade --ngxblocker` not working properly
 
 ### v3.10.1 - 2019-10-30
 
