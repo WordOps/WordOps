@@ -674,7 +674,14 @@ class WOStackController(CementBaseController):
         if pargs.ufw:
             if WOAptGet.is_installed(self, 'ufw'):
                 Log.debug(self, "Remove apt_packages variable for UFW")
-                apt_packages = apt_packages + ["ufw"]
+                WOShellExec.cmd_exec(self, 'ufw disable && ufw --force reset')
+
+        # nanorc
+        if pargs.nanorc:
+            if os.path.exists('/usr/share/nano-syntax-highlighting'):
+                Log.debug(self, "Add nano to apt_packages list")
+                packages = packages + \
+                    ["/usr/share/nano-syntax-highlighting"]
 
         # WPCLI
         if pargs.wpcli:
@@ -804,12 +811,24 @@ class WOStackController(CementBaseController):
                 Log.wait(self, "Removing packages           ")
                 WOFileUtils.remove(self, packages)
                 Log.valide(self, "Removing packages           ")
+
+                if '/usr/share/nano-syntax-highlighting' in packages:
+                    # removing include line from nanorc
+                    WOShellExec.cmd_exec(
+                        self, 'grep -v "nano-syntax-highlighting" '
+                        '/etc/nanorc > /etc/nanorc.new')
+                    WOFileUtils.rm(self, '/etc/nanorc')
+                    WOFileUtils.mvfile(
+                        self, '/etc/nanorc.new', '/etc/nanorc')
+
             if (apt_packages):
                 Log.debug(self, "Removing apt_packages")
                 Log.wait(self, "Removing APT packages       ")
                 WOAptGet.remove(self, apt_packages)
                 WOAptGet.auto_remove(self)
                 Log.valide(self, "Removing APT packages       ")
+
+
 
             Log.info(self, "Successfully removed packages")
 
@@ -937,7 +956,7 @@ class WOStackController(CementBaseController):
         if pargs.ufw:
             if WOAptGet.is_installed(self, 'ufw'):
                 Log.debug(self, "Add UFW to apt_packages list")
-                apt_packages = apt_packages + ["ufw"]
+                WOShellExec.cmd_exec(self, 'ufw disable && ufw --force reset')
 
         # sendmail
         if pargs.sendmail:
@@ -950,6 +969,13 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Add Proftpd to apt_packages list")
                 apt_packages = apt_packages + ["proftpd-basic"]
+
+        # nanorc
+        if pargs.nanorc:
+            if os.path.exists('/usr/share/nano-syntax-highlighting'):
+                Log.debug(self, "Add nano to apt_packages list")
+                packages = packages + \
+                    ["/usr/share/nano-syntax-highlighting"]
 
         # WP-CLI
         if pargs.wpcli:
@@ -1080,11 +1106,20 @@ class WOStackController(CementBaseController):
                 WOAptGet.remove(self, apt_packages, purge=True)
                 WOAptGet.auto_remove(self)
                 Log.valide(self, "Purging APT Packages        ")
-
             if (packages):
                 Log.wait(self, "Purging Packages            ")
                 WOFileUtils.remove(self, packages)
                 Log.valide(self, "Purging Packages            ")
+
+                if '/usr/share/nano-syntax-highlighting' in packages:
+                    # removing include line from nanorc
+                    WOShellExec.cmd_exec(
+                        self, 'grep -v "nano-syntax-highlighting" '
+                        '/etc/nanorc > /etc/nanorc.new')
+                    WOFileUtils.rm(self, '/etc/nanorc')
+                    WOFileUtils.mvfile(
+                        self, '/etc/nanorc.new', '/etc/nanorc')
+
             Log.info(self, "Successfully purged packages")
 
 
