@@ -172,7 +172,7 @@ class WOAcme:
         reader = csv.reader(certfile, 'acmeconf')
         for row in reader:
             # check if domain exist
-            if wo_domain_name in row[0]:
+            if wo_domain_name == row[0]:
                 # check if cert expiration exist
                 if not row[3] == '':
                     return True

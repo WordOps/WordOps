@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.10.1 - 2019-10-30
+# Version 3.10.2 - 2019-11-06
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -220,7 +220,6 @@ wo_install_dep() {
         # add nginx repository gpg key
         curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_10/Release.key | apt-key add -
     fi
-
     locale-gen en
     # enable unattended upgades
     if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
@@ -631,6 +630,8 @@ wo_init() {
     ###
 
     if [ -z "$wo_travis" ]; then
+        # import easyengine opensusebuildservice gpg key to avoid issues with packages update
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys 3050ac3cd2ae6f03 > /dev/null 2>&1
         if ! {
             apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
         }; then
@@ -640,10 +641,10 @@ wo_init() {
             apt-get -y install curl -qq >/dev/null 2>&1
         fi
         if ! command_exists lsb_release; then
-            apt-get install lsb-release -qq > /dev/null 2>&1
+            apt-get install lsb-release -qq >/dev/null 2>&1
         fi
         if ! command_exists jq; then
-            apt-get install jq -qq > /dev/null 2>&1
+            apt-get install jq -qq >/dev/null 2>&1
         fi
     fi
     if [ "$wo_force_install" = "y" ]; then
@@ -652,7 +653,7 @@ wo_init() {
     if [ -f ./setup.py ]; then
         readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print $2}' 2>&1)
     else
-        readonly wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest 2>&1 | jq -r '.tag_name' )
+        readonly wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest 2>&1 | jq -r '.tag_name')
     fi
 
     echo ""
@@ -673,8 +674,11 @@ wo_init
 wo_init_variables
 # remove old repositories
 _run wo_clean_repo
-# check distribution support
-wo_check_distro
+
+if [ -z "$wo_force_install" ]; then
+    # check distribution support
+    wo_check_distro
+fi
 
 # wo uninstall script
 if [ "$wo_purge" = "y" ]; then

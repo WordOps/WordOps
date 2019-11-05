@@ -368,4 +368,4 @@ class WOFileUtils():
                 final_file.write('{0}'.format(content))
         except IOError as e:
             Log.debug(self, "{0}".format(e))
-            Log.error(self, "Unable to write content in {0}".format(path))
+            Log.error(self, "Unable to append  content in {0}".format(path))

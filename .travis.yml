@@ -23,6 +23,7 @@ before_script:
 
 
 after_script:
+  - sudo -E python3 setup.py sdist bdist_wheel
   - sudo -E bash install --purge
 
 
@@ -31,7 +32,5 @@ script:
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
   - sudo -E time bash install --travis -b "$TRAVIS_BRANCH"
-  - sudo -E python3 -m pip install -U -r requirements.txt
   - sudo -E time bash tests/travis.sh
   - sudo -E wo update --travis
-  - sudo python3 setup.py sdist bdist_wheel

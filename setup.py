@@ -27,7 +27,7 @@ if os.geteuid() == 0:
         os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.10.1',
+      version='3.10.2',
       description='An essential toolset that eases server administration',
       long_description=LONG,
       long_description_content_type='text/markdown',
@@ -50,7 +50,7 @@ setup(name='wordops',
       include_package_data=True,
       zip_safe=False,
       test_suite='nose.collector',
-      python_requires='>=3.5',
+      python_requires='>=3.4',
       install_requires=[
           # Required to build documentation
           # "Sphinx >= 1.0",

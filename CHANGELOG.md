@@ -8,6 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.10.2 - 2019-11-06
+
+#### Added
+
+- [STACK] nanorc syntax highlighting for nano editor : `--nanorc`
+
+#### Changed
+
+- `wo stack remove/purge` without argument print help instead of removing main stacks
+
+#### Fixed
+
+- Import rtCamp:EasyEngine GPG key to avoid issues with previous nginx repository
+- Unable to issue certificate for a domain if a subdomain certificate exist
+- Incorrect WP-CLI path site_url_https function
+- `wo stack upgrade --ngxblocker` not working properly
+
 ### v3.10.1 - 2019-10-30
 
 #### Fixed

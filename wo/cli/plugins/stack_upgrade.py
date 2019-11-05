@@ -200,7 +200,7 @@ class WOStackUpgradeController(CementBaseController):
 
         # ngxblocker
         if pargs.ngxblocker:
-            if os.path.exists('/usr/local/sbin/update-ngxblocker'):
+            if os.path.exists('/usr/local/sbin/install-ngxblocker'):
                 packages = packages + [[
                     'https://raw.githubusercontent.com/mitchellkrogza/'
                     'nginx-ultimate-bad-bot-blocker/master/update-ngxblocker',

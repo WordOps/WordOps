@@ -44,25 +44,18 @@ def pre_pref(self, apt_packages):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
 
-        # configure MySQL non-interactive install
-        if ((WOVar.wo_distro == 'raspbian') and
-                (WOVar.wo_platform_codename == 'stretch')):
-            mariadb_ver = '10.1'
-        else:
-            mariadb_ver = '10.3'
-
         Log.debug(self, "Pre-seeding MySQL")
         Log.debug(self, "echo \"mariadb-server-{0} "
                   "mysql-server/root_password "
                   "password \" | "
                   "debconf-set-selections"
-                  .format(mariadb_ver))
+                  .format(WOVar.mariadb_ver))
         try:
             WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
                                  "mysql-server/root_password "
                                  "password {chars}\" | "
                                  "debconf-set-selections"
-                                 .format(mariadb_ver, chars=chars),
+                                 .format(WOVar.mariadb_ver, chars=chars),
                                  log=False)
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
@@ -72,13 +65,13 @@ def pre_pref(self, apt_packages):
                   "mysql-server/root_password_again "
                   "password \" | "
                   "debconf-set-selections"
-                  .format(mariadb_ver))
+                  .format(WOVar.mariadb_ver))
         try:
             WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
                                  "mysql-server/root_password_again "
                                  "password {chars}\" | "
                                  "debconf-set-selections"
-                                 .format(mariadb_ver, chars=chars),
+                                 .format(WOVar.mariadb_ver, chars=chars),
                                  log=False)
         except CommandExecutionError as e:
             Log.debug(self, "{0}".format(e))
@@ -112,7 +105,7 @@ def pre_pref(self, apt_packages):
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
-                    'download.opensuse.org'):
+                    'WordOps'):
                 Log.info(self, "Adding repository for NGINX, please wait...")
                 Log.debug(self, 'Adding repository for Nginx')
                 WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
@@ -160,10 +153,22 @@ def pre_pref(self, apt_packages):
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
-                    'download.opensuse.org'):
+                    'WordOps'):
                 Log.info(self, "Adding repository for Redis, please wait...")
-                WORepo.add(self, repo_url=WOVar.wo_php_repo)
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
             WORepo.add_key(self, WOVar.wo_nginx_key)
+
+    # nano
+    if 'nano' in apt_packages:
+        if WOVar.wo_distro == 'ubuntu':
+            if (WOVar.wo_platform_codename == 'bionic' or
+                    WOVar.wo_platform_codename == 'xenial'):
+                if not os.path.exists(
+                        '/etc/apt/sources.list.d/'
+                        'jonathonf-ubuntu-backports-{0}.list'
+                        .format(WOVar.wo_platform_codename)):
+                    Log.debug(self, 'Adding ppa for nano')
+                    WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -1071,6 +1076,20 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                       '> /dev/null 2>&1',
                                       comment='ClamAV freshclam cronjob '
                                       'added by WordOps')
+
+        # nanorc
+        if 'nano' in apt_packages:
+            Log.debug(self, 'Setting up nanorc')
+            WOGit.clone(self, 'https://github.com/scopatz/nanorc.git',
+                        '/usr/share/nano-syntax-highlighting')
+            if os.path.exists('/etc/nanorc'):
+                Log.debug(
+                    self, 'including nano syntax highlighting to /etc/nanorc')
+                if not WOFileUtils.grepcheck(self, '/etc/nanorc',
+                                             'nano-syntax-highlighting'):
+                    WOFileUtils.textappend(
+                        self, '/etc/nanorc', 'include /usr/share/'
+                        'nano-syntax-highlighting/*.nanorc')
 
     if (packages):
         # WP-CLI

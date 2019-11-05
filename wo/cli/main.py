@@ -49,14 +49,11 @@ class WOApp(CementApp):
         # All built-in application bootstrapping (always run)
         bootstrap = 'wo.cli.bootstrap'
 
-        # Optional plugin bootstrapping (only run if plugin is enabled)
+        # Internal plugins (ship with application code)
         plugin_bootstrap = 'wo.cli.plugins'
 
         # Internal templates (ship with application code)
         template_module = 'wo.cli.templates'
-
-        # Internal plugins (ship with application code)
-        plugin_bootstrap = 'wo.cli.plugins'
 
         extensions = ['mustache']
 
@@ -73,18 +70,23 @@ class WOApp(CementApp):
 class WOTestApp(WOApp):
     """A test app that is better suited for testing."""
     class Meta:
+        # default argv to empty (don't use sys.argv)
         argv = []
+
+        # don't look for config files (could break tests)
         config_files = []
-        exit_on_close = True
+
+        # don't call sys.exit() when app.close() is called in tests
+        exit_on_close = False
 
 
 # Define the applicaiton object outside of main, as some libraries might wish
 # to import it as a global (rather than passing it into another class/func)
-# app = WOApp()
+app = WOApp()
 
 
 def main():
-    with WOApp() as app:
+    with app:
         try:
             global sys
 
@@ -99,7 +101,7 @@ def main():
             app.exit_code = 1
         except exc.WOError as e:
             # Catch our application errors and exit 1 (error)
-            print(e)
+            print('WOError > %s' % e)
             app.exit_code = 1
         except FrameworkError as e:
             # Catch framework errors and exit 1 (error)

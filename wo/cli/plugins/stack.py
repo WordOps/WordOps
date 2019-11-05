@@ -87,6 +87,9 @@ class WOStackController(CementBaseController):
                      action='store_true')),
             (['--cheat'],
                 dict(help='Install cheat.sh', action='store_true')),
+            (['--nanorc'],
+                dict(help='Install nanorc syntax highlighting',
+                     action='store_true')),
             (['--force'],
                 dict(help='Force install/remove/purge without prompt',
                      action='store_true')),
@@ -118,7 +121,7 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and
+                (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                     (not pargs.php73)):
@@ -306,7 +309,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "phpMyAdmin already installed")
                     Log.info(self, "phpMyAdmin already installed")
 
-                    # PHPREDISADMIN
+            # PHPREDISADMIN
             if pargs.phpredisadmin:
                 pargs.composer = True
                 if not os.path.isdir('/var/www/22222/htdocs/'
@@ -325,8 +328,7 @@ class WOStackController(CementBaseController):
 
             # Composer
             if pargs.composer:
-                if ((not WOAptGet.is_installed(self, 'php7.2-fpm')) and
-                        (not WOAptGet.is_installed(self, 'php7.3-fpm'))):
+                if not WOShellExec.cmd_exec(self, 'php -v'):
                     pargs.php = True
                 if not os.path.isfile('/usr/local/bin/composer'):
                     Log.debug(self, "Setting packages variable for Composer ")
@@ -459,6 +461,11 @@ class WOStackController(CementBaseController):
                          "/etc/bash_completion.d/cht.sh",
                          "bash_completion"]]
 
+            if pargs.nanorc:
+                if not os.path.exists('/usr/share/nano-syntax-highlighting'):
+                    Log.debug(self, "Setting packages variable for nanorc")
+                    apt_packages = apt_packages + ['nano']
+
             # UTILS
             if pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -466,26 +473,22 @@ class WOStackController(CementBaseController):
                     "https://raw.githubusercontent.com"
                     "/rtCamp/eeadmin/master/cache/nginx/"
                     "clean.php",
-                    "{0}22222/htdocs/cache/"
-                    "nginx/clean.php"
+                    "{0}22222/htdocs/cache/nginx/clean.php"
                     .format(WOVar.wo_webroot),
                     "clean.php"],
                     ["https://raw.github.com/rlerdorf/"
                      "opcache-status/master/opcache.php",
-                     "{0}22222/htdocs/cache/"
-                     "opcache/opcache.php"
+                     "{0}22222/htdocs/cache/opcache/opcache.php"
                      .format(WOVar.wo_webroot),
                      "opcache.php"],
                     ["https://raw.github.com/amnuts/"
                      "opcache-gui/master/index.php",
-                     "{0}22222/htdocs/"
-                     "cache/opcache/opgui.php"
+                     "{0}22222/htdocs/cache/opcache/opgui.php"
                      .format(WOVar.wo_webroot),
                      "Opgui"],
                     ["https://raw.githubusercontent.com/"
                      "mlazarov/ocp/master/ocp.php",
-                     "{0}22222/htdocs/cache/"
-                     "opcache/ocp.php"
+                     "{0}22222/htdocs/cache/opcache/ocp.php"
                      .format(WOVar.wo_webroot),
                      "OCP.php"],
                     ["https://github.com/jokkedk/webgrind/"
@@ -557,12 +560,11 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and
+                (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
-            pargs.web = True
-            pargs.admin = True
+            self.app.args.print_help()
 
         if pargs.all:
             pargs.web = True
@@ -573,6 +575,7 @@ class WOStackController(CementBaseController):
             pargs.utils = True
             pargs.redis = True
             pargs.security = True
+            pargs.nanorc = True
             packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.web:
@@ -670,7 +673,14 @@ class WOStackController(CementBaseController):
         if pargs.ufw:
             if WOAptGet.is_installed(self, 'ufw'):
                 Log.debug(self, "Remove apt_packages variable for UFW")
-                apt_packages = apt_packages + ["ufw"]
+                WOShellExec.cmd_exec(self, 'ufw disable && ufw --force reset')
+
+        # nanorc
+        if pargs.nanorc:
+            if os.path.exists('/usr/share/nano-syntax-highlighting'):
+                Log.debug(self, "Add nano to apt_packages list")
+                packages = packages + \
+                    ["/usr/share/nano-syntax-highlighting"]
 
         # WPCLI
         if pargs.wpcli:
@@ -787,18 +797,29 @@ class WOStackController(CementBaseController):
                     WOShellExec.cmd_exec(
                         self, "bash /usr/"
                         "libexec/netdata/"
-                        "netdata-uninstaller.sh -y -f")
+                        "netdata-uninstaller.sh -y -f",
+                        errormsg='', log=False)
                 else:
                     WOShellExec.cmd_exec(
                         self, "bash /opt/netdata/usr/"
                         "libexec/netdata/"
-                        "netdata-uninstaller.sh - y - f",
+                        "netdata-uninstaller.sh -y -f",
                         errormsg='', log=False)
 
             if (packages):
                 Log.wait(self, "Removing packages           ")
                 WOFileUtils.remove(self, packages)
                 Log.valide(self, "Removing packages           ")
+
+                if '/usr/share/nano-syntax-highlighting' in packages:
+                    # removing include line from nanorc
+                    WOShellExec.cmd_exec(
+                        self, 'grep -v "nano-syntax-highlighting" '
+                        '/etc/nanorc > /etc/nanorc.new')
+                    WOFileUtils.rm(self, '/etc/nanorc')
+                    WOFileUtils.mvfile(
+                        self, '/etc/nanorc.new', '/etc/nanorc')
+
             if (apt_packages):
                 Log.debug(self, "Removing apt_packages")
                 Log.wait(self, "Removing APT packages       ")
@@ -825,13 +846,11 @@ class WOStackController(CementBaseController):
                 (not pargs.adminer) and (not pargs.utils) and
                 (not pargs.redis) and (not pargs.proftpd) and
                 (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and
+                (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73)):
-            pargs.web = True
-            pargs.admin = True
-            pargs.security = True
+            self.app.args.print_help()
 
         if pargs.all:
             pargs.web = True
@@ -932,7 +951,7 @@ class WOStackController(CementBaseController):
         if pargs.ufw:
             if WOAptGet.is_installed(self, 'ufw'):
                 Log.debug(self, "Add UFW to apt_packages list")
-                apt_packages = apt_packages + ["ufw"]
+                WOShellExec.cmd_exec(self, 'ufw disable && ufw --force reset')
 
         # sendmail
         if pargs.sendmail:
@@ -945,6 +964,13 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'proftpd-basic'):
                 Log.debug(self, "Add Proftpd to apt_packages list")
                 apt_packages = apt_packages + ["proftpd-basic"]
+
+        # nanorc
+        if pargs.nanorc:
+            if os.path.exists('/usr/share/nano-syntax-highlighting'):
+                Log.debug(self, "Add nano to apt_packages list")
+                packages = packages + \
+                    ["/usr/share/nano-syntax-highlighting"]
 
         # WP-CLI
         if pargs.wpcli:
@@ -1075,11 +1101,20 @@ class WOStackController(CementBaseController):
                 WOAptGet.remove(self, apt_packages, purge=True)
                 WOAptGet.auto_remove(self)
                 Log.valide(self, "Purging APT Packages        ")
-
             if (packages):
                 Log.wait(self, "Purging Packages            ")
                 WOFileUtils.remove(self, packages)
                 Log.valide(self, "Purging Packages            ")
+
+                if '/usr/share/nano-syntax-highlighting' in packages:
+                    # removing include line from nanorc
+                    WOShellExec.cmd_exec(
+                        self, 'grep -v "nano-syntax-highlighting" '
+                        '/etc/nanorc > /etc/nanorc.new')
+                    WOFileUtils.rm(self, '/etc/nanorc')
+                    WOFileUtils.mvfile(
+                        self, '/etc/nanorc.new', '/etc/nanorc')
+
             Log.info(self, "Successfully purged packages")
 
 

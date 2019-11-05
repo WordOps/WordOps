@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.10.1"
+    wo_version = "3.10.2"
     # WordOps packages versions
     wo_wp_cli = "2.3.0"
     wo_adminer = "4.7.3"
@@ -149,7 +149,12 @@ class WOVar():
     wo_mysql = ["mariadb-server", "percona-toolkit"]
     if wo_distro == 'raspbian':
         wo_mysql = wo_mysql + ["python3-mysqldb"]
+        if wo_platform_codename == 'stretch':
+            mariadb_ver = '10.1'
+        else:
+            mariadb_ver = '10.3'
     else:
+        mariadb_ver = '10.3'
         if wo_platform_codename == 'jessie':
             wo_mysql = wo_mysql + ["python3-mysql.connector"]
         else:
@@ -163,6 +168,7 @@ class WOVar():
 
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]
+    wo_ubuntu_backports = 'ppa:jonathonf/backports'
 
     # Redis repo details
     if wo_distro == 'ubuntu':

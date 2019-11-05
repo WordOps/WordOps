@@ -83,3 +83,20 @@ class WOGit:
                               .format(path))
             else:
                 Log.debug(self, "WOGit: Path {0} not present".format(path))
+
+    def clone(self, repo, path, branch='master'):
+        """Equivalent to git clone """
+        if not os.path.exists('{0}'.format(path)):
+            global git
+            try:
+                git.clone(
+                    '{0}'.format(repo),
+                    '{0}'.format(path),
+                    '--branch={0}'.format(branch),
+                    '--depth=1')
+            except ErrorReturnCode as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to git clone at {0} "
+                          .format(path))
+        else:
+            Log.debug(self, "WOGit: Path {0} already exist".format(path))

@@ -63,7 +63,7 @@ class SSL:
             self, '{0}/htdocs/'.format(wo_site_webroot))
         if WOShellExec.cmd_exec(
                 self, "{0} --allow-root core is-installed"
-                .format(WOVar.wo_wp_cli)):
+                .format(WOVar.wo_wpcli_path)):
             wo_siteurl = (
                 WOShellExec.cmd_exec_stdout(
                     self, "{0} option get siteurl "
@@ -75,17 +75,17 @@ class SSL:
                 try:
                     WOShellExec.cmd_exec(
                         self, "{0} option update siteurl "
-                        "\'https://{1}\' --allow-root".format(
-                            WOVar.wo_wpcli_path, domain))
+                        "\'https://{1}\' --allow-root"
+                        .format(WOVar.wo_wpcli_path, domain))
                     WOShellExec.cmd_exec(
                         self, "{0} option update home "
-                        "\'https://{1}\' --allow-root".format(
-                            WOVar.wo_wpcli_path, domain))
+                        "\'https://{1}\' --allow-root"
+                        .format(WOVar.wo_wpcli_path, domain))
                     WOShellExec.cmd_exec(
-                        self, "{0} search-replace \'http://{0}\'"
-                        "\'https://{0}\' --skip-columns=guid "
+                        self, "{0} search-replace \'http://{1}\'"
+                        "\'https://{1}\' --skip-columns=guid "
                         "--skip-tables=wp_users"
-                        .format(domain))
+                        .format(WOVar.wo_wpcli_path, domain))
                 except Exception as e:
                     Log.debug(self, str(e))
                     Log.failed(self, "Updating site url with https")
