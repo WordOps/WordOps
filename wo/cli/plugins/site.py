@@ -1594,7 +1594,7 @@ class WOSiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False,
+                           ssl=(bool(check_site.is_ssl)),
                            php_version=check_php_version)
 
             Log.info(self, "Successfully updated site"

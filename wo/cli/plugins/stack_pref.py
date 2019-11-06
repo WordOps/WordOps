@@ -215,25 +215,24 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     self, '{0}/upstream.conf'.format(ngxcnf),
                     'upstream.mustache', data, overwrite=True)
 
-                data = dict(phpconf=True if
-                            WOAptGet.is_installed(self, 'php7.2-fpm')
-                            else False)
-                WOTemplate.deploy(self,
-                                  '{0}/stub_status.conf'.format(ngxcnf),
-                                  'stub_status.mustache', data)
+                data = dict(phpconf=(
+                    bool(WOAptGet.is_installed(self, 'php7.2-fpm'))))
+                WOTemplate.deploy(
+                    self, '{0}/stub_status.conf'.format(ngxcnf),
+                    'stub_status.mustache', data)
                 data = dict()
-                WOTemplate.deploy(self,
-                                  '{0}/webp.conf'.format(ngxcnf),
-                                  'webp.mustache', data, overwrite=False)
+                WOTemplate.deploy(
+                    self, '{0}/webp.conf'.format(ngxcnf),
+                    'webp.mustache', data, overwrite=False)
 
-                WOTemplate.deploy(self,
-                                  '{0}/cloudflare.conf'.format(ngxcnf),
-                                  'cloudflare.mustache', data)
+                WOTemplate.deploy(
+                    self, '{0}/cloudflare.conf'.format(ngxcnf),
+                    'cloudflare.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/map-wp-fastcgi-cache.conf'.format(
-                                      ngxcnf),
-                                  'map-wp.mustache', data)
+                WOTemplate.deploy(
+                    self,
+                    '{0}/map-wp-fastcgi-cache.conf'.format(ngxcnf),
+                    'map-wp.mustache', data)
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
 
