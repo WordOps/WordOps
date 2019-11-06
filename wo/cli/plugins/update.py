@@ -65,7 +65,7 @@ class WOUpdateController(CementBaseController):
             wo_current = ("v{0}".format(WOVar.wo_version))
             wo_latest = WODownload.latest_release(self, "WordOps/WordOps")
             if wo_current == wo_latest:
-                Log.error(
+                Log.info(
                     self, "WordOps {0} is already installed"
                     .format(wo_latest))
 
