@@ -47,7 +47,7 @@ location /wp-content/uploads {
         expires max;
         try_files $uri$webp_suffix $uri =404;
     }
-    location ~* \.(php|gz|log|zip|tar|rar)$ {
+    location ~* \.(php|gz|log|zip|tar|rar|xz)$ {
         #Prevent Direct Access Of PHP Files & BackupsFrom Web Browsers
         deny all;
     }
@@ -64,7 +64,7 @@ location /wp-content/plugins/ewww-image-optimizer/images {
         try_files $uri$webp_suffix $uri =404;
     }
     location ~ \.php$ {
-#Prevent Direct Access Of PHP Files From Web Browsers
+    #Prevent Direct Access Of PHP Files From Web Browsers
         deny all;
     }
 }

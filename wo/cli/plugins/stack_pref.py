@@ -1463,52 +1463,53 @@ def pre_stack(self):
     if os.path.isfile('/etc/sysctl.d/60-ubuntu-nginx-web-server.conf'):
         WOFileUtils.rm(self, '/etc/sysctl.d/60-ubuntu-nginx-web-server.conf')
 
-    if wo_arch == 'x86_64':
-        if (wo_lxc is not True) and (wo_wsl is not True):
-            data = dict()
-            WOTemplate.deploy(
-                self, '/etc/sysctl.d/60-wo-tweaks.conf',
-                'sysctl.mustache', data, True)
-            # use tcp_bbr congestion algorithm only on new kernels
-            if (WOVar.wo_platform_codename == 'bionic' or
-                WOVar.wo_platform_codename == 'disco' or
-                    WOVar.wo_platform_codename == 'buster'):
-                if WOShellExec.cmd_exec(self, 'modprobe tcp_bbr'):
-                    with open("/etc/modules-load.d/bbr.conf",
-                              encoding='utf-8', mode='w') as bbr_file:
-                        bbr_file.write('tcp_bbr')
-                    with open("/etc/sysctl.d/60-wo-tweaks.conf",
-                              encoding='utf-8', mode='a') as sysctl_file:
-                        sysctl_file.write(
-                            '\nnet.ipv4.tcp_congestion_control = bbr'
-                            '\nnet.ipv4.tcp_notsent_lowat = 16384')
-            else:
-                if WOShellExec.cmd_exec(self, 'modprobe tcp_htcp'):
-                    with open("/etc/modules-load.d/htcp.conf",
-                              encoding='utf-8', mode='w') as bbr_file:
-                        bbr_file.write('tcp_htcp')
-                    with open("/etc/sysctl.d/60-wo-tweaks.conf",
-                              encoding='utf-8', mode='a') as sysctl_file:
-                        sysctl_file.write(
-                            '\nnet.ipv4.tcp_congestion_control = htcp')
-            # apply sysctl tweaks
-            WOShellExec.cmd_exec(
-                self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
+    if not os.path.exists('/etc/sysctl.d/60-wo-tweaks.conf'):
+        if wo_arch == 'x86_64':
+            if (wo_lxc is not True) and (wo_wsl is not True):
+                data = dict()
+                WOTemplate.deploy(
+                    self, '/etc/sysctl.d/60-wo-tweaks.conf',
+                    'sysctl.mustache', data, True)
+                # use tcp_bbr congestion algorithm only on new kernels
+                if (WOVar.wo_platform_codename == 'bionic' or
+                    WOVar.wo_platform_codename == 'disco' or
+                        WOVar.wo_platform_codename == 'buster'):
+                    if WOShellExec.cmd_exec(self, 'modprobe tcp_bbr'):
+                        with open("/etc/modules-load.d/bbr.conf",
+                                  encoding='utf-8', mode='w') as bbr_file:
+                            bbr_file.write('tcp_bbr')
+                        with open("/etc/sysctl.d/60-wo-tweaks.conf",
+                                  encoding='utf-8', mode='a') as sysctl_file:
+                            sysctl_file.write(
+                                '\nnet.ipv4.tcp_congestion_control = bbr'
+                                '\nnet.ipv4.tcp_notsent_lowat = 16384')
+                else:
+                    if WOShellExec.cmd_exec(self, 'modprobe tcp_htcp'):
+                        with open("/etc/modules-load.d/htcp.conf",
+                                  encoding='utf-8', mode='w') as bbr_file:
+                            bbr_file.write('tcp_htcp')
+                        with open("/etc/sysctl.d/60-wo-tweaks.conf",
+                                  encoding='utf-8', mode='a') as sysctl_file:
+                            sysctl_file.write(
+                                '\nnet.ipv4.tcp_congestion_control = htcp')
+                # apply sysctl tweaks
+                WOShellExec.cmd_exec(
+                    self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
     # sysctl tweak service
     data = dict()
     if not os.path.isfile('/opt/wo-kernel.sh'):
         WOTemplate.deploy(self, '/opt/wo-kernel.sh',
                           'wo-kernel-script.mustache', data)
-    if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
-        WOTemplate.deploy(
-            self, '/lib/systemd/system/wo-kernel.service',
-            'wo-kernel-service.mustache', data)
-        WOShellExec.cmd_exec(self, 'systemctl enable wo-kernel.service')
-        WOService.start_service(self, 'wo-kernel')
+        if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
+            WOTemplate.deploy(
+                self, '/lib/systemd/system/wo-kernel.service',
+                'wo-kernel-service.mustache', data)
+            WOShellExec.cmd_exec(self, 'systemctl enable wo-kernel.service')
+            WOService.start_service(self, 'wo-kernel')
     # open_files_limit tweak
     if not WOFileUtils.grepcheck(self, '/etc/security/limits.conf', '500000'):
         with open("/etc/security/limits.conf",
-                  encoding='utf-8', mode='w') as limit_file:
+                  encoding='utf-8', mode='a') as limit_file:
             limit_file.write(
                 '*         hard    nofile      500000\n'
                 '*         soft    nofile      500000\n'
@@ -1518,13 +1519,9 @@ def pre_stack(self):
     data = dict()
     # check if update-motd.d directory exist
     if os.path.isdir('/etc/update-motd.d/'):
-        if not os.path.isfile('/etc/update-motd.d/98-wo-update'):
-            # render custom motd template
-            WOTemplate.deploy(
-                self, '/etc/update-motd.d/98-wo-update',
-                'wo-update.mustache', data)
-            WOFileUtils.chmod(
-                self, "/etc/update-motd.d/98-wo-update", 0o755)
-            # restart motd-news service if available
-            if os.path.isfile('/lib/systemd/system/motd-news.service'):
-                WOService.restart_service(self, 'motd-news')
+        # render custom motd template
+        WOTemplate.deploy(
+            self, '/etc/update-motd.d/98-wo-update',
+            'wo-update.mustache', data)
+        WOFileUtils.chmod(
+            self, "/etc/update-motd.d/98-wo-update", 0o755)
