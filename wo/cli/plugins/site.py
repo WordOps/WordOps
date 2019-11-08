@@ -813,11 +813,11 @@ class WOSiteCreateController(CementBaseController):
                     if WOAcme.setupletsencrypt(
                             self, acme_domains, acmedata):
                         WOAcme.deploycert(self, wo_domain)
-                        httpsRedirect(self, wo_domain, True, acme_wildcard)
 
                 if pargs.hsts:
                     SSL.setuphsts(self, wo_domain)
 
+                httpsRedirect(self, wo_domain, True, acme_wildcard)
                 SSL.siteurlhttps(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "

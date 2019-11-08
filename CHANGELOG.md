@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.10.3 - 2019-11-07
+
+#### Fixed
+
+- https redirection missing on subdomains sites
+- Issues with digitalocean mariadb repository
+
 ### v3.10.2 - 2019-11-06
 
 #### Added

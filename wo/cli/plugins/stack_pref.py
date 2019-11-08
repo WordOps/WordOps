@@ -29,9 +29,9 @@ def pre_pref(self, apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
         if (not WOVar.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
-            mysql_pref = ("Package: *\nPin: origin "
-                          "sfo1.mirrors.digitalocean.com"
-                          "\nPin-Priority: 1000\n")
+            mysql_pref = (
+                "Package: *\nPin: origin mariadb.mirrors.ovh.net"
+                "\nPin-Priority: 1000\n")
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
