@@ -634,9 +634,9 @@ wo_init() {
         apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 > /dev/null 2>&1
         apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 > /dev/null 2>&1
         # fix digitalocean mariadb repository issue
-        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list
+        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list > /dev/null 2>&1
         if [ -f /etc/apt/preferences.d/MariaDB.pref  ]; then
-        sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref
+        sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref > /dev/null 2>&1
         fi
         if ! {
             apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
