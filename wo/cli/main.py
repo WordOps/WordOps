@@ -32,6 +32,17 @@ defaults['wo']['plugin_dir'] = '/var/lib/wo/plugins'
 defaults['wo']['template_dir'] = '/var/lib/wo/templates'
 
 
+def encode_output(app, text):
+    """ Encode the output to be suitable for the terminal
+
+    :param app: The Cement App (unused)
+    :param text: The rendered text
+    :return: The encoded text
+    """
+
+    return text.encode("utf-8")
+
+
 class WOArgHandler(ArgParseArgumentHandler):
     class Meta:
         label = 'wo_args_handler'
@@ -57,8 +68,11 @@ class WOApp(CementApp):
 
         extensions = ['mustache']
 
-        # default output handler
-        output_handler = WOOutputHandler
+        hooks = [
+            ("post_render", encode_output)
+        ]
+
+        output_handler = 'mustache'
 
         arg_handler = WOArgHandler
 
