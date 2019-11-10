@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.10.3 - 2019-11-07
 
+#### Changed
+
+- Resolve domain IP over HTTPS with Cloudflare DNS Resolver
+
 #### Fixed
 
 - https redirection missing on subdomains sites

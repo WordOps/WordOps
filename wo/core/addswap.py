@@ -38,10 +38,10 @@ class WOSwap():
                     WOFileUtils.searchreplace(self, "/etc/dphys-swapfile",
                                               "#CONF_SWAPFILE=/var/swap",
                                               "CONF_SWAPFILE=/wo-swapfile")
-                    WOFileUtils.searchreplace(self,  "/etc/dphys-swapfile",
+                    WOFileUtils.searchreplace(self, "/etc/dphys-swapfile",
                                               "#CONF_MAXSWAP=2048",
                                               "CONF_MAXSWAP=1024")
-                    WOFileUtils.searchreplace(self,  "/etc/dphys-swapfile",
+                    WOFileUtils.searchreplace(self, "/etc/dphys-swapfile",
                                               "#CONF_SWAPSIZE=",
                                               "CONF_SWAPSIZE=1024")
                 else:
