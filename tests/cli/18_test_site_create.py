@@ -2,7 +2,7 @@ from wo.utils import test
 from wo.cli.main import WOTestApp
 
 
-class CliTestCaseSite(test.WOTestCase):
+class CliTestCaseSiteCreate(test.WOTestCase):
 
     def test_wo_cli(self):
         with WOTestApp as app:
@@ -11,6 +11,7 @@ class CliTestCaseSite(test.WOTestCase):
     def test_wo_cli_site_create_html(self):
         with WOTestApp(argv=['site', 'create', 'example1.com',
                              '--html']) as app:
+            app.config.set('wo', '', True)
             app.run()
 
     def test_wo_cli_site_create_php(self):

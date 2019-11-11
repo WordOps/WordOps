@@ -2,7 +2,7 @@ from wo.utils import test
 from wo.cli.main import WOTestApp
 
 
-class CliTestCaseStack(test.WOTestCase):
+class CliTestCaseStackRemove(test.WOTestCase):
 
     def test_wo_cli(self):
         with WOTestApp as app:
