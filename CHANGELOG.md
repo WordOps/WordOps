@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
-### v3.10.3 - 2019-11-07
+### v3.10.3 - 2019-11-11
 
 #### Added
 
@@ -20,10 +20,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [CORE] Cement Framework updated to v2.10.2
 - [SITE] database name = 0 to 16 characters from the site name + 4 randomly generated character
 - [SITE] database user = 0 to 12 characters from the site name + 4 randomy generated character
+- [STACK] Improve sysctl tweak deployment
 
 #### Fixed
 
-- https redirection missing on subdomains sites
+- [SITE] https redirection missing on subdomains sites
 - Issues with digitalocean mariadb repository
 - Cement Framework output handler issues
 

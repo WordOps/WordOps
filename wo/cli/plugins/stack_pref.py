@@ -1446,82 +1446,111 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
 def pre_stack(self):
     """Inital server configuration and tweak"""
-    # wo sysctl tweaks
-    # check system type
-    wo_arch = os.uname()[4]
-    if os.path.isfile('/proc/1/environ'):
-        # detect lxc containers
-        wo_lxc = WOFileUtils.grepcheck(
-            self, '/proc/1/environ', 'container=lxc')
-        # detect wsl
-        wo_wsl = WOFileUtils.grepcheck(
-            self, '/proc/1/environ', 'wsl')
-    else:
-        wo_wsl = True
-        wo_lxc = True
     # remove old sysctl tweak
     if os.path.isfile('/etc/sysctl.d/60-ubuntu-nginx-web-server.conf'):
-        WOFileUtils.rm(self, '/etc/sysctl.d/60-ubuntu-nginx-web-server.conf')
+        WOFileUtils.rm(
+            self, '/etc/sysctl.d/60-ubuntu-nginx-web-server.conf')
+    # check if version.txt exist
+    if os.path.exists('/var/lib/wo/version.txt'):
+        with open('/var/lib/wo/version.txt',
+                  mode='r', encoding='utf-8') as wo_ver:
+            # check version written in version.txt
+            wo_check = bool(wo_ver.read().strip() ==
+                            '{0}'.format(WOVar.wo_version))
+    else:
+        wo_check = False
+    if wo_check is False:
+        # wo sysctl tweaks
+        # check system type
+        wo_arch = bool(os.uname()[4] == 'x86_x64')
+        if os.path.isfile('/proc/1/environ'):
+            # detect lxc containers
+            wo_lxc = WOFileUtils.grepcheck(
+                self, '/proc/1/environ', 'container=lxc')
+            # detect wsl
+            wo_wsl = WOFileUtils.grepcheck(
+                self, '/proc/1/environ', 'wsl')
+        else:
+            wo_wsl = True
+            wo_lxc = True
 
-    if not os.path.exists('/etc/sysctl.d/60-wo-tweaks.conf'):
-        if wo_arch == 'x86_64':
-            if (wo_lxc is not True) and (wo_wsl is not True):
-                data = dict()
-                WOTemplate.deploy(
-                    self, '/etc/sysctl.d/60-wo-tweaks.conf',
-                    'sysctl.mustache', data, True)
-                # use tcp_bbr congestion algorithm only on new kernels
-                if (WOVar.wo_platform_codename == 'bionic' or
-                    WOVar.wo_platform_codename == 'disco' or
-                        WOVar.wo_platform_codename == 'buster'):
-                    if WOShellExec.cmd_exec(self, 'modprobe tcp_bbr'):
-                        with open("/etc/modules-load.d/bbr.conf",
-                                  encoding='utf-8', mode='w') as bbr_file:
-                            bbr_file.write('tcp_bbr')
-                        with open("/etc/sysctl.d/60-wo-tweaks.conf",
-                                  encoding='utf-8', mode='a') as sysctl_file:
-                            sysctl_file.write(
-                                '\nnet.ipv4.tcp_congestion_control = bbr'
-                                '\nnet.ipv4.tcp_notsent_lowat = 16384')
-                else:
-                    if WOShellExec.cmd_exec(self, 'modprobe tcp_htcp'):
-                        with open("/etc/modules-load.d/htcp.conf",
-                                  encoding='utf-8', mode='w') as bbr_file:
-                            bbr_file.write('tcp_htcp')
-                        with open("/etc/sysctl.d/60-wo-tweaks.conf",
-                                  encoding='utf-8', mode='a') as sysctl_file:
-                            sysctl_file.write(
-                                '\nnet.ipv4.tcp_congestion_control = htcp')
-                # apply sysctl tweaks
-                WOShellExec.cmd_exec(
-                    self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
-    # sysctl tweak service
-    data = dict()
-    if not os.path.isfile('/opt/wo-kernel.sh'):
-        WOTemplate.deploy(self, '/opt/wo-kernel.sh',
-                          'wo-kernel-script.mustache', data)
+        if (wo_lxc is not True) and (wo_wsl is not True) and (wo_arch is True):
+            data = dict()
+            WOTemplate.deploy(
+                self, '/etc/sysctl.d/60-wo-tweaks.conf',
+                'sysctl.mustache', data, True)
+            # use tcp_bbr congestion algorithm only on new kernels
+            if (WOVar.wo_platform_codename == 'bionic' or
+                WOVar.wo_platform_codename == 'disco' or
+                    WOVar.wo_platform_codename == 'buster'):
+                try:
+                    WOShellExec.cmd_exec(
+                        self, 'modprobe tcp_bbr')
+                    with open(
+                        "/etc/modules-load.d/bbr.conf",
+                            encoding='utf-8', mode='w') as bbr_file:
+                        bbr_file.write('tcp_bbr')
+                    with open(
+                        "/etc/sysctl.d/60-wo-tweaks.conf",
+                            encoding='utf-8', mode='a') as sysctl_file:
+                        sysctl_file.write(
+                            '\nnet.ipv4.tcp_congestion_control = bbr'
+                            '\nnet.ipv4.tcp_notsent_lowat = 16384')
+                except OSError as e:
+                    Log.debug(self, str(e))
+                    Log.warn(self, "failed to tweak sysctl")
+            else:
+                try:
+                    WOShellExec.cmd_exec(
+                        self, 'modprobe tcp_htcp')
+                    with open(
+                        "/etc/modules-load.d/htcp.conf",
+                            encoding='utf-8', mode='w') as bbr_file:
+                        bbr_file.write('tcp_htcp')
+                    with open(
+                        "/etc/sysctl.d/60-wo-tweaks.conf",
+                            encoding='utf-8', mode='a') as sysctl_file:
+                        sysctl_file.write(
+                            '\nnet.ipv4.tcp_congestion_control = htcp')
+                except OSError as e:
+                    Log.debug(self, str(e))
+                    Log.warn(self, "failed to tweak sysctl")
+
+            # apply sysctl tweaks
+            WOShellExec.cmd_exec(
+                self, 'sysctl -eq -p /etc/sysctl.d/60-wo-tweaks.conf')
+
+        # sysctl tweak service
+        data = dict()
+        if not os.path.isfile('/opt/wo-kernel.sh'):
+            WOTemplate.deploy(self, '/opt/wo-kernel.sh',
+                              'wo-kernel-script.mustache', data)
         if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
             WOTemplate.deploy(
                 self, '/lib/systemd/system/wo-kernel.service',
                 'wo-kernel-service.mustache', data)
             WOShellExec.cmd_exec(self, 'systemctl enable wo-kernel.service')
             WOService.start_service(self, 'wo-kernel')
-    # open_files_limit tweak
-    if not WOFileUtils.grepcheck(self, '/etc/security/limits.conf', '500000'):
-        with open("/etc/security/limits.conf",
-                  encoding='utf-8', mode='a') as limit_file:
-            limit_file.write(
-                '*         hard    nofile      500000\n'
-                '*         soft    nofile      500000\n'
-                'root      hard    nofile      500000\n'
-                'root      soft    nofile      500000\n')
-    # custom motd-news
-    data = dict()
-    # check if update-motd.d directory exist
-    if os.path.isdir('/etc/update-motd.d/'):
-        # render custom motd template
-        WOTemplate.deploy(
-            self, '/etc/update-motd.d/98-wo-update',
-            'wo-update.mustache', data)
-        WOFileUtils.chmod(
-            self, "/etc/update-motd.d/98-wo-update", 0o755)
+        # open_files_limit tweak
+        if not WOFileUtils.grepcheck(self,
+                                     '/etc/security/limits.conf', '500000'):
+            with open("/etc/security/limits.conf",
+                      encoding='utf-8', mode='a') as limit_file:
+                limit_file.write(
+                    '*         hard    nofile      500000\n'
+                    '*         soft    nofile      500000\n'
+                    'root      hard    nofile      500000\n'
+                    'root      soft    nofile      500000\n')
+        # custom motd-news
+        data = dict()
+        # check if update-motd.d directory exist
+        if os.path.isdir('/etc/update-motd.d/'):
+            # render custom motd template
+            WOTemplate.deploy(
+                self, '/etc/update-motd.d/98-wo-update',
+                'wo-update.mustache', data)
+            WOFileUtils.chmod(
+                self, "/etc/update-motd.d/98-wo-update", 0o755)
+        with open('/var/lib/wo/version.txt',
+                  mode='w', encoding='utf-8') as wo_ver:
+            wo_ver.write('{0}'.format(WOVar.wo_version))
