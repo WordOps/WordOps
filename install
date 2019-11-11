@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.10.2 - 2019-11-06
+# Version 3.10.3 - 2019-11-11
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -207,13 +207,13 @@ wo_install_dep() {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3-pip python3-wheel python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common pigz \
+            build-essential curl gzip python3-pip python3-apt python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp >/dev/null 2>&1
         curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3-pip python3-wheel python3-apt python3-setuptools python3-dev ca-certificates sqlite3 git tar \
+            build-essential curl gzip dirmngr sudo python3-pip python3-apt python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp >/dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
@@ -631,7 +631,13 @@ wo_init() {
 
     if [ -z "$wo_travis" ]; then
         # import easyengine opensusebuildservice gpg key to avoid issues with packages update
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv-keys 3050ac3cd2ae6f03 > /dev/null 2>&1
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 > /dev/null 2>&1
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 > /dev/null 2>&1
+        # fix digitalocean mariadb repository issue
+        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list > /dev/null 2>&1
+        if [ -f /etc/apt/preferences.d/MariaDB.pref  ]; then
+        sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref > /dev/null 2>&1
+        fi
         if ! {
             apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
         }; then

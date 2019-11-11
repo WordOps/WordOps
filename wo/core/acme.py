@@ -58,7 +58,8 @@ class WOAcme:
             if acmedata['dns'] is True:
                 Log.error(
                     self, "Please make sure your properly "
-                    "set your DNS API credentials for acme.sh")
+                    "set your DNS API credentials for acme.sh\n"
+                    "If you are using sudo, use \"sudo -E wo\"")
                 return False
             else:
                 Log.error(
@@ -145,10 +146,19 @@ class WOAcme:
 
     def check_dns(self, acme_domains):
         """Check if a list of domains point to the server IP"""
-        server_ip = requests.get('http://v4.wordops.eu/').text
+        server_ip = requests.get('https://v4.wordops.eu/').text
         for domain in acme_domains:
-            domain_ip = requests.get('http://v4.wordops.eu/dns/{0}/'
-                                     .format(domain)).text
+            url = (
+                "https://cloudflare-dns.com/dns-query?name={0}&type=A"
+                .format(domain))
+            headers = {
+                'accept': 'application/dns-json'
+            }
+            try:
+                response = requests.get(url, headers=headers).json()
+                domain_ip = response["Answer"][0]['data']
+            except requests.RequestException:
+                Log.error(self, 'Resolving domain IP failed')
             if(not domain_ip == server_ip):
                 Log.warn(
                     self, "{0}".format(domain) +

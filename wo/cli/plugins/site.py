@@ -733,8 +733,11 @@ class WOSiteCreateController(CementBaseController):
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
                 acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
                                 dnsalias=False, acme_alias='', keylength='')
-                acmedata['keylength'] = self.app.config.get('letsencrypt',
-                                                            'keylength')
+                if self.app.config.has_section('letsencrypt'):
+                    acmedata['keylength'] = self.app.config.get(
+                        'letsencrypt', 'keylength')
+                else:
+                    acmedata['keylength'] = 'ec-384'
                 if pargs.dns:
                     Log.debug(self, "DNS validation enabled")
                     acmedata['dns'] = True
@@ -813,11 +816,11 @@ class WOSiteCreateController(CementBaseController):
                     if WOAcme.setupletsencrypt(
                             self, acme_domains, acmedata):
                         WOAcme.deploycert(self, wo_domain)
-                        httpsRedirect(self, wo_domain, True, acme_wildcard)
 
                 if pargs.hsts:
                     SSL.setuphsts(self, wo_domain)
 
+                httpsRedirect(self, wo_domain, True, acme_wildcard)
                 SSL.siteurlhttps(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1594,7 +1597,7 @@ class WOSiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False,
+                           ssl=(bool(check_site.is_ssl)),
                            php_version=check_php_version)
 
             Log.info(self, "Successfully updated site"
@@ -1973,7 +1976,10 @@ class WOSiteDeleteController(CementBaseController):
         if wo_site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
             wo_db_name = check_site.db_name
             wo_db_user = check_site.db_user
-            wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
+            if self.app.config.has_section('mysql'):
+                wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
+            else:
+                wo_mysql_grant_host = 'localhost'
             if wo_db_name == 'deleted':
                 mark_db_deleted = True
             if pargs.all:

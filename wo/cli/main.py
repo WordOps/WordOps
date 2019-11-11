@@ -1,13 +1,12 @@
 """WordOps main application entry point."""
-import os
 import sys
+from os import geteuid
 
 from cement.core.exc import CaughtSignal, FrameworkError
 from cement.core.foundation import CementApp
 from cement.ext.ext_argparse import ArgParseArgumentHandler
 from cement.utils.misc import init_defaults
 
-from wo.cli.ext.wo_outputhandler import WOOutputHandler
 from wo.core import exc
 
 # this has to happen after you import sys, but before you import anything
@@ -30,6 +29,17 @@ defaults['wo']['plugin_dir'] = '/var/lib/wo/plugins'
 
 # External templates (generally, do not ship with application code)
 defaults['wo']['template_dir'] = '/var/lib/wo/templates'
+
+
+def encode_output(app, text):
+    """ Encode the output to be suitable for the terminal
+
+    :param app: The Cement App (unused)
+    :param text: The rendered text
+    :return: The encoded text
+    """
+
+    return text.encode("utf-8")
 
 
 class WOArgHandler(ArgParseArgumentHandler):
@@ -57,8 +67,11 @@ class WOApp(CementApp):
 
         extensions = ['mustache']
 
-        # default output handler
-        output_handler = WOOutputHandler
+        hooks = [
+            ("post_render", encode_output)
+        ]
+
+        output_handler = 'mustache'
 
         arg_handler = WOArgHandler
 
@@ -91,7 +104,7 @@ def main():
             global sys
 
             # if not root...kick out
-            if not os.geteuid() == 0:
+            if not geteuid() == 0:
                 print("\nNon-privileged users cant use WordOps. "
                       "Switch to root or invoke sudo.\n")
                 app.close(1)
@@ -103,14 +116,14 @@ def main():
             # Catch our application errors and exit 1 (error)
             print('WOError > %s' % e)
             app.exit_code = 1
-        except FrameworkError as e:
-            # Catch framework errors and exit 1 (error)
-            print('FrameworkError > %s' % e)
-            app.exit_code = 1
         except CaughtSignal as e:
             # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
             print('CaughtSignal > %s' % e)
             app.exit_code = 0
+        except FrameworkError as e:
+            # Catch framework errors and exit 1 (error)
+            print('FrameworkError > %s' % e)
+            app.exit_code = 1
         finally:
             # Print an exception (if it occurred) and --debug was passed
             if app.debug:
@@ -120,11 +133,6 @@ def main():
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 if exc_traceback is not None:
                     traceback.print_exc()
-
-
-def get_test_app(**kw):
-    app = WOApp(**kw)
-    return app
 
 
 if __name__ == '__main__':

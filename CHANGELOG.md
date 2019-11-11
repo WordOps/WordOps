@@ -8,6 +8,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.10.3 - 2019-11-11
+
+#### Added
+
+- [ACME] Display warning about sudo usage when issuing certificate with DNS API validation (require `sudo -E`)
+
+#### Changed
+
+- [ACME] Resolve domain IP over HTTPS with Cloudflare DNS Resolver
+- [CORE] Cement Framework updated to v2.10.2
+- [SITE] database name = 0 to 16 characters from the site name + 4 randomly generated character
+- [SITE] database user = 0 to 12 characters from the site name + 4 randomy generated character
+- [STACK] Improve sysctl tweak deployment
+
+#### Fixed
+
+- [SITE] https redirection missing on subdomains sites
+- Issues with digitalocean mariadb repository
+- Cement Framework output handler issues
+- [CLEAN] check if Nginx is installed before purging fastcgi or opcache
+
 ### v3.10.2 - 2019-11-06
 
 #### Added

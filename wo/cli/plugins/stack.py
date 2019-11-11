@@ -124,7 +124,7 @@ class WOStackController(CementBaseController):
                 (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                    (not pargs.php73)):
+                    (not pargs.php73) and (not pargs.all)):
                 pargs.web = True
                 pargs.admin = True
                 pargs.fail2ban = True
@@ -563,7 +563,7 @@ class WOStackController(CementBaseController):
                 (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                (not pargs.php73)):
+                (not pargs.php73) and (not pargs.all)):
             self.app.args.print_help()
 
         if pargs.all:
@@ -849,7 +849,7 @@ class WOStackController(CementBaseController):
                 (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                (not pargs.php73)):
+                (not pargs.php73) and (not pargs.all)):
             self.app.args.print_help()
 
         if pargs.all:

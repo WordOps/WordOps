@@ -37,9 +37,8 @@ class WOCleanController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if (not (pargs.all or pargs.fastcgi
-                 or pargs.opcache or
-                 pargs.redis)):
+        if ((not pargs.all) and (not pargs.fastcgi) and
+                (not pargs.opcache) and (not pargs.redis)):
             self.clean_fastcgi()
         if pargs.all:
             self.clean_fastcgi()
@@ -63,7 +62,8 @@ class WOCleanController(CementBaseController):
 
     @expose(hide=True)
     def clean_fastcgi(self):
-        if(os.path.isdir("/var/run/nginx-cache")):
+        if(os.path.isdir("/var/run/nginx-cache") and
+           os.path.exists('/usr/sbin/nginx')):
             Log.info(self, "Cleaning NGINX FastCGI cache")
             WOShellExec.cmd_exec(self, "rm -rf /var/run/nginx-cache/*")
             WOService.restart_service(self, 'nginx')
@@ -72,21 +72,24 @@ class WOCleanController(CementBaseController):
 
     @expose(hide=True)
     def clean_opcache(self):
-        try:
-            Log.info(self, "Cleaning opcache")
-            opgui = requests.get(
-                "https://127.0.0.1:22222/cache/opcache/opgui.php?reset=1")
-            if opgui.status_code != '200':
-                Log.warn(self, 'Cleaning opcache failed')
-        except Exception as e:
-            Log.debug(self, "{0}".format(e))
-            Log.debug(self, "Unable hit url, "
-                      " https://127.0.0.1:22222/cache/opcache/"
-                      "opgui.php?reset=1,"
-                      " please check you have admin tools installed")
-            Log.debug(self, "please check you have admin tools installed,"
-                      " or install them with `wo stack install --admin`")
-            Log.error(self, "Unable to clean opcache", False)
+        if (os.path.exists('/usr/sbin/nginx') and
+                os.path.exists(
+                    '/var/www/22222/htdocs/cache/opcache/opgui.php')):
+            try:
+                Log.info(self, "Cleaning opcache")
+                opgui = requests.get(
+                    "https://127.0.0.1:22222/cache/opcache/opgui.php?reset=1")
+                if opgui.status_code != '200':
+                    Log.warn(self, 'Cleaning opcache failed')
+            except Exception as e:
+                Log.debug(self, "{0}".format(e))
+                Log.debug(self, "Unable hit url, "
+                          " https://127.0.0.1:22222/cache/opcache/"
+                          "opgui.php?reset=1,"
+                          " please check you have admin tools installed")
+                Log.debug(self, "please check you have admin tools installed,"
+                          " or install them with `wo stack install --admin`")
+                Log.error(self, "Unable to clean opcache", False)
 
 
 def load(app):

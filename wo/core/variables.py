@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.10.2"
+    wo_version = "3.10.3"
     # WordOps packages versions
     wo_wp_cli = "2.3.0"
     wo_adminer = "4.7.3"
@@ -170,15 +170,16 @@ class WOVar():
     wo_clamav = ["clamav", "clamav-freshclam"]
     wo_ubuntu_backports = 'ppa:jonathonf/backports'
 
-    # Redis repo details
+    # APT repositories
+    wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+                     "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
+                     "10.3/{distro} {codename} main"
+                     .format(distro=wo_distro,
+                             codename=wo_platform_codename))
     if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
         wo_redis_repo = ("ppa:chris-lea/redis-server")
         wo_goaccess_repo = ("ppa:alex-p/goaccess")
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                         "10.3/ubuntu {codename} main"
-                         .format(codename=wo_platform_codename))
 
     else:
         wo_php_repo = (
@@ -186,10 +187,6 @@ class WOVar():
             .format(codename=wo_platform_codename))
         wo_php_key = 'AC0E47584A7A714D'
         wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
-                         .format(codename=wo_platform_codename))
-        wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
-                         "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                         "10.3/debian {codename} main"
                          .format(codename=wo_platform_codename))
 
     wo_redis = ['redis-server']

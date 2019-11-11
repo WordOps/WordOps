@@ -15,9 +15,11 @@ export LANG='en_US.UTF-8'
 export LC_ALL='C.UTF-8'
 
 if [ -z "$1" ]; then
+{
     apt-get -qq purge mysql* graphviz* redis*
     apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
     sudo apt-get -qq autoremove --purge
+} > /dev/null 2>&1
 fi
 
 exit_script() {
@@ -221,10 +223,21 @@ else
 fi
 
 echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       various informations             '
+echo -e '       WP-CLI info             '
 echo -e "${CGREEN}#############################################${CEND}"
 wp --allow-root --info
+
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site info             '
+echo -e "${CGREEN}#############################################${CEND}"
+
 wo site info wp.net
+
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo info             '
+echo -e "${CGREEN}#############################################${CEND}"
 wo info
 
 echo -e "${CGREEN}#############################################${CEND}"

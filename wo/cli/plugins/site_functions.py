@@ -149,9 +149,15 @@ def setupdatabase(self, data):
                                             string.ascii_lowercase +
                                             string.digits, 24)))
     wo_replace_dot = wo_domain_name.replace('.', '')
-    prompt_dbname = self.app.config.get('mysql', 'db-name')
-    prompt_dbuser = self.app.config.get('mysql', 'db-user')
-    wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
+    if self.app.config.has_section('mysql'):
+        prompt_dbname = self.app.config.get('mysql', 'db-name')
+        prompt_dbuser = self.app.config.get('mysql', 'db-user')
+        wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
+    else:
+        prompt_dbname = False
+        prompt_dbuser = False
+        wo_mysql_grant_host = 'localhost'
+
     wo_db_name = ''
     wo_db_username = ''
     wo_db_password = ''
@@ -165,7 +171,7 @@ def setupdatabase(self, data):
 
     if not wo_db_name:
         wo_db_name = wo_replace_dot
-        wo_db_name = (wo_db_name[0:8] + generate_random())
+        wo_db_name = (wo_db_name[0:16] + generate_random())
 
     if prompt_dbuser == 'True' or prompt_dbuser == 'true':
         try:
@@ -179,7 +185,7 @@ def setupdatabase(self, data):
 
     if not wo_db_username:
         wo_db_username = wo_replace_dot
-        wo_db_username = (wo_db_name[0:8] + generate_random())
+        wo_db_username = (wo_db_name[0:12] + generate_random())
     if not wo_db_password:
         wo_db_password = wo_random_pass
 
@@ -189,8 +195,8 @@ def setupdatabase(self, data):
     try:
         if WOMysql.check_db_exists(self, wo_db_name):
             Log.debug(self, "Database already exists, Updating DB_NAME .. ")
-            wo_db_name = (wo_db_name[0:8] + generate_random())
-            wo_db_username = (wo_db_name[0:8] + generate_random())
+            wo_db_name = (wo_db_name[0:16] + generate_random())
+            wo_db_username = (wo_db_name[0:12] + generate_random())
     except MySQLConnectionError:
         raise SiteError("MySQL Connectivity problem occured")
 
@@ -237,10 +243,16 @@ def setupdatabase(self, data):
 def setupwordpress(self, data, vhostonly=False):
     wo_domain_name = data['site_name']
     wo_site_webroot = data['webroot']
-    prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
-    wo_wp_user = self.app.config.get('wordpress', 'user')
-    wo_wp_pass = self.app.config.get('wordpress', 'password')
-    wo_wp_email = self.app.config.get('wordpress', 'email')
+    if self.app.config.has_section('wordpress'):
+        prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
+        wo_wp_user = self.app.config.get('wordpress', 'user')
+        wo_wp_pass = self.app.config.get('wordpress', 'password')
+        wo_wp_email = self.app.config.get('wordpress', 'email')
+    else:
+        prompt_wpprefix = False
+        wo_wp_user = ''
+        wo_wp_pass = ''
+        wo_wp_email = ''
     # Random characters
     wo_random_pass = (''.join(random.sample(string.ascii_uppercase +
                                             string.ascii_lowercase +
@@ -380,10 +392,7 @@ def setupwordpress(self, data, vhostonly=False):
     for wp_conf in wp_conf_variables:
         wp_var = wp_conf[0]
         wp_val = wp_conf[1]
-        if wp_val == 'true' or wp_val == 'false':
-            var_raw = True
-        else:
-            var_raw = False
+        var_raw = (bool(wp_val == 'true' or wp_val == 'false'))
         try:
             WOShellExec.cmd_exec(
                 self, "/bin/bash -c \"{0} --allow-root "
@@ -1195,7 +1204,7 @@ def generate_random_pass():
 def generate_random():
     wo_random10 = (''.join(random.sample(string.ascii_uppercase +
                                          string.ascii_lowercase +
-                                         string.digits, 8)))
+                                         string.digits, 4)))
     return wo_random10
 
 

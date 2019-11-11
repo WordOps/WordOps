@@ -1,4 +1,4 @@
-cement==2.8.2
+cement==2.10.12
 pystache>=0.5.4
 pynginxconfig>=0.3.4
 PyMySQL>=0.9.3
