@@ -87,11 +87,11 @@ class WOService():
                 output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
                     Log.valide(self, "Testing Nginx configuration ")
-                    Log.wait(self, "Restarting Nginx            ")
+                    Log.wait(self, "Restarting Nginx")
                     service_cmd = ('service {0} restart'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.valide(self, "Restarting Nginx            ")
+                        Log.valide(self, "Restarting Nginx")
                         return True
                 else:
                     Log.failed(self, "Testing Nginx configuration ")

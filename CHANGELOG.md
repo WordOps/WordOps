@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - [SITE] https redirection missing on subdomains sites
 - Issues with digitalocean mariadb repository
 - Cement Framework output handler issues
+- [CLEAN] check if Nginx is installed before purging fastcgi or opcache
 
 ### v3.10.2 - 2019-11-06
 

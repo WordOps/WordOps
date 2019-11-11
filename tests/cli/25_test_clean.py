@@ -23,3 +23,7 @@ class CliTestCaseClean(test.WOTestCase):
     def test_wo_cli_clean_opcache(self):
         with WOTestApp(argv=['clean', '--opcache']) as app:
             app.run()
+
+    def test_wo_cli_clean_redis(self):
+        with WOTestApp(argv=['clean', '--redis']) as app:
+            app.run()
