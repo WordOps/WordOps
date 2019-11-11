@@ -92,6 +92,10 @@ class WOTestApp(WOApp):
         # don't call sys.exit() when app.close() is called in tests
         exit_on_close = False
 
+        defaults['wo']['mysql']['grant-host'] = 'localhost'
+        defaults['wo']['mysql']['db-name'] = 'False'
+        defaults['wo']['mysql']['db-user'] = 'False'
+
 
 # Define the applicaiton object outside of main, as some libraries might wish
 # to import it as a global (rather than passing it into another class/func)

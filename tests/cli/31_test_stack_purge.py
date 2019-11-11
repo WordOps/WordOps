@@ -9,18 +9,18 @@ class CliTestCaseStack(test.WOTestCase):
             app.run()
 
     def test_wo_cli_stack_purge_web(self):
-        with WOTestApp(argv=['stack', 'purge',
-                                      '--web', '--force']) as app:
+        with WOTestApp(
+                argv=['stack', 'purge', '--web', '--force']) as app:
             app.run()
 
     def test_wo_cli_stack_purge_admin(self):
-        with WOTestApp(argv=['stack', 'purge',
-                                      '--admin', '--force']) as app:
+        with WOTestApp(
+                argv=['stack', 'purge', '--admin', '--force']) as app:
             app.run()
 
     def test_wo_cli_stack_purge_nginx(self):
-        with WOTestApp(argv=['stack', 'purge',
-                                      '--nginx', '--force']) as app:
+        with WOTestApp(
+                argv=['stack', 'purge', '--nginx', '--force']) as app:
             app.run()
 
     def test_wo_cli_stack_purge_php(self):
