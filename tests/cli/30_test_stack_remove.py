@@ -4,10 +4,6 @@ from wo.cli.main import WOTestApp
 
 class CliTestCaseStackRemove(test.WOTestCase):
 
-    def test_wo_cli(self):
-        with WOTestApp as app:
-            app.run()
-
     def test_wo_cli_stack_remove_admin(self):
         with WOTestApp(argv=['stack', 'remove', '--admin', '--force']) as app:
             app.run()

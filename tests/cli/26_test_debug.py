@@ -4,10 +4,6 @@ from wo.cli.main import WOTestApp
 
 class CliTestCaseDebug(test.WOTestCase):
 
-    def test_wo_cli(self):
-        with WOTestApp as app:
-            app.run()
-
     def test_wo_cli_debug_stop(self):
         with WOTestApp(argv=['debug', '--stop']) as app:
             app.run()

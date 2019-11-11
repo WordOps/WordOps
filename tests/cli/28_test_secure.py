@@ -4,10 +4,6 @@ from wo.cli.main import WOTestApp
 
 class CliTestCaseSecure(test.WOTestCase):
 
-    def test_wo_cli(self):
-        with WOTestApp as app:
-            app.run()
-
     def test_wo_cli_secure_auth(self):
         with WOTestApp(argv=['secure', '--auth', 'abc', 'superpass']) as app:
             app.run()

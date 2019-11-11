@@ -4,10 +4,6 @@ from wo.cli.main import WOTestApp
 
 class CliTestCaseSiteCreate(test.WOTestCase):
 
-    def test_wo_cli(self):
-        with WOTestApp as app:
-            app.run()
-
     def test_wo_cli_site_create_html(self):
         with WOTestApp(argv=['site', 'create', 'example1.com',
                              '--html']) as app:

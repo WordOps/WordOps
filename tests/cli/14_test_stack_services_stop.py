@@ -4,10 +4,6 @@ from wo.cli.main import WOTestApp
 
 class CliTestCaseStackStop(test.WOTestCase):
 
-    def test_wo_cli(self):
-        with WOTestApp as app:
-            app.run()
-
     def test_wo_cli_stack_services_stop_nginx(self):
         with WOTestApp(argv=['stack', 'stop', '--nginx']) as app:
             app.run()
