@@ -7,7 +7,6 @@ from cement.core.foundation import CementApp
 from cement.ext.ext_argparse import ArgParseArgumentHandler
 from cement.utils.misc import init_defaults
 
-from wo.cli.ext.wo_outputhandler import WOOutputHandler
 from wo.core import exc
 
 # this has to happen after you import sys, but before you import anything
