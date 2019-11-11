@@ -149,9 +149,15 @@ def setupdatabase(self, data):
                                             string.ascii_lowercase +
                                             string.digits, 24)))
     wo_replace_dot = wo_domain_name.replace('.', '')
-    prompt_dbname = self.app.config.get('mysql', 'db-name')
-    prompt_dbuser = self.app.config.get('mysql', 'db-user')
-    wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
+    if self.app.config.has_section('mysql'):
+        prompt_dbname = self.app.config.get('mysql', 'db-name')
+        prompt_dbuser = self.app.config.get('mysql', 'db-user')
+        wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
+    else:
+        prompt_dbname = False
+        prompt_dbuser = False
+        wo_mysql_grant_host = 'localhost'
+
     wo_db_name = ''
     wo_db_username = ''
     wo_db_password = ''
@@ -237,10 +243,16 @@ def setupdatabase(self, data):
 def setupwordpress(self, data, vhostonly=False):
     wo_domain_name = data['site_name']
     wo_site_webroot = data['webroot']
-    prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
-    wo_wp_user = self.app.config.get('wordpress', 'user')
-    wo_wp_pass = self.app.config.get('wordpress', 'password')
-    wo_wp_email = self.app.config.get('wordpress', 'email')
+    if self.app.config.has_section('wordpress'):
+        prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
+        wo_wp_user = self.app.config.get('wordpress', 'user')
+        wo_wp_pass = self.app.config.get('wordpress', 'password')
+        wo_wp_email = self.app.config.get('wordpress', 'email')
+    else:
+        prompt_wpprefix = False
+        wo_wp_user = ''
+        wo_wp_pass = ''
+        wo_wp_email = ''
     # Random characters
     wo_random_pass = (''.join(random.sample(string.ascii_uppercase +
                                             string.ascii_lowercase +

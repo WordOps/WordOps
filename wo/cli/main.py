@@ -1,6 +1,6 @@
 """WordOps main application entry point."""
-import os
 import sys
+from os import geteuid
 
 from cement.core.exc import CaughtSignal, FrameworkError
 from cement.core.foundation import CementApp
@@ -92,6 +92,7 @@ class WOTestApp(WOApp):
         # don't call sys.exit() when app.close() is called in tests
         exit_on_close = False
 
+
 # Define the applicaiton object outside of main, as some libraries might wish
 # to import it as a global (rather than passing it into another class/func)
 app = WOApp()
@@ -103,7 +104,7 @@ def main():
             global sys
 
             # if not root...kick out
-            if not os.geteuid() == 0:
+            if not geteuid() == 0:
                 print("\nNon-privileged users cant use WordOps. "
                       "Switch to root or invoke sudo.\n")
                 app.close(1)
@@ -115,14 +116,14 @@ def main():
             # Catch our application errors and exit 1 (error)
             print('WOError > %s' % e)
             app.exit_code = 1
-        except FrameworkError as e:
-            # Catch framework errors and exit 1 (error)
-            print('FrameworkError > %s' % e)
-            app.exit_code = 1
         except CaughtSignal as e:
             # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
             print('CaughtSignal > %s' % e)
             app.exit_code = 0
+        except FrameworkError as e:
+            # Catch framework errors and exit 1 (error)
+            print('FrameworkError > %s' % e)
+            app.exit_code = 1
         finally:
             # Print an exception (if it occurred) and --debug was passed
             if app.debug:

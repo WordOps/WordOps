@@ -1400,13 +1400,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     Log.debug(self, "{0}".format(e))
                     Log.error(self, "failed to configure Anemometer",
                               exit=False)
-
+                if self.app.config.has_section('mysql'):
+                    wo_grant_host = self.app.config.get('mysql', 'grant-host')
+                else:
+                    wo_grant_host = 'localhost'
                 WOMysql.execute(self, 'grant select on'
                                 ' *.* to \'anemometer\''
                                 '@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(self.app.config.get
-                                                     ('mysql',
-                                                      'grant-host'),
+                                ' BY \'{1}\''.format(wo_grant_host,
                                                      chars))
                 Log.debug(self, "grant all on slow-query-log.*"
                           " to anemometer@root_user"
