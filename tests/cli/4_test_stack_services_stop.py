@@ -1,34 +1,25 @@
 from wo.utils import test
-from wo.cli.main import get_test_app
+from wo.cli.main import WOTestApp
 
 
 class CliTestCaseStack(test.WOTestCase):
 
     def test_wo_cli(self):
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp as app:
+            app.run()
 
     def test_wo_cli_stack_services_stop_nginx(self):
-        self.app = get_test_app(argv=['stack', 'stop', '--nginx'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['stack', 'stop', '--nginx']) as app:
+            app.run()
 
     def test_wo_cli_stack_services_stop_php_fpm(self):
-        self.app = get_test_app(argv=['stack', 'stop', '--php'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['stack', 'stop', '--php']) as app:
+            app.run()
 
     def test_wo_cli_stack_services_stop_mysql(self):
-        self.app = get_test_app(argv=['stack', 'stop', '--mysql'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['stack', 'stop', '--mysql']) as app:
+            app.run()
 
     def test_wo_cli_stack_services_stop_all(self):
-        self.app = get_test_app(argv=['stack', 'stop'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['stack', 'stop']) as app:
+            app.run()

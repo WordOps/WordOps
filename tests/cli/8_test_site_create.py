@@ -1,66 +1,49 @@
 from wo.utils import test
-from wo.cli.main import get_test_app
+from wo.cli.main import WOTestApp
 
 
 class CliTestCaseSite(test.WOTestCase):
 
     def test_wo_cli(self):
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp as app:
+            app.run()
 
     def test_wo_cli_site_create_html(self):
-        self.app = get_test_app(argv=['site', 'create', 'example1.com',
-                                      '--html'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example1.com',
+                             '--html']) as app:
+            app.run()
 
     def test_wo_cli_site_create_php(self):
-        self.app = get_test_app(argv=['site', 'create', 'example2.com',
-                                      '--php'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example2.com',
+                             '--php']) as app:
+            app.run()
 
     def test_wo_cli_site_create_mysql(self):
-        self.app = get_test_app(argv=['site', 'create', 'example3.com',
-                                      '--mysql'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example3.com',
+                             '--mysql']) as app:
+            app.run()
 
     def test_wo_cli_site_create_wp(self):
-        self.app = get_test_app(argv=['site', 'create', 'example4.com',
-                                      '--wp'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example4.com',
+                             '--wp']) as app:
+            app.run()
 
     def test_wo_cli_site_create_wpsubdir(self):
-        self.app = get_test_app(argv=['site', 'create', 'example5.com',
-                                      '--wpsubdir'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example5.com',
+                             '--wpsubdir']) as app:
+            app.run()
 
     def test_wo_cli_site_create_wpsubdomain(self):
-        self.app = get_test_app(argv=['site', 'create', 'example6.com',
-                                      '--wpsubdomain'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example6.com',
+                             '--wpsubdomain']) as app:
+            app.run()
 
     def test_wo_cli_site_create_wpfc(self):
-        self.app = get_test_app(argv=['site', 'create', 'example8.com',
-                                      '--wpfc'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example8.com',
+                             '--wpfc']) as app:
+            app.run()
 
     def test_wo_cli_site_create_wpsc(self):
-        self.app = get_test_app(argv=['site', 'create', 'example9.com',
-                                      '--wpsc'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['site', 'create', 'example9.com',
+                             '--wpsc']) as app:
+            app.run()

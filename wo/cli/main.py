@@ -135,10 +135,5 @@ def main():
                     traceback.print_exc()
 
 
-def get_test_app(**kw):
-    app = WOApp(**kw)
-    return app
-
-
 if __name__ == '__main__':
     main()

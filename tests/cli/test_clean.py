@@ -1,34 +1,25 @@
 from wo.utils import test
-from wo.cli.main import get_test_app
+from wo.cli.main import WOTestApp
 
 
 class CliTestCaseClean(test.WOTestCase):
 
     def test_wo_cli(self):
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp as app:
+            app.run()
 
     def test_wo_cli_clean(self):
-        self.app = get_test_app(argv=['clean'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['clean']) as app:
+            app.run()
 
     def test_wo_cli_clean_fastcgi(self):
-        self.app = get_test_app(argv=['clean', '--fastcgi'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['clean', '--fastcgi']) as app:
+            app.run()
 
     def test_wo_cli_clean_all(self):
-        self.app = get_test_app(argv=['clean', '--all'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['clean', '--all']) as app:
+            app.run()
 
     def test_wo_cli_clean_opcache(self):
-        self.app = get_test_app(argv=['clean', '--opcache'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()
+        with WOTestApp(argv=['clean', '--opcache']) as app:
+            app.run()
