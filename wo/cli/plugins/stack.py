@@ -163,23 +163,8 @@ class WOStackController(CementBaseController):
             # Nginx
             if pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
-                if not (WOAptGet.is_installed(self, 'nginx-custom')):
-                    if not (WOAptGet.is_installed(self, 'nginx-plus') or
-                            WOAptGet.is_installed(self, 'nginx')):
-                        if not os.path.isfile('/usr/sbin/nginx'):
-                            apt_packages = apt_packages + WOVar.wo_nginx
-                    else:
-                        if WOAptGet.is_installed(self, 'nginx-plus'):
-                            Log.info(self, "NGINX PLUS Detected ...")
-                            apt = ["nginx-plus"] + WOVar.wo_nginx
-                            post_pref(self, apt, empty_packages)
-                        elif WOAptGet.is_installed(self, 'nginx'):
-                            Log.info(self, "WordOps detected an already "
-                                     "installed nginx package."
-                                     "It may or may not have "
-                                     "required modules.\n")
-                            apt = ["nginx"] + WOVar.wo_nginx
-                            post_pref(self, apt, empty_packages)
+                if not WOAptGet.is_exec(self, 'nginx'):
+                    apt_packages = apt_packages + WOVar.wo_nginx
                 else:
                     Log.debug(self, "Nginx already installed")
 
@@ -195,7 +180,7 @@ class WOStackController(CementBaseController):
             if pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = (apt_packages + WOVar.wo_php +
+                    apt_packages = (apt_packages + WOVar.wo_php72 +
                                     WOVar.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.2 already installed")
@@ -205,7 +190,7 @@ class WOStackController(CementBaseController):
             if pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php +
+                    apt_packages = (apt_packages + WOVar.wo_php72 +
                                     WOVar.wo_php73 +
                                     WOVar.wo_php_extra)
                 else:
@@ -609,10 +594,10 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVar.wo_php + \
+                    apt_packages = apt_packages + WOVar.wo_php72 + \
                         WOVar.wo_php_extra
                 else:
-                    apt_packages = apt_packages + WOVar.wo_php
+                    apt_packages = apt_packages + WOVar.wo_php72
 
         # PHP7.3
         if pargs.php73:
@@ -894,21 +879,15 @@ class WOStackController(CementBaseController):
         if pargs.php:
             Log.debug(self, "Add PHP to apt_packages list")
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                if not (WOAptGet.is_installed(self, 'php7.3-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php
+                apt_packages = apt_packages + WOVar.wo_php72 + \
+                    WOVar.wo_php_extra
 
         # PHP 7.3
         if pargs.php73:
             Log.debug(self, "Removing apt_packages variable of PHP 7.3")
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php73 + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php73
+                apt_packages = apt_packages + WOVar.wo_php73 + \
+                    WOVar.wo_php_extra
 
         # REDIS
         if pargs.redis:

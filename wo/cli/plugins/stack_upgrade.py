@@ -108,7 +108,7 @@ class WOStackUpgradeController(CementBaseController):
         # php 7.2
         if pargs.php:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php + \
+                apt_packages = apt_packages + WOVar.wo_php72 + \
                     WOVar.wo_php_extra
             else:
                 Log.info(self, "PHP 7.2 is not installed")

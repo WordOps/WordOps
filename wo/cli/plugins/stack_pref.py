@@ -113,7 +113,7 @@ def pre_pref(self, apt_packages):
 
     # add php repository
     if (set(WOVar.wo_php73).issubset(set(apt_packages)) or
-            set(WOVar.wo_php).issubset(set(apt_packages))):
+            set(WOVar.wo_php72).issubset(set(apt_packages))):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
             if not os.path.isfile(
@@ -528,7 +528,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
                     WOService.restart_service(self, 'nginx')
 
-        if set(WOVar.wo_php).issubset(set(apt_packages)):
+        if set(WOVar.wo_php72).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
