@@ -64,6 +64,7 @@ setup(name='wordops',
           'SQLAlchemy >= 1.3.8',
           'requests >= 2.22.0',
           'distro >= 1.4.0',
+          'argcomplete >= 1.10.0',
       ],
       extras_require={  # Optional
           'testing': ['nose', 'coverage'],
