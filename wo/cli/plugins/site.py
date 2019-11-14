@@ -377,7 +377,8 @@ class WOSiteDeleteController(CementBaseController):
             wo_db_name = check_site.db_name
             wo_db_user = check_site.db_user
             if self.app.config.has_section('mysql'):
-                wo_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
+                wo_mysql_grant_host = self.app.config.get(
+                    'mysql', 'grant-host')
             else:
                 wo_mysql_grant_host = 'localhost'
             if wo_db_name == 'deleted':
