@@ -105,7 +105,6 @@ class WOStackController(CementBaseController):
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
         self.msg = []
-        empty_packages = []
         wo_webroot = "/var/www/"
         pargs = self.app.pargs
 
@@ -220,8 +219,7 @@ class WOStackController(CementBaseController):
             # WP-CLI
             if pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
-                if ((not os.path.isfile("/usr/local/bin/wp")) and
-                        (not os.path.isfile("/usr/bin/wp"))):
+                if not WOAptGet.is_exec(self, 'wp'):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                             "releases/download/v{0}/"
                                             "wp-cli-{0}.phar"
@@ -313,7 +311,7 @@ class WOStackController(CementBaseController):
 
             # Composer
             if pargs.composer:
-                if not WOShellExec.cmd_exec(self, 'php -v'):
+                if not WOAptGet.is_exec(self, 'php')
                     pargs.php = True
                 if not os.path.isfile('/usr/local/bin/composer'):
                     Log.debug(self, "Setting packages variable for Composer ")
