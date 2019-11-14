@@ -19,6 +19,12 @@ from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
 
 
+def wo_site_hook(app):
+    from wo.core.database import init_db
+    import wo.cli.plugins.models
+    init_db(app)
+
+
 class WOSiteUpdateController(CementBaseController):
     class Meta:
         label = 'update'
@@ -1092,3 +1098,10 @@ class WOSiteUpdateController(CementBaseController):
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(wo_domain))
         return 0
+
+
+def load(app):
+    # register the plugin class.. this only happens if the plugin is enabled
+    app.handler.register(WOSiteUpdateController)
+    # register a hook (function) to run after arguments are parsed.
+    app.hook.register('post_argument_parsing', wo_site_hook)
