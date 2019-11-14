@@ -110,15 +110,12 @@ class SSL:
         reader = csv.reader(certfile, 'acmeconf')
         wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
         for row in reader:
-            if wo_wildcard_domain in row[2]:
-                if not row[2] == "":
-                    iswildcard = True
-                    break
-            else:
-                iswildcard = False
+            if wo_wildcard_domain == row[2]:
+                if not row[3
+                ] == "":
+                    return True
         certfile.close()
-
-        return iswildcard
+        return False
 
     def setuphsts(self, wo_domain_name):
         Log.info(
