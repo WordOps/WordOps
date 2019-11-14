@@ -1101,7 +1101,6 @@ def load(app):
     app.handler.register(WOStackStatusController)
     app.handler.register(WOStackMigrateController)
     app.handler.register(WOStackUpgradeController)
-    app.hander.register(WOStack)
 
     # register a hook (function) to run after arguments are parsed.
     app.hook.register('post_argument_parsing', wo_stack_hook)
