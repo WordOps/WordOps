@@ -7,6 +7,8 @@ from cement.core.controller import CementBaseController, expose
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
+from wo.cli.plugins.site_create import WOSiteCreateController
+from wo.cli.plugins.site_update import WOSiteUpdateController
 from wo.core.acme import WOAcme
 from wo.core.domainvalidate import WODomain
 from wo.core.fileutils import WOFileUtils
@@ -495,6 +497,8 @@ def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     app.handler.register(WOSiteController)
     app.handler.register(WOSiteDeleteController)
+    app.handler.register(WOSiteUpdateController)
+    app.handler.register(WOSiteCreateController)
     app.handler.register(WOSiteListController)
     app.handler.register(WOSiteEditController)
     # register a hook (function) to run after arguments are parsed.

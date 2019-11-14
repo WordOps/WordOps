@@ -1,7 +1,4 @@
-import glob
-import json
 import os
-import subprocess
 
 from cement.core.controller import CementBaseController, expose
 from wo.cli.plugins.site_functions import *
@@ -17,12 +14,6 @@ from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
-
-
-def wo_site_hook(app):
-    from wo.core.database import init_db
-    import wo.cli.plugins.models
-    init_db(app)
 
 
 class WOSiteCreateController(CementBaseController):
@@ -548,10 +539,3 @@ class WOSiteCreateController(CementBaseController):
                           msg="Adding letsencrypts config of site: {0}"
                           .format(wo_domain))
                 updateSiteInfo(self, wo_domain, ssl=letsencrypt)
-
-
-def load(app):
-    # register the plugin class.. this only happens if the plugin is enabled
-    app.handler.register(WOSiteCreateController)
-    # register a hook (function) to run after arguments are parsed.
-    app.hook.register('post_argument_parsing', wo_site_hook)
