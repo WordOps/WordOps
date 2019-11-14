@@ -311,7 +311,7 @@ class WOStackController(CementBaseController):
 
             # Composer
             if pargs.composer:
-                if not WOAptGet.is_exec(self, 'php')
+                if not WOAptGet.is_exec(self, 'php'):
                     pargs.php = True
                 if not os.path.isfile('/usr/local/bin/composer'):
                     Log.debug(self, "Setting packages variable for Composer ")
@@ -1101,6 +1101,7 @@ def load(app):
     app.handler.register(WOStackStatusController)
     app.handler.register(WOStackMigrateController)
     app.handler.register(WOStackUpgradeController)
+    app.hander.register(WOStack)
 
     # register a hook (function) to run after arguments are parsed.
     app.hook.register('post_argument_parsing', wo_stack_hook)
