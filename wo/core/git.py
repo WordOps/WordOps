@@ -18,7 +18,7 @@ class WOGit:
         """
         for path in paths:
             global git
-            wogit = git.bake("-C {0}".format(path))
+            wogit = git.bake("-C", "{0}".format(path))
             if os.path.isdir(path):
                 if not os.path.isdir(path + "/.git"):
                     try:
