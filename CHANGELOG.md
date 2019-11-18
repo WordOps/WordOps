@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+
+#### Fixed
+
+- typo error in motd-news script
+
 ### v3.10.3 - 2019-11-11
 
 #### Added

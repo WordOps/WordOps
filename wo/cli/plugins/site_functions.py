@@ -38,7 +38,7 @@ class SiteError(Exception):
 def pre_run_checks(self):
 
     # Check nginx configuration
-    Log.wait(self, "Running pre-update checks")
+    Log.wait(self, "Running pre-run checks")
     try:
         Log.debug(self, "checking NGINX configuration ...")
         fnull = open('/dev/null', 'w')
