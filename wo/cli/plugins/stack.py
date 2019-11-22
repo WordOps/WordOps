@@ -327,7 +327,7 @@ class WOStackController(CementBaseController):
             if pargs.adminer:
                 if not os.path.isfile("{0}22222/htdocs/db/"
                                       "adminer/index.php"
-                                      .format(wo_webroot)):
+                                      .format(WOVar.wo_webroot)):
                     Log.debug(self, "Setting packages variable for Adminer ")
                     packages = packages + [[
                         "https://github.com/vrana/adminer/"
@@ -507,9 +507,7 @@ class WOStackController(CementBaseController):
                 Log.wait(self, "Installing APT packages     ")
                 WOAptGet.install(self, apt_packages)
                 Log.valide(self, "Installing APT packages     ")
-                Log.wait(self, "Configuring APT packages    ")
                 post_pref(self, apt_packages, [])
-                Log.valide(self, "Configuring APT packages    ")
             if (packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)

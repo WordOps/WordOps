@@ -46,6 +46,8 @@ class WOStackUpgradeController(CementBaseController):
              dict(help='Upgrade Composer', action='store_true')),
             (['--phpmyadmin'],
              dict(help='Upgrade phpMyAdmin', action='store_true')),
+            (['--adminer'],
+             dict(help='Upgrade Adminer', action='store_true')),
             (['--ngxblocker'],
              dict(help='Upgrade phpMyAdmin', action='store_true')),
             (['--no-prompt'],
@@ -69,7 +71,8 @@ class WOStackUpgradeController(CementBaseController):
             (not pargs.mysql) and (not pargs.ngxblocker) and
             (not pargs.all) and (not pargs.wpcli) and
             (not pargs.netdata) and (not pargs.composer) and
-            (not pargs.phpmyadmin) and (not pargs.dashboard) and
+            (not pargs.phpmyadmin) and (not pargs.adminer) and
+            (not pargs.dashboard) and
                 (not pargs.redis)):
             pargs.web = True
             pargs.admin = True
@@ -93,6 +96,7 @@ class WOStackUpgradeController(CementBaseController):
             pargs.dashboard = True
             pargs.phpmyadmin = True
             pargs.wpcli = True
+            pargs.adminer = True
 
         # nginx
         if pargs.nginx:
@@ -188,6 +192,32 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.info(self, "phpMyAdmin isn't installed")
 
+        # adminer
+        if pargs.adminer:
+            if os.path.isfile("{0}22222/htdocs/db/"
+                              "adminer/index.php"
+                              .format(WOVar.wo_webroot)):
+                Log.debug(self, "Setting packages variable for Adminer ")
+                packages = packages + [[
+                    "https://github.com/vrana/adminer/"
+                    "releases/download/v{0}"
+                    "/adminer-{0}.php"
+                    .format(WOVar.wo_adminer),
+                    "{0}22222/"
+                    "htdocs/db/adminer/index.php"
+                    .format(WOVar.wo_webroot),
+                    "Adminer"],
+                    ["https://raw.githubusercontent.com"
+                     "/vrana/adminer/master/designs/"
+                     "pepa-linha/adminer.css",
+                     "{0}22222/"
+                     "htdocs/db/adminer/adminer.css"
+                     .format(WOVar.wo_webroot),
+                     "Adminer theme"]]
+            else:
+                Log.debug(self, "Adminer isn't installed")
+                Log.info(self, "Adminer isn't installed")
+
         # composer
         if pargs.composer:
             if os.path.isfile('/usr/local/bin/composer'):
@@ -281,10 +311,9 @@ class WOStackUpgradeController(CementBaseController):
 
                 if pargs.ngxblocker:
                     WOFileUtils.chmod(
-                        self, '/usr/local/sbin/update-ngxblocker', 0o700)
+                        self, '/usr/local/sbin/update-ngxblocker', 0o775)
                     WOShellExec.cmd_exec(
-                        self, '/usr/local/sbin/update-ngxblocker -nq'
-                    )
+                        self, '/usr/local/sbin/update-ngxblocker -nq')
 
                 # Netdata
                 if pargs.netdata:
@@ -359,5 +388,10 @@ class WOStackUpgradeController(CementBaseController):
                                       'www-data',
                                       'www-data', recursive=True)
                     Log.valide(self, "Upgrading phpMyAdmin")
+                if os.path.exists('{0}22222/htdocs'.format(WOVar.wo_webroot)):
+                    WOFileUtils.chown(self, "{0}22222/htdocs"
+                                      .format(WOVar.wo_webroot),
+                                      'www-data',
+                                      'www-data', recursive=True)
 
             Log.info(self, "Successfully updated packages")

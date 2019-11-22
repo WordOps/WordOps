@@ -11,7 +11,6 @@ from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.nginxhashbucket import hashbucket
 from wo.core.services import WOService
-from wo.core.shellexec import WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
 
@@ -433,7 +432,7 @@ class WOSiteCreateController(CementBaseController):
             data['letsencrypt'] = True
             letsencrypt = True
             if WOAcme.cert_check(self, wo_domain):
-                archivedCertificateHandle(self, wo_domain)
+                SSL.archivedcertificatehandle(self, wo_domain)
             else:
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
                 acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',

@@ -2,7 +2,7 @@ from wo.utils import test
 from wo.cli.main import WOTestApp
 
 
-class CliTestCaseStack(test.WOTestCase):
+class CliTestCaseStackInstall(test.WOTestCase):
 
     def test_wo_cli_stack_install_nginx(self):
         with WOTestApp(argv=['stack', 'install', '--nginx']) as app:

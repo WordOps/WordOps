@@ -6,6 +6,8 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
+from wo.core.git import WOGit
+from wo.core.acme import WOAcme
 
 
 class SSL:
@@ -111,8 +113,7 @@ class SSL:
         wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
         for row in reader:
             if wo_wildcard_domain == row[2]:
-                if not row[3
-                ] == "":
+                if not row[3] == "":
                     return True
         certfile.close()
         return False
@@ -194,3 +195,149 @@ class SSL:
                 "/etc/proftpd/ssl/proftpd.crt")
         # remove self-signed tmp directory
         WOFileUtils.rm(self, selfs_tmp)
+
+    def httpsredirect(self, wo_domain_name, acmedata, redirect=True):
+        """Create Nginx redirection from http to https"""
+        if redirect:
+            if os.path.isfile(
+                "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
+                    .format(wo_domain_name)):
+                WOFileUtils.mvfile(
+                    self,
+                    "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
+                    .format(wo_domain_name),
+                    "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                    .format(wo_domain_name))
+            else:
+                Log.wait(self, "Adding HTTPS redirection")
+                if data['wildcard'] is True:
+                    try:
+                        sslconf = open(
+                            "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                            .format(wo_domain_name),
+                            encoding='utf-8', mode='w')
+                        sslconf.write(
+                            "server {\n"
+                            "\tlisten 80;\n" +
+                            "\tlisten [::]:80;\n" +
+                            "\tserver_name *.{0} {0};\n"
+                            .format(wo_domain_name) +
+                            "\treturn 301 https://$host"
+                            "$request_uri;\n}")
+                        sslconf.close()
+                    except IOError as e:
+                        Log.debug(self, str(e))
+                        Log.debug(
+                            self, "Error occured while generating "
+                                  "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                  .format(wo_domain_name))
+                    else:
+                        Log.valide(self, "Adding HTTPS redirection")
+                else:
+                    try:
+                        sslconf = open(
+                            "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                            .format(wo_domain_name),
+                            encoding='utf-8', mode='w')
+                        sslconf.write(
+                            "server {\n"
+                            "\tlisten 80;\n" +
+                            "\tlisten [::]:80;\n" +
+                            "\tserver_name www.{0} {0};\n"
+                            .format(wo_domain_name) +
+                            "\treturn 301 https://$host"
+                            "$request_uri;\n}")
+                        sslconf.close()
+
+                    except IOError as e:
+                        Log.failed(self, "Adding HTTPS redirection")
+                        Log.debug(self, str(e))
+                        Log.debug(
+                            self, "Error occured while generating "
+                                  "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                  .format(wo_domain_name))
+                    else:
+                        Log.valide(self, "Adding HTTPS redirection")
+            # Nginx Configation into GIT
+            WOGit.add(self,
+                      ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
+                      "force-ssl-{0}.conf".format(wo_domain_name))
+        else:
+            if os.path.isfile(
+                "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                    .format(wo_domain_name)):
+                WOFileUtils.mvfile(
+                    self, "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                    .format(wo_domain_name),
+                    "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
+                    .format(wo_domain_name))
+                Log.info(
+                    self, "Disabled HTTPS Force Redirection for Site "
+                    " http://{0}".format(wo_domain_name))
+
+    def archivedcertificatehandle(self, domain):
+        Log.warn(
+            self, "You already have an existing certificate "
+            "for the domain requested.\n"
+            "(ref: {0}/"
+            "{1}_ecc/{1}.conf)".format(WOVar.wo_ssl_archive, domain) +
+            "\nPlease select an option from below?"
+            "\n\t1: Reinstall existing certificate"
+            "\n\t2: Issue a new certificate to replace "
+            "the current one (limit ~5 per 7 days)"
+            "")
+        check_prompt = input(
+            "\nType the appropriate number [1-2] or any other key to cancel: ")
+        if not os.path.isfile("{0}/{1}/fullchain.pem"
+                              .format(WOVar.wo_ssl_live, domain)):
+            Log.error(
+                self, "{0}/{1}/fullchain.pem file is missing."
+                .format(WOVar.wo_ssl_live, domain))
+
+        if check_prompt == "1":
+            Log.info(self, "Reinstalling SSL cert with acme.sh")
+            ssl = WOAcme.deploycert(self, domain)
+            if ssl:
+                SSL.httpsredirect(self, domain, )
+
+        elif (check_prompt == "2"):
+            Log.info(self, "Issuing new SSL cert with acme.sh")
+            ssl = WOShellExec.cmd_exec(
+                self, "/etc/letsencrypt/acme.sh "
+                "--config-home '/etc/letsencrypt/config' "
+                "--renew -d {0} --ecc --force"
+                .format(domain))
+
+            if ssl:
+
+                try:
+
+                    WOShellExec.cmd_exec(
+                        self, "mkdir -p {0}/{1} && "
+                        "/etc/letsencrypt/acme.sh "
+                        "--config-home '/etc/letsencrypt/config' "
+                        "--install-cert -d {1} --ecc "
+                        "--cert-file {0}/{1}/cert.pem "
+                        "--key-file {0}/{1}/key.pem "
+                        "--fullchain-file {0}/{1}/fullchain.pem "
+                        "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
+                        "--reloadcmd \"nginx -t && service nginx restart\" "
+                        .format(WOVar.wo_ssl_live, domain))
+
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while installing "
+                              "the certificate")
+
+        else:
+            Log.error(self, "Operation cancelled by user.")
+
+        if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                          .format(domain)):
+            Log.info(self, "Existing ssl.conf . Backing it up ..")
+            WOFileUtils.mvfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
+                               .format(domain),
+                               '/var/www/{0}/conf/nginx/ssl.conf.bak'
+                               .format(domain))
+
+        return ssl

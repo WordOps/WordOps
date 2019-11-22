@@ -2,6 +2,7 @@ import json
 import os
 
 from cement.core.controller import CementBaseController, expose
+
 from wo.cli.plugins.site_functions import *
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
@@ -10,9 +11,7 @@ from wo.core.domainvalidate import WODomain
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
-from wo.core.nginxhashbucket import hashbucket
 from wo.core.services import WOService
-from wo.core.shellexec import WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
 
@@ -567,7 +566,7 @@ class WOSiteUpdateController(CementBaseController):
         if pargs.letsencrypt:
             if data['letsencrypt'] is True:
                 if WOAcme.cert_check(self, wo_domain):
-                    archivedCertificateHandle(self, wo_domain)
+                    SSL.archivedcertificatehandle(self, wo_domain)
                 else:
                     # DNS API configuration
                     if pargs.dns:
@@ -586,14 +585,12 @@ class WOSiteUpdateController(CementBaseController):
                         acme_domains = acme_domains + ['{0}'.format(wo_domain)]
                     elif acme_wildcard is True:
                         Log.info(self, "Certificate type : wildcard")
-                        acme_domains = \
-                            acme_domains + ['{0}'.format(wo_domain),
-                                            '*.{0}'.format(wo_domain)]
+                        acme_domains = acme_domains + ['{0}'.format(wo_domain),
+                                                       '*.{0}'.format(wo_domain)]
                     else:
                         Log.info(self, "Certificate type : domain")
-                        acme_domains = \
-                            acme_domains + ['{0}'.format(wo_domain),
-                                            'www.{0}'.format(wo_domain)]
+                        acme_domains = acme_domains + ['{0}'.format(wo_domain),
+                                                       'www.{0}'.format(wo_domain)]
 
                     if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
                         if acme_subdomain:
@@ -621,13 +618,15 @@ class WOSiteUpdateController(CementBaseController):
                                                 self,
                                                 "Aborting SSL certificate "
                                                 "issuance")
-                            Log.debug(self, "Setup Cert with acme.sh for {0}"
-                                      .format(wo_domain))
-                            if WOAcme.setupletsencrypt(
-                                    self, acme_domains, acmedata):
-                                WOAcme.deploycert(self, wo_domain)
-                            else:
-                                Log.error(self, "Unable to issue certificate")
+                                Log.debug(
+                                    self, "Setup Cert with acme.sh for {0}"
+                                          .format(wo_domain))
+                                if WOAcme.setupletsencrypt(
+                                        self, acme_domains, acmedata):
+                                    WOAcme.deploycert(self, wo_domain)
+                                else:
+                                    Log.error(
+                                        self, "Unable to issue certificate")
                         else:
                             # check DNS records before issuing cert
                             if not acmedata['dns'] is True:
@@ -656,7 +655,7 @@ class WOSiteUpdateController(CementBaseController):
                             '/etc/nginx/conf.d/force-ssl-{0}.conf'
                             .format(wo_domain))
 
-                    httpsRedirect(self, wo_domain, True, acme_wildcard)
+                    SSL.httpsredirect(self, wo_domain, acmedata, redirect=True)
                     SSL.siteurlhttps(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):
@@ -688,7 +687,8 @@ class WOSiteUpdateController(CementBaseController):
                                            .format(wo_site_webroot),
                                            '{0}/conf/nginx/ssl.conf.disabled'
                                            .format(wo_site_webroot))
-                        httpsRedirect(self, wo_domain, False)
+                        SSL.httpsredirect(
+                            self, wo_domain, acmedata, redirect=False)
                         if os.path.isfile("{0}/conf/nginx/hsts.conf"
                                           .format(wo_site_webroot)):
                             WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
