@@ -134,16 +134,18 @@ class WOVar():
     wo_nginx_key = '188C9FB063F0247A'
 
     wo_module = ["fpm", "curl", "gd", "imap",
-                 "readline", "common", "recode",
+                 "readline", "common",
                  "cli", "mbstring", "intl",
                  "bcmath", "mysql", "opcache",
                  "zip", "xml", "soap"]
     wo_php72 = []
     for module in wo_module:
-        wo_php72 = wo_php72 + ["php7.2-{0}".format(module)]
+        wo_php72 = wo_php72 + ["php7.2-{0}".format(module),
+                               "php7.2-recode"]
     wo_php73 = []
     for module in wo_module:
-        wo_php73 = wo_php73 + ["php7.3-{0}".format(module)]
+        wo_php73 = wo_php73 + ["php7.3-{0}".format(module),
+                               "php7.3-recode"]
     wo_php74 = []
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
