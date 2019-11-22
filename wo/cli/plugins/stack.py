@@ -41,8 +41,12 @@ class WOStackController(CementBaseController):
                 dict(help='Install Nginx stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP 7.2 stack', action='store_true')),
+            (['--php72'],
+                dict(help='Install PHP 7.2 stack', action='store_true')),
             (['--php73'],
                 dict(help='Install PHP 7.3 stack', action='store_true')),
+            (['--php74'],
+                dict(help='Install PHP 7.4 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
             (['--mysqlclient'],
@@ -123,15 +127,20 @@ class WOStackController(CementBaseController):
                 (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                    (not pargs.php73) and (not pargs.all)):
+                    (not pargs.php73) and (not pargs.php72) and
+                    (not pargs.php74) and (not pargs.all)):
                 pargs.web = True
                 pargs.admin = True
                 pargs.fail2ban = True
+
+            if pargs.php72:
+                pargs.php = True
 
             if pargs.all:
                 pargs.web = True
                 pargs.admin = True
                 pargs.php73 = True
+                pargs.php74 = True
                 pargs.redis = True
                 pargs.proftpd = True
 
@@ -195,6 +204,17 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
+
+            # PHP 7.4
+            if pargs.php74:
+                Log.debug(self, "Setting apt_packages variable for PHP 7.4")
+                if not WOAptGet.is_installed(self, 'php7.4-fpm'):
+                    apt_packages = (apt_packages + WOVar.wo_php72 +
+                                    WOVar.wo_php74 +
+                                    WOVar.wo_php_extra)
+                else:
+                    Log.debug(self, "PHP 7.4 already installed")
+                    Log.info(self, "PHP 7.4 already installed")
 
             # MariaDB 10.3
             if pargs.mysql:
@@ -451,6 +471,12 @@ class WOStackController(CementBaseController):
 
             # UTILS
             if pargs.utils:
+                if not WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+                    pargs.mysql = True
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
+                        WOAptGet.is_installed(self, 'php7.3-fpm') or
+                        WOAptGet.is_installed(self, 'php7.4-fpm')):
+                    pargs.php = True
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [[
                     "https://raw.githubusercontent.com"

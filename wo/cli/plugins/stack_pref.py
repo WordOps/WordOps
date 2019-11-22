@@ -20,6 +20,7 @@ from wo.core.shellexec import CommandExecutionError, WOShellExec
 from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVar
+from wo.core.stackconf import WOConf
 
 
 def pre_pref(self, apt_packages):
@@ -112,8 +113,8 @@ def pre_pref(self, apt_packages):
             WORepo.add_key(self, WOVar.wo_nginx_key)
 
     # add php repository
-    if (set(WOVar.wo_php73).issubset(set(apt_packages)) or
-            set(WOVar.wo_php72).issubset(set(apt_packages))):
+    if (('php7.3-fpm' in apt_packages) or
+            ('php7.2-fpm' in apt_packages) or ('php7.4-fpm' in apt_packages)):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
             if not os.path.isfile(
@@ -182,13 +183,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             ngxcom = '/etc/nginx/common'
             ngxroot = '/var/www/'
             WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
-            data = dict(tls13=True)
+            data = dict(tls13=True, release=WOVar.wo_version)
             WOTemplate.deploy(self,
                               '/etc/nginx/nginx.conf',
                               'nginx-core.mustache', data)
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
-                data = dict()
+                data = dict(release=WOVar.wo_version)
                 WOTemplate.deploy(self, '{0}/gzip.conf'.format(ngxcnf),
                                   'gzip.mustache', data)
 
@@ -210,17 +211,19 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    '\t$request_filename;\n')
             try:
                 data = dict(php="9000", debug="9001",
-                            php7="9070", debug7="9170")
+                            php7="9070", debug7="9170",
+                            release=WOVar.wo_version)
                 WOTemplate.deploy(
                     self, '{0}/upstream.conf'.format(ngxcnf),
                     'upstream.mustache', data, overwrite=True)
 
                 data = dict(phpconf=(
-                    bool(WOAptGet.is_installed(self, 'php7.2-fpm'))))
+                    bool(WOAptGet.is_installed(self, 'php7.2-fpm'))),
+                    release=WOVar.wo_version)
                 WOTemplate.deploy(
                     self, '{0}/stub_status.conf'.format(ngxcnf),
                     'stub_status.mustache', data)
-                data = dict()
+                data = dict(release=WOVar.wo_version)
                 WOTemplate.deploy(
                     self, '{0}/webp.conf'.format(ngxcnf),
                     'webp.mustache', data, overwrite=False)
@@ -243,7 +246,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('/etc/nginx/common')
 
             try:
-                data = dict()
+                data = dict(release=WOVar.wo_version)
 
                 # Common Configuration
                 WOTemplate.deploy(self,
@@ -255,89 +258,52 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                   '{0}/wpsubdir.conf'
                                   .format(ngxcom),
                                   'wpsubdir.mustache', data)
-                data = dict(upstream="php72")
-                # PHP 7.2 conf
-                WOTemplate.deploy(self,
-                                  '{0}/php72.conf'
-                                  .format(ngxcom),
-                                  'php.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/redis-php72.conf'
-                                  .format(ngxcom),
-                                  'redis.mustache', data)
+                wo_php_version = ["php72", "php73", "php74"]
+                for wo_php in wo_php_version:
+                    data = dict(upstream="{0}".format(wo_php),
+                                release=WOVar.wo_version)
+                    WOTemplate.deploy(self,
+                                      '{0}/{1}.conf'
+                                      .format(ngxcom, wo_php),
+                                      'php.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/wpcommon-php72.conf'
-                                  .format(ngxcom),
-                                  'wpcommon.mustache', data)
+                    WOTemplate.deploy(
+                        self, '{0}/redis-{1}.conf'.format(ngxcom, wo_php),
+                        'redis.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/wpfc-php72.conf'
-                                  .format(ngxcom),
-                                  'wpfc.mustache', data)
-                WOTemplate.deploy(self,
-                                  '{0}/wpsc-php72.conf'
-                                  .format(ngxcom),
-                                  'wpsc.mustache', data)
+                    WOTemplate.deploy(
+                        self, '{0}/wpcommon-{1}.conf'.format(ngxcom, wo_php),
+                        'wpcommon.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/wprocket-php72.conf'
-                                  .format(ngxcom),
-                                  'wprocket.mustache', data)
+                    WOTemplate.deploy(
+                        self, '{0}/wpfc-{1}.conf'.format(ngxcom, wo_php),
+                        'wpfc.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/wpce-php72.conf'
-                                  .format(ngxcom),
-                                  'wpce.mustache', data)
-                # PHP 7.3 conf
-                data = dict(upstream="php73")
+                    WOTemplate.deploy(
+                        self, '{0}/wpsc-{1}.conf'.format(ngxcom, wo_php),
+                        'wpsc.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/php73.conf'
-                                  .format(ngxcom),
-                                  'php.mustache', data)
+                    WOTemplate.deploy(
+                        self, '{0}/wprocket-{1}.conf'.format(ngxcom, wo_php),
+                        'wprocket.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/redis-php73.conf'
-                                  .format(ngxcom),
-                                  'redis.mustache', data)
+                    WOTemplate.deploy(
+                        self, '{0}/wpce-{1}.conf'.format(ngxcom, wo_php),
+                        'wpce.mustache', data)
 
-                WOTemplate.deploy(self,
-                                  '{0}/wpcommon-php73.conf'
-                                  .format(ngxcom),
-                                  'wpcommon.mustache', data)
-
-                WOTemplate.deploy(self,
-                                  '{0}/wpfc-php73.conf'
-                                  .format(ngxcom),
-                                  'wpfc.mustache', data)
-                WOTemplate.deploy(self,
-                                  '{0}/wpsc-php73.conf'
-                                  .format(ngxcom),
-                                  'wpsc.mustache', data)
-
-                WOTemplate.deploy(self,
-                                  '{0}/wprocket-php73.conf'
-                                  .format(ngxcom),
-                                  'wprocket.mustache', data)
-
-                WOTemplate.deploy(self,
-                                  '{0}/wpce-php73.conf'
-                                  .format(ngxcom),
-                                  'wpce.mustache', data)
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
 
             with open("/etc/nginx/common/release",
-                      "w") as release_file:
+                      "w", encoding='utf-8') as release_file:
                 release_file.write("v{0}"
                                    .format(WOVar.wo_version))
             release_file.close()
 
             # Following files should not be overwrited
 
-            data = dict(webroot=ngxroot)
+            data = dict(webroot=ngxroot, release=WOVar.wo_version)
             WOTemplate.deploy(self,
                               '{0}/acl.conf'
                               .format(ngxcom),
@@ -383,7 +349,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('/etc/nginx/sites-enabled')
 
             # 22222 port settings
-            data = dict(webroot=ngxroot)
+            data = dict(webroot=ngxroot, release=WOVar.wo_version)
             WOTemplate.deploy(
                 self,
                 '/etc/nginx/sites-available/22222',
@@ -488,7 +454,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                                     WOVar.wo_fqdn)])
 
             if not os.path.isfile("/opt/cf-update.sh"):
-                data = dict()
+                data = dict(release=WOVar.wo_version)
                 WOTemplate.deploy(self, '/opt/cf-update.sh',
                                   'cf-update.mustache',
                                   data, overwrite=False)
@@ -532,131 +498,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
-            # Create log directories
-            if not os.path.exists('/var/log/php/7.2/'):
-                Log.debug(self, 'Creating directory /var/log/php/7.2/')
-                os.makedirs('/var/log/php/7.2/')
 
-            if not os.path.isfile('/etc/php/7.2/fpm/php.ini.orig'):
-                WOFileUtils.copyfile(self, '/etc/php/7.2/fpm/php.ini',
-                                     '/etc/php/7.2/fpm/php.ini.orig')
-
-            # Parse etc/php/7.2/fpm/php.ini
-            config = configparser.ConfigParser()
-            Log.debug(self, "configuring php file "
-                      "/etc/php/7.2/fpm/php.ini")
-            config.read('/etc/php/7.2/fpm/php.ini.orig')
-            config['PHP']['expose_php'] = 'Off'
-            config['PHP']['post_max_size'] = '100M'
-            config['PHP']['upload_max_filesize'] = '100M'
-            config['PHP']['max_execution_time'] = '300'
-            config['PHP']['max_input_time'] = '300'
-            config['PHP']['max_input_vars'] = '20000'
-            config['Date']['date.timezone'] = WOVar.wo_timezone
-            config['opcache']['opcache.enable'] = '1'
-            config['opcache']['opcache.interned_strings_buffer'] = '8'
-            config['opcache']['opcache.max_accelerated_files'] = '10000'
-            config['opcache']['opcache.memory_consumption'] = '256'
-            config['opcache']['opcache.save_comments'] = '1'
-            config['opcache']['opcache.revalidate_freq'] = '5'
-            config['opcache']['opcache.consistency_checks'] = '0'
-            config['opcache']['opcache.validate_timestamps'] = '1'
-            with open('/etc/php/7.2/fpm/php.ini',
-                      encoding='utf-8', mode='w') as configfile:
-                Log.debug(self, "Writting php configuration into "
-                          "/etc/php/7.2/fpm/php.ini")
-                config.write(configfile)
-
-            # Render php-fpm pool template for php7.3
-            data = dict(pid="/run/php/php7.2-fpm.pid",
-                        error_log="/var/log/php7.2-fpm.log",
-                        include="/etc/php/7.2/fpm/pool.d/*.conf")
-            WOTemplate.deploy(
-                self, '/etc/php/7.2/fpm/php-fpm.conf',
-                'php-fpm.mustache', data)
-
-            data = dict(pool='www-php72', listen='php72-fpm.sock',
-                        user='www-data',
-                        group='www-data', listenuser='root',
-                        listengroup='www-data', openbasedir=True)
-            WOTemplate.deploy(self, '/etc/php/7.2/fpm/pool.d/www.conf',
-                              'php-pool.mustache', data)
-            data = dict(pool='www-two-php72', listen='php72-two-fpm.sock',
-                        user='www-data',
-                        group='www-data', listenuser='root',
-                        listengroup='www-data', openbasedir=True)
-            WOTemplate.deploy(self, '/etc/php/7.2/fpm/pool.d/www-two.conf',
-                              'php-pool.mustache', data)
-
-            # Generate /etc/php/7.2/fpm/pool.d/debug.conf
-            WOFileUtils.copyfile(self, "/etc/php/7.2/fpm/pool.d/www.conf",
-                                 "/etc/php/7.2/fpm/pool.d/debug.conf")
-            WOFileUtils.searchreplace(self, "/etc/php/7.2/fpm/pool.d/"
-                                      "debug.conf", "[www-php72]", "[debug]")
-            config = configparser.ConfigParser()
-            config.read('/etc/php/7.2/fpm/pool.d/debug.conf')
-            config['debug']['listen'] = '127.0.0.1:9172'
-            config['debug']['rlimit_core'] = 'unlimited'
-            config['debug']['slowlog'] = '/var/log/php/7.2/slow.log'
-            config['debug']['request_slowlog_timeout'] = '10s'
-            with open('/etc/php/7.2/fpm/pool.d/debug.conf',
-                      encoding='utf-8', mode='w') as confifile:
-                Log.debug(self, "writting PHP7.2 configuration into "
-                          "/etc/php/7.2/fpm/pool.d/debug.conf")
-                config.write(confifile)
-
-            with open("/etc/php/7.2/fpm/pool.d/debug.conf",
-                      encoding='utf-8', mode='a') as myfile:
-                myfile.write("php_admin_value[xdebug.profiler_output_dir] "
-                             "= /tmp/ \nphp_admin_value[xdebug.profiler_"
-                             "output_name] = cachegrind.out.%p-%H-%R "
-                             "\nphp_admin_flag[xdebug.profiler_enable"
-                             "_trigger] = on \nphp_admin_flag[xdebug."
-                             "profiler_enable] = off\n")
-
-            # Disable xdebug
-            if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\'"
-                                        " /etc/php/7.2/mods-available/"
-                                        "xdebug.ini"):
-                WOFileUtils.searchreplace(self, "/etc/php/7.2/"
-                                          "mods-available/"
-                                          "xdebug.ini",
-                                          "zend_extension",
-                                          ";zend_extension")
-
-            # PHP and Debug pull configuration
-            if not os.path.exists('{0}22222/htdocs/fpm/status/'
-                                  .format(ngxroot)):
-                Log.debug(self, 'Creating directory '
-                          '{0}22222/htdocs/fpm/status/ '
-                          .format(ngxroot))
-                os.makedirs('{0}22222/htdocs/fpm/status/'
-                            .format(ngxroot))
-                open('{0}22222/htdocs/fpm/status/debug72'
-                     .format(ngxroot),
-                     encoding='utf-8', mode='a').close()
-                open('{0}22222/htdocs/fpm/status/php72'
-                     .format(ngxroot),
-                     encoding='utf-8', mode='a').close()
-
-            # Write info.php
-            if not os.path.exists('{0}22222/htdocs/php/'
-                                  .format(ngxroot)):
-                Log.debug(self, 'Creating directory '
-                          '{0}22222/htdocs/php/ '
-                          .format(ngxroot))
-                os.makedirs('{0}22222/htdocs/php'
-                            .format(ngxroot))
-
-                with open("{0}22222/htdocs/php/info.php"
-                          .format(ngxroot),
-                          encoding='utf-8', mode='w') as myfile:
-                    myfile.write("<?php\nphpinfo();\n?>")
-
-            WOFileUtils.chown(self, "{0}22222/htdocs"
-                              .format(ngxroot),
-                              'www-data',
-                              'www-data', recursive=True)
+            WOConf.phpconf(self, '7.2')
 
             # check service restart or rollback configuration
             if not WOService.restart_service(self, 'php7.2-fpm'):
@@ -669,136 +512,29 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.3-fpm")
             ngxroot = '/var/www/'
-            # Create log directories
-            if not os.path.exists('/var/log/php/7.3/'):
-                Log.debug(self, 'Creating directory /var/log/php/7.3/')
-                os.makedirs('/var/log/php/7.3/')
 
-            if not os.path.isfile('/etc/php/7.3/fpm/php.ini.orig'):
-                WOFileUtils.copyfile(self, '/etc/php/7.3/fpm/php.ini',
-                                     '/etc/php/7.3/fpm/php.ini.orig')
+            WOConf.phpconf(self, '7.3')
 
-            # Parse etc/php/7.3/fpm/php.ini
-            config = configparser.ConfigParser()
-            Log.debug(self, "configuring php file /etc/php/7.3/"
-                      "fpm/php.ini")
-            config.read('/etc/php/7.3/fpm/php.ini.orig')
-            config['PHP']['expose_php'] = 'Off'
-            config['PHP']['post_max_size'] = '100M'
-            config['PHP']['upload_max_filesize'] = '100M'
-            config['PHP']['max_execution_time'] = '300'
-            config['PHP']['max_input_time'] = '300'
-            config['PHP']['max_input_vars'] = '20000'
-            config['Date']['date.timezone'] = WOVar.wo_timezone
-            config['opcache']['opcache.enable'] = '1'
-            config['opcache']['opcache.interned_strings_buffer'] = '8'
-            config['opcache']['opcache.max_accelerated_files'] = '10000'
-            config['opcache']['opcache.memory_consumption'] = '256'
-            config['opcache']['opcache.save_comments'] = '1'
-            config['opcache']['opcache.revalidate_freq'] = '5'
-            config['opcache']['opcache.consistency_checks'] = '0'
-            config['opcache']['opcache.validate_timestamps'] = '1'
-            with open('/etc/php/7.3/fpm/php.ini',
-                      encoding='utf-8', mode='w') as configfile:
-                Log.debug(self, "Writting php configuration into "
-                          "/etc/php/7.3/fpm/php.ini")
-                config.write(configfile)
+        # PHP7.4 configuration
+        if set(WOVar.wo_php74).issubset(set(apt_packages)):
+            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
+            Log.info(self, "Configuring php7.4-fpm")
 
-            # Render php-fpm pool template for php7.3
-            data = dict(pid="/run/php/php7.3-fpm.pid",
-                        error_log="/var/log/php7.3-fpm.log",
-                        include="/etc/php/7.3/fpm/pool.d/*.conf")
-            WOTemplate.deploy(
-                self, '/etc/php/7.3/fpm/php-fpm.conf',
-                'php-fpm.mustache', data)
+            WOConf.phpconf(self, '7.4')
 
-            data = dict(pool='www-php73', listen='php73-fpm.sock',
-                        user='www-data',
-                        group='www-data', listenuser='root',
-                        listengroup='www-data', openbasedir=True)
-            WOTemplate.deploy(self, '/etc/php/7.3/fpm/pool.d/www.conf',
-                              'php-pool.mustache', data)
-            data = dict(pool='www-two-php73', listen='php73-two-fpm.sock',
-                        user='www-data',
-                        group='www-data', listenuser='root',
-                        listengroup='www-data', openbasedir=True)
-            WOTemplate.deploy(self, '/etc/php/7.3/fpm/pool.d/www-two.conf',
-                              'php-pool.mustache', data)
-
-            # Generate /etc/php/7.3/fpm/pool.d/debug.conf
-            WOFileUtils.copyfile(self, "/etc/php/7.3/fpm/pool.d/www.conf",
-                                 "/etc/php/7.3/fpm/pool.d/debug.conf")
-            WOFileUtils.searchreplace(self, "/etc/php/7.3/fpm/pool.d/"
-                                      "debug.conf", "[www-php73]", "[debug]")
-            config = configparser.ConfigParser()
-            config.read('/etc/php/7.3/fpm/pool.d/debug.conf')
-            config['debug']['listen'] = '127.0.0.1:9173'
-            config['debug']['rlimit_core'] = 'unlimited'
-            config['debug']['slowlog'] = '/var/log/php/7.3/slow.log'
-            config['debug']['request_slowlog_timeout'] = '10s'
-            with open('/etc/php/7.3/fpm/pool.d/debug.conf',
-                      encoding='utf-8', mode='w') as confifile:
-                Log.debug(self, "writting PHP 7.3 configuration into "
-                          "/etc/php/7.3/fpm/pool.d/debug.conf")
-                config.write(confifile)
-
-            with open("/etc/php/7.3/fpm/pool.d/debug.conf",
-                      encoding='utf-8', mode='a') as myfile:
-                myfile.write(
-                    "php_admin_value[xdebug.profiler_output_dir] "
-                    "= /tmp/ \nphp_admin_value[xdebug.profiler_"
-                    "output_name] = cachegrind.out.%p-%H-%R "
-                    "\nphp_admin_flag[xdebug.profiler_enable"
-                    "_trigger] = on \nphp_admin_flag[xdebug."
-                    "profiler_enable] = off\n")
-
-            # Disable xdebug
-            if not WOShellExec.cmd_exec(
-                    self, "grep -q \';zend_extension\'"
-                    " /etc/php/7.3/mods-available/xdebug.ini"):
-                WOFileUtils.searchreplace(
-                    self, "/etc/php/7.3/mods-available/"
-                    "xdebug.ini",
-                    "zend_extension", ";zend_extension")
-
-            # PHP and Debug pull configuration
-            if not os.path.exists('{0}22222/htdocs/fpm/status/'
-                                  .format(ngxroot)):
-                Log.debug(self, 'Creating directory '
-                          '{0}22222/htdocs/fpm/status/ '
-                          .format(ngxroot))
-                os.makedirs('{0}22222/htdocs/fpm/status/'
-                            .format(ngxroot))
-            open('{0}22222/htdocs/fpm/status/debug73'
-                 .format(ngxroot),
-                 encoding='utf-8', mode='a').close()
-            open('{0}22222/htdocs/fpm/status/php73'
-                 .format(ngxroot),
-                 encoding='utf-8', mode='a').close()
-
-            # Write info.php
-            if not os.path.exists('{0}22222/htdocs/php/'
-                                  .format(ngxroot)):
-                Log.debug(self, 'Creating directory '
-                          '{0}22222/htdocs/php/ '
-                          .format(ngxroot))
-                os.makedirs('{0}22222/htdocs/php'
-                            .format(ngxroot))
-
-            with open("{0}22222/htdocs/php/info.php"
-                      .format(ngxroot),
-                      encoding='utf-8', mode='w') as myfile:
-                myfile.write("<?php\nphpinfo();\n?>")
-
-            WOFileUtils.chown(self, "{0}22222/htdocs"
-                              .format(ngxroot),
-                              'www-data',
-                              'www-data', recursive=True)
             # check service restart or rollback configuration
-            if not WOService.restart_service(self, 'php7.3-fpm'):
+            if not WOService.restart_service(self, 'php7.4-fpm'):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
             else:
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
+
+            if os.path.exists('/etc/nginx/conf.d/upstream.conf'):
+                if not WOFileUtils.grepcheck(
+                        self, '/etc/nginx/conf.d/upstream.conf', 'php74'):
+                    data = dict()
+                    WOTemplate.deploy(
+                        self, '/etc/nginx/conf.d/upstream.conf',
+                        'upstream.mustache', data, True)
 
         # create mysql config if it doesn't exist
         if "mariadb-server" in apt_packages:
