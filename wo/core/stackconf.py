@@ -116,8 +116,8 @@ class WOConf():
                         group='www-data', listenuser='root',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(
-                self, '/etc/php/{0}/fpm/pool.d/www-two.conf'.format(
-                    php_version),
+                self, '/etc/php/{0}/fpm/pool.d/www-two.conf'
+                .format(php_version),
                 'php-pool.mustache', data)
 
             # Generate /etc/php/7.x/fpm/pool.d/debug.conf
@@ -134,8 +134,8 @@ class WOConf():
                 '/etc/php/{0}/fpm/pool.d/debug.conf'.format(php_version))
             config['debug']['listen'] = '127.0.0.1:917{0}'.format(php_number)
             config['debug']['rlimit_core'] = 'unlimited'
-            config['debug']['slowlog'] = '/var/log/php/{0}/slow.log'.format(
-                php_version)
+            config['debug']['slowlog'] = ('/var/log/php/{0}/slow.log'
+                                          .format(php_version))
             config['debug']['request_slowlog_timeout'] = '10s'
             with open('/etc/php/{0}/fpm/pool.d/debug.conf'.format(php_version),
                       encoding='utf-8', mode='w') as confifile:
