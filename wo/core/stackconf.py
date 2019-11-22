@@ -108,7 +108,7 @@ class WOConf():
                         group='www-data', listenuser='root',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(
-                self, '/etc/php/{0}/fpm/pool.d/www.conf'.format(php_number),
+                self, '/etc/php/{0}/fpm/pool.d/www.conf'.format(php_version),
                 'php-pool.mustache', data)
             data = dict(pool='www-two-php7{0}'.format(php_number),
                         listen='php7{0}-two-fpm.sock'.format(php_number),

@@ -1,4 +1,4 @@
-# NGINX UPSTREAM CONFIGURATION - WO v3.9.8
+# NGINX UPSTREAM CONFIGURATION - WordOps {{release}}
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 #-------------------------------
 # PHP 5.6
@@ -63,6 +63,26 @@ upstream php73 {
 upstream debug73 {
 # Debug Pool
     server 127.0.0.1:9173;
+}
+
+#-------------------------------
+# PHP 7.4
+#-------------------------------
+
+# PHP 7.4 upstream with load-balancing on two unix sockets
+upstream php74 {
+    least_conn;
+
+    server unix:/var/run/php/php74-fpm.sock;
+    server unix:/var/run/php/php74-two-fpm.sock;
+
+    keepalive 5;
+}
+
+# PHP 7.4 debug
+upstream debug74 {
+# Debug Pool
+    server 127.0.0.1:9174;
 }
 
 #-------------------------------
