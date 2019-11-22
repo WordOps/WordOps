@@ -164,7 +164,7 @@ class WOStackUpgradeController(CementBaseController):
                     'https://my-netdata.io/kickstart.sh',
                     '/var/lib/wo/tmp/kickstart.sh', 'Netdata']]
             else:
-                Log.info(self, 'Netdata us not installed')
+                Log.info(self, 'Netdata is not installed')
 
         # wordops dashboard
         if pargs.dashboard:
