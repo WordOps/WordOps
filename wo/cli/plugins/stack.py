@@ -109,7 +109,6 @@ class WOStackController(CementBaseController):
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
         self.msg = []
-        wo_webroot = "/var/www/"
         pargs = self.app.pargs
 
         try:
@@ -570,13 +569,18 @@ class WOStackController(CementBaseController):
                 (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                (not pargs.php73) and (not pargs.all)):
+                (not pargs.php73) and (not pargs.php74) and
+                (not pargs.php72) and (not pargs.all)):
             self.app.args.print_help()
+
+        if pargs.php72:
+            pargs.php = True
 
         if pargs.all:
             pargs.web = True
             pargs.admin = True
             pargs.php73 = True
+            pargs.php74 = True
             pargs.fail2ban = True
             pargs.proftpd = True
             pargs.utils = True
@@ -630,6 +634,16 @@ class WOStackController(CementBaseController):
                         WOVar.wo_php_extra
                 else:
                     apt_packages = apt_packages + WOVar.wo_php73
+
+        # PHP7.4
+        if pargs.php74:
+            Log.debug(self, "Removing apt_packages variable of PHP 7.4")
+            if WOAptGet.is_installed(self, 'php7.4-fpm'):
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php74 + \
+                        WOVar.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVar.wo_php74
 
         # REDIS
         if pargs.redis:
@@ -856,13 +870,18 @@ class WOStackController(CementBaseController):
                 (not pargs.cheat) and (not pargs.nanorc) and
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                (not pargs.php73) and (not pargs.all)):
+                (not pargs.php73) and (not pargs.php74) and
+                (not pargs.php72) and (not pargs.all)):
             self.app.args.print_help()
+
+        if pargs.php72:
+            pargs.php = True
 
         if pargs.all:
             pargs.web = True
             pargs.admin = True
             pargs.php73 = True
+            pargs.php74 = True
             pargs.fail2ban = True
             pargs.proftpd = True
             pargs.utils = True
@@ -910,6 +929,26 @@ class WOStackController(CementBaseController):
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php73 + \
                     WOVar.wo_php_extra
+
+        # PHP7.3
+        if pargs.php73:
+            Log.debug(self, "Removing apt_packages variable of PHP 7.3")
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php73 + \
+                        WOVar.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVar.wo_php73
+
+        # PHP7.4
+        if pargs.php74:
+            Log.debug(self, "Removing apt_packages variable of PHP 7.4")
+            if WOAptGet.is_installed(self, 'php7.4-fpm'):
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php74 + \
+                        WOVar.wo_php_extra
+                else:
+                    apt_packages = apt_packages + WOVar.wo_php74
 
         # REDIS
         if pargs.redis:
