@@ -168,7 +168,7 @@ class WOSiteCreateController(CementBaseController):
         if pargs.php73:
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=False, basic=False, php73=True, php74=False,
+                static=False, basic=False,
                 wp=False, wpfc=False, wpsc=False, wprocket=False,
                 wpce=False, multisite=False,
                 wpsubdir=False, webroot=wo_site_webroot)
@@ -177,7 +177,7 @@ class WOSiteCreateController(CementBaseController):
         if pargs.php74:
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=False, basic=False, php73=False, php74=True,
+                static=False, basic=False,
                 wp=False, wpfc=False, wpsc=False, wprocket=False,
                 wpce=False, multisite=False,
                 wpsubdir=False, webroot=wo_site_webroot)
