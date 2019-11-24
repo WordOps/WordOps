@@ -16,7 +16,7 @@ export LC_ALL='C.UTF-8'
 
 if [ -z "$1" ]; then
 {
-    apt-get -qq purge mysql* graphviz* redis*
+    apt-get -qq purge mysql* graphviz* redis* php73-* php-*
     apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
     sudo apt-get -qq autoremove --purge
 } > /dev/null 2>&1
