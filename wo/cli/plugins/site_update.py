@@ -321,7 +321,7 @@ class WOSiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if pargs.php73:
+        if (pargs.php73 or pargs.php74):
             if not data:
                 data = dict(
                     site_name=wo_domain,
@@ -399,103 +399,24 @@ class WOSiteUpdateController(CementBaseController):
                     data['wpredis'] = False
                     data['wprocket'] = False
                     data['wpce'] = True
-
-            if pargs.php73 == 'on':
-                data['php73'] = True
-                php73 = True
-                check_php_version = '7.3'
-            elif pargs.php73 == 'off':
-                data['php73'] = False
-                php73 = False
-                check_php_version = '7.2'
-
-        if pargs.php74:
-            if not data:
-                data = dict(
-                    site_name=wo_domain,
-                    www_domain=wo_www_domain,
-                    currsitetype=oldsitetype,
-                    currcachetype=oldcachetype,
-                    webroot=wo_site_webroot)
-                stype = oldsitetype
-                cache = oldcachetype
-                if oldsitetype == 'html' or oldsitetype == 'proxy':
-                    data['static'] = False
-                    data['wp'] = False
-                    data['multisite'] = False
-                    data['wpsubdir'] = False
-                elif oldsitetype == 'php' or oldsitetype == 'mysql':
-                    data['static'] = False
-                    data['wp'] = False
-                    data['multisite'] = False
-                    data['wpsubdir'] = False
-                elif oldsitetype == 'wp':
-                    data['static'] = False
-                    data['wp'] = True
-                    data['multisite'] = False
-                    data['wpsubdir'] = False
-                elif oldsitetype == 'wpsubdir':
-                    data['static'] = False
-                    data['wp'] = True
-                    data['multisite'] = True
-                    data['wpsubdir'] = True
-                elif oldsitetype == 'wpsubdomain':
-                    data['static'] = False
-                    data['wp'] = True
-                    data['multisite'] = True
-                    data['wpsubdir'] = False
-
-                if oldcachetype == 'basic':
-                    data['basic'] = True
-                    data['wpfc'] = False
-                    data['wpsc'] = False
-                    data['wpredis'] = False
-                    data['wprocket'] = False
-                    data['wpce'] = False
-                elif oldcachetype == 'wpfc':
-                    data['basic'] = False
-                    data['wpfc'] = True
-                    data['wpsc'] = False
-                    data['wpredis'] = False
-                    data['wprocket'] = False
-                    data['wpce'] = False
-                elif oldcachetype == 'wpsc':
-                    data['basic'] = False
-                    data['wpfc'] = False
-                    data['wpsc'] = True
-                    data['wpredis'] = False
-                    data['wprocket'] = False
-                    data['wpce'] = False
-                elif oldcachetype == 'wpredis':
-                    data['basic'] = False
-                    data['wpfc'] = False
-                    data['wpsc'] = False
-                    data['wpredis'] = True
-                    data['wprocket'] = False
-                    data['wpce'] = False
-                elif oldcachetype == 'wprocket':
-                    data['basic'] = False
-                    data['wpfc'] = False
-                    data['wpsc'] = False
-                    data['wpredis'] = False
-                    data['wprocket'] = True
-                    data['wpce'] = False
-                elif oldcachetype == 'wpce':
-                    data['basic'] = False
-                    data['wpfc'] = False
-                    data['wpsc'] = False
-                    data['wpredis'] = False
-                    data['wprocket'] = False
-                    data['wpce'] = True
-
-            if pargs.php74 == 'on':
-                data['php74'] = True
-                php74 = True
-                check_php_version = '7.4'
-            elif pargs.php74 == 'off':
-                data['php74'] = False
-                php74 = False
-                check_php_version = '7.2'
+            if pargs.php73:
+                if pargs.php73 == 'on':
+                    data['php73'] = True
+                    php73 = True
+                    check_php_version = '7.3'
+                elif pargs.php73 == 'off':
+                    data['php73'] = False
+                    php73 = False
+                    check_php_version = '7.2'
+            elif pargs.php74:
+                if pargs.php74 == 'on':
+                    data['php74'] = True
+                    php74 = True
+                    check_php_version = '7.4'
+                elif pargs.php74 == 'off':
+                    data['php74'] = False
+                    php74 = False
+                    check_php_version = '7.2'
 
         if pargs.php73:
             if php73 is old_php73:
