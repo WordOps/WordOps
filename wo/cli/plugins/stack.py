@@ -901,6 +901,7 @@ class WOStackController(CementBaseController):
             pargs.netdata = True
             pargs.mysqltuner = True
             pargs.cheat = True
+            packages = packages + ['/var/www/22222/htdocs']
 
         if pargs.security:
             pargs.fail2ban = True
