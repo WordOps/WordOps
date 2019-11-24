@@ -49,7 +49,7 @@ done
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       Simple site create              '
 echo -e "${CGREEN}#############################################${CEND}"
-site_types='html php php73 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+site_types='html php php73 php74 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $site_types; do
     echo -ne "       Creating $site               [..]\r"
     if {
@@ -243,7 +243,7 @@ wo info
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat nanorc'
+stack_purge='nginx php php73 php74 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat nanorc'
 for stack in $stack_purge; do
     echo -ne "       purging $stack              [..]\r"
     if {

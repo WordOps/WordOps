@@ -41,7 +41,7 @@ location /wp-content/uploads {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
         more_set_headers 'Access-Control-Allow-Origin : *';
-        add_header Cache-Control "public, no-transform";
+        more_set_headers  "Cache-Control : public, no-transform";
         access_log off;
         log_not_found off;
         expires max;
@@ -57,7 +57,7 @@ location /wp-content/plugins/ewww-image-optimizer/images {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
         more_set_headers 'Access-Control-Allow-Origin : *';
-        add_header Cache-Control "public, no-transform";
+        more_set_headers  "Cache-Control : public, no-transform";
         access_log off;
         log_not_found off;
         expires max;

@@ -6,7 +6,6 @@ from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
 from wo.core.acme import WOAcme
 from wo.core.domainvalidate import WODomain
-from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.nginxhashbucket import hashbucket
@@ -34,6 +33,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create php 7.2 site", action='store_true')),
             (['--php73'],
                 dict(help="create php 7.3 site", action='store_true')),
+            (['--php74'],
+                dict(help="create php 7.4 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -154,30 +155,40 @@ class WOSiteCreateController(CementBaseController):
                       "{0} already exists".format(wo_domain))
 
         if stype == 'proxy':
-            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True, basic=False, php73=False, wp=False,
-                        wpfc=False, wpsc=False, wprocket=False, wpce=False,
-                        multisite=False,
-                        wpsubdir=False, webroot=wo_site_webroot)
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=True, basic=False, php73=False, php74=False, wp=False,
+                wpfc=False, wpsc=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot)
             data['proxy'] = True
             data['host'] = host
             data['port'] = port
             data['basic'] = True
 
         if pargs.php73:
-            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False, basic=False, php73=True, wp=False,
-                        wpfc=False, wpsc=False, wprocket=False, wpce=False,
-                        multisite=False,
-                        wpsubdir=False, webroot=wo_site_webroot)
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False, basic=False, php73=True, php74=False,
+                wp=False, wpfc=False, wpsc=False, wprocket=False,
+                wpce=False, multisite=False,
+                wpsubdir=False, webroot=wo_site_webroot)
+            data['basic'] = True
+
+        if pargs.php74:
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False, basic=False, php73=False, php74=True,
+                wp=False, wpfc=False, wpsc=False, wprocket=False,
+                wpce=False, multisite=False,
+                wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
 
         if stype in ['html', 'php']:
-            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=True, basic=False, php73=False, wp=False,
-                        wpfc=False, wpsc=False, wprocket=False, wpce=False,
-                        multisite=False,
-                        wpsubdir=False, webroot=wo_site_webroot)
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=True, basic=False, php73=False, php74=False, wp=False,
+                wpfc=False, wpsc=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot)
 
             if stype == 'php':
                 data['static'] = False
@@ -185,13 +196,13 @@ class WOSiteCreateController(CementBaseController):
 
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
-            data = dict(site_name=wo_domain, www_domain=wo_www_domain,
-                        static=False, basic=True, wp=False, wpfc=False,
-                        wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                        multisite=False,
-                        wpsubdir=False, webroot=wo_site_webroot,
-                        wo_db_name='', wo_db_user='', wo_db_pass='',
-                        wo_db_host='')
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False, basic=True, wp=False, wpfc=False,
+                wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
+                wo_db_name='', wo_db_user='', wo_db_pass='',
+                wo_db_host='')
 
             if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
                 data['wp'] = True
@@ -209,8 +220,16 @@ class WOSiteCreateController(CementBaseController):
 
         if data and pargs.php73:
             data['php73'] = True
-        elif data:
+            data['php74'] = False
+            data['wo_php'] = 'php73'
+        elif data and pargs.php74:
+            data['php74'] = True
             data['php73'] = False
+            data['wo_php'] = 'php74'
+        elif data:
+            data['php74'] = False
+            data['php73'] = False
+            data['wo_php'] = 'php72'
 
         if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
@@ -275,10 +294,10 @@ class WOSiteCreateController(CementBaseController):
 
             if data['php73']:
                 php_version = "7.3"
-                php73 = 1
+            elif data['php74']:
+                php_version = "7.4"
             else:
                 php_version = "7.2"
-                php73 = 0
 
             addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
                        php_version=php_version)
@@ -524,7 +543,7 @@ class WOSiteCreateController(CementBaseController):
                 if pargs.hsts:
                     SSL.setuphsts(self, wo_domain)
 
-                httpsRedirect(self, wo_domain, True, acme_wildcard)
+                SSL.httpsredirect(self, wo_domain, True, acme_wildcard)
                 SSL.siteurlhttps(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "

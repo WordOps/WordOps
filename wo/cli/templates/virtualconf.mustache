@@ -49,9 +49,9 @@ server {
     }
     {{/static}}
 
-    {{^static}}include {{#basic}}common/php72.conf;{{/basic}}{{#wpfc}}common/wpfc-php72.conf;{{/wpfc}}{{#wpsc}}common/wpsc-php72.conf;{{/wpsc}}{{#wpredis}}common/redis-php72.conf;{{/wpredis}}{{#wprocket}}common/wprocket-php72.conf;{{/wprocket}}{{#wpce}}common/wpce-php72.conf;{{/wpce}}
+    {{^static}}include {{#basic}}common/{{wo_php}}.conf;{{/basic}}{{#wpfc}}common/wpfc-{{wo_php}}.conf;{{/wpfc}}{{#wpsc}}common/wpsc-{{wo_php}}.conf;{{/wpsc}}{{#wpredis}}common/redis-{{wo_php}}.conf;{{/wpredis}}{{#wprocket}}common/wprocket-{{wo_php}}.conf;{{/wprocket}}{{#wpce}}common/wpce-{{wo_php}}.conf;{{/wpce}}
     {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}{{/static}}
-    {{#wp}}include common/wpcommon-php72.conf;{{/wp}}
+    {{#wp}}include common/wpcommon-{{wo_php}}.conf;{{/wp}}
     include common/locations-wo.conf;{{/proxy}}
     include {{webroot}}/conf/nginx/*.conf;
 

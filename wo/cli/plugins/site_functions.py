@@ -78,12 +78,8 @@ def setupdomain(self, data):
         wo_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
                                   .format(wo_domain_name), encoding='utf-8',
                                   mode='w')
-        if not data['php73']:
-            self.app.render((data), 'virtualconf.mustache',
-                            out=wo_site_nginx_conf)
-        else:
-            self.app.render((data), 'virtualconf-php7.mustache',
-                            out=wo_site_nginx_conf)
+        self.app.render((data), 'virtualconf.mustache',
+                        out=wo_site_nginx_conf)
         wo_site_nginx_conf.close()
     except IOError as e:
         Log.debug(self, str(e))
@@ -832,8 +828,9 @@ def site_package_check(self, stype):
     packages = []
     stack = WOStackController()
     stack.app = self.app
+    pargs = self.app.pargs
     if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain', 'php73']:
+                 'wpsubdomain', 'php73', 'php74']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
@@ -869,60 +866,74 @@ def site_package_check(self, stype):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-    if self.app.pargs.php and self.app.pargs.php73:
+    if pargs.php and pargs.php73:
         Log.error(
             self, "Error: two different PHP versions cannot be "
                   "combined within the same WordOps site")
 
-    if not self.app.pargs.php73 and stype in ['php', 'mysql', 'wp', 'wpsubdir',
-                                              'wpsubdomain']:
+    if pargs.php and pargs.php74:
+        Log.error(
+            self, "Error: two different PHP versions cannot be "
+                  "combined within the same WordOps site")
+
+    if pargs.php73 and pargs.php74:
+        Log.error(
+            self, "Error: two different PHP versions cannot be "
+                  "combined within the same WordOps site")
+
+    if ((not pargs.php73) and (not pargs.php74) and
+        stype in ['php', 'mysql', 'wp', 'wpsubdir',
+                  'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP 7.2")
         if not WOAptGet.is_installed(self, 'php7.2-fpm'):
             apt_packages = apt_packages + WOVar.wo_php72 + \
                 WOVar.wo_php_extra
 
-    if self.app.pargs.php73 and stype in ['mysql', 'wp',
+    if pargs.php73 and stype in ['mysql', 'wp',
                                           'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
             apt_packages = apt_packages + WOVar.wo_php72 + \
                 WOVar.wo_php73 + WOVar.wo_php_extra
 
+    if pargs.php74 and stype in ['mysql', 'wp',
+                                 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+        if not WOAptGet.is_installed(self, 'php7.4-fpm'):
+            apt_packages = apt_packages + WOVar.wo_php72 + \
+                WOVar.wo_php74 + WOVar.wo_php_extra
+
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
         if not WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
-            if not WOVar.wo_distro == 'raspbian':
-                if (not WOVar.wo_platform_codename == 'jessie'):
-                    wo_mysql = ["mariadb-server", "percona-toolkit",
-                                "python3-mysqldb", "mariadb-backup"]
-                else:
-                    wo_mysql = ["mariadb-server", "percona-toolkit",
-                                "python3-mysql.connector"]
-            else:
-                wo_mysql = ["mariadb-server", "percona-toolkit",
-                            "python3-mysqldb"]
-            apt_packages = apt_packages + wo_mysql
+            apt_packages = apt_packages + WOVar.wo_mysql
 
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting packages variable for WP-CLI")
-        if not WOShellExec.cmd_exec(self, "command -v wp"):
+        if not WOAptGet.is_exec(self, "wp"):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                     "releases/download/v{0}/"
                                     "wp-cli-{0}.phar"
                                     .format(WOVar.wo_wp_cli),
                                     "/usr/local/bin/wp", "WP-CLI"]]
-    if self.app.pargs.wpredis:
+    if pargs.wpredis:
         Log.debug(self, "Setting apt_packages variable for redis")
         if not WOAptGet.is_installed(self, 'redis-server'):
             apt_packages = apt_packages + ["redis-server"]
 
-    if self.app.pargs.php73:
+    if pargs.php73:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
             apt_packages = apt_packages + WOVar.wo_php72 + \
                 WOVar.wo_php73 + WOVar.wo_php_extra
 
-    if self.app.pargs.ngxblocker:
+    if pargs.php74:
+        Log.debug(self, "Setting apt_packages variable for PHP 7.4")
+        if not WOAptGet.is_installed(self, 'php7.4-fpm'):
+            apt_packages = apt_packages + WOVar.wo_php72 + \
+                WOVar.wo_php74 + WOVar.wo_php_extra
+
+    if pargs.ngxblocker:
         if not os.path.isdir('/etc/nginx/bots.d'):
             Log.debug(self, "Setting packages variable for ngxblocker")
             packages = packages + \
@@ -1084,7 +1095,7 @@ def detSitePar(opts):
     cachelist = list()
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain', 'php73']:
+                           'wpsubdir', 'wpsubdomain', 'php73', 'php74']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket', 'wpce']:
             cachelist.append(key)
@@ -1106,6 +1117,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('php74', 'mysql', 'html') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('php', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
@@ -1113,6 +1130,12 @@ def detSitePar(opts):
             else:
                 cachetype = cachelist[0]
         elif False not in [x in ('php73', 'mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php74', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1136,6 +1159,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('php74', 'html') for x in typelist]:
+            sitetype = 'php74'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('wp', 'wpsubdir') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
@@ -1154,13 +1183,31 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wp', 'php74') for x in typelist]:
+            sitetype = 'wp'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('wpsubdir', 'php73') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdir', 'php74') for x in typelist]:
+            sitetype = 'wpsubdir'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('wpsubdomain', 'php73') for x in typelist]:
+            sitetype = 'wpsubdomain'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdomain', 'php74') for x in typelist]:
             sitetype = 'wpsubdomain'
             if not cachelist:
                 cachetype = 'basic'
@@ -1173,6 +1220,9 @@ def detSitePar(opts):
             sitetype = None
             cachetype = None
         elif (not typelist or "php73" in typelist) and cachelist:
+            sitetype = 'wp'
+            cachetype = cachelist[0]
+        elif (not typelist or "php74" in typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif typelist and (not cachelist):
@@ -1384,6 +1434,7 @@ def setuprocketchat(self):
             WOAptGet.install(self, ["snapd"])
         if WOShellExec.cmd_exec(self, "snap install rocketchat-server"):
             return True
+        return False
 
 
 def setupngxblocker(self, domain, block=True):

@@ -1,5 +1,4 @@
 import glob
-import json
 import os
 import subprocess
 
@@ -9,12 +8,10 @@ from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
 from wo.cli.plugins.site_create import WOSiteCreateController
 from wo.cli.plugins.site_update import WOSiteUpdateController
-from wo.core.acme import WOAcme
 from wo.core.domainvalidate import WODomain
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
-from wo.core.nginxhashbucket import hashbucket
 from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec
 from wo.core.sslutils import SSL
