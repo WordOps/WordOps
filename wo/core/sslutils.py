@@ -95,8 +95,8 @@ class SSL:
                     Log.valide(self, "Updating site url with https")
 
     # check if a wildcard exist to secure a new subdomain
-
     def checkwildcardexist(self, wo_domain_name):
+        """Check if a wildcard certificate exist for a domain"""
 
         wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
                         "'/etc/letsencrypt/config'")
@@ -118,21 +118,36 @@ class SSL:
         certfile.close()
         return False
 
-    def setuphsts(self, wo_domain_name):
-        Log.info(
-            self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
-            .format(wo_domain_name))
+    def setuphsts(self, wo_domain_name, enable=True):
+        """Enable or disable htsts for a site"""
+        if enable:
+            Log.info(
+                self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
+                .format(wo_domain_name))
 
-        hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
-                        .format(wo_domain_name),
-                        encoding='utf-8', mode='w')
-        hstsconf.write("more_set_headers "
-                       "\"Strict-Transport-Security: "
-                       "max-age=31536000; "
-                       "includeSubDomains; "
-                       "preload\";")
-        hstsconf.close()
-        return 0
+            hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
+                            .format(wo_domain_name),
+                            encoding='utf-8', mode='w')
+            hstsconf.write("more_set_headers "
+                           "\"Strict-Transport-Security: "
+                           "max-age=31536000; "
+                           "includeSubDomains; "
+                           "preload\";")
+            hstsconf.close()
+            return 0
+        else:
+            if os.path.exists(
+                '/var/www/{0}/conf/nginx/hsts.conf'
+                    .format(wo_domain_name)):
+                WOFileUtils.mvfile(
+                    self, '/var/www/{0}/conf/'
+                    'nginx/hsts.conf'
+                    .format(wo_domain_name),
+                    '/var/www/{0}/conf/'
+                    'nginx/hsts.conf.disabled'
+                    .format(wo_domain_name))
+            else:
+                Log.info(self, "HSTS is not enabled")
 
     def selfsignedcert(self, proftpd=False, backend=False):
         """issue a self-signed certificate"""
