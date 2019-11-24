@@ -341,7 +341,7 @@ class WOSiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if pargs.php73:
+        if pargs.php73 or pargs.php74:
             if not data:
                 data = dict(
                     site_name=wo_domain,

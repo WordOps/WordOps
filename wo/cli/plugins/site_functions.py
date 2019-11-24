@@ -898,7 +898,7 @@ def site_package_check(self, stype):
 
     if pargs.php74 and stype in ['mysql', 'wp',
                                  'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+        Log.debug(self, "Setting apt_packages variable for PHP 7.4")
         if not WOAptGet.is_installed(self, 'php7.4-fpm'):
             apt_packages = apt_packages + WOVar.wo_php72 + \
                 WOVar.wo_php74 + WOVar.wo_php_extra
