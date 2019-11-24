@@ -632,12 +632,12 @@ wo_init() {
 
     if [ -z "$wo_travis" ]; then
         # import easyengine opensusebuildservice gpg key to avoid issues with packages update
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 > /dev/null 2>&1
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 > /dev/null 2>&1
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 >/dev/null 2>&1
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 >/dev/null 2>&1
         # fix digitalocean mariadb repository issue
-        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list > /dev/null 2>&1
-        if [ -f /etc/apt/preferences.d/MariaDB.pref  ]; then
-        sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref > /dev/null 2>&1
+        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list >/dev/null 2>&1
+        if [ -f /etc/apt/preferences.d/MariaDB.pref ]; then
+            sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref >/dev/null 2>&1
         fi
         if ! {
             apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
@@ -697,18 +697,20 @@ else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         _run wo_clean
-    # 2 - Migration from EEv3
-    elif [ -x /usr/local/bin/ee ]; then
-        if [ -z "$wo_force_install" ]; then
-            echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
-            if [ "$WO_ANSWER" != "y" ] && [ "$WO_ANSWER" != "Y" ]; then
-                wo_lib_error "Not installing WordOps" 1
+        # 2 - Migration from EEv3
+    else
+        if [ -x /usr/local/bin/ee ]; then
+            if [ -z "$wo_force_install" ]; then
+                echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
+                if [ "$WO_ANSWER" != "y" ] && [ "$WO_ANSWER" != "Y" ]; then
+                    wo_lib_error "Not installing WordOps" 1
+                fi
             fi
+            _run wo_backup_ee "Backing-up EE install"
+            _run wo_remove_ee_cron "Removing EasyEngine cronjob"
         fi
-        _run wo_backup_ee "Backing-up EE install"
-        _run wo_remove_ee_cron "Removing EasyEngine cronjob"
+        _run wo_install_dep "Installing wo dependencies"
     fi
-    _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
