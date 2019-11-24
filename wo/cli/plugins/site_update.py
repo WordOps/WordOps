@@ -191,12 +191,13 @@ class WOSiteUpdateController(CementBaseController):
             old_php73 = bool(check_php_version == "7.3")
             old_php74 = bool(check_php_version == "7.4")
 
-        if ((pargs.password or pargs.hsts or pargs.ngxblocker or
-             pargs.letsencrypt) and not (
-                 pargs.html or pargs.php or pargs.php73 or pargs.php74 or
+        if ((pargs.password or pargs.hsts or pargs.ngxblocker) and not (
+            pargs.html or pargs.php or pargs.php73 or pargs.php74 or
             pargs.mysql or pargs.wp or pargs.wpfc or pargs.wpsc or
             pargs.wprocket or pargs.wpce or
                 pargs.wpsubdir or pargs.wpsubdomain)):
+
+            # update wordpress password
             if (pargs.password):
                 try:
                     updatewpuserpassword(self, wo_domain, wo_site_webroot)
@@ -205,62 +206,43 @@ class WOSiteUpdateController(CementBaseController):
                     Log.info(self, "\nPassword Unchanged.")
                 return 0
 
+            # setup hsts
             if (pargs.hsts):
                 if pargs.hsts == "on":
-                    try:
-                        SSL.setuphsts(self, wo_domain)
-                    except SiteError as e:
-                        Log.debug(self, str(e))
-                        Log.info(self, "\nHSTS not enabled.")
+                    SSL.setuphsts(self, wo_domain, enable=True)
                 elif pargs.hsts == "off":
-                    if os.path.isfile(
-                        '/var/www/{0}/conf/nginx/hsts.conf'
-                            .format(wo_domain)):
-                        WOFileUtils.mvfile(
-                            self, '/var/www/{0}/conf/'
-                            'nginx/hsts.conf'
-                            .format(wo_domain),
-                            '/var/www/{0}/conf/'
-                            'nginx/hsts.conf.disabled'
-                            .format(wo_domain))
-                    else:
-                        Log.error(self, "HSTS not enabled")
-                        # Service Nginx Reload
+                    SSL.setuphsts(self, wo_domain, enable=False)
+                    # Service Nginx Reload
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(
                         self, "service nginx reload failed. "
                         "check issues with `nginx -t` command")
                 return 0
 
-        if (pargs.ngxblocker and not (
-            pargs.html or pargs.php or pargs.php73 or
-            pargs.php74 or pargs.mysql or
-            pargs.wp or pargs.wpfc or pargs.wpsc or
-            pargs.wprocket or pargs.wpce or
-            pargs.wpsubdir or pargs.wpsubdomain or
-                pargs.hsts)):
-            if pargs.ngxblocker == "on":
-                if os.path.isdir('/etc/nginx/bots.d'):
+            # setup ngxblocker
+            if (pargs.ngxblocker):
+                if pargs.ngxblocker == "on":
+                    if os.path.isdir('/etc/nginx/bots.d'):
+                        try:
+                            setupngxblocker(self, wo_domain)
+                        except SiteError as e:
+                            Log.debug(self, str(e))
+                            Log.info(self, "\nngxblocker not enabled.")
+                    else:
+                        Log.error(self, 'ngxblocker stack is not installed')
+                elif pargs.ngxblocker == "off":
                     try:
-                        setupngxblocker(self, wo_domain)
+                        setupngxblocker(self, wo_domain, False)
                     except SiteError as e:
                         Log.debug(self, str(e))
                         Log.info(self, "\nngxblocker not enabled.")
-                else:
-                    Log.error(self, 'ngxblocker stack is not installed')
-            elif pargs.ngxblocker == "off":
-                try:
-                    setupngxblocker(self, wo_domain, False)
-                except SiteError as e:
-                    Log.debug(self, str(e))
-                    Log.info(self, "\nngxblocker not enabled.")
 
-            # Service Nginx Reload
-            if not WOService.reload_service(self, 'nginx'):
-                Log.error(self, "service nginx reload failed. "
-                          "check issues with `nginx -t` command")
-            return 0
-        #
+                # Service Nginx Reload
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
+                return 0
+
         if (pargs.letsencrypt == 'renew' and
             not (pargs.html or
                  pargs.php or pargs.php73 or pargs.php74 or
