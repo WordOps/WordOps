@@ -6,13 +6,11 @@ Nginx configuration	 {{type}} {{enable}}
 SSL PROVIDER			 {{sslprovider}}{{/sslprovider}}{{#sslexpiry}}
 SSL EXPIRY DATE			 {{sslexpiry}}{{/sslexpiry}}
 
-[-----------------------------]
 access_log		 {{accesslog}}
 error_log		 {{errorlog}}
 {{#webroot}}Webroot			 {{webroot}}{{/webroot}}
 
-{{#dbname}}[-----------------------------]
-Database :
+{{#dbname}}
 DB_NAME			 {{dbname}}{{/dbname}}
 {{#dbname}}DB_USER			 {{dbuser}}{{/dbname}}
 {{#dbname}}DB_PASS			 {{dbpass}}{{/dbname}}
