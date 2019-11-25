@@ -607,7 +607,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                       msg="Adding Fail2ban into Git")
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
                 Log.info(self, "Configuring Fail2Ban")
-                data = dict()
+                data = dict(release=WOVar.wo_version)
                 WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/jail.d/custom.conf',

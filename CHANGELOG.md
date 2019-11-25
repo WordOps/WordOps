@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - PHP 7.4 support
+- Improved Webp images support with Cloudflare
+- Enable Gzip static to serve precompressed assets with Cache-Enabler and WP-Rocket
 
 #### Changed
 
