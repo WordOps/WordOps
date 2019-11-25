@@ -20,8 +20,8 @@ class WOService():
                 # Check Nginx configuration before executing command
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
-                output, error_output = sub.communicate()
-                if 'emerg' not in str(error_output):
+                output = sub.communicate()
+                if 'emerg' not in str(output):
                     Log.valide(self, "Testing Nginx configuration ")
                     Log.wait(self, "Starting Nginx              ")
                     service_cmd = ('service {0} start'.format(service_name))
@@ -84,7 +84,7 @@ class WOService():
                 # Check Nginx configuration before executing command
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
-                output, error_output = sub.communicate()
+                error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
                     Log.valide(self, "Testing Nginx configuration ")
                     Log.wait(self, "Restarting Nginx")
@@ -135,8 +135,9 @@ class WOService():
                     if retcode[0] == 0:
                         Log.valide(self, "Reloading Nginx")
                         return True
-                Log.failed(self, "Testing Nginx configuration ")
-                return False
+                    else:
+                        Log.failed(self, "Testing Nginx configuration ")
+                        return False
             else:
                 service_cmd = ('service {0} reload'.format(service_name))
                 Log.wait(self, "Reloading {0:10}".format(
@@ -146,10 +147,11 @@ class WOService():
                     Log.valide(self, "Reloading {0:10}".format(
                         service_name))
                     return True
-                Log.debug(self, "{0}".format(retcode[1]))
-                Log.failed(self, "Reloading {0:10}".format(
+                else:
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.failed(self, "Reloading {0:10}".format(
                     service_name))
-                return False
+                    return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "\nFailed to reload service {0}"
