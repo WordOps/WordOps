@@ -101,9 +101,6 @@ class WOSiteUpdateController(CementBaseController):
     def default(self):
         pargs = self.app.pargs
 
-        if pargs.php72:
-            pargs.php = True
-
         if pargs.all:
             if pargs.site_name:
                 Log.error(self, "`--all` option cannot be used with site name"
@@ -111,7 +108,7 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.html:
                 Log.error(self, "No site can be updated to html")
 
-            if not (pargs.php or pargs.php73 or pargs.php74 or
+            if not (pargs.php or pargs.php72 or pargs.php73 or pargs.php74 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
                     pargs.wprocket or pargs.wpce or
@@ -188,11 +185,13 @@ class WOSiteUpdateController(CementBaseController):
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
 
+            old_php72 = bool(check_php_version == "7.2")
             old_php73 = bool(check_php_version == "7.3")
             old_php74 = bool(check_php_version == "7.4")
 
         if ((pargs.password or pargs.hsts or pargs.ngxblocker) and not (
-            pargs.html or pargs.php or pargs.php73 or pargs.php74 or
+            pargs.html or pargs.php or pargs.php72 or pargs.php73 or
+            pargs.php74 or
             pargs.mysql or pargs.wp or pargs.wpfc or pargs.wpsc or
             pargs.wprocket or pargs.wpce or
                 pargs.wpsubdir or pargs.wpsubdomain)):

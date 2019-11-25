@@ -101,8 +101,8 @@ class WOSiteCreateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if pargs.php72:
-            pargs.php = True
+        if pargs.php:
+            pargs.php72 = True
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
@@ -157,7 +157,7 @@ class WOSiteCreateController(CementBaseController):
         if stype == 'proxy':
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=True, basic=False, php73=False, php74=False, wp=False,
+                static=True, basic=False, wp=False,
                 wpfc=False, wpsc=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot)
             data['proxy'] = True
@@ -165,16 +165,7 @@ class WOSiteCreateController(CementBaseController):
             data['port'] = port
             data['basic'] = True
 
-        if pargs.php73:
-            data = dict(
-                site_name=wo_domain, www_domain=wo_www_domain,
-                static=False, basic=False,
-                wp=False, wpfc=False, wpsc=False, wprocket=False,
-                wpce=False, multisite=False,
-                wpsubdir=False, webroot=wo_site_webroot)
-            data['basic'] = True
-
-        if pargs.php74:
+        if pargs.php72 or pargs.php73 or pargs.php74:
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=False,
@@ -221,13 +212,15 @@ class WOSiteCreateController(CementBaseController):
         if data and pargs.php73:
             data['php73'] = True
             data['php74'] = False
+            data['php72'] = False
             data['wo_php'] = 'php73'
         elif data and pargs.php74:
+            data['php72'] = False
             data['php74'] = True
             data['php73'] = False
             data['wo_php'] = 'php74'
-        elif data:
-            data['php74'] = False
+        elif data and pargs.php72:
+            data['php72'] = True
             data['php73'] = False
             data['wo_php'] = 'php72'
 
@@ -296,6 +289,8 @@ class WOSiteCreateController(CementBaseController):
                 php_version = "7.3"
             elif data['php74']:
                 php_version = "7.4"
+            elif data['php72']:
+                php_version = "7.2"
             else:
                 php_version = "7.2"
 
