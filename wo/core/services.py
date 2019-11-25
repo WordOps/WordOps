@@ -23,12 +23,14 @@ class WOService():
                 output = sub.communicate()
                 if 'emerg' not in str(output):
                     Log.valide(self, "Testing Nginx configuration ")
-                    Log.wait(self, "Starting Nginx              ")
+                    Log.wait(self, "Starting Nginx")
                     service_cmd = ('service {0} start'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
                         Log.valide(self, "Starting Nginx              ")
                         return True
+                    else:
+                        Log.failed(self, "Starting Nginx")
                 else:
                     Log.failed(self, "Testing Nginx configuration ")
                     return False
@@ -150,7 +152,7 @@ class WOService():
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
                     Log.failed(self, "Reloading {0:10}".format(
-                    service_name))
+                        service_name))
                     return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))
@@ -163,7 +165,8 @@ class WOService():
             is_exist = subprocess.getstatusoutput('which {0}'
                                                   .format(service_name))
             if is_exist[0] == 0 or service_name in ['php7.2-fpm',
-                                                    'php7.3-fpm']:
+                                                    'php7.3-fpm',
+                                                    'php7.4-fpm']:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
                 if retcode[0] == 0:
