@@ -126,18 +126,17 @@ class WOService():
                 Log.wait(self, "Testing Nginx configuration ")
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
-                output, error_output = sub.communicate()
-                if 'emerg' not in str(error_output):
+                output = sub.communicate()
+                if 'emerg' not in str(output):
                     Log.valide(self, "Testing Nginx configuration ")
-                    Log.wait(self, "Reloading Nginx             ")
+                    Log.wait(self, "Reloading Nginx")
                     service_cmd = ('service {0} reload'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.valide(self, "Reloading Nginx             ")
+                        Log.valide(self, "Reloading Nginx")
                         return True
-                else:
-                    Log.failed(self, "Testing Nginx configuration ")
-                    return False
+                Log.failed(self, "Testing Nginx configuration ")
+                return False
             else:
                 service_cmd = ('service {0} reload'.format(service_name))
                 Log.wait(self, "Reloading {0:10}".format(
@@ -147,11 +146,10 @@ class WOService():
                     Log.valide(self, "Reloading {0:10}".format(
                         service_name))
                     return True
-                else:
-                    Log.debug(self, "{0}".format(retcode[1]))
-                    Log.failed(self, "Reloading {0:10}".format(
-                        service_name))
-                    return False
+                Log.debug(self, "{0}".format(retcode[1]))
+                Log.failed(self, "Reloading {0:10}".format(
+                    service_name))
+                return False
         except OSError as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "\nFailed to reload service {0}"

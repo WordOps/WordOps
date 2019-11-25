@@ -57,13 +57,15 @@ class WOApp(CementApp):
         # Internal templates (ship with application code)
         template_module = 'wo.cli.templates'
 
-        extensions = ['mustache', 'argcomplete']
+        extensions = ['mustache', 'argcomplete', 'colorlog']
 
         hooks = [
             ("post_render", encode_output)
         ]
 
         output_handler = 'mustache'
+
+        log_handler = 'colorlog'
 
         arg_handler = WOArgHandler
         exit_on_close = True

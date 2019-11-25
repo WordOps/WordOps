@@ -1,4 +1,4 @@
-# NGINX CONFIGURATION FOR COMMON LOCATION - WO v3.9.7
+# NGINX CONFIGURATION FOR COMMON LOCATION - WordOps {{release}}
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 # Basic locations files
 location = /favicon.ico {
@@ -41,7 +41,7 @@ location ~*  "/(^$|readme|license|example|README|LEGALNOTICE|INSTALLATION|CHANGE
     deny all;
 }
 # Deny backup extensions & log files and return 403 forbidden
-location ~* "\.(old|orig|original|php#|php~|php_bak|save|swo|aspx?|tpl|sh|bash|bak?|cfg|cgi|dll|exe|git|hg|ini|jsp|log|mdb|out|sql|svn|swp|tar|rdf)$" {
+location ~* "\.(old|orig|original|php#|php~|php_bak|save|swo|aspx?|tpl|sh|bash|bak?|cfg|cgi|dll|exe|git|hg|ini|jsp|log|mdb|out|sql|svn|swp|tar|rdf|gz|zip|bz2|7z|pem|asc|conf|dump)$" {
     deny all;
 }
 location ~* "/(=|\$&|_mm|(wp-)?config\.|cgi-|etc/passwd|muieblack)" {

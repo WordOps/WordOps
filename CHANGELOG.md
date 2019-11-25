@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- PHP 7.4 support
+
 #### Changed
 
 - Add private ip range into fail2ban ignoreip directive
