@@ -86,7 +86,7 @@ class WOService():
                 # Check Nginx configuration before executing command
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
-                error_output = sub.communicate()
+                output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
                     Log.valide(self, "Testing Nginx configuration ")
                     Log.wait(self, "Restarting Nginx")
@@ -128,8 +128,8 @@ class WOService():
                 Log.wait(self, "Testing Nginx configuration ")
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
-                output = sub.communicate()
-                if 'emerg' not in str(output):
+                output, error_output = sub.communicate()
+                if 'emerg' not in str(error_output):
                     Log.valide(self, "Testing Nginx configuration ")
                     Log.wait(self, "Reloading Nginx")
                     service_cmd = ('service {0} reload'.format(service_name))
@@ -162,7 +162,7 @@ class WOService():
     def get_service_status(self, service_name):
 
         try:
-            is_exist = subprocess.getstatusoutput('which {0}'
+            is_exist = subprocess.getstatusoutput('command -v {0}'
                                                   .format(service_name))
             if is_exist[0] == 0 or service_name in ['php7.2-fpm',
                                                     'php7.3-fpm',

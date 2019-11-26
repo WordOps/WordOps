@@ -20,5 +20,5 @@ maxretry = 5
 [nginx-forbidden]
 enabled = true
 filter = nginx-forbidden
-action = iptables-multiport[name="wo-wordpress", port="http,https"]
+action = iptables-multiport[name="nginx-forbidden", port="http,https"]
 logpath = /var/log/nginx/*error*.log

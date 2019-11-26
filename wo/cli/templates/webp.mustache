@@ -33,7 +33,7 @@ map $realip_remote_addr $webp_suffix_cf {
 
 }
 
-map $webp_suffix $webp_suffix_cf$webp_suffix_valid {
+map $webp_suffix_cf$webp_suffix_valid $webp_suffix {
     default "";
     00 ".webp";
 }
