@@ -140,6 +140,7 @@ class WOSiteUpdateController(CementBaseController):
         letsencrypt = False
         php73 = None
         php74 = None
+        php72 = None
 
         data = dict()
         try:
@@ -244,7 +245,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if (pargs.letsencrypt == 'renew' and
             not (pargs.html or
-                 pargs.php or pargs.php73 or pargs.php74 or
+                 pargs.php72 or pargs.php73 or pargs.php74 or
                  pargs.mysql or
                  pargs.wp or pargs.wpfc or pargs.wpsc or
                  pargs.wprocket or pargs.wpce or
@@ -266,13 +267,13 @@ class WOSiteUpdateController(CementBaseController):
                 Log.error(self, "Certificate doesn't exist")
             return 0
 
-        if ((stype == 'php' and
+        if ((stype == 'php72' and
              oldsitetype not in ['html', 'proxy', 'php73', 'php74']) or
             (stype == 'mysql' and oldsitetype not in [
-                'html', 'php',
+                'html', 'php72',
                 'proxy', 'php73', 'php74']) or
             (stype == 'wp' and oldsitetype not in [
-                'html', 'php', 'mysql',
+                'html', 'php72', 'mysql',
                 'proxy', 'wp', 'php73', 'php74']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
@@ -292,7 +293,7 @@ class WOSiteUpdateController(CementBaseController):
             data['currsitetype'] = oldsitetype
             data['currcachetype'] = oldcachetype
 
-        if stype == 'php':
+        if stype == 'php72':
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
@@ -416,6 +417,16 @@ class WOSiteUpdateController(CementBaseController):
                     data['php74'] = False
                     php74 = False
                     check_php_version = '7.2'
+
+        if pargs.php72:
+            if php72 is old_php72:
+                if php72 is False:
+                    Log.info(self, "PHP 7.2 is already disabled for given "
+                             "site")
+                elif php72 is True:
+                    Log.info(self, "PHP 7.2 is already enabled for given "
+                             "site")
+                pargs.php72 = False
 
         if pargs.php73:
             if php73 is old_php73:
