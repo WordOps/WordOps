@@ -30,7 +30,7 @@ exit_script() {
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_list='nginx php php73 php74 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker cheat nanorc'
+stack_list='nginx php php73 php74 mysql redis clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker cheat nanorc'
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
     if {
