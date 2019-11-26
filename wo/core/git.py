@@ -48,7 +48,7 @@ class WOGit:
             Checks status of file, If its tracked or untracked.
         """
         global git
-        wogit = git.bake("-C {0}".format(repo))
+        wogit = git.bake("-C", "{0}".format(repo))
         status = wogit.status("-s", "{0}".format(filepath))
         if len(status.splitlines()) > 0:
             return True
@@ -62,7 +62,7 @@ class WOGit:
         """
         for path in paths:
             global git
-            wogit = git.bake("-C {0}".format(path))
+            wogit = git.bake("-C", "{0}".format(path))
             if os.path.isdir(path):
                 if not os.path.isdir(path + "/.git"):
                     Log.error(
