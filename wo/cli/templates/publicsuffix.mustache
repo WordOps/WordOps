@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# WordOps script to download public suffix list from Github
+
+# check if curl is available
+if ! { command -v curl; }; then
+    apt-get update && apt-get install curl -qq > /dev/null 2>&1
+fi
+# download the list
+rm -f /var/lib/wo/public_suffix_list.dat
+curl -sL -m 30 --retry 3 -k https://raw.githubusercontent.com/publicsuffix/list/master/public_suffix_list.dat | sed '/^\/\//d' | sed '/^$/d' | sed 's/^\s+//g' > /var/lib/wo/public_suffix_list.dat

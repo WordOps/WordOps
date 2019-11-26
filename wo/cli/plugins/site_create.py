@@ -219,7 +219,8 @@ class WOSiteCreateController(CementBaseController):
             data['php74'] = True
             data['php73'] = False
             data['wo_php'] = 'php74'
-        elif data and pargs.php72:
+        else:
+            data['php74'] = False
             data['php72'] = True
             data['php73'] = False
             data['wo_php'] = 'php72'
