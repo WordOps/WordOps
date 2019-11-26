@@ -174,14 +174,14 @@ class WOSiteCreateController(CementBaseController):
                 wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
 
-        if stype in ['html', 'php']:
+        if stype in ['html', 'php72']:
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=True, basic=False, php73=False, php74=False, wp=False,
                 wpfc=False, wpsc=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot)
 
-            if stype == 'php':
+            if stype == 'php72':
                 data['static'] = False
                 data['basic'] = True
 

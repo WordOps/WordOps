@@ -1094,7 +1094,7 @@ def detSitePar(opts):
     typelist = list()
     cachelist = list()
     for key, val in opts.items():
-        if val and key in ['html', 'php', 'mysql', 'wp',
+        if val and key in ['html', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain', 'php72',
                            'php73', 'php74']:
             typelist.append(key)
@@ -1106,12 +1106,6 @@ def detSitePar(opts):
             raise RuntimeError(
                 "Could not determine cache type."
                 "Multiple cache parameter entered")
-        elif False not in [x in ('php', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
         elif False not in [x in ('php72', 'mysql', 'html') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
@@ -1125,12 +1119,6 @@ def detSitePar(opts):
             else:
                 cachetype = cachelist[0]
         elif False not in [x in ('php74', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1160,20 +1148,14 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php', 'html') for x in typelist]:
-            sitetype = 'php'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
         elif False not in [x in ('php72', 'html') for x in typelist]:
-            sitetype = 'php'
+            sitetype = 'php72'
             if not cachelist:
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
         elif False not in [x in ('php73', 'html') for x in typelist]:
-            sitetype = 'php'
+            sitetype = 'php72'
             if not cachelist:
                 cachetype = 'basic'
             else:
