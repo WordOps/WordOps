@@ -603,6 +603,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # create fail2ban configuration files
         if set(WOVar.wo_fail2ban).issubset(set(apt_packages)):
+            WOService.restart_service(self, 'fail2ban')
             WOGit.add(self, ["/etc/fail2ban"],
                       msg="Adding Fail2ban into Git")
             if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
