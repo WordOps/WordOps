@@ -336,20 +336,20 @@ class WODebugController(CementBaseController):
         # PHP global debug stop
         elif (self.app.pargs.php73 == 'off' and not self.app.pargs.site_name):
             if WOShellExec.cmd_exec(self, " sed -n \"/upstream "
-                                    "php72 {/,/}/p\" "
+                                    "php73 {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
-                                          "| grep 9172"):
-                Log.info(self, "Disabling PHP 7.2 debug")
+                                          "| grep 9173"):
+                Log.info(self, "Disabling PHP 7.3 debug")
 
                 # Change upstream.conf
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
-                nc.set([('upstream', 'php72',), 'server'],
-                       'unix:/var/run/php/php72-fpm.sock')
+                nc.set([('upstream', 'php73',), 'server'],
+                       'unix:/var/run/php/php73-fpm.sock')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                WOFileUtils.searchreplace(self, "/etc/php/7.2/mods-available/"
+                WOFileUtils.searchreplace(self, "/etc/php/7.3/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -357,7 +357,7 @@ class WODebugController(CementBaseController):
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
-                Log.info(self, "PHP 7.2 debug is already disabled")
+                Log.info(self, "PHP 7.3 debug is already disabled")
 
     @expose(hide=True)
     def debug_fpm73(self):
