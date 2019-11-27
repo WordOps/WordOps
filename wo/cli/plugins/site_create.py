@@ -101,8 +101,6 @@ class WOSiteCreateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if pargs.php:
-            pargs.php72 = True
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()

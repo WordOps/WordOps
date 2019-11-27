@@ -140,7 +140,6 @@ class WOSiteUpdateController(CementBaseController):
         letsencrypt = False
         php73 = None
         php74 = None
-        php72 = None
 
         data = dict()
         try:
@@ -190,7 +189,8 @@ class WOSiteUpdateController(CementBaseController):
             old_php73 = bool(check_php_version == "7.3")
             old_php74 = bool(check_php_version == "7.4")
 
-        if ((pargs.password or pargs.hsts or pargs.ngxblocker) and not (
+        if ((pargs.password or pargs.hsts or
+             pargs.ngxblocker or pargs.letsencrypt == 'renew') and not (
             pargs.html or pargs.php or pargs.php72 or pargs.php73 or
             pargs.php74 or
             pargs.mysql or pargs.wp or pargs.wpfc or pargs.wpsc or
@@ -243,38 +243,30 @@ class WOSiteUpdateController(CementBaseController):
                               "check issues with `nginx -t` command")
                 return 0
 
-        if (pargs.letsencrypt == 'renew' and
-            not (pargs.html or
-                 pargs.php72 or pargs.php73 or pargs.php74 or
-                 pargs.mysql or
-                 pargs.wp or pargs.wpfc or pargs.wpsc or
-                 pargs.wprocket or pargs.wpce or
-                 pargs.wpsubdir or pargs.wpsubdomain or
-                 pargs.ngxblocker or pargs.hsts)):
+            # letsencryot rebew
+            if (pargs.letsencrypt == 'renew'):
+                if WOAcme.cert_check(self, wo_domain):
+                    if not pargs.force:
+                        if (SSL.getexpirationdays(self, wo_domain) > 30):
+                            Log.error(
+                                self, "Your cert will expire in more "
+                                "than 30 days ( " +
+                                str(SSL.getexpirationdays(self, wo_domain)) +
+                                " days).\nAdd \'--force\' to force to renew")
+                    Log.wait(self, "Renewing SSL certificate")
+                    if WOAcme.renew(self, wo_domain):
+                        Log.valide(self, "Renewing SSL certificate")
+                else:
+                    Log.error(self, "Certificate doesn't exist")
+                return 0
 
-            if WOAcme.cert_check(self, wo_domain):
-                if not pargs.force:
-                    if (SSL.getexpirationdays(self, wo_domain) > 30):
-                        Log.error(
-                            self, "Your cert will expire in more "
-                            "than 30 days ( " +
-                                  str(SSL.getexpirationdays(self, wo_domain)) +
-                                  " days).\nAdd \'--force\' to force to renew")
-                Log.wait(self, "Renewing SSL certificate")
-                if WOAcme.renew(self, wo_domain):
-                    Log.valide(self, "Renewing SSL certificate")
-            else:
-                Log.error(self, "Certificate doesn't exist")
-            return 0
-
-        if ((stype == 'php72' and
-             oldsitetype not in ['html', 'proxy', 'php73', 'php74']) or
+        if ((stype == 'php' and
+             oldsitetype not in ['html', 'proxy', 'php', 'php73']) or
             (stype == 'mysql' and oldsitetype not in [
-                'html', 'php72',
-                'proxy', 'php73', 'php74']) or
+                'html', 'php', 'php73', 'proxy']) or
             (stype == 'wp' and oldsitetype not in [
-                'html', 'php72', 'mysql',
-                'proxy', 'wp', 'php73', 'php74']) or
+                'html', 'php', 'php73', 'mysql',
+                'proxy', 'wp']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
             (stype == oldsitetype and cache == oldcachetype) and not
@@ -293,7 +285,7 @@ class WOSiteUpdateController(CementBaseController):
             data['currsitetype'] = oldsitetype
             data['currcachetype'] = oldcachetype
 
-        if stype == 'php72':
+        if stype == 'php':
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
@@ -321,7 +313,7 @@ class WOSiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if (pargs.php73 or pargs.php74):
+        if (pargs.php72 or pargs.php73 or pargs.php74):
             if not data:
                 data = dict(
                     site_name=wo_domain,
@@ -399,24 +391,18 @@ class WOSiteUpdateController(CementBaseController):
                     data['wpredis'] = False
                     data['wprocket'] = False
                     data['wpce'] = True
-            if pargs.php73:
-                if pargs.php73 == 'on':
-                    data['php73'] = True
-                    php73 = True
-                    check_php_version = '7.3'
-                elif pargs.php73 == 'off':
-                    data['php73'] = False
-                    php73 = False
-                    check_php_version = '7.2'
+            if pargs.php72:
+                data['php72'] = True
+                php72 = True
+                check_php_version = '7.2'
+            elif pargs.php73:
+                data['php73'] = True
+                php73 = True
+                check_php_version = '7.3'
             elif pargs.php74:
-                if pargs.php74 == 'on':
-                    data['php74'] = True
-                    php74 = True
-                    check_php_version = '7.4'
-                elif pargs.php74 == 'off':
-                    data['php74'] = False
-                    php74 = False
-                    check_php_version = '7.2'
+                data['php74'] = True
+                php74 = True
+                check_php_version = '7.4'
 
         if pargs.php72:
             if php72 is old_php72:
@@ -516,7 +502,7 @@ class WOSiteUpdateController(CementBaseController):
         php73 = bool(pargs.php73 == "on")
 
         if data and (not pargs.php74):
-            data['php73'] = bool(old_php74 is True)
+            data['php74'] = bool(old_php74 is True)
             php74 = bool(old_php74 is True)
 
         data['php74'] = bool(pargs.php74 == "on")
