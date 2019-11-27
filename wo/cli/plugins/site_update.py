@@ -260,17 +260,22 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "Certificate doesn't exist")
                 return 0
 
-        if ((stype == 'php' and
-             oldsitetype not in ['html', 'proxy', 'php', 'php73']) or
+        if ((stype == 'php72' and
+             oldsitetype not in ['html', 'proxy',
+                                 'php72', 'php73', 'php74']) or
+            (stype == 'php73' and
+             oldsitetype not in ['html', 'proxy', 'php72', 'php74']) or
+            (stype == 'php74' and
+             oldsitetype not in ['html', 'proxy', 'php72', 'php73']) or
             (stype == 'mysql' and oldsitetype not in [
-                'html', 'php', 'php73', 'proxy']) or
+                'html', 'php72', 'php73', 'php74', 'proxy']) or
             (stype == 'wp' and oldsitetype not in [
-                'html', 'php', 'php73', 'mysql',
+                'html', 'php72', 'php73', 'php74', 'mysql',
                 'proxy', 'wp']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
             (stype == oldsitetype and cache == oldcachetype) and not
-                (pargs.php73 or pargs.php74)):
+                (pargs.php72 or pargs.php73 or pargs.php74)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -497,16 +502,16 @@ class WOSiteUpdateController(CementBaseController):
         if data and (not pargs.php73):
             data['php73'] = bool(old_php73 is True)
             php73 = bool(old_php73 is True)
-
-        data['php73'] = bool(pargs.php73 == "on")
-        php73 = bool(pargs.php73 == "on")
+        elif data and pargs.php73:
+            data['php73'] = True
+            php73 = True
 
         if data and (not pargs.php74):
             data['php74'] = bool(old_php74 is True)
-            php74 = bool(old_php74 is True)
-
-        data['php74'] = bool(pargs.php74 == "on")
-        php74 = bool(pargs.php74 == "on")
+            php73 = bool(old_php74 is True)
+        elif data and pargs.php74:
+            data['php74'] = True
+            php74 = True
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             data['wpredis'] = True
