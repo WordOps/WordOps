@@ -889,10 +889,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('{0}22222/htdocs/php'
                             .format(ngxroot))
 
-            with open("{0}22222/htdocs/php/info.php"
-                      .format(ngxroot),
-                      encoding='utf-8', mode='w') as myfile:
-                myfile.write("<?php\nphpinfo();\n?>")
+            WOFileUtils.textwrite(
+                self, "{0}22222/htdocs/php/info.php"
+                .format(ngxroot), "<?php\nphpinfo();\n?>")
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
@@ -907,10 +906,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if os.path.exists('/etc/nginx/conf.d/upstream.conf'):
                 if not WOFileUtils.grepcheck(
                         self, '/etc/nginx/conf.d/upstream.conf', 'php74'):
-                    data = dict()
+                    data = dict(release=WOVar.wo_version)
                     WOTemplate.deploy(
                         self, '/etc/nginx/conf.d/upstream.conf',
                         'upstream.mustache', data, True)
+                    WOConf.nginxcommon(self)
 
         # create mysql config if it doesn't exist
         if "mariadb-server" in apt_packages:

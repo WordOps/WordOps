@@ -1,4 +1,4 @@
-# WPCE NGINX CONFIGURATION - WO v3.9.8
+# WPCE NGINX CONFIGURATION - WordOps {{release}}
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 # $cache_uri variable set in /etc/nginx/conf.d/map-wp.conf
 # Use cached or actual file if they exists, Otherwise pass request to WordPress
@@ -10,8 +10,9 @@ location ~ \.php$ {
     include fastcgi_params;
     fastcgi_pass {{upstream}};
 }
-location ~ /wp-content/cache/cache-enabler/.*html$ {
+location ~ /wp-content/cache/cache-enabler/*\.html$ {
     etag on;
+    gzip_static  on;
     add_header Vary "Accept-Encoding, Cookie";
     access_log off;
     log_not_found off;
