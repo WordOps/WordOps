@@ -1576,7 +1576,7 @@ def pre_stack(self):
     if wo_check is False:
         # wo sysctl tweaks
         # check system type
-        wo_arch = bool(os.uname()[4] == 'x86_x64')
+        wo_arch = bool((os.uname()[4]) == 'x86_x64')
         if os.path.isfile('/proc/1/environ'):
             # detect lxc containers
             wo_lxc = WOFileUtils.grepcheck(
