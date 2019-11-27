@@ -241,6 +241,25 @@ echo -e "${CGREEN}#############################################${CEND}"
 wo info
 
 echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site delete              '
+echo -e "${CGREEN}#############################################${CEND}"
+sites=$(wo site list 2>&1)
+for site in $sites; do
+    echo -ne "       deleting $site              [..]\r"
+    if {
+        wo site delete $site --force
+    } >>/var/log/wo/test.log; then
+        echo -ne "       deleting $site              [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "       deleting $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
 stack_purge='nginx php php73 php74 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat nanorc'
