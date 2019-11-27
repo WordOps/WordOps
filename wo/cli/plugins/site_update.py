@@ -260,21 +260,16 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "Certificate doesn't exist")
                 return 0
 
-        if ((stype == 'php72' and
-             oldsitetype not in ['html', 'proxy',
-                                 'php72', 'php73', 'php74']) or
-            (stype == 'php73' and
-             oldsitetype not in ['html', 'proxy', 'php72', 'php74']) or
-            (stype == 'php74' and
-             oldsitetype not in ['html', 'proxy', 'php72', 'php73']) or
+        if (((stype == 'php' and
+             oldsitetype not in ['html', 'proxy', 'php', 'php73']) or
             (stype == 'mysql' and oldsitetype not in [
-                'html', 'php72', 'php73', 'php74', 'proxy']) or
+                'html', 'php', 'php73', 'proxy']) or
             (stype == 'wp' and oldsitetype not in [
-                'html', 'php72', 'php73', 'php74', 'mysql',
+                'html', 'php', 'php73', 'mysql',
                 'proxy', 'wp']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
-            (stype == oldsitetype and cache == oldcachetype) and not
+            (stype == oldsitetype and cache == oldcachetype)) and not
                 (pargs.php72 or pargs.php73 or pargs.php74)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
