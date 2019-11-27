@@ -285,7 +285,8 @@ class WOSiteUpdateController(CementBaseController):
             data['currsitetype'] = oldsitetype
             data['currcachetype'] = oldcachetype
 
-        if stype == 'php':
+        if stype == 'php' and not (pargs.php72 or
+                                   pargs.php73 or pargs.php74):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
