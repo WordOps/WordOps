@@ -261,15 +261,15 @@ class WOSiteUpdateController(CementBaseController):
                 return 0
 
         if (((stype == 'php' and
-             oldsitetype not in ['html', 'proxy', 'php', 'php73']) or
-            (stype == 'mysql' and oldsitetype not in [
+              oldsitetype not in ['html', 'proxy', 'php', 'php73']) or
+             (stype == 'mysql' and oldsitetype not in [
                 'html', 'php', 'php73', 'proxy']) or
-            (stype == 'wp' and oldsitetype not in [
+             (stype == 'wp' and oldsitetype not in [
                 'html', 'php', 'php73', 'mysql',
                 'proxy', 'wp']) or
-            (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
-            (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
-            (stype == oldsitetype and cache == oldcachetype)) and not
+             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
+             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
+             (stype == oldsitetype and cache == oldcachetype)) and not
                 (pargs.php72 or pargs.php73 or pargs.php74)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
@@ -328,7 +328,8 @@ class WOSiteUpdateController(CementBaseController):
                     data['wp'] = False
                     data['multisite'] = False
                     data['wpsubdir'] = False
-                elif oldsitetype == 'php' or oldsitetype == 'mysql':
+                elif (oldsitetype == 'php' or oldsitetype == 'mysql' or
+                      oldsitetype == 'php73'):
                     data['static'] = False
                     data['wp'] = False
                     data['multisite'] = False
