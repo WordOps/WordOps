@@ -7,8 +7,10 @@ from wo.core.variables import WOVar
 from wo.core.fileutils import WOFileUtils
 
 
-class WOConf:
+class WOConf():
     """wo stack configuration utilities"""
+    def __init__():
+        pass
 
     def nginxcommon(self):
         """nginx common configuration deployment"""
