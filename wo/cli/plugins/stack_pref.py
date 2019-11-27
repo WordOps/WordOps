@@ -494,6 +494,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
                     WOService.restart_service(self, 'nginx')
 
+        if set(WOVar.wo_php72).issubset(set(apt_packages)):
+            WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
+            Log.info(self, "Configuring php7.2-fpm")
+            ngxroot = '/var/www/'
+
             # Create log directories
             if not os.path.exists('/var/log/php/7.2/'):
                 Log.debug(self, 'Creating directory /var/log/php/7.2/')
