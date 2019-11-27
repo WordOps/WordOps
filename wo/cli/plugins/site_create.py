@@ -174,14 +174,14 @@ class WOSiteCreateController(CementBaseController):
                 wpsubdir=False, webroot=wo_site_webroot)
             data['basic'] = True
 
-        if stype in ['html', 'php72']:
+        if stype in ['html', 'php']:
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=True, basic=False, php73=False, php74=False, wp=False,
+                static=True, basic=False, wp=False,
                 wpfc=False, wpsc=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot)
 
-            if stype == 'php72':
+            if stype == 'php':
                 data['static'] = False
                 data['basic'] = True
 
@@ -290,8 +290,6 @@ class WOSiteCreateController(CementBaseController):
                 php_version = "7.3"
             elif data['php74']:
                 php_version = "7.4"
-            elif data['php72']:
-                php_version = "7.2"
             else:
                 php_version = "7.2"
 
