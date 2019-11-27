@@ -515,6 +515,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             WOConf.phpconf(self, '7.3')
 
+            # check service restart or rollback configuration
+            if not WOService.restart_service(self, 'php7.3-fpm'):
+                WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
+            else:
+                WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
+
         # PHP7.4 configuration
         if set(WOVar.wo_php74).issubset(set(apt_packages)):
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
