@@ -32,7 +32,7 @@ class WOInfoController(CementBaseController):
             (['--php73'],
                 dict(help='Get PHP 7.3 configuration information',
                      action='store_true')),
-            (['--php73'],
+            (['--php74'],
                 dict(help='Get PHP 7.4 configuration information',
                      action='store_true')),
             (['--nginx'],
@@ -397,10 +397,10 @@ class WOInfoController(CementBaseController):
                 Log.info(self, "PHP 7.3 is not installed")
 
         if pargs.php74:
-            if WOAptGet.is_installed(self, 'php7.3-fpm'):
+            if WOAptGet.is_installed(self, 'php7.4-fpm'):
                 self.info_php73()
             else:
-                Log.info(self, "PHP 7.3 is not installed")
+                Log.info(self, "PHP 7.4 is not installed")
 
         if pargs.mysql:
             if WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
