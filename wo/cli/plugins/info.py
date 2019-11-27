@@ -398,7 +398,7 @@ class WOInfoController(CementBaseController):
 
         if pargs.php74:
             if WOAptGet.is_installed(self, 'php7.4-fpm'):
-                self.info_php73()
+                self.info_php74()
             else:
                 Log.info(self, "PHP 7.4 is not installed")
 
