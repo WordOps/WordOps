@@ -140,6 +140,7 @@ class WOSiteUpdateController(CementBaseController):
         letsencrypt = False
         php73 = None
         php74 = None
+        php72 = None
 
         data = dict()
         try:
