@@ -291,6 +291,25 @@ class WOSiteUpdateController(CementBaseController):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
+                php72=False, php73=False, php74=False,
+                wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
+                currsitetype=oldsitetype, currcachetype=oldcachetype)
+
+        if stype == 'php73':
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False, basic=True, php72=False,
+                php73=True, php74=False, wp=False, wpfc=False,
+                wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
+                currsitetype=oldsitetype, currcachetype=oldcachetype)
+
+        if stype == 'php74':
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False, basic=True, wp=False, wpfc=False,
+                php72=False, php73=False, php74=True,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 currsitetype=oldsitetype, currcachetype=oldcachetype)
