@@ -265,9 +265,9 @@ class WOSiteUpdateController(CementBaseController):
               oldsitetype not in ['html', 'proxy', 'php',
                                   'php73', 'php74']) or
              (stype == 'mysql' and oldsitetype not in [
-                 'html', 'php', 'php73', 'php74', 'proxy']) or
+                 'html', 'php', 'php72', 'php73', 'php74', 'proxy']) or
              (stype == 'wp' and oldsitetype not in [
-                 'html', 'php', 'php73', 'php74', 'mysql',
+                 'html', 'php', 'php72', 'php73', 'php74', 'mysql',
                  'proxy', 'wp']) or
              (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
              (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
@@ -291,25 +291,7 @@ class WOSiteUpdateController(CementBaseController):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
-                php72=False, php73=False, php74=False,
-                wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
-                currsitetype=oldsitetype, currcachetype=oldcachetype)
-
-        if stype == 'php73':
-            data = dict(
-                site_name=wo_domain, www_domain=wo_www_domain,
-                static=False, basic=True, php72=False,
-                php73=True, php74=False, wp=False, wpfc=False,
-                wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
-                currsitetype=oldsitetype, currcachetype=oldcachetype)
-
-        if stype == 'php74':
-            data = dict(
-                site_name=wo_domain, www_domain=wo_www_domain,
-                static=False, basic=True, wp=False, wpfc=False,
-                php72=False, php73=False, php74=True,
+                php72=True, php73=False, php74=False,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 currsitetype=oldsitetype, currcachetype=oldcachetype)
@@ -333,7 +315,8 @@ class WOSiteUpdateController(CementBaseController):
                 if stype == 'wpsubdir':
                     data['wpsubdir'] = True
 
-        if (pargs.php72 or pargs.php73 or pargs.php74):
+        if ((pargs.php72 or pargs.php73 or
+             pargs.php74) and (not data)):
             data = dict(
                 site_name=wo_domain,
                 www_domain=wo_www_domain,
@@ -412,18 +395,18 @@ class WOSiteUpdateController(CementBaseController):
                 data['wprocket'] = False
                 data['wpce'] = True
 
-        if pargs.php72:
-            data['php72'] = True
-            php72 = True
-            check_php_version = '7.2'
-        elif pargs.php73:
-            data['php73'] = True
-            php73 = True
-            check_php_version = '7.3'
-        elif pargs.php74:
-            data['php74'] = True
-            php74 = True
-            check_php_version = '7.4'
+            if pargs.php72:
+                data['php72'] = True
+                php72 = True
+                check_php_version = '7.2'
+            elif pargs.php73:
+                data['php73'] = True
+                php73 = True
+                check_php_version = '7.3'
+            elif pargs.php74:
+                data['php74'] = True
+                php74 = True
+                check_php_version = '7.4'
 
         if pargs.php72:
             if php72 is old_php72:
