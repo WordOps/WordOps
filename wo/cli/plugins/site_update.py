@@ -461,7 +461,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if data and (not pargs.php74):
             data['php74'] = bool(old_php74 is True)
-            php73 = bool(old_php74 is True)
+            php74 = bool(old_php74 is True)
 
         if pargs.letsencrypt:
             acme_domains = []
@@ -862,7 +862,7 @@ class WOSiteUpdateController(CementBaseController):
 
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'proxy', 'php',
-                                          'mysql', 'php73']:
+                                          'mysql', 'php73', 'php74']:
             try:
                 wo_wp_creds = setupwordpress(self, data)
             except SiteError as e:
