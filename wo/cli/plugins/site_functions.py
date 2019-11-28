@@ -1154,18 +1154,6 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
-        elif False not in [x in ('php73', 'html') for x in typelist]:
-            sitetype = 'php73'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php74', 'html') for x in typelist]:
-            sitetype = 'php74'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
         elif False not in [x in ('wp', 'wpsubdir') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
