@@ -519,16 +519,16 @@ class WOSiteUpdateController(CementBaseController):
 
         if php73 is True:
             data['wo_php'] = 'php73'
-            php_version = '7.3'
+            check_php_version = '7.3'
         elif php74 is True:
             data['wo_php'] = 'php74'
-            php_version = '7.4'
+            check_php_version = '7.4'
         elif php72 is True:
             data['wo_php'] = 'php72'
-            php_version = '7.2'
+            check_php_version = '7.2'
         else:
             data['wo_php'] = 'php72'
-            php_version = '7.2'
+            check_php_version = '7.2'
 
         if pargs.hsts:
             data['hsts'] = bool(pargs.hsts == "on")
