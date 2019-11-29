@@ -1219,7 +1219,7 @@ def detSitePar(opts):
             if not cachelist:
                 cachetype = 'basic'
             else:
-                cachetype = cachelist[0
+                cachetype = cachelist[0]
         elif False not in [x in ('wpsubdomain', 'php73') for x in typelist]:
             sitetype = 'wpsubdomain'
             if not cachelist:
