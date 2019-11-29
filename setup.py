@@ -47,7 +47,7 @@ setup(name='wordops',
       license='MIT',
       project_urls={
           'Documentation': 'https://docs.wordops.net',
-          'Forum': 'https://community.wordops.net'
+          'Forum': 'https://community.wordops.net',
           'Source': 'https://github.com/WordOps/WordOps',
           'Tracker': 'https://github.com/WordOps/WordOps/issues',
       },
