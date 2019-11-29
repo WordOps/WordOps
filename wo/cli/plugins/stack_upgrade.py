@@ -296,16 +296,16 @@ class WOStackUpgradeController(CementBaseController):
                 # Post Actions after package updates
 
             if (packages):
-                if pargs.wpcli:
+                if WOAptGet.is_selected(self, 'WP-CLI', packages):
                     WOFileUtils.rm(self, '/usr/local/bin/wp')
 
-                if pargs.netdata:
+                if WOAptGet.is_selected(self, 'Netdata', packages):
                     WOFileUtils.rm(self, '/var/lib/wo/tmp/kickstart.sh')
 
-                if pargs.ngxblocker:
+                if WOAptGet.is_selected(self, 'ngxblocker', packages):
                     WOFileUtils.rm(self, '/usr/local/sbin/update-ngxblocker')
 
-                if pargs.dashboard:
+                if WOAptGet.is_selected(self, 'WordOps Dashboard', packages):
                     if os.path.isfile('/var/www/22222/htdocs/index.php'):
                         WOFileUtils.rm(self, '/var/www/22222/htdocs/index.php')
                     if os.path.isfile('/var/www/22222/htdocs/index.html'):
@@ -315,17 +315,17 @@ class WOStackUpgradeController(CementBaseController):
                 Log.debug(self, "Downloading following: {0}".format(packages))
                 WODownload.download(self, packages)
 
-                if pargs.wpcli:
+                if WOAptGet.is_selected(self, 'WP-CLI', packages):
                     WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
-                if pargs.ngxblocker:
+                if WOAptGet.is_selected(self, 'ngxblocker', packages):
                     WOFileUtils.chmod(
                         self, '/usr/local/sbin/update-ngxblocker', 0o775)
                     WOShellExec.cmd_exec(
                         self, '/usr/local/sbin/update-ngxblocker -nq')
 
                 # Netdata
-                if pargs.netdata:
+                if WOAptGet.is_selected(self, 'Netdata', packages):
                     Log.wait(self, "Upgrading Netdata")
                     # detect static binaries install
                     if os.path.isdir('/opt/netdata'):
@@ -351,7 +351,7 @@ class WOStackUpgradeController(CementBaseController):
                                 self, "bash /var/lib/wo/tmp/kickstart.sh")
                     Log.valide(self, "Upgrading Netdata")
 
-                if pargs.dashboard:
+                if WOAptGet.is_selected(self, 'WordOps Dashboard', packages):
                     post_pref(
                         self, [], [["https://github.com/WordOps"
                                     "/wordops-dashboard/"
@@ -361,7 +361,7 @@ class WOStackUpgradeController(CementBaseController):
                                     "/var/lib/wo/tmp/wo-dashboard.tar.gz",
                                     "WordOps Dashboard"]])
 
-                if pargs.composer:
+                if WOAptGet.is_selected(self, 'Composer', packages):
                     Log.wait(self, "Upgrading Composer")
                     if WOShellExec.cmd_exec(
                             self, '/usr/bin/php -v'):
@@ -374,7 +374,7 @@ class WOStackUpgradeController(CementBaseController):
                     WOFileUtils.chmod(self, "/usr/local/bin/composer", 0o775)
                     Log.valide(self, "Upgrading Composer    ")
 
-                if pargs.phpmyadmin:
+                if WOAptGet.is_selected(self, 'PHPMyAdmin', packages):
                     Log.wait(self, "Upgrading phpMyAdmin")
                     WOExtract.extract(self, '/var/lib/wo/tmp/pma.tar.gz',
                                       '/var/lib/wo/tmp/')

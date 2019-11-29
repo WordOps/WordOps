@@ -236,6 +236,16 @@ class WOAptGet():
                 return True
         return False
 
+    def is_selected(self, package_name, packages_list):
+        """
+        Check if package is selected for install/removal/purge
+        in packages_list
+        """
+        for package in packages_list:
+            if package_name == package[2]:
+                return True
+        return False
+
     def download_only(self, package_name, repo_url=None, repo_key=None):
         """
         Similar to `apt-get install --download-only PACKAGE_NAME`

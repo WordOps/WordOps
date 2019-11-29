@@ -665,9 +665,7 @@ class WOStackController(CementBaseController):
         if pargs.mysql:
             if WOAptGet.is_installed(self, 'mariadb-server'):
                 Log.debug(self, "Removing apt_packages variable of MySQL")
-                apt_packages = apt_packages + ['mariadb-server',
-                                               'mysql-common',
-                                               'mariadb-client']
+                apt_packages = apt_packages + WOVar.wo_mysql
 
         # mysqlclient
         if pargs.mysqlclient:
