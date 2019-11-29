@@ -906,7 +906,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if os.path.exists('/etc/nginx/conf.d/upstream.conf'):
                 if not WOFileUtils.grepcheck(
                         self, '/etc/nginx/conf.d/upstream.conf', 'php74'):
-                    data = dict(release=WOVar.wo_version)
+                    data = dict(php="9000", debug="9001",
+                            php7="9070", debug7="9170",
+                            release=WOVar.wo_version)
                     WOTemplate.deploy(
                         self, '/etc/nginx/conf.d/upstream.conf',
                         'upstream.mustache', data, True)
