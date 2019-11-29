@@ -64,8 +64,11 @@ for site in $site_types; do
 
     fi
 done
-
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
 wo site info wp.net
+echo
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php73              '
@@ -85,9 +88,11 @@ for site in $other_site_types; do
 
     fi
 done
-
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
 wo site info wp.net
-
+echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php74              '
 echo -e "${CGREEN}#############################################${CEND}"
@@ -106,9 +111,11 @@ for site in $other_site_types; do
 
     fi
 done
-
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
 wo site info wp.net
-
+echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php72              '
 echo -e "${CGREEN}#############################################${CEND}"
@@ -127,9 +134,11 @@ for site in $other_site_types; do
 
     fi
 done
-
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
 wo site info wp.net
-
+echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update WP              '
 echo -e "${CGREEN}#############################################${CEND}"
@@ -194,7 +203,7 @@ if [ -z "$1" ]; then
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       wo stack upgrade              '
     echo -e "${CGREEN}#############################################${CEND}"
-    stack_upgrade='nginx php php72 php73 php74 mysql redis netdata dashboard phpmyadmin composer ngxblocker'
+    stack_upgrade='nginx php php72 php73 php74 mysql redis netdata dashboard phpmyadmin composer ngxblocker mysqltuner'
     for stack in $stack_upgrade; do
         echo -ne "      Upgrading $stack               [..]\r"
         if {
@@ -279,7 +288,7 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site info             '
 echo -e "${CGREEN}#############################################${CEND}"
 
-wo site info wp.net
+wo site info wpfc.net
 
 echo
 echo -e "${CGREEN}#############################################${CEND}"

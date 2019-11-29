@@ -16,8 +16,41 @@ class WOAcme:
     wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
                     "'/etc/letsencrypt/config'")
 
+    def check_acme(self):
+        """
+        Check if acme.sh is properly installed,
+        and install it if required
+        """
+        if not os.path.exists('/etc/letsencrypt/acme.sh'):
+            if os.path.exists('/opt/acme.sh'):
+                WOFileUtils.rm(self, '/opt/acme.sh')
+            WOGit.clone(
+                self, 'https://github.com/Neilpang/acme.sh.git',
+                '/opt/acme.sh', branch='master')
+            WOFileUtils.mkdir(self, '/etc/letsencrypt/config')
+            WOFileUtils.mkdir(self, '/etc/letsencrypt/renewal')
+            WOFileUtils.mkdir(self, '/etc/letsencrypt/live')
+            try:
+                WOFileUtils.chdir(self, '/opt/acme.sh')
+                WOShellExec.cmd_exec(
+                    self, './acme.sh --install --home /etc/letsencrypt'
+                    '--config-home /etc/letsencrypt/config'
+                    '--cert-home /etc/letsencrypt/renewal'
+                )
+                WOShellExec.cmd_exec(
+                    self, "{0} --upgrade --auto-upgrade"
+                    .format(WOAcme.wo_acme_exec)
+                )
+            except CommandExecutionError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "acme.sh installation failed")
+        if not os.path.exists('/etc/letsencrypt/acme.sh'):
+            Log.error(self, 'acme.sh ')
+
     def export_cert(self):
         """Export acme.sh csv certificate list"""
+        # check acme.sh is installed
+        WOAcme.check_acme(self)
         if not WOShellExec.cmd_exec(
                 self, "{0} ".format(WOAcme.wo_acme_exec) +
                 "--list --listraw > /var/lib/wo/cert.csv"):
@@ -26,6 +59,9 @@ class WOAcme:
 
     def setupletsencrypt(self, acme_domains, acmedata):
         """Issue SSL certificates with acme.sh"""
+        # check acme.sh is installed
+        WOAcme.check_acme(self)
+        # define variables
         all_domains = '\' -d \''.join(acme_domains)
         wo_acme_dns = acmedata['acme_dns']
         keylenght = acmedata['keylength']
@@ -74,6 +110,8 @@ class WOAcme:
 
     def deploycert(self, wo_domain_name):
         """Deploy Let's Encrypt certificates with acme.sh"""
+        # check acme.sh is installed
+        WOAcme.check_acme(self)
         if not os.path.isfile('/etc/letsencrypt/renewal/{0}_ecc/fullchain.cer'
                               .format(wo_domain_name)):
             Log.error(self, 'Certificate not found. Deployment canceled')
@@ -135,6 +173,8 @@ class WOAcme:
 
     def renew(self, domain):
         """Renew letsencrypt certificate with acme.sh"""
+        # check acme.sh is installed
+        WOAcme.check_acme(self)
         try:
             WOShellExec.cmd_exec(
                 self, "{0} ".format(WOAcme.wo_acme_exec) +
@@ -158,7 +198,10 @@ class WOAcme:
                 response = requests.get(url, headers=headers).json()
                 domain_ip = response["Answer"][0]['data']
             except requests.RequestException:
-                Log.error(self, 'Resolving domain IP failed')
+                Log.error(
+                    self, 'Resolving domain IP failed.\n'
+                    'The domain {0} do not exist or a DNS record is missing'
+                    .format(domain))
             if(not domain_ip == server_ip):
                 Log.warn(
                     self, "{0}".format(domain) +
@@ -202,6 +245,8 @@ class WOAcme:
             .format(WOVar.wo_ssl_live, domain),
             '/etc/letsencrypt/shared/{0}.conf'.format(domain)]
         wo_domain = domain
+        # check acme.sh is installed
+        WOAcme.check_acme(self)
         if WOAcme.cert_check(self, wo_domain):
             Log.info(self, "Removing Acme configuration")
             Log.debug(self, "Removing Acme configuration")
