@@ -519,12 +519,16 @@ class WOSiteUpdateController(CementBaseController):
 
         if php73 is True:
             data['wo_php'] = 'php73'
+            php_version = '7.3'
         elif php74 is True:
             data['wo_php'] = 'php74'
+            php_version = '7.4'
         elif php72 is True:
             data['wo_php'] = 'php72'
+            php_version = '7.2'
         else:
             data['wo_php'] = 'php72'
+            php_version = '7.2'
 
         if pargs.hsts:
             data['hsts'] = bool(pargs.hsts == "on")
@@ -1095,11 +1099,11 @@ class WOSiteUpdateController(CementBaseController):
                            db_user=data['wo_db_user'],
                            db_password=data['wo_db_pass'],
                            db_host=data['wo_db_host'],
-                           ssl=True if check_site.is_ssl else False,
+                           ssl=bool(check_site.is_ssl),
                            php_version=check_php_version)
         else:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
-                           ssl=True if check_site.is_ssl else False,
+                           ssl=bool(check_site.is_ssl),
                            php_version=check_php_version)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(wo_domain))
