@@ -829,7 +829,7 @@ def site_package_check(self, stype):
     stack = WOStackController()
     stack.app = self.app
     pargs = self.app.pargs
-    if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
+    if stype in ['html', 'proxy', 'php', 'php72', 'mysql', 'wp', 'wpsubdir',
                  'wpsubdomain', 'php73', 'php74']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
@@ -882,26 +882,32 @@ def site_package_check(self, stype):
                   "combined within the same WordOps site")
 
     if ((not pargs.php73) and (not pargs.php74) and
-        stype in ['php', 'mysql', 'wp', 'wpsubdir',
+        stype in ['php', 'php72', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php72 + \
-                WOVar.wo_php_extra
+        if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+            apt_packages = apt_packages + WOVar.wo_php72
+            if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                    WOAptGet.is_installed(self, 'php7.4-fpm')):
+                apt_packages = apt_packages + WOVar.wo_php_extra
 
-    if pargs.php73 and stype in ['mysql', 'wp',
+    if pargs.php73 and stype in ['php73', 'mysql', 'wp',
                                           'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.3")
         if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php72 + \
-                WOVar.wo_php73 + WOVar.wo_php_extra
+            apt_packages = apt_packages + WOVar.wo_php73
+            if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
+                    WOAptGet.is_installed(self, 'php7.4-fpm')):
+                apt_packages = apt_packages + WOVar.wo_php_extra
 
-    if pargs.php74 and stype in ['mysql', 'wp',
+    if pargs.php74 and stype in ['php74', 'mysql', 'wp',
                                  'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.4")
         if not WOAptGet.is_installed(self, 'php7.4-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php72 + \
-                WOVar.wo_php74 + WOVar.wo_php_extra
+            apt_packages = apt_packages + WOVar.wo_php74
+            if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                    WOAptGet.is_installed(self, 'php7.2-fpm')):
+                apt_packages = apt_packages + WOVar.wo_php_extra
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -919,19 +925,7 @@ def site_package_check(self, stype):
     if pargs.wpredis:
         Log.debug(self, "Setting apt_packages variable for redis")
         if not WOAptGet.is_installed(self, 'redis-server'):
-            apt_packages = apt_packages + ["redis-server"]
-
-    if pargs.php73:
-        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-        if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php72 + \
-                WOVar.wo_php73 + WOVar.wo_php_extra
-
-    if pargs.php74:
-        Log.debug(self, "Setting apt_packages variable for PHP 7.4")
-        if not WOAptGet.is_installed(self, 'php7.4-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php72 + \
-                WOVar.wo_php74 + WOVar.wo_php_extra
+            apt_packages = apt_packages + WOVar.wo_redis
 
     if pargs.ngxblocker:
         if not os.path.isdir('/etc/nginx/bots.d'):
