@@ -34,7 +34,7 @@ class WOSiteUpdateController(CementBaseController):
             (['--html'],
                 dict(help="update to html site", action='store_true')),
             (['--php72'],
-                dict(help="update to php site", action='store_true')),
+                dict(help="update to php72 site", action='store_true')),
             (['--php'],
              dict(help="update to php site", action='store_true')),
             (['--php73'],
@@ -138,9 +138,9 @@ class WOSiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         pargs = self.app.pargs
         letsencrypt = False
-        php73 = None
-        php74 = None
-        php72 = None
+        php73 = False
+        php74 = False
+        php72 = False
 
         data = dict()
         try:
@@ -433,7 +433,7 @@ class WOSiteUpdateController(CementBaseController):
             php73 = bool(old_php73 is True)
 
         if data and (not pargs.php74):
-            Log.debug(self, "data php73 = {0}".format(data['php74']))
+            Log.debug(self, "data php74 = {0}".format(data['php74']))
             data['php74'] = bool(old_php74 is True)
             php74 = bool(old_php74 is True)
 
