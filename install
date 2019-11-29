@@ -624,6 +624,14 @@ wo_clean_repo() {
     fi
 }
 
+wo_woconf() {
+    if [ -f /etc/wo/wo.conf ]; then
+        if grep -q "log.logging" /etc/wo/wo.conf; then
+            sed -i "s/log.logging/log.colorlog/g" /etc/wo/wo.conf
+        fi
+    fi
+}
+
 wo_init() {
 
     ###
@@ -697,6 +705,7 @@ else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         _run wo_clean
+        _run wo_woconf
         # 2 - Migration from EEv3
     else
         if [ -x /usr/local/bin/ee ]; then
