@@ -30,8 +30,12 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade Nginx stack', action='store_true')),
             (['--php'],
                 dict(help='Upgrade PHP 7.2 stack', action='store_true')),
+            (['--php72'],
+                dict(help='Upgrade PHP 7.2 stack', action='store_true')),
             (['--php73'],
              dict(help='Upgrade PHP 7.3 stack', action='store_true')),
+            (['--php74'],
+             dict(help='Upgrade PHP 7.4 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
             (['--wpcli'],
@@ -65,9 +69,11 @@ class WOStackUpgradeController(CementBaseController):
         packages = []
         self.msg = []
         pargs = self.app.pargs
-
+        if pargs.php:
+            pargs.php72 = True
         if ((not pargs.web) and (not pargs.nginx) and
-            (not pargs.php) and (not pargs.php73) and
+            (not pargs.php72) and (not pargs.php73) and
+            (not pargs.php74) and
             (not pargs.mysql) and (not pargs.ngxblocker) and
             (not pargs.all) and (not pargs.wpcli) and
             (not pargs.netdata) and (not pargs.composer) and
@@ -81,12 +87,13 @@ class WOStackUpgradeController(CementBaseController):
             pargs.web = True
             pargs.admin = True
             pargs.redis = True
-            pargs.php73 = True
             pargs.ngxblocker = True
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php = True
+            pargs.php72 = True
+            pargs.php73 = True
+            pargs.php74 = True
             pargs.mysql = True
             pargs.wpcli = True
 
@@ -110,34 +117,31 @@ class WOStackUpgradeController(CementBaseController):
                     Log.info(self, "Nginx Stable is not already installed")
 
         # php 7.2
-        if pargs.php:
+        if pargs.php72:
             if WOAptGet.is_installed(self, 'php7.2-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php72 + \
                     WOVar.wo_php_extra
-            else:
-                Log.info(self, "PHP 7.2 is not installed")
 
         # php 7.3
         if pargs.php73:
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php73 + \
                     WOVar.wo_php_extra
-            else:
-                Log.info(self, "PHP 7.3 is not installed")
+        # php 7.4
+        if pargs.php74:
+            if WOAptGet.is_installed(self, 'php7.4-fpm'):
+                apt_packages = apt_packages + WOVar.wo_php74 + \
+                    WOVar.wo_php_extra
 
         # mysql
         if pargs.mysql:
             if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
                 apt_packages = apt_packages + ['mariadb-server']
-            else:
-                Log.info(self, "MariaDB is not installed")
 
         # redis
         if pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 apt_packages = apt_packages + ['redis-server']
-            else:
-                Log.info(self, "Redis is not installed")
 
         # wp-cli
         if pargs.wpcli:
@@ -247,6 +251,8 @@ class WOStackUpgradeController(CementBaseController):
             if (apt_packages):
                 if (("php7.2-fpm" not in apt_packages) and
                         ("php7.3-fpm" not in apt_packages) and
+                        ("php7.4-fpm" not in apt_packages) and
+                        ("redis-server" not in apt_packages) and
                         ("nginx-custom" not in apt_packages) and
                         ("mariadb-server" not in apt_packages)):
                     pass
@@ -272,6 +278,9 @@ class WOStackUpgradeController(CementBaseController):
                                     auto=False, purge=True)
                 if "php7.3-fpm" in apt_packages:
                     WOAptGet.remove(self, ['php7.3-fpm'],
+                                    auto=False, purge=True)
+                if "php7.4-fpm" in apt_packages:
+                    WOAptGet.remove(self, ['php7.4-fpm'],
                                     auto=False, purge=True)
                 # check if nginx upgrade is blocked
                 if os.path.isfile(

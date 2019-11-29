@@ -132,8 +132,8 @@ class WOStackController(CementBaseController):
                 pargs.admin = True
                 pargs.fail2ban = True
 
-            if pargs.php72:
-                pargs.php = True
+            if pargs.php:
+                pargs.php72 = True
 
             if pargs.all:
                 pargs.web = True
@@ -145,7 +145,7 @@ class WOStackController(CementBaseController):
 
             if pargs.web:
                 pargs.nginx = True
-                pargs.php = True
+                pargs.php72 = True
                 pargs.mysql = True
                 pargs.wpcli = True
                 pargs.sendmail = True
@@ -184,11 +184,13 @@ class WOStackController(CementBaseController):
                     Log.info(self, "Redis already installed")
 
             # PHP 7.2
-            if pargs.php:
+            if pargs.php72:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = (apt_packages + WOVar.wo_php72 +
-                                    WOVar.wo_php_extra)
+                    apt_packages = apt_packages + WOVar.wo_php72
+                    if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                            WOAptGet.is_installed(self, 'php7.4-fpm')):
+                        apt_packages = apt_packages + WOVar.wo_php_extra
                 else:
                     Log.debug(self, "PHP 7.2 already installed")
                     Log.info(self, "PHP 7.2 already installed")
@@ -197,9 +199,10 @@ class WOStackController(CementBaseController):
             if pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php72 +
-                                    WOVar.wo_php73 +
-                                    WOVar.wo_php_extra)
+                    apt_packages = apt_packages + WOVar.wo_php73
+                    if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
+                            WOAptGet.is_installed(self, 'php7.4-fpm')):
+                        apt_packages = apt_packages + WOVar.wo_php_extra
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
@@ -208,9 +211,10 @@ class WOStackController(CementBaseController):
             if pargs.php74:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.4")
                 if not WOAptGet.is_installed(self, 'php7.4-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php72 +
-                                    WOVar.wo_php74 +
-                                    WOVar.wo_php_extra)
+                    apt_packages = apt_packages + WOVar.wo_php74
+                    if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                            WOAptGet.is_installed(self, 'php7.2-fpm')):
+                        apt_packages = apt_packages + WOVar.wo_php_extra
                 else:
                     Log.debug(self, "PHP 7.4 already installed")
                     Log.info(self, "PHP 7.4 already installed")
@@ -573,8 +577,8 @@ class WOStackController(CementBaseController):
                 (not pargs.php72) and (not pargs.all)):
             self.app.args.print_help()
 
-        if pargs.php72:
-            pargs.php = True
+        if pargs.php:
+            pargs.php72 = True
 
         if pargs.all:
             pargs.web = True
@@ -591,7 +595,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php = True
+            pargs.php72 = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
@@ -616,34 +620,40 @@ class WOStackController(CementBaseController):
                 apt_packages = apt_packages + WOVar.wo_nginx
 
         # PHP 7.2
-        if pargs.php:
-            Log.debug(self, "Removing apt_packages variable of PHP")
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVar.wo_php72 + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php72
+        if pargs.php72:
+            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
+            if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                apt_packages = apt_packages + WOVar.wo_php72
+                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                        WOAptGet.is_installed(self, 'php7.4-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php_extra
+            else:
+                Log.debug(self, "PHP 7.2 is not installed")
+                Log.info(self, "PHP 7.2 is not installed")
 
-        # PHP7.3
+        # PHP 7.3
         if pargs.php73:
-            Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-            if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php73 + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php73
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVar.wo_php73
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
+                        WOAptGet.is_installed(self, 'php7.4-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php_extra
+            else:
+                Log.debug(self, "PHP 7.3 is not installed")
+                Log.info(self, "PHP 7.3 is not installed")
 
-        # PHP7.4
+        # PHP 7.4
         if pargs.php74:
-            Log.debug(self, "Removing apt_packages variable of PHP 7.4")
-            if WOAptGet.is_installed(self, 'php7.4-fpm'):
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php74 + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php74
+            Log.debug(self, "Setting apt_packages variable for PHP 7.4")
+            if not WOAptGet.is_installed(self, 'php7.4-fpm'):
+                apt_packages = apt_packages + WOVar.wo_php74
+                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                        WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php_extra
+            else:
+                Log.debug(self, "PHP 7.4 is not installed")
+                Log.info(self, "PHP 7.4 is not installed")
 
         # REDIS
         if pargs.redis:
@@ -874,8 +884,8 @@ class WOStackController(CementBaseController):
                 (not pargs.php72) and (not pargs.all)):
             self.app.args.print_help()
 
-        if pargs.php72:
-            pargs.php = True
+        if pargs.php:
+            pargs.php72 = True
 
         if pargs.all:
             pargs.web = True
@@ -890,7 +900,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php = True
+            pargs.php72 = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
@@ -917,39 +927,41 @@ class WOStackController(CementBaseController):
             else:
                 Log.info(self, "Nginx is not installed")
 
-        # PHP
-        if pargs.php:
-            Log.debug(self, "Add PHP to apt_packages list")
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php72 + \
-                    WOVar.wo_php_extra
+        # PHP 7.2
+        if pargs.php72:
+            Log.debug(self, "Setting apt_packages variable for PHP 7.2")
+            if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+                apt_packages = apt_packages + WOVar.wo_php72
+                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                        WOAptGet.is_installed(self, 'php7.4-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php_extra
+            else:
+                Log.debug(self, "PHP 7.2 is not installed")
+                Log.info(self, "PHP 7.2 is not installed")
 
         # PHP 7.3
         if pargs.php73:
-            Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-            if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php73 + \
-                    WOVar.wo_php_extra
+            Log.debug(self, "Setting apt_packages variable for PHP 7.3")
+            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+                apt_packages = apt_packages + WOVar.wo_php73
+                if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
+                        WOAptGet.is_installed(self, 'php7.4-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php_extra
+            else:
+                Log.debug(self, "PHP 7.3 is not installed")
+                Log.info(self, "PHP 7.3 is not installed")
 
-        # PHP7.3
-        if pargs.php73:
-            Log.debug(self, "Removing apt_packages variable of PHP 7.3")
-            if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php73 + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php73
-
-        # PHP7.4
+        # PHP 7.4
         if pargs.php74:
-            Log.debug(self, "Removing apt_packages variable of PHP 7.4")
-            if WOAptGet.is_installed(self, 'php7.4-fpm'):
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php74 + \
-                        WOVar.wo_php_extra
-                else:
-                    apt_packages = apt_packages + WOVar.wo_php74
+            Log.debug(self, "Setting apt_packages variable for PHP 7.4")
+            if not WOAptGet.is_installed(self, 'php7.4-fpm'):
+                apt_packages = apt_packages + WOVar.wo_php74
+                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
+                        WOAptGet.is_installed(self, 'php7.2-fpm')):
+                    apt_packages = apt_packages + WOVar.wo_php_extra
+            else:
+                Log.debug(self, "PHP 7.4 is not installed")
+                Log.info(self, "PHP 7.4 is not installed")
 
         # REDIS
         if pargs.redis:
