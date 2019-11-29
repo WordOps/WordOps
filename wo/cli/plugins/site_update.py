@@ -317,7 +317,8 @@ class WOSiteUpdateController(CementBaseController):
 
         if ((pargs.php72 or pargs.php73 or
              pargs.php74) and (not data)):
-            Log.debug(self, "pargs php enabled")
+            Log.debug(
+                self, "pargs php72, or php73, or php74 enabled")
             data = dict(
                 site_name=wo_domain,
                 www_domain=wo_www_domain,
@@ -401,11 +402,11 @@ class WOSiteUpdateController(CementBaseController):
             data['php72'] = True
             php72 = True
         elif pargs.php73:
-            Log.debug(self, "pargs.php72 detected")
+            Log.debug(self, "pargs.php73 detected")
             data['php73'] = True
             php73 = True
         elif pargs.php74:
-            Log.debug(self, "pargs.php72 detected")
+            Log.debug(self, "pargs.php74 detected")
             data['php74'] = True
             php74 = True
 
@@ -427,12 +428,10 @@ class WOSiteUpdateController(CementBaseController):
                          "site")
                 pargs.php74 = False
 
-        if data and (not pargs.php73):
+        if data and (not pargs.php73) and (not pargs.php74):
             data['php73'] = bool(old_php73 is True)
             Log.debug(self, "data php73 = {0}".format(data['php73']))
             php73 = bool(old_php73 is True)
-
-        if data and (not pargs.php74):
             data['php74'] = bool(old_php74 is True)
             Log.debug(self, "data php74 = {0}".format(data['php74']))
             php74 = bool(old_php74 is True)
