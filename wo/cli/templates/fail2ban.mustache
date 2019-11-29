@@ -6,15 +6,17 @@ enabled = true
 
 [nginx-http-auth]
 enabled   = true
+logpath = /var/log/nginx/*error*.log
 
 [nginx-botsearch]
 enabled   = true
+logpath = /var/log/nginx/*access*.log
 
 [wo-wordpress]
 enabled = true
 filter = wo-wordpress
 action = iptables-multiport[name="wo-wordpress", port="http,https"]
-logpath = /var/log/nginx/*access.log
+logpath = /var/log/nginx/*access*.log
 maxretry = 5
 
 [nginx-forbidden]
