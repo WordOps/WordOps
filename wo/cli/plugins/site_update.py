@@ -33,18 +33,14 @@ class WOSiteUpdateController(CementBaseController):
                      action='store_true')),
             (['--html'],
                 dict(help="update to html site", action='store_true')),
-            (['--php72'],
-                dict(help="update to php72 site", action='store_true')),
             (['--php'],
              dict(help="update to php site", action='store_true')),
+            (['--php72'],
+                dict(help="update to php72 site", action='store_true')),
             (['--php73'],
-                dict(help="update to php73 site",
-                     action='store' or 'store_const',
-                     choices=('on', 'off'), const='on', nargs='?')),
+                dict(help="update to php73 site", action='store_true')),
             (['--php74'],
-                dict(help="update to php74 site",
-                     action='store' or 'store_const',
-                     choices=('on', 'off'), const='on', nargs='?')),
+                dict(help="update to php74 site", action='store_true')),
             (['--mysql'],
                 dict(help="update to mysql site", action='store_true')),
             (['--wp'],
@@ -262,7 +258,7 @@ class WOSiteUpdateController(CementBaseController):
                 return 0
 
         if (((stype == 'php' and
-              oldsitetype not in ['html', 'proxy', 'php',
+              oldsitetype not in ['html', 'proxy', 'php', 'php72',
                                   'php73', 'php74']) or
              (stype == 'mysql' and oldsitetype not in [
                  'html', 'php', 'php72', 'php73', 'php74', 'proxy']) or
@@ -291,7 +287,7 @@ class WOSiteUpdateController(CementBaseController):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
-                php72=True, php73=False, php74=False,
+                php72=False, php73=False, php74=False,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 currsitetype=oldsitetype, currcachetype=oldcachetype)
@@ -519,11 +515,6 @@ class WOSiteUpdateController(CementBaseController):
         if (php74 is old_php74) and (stype == oldsitetype and
                                      cache == oldcachetype):
             Log.debug(self, "php74 is old_php74")
-            return 1
-
-        if (php72 is old_php72) and (stype == oldsitetype and
-                                     cache == oldcachetype):
-            Log.debug(self, "php72 is old_php72")
             return 1
 
         if php73 is True:
