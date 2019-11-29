@@ -507,14 +507,10 @@ class WOSiteUpdateController(CementBaseController):
             data['basic'] = False
             cache = 'wpce'
 
-        if (php73 is old_php73) and (stype == oldsitetype and
-                                     cache == oldcachetype):
-            Log.debug(self, "php73 is old_php73")
-            return 1
-
-        if (php74 is old_php74) and (stype == oldsitetype and
-                                     cache == oldcachetype):
-            Log.debug(self, "php74 is old_php74")
+        if ((php73 is old_php73) and (php72 is old_php72) and
+            (php74 is old_php74) and (stype == oldsitetype and
+                                      cache == oldcachetype)):
+            Log.debug(self, "Nothing to update")
             return 1
 
         if php73 is True:
