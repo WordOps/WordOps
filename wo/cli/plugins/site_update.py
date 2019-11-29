@@ -317,6 +317,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if ((pargs.php72 or pargs.php73 or
              pargs.php74) and (not data)):
+            Log.debug(self, "pargs php enabled")
             data = dict(
                 site_name=wo_domain,
                 www_domain=wo_www_domain,
@@ -396,12 +397,15 @@ class WOSiteUpdateController(CementBaseController):
                 data['wpce'] = True
 
         if pargs.php72:
+            Log.debug(self, "pargs.php72 detected")
             data['php72'] = True
             php72 = True
         elif pargs.php73:
+            Log.debug(self, "pargs.php72 detected")
             data['php73'] = True
             php73 = True
         elif pargs.php74:
+            Log.debug(self, "pargs.php72 detected")
             data['php74'] = True
             php74 = True
 
@@ -424,10 +428,12 @@ class WOSiteUpdateController(CementBaseController):
                 pargs.php74 = False
 
         if data and (not pargs.php73):
+            Log.debug(self, "data php73 = {0}".format(data['php73']))
             data['php73'] = bool(old_php73 is True)
             php73 = bool(old_php73 is True)
 
         if data and (not pargs.php74):
+            Log.debug(self, "data php73 = {0}".format(data['php74']))
             data['php74'] = bool(old_php74 is True)
             php74 = bool(old_php74 is True)
 
@@ -508,14 +514,17 @@ class WOSiteUpdateController(CementBaseController):
 
         if (php73 is old_php73) and (stype == oldsitetype and
                                      cache == oldcachetype):
+            Log.debug(self, "php73 is old_php73")
             return 1
 
         if (php74 is old_php74) and (stype == oldsitetype and
                                      cache == oldcachetype):
+            Log.debug(self, "php74 is old_php74")
             return 1
 
         if (php72 is old_php72) and (stype == oldsitetype and
                                      cache == oldcachetype):
+            Log.debug(self, "php72 is old_php72")
             return 1
 
         if php73 is True:
