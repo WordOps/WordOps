@@ -48,6 +48,8 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade WordOps Dashboard', action='store_true')),
             (['--composer'],
              dict(help='Upgrade Composer', action='store_true')),
+            (['--mysqltuner'],
+             dict(help='Upgrade Composer', action='store_true')),
             (['--phpmyadmin'],
              dict(help='Upgrade phpMyAdmin', action='store_true')),
             (['--adminer'],
@@ -69,19 +71,21 @@ class WOStackUpgradeController(CementBaseController):
         packages = []
         self.msg = []
         pargs = self.app.pargs
-        if pargs.php:
-            pargs.php72 = True
         if ((not pargs.web) and (not pargs.nginx) and
+            (not pargs.php) and
             (not pargs.php72) and (not pargs.php73) and
             (not pargs.php74) and
             (not pargs.mysql) and (not pargs.ngxblocker) and
             (not pargs.all) and (not pargs.wpcli) and
             (not pargs.netdata) and (not pargs.composer) and
             (not pargs.phpmyadmin) and (not pargs.adminer) and
-            (not pargs.dashboard) and
+            (not pargs.dashboard) and (not pargs.mysqltuner) and
                 (not pargs.redis)):
             pargs.web = True
             pargs.admin = True
+
+        if pargs.php:
+            pargs.php72 = True
 
         if pargs.all:
             pargs.web = True
@@ -104,6 +108,7 @@ class WOStackUpgradeController(CementBaseController):
             pargs.phpmyadmin = True
             pargs.wpcli = True
             pargs.adminer = True
+            pargs.mysqltuner = True
 
         # nginx
         if pargs.nginx:
@@ -232,6 +237,18 @@ class WOStackUpgradeController(CementBaseController):
             else:
                 Log.info(self, "Composer isn't installed")
 
+        # mysqltuner
+        if pargs.mysqltuner:
+            if WOAptGet.is_exec(self, 'mysqltuner'):
+                Log.debug(self, "Setting packages variable "
+                          "for MySQLTuner ")
+                packages = packages + [["https://raw."
+                                        "githubusercontent.com/"
+                                        "major/MySQLTuner-perl"
+                                        "/master/mysqltuner.pl",
+                                        "/usr/bin/mysqltuner",
+                                        "MySQLTuner"]]
+
         # ngxblocker
         if pargs.ngxblocker:
             if os.path.exists('/usr/local/sbin/install-ngxblocker'):
@@ -323,6 +340,11 @@ class WOStackUpgradeController(CementBaseController):
                         self, '/usr/local/sbin/update-ngxblocker', 0o775)
                     WOShellExec.cmd_exec(
                         self, '/usr/local/sbin/update-ngxblocker -nq')
+
+                if WOAptGet.is_selected(self, 'MySQLTuner', packages):
+                    WOFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
+                    if os.path.exists('/usr/local/bin/mysqltuner'):
+                        WOFileUtils.rm(self, '/usr/local/bin/mysqltuner')
 
                 # Netdata
                 if WOAptGet.is_selected(self, 'Netdata', packages):
