@@ -426,15 +426,16 @@ class WOSiteUpdateController(CementBaseController):
 
         if (data and (not pargs.php73) and
                 (not pargs.php74) and (not pargs.php72)):
+            data['php72'] = bool(old_php72 is True)
+            Log.debug(self, "data php72 = {0}".format(data['php72']))
+            php72 = bool(old_php72 is True)
             data['php73'] = bool(old_php73 is True)
             Log.debug(self, "data php73 = {0}".format(data['php73']))
             php73 = bool(old_php73 is True)
             data['php74'] = bool(old_php74 is True)
             Log.debug(self, "data php74 = {0}".format(data['php74']))
             php74 = bool(old_php74 is True)
-            data['php72'] = bool(old_php72 is True)
-            Log.debug(self, "data php72 = {0}".format(data['php72']))
-            php74 = bool(old_php72 is True)
+
 
 
         if pargs.letsencrypt:
