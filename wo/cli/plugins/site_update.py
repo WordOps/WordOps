@@ -395,47 +395,32 @@ class WOSiteUpdateController(CementBaseController):
                 data['wprocket'] = False
                 data['wpce'] = True
 
-            if pargs.php72:
-                data['php72'] = True
-                php72 = True
-                check_php_version = '7.2'
-            elif pargs.php73:
-                data['php73'] = True
-                php73 = True
-                check_php_version = '7.3'
-            elif pargs.php74:
-                data['php74'] = True
-                php74 = True
-                check_php_version = '7.4'
+        if pargs.php72:
+            data['php72'] = True
+            php72 = True
+        elif pargs.php73:
+            data['php73'] = True
+            php73 = True
+        elif pargs.php74:
+            data['php74'] = True
+            php74 = True
 
         if pargs.php72:
             if php72 is old_php72:
-                if php72 is False:
-                    Log.info(self, "PHP 7.2 is already disabled for given "
-                             "site")
-                elif php72 is True:
-                    Log.info(self, "PHP 7.2 is already enabled for given "
-                             "site")
+                Log.info(self, "PHP 7.2 is already enabled for given "
+                         "site")
                 pargs.php72 = False
 
         if pargs.php73:
             if php73 is old_php73:
-                if php73 is False:
-                    Log.info(self, "PHP 7.3 is already disabled for given "
-                             "site")
-                elif php73 is True:
-                    Log.info(self, "PHP 7.3 is already enabled for given "
-                             "site")
+                Log.info(self, "PHP 7.3 is already enabled for given "
+                         "site")
                 pargs.php73 = False
 
         if pargs.php74:
             if php74 is old_php74:
-                if php74 is False:
-                    Log.info(self, "PHP 7.4 is already disabled for given "
-                             "site")
-                elif php74 is True:
-                    Log.info(self, "PHP 7.4 is already enabled for given "
-                             "site")
+                Log.info(self, "PHP 7.4 is already enabled for given "
+                         "site")
                 pargs.php74 = False
 
         if data and (not pargs.php73):
@@ -537,6 +522,8 @@ class WOSiteUpdateController(CementBaseController):
             data['wo_php'] = 'php73'
         elif php74 is True:
             data['wo_php'] = 'php74'
+        elif php72 is True:
+            data['wo_php'] = 'php72'
         else:
             data['wo_php'] = 'php72'
 
