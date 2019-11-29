@@ -64,10 +64,13 @@ for site in $site_types; do
 
     fi
 done
+
+wo site info wp.net
+
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php73              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='html mysql php php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php73              [..]\r"
     if {
@@ -82,6 +85,50 @@ for site in $other_site_types; do
 
     fi
 done
+
+wo site info wp.net
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update --php74              '
+echo -e "${CGREEN}#############################################${CEND}"
+other_site_types='html mysql wp php php73 wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+for site in $other_site_types; do
+    echo -ne "       Updating site to $site php74              [..]\r"
+    if {
+        wo site update ${site}.net --php74
+    } >>/var/log/wo/test.log; then
+        echo -ne "       Updating site to $site php74               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating site to $site php74              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+wo site info wp.net
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update --php72              '
+echo -e "${CGREEN}#############################################${CEND}"
+other_site_types='html mysql php php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+for site in $other_site_types; do
+    echo -ne "       Updating site to $site php72              [..]\r"
+    if {
+        wo site update ${site}.net --php72
+    } >>/var/log/wo/test.log; then
+        echo -ne "       Updating site to $site php72               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating site to $site php72              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+wo site info wp.net
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update WP              '
