@@ -622,7 +622,7 @@ class WOStackController(CementBaseController):
         # PHP 7.2
         if pargs.php72:
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+            if (WOAptGet.is_installed(self, 'php7.2-fpm')):
                 apt_packages = apt_packages + WOVar.wo_php72
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
                         WOAptGet.is_installed(self, 'php7.4-fpm')):
@@ -634,7 +634,7 @@ class WOStackController(CementBaseController):
         # PHP 7.3
         if pargs.php73:
             Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php73
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
                         WOAptGet.is_installed(self, 'php7.4-fpm')):
@@ -646,7 +646,7 @@ class WOStackController(CementBaseController):
         # PHP 7.4
         if pargs.php74:
             Log.debug(self, "Setting apt_packages variable for PHP 7.4")
-            if not WOAptGet.is_installed(self, 'php7.4-fpm'):
+            if WOAptGet.is_installed(self, 'php7.4-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php74
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
                         WOAptGet.is_installed(self, 'php7.2-fpm')):
@@ -930,7 +930,7 @@ class WOStackController(CementBaseController):
         # PHP 7.2
         if pargs.php72:
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-            if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+            if (WOAptGet.is_installed(self, 'php7.2-fpm')):
                 apt_packages = apt_packages + WOVar.wo_php72
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
                         WOAptGet.is_installed(self, 'php7.4-fpm')):
@@ -942,7 +942,7 @@ class WOStackController(CementBaseController):
         # PHP 7.3
         if pargs.php73:
             Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-            if not WOAptGet.is_installed(self, 'php7.3-fpm'):
+            if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php73
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
                         WOAptGet.is_installed(self, 'php7.4-fpm')):
@@ -954,7 +954,7 @@ class WOStackController(CementBaseController):
         # PHP 7.4
         if pargs.php74:
             Log.debug(self, "Setting apt_packages variable for PHP 7.4")
-            if not WOAptGet.is_installed(self, 'php7.4-fpm'):
+            if WOAptGet.is_installed(self, 'php7.4-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php74
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
                         WOAptGet.is_installed(self, 'php7.2-fpm')):
