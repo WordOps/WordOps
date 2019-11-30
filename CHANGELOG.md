@@ -29,7 +29,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - typo error in motd-news script
 - Install Nginx before ngxblocker
 
-
 ### v3.10.3 - 2019-11-11
 
 #### Added

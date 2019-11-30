@@ -42,7 +42,7 @@
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
 - **Custom Nginx build** : Nginx 1.16.1 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.2 & 7.3, MariaDB 10.3 & Redis 5.0
+- **Up-to-date** : PHP 7.2, 7.3 & 7.4, MariaDB 10.3 & Redis 5.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
@@ -67,10 +67,9 @@
 - Debian 9 (Stretch)
 - Debian 10 (Buster)
 - Raspbian 9 (Stretch)
-- Raspbian 10 (Buster) - Testing
+- Raspbian 10 (Buster)
 
 ## Getting Started
-
 
 ```bash
 wget -qO wo wops.cc && sudo bash wo      # Install WordOps
@@ -86,6 +85,7 @@ Detailed Getting Started guide with additional installation methods can be found
 ```bash
 wo site create example.com --wp                  # install wordpress without any page caching
 wo site create example.com --wp  --php73         # install wordpress with PHP 7.3  without any page caching
+wo site create example.com --wp  --php74         # install wordpress with PHP 7.4  without any page caching
 wo site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis             # install wordpress + nginx redis_cache
 wo site create example.com --wprocket            # install wordpress with WP-Rocket plugin
@@ -121,9 +121,19 @@ wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + C
 wo site create example.com --html     # create example.com for static/html sites
 wo site create example.com --php      # create example.com with php support
 wo site create example.com --php73      # create example.com with php 7.3 support
+wo site create example.com --php73      # create example.com with php 7.4 support
 wo site create example.com --mysql    # create example.com with php & mysql support
 wo site create example.com --mysql --php73   # create example.com with php 7.3 & mysql support
+wo site create example.com --mysql --php74   # create example.com with php 7.4 & mysql support
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
+```
+
+### Switch between PHP versions
+
+```bash
+wo site update example/com --php72 # switch to PHP 7.2
+wo site update example.com --php73 # switch to PHP 7.3
+wo site update example.com --php74 # switch to PHP 7.4
 ```
 
 ### Sites secured with Let's Encrypt
@@ -148,7 +158,7 @@ For any other questions about WordOps or if you need support, please use the [Co
 
 # Contributing
 
-If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
+If you'd like to contribute, please fork the reposi7tory and make changes as you'd like. Pull requests are warmly welcome.
 There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.net).
 
 ## Credits
