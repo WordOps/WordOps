@@ -113,21 +113,18 @@ class WOStackController(CementBaseController):
 
         try:
             # Default action for stack installation
-            if ((not pargs.web) and (not pargs.admin) and
-                (not pargs.nginx) and (not pargs.php) and
-                (not pargs.mysql) and (not pargs.wpcli) and
-                (not pargs.phpmyadmin) and (not pargs.composer) and
-                (not pargs.netdata) and (not pargs.dashboard) and
-                (not pargs.fail2ban) and (not pargs.security) and
-                (not pargs.mysqlclient) and (not pargs.mysqltuner) and
-                (not pargs.adminer) and (not pargs.utils) and
-                (not pargs.redis) and (not pargs.proftpd) and
-                (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and (not pargs.nanorc) and
-                (not pargs.ufw) and (not pargs.ngxblocker) and
-                (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                    (not pargs.php73) and (not pargs.php72) and
-                    (not pargs.php74) and (not pargs.all)):
+            if not (pargs.web or pargs.admin or pargs.nginx or
+                    pargs.php or pargs.php72 or pargs.php73 or pargs.php74 or
+                    pargs.mysql or pargs.wpcli or pargs.phpmyadmin or
+                    pargs.composer or pargs.netdata or pargs.composer or
+                    pargs.dashboard or pargs.fail2ban or pargs.security or
+                    pargs.mysqlclient or pargs.mysqltuner or
+                    pargs.admin or pargs.adminer or
+                    pargs.utils or pargs.redis or
+                    pargs.proftpd or pargs.extplorer or
+                    pargs.clamav or pargs.cheat or pargs.nanorc or
+                    pargs.ufw or pargs.ngxblocker or
+                    pargs.phpredisadmin or pargs.sendmail or pargs.all):
                 pargs.web = True
                 pargs.admin = True
                 pargs.fail2ban = True
@@ -336,7 +333,7 @@ class WOStackController(CementBaseController):
             if pargs.composer:
                 if not WOAptGet.is_exec(self, 'php'):
                     pargs.php = True
-                if not os.path.isfile('/usr/local/bin/composer'):
+                if not WOAptGet.is_exec(self, 'composer'):
                     Log.debug(self, "Setting packages variable for Composer ")
                     packages = packages + [["https://getcomposer.org/"
                                             "installer",
@@ -440,6 +437,8 @@ class WOStackController(CementBaseController):
 
             # ultimate ngx_blocker
             if pargs.ngxblocker:
+                if not WOAptGet.is_exec(self, 'nginx'):
+                    pargs.nginx = True
                 if not os.path.isdir('/etc/nginx/bots.d'):
                     Log.debug(self, "Setting packages variable for ngxblocker")
                     packages = packages + \
