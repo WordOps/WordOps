@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Enable Gzip static to serve precompressed assets with Cache-Enabler and WP-Rocket
 - Stack upgrade for adminer
 - Check acme.sh installation and setup acme.sh if needed before issuing certificate
+- Add `--ufw` to `wo stack status`
 
 #### Changed
 
