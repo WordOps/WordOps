@@ -542,8 +542,7 @@ class WOSiteCreateController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
                 Log.info(self, "Congratulations! Successfully Configured "
-                         "SSl for Site "
-                         " https://{0}".format(wo_domain))
+                         "SSL on https://{0}".format(wo_domain))
 
                 # Add nginx conf folder into GIT
                 WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],

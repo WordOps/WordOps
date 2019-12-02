@@ -14,6 +14,9 @@ class SSL:
 
     def getexpirationdays(self, domain, returnonerror=False):
         # check if exist
+        if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
+            split_domain = domain.split('.')
+            domain = ('.').join(split_domain[1:])
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
             Log.error(self, 'File Not Found: '
