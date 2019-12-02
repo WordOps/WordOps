@@ -926,6 +926,23 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.write(config)
                 config_file.close()
             else:
+                if "PASSWORD" not in WOShellExec.cmd_exec_stdout(
+                        self, 'mysql -e "use mysql; show grants;"'):
+                    try:
+                        if not os.path.exists('/etc/mysql/conf.d/my.cnf'):
+                            Log.error(self, 'my.cnf not found')
+                        config = configparser.ConfigParser()
+                        config.read('/etc/mysql/conf.d/my.cnf')
+                        chars = config['client']['password']
+                        WOShellExec.cmd_exec(
+                            self, "mysql -e \"use mysql; "
+                            "GRANT ALL PRIVILEGES on "
+                            "*.* TO 'root'@'127.0.0.1' IDENTIFIED by "
+                            "'{0}' WITH GRANT OPTION\"".format(chars))
+                        WOShellExec.cmd_exec(
+                            self, 'mysql -e "flush privileges;"')
+                    except CommandExecutionError:
+                        Log.error(self, "Unable to set MySQL password")
                 Log.info(self, "Tuning MariaDB configuration")
                 if not os.path.isfile("/etc/mysql/my.cnf.default-pkg"):
                     WOFileUtils.copyfile(self, "/etc/mysql/my.cnf",
