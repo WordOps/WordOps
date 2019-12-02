@@ -169,7 +169,8 @@ wo_check_distro() {
         else
             check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
             if [ -z "$check_wo_linux_distro" ]; then
-                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x"
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x.\n
+                You can bypass this warning by adding the flag --force to the install command"
                 exit 100
             fi
         fi

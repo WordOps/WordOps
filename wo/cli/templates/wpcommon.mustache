@@ -12,7 +12,7 @@ location = /wp-cron.php {
     include fastcgi_params;
     fastcgi_pass {{upstream}};
 }
-# Prevent Dos attacks with xmlrpc.php
+# Prevent DoS attacks with xmlrpc.php
 location = /xmlrpc.php {
     limit_req zone=two burst=1 nodelay;
     include fastcgi_params;

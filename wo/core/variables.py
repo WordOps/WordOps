@@ -17,8 +17,8 @@ class WOVar():
     wo_version = "3.10.4"
     # WordOps packages versions
     wo_wp_cli = "2.4.0"
-    wo_adminer = "4.7.3"
-    wo_phpmyadmin = "4.9.1"
+    wo_adminer = "4.7.5"
+    wo_phpmyadmin = "4.9.2"
     wo_extplorer = "2.1.13"
     wo_dashboard = "1.2"
 

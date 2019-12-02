@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
-### v3.10.4 - 2019-11-30
+### v3.10.4 - 2019-12-02
 
 #### Added
 
@@ -23,11 +23,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Add private ip range into fail2ban ignoreip directive
 - Previous `--php73` & `--php73=off` flags are replaced by `--php72`, `--php73`, `--php74` to switch site's php version
+- phpMyAdmin updated to v4.9.2
+- Adminer updated to v4.7.5
 
 #### Fixed
 
 - typo error in motd-news script
 - Install Nginx before ngxblocker
+- WordOps install/update script text color
 
 ### v3.10.3 - 2019-11-11
 

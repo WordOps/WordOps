@@ -132,6 +132,7 @@ class WOStackUpgradeController(CementBaseController):
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php73 + \
                     WOVar.wo_php_extra
+
         # php 7.4
         if pargs.php74:
             if WOAptGet.is_installed(self, 'php7.4-fpm'):
