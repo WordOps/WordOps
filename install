@@ -26,7 +26,7 @@
 CSI='\033['
 TPUT_RESET="${CSI}0m"
 TPUT_FAIL="${CSI}1;31m"
-TPUT_ECHO="${CSI}1;34m"
+TPUT_ECHO="${CSI}1;36m"
 TPUT_OK="${CSI}1;32m"
 
 wo_lib_echo() {
