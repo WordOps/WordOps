@@ -23,25 +23,25 @@
 # 1 - Set the CLI output colors
 ###
 
-TPUT_RESET=$(tput sgr0)
-TPUT_FAIL=$(tput setaf 1)
-TPUT_INFO=$(tput setaf 7)
-TPUT_ECHO=$(tput setaf 4)
-TPUT_OK=$(tput setaf 2)
+CSI='\033['
+TPUT_RESET="${CSI}0m"
+TPUT_FAIL="${CSI}1;31m"
+TPUT_ECHO="${CSI}1;34m"
+TPUT_OK="${CSI}1;32m"
 
 wo_lib_echo() {
 
-    echo "${TPUT_ECHO}${*}${TPUT_RESET}"
+    echo -e "${TPUT_ECHO}${*}${TPUT_RESET}"
 }
 
 wo_lib_echo_info() {
 
-    echo "${TPUT_INFO}${*}${TPUT_RESET}"
+    echo -e "$*"
 }
 
 wo_lib_echo_fail() {
 
-    echo "${TPUT_FAIL}${*}${TPUT_RESET}"
+    echo -e "${TPUT_FAIL}${*}${TPUT_RESET}"
 }
 
 ###
@@ -49,7 +49,7 @@ wo_lib_echo_fail() {
 ###
 
 wo_lib_error() {
-    echo "[ $(date) ] ${TPUT_FAIL}${*}${TPUT_RESET}"
+    echo -e "[ $(date) ] ${TPUT_FAIL}${*}${TPUT_RESET}"
     exit "$2"
 }
 
@@ -718,8 +718,9 @@ else
             _run wo_backup_ee "Backing-up EE install"
             _run wo_remove_ee_cron "Removing EasyEngine cronjob"
         fi
-        _run wo_install_dep "Installing wo dependencies"
+
     fi
+    _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
@@ -749,10 +750,10 @@ else
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
         echo
-        wo_lib_echo "To upgrade WordOps web stacks use the command:"
+        wo_lib_echo "To upgrade WordOps web stacks, you can use the command:"
         wo_lib_echo_info "wo stack upgrade"
         echo
-        wo_lib_echo "To update all other packages use the command:"
+        wo_lib_echo "To update all other packages, you can use the command:"
         wo_lib_echo_info "wo maintenance"
     else
         wo_lib_echo "WordOps (wo) installed successfully"
