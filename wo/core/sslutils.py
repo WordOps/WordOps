@@ -211,84 +211,53 @@ class SSL:
         # remove self-signed tmp directory
         WOFileUtils.rm(self, selfs_tmp)
 
-    def httpsredirect(self, wo_domain_name, acmedata, redirect=True):
+    def httpsredirect(self, wo_domain_name, acme_domains, redirect=True):
         """Create Nginx redirection from http to https"""
+        wo_acme_domains = ' '.join(acme_domains)
         if redirect:
-            if os.path.isfile(
-                "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
-                    .format(wo_domain_name)):
-                WOFileUtils.mvfile(
-                    self,
-                    "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
-                    .format(wo_domain_name),
-                    "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                    .format(wo_domain_name))
+            Log.wait(self, "Adding HTTPS redirection")
+            if WOFileUtils.enabledisable(
+                    self, '/etc/nginx/conf.d/force-ssl-{0}.conf'
+                    .format(wo_domain_name), enable=True):
+                Log.valide(self, "Adding HTTPS redirection")
+                return 0
             else:
-                Log.wait(self, "Adding HTTPS redirection")
-                if data['wildcard'] is True:
-                    try:
-                        sslconf = open(
-                            "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                            .format(wo_domain_name),
-                            encoding='utf-8', mode='w')
-                        sslconf.write(
-                            "server {\n"
-                            "\tlisten 80;\n" +
-                            "\tlisten [::]:80;\n" +
-                            "\tserver_name *.{0} {0};\n"
-                            .format(wo_domain_name) +
-                            "\treturn 301 https://$host"
-                            "$request_uri;\n}")
-                        sslconf.close()
-                    except IOError as e:
-                        Log.debug(self, str(e))
-                        Log.debug(
-                            self, "Error occured while generating "
-                                  "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                                  .format(wo_domain_name))
-                    else:
-                        Log.valide(self, "Adding HTTPS redirection")
-                else:
-                    try:
-                        sslconf = open(
-                            "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                            .format(wo_domain_name),
-                            encoding='utf-8', mode='w')
-                        sslconf.write(
-                            "server {\n"
-                            "\tlisten 80;\n" +
-                            "\tlisten [::]:80;\n" +
-                            "\tserver_name www.{0} {0};\n"
-                            .format(wo_domain_name) +
-                            "\treturn 301 https://$host"
-                            "$request_uri;\n}")
-                        sslconf.close()
-
-                    except IOError as e:
-                        Log.failed(self, "Adding HTTPS redirection")
-                        Log.debug(self, str(e))
-                        Log.debug(
-                            self, "Error occured while generating "
-                                  "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                                  .format(wo_domain_name))
-                    else:
-                        Log.valide(self, "Adding HTTPS redirection")
-            # Nginx Configation into GIT
-            WOGit.add(self,
-                      ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/"
-                      "force-ssl-{0}.conf".format(wo_domain_name))
+                try:
+                    sslconf = open(
+                        "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name),
+                        encoding='utf-8', mode='w')
+                    sslconf.write(
+                        "server {\n"
+                        "\tlisten 80;\n" +
+                        "\tlisten [::]:80;\n" +
+                        "\tserver_name {0};\n"
+                        .format(wo_acme_domains) +
+                        "\treturn 301 https://$host"
+                        "$request_uri;\n}")
+                    sslconf.close()
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(
+                        self, "Error occured while generating "
+                        "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name))
+                    return 1
+                Log.valide(self, "Adding HTTPS redirection")
+                return 0
         else:
-            if os.path.isfile(
-                "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                    .format(wo_domain_name)):
-                WOFileUtils.mvfile(
+            if WOFileUtils.enabledisable(
                     self, "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                    .format(wo_domain_name),
-                    "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled"
-                    .format(wo_domain_name))
+                    .format(wo_domain_name), enable=False):
                 Log.info(
-                    self, "Disabled HTTPS Force Redirection for Site "
-                    " http://{0}".format(wo_domain_name))
+                    self, "Disabled HTTPS Force Redirection for site "
+                    "{0}".format(wo_domain_name))
+            else:
+                Log.info(
+                    self, "HTTPS redirection already disabled for site"
+                    "{0}".format(wo_domain_name)
+                )
+            return 0
 
     def archivedcertificatehandle(self, domain):
         Log.warn(

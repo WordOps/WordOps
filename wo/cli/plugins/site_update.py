@@ -675,7 +675,8 @@ class WOSiteUpdateController(CementBaseController):
                             '/etc/nginx/conf.d/force-ssl-{0}.conf'
                             .format(wo_domain))
 
-                    SSL.httpsredirect(self, wo_domain, acmedata, redirect=True)
+                    SSL.httpsredirect(
+                        self, wo_domain, acme_domains, redirect=True)
                     SSL.siteurlhttps(self, wo_domain)
 
                 if not WOService.reload_service(self, 'nginx'):

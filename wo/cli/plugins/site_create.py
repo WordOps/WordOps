@@ -446,8 +446,9 @@ class WOSiteCreateController(CementBaseController):
                 SSL.archivedcertificatehandle(self, wo_domain)
             else:
                 Log.debug(self, "Going to issue Let's Encrypt certificate")
-                acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
-                                dnsalias=False, acme_alias='', keylength='')
+                acmedata = dict(
+                    acme_domains, dns=False, acme_dns='dns_cf',
+                    dnsalias=False, acme_alias='', keylength='')
                 if self.app.config.has_section('letsencrypt'):
                     acmedata['keylength'] = self.app.config.get(
                         'letsencrypt', 'keylength')
@@ -535,7 +536,7 @@ class WOSiteCreateController(CementBaseController):
                 if pargs.hsts:
                     SSL.setuphsts(self, wo_domain)
 
-                SSL.httpsredirect(self, wo_domain, True, acme_wildcard)
+                SSL.httpsredirect(self, wo_domain, acme_domains, True)
                 SSL.siteurlhttps(self, wo_domain)
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
