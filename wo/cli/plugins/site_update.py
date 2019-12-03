@@ -580,71 +580,53 @@ class WOSiteUpdateController(CementBaseController):
 
         if pargs.letsencrypt:
             if data['letsencrypt'] is True:
-                if WOAcme.cert_check(self, wo_domain):
-                    SSL.archivedcertificatehandle(self, wo_domain)
+                # DNS API configuration
+                if pargs.dns:
+                    Log.debug(self, "DNS validation enabled")
+                    acmedata['dns'] = True
+                    if not pargs.dns == 'dns_cf':
+                        Log.debug(self, "DNS API : {0}".format(pargs.dns))
+                        acmedata['acme_dns'] = pargs.dns
+                if pargs.dnsalias:
+                    Log.debug(self, "DNS Alias enabled")
+                    acmedata['dnsalias'] = True
+                    acmedata['acme_alias'] = pargs.dnsalias
+                # Set list of domains to secure
+                if acme_subdomain is True:
+                    Log.info(self, "Certificate type : subdomain")
+                    acme_domains = acme_domains + [
+                        '{0}'.format(wo_domain)]
+                elif acme_wildcard is True:
+                    Log.info(self, "Certificate type : wildcard")
+                    acme_domains = acme_domains + [
+                        '{0}'.format(wo_domain),
+                        '*.{0}'.format(wo_domain)]
                 else:
-                    # DNS API configuration
-                    if pargs.dns:
-                        Log.debug(self, "DNS validation enabled")
-                        acmedata['dns'] = True
-                        if not pargs.dns == 'dns_cf':
-                            Log.debug(self, "DNS API : {0}".format(pargs.dns))
-                            acmedata['acme_dns'] = pargs.dns
-                    if pargs.dnsalias:
-                        Log.debug(self, "DNS Alias enabled")
-                        acmedata['dnsalias'] = True
-                        acmedata['acme_alias'] = pargs.dnsalias
-                    # Set list of domains to secure
-                    if acme_subdomain is True:
-                        Log.info(self, "Certificate type : subdomain")
-                        acme_domains = acme_domains + [
-                            '{0}'.format(wo_domain)]
-                    elif acme_wildcard is True:
-                        Log.info(self, "Certificate type : wildcard")
-                        acme_domains = acme_domains + [
-                            '{0}'.format(wo_domain),
-                            '*.{0}'.format(wo_domain)]
-                    else:
-                        Log.info(self, "Certificate type : domain")
-                        acme_domains = acme_domains + [
-                            '{0}'.format(wo_domain),
-                            'www.{0}'.format(wo_domain)]
+                    Log.info(self, "Certificate type : domain")
+                    acme_domains = acme_domains + [
+                        '{0}'.format(wo_domain),
+                        'www.{0}'.format(wo_domain)]
 
-                    if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"):
-                        if acme_subdomain:
-                            Log.debug(self, "checkWildcardExist on *.{0}"
-                                      .format(wo_root_domain))
-                            if SSL.checkwildcardexist(self, wo_root_domain):
-                                Log.info(
-                                    self, "Using existing Wildcard SSL "
-                                    "certificate from {0} to secure {1}"
-                                    .format(wo_root_domain, wo_domain))
-                                Log.debug(
-                                    self, "symlink wildcard "
-                                    "cert between {0} & {1}"
-                                    .format(wo_domain, wo_root_domain))
-                                # copy the cert from the root domain
-                                copyWildcardCert(self, wo_domain,
-                                                 wo_root_domain)
-                            else:
-                                # check DNS records before issuing cert
-                                if not acmedata['dns'] is True:
-                                    if not pargs.force:
-                                        if not WOAcme.check_dns(self,
-                                                                acme_domains):
-                                            Log.error(
-                                                self,
-                                                "Aborting SSL certificate "
-                                                "issuance")
-                                Log.debug(
-                                    self, "Setup Cert with acme.sh for {0}"
-                                          .format(wo_domain))
-                                if WOAcme.setupletsencrypt(
-                                        self, acme_domains, acmedata):
-                                    WOAcme.deploycert(self, wo_domain)
-                                else:
-                                    Log.error(
-                                        self, "Unable to issue certificate")
+                if WOAcme.cert_check(self, wo_domain):
+                    SSL.archivedcertificatehandle(
+                        self, wo_domain, acme_domains)
+                else:
+
+                    if acme_subdomain:
+                        Log.debug(self, "checkWildcardExist on *.{0}"
+                                  .format(wo_root_domain))
+                        if SSL.checkwildcardexist(self, wo_root_domain):
+                            Log.info(
+                                self, "Using existing Wildcard SSL "
+                                "certificate from {0} to secure {1}"
+                                .format(wo_root_domain, wo_domain))
+                            Log.debug(
+                                self, "symlink wildcard "
+                                "cert between {0} & {1}"
+                                .format(wo_domain, wo_root_domain))
+                            # copy the cert from the root domain
+                            copyWildcardCert(self, wo_domain,
+                                             wo_root_domain)
                         else:
                             # check DNS records before issuing cert
                             if not acmedata['dns'] is True:
@@ -653,25 +635,32 @@ class WOSiteUpdateController(CementBaseController):
                                                             acme_domains):
                                         Log.error(
                                             self,
-                                            "Aborting SSL "
-                                            "certificate issuance")
+                                            "Aborting SSL certificate "
+                                            "issuance")
+                            Log.debug(
+                                self, "Setup Cert with acme.sh for {0}"
+                                .format(wo_domain))
                             if WOAcme.setupletsencrypt(
                                     self, acme_domains, acmedata):
                                 WOAcme.deploycert(self, wo_domain)
                             else:
-                                Log.error(self, "Unable to issue certificate")
+                                Log.error(
+                                    self, "Unable to issue certificate")
                     else:
-                        WOFileUtils.mvfile(
-                            self, "{0}/conf/nginx/ssl.conf.disabled"
-                            .format(wo_site_webroot),
-                            '{0}/conf/nginx/ssl.conf'
-                            .format(wo_site_webroot))
-                        WOFileUtils.mvfile(
-                            self, "/etc/nginx/conf.d/"
-                            "force-ssl-{0}.conf.disabled"
-                            .format(wo_domain),
-                            '/etc/nginx/conf.d/force-ssl-{0}.conf'
-                            .format(wo_domain))
+                        # check DNS records before issuing cert
+                        if not acmedata['dns'] is True:
+                            if not pargs.force:
+                                if not WOAcme.check_dns(self,
+                                                        acme_domains):
+                                    Log.error(
+                                        self,
+                                        "Aborting SSL "
+                                        "certificate issuance")
+                        if WOAcme.setupletsencrypt(
+                                self, acme_domains, acmedata):
+                            WOAcme.deploycert(self, wo_domain)
+                        else:
+                            Log.error(self, "Unable to issue certificate")
 
                     SSL.httpsredirect(
                         self, wo_domain, acme_domains, redirect=True)

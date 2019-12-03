@@ -442,61 +442,61 @@ class WOSiteCreateController(CementBaseController):
             acme_domains = []
             data['letsencrypt'] = True
             letsencrypt = True
-            if WOAcme.cert_check(self, wo_domain):
-                SSL.archivedcertificatehandle(self, wo_domain)
+            Log.debug(self, "Going to issue Let's Encrypt certificate")
+            acmedata = dict(
+                acme_domains, dns=False, acme_dns='dns_cf',
+                dnsalias=False, acme_alias='', keylength='')
+            if self.app.config.has_section('letsencrypt'):
+                acmedata['keylength'] = self.app.config.get(
+                    'letsencrypt', 'keylength')
             else:
-                Log.debug(self, "Going to issue Let's Encrypt certificate")
-                acmedata = dict(
-                    acme_domains, dns=False, acme_dns='dns_cf',
-                    dnsalias=False, acme_alias='', keylength='')
-                if self.app.config.has_section('letsencrypt'):
-                    acmedata['keylength'] = self.app.config.get(
-                        'letsencrypt', 'keylength')
-                else:
-                    acmedata['keylength'] = 'ec-384'
-                if pargs.dns:
-                    Log.debug(self, "DNS validation enabled")
-                    acmedata['dns'] = True
-                    if not pargs.dns == 'dns_cf':
-                        Log.debug(self, "DNS API : {0}".format(pargs.dns))
-                        acmedata['acme_dns'] = pargs.dns
-                if pargs.dnsalias:
-                    Log.debug(self, "DNS Alias enabled")
-                    acmedata['dnsalias'] = True
-                    acmedata['acme_alias'] = pargs.dnsalias
+                acmedata['keylength'] = 'ec-384'
+            if pargs.dns:
+                Log.debug(self, "DNS validation enabled")
+                acmedata['dns'] = True
+                if not pargs.dns == 'dns_cf':
+                    Log.debug(self, "DNS API : {0}".format(pargs.dns))
+                    acmedata['acme_dns'] = pargs.dns
+            if pargs.dnsalias:
+                Log.debug(self, "DNS Alias enabled")
+                acmedata['dnsalias'] = True
+                acmedata['acme_alias'] = pargs.dnsalias
 
-                # detect subdomain and set subdomain variable
-                if pargs.letsencrypt == "subdomain":
-                    Log.warn(
-                        self, 'Flag --letsencrypt=subdomain is '
-                        'deprecated and not required anymore.')
+            # detect subdomain and set subdomain variable
+            if pargs.letsencrypt == "subdomain":
+                Log.warn(
+                    self, 'Flag --letsencrypt=subdomain is '
+                    'deprecated and not required anymore.')
+                acme_subdomain = True
+                acme_wildcard = False
+            elif pargs.letsencrypt == "wildcard":
+                acme_wildcard = True
+                acme_subdomain = False
+                acmedata['dns'] = True
+            else:
+                if ((wo_domain_type == 'subdomain')):
+                    Log.debug(self, "Domain type = {0}"
+                              .format(wo_domain_type))
                     acme_subdomain = True
-                    acme_wildcard = False
-                elif pargs.letsencrypt == "wildcard":
-                    acme_wildcard = True
+                else:
                     acme_subdomain = False
-                    acmedata['dns'] = True
-                else:
-                    if ((wo_domain_type == 'subdomain')):
-                        Log.debug(self, "Domain type = {0}"
-                                  .format(wo_domain_type))
-                        acme_subdomain = True
-                    else:
-                        acme_subdomain = False
                     acme_wildcard = False
 
-                if acme_subdomain is True:
-                    Log.info(self, "Certificate type : subdomain")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain)]
-                elif acme_wildcard is True:
-                    Log.info(self, "Certificate type : wildcard")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain),
-                                                   '*.{0}'.format(wo_domain)]
-                else:
-                    Log.info(self, "Certificate type : domain")
-                    acme_domains = acme_domains + ['{0}'.format(wo_domain),
-                                                   'www.{0}'.format(wo_domain)]
+            if acme_subdomain is True:
+                Log.info(self, "Certificate type : subdomain")
+                acme_domains = acme_domains + ['{0}'.format(wo_domain)]
+            elif acme_wildcard is True:
+                Log.info(self, "Certificate type : wildcard")
+                acme_domains = acme_domains + ['{0}'.format(wo_domain),
+                                               '*.{0}'.format(wo_domain)]
+            else:
+                Log.info(self, "Certificate type : domain")
+                acme_domains = acme_domains + ['{0}'.format(wo_domain),
+                                               'www.{0}'.format(wo_domain)]
 
+            if WOAcme.cert_check(self, wo_domain):
+                SSL.archivedcertificatehandle(self, wo_domain, acme_domains)
+            else:
                 if acme_subdomain is True:
                     # check if a wildcard cert for the root domain exist
                     Log.debug(self, "checkWildcardExist on *.{0}"

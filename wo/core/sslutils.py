@@ -262,7 +262,7 @@ class SSL:
                 )
             return 0
 
-    def archivedcertificatehandle(self, domain):
+    def archivedcertificatehandle(self, domain, acme_domains):
         Log.warn(
             self, "You already have an existing certificate "
             "for the domain requested.\n"
@@ -277,15 +277,16 @@ class SSL:
             "\nType the appropriate number [1-2] or any other key to cancel: ")
         if not os.path.isfile("{0}/{1}/fullchain.pem"
                               .format(WOVar.wo_ssl_live, domain)):
-            Log.error(
+            Log.debug(
                 self, "{0}/{1}/fullchain.pem file is missing."
                 .format(WOVar.wo_ssl_live, domain))
+            check_prompt = "2"
 
         if check_prompt == "1":
             Log.info(self, "Reinstalling SSL cert with acme.sh")
             ssl = WOAcme.deploycert(self, domain)
             if ssl:
-                SSL.httpsredirect(self, domain, )
+                SSL.httpsredirect(self, domain, acme_domains)
 
         elif (check_prompt == "2"):
             Log.info(self, "Issuing new SSL cert with acme.sh")
@@ -296,26 +297,7 @@ class SSL:
                 .format(domain))
 
             if ssl:
-
-                try:
-
-                    WOShellExec.cmd_exec(
-                        self, "mkdir -p {0}/{1} && "
-                        "/etc/letsencrypt/acme.sh "
-                        "--config-home '/etc/letsencrypt/config' "
-                        "--install-cert -d {1} --ecc "
-                        "--cert-file {0}/{1}/cert.pem "
-                        "--key-file {0}/{1}/key.pem "
-                        "--fullchain-file {0}/{1}/fullchain.pem "
-                        "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
-                        "--reloadcmd \"nginx -t && service nginx restart\" "
-                        .format(WOVar.wo_ssl_live, domain))
-
-                except IOError as e:
-                    Log.debug(self, str(e))
-                    Log.debug(self, "Error occured while installing "
-                              "the certificate")
-
+                WOAcme.deploycert(self, domain)
         else:
             Log.error(self, "Operation cancelled by user.")
 
