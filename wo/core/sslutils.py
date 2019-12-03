@@ -13,23 +13,25 @@ class SSL:
 
     def getexpirationdays(self, domain, returnonerror=False):
         # check if exist
-        if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
-            split_domain = domain.split('.')
-            domain = ('.').join(split_domain[1:])
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            Log.error(self, 'File Not Found: '
-                      '/etc/letsencrypt/live/{0}/cert.pem'
-                      .format(domain), False)
-            if returnonerror:
-                return -1
-            Log.error(self, "Check the WordOps log for more details "
-                      "`tail /var/log/wo/wordops.log` and please try again...")
+            if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
+                split_domain = domain.split('.')
+                domain = ('.').join(split_domain[1:])
+            else:
+                Log.error(self, 'File Not Found: '
+                          '/etc/letsencrypt/live/{0}/cert.pem'
+                          .format(domain), False)
+                if returnonerror:
+                    return -1
+                Log.error(
+                    self, "Check the WordOps log for more details "
+                          "`tail /var/log/wo/wordops.log` "
+                          "and please try again...")
 
         current_date = WOShellExec.cmd_exec_stdout(self, "date -d \"now\" +%s")
         expiration_date = WOShellExec.cmd_exec_stdout(
-            self, "date -d \""
-            "$(openssl x509 -in /etc/letsencrypt/live/"
+            self, "date -d \"$(openssl x509 -in /etc/letsencrypt/live/"
             "{0}/cert.pem -text -noout | grep \"Not After\" "
             "| cut -c 25-)\" +%s"
             .format(domain))
@@ -43,16 +45,19 @@ class SSL:
 
     def getexpirationdate(self, domain):
         # check if exist
-        if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
-            split_domain = domain.split('.')
-            domain = ('.').join(split_domain[1:])
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            Log.error(self, 'File Not Found: /etc/letsencrypt/'
-                      'live/{0}/cert.pem'
-                      .format(domain), False)
-            Log.error(self, "Check the WordOps log for more details "
-                      "`tail /var/log/wo/wordops.log` and please try again...")
+            if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
+                split_domain = domain.split('.')
+                domain = ('.').join(split_domain[1:])
+            else:
+                Log.error(
+                    self, 'File Not Found: /etc/letsencrypt/'
+                    'live/{0}/cert.pem'
+                    .format(domain), False)
+                Log.error(
+                    self, "Check the WordOps log for more details "
+                    "`tail /var/log/wo/wordops.log` and please try again...")
 
         return WOShellExec.cmd_exec_stdout(
             self, "date -d \"$(/usr/bin/openssl x509 -in "
