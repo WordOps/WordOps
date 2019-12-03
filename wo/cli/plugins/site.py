@@ -55,7 +55,6 @@ class WOSiteController(CementBaseController):
         pargs.site_name = pargs.site_name.strip()
         # validate domain name
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
 
         # check if site exists
         if not check_domain_exists(self, wo_domain):
@@ -93,7 +92,6 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         # check if site exists
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -161,12 +159,7 @@ class WOSiteController(CementBaseController):
             ssl = ("enabled" if siteinfo.is_ssl else "disabled")
             if (ssl == "enabled"):
                 sslprovider = "Lets Encrypt"
-                if os.path.islink("{0}/conf/nginx/ssl.conf"
-                                  .format(wo_site_webroot)):
-                    sslexpiry = str(
-                        SSL.getexpirationdays(self, wo_root_domain))
-                else:
-                    sslexpiry = str(SSL.getexpirationdays(self, wo_domain))
+                sslexpiry = str(SSL.getexpirationdays(self, wo_domain))
             else:
                 sslprovider = ''
                 sslexpiry = ''
@@ -188,7 +181,6 @@ class WOSiteController(CementBaseController):
         pargs = self.app.pargs
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         wo_site_webroot = getSiteInfo(self, wo_domain).site_path
 
         if not check_domain_exists(self, wo_domain):
@@ -242,7 +234,6 @@ class WOSiteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
