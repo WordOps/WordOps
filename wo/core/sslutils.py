@@ -13,7 +13,7 @@ class SSL:
 
     def getexpirationdays(self, domain, returnonerror=False):
         # check if exist
-        if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
+        if not os.path.exists('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
             if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
                 split_domain = domain.split('.')
@@ -22,8 +22,6 @@ class SSL:
                 Log.error(self, 'File Not Found: '
                           '/etc/letsencrypt/live/{0}/cert.pem'
                           .format(domain), False)
-                if returnonerror:
-                    return -1
                 Log.error(
                     self, "Check the WordOps log for more details "
                           "`tail /var/log/wo/wordops.log` "
@@ -47,9 +45,9 @@ class SSL:
         # check if exist
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
+            if os.path.exists('/var/www/{0}/conf/nginx/ssl.conf'):
                 split_domain = domain.split('.')
-                domain = ('.').join(split_domain[1:])
+                check_domain = ('.').join(split_domain[1:])
             else:
                 Log.error(
                     self, 'File Not Found: /etc/letsencrypt/'
@@ -58,12 +56,14 @@ class SSL:
                 Log.error(
                     self, "Check the WordOps log for more details "
                     "`tail /var/log/wo/wordops.log` and please try again...")
+        else:
+            check_domain = domain
 
         return WOShellExec.cmd_exec_stdout(
             self, "date -d \"$(/usr/bin/openssl x509 -in "
             "/etc/letsencrypt/live/{0}/cert.pem -text -noout | grep "
             "\"Not After\" | cut -c 25-)\" "
-            .format(domain))
+            .format(check_domain))
 
     def siteurlhttps(self, domain):
         wo_site_webroot = ('/var/www/{0}'.format(domain))
