@@ -771,8 +771,10 @@ def sitebackup(self, data):
     WOFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}'
                          .format(data['site_name']), backup_path)
 
-    if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        if data['php73'] is True and not data['wp']:
+    if data['currsitetype'] in ['html', 'php', 'php72', 'php74',
+                                'php73', 'proxy', 'mysql']:
+        if ((data['php73'] is True) or
+                (data['php74'] is True)) and not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
             WOFileUtils.copyfiles(self, wo_site_webroot +
                                   '/htdocs', backup_path + '/htdocs')
