@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - phpMyAdmin updated to v4.9.2
 - Adminer updated to v4.7.5
 - Replace dot and dashes by underscores in database names (Issue [#206](https://github.com/WordOps/WordOps/issues/206))
+- Increased database name length to 32 characters from domain name + 8 random characters
 
 #### Fixed
 

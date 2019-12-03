@@ -168,7 +168,7 @@ def setupdatabase(self, data):
 
     if not wo_db_name:
         wo_db_name = wo_replace_dot
-        wo_db_name = (wo_db_name[0:16] + generate_random())
+        wo_db_name = (wo_db_name[0:32] + generate_8_random())
 
     if prompt_dbuser == 'True' or prompt_dbuser == 'true':
         try:
@@ -192,7 +192,7 @@ def setupdatabase(self, data):
     try:
         if WOMysql.check_db_exists(self, wo_db_name):
             Log.debug(self, "Database already exists, Updating DB_NAME .. ")
-            wo_db_name = (wo_db_name[0:16] + generate_random())
+            wo_db_name = (wo_db_name[0:32] + generate_8_random())
             wo_db_username = (wo_db_name[0:12] + generate_random())
     except MySQLConnectionError:
         raise SiteError("MySQL Connectivity problem occured")
@@ -1265,6 +1265,13 @@ def generate_random():
                                          string.ascii_lowercase +
                                          string.digits, 4)))
     return wo_random10
+
+
+def generate_8_random():
+    wo_random8 = (''.join(random.sample(string.ascii_uppercase +
+                                        string.ascii_lowercase +
+                                        string.digits, 8)))
+    return wo_random8
 
 
 def deleteDB(self, dbname, dbuser, dbhost, exit=True):
