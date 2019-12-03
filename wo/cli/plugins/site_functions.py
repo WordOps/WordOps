@@ -146,6 +146,7 @@ def setupdatabase(self, data):
                                             string.digits, 24)))
     wo_replace_dash = wo_domain_name.replace('-', '_')
     wo_replace_dot = wo_replace_dash.replace('.', '_')
+    wo_replace_underscore = wo_replace_dot.replace('_', '')
     if self.app.config.has_section('mysql'):
         prompt_dbname = self.app.config.get('mysql', 'db-name')
         prompt_dbuser = self.app.config.get('mysql', 'db-user')
@@ -167,8 +168,7 @@ def setupdatabase(self, data):
             raise SiteError("Unable to input database name")
 
     if not wo_db_name:
-        wo_db_name = wo_replace_dot
-        wo_db_name = (wo_db_name[0:32] + generate_8_random())
+        wo_db_name = (wo_replace_dot[0:32] + '_' + generate_8_random())
 
     if prompt_dbuser == 'True' or prompt_dbuser == 'true':
         try:
@@ -181,8 +181,7 @@ def setupdatabase(self, data):
             raise SiteError("Unable to input database credentials")
 
     if not wo_db_username:
-        wo_db_username = wo_replace_dot
-        wo_db_username = (wo_db_name[0:12] + generate_random())
+        wo_db_username = (wo_replace_underscore[0:12] + generate_random())
     if not wo_db_password:
         wo_db_password = wo_random_pass
 
@@ -192,7 +191,7 @@ def setupdatabase(self, data):
     try:
         if WOMysql.check_db_exists(self, wo_db_name):
             Log.debug(self, "Database already exists, Updating DB_NAME .. ")
-            wo_db_name = (wo_db_name[0:32] + generate_8_random())
+            wo_db_name = (wo_db_name[0:32] + '_' + generate_8_random())
             wo_db_username = (wo_db_name[0:12] + generate_random())
     except MySQLConnectionError:
         raise SiteError("MySQL Connectivity problem occured")
