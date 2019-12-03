@@ -515,7 +515,7 @@ def setupwordpress(self, data, vhostonly=False):
                     "setup WordPress tables failed for wp multi site")
         except CommandExecutionError:
             raise SiteError("setup WordPress tables failed for wp multi site")
-        Log.valide(self, "Installing WordPress")
+    Log.valide(self, "Installing WordPress")
     Log.debug(self, "Updating WordPress permalink")
     try:
         WOShellExec.cmd_exec(self, " {0} --allow-root "
