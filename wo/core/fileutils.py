@@ -252,10 +252,7 @@ class WOFileUtils():
             Check if file exist on given path
         """
         try:
-            if os.path.exists(path):
-                return (True)
-            else:
-                return (False)
+            return bool(os.path.exists(path))
         except OSError as e:
             Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to check path {0}".format(path))
