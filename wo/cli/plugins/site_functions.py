@@ -144,7 +144,8 @@ def setupdatabase(self, data):
     wo_random_pass = (''.join(random.sample(string.ascii_uppercase +
                                             string.ascii_lowercase +
                                             string.digits, 24)))
-    wo_replace_dot = wo_domain_name.replace('.', '')
+    wo_replace_dash = wo_domain_name.replace('-', '_')
+    wo_replace_dot = wo_replace_dash.replace('.', '_')
     if self.app.config.has_section('mysql'):
         prompt_dbname = self.app.config.get('mysql', 'db-name')
         prompt_dbuser = self.app.config.get('mysql', 'db-user')

@@ -12,7 +12,6 @@ location ~ \.php$ {
 }
 location ~ /wp-content/cache/cache-enabler/*\.html$ {
     etag on;
-    gzip_static  on;
     add_header Vary "Accept-Encoding, Cookie";
     access_log off;
     log_not_found off;

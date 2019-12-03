@@ -13,24 +13,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - PHP 7.4 support
-- Improved Webp images support with Cloudflare
+- Improved Webp images support with Cloudflare (Issue [#95](https://github.com/WordOps/WordOps/issues/95)). Nginx will not serve webp images alternative with Cloudflare IP ranges.
 - Enable Gzip static to serve precompressed assets with Cache-Enabler and WP-Rocket
 - Stack upgrade for adminer
 - Check acme.sh installation and setup acme.sh if needed before issuing certificate
 - Add `--ufw` to `wo stack status`
+- Add Nginx directive `gzip_static on;` to serve precompressed assets with Cache-Enabler or WP-Rocket. (Issue [#207](https://github.com/WordOps/WordOps/issues/207))
 
 #### Changed
 
-- Add private ip range into fail2ban ignoreip directive
 - Previous `--php73` & `--php73=off` flags are replaced by `--php72`, `--php73`, `--php74` to switch site's php version
 - phpMyAdmin updated to v4.9.2
 - Adminer updated to v4.7.5
+- Replace dot and dashes by underscores in database names (Issue [#206](https://github.com/WordOps/WordOps/issues/206))
 
 #### Fixed
 
 - typo error in motd-news script
 - Install Nginx before ngxblocker
 - WordOps install/update script text color
+- Issue with MySQL stack on Raspbian 9/10
+- Typo error  (PR [#205](https://github.com/WordOps/WordOps/pull/205))
+- php version in `wo debug` (PR [#209](https://github.com/WordOps/WordOps/pull/209))
+- SSL certificates expiration display with shared wildcard certificates
 
 ### v3.10.3 - 2019-11-11
 

@@ -436,8 +436,6 @@ class WOSiteUpdateController(CementBaseController):
             Log.debug(self, "data php74 = {0}".format(data['php74']))
             php74 = bool(old_php74 is True)
 
-
-
         if pargs.letsencrypt:
             acme_domains = []
             acmedata = dict(acme_domains, dns=False, acme_dns='dns_cf',
@@ -683,8 +681,7 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
                 Log.info(self, "Congratulations! Successfully "
-                         "Configured SSL for Site "
-                         " https://{0}".format(wo_domain))
+                         "Configured SSL on https://{0}".format(wo_domain))
                 if (SSL.getexpirationdays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
                              str(SSL.getexpirationdays(self, wo_domain)) +
