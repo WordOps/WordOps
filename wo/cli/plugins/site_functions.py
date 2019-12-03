@@ -384,7 +384,7 @@ def setupwordpress(self, data, vhostonly=False):
         ['MEDIA_TRASH', 'true'],
         ['EMPTY_TRASH_DAYS', '15'],
         ['WP_AUTO_UPDATE_CORE', 'minor']]
-
+    Log.wait(self, "Configuring WordPress")
     for wp_conf in wp_conf_variables:
         wp_var = wp_conf[0]
         wp_val = wp_conf[1]
@@ -399,8 +399,10 @@ def setupwordpress(self, data, vhostonly=False):
                         wp_raw='--raw'
                         if var_raw is True else ''))
         except CommandExecutionError as e:
+            Log.failed(self, "Configuring WordPress")
             Log.debug(self, str(e))
             Log.error(self, 'Unable to define wp-config.php variables')
+    Log.valide(self, "Configuring WordPress")
 
     # WOFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
     #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))

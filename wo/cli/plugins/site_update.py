@@ -822,7 +822,7 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         # Setup WordPress if old sites are html/php/mysql sites
-        if data['wp'] and oldsitetype in ['html', 'proxy', 'php',
+        if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'php72',
                                           'mysql', 'php73', 'php74']:
             try:
                 wo_wp_creds = setupwordpress(self, data)
