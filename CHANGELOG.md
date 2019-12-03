@@ -8,13 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
-### v3.10.4 - 2019-12-02
+### v3.10.4 - 2019-12-03
 
 #### Added
 
 - PHP 7.4 support
 - Improved Webp images support with Cloudflare (Issue [#95](https://github.com/WordOps/WordOps/issues/95)). Nginx will not serve webp images alternative with Cloudflare IP ranges.
-- Enable Gzip static to serve precompressed assets with Cache-Enabler and WP-Rocket
 - Stack upgrade for adminer
 - Check acme.sh installation and setup acme.sh if needed before issuing certificate
 - Add `--ufw` to `wo stack status`
@@ -30,7 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- typo error in motd-news script
+- typo error in motd-news script (Issue [#204](https://github.com/WordOps/WordOps/issues/204))
 - Install Nginx before ngxblocker
 - WordOps install/update script text color
 - Issue with MySQL stack on Raspbian 9/10
