@@ -2,8 +2,8 @@ import os
 
 from cement.core.controller import CementBaseController, expose
 from wo.cli.plugins.site_functions import *
-from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
-                                   getSiteInfo, updateSiteInfo)
+from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo,
+                                   updateSiteInfo)
 from wo.core.acme import WOAcme
 from wo.core.domainvalidate import WODomain
 from wo.core.git import WOGit

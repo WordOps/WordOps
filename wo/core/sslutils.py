@@ -6,7 +6,6 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
-from wo.core.git import WOGit
 from wo.core.acme import WOAcme
 
 
