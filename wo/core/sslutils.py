@@ -54,12 +54,11 @@ class SSL:
             Log.error(self, "Check the WordOps log for more details "
                       "`tail /var/log/wo/wordops.log` and please try again...")
 
-        expiration_date = WOShellExec.cmd_exec_stdout(
+        return WOShellExec.cmd_exec_stdout(
             self, "date -d \"$(/usr/bin/openssl x509 -in "
             "/etc/letsencrypt/live/{0}/cert.pem -text -noout | grep "
             "\"Not After\" | cut -c 25-)\" "
             .format(domain))
-        return expiration_date
 
     def siteurlhttps(self, domain):
         wo_site_webroot = ('/var/www/{0}'.format(domain))
@@ -123,33 +122,35 @@ class SSL:
     def setuphsts(self, wo_domain_name, enable=True):
         """Enable or disable htsts for a site"""
         if enable:
-            Log.info(
-                self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
-                .format(wo_domain_name))
-
-            hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
-                            .format(wo_domain_name),
-                            encoding='utf-8', mode='w')
-            hstsconf.write("more_set_headers "
-                           "\"Strict-Transport-Security: "
-                           "max-age=31536000; "
-                           "includeSubDomains; "
-                           "preload\";")
-            hstsconf.close()
-            return 0
-        else:
-            if os.path.exists(
-                '/var/www/{0}/conf/nginx/hsts.conf'
-                    .format(wo_domain_name)):
-                WOFileUtils.mvfile(
-                    self, '/var/www/{0}/conf/'
-                    'nginx/hsts.conf'
-                    .format(wo_domain_name),
-                    '/var/www/{0}/conf/'
-                    'nginx/hsts.conf.disabled'
+            if WOFileUtils.enabledisable(
+                self, '/var/www/{0}/conf/nginx/hsts.conf'
+            ):
+                return 0
+            else:
+                Log.info(
+                    self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
                     .format(wo_domain_name))
+
+                hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
+                                .format(wo_domain_name),
+                                encoding='utf-8', mode='w')
+                hstsconf.write("more_set_headers "
+                               "\"Strict-Transport-Security: "
+                               "max-age=31536000; "
+                               "includeSubDomains; "
+                               "preload\";")
+                hstsconf.close()
+                return 0
+        else:
+            if WOFileUtils.enabledisable(
+                self, '/var/www/{0}/conf/nginx/hsts.conf',
+                enable=False
+            ):
+                Log.info(self, "HSTS disabled")
+                return 0
             else:
                 Log.info(self, "HSTS is not enabled")
+                return 0
 
     def selfsignedcert(self, proftpd=False, backend=False):
         """issue a self-signed certificate"""
