@@ -611,7 +611,6 @@ class WOSiteUpdateController(CementBaseController):
                     SSL.archivedcertificatehandle(
                         self, wo_domain, acme_domains)
                 else:
-
                     if acme_subdomain:
                         Log.debug(self, "checkWildcardExist on *.{0}"
                                   .format(wo_root_domain))

@@ -15,9 +15,15 @@ class SSL:
         # check if exist
         if not os.path.exists('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
-                split_domain = domain.split('.')
-                domain = ('.').join(split_domain[1:])
+            Log.debug(self, "cert not found for {0}".format(domain))
+
+            split_domain = domain.split('.')
+            root_domain = ('.').join(split_domain[1:])
+
+            Log.debug(self, "trying with {0}".format(root_domain))
+            if os.path.exists('/etc/letsencrypt/live/{0}/cert.pem'
+                              .format(root_domain)):
+                domain = root_domain
             else:
                 Log.error(self, 'File Not Found: '
                           '/etc/letsencrypt/live/{0}/cert.pem'
@@ -26,7 +32,10 @@ class SSL:
                     self, "Check the WordOps log for more details "
                           "`tail /var/log/wo/wordops.log` "
                           "and please try again...")
-
+        Log.debug(
+            self,
+            "Getting expiration of /etc/letsencrypt/live/{0}/cert.pem"
+            .format(domain))
         current_date = WOShellExec.cmd_exec_stdout(self, "date -d \"now\" +%s")
         expiration_date = WOShellExec.cmd_exec_stdout(
             self, "date -d \"$(openssl x509 -in /etc/letsencrypt/live/"
