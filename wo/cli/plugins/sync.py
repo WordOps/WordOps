@@ -1,4 +1,5 @@
 import glob
+import os
 
 from cement.core.controller import CementBaseController, expose
 
@@ -38,6 +39,13 @@ class WOSyncController(CementBaseController):
                 wo_site_webroot = site.site_path
                 # Read config files
                 configfiles = glob.glob(wo_site_webroot + '/*-config.php')
+
+                if (os.path.exists(
+                    '{0}/ee-config.php'.format(wo_site_webroot)) and
+                    os.path.exists(
+                        '{0}/wo-config.php'.format(wo_site_webroot))):
+                    configfiles = glob.glob(
+                        wo_site_webroot + 'wo-config.php')
 
                 # search for wp-config.php inside htdocs/
                 if not configfiles:

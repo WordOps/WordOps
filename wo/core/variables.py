@@ -14,11 +14,11 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.10.3"
+    wo_version = "3.11.0"
     # WordOps packages versions
-    wo_wp_cli = "2.3.0"
-    wo_adminer = "4.7.3"
-    wo_phpmyadmin = "4.9.1"
+    wo_wp_cli = "2.4.0"
+    wo_adminer = "4.7.5"
+    wo_phpmyadmin = "4.9.2"
     wo_extplorer = "2.1.13"
     wo_dashboard = "1.2"
 
@@ -133,16 +133,23 @@ class WOVar():
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
 
-    wo_php = ["php7.2-fpm", "php7.2-curl", "php7.2-gd", "php7.2-imap",
-              "php7.2-readline", "php7.2-common", "php7.2-recode",
-              "php7.2-cli", "php7.2-mbstring", "php7.2-intl",
-              "php7.2-bcmath", "php7.2-mysql", "php7.2-opcache",
-              "php7.2-zip", "php7.2-xml", "php7.2-soap"]
-    wo_php73 = ["php7.3-fpm", "php7.3-curl", "php7.3-gd", "php7.3-imap",
-                "php7.3-readline", "php7.3-common", "php7.3-recode",
-                "php7.3-cli", "php7.3-mbstring", "php7.3-intl",
-                "php7.3-bcmath", "php7.3-mysql", "php7.3-opcache",
-                "php7.3-zip", "php7.3-xml", "php7.3-soap"]
+    wo_module = ["fpm", "curl", "gd", "imap",
+                 "readline", "common",
+                 "cli", "mbstring", "intl",
+                 "bcmath", "mysql", "opcache",
+                 "zip", "xml", "soap"]
+    wo_php72 = []
+    for module in wo_module:
+        wo_php72 = wo_php72 + ["php7.2-{0}".format(module),
+                               "php7.2-recode"]
+    wo_php73 = []
+    for module in wo_module:
+        wo_php73 = wo_php73 + ["php7.3-{0}".format(module),
+                               "php7.3-recode"]
+    wo_php74 = []
+    for module in wo_module:
+        wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
+
     wo_php_extra = ["php-memcached", "php-imagick",
                     "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 

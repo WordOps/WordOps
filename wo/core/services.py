@@ -20,15 +20,17 @@ class WOService():
                 # Check Nginx configuration before executing command
                 sub = subprocess.Popen('nginx -t', stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE, shell=True)
-                output, error_output = sub.communicate()
-                if 'emerg' not in str(error_output):
+                output = sub.communicate()
+                if 'emerg' not in str(output):
                     Log.valide(self, "Testing Nginx configuration ")
-                    Log.wait(self, "Starting Nginx              ")
+                    Log.wait(self, "Starting Nginx")
                     service_cmd = ('service {0} start'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
                         Log.valide(self, "Starting Nginx              ")
                         return True
+                    else:
+                        Log.failed(self, "Starting Nginx")
                 else:
                     Log.failed(self, "Testing Nginx configuration ")
                     return False
@@ -129,15 +131,15 @@ class WOService():
                 output, error_output = sub.communicate()
                 if 'emerg' not in str(error_output):
                     Log.valide(self, "Testing Nginx configuration ")
-                    Log.wait(self, "Reloading Nginx             ")
+                    Log.wait(self, "Reloading Nginx")
                     service_cmd = ('service {0} reload'.format(service_name))
                     retcode = subprocess.getstatusoutput(service_cmd)
                     if retcode[0] == 0:
-                        Log.valide(self, "Reloading Nginx             ")
+                        Log.valide(self, "Reloading Nginx")
                         return True
-                else:
-                    Log.failed(self, "Testing Nginx configuration ")
-                    return False
+                    else:
+                        Log.failed(self, "Testing Nginx configuration ")
+                        return False
             else:
                 service_cmd = ('service {0} reload'.format(service_name))
                 Log.wait(self, "Reloading {0:10}".format(
@@ -160,10 +162,11 @@ class WOService():
     def get_service_status(self, service_name):
 
         try:
-            is_exist = subprocess.getstatusoutput('which {0}'
+            is_exist = subprocess.getstatusoutput('command -v {0}'
                                                   .format(service_name))
             if is_exist[0] == 0 or service_name in ['php7.2-fpm',
-                                                    'php7.3-fpm']:
+                                                    'php7.3-fpm',
+                                                    'php7.4-fpm']:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
                 if retcode[0] == 0:

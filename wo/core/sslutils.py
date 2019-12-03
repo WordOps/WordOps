@@ -6,26 +6,39 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
+from wo.core.acme import WOAcme
 
 
 class SSL:
 
     def getexpirationdays(self, domain, returnonerror=False):
         # check if exist
-        if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
+        if not os.path.exists('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            Log.error(self, 'File Not Found: '
-                      '/etc/letsencrypt/live/{0}/cert.pem'
-                      .format(domain), False)
-            if returnonerror:
-                return -1
-            Log.error(self, "Check the WordOps log for more details "
-                      "`tail /var/log/wo/wordops.log` and please try again...")
+            Log.debug(self, "cert not found for {0}".format(domain))
 
+            split_domain = domain.split('.')
+            root_domain = ('.').join(split_domain[1:])
+
+            Log.debug(self, "trying with {0}".format(root_domain))
+            if os.path.exists('/etc/letsencrypt/live/{0}/cert.pem'
+                              .format(root_domain)):
+                domain = root_domain
+            else:
+                Log.error(self, 'File Not Found: '
+                          '/etc/letsencrypt/live/{0}/cert.pem'
+                          .format(domain), False)
+                Log.error(
+                    self, "Check the WordOps log for more details "
+                          "`tail /var/log/wo/wordops.log` "
+                          "and please try again...")
+        Log.debug(
+            self,
+            "Getting expiration of /etc/letsencrypt/live/{0}/cert.pem"
+            .format(domain))
         current_date = WOShellExec.cmd_exec_stdout(self, "date -d \"now\" +%s")
         expiration_date = WOShellExec.cmd_exec_stdout(
-            self, "date -d \""
-            "$(openssl x509 -in /etc/letsencrypt/live/"
+            self, "date -d \"$(openssl x509 -in /etc/letsencrypt/live/"
             "{0}/cert.pem -text -noout | grep \"Not After\" "
             "| cut -c 25-)\" +%s"
             .format(domain))
@@ -39,23 +52,27 @@ class SSL:
 
     def getexpirationdate(self, domain):
         # check if exist
-        if os.path.islink('/var/www/{0}/conf/nginx/ssl.conf'):
-            split_domain = domain.split('.')
-            domain = ('.').join(split_domain[1:])
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                               .format(domain)):
-            Log.error(self, 'File Not Found: /etc/letsencrypt/'
-                      'live/{0}/cert.pem'
-                      .format(domain), False)
-            Log.error(self, "Check the WordOps log for more details "
-                      "`tail /var/log/wo/wordops.log` and please try again...")
+            if os.path.exists('/var/www/{0}/conf/nginx/ssl.conf'):
+                split_domain = domain.split('.')
+                check_domain = ('.').join(split_domain[1:])
+            else:
+                Log.error(
+                    self, 'File Not Found: /etc/letsencrypt/'
+                    'live/{0}/cert.pem'
+                    .format(domain), False)
+                Log.error(
+                    self, "Check the WordOps log for more details "
+                    "`tail /var/log/wo/wordops.log` and please try again...")
+        else:
+            check_domain = domain
 
-        expiration_date = WOShellExec.cmd_exec_stdout(
+        return WOShellExec.cmd_exec_stdout(
             self, "date -d \"$(/usr/bin/openssl x509 -in "
             "/etc/letsencrypt/live/{0}/cert.pem -text -noout | grep "
             "\"Not After\" | cut -c 25-)\" "
-            .format(domain))
-        return expiration_date
+            .format(check_domain))
 
     def siteurlhttps(self, domain):
         wo_site_webroot = ('/var/www/{0}'.format(domain))
@@ -93,8 +110,8 @@ class SSL:
                     Log.valide(self, "Updating site url with https")
 
     # check if a wildcard exist to secure a new subdomain
-
     def checkwildcardexist(self, wo_domain_name):
+        """Check if a wildcard certificate exist for a domain"""
 
         wo_acme_exec = ("/etc/letsencrypt/acme.sh --config-home "
                         "'/etc/letsencrypt/config'")
@@ -110,31 +127,44 @@ class SSL:
         reader = csv.reader(certfile, 'acmeconf')
         wo_wildcard_domain = ("*.{0}".format(wo_domain_name))
         for row in reader:
-            if wo_wildcard_domain in row[2]:
-                if not row[2] == "":
-                    iswildcard = True
-                    break
-            else:
-                iswildcard = False
+            if wo_wildcard_domain == row[2]:
+                if not row[3] == "":
+                    return True
         certfile.close()
+        return False
 
-        return iswildcard
+    def setuphsts(self, wo_domain_name, enable=True):
+        """Enable or disable htsts for a site"""
+        if enable:
+            if WOFileUtils.enabledisable(
+                self, '/var/www/{0}/conf/nginx/hsts.conf'
+            ):
+                return 0
+            else:
+                Log.info(
+                    self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
+                    .format(wo_domain_name))
 
-    def setuphsts(self, wo_domain_name):
-        Log.info(
-            self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
-            .format(wo_domain_name))
-
-        hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
-                        .format(wo_domain_name),
-                        encoding='utf-8', mode='w')
-        hstsconf.write("more_set_headers "
-                       "\"Strict-Transport-Security: "
-                       "max-age=31536000; "
-                       "includeSubDomains; "
-                       "preload\";")
-        hstsconf.close()
-        return 0
+                hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
+                                .format(wo_domain_name),
+                                encoding='utf-8', mode='w')
+                hstsconf.write("more_set_headers "
+                               "\"Strict-Transport-Security: "
+                               "max-age=31536000; "
+                               "includeSubDomains; "
+                               "preload\";")
+                hstsconf.close()
+                return 0
+        else:
+            if WOFileUtils.enabledisable(
+                self, '/var/www/{0}/conf/nginx/hsts.conf',
+                enable=False
+            ):
+                Log.info(self, "HSTS disabled")
+                return 0
+            else:
+                Log.info(self, "HSTS is not enabled")
+                return 0
 
     def selfsignedcert(self, proftpd=False, backend=False):
         """issue a self-signed certificate"""
@@ -197,3 +227,100 @@ class SSL:
                 "/etc/proftpd/ssl/proftpd.crt")
         # remove self-signed tmp directory
         WOFileUtils.rm(self, selfs_tmp)
+
+    def httpsredirect(self, wo_domain_name, acme_domains, redirect=True):
+        """Create Nginx redirection from http to https"""
+        wo_acme_domains = ' '.join(acme_domains)
+        if redirect:
+            Log.wait(self, "Adding HTTPS redirection")
+            if WOFileUtils.enabledisable(
+                    self, '/etc/nginx/conf.d/force-ssl-{0}.conf'
+                    .format(wo_domain_name), enable=True):
+                Log.valide(self, "Adding HTTPS redirection")
+                return 0
+            else:
+                try:
+                    sslconf = open(
+                        "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name),
+                        encoding='utf-8', mode='w')
+                    sslconf.write(
+                        "server {\n"
+                        "\tlisten 80;\n" +
+                        "\tlisten [::]:80;\n" +
+                        "\tserver_name {0};\n"
+                        .format(wo_acme_domains) +
+                        "\treturn 301 https://$host"
+                        "$request_uri;\n}")
+                    sslconf.close()
+                except IOError as e:
+                    Log.debug(self, str(e))
+                    Log.debug(
+                        self, "Error occured while generating "
+                        "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                        .format(wo_domain_name))
+                    return 1
+                Log.valide(self, "Adding HTTPS redirection")
+                return 0
+        else:
+            if WOFileUtils.enabledisable(
+                    self, "/etc/nginx/conf.d/force-ssl-{0}.conf"
+                    .format(wo_domain_name), enable=False):
+                Log.info(
+                    self, "Disabled HTTPS Force Redirection for site "
+                    "{0}".format(wo_domain_name))
+            else:
+                Log.info(
+                    self, "HTTPS redirection already disabled for site"
+                    "{0}".format(wo_domain_name)
+                )
+            return 0
+
+    def archivedcertificatehandle(self, domain, acme_domains):
+        Log.warn(
+            self, "You already have an existing certificate "
+            "for the domain requested.\n"
+            "(ref: {0}/"
+            "{1}_ecc/{1}.conf)".format(WOVar.wo_ssl_archive, domain) +
+            "\nPlease select an option from below?"
+            "\n\t1: Reinstall existing certificate"
+            "\n\t2: Issue a new certificate to replace "
+            "the current one (limit ~5 per 7 days)"
+            "")
+        check_prompt = input(
+            "\nType the appropriate number [1-2] or any other key to cancel: ")
+        if not os.path.isfile("{0}/{1}/fullchain.pem"
+                              .format(WOVar.wo_ssl_live, domain)):
+            Log.debug(
+                self, "{0}/{1}/fullchain.pem file is missing."
+                .format(WOVar.wo_ssl_live, domain))
+            check_prompt = "2"
+
+        if check_prompt == "1":
+            Log.info(self, "Reinstalling SSL cert with acme.sh")
+            ssl = WOAcme.deploycert(self, domain)
+            if ssl:
+                SSL.httpsredirect(self, domain, acme_domains)
+
+        elif (check_prompt == "2"):
+            Log.info(self, "Issuing new SSL cert with acme.sh")
+            ssl = WOShellExec.cmd_exec(
+                self, "/etc/letsencrypt/acme.sh "
+                "--config-home '/etc/letsencrypt/config' "
+                "--renew -d {0} --ecc --force"
+                .format(domain))
+
+            if ssl:
+                WOAcme.deploycert(self, domain)
+        else:
+            Log.error(self, "Operation cancelled by user.")
+
+        if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                          .format(domain)):
+            Log.info(self, "Existing ssl.conf . Backing it up ..")
+            WOFileUtils.mvfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
+                               .format(domain),
+                               '/var/www/{0}/conf/nginx/ssl.conf.bak'
+                               .format(domain))
+
+        return ssl

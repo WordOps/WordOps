@@ -1,6 +1,7 @@
 """WordOps package installation using apt-get module."""
 import subprocess
 import sys
+import os
 
 from sh import ErrorReturnCode, apt_get
 
@@ -220,6 +221,29 @@ class WOAptGet():
             # apt_cache.close()
             return True
         # apt_cache.close()
+        return False
+
+    def is_exec(self, package_name):
+        """
+        Check if package is available by looking
+        for an executable or a systemd service related
+        to this package
+        """
+        exec_path = ["/bin", "/usr/bin", "/usr/local/bin",
+                     "/usr/sbin", "/usr/local/sbin"]
+        for path in exec_path:
+            if os.path.exists('{0}/{1}'.format(path, package_name)):
+                return True
+        return False
+
+    def is_selected(self, package_name, packages_list):
+        """
+        Check if package is selected for install/removal/purge
+        in packages_list
+        """
+        for package in packages_list:
+            if package_name == package[2]:
+                return True
         return False
 
     def download_only(self, package_name, repo_url=None, repo_key=None):

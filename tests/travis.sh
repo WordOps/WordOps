@@ -16,7 +16,7 @@ export LC_ALL='C.UTF-8'
 
 if [ -z "$1" ]; then
 {
-    apt-get -qq purge mysql* graphviz* redis*
+    apt-get -qq purge mysql* graphviz* redis* php73-* php-*
     apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
     sudo apt-get -qq autoremove --purge
 } > /dev/null 2>&1
@@ -30,7 +30,7 @@ exit_script() {
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_list='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker cheat nanorc'
+stack_list='nginx php php73 php74 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker cheat nanorc'
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
     if {
@@ -49,7 +49,7 @@ done
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       Simple site create              '
 echo -e "${CGREEN}#############################################${CEND}"
-site_types='html php php73 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+site_types='html php php73 php74 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $site_types; do
     echo -ne "       Creating $site               [..]\r"
     if {
@@ -64,10 +64,16 @@ for site in $site_types; do
 
     fi
 done
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+wo site info wp.net
+echo
+
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php73              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='html mysql php php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php73              [..]\r"
     if {
@@ -82,7 +88,57 @@ for site in $other_site_types; do
 
     fi
 done
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+wo site info wp.net
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update --php74              '
+echo -e "${CGREEN}#############################################${CEND}"
+other_site_types='html mysql wp php php73 wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+for site in $other_site_types; do
+    echo -ne "       Updating site to $site php74              [..]\r"
+    if {
+        wo site update ${site}.net --php74
+    } >>/var/log/wo/test.log; then
+        echo -ne "       Updating site to $site php74               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating site to $site php74              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
 
+    fi
+done
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+wo site info wp.net
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update --php72              '
+echo -e "${CGREEN}#############################################${CEND}"
+other_site_types='html mysql php php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+for site in $other_site_types; do
+    echo -ne "       Updating site to $site php72              [..]\r"
+    if {
+        wo site update ${site}.net --php72
+    } >>/var/log/wo/test.log; then
+        echo -ne "       Updating site to $site php72               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating site to $site php72              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+wo site info wp.net
+echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update WP              '
 echo -e "${CGREEN}#############################################${CEND}"
@@ -147,7 +203,7 @@ if [ -z "$1" ]; then
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       wo stack upgrade              '
     echo -e "${CGREEN}#############################################${CEND}"
-    stack_upgrade='nginx php php73 mysql redis netdata dashboard phpmyadmin composer ngxblocker'
+    stack_upgrade='nginx php php72 php73 php74 mysql redis netdata dashboard phpmyadmin composer ngxblocker mysqltuner'
     for stack in $stack_upgrade; do
         echo -ne "      Upgrading $stack               [..]\r"
         if {
@@ -232,7 +288,7 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site info             '
 echo -e "${CGREEN}#############################################${CEND}"
 
-wo site info wp.net
+wo site info wpfc.net
 
 echo
 echo -e "${CGREEN}#############################################${CEND}"
@@ -241,9 +297,28 @@ echo -e "${CGREEN}#############################################${CEND}"
 wo info
 
 echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site delete              '
+echo -e "${CGREEN}#############################################${CEND}"
+sites=$(wo site list 2>&1)
+for site in $sites; do
+    echo -ne "       deleting $site              [..]\r"
+    if {
+        wo site delete $site --force
+    } >>/var/log/wo/test.log; then
+        echo -ne "       deleting $site              [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "       deleting $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
+echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_purge='nginx php php73 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat nanorc'
+stack_purge='nginx php php73 php74 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat nanorc'
 for stack in $stack_purge; do
     echo -ne "       purging $stack              [..]\r"
     if {

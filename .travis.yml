@@ -18,7 +18,7 @@ before_script:
   - sudo bash -c 'echo example.com > /etc/hostname'
   - unset LANG
   - sudo apt-get update --allow-releaseinfo-change -qq
-  - sudo apt-get -qq purge mysql* graphviz* redis*
+  - sudo apt-get -qq purge mysql* graphviz* redis* php*
   - sudo apt-get -qq autoremove --purge
 
 

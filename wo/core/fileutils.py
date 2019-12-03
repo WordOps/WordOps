@@ -252,10 +252,7 @@ class WOFileUtils():
             Check if file exist on given path
         """
         try:
-            if os.path.exists(path):
-                return (True)
-            else:
-                return (False)
+            return bool(os.path.exists(path))
         except OSError as e:
             Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to check path {0}".format(path))
@@ -369,3 +366,22 @@ class WOFileUtils():
         except IOError as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to append  content in {0}".format(path))
+
+    def enabledisable(self, path, enable=True):
+        """Switch conf from .conf.disabled to .conf or vice-versa"""
+        if enable:
+            Log.debug(self, "Check if disabled file exist")
+            if os.path.exists('{0}.disabled'.format(path)):
+                Log.debug(self, "Moving .disabled file")
+                shutil.move('{0}.disabled'.format(path), path)
+                return True
+            else:
+                return False
+        else:
+            Log.debug(self, "Check if .conf file exist")
+            if os.path.exists(path):
+                Log.debug(self, "Moving .conf file")
+                shutil.move(path, '{0}.disabled'.format(path))
+                return True
+            else:
+                return False

@@ -1,4 +1,4 @@
-# WordPress COMMON SETTINGS - WO v3.9.7
+# WordPress COMMON SETTINGS - WordOps {{release}}
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 # Limit access to avoid brute force attack
 location = /wp-login.php {
@@ -12,7 +12,7 @@ location = /wp-cron.php {
     include fastcgi_params;
     fastcgi_pass {{upstream}};
 }
-# Prevent Dos attacks with xmlrpc.php
+# Prevent DoS attacks with xmlrpc.php
 location = /xmlrpc.php {
     limit_req zone=two burst=1 nodelay;
     include fastcgi_params;
@@ -41,7 +41,7 @@ location /wp-content/uploads {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
         more_set_headers 'Access-Control-Allow-Origin : *';
-        add_header Cache-Control "public, no-transform";
+        more_set_headers  "Cache-Control : public, no-transform";
         access_log off;
         log_not_found off;
         expires max;
@@ -57,7 +57,7 @@ location /wp-content/plugins/ewww-image-optimizer/images {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
         more_set_headers 'Access-Control-Allow-Origin : *';
-        add_header Cache-Control "public, no-transform";
+        more_set_headers  "Cache-Control : public, no-transform";
         access_log off;
         log_not_found off;
         expires max;

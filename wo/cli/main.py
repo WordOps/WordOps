@@ -9,14 +9,6 @@ from cement.utils.misc import init_defaults
 
 from wo.core import exc
 
-# this has to happen after you import sys, but before you import anything
-# from Cement "source: https://github.com/datafolklabs/cement/issues/290"
-if '--debug' in sys.argv:
-    sys.argv.remove('--debug')
-    TOGGLE_DEBUG = True
-else:
-    TOGGLE_DEBUG = False
-
 # Application default.  Should update config/wo.conf to reflect any
 # changes, or additions here.
 defaults = init_defaults('wo')
@@ -65,7 +57,7 @@ class WOApp(CementApp):
         # Internal templates (ship with application code)
         template_module = 'wo.cli.templates'
 
-        extensions = ['mustache']
+        extensions = ['mustache', 'argcomplete', 'colorlog']
 
         hooks = [
             ("post_render", encode_output)
@@ -73,10 +65,9 @@ class WOApp(CementApp):
 
         output_handler = 'mustache'
 
+        log_handler = 'colorlog'
+
         arg_handler = WOArgHandler
-
-        debug = TOGGLE_DEBUG
-
         exit_on_close = True
 
 
@@ -125,14 +116,11 @@ def main():
             print('FrameworkError > %s' % e)
             app.exit_code = 1
         finally:
-            # Print an exception (if it occurred) and --debug was passed
+            # Maybe we want to see a full-stack trace for the above
+            # exceptions, but only if --debug was passed?
             if app.debug:
-                import sys
                 import traceback
-
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                if exc_traceback is not None:
-                    traceback.print_exc()
+                traceback.print_exc()
 
 
 if __name__ == '__main__':

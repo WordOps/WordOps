@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo bash wo
 # -------------------------------------------------------------------------
-# Version 3.10.3 - 2019-11-11
+# Version 3.11.0 - 2019-12-03
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -23,25 +23,25 @@
 # 1 - Set the CLI output colors
 ###
 
-TPUT_RESET=$(tput sgr0)
-TPUT_FAIL=$(tput setaf 1)
-TPUT_INFO=$(tput setaf 7)
-TPUT_ECHO=$(tput setaf 4)
-TPUT_OK=$(tput setaf 2)
+CSI='\033['
+TPUT_RESET="${CSI}0m"
+TPUT_FAIL="${CSI}1;31m"
+TPUT_ECHO="${CSI}1;36m"
+TPUT_OK="${CSI}1;32m"
 
 wo_lib_echo() {
 
-    echo "${TPUT_ECHO}${*}${TPUT_RESET}"
+    echo -e "${TPUT_ECHO}${*}${TPUT_RESET}"
 }
 
 wo_lib_echo_info() {
 
-    echo "${TPUT_INFO}${*}${TPUT_RESET}"
+    echo -e "$*"
 }
 
 wo_lib_echo_fail() {
 
-    echo "${TPUT_FAIL}${*}${TPUT_RESET}"
+    echo -e "${TPUT_FAIL}${*}${TPUT_RESET}"
 }
 
 ###
@@ -49,7 +49,7 @@ wo_lib_echo_fail() {
 ###
 
 wo_lib_error() {
-    echo "[ $(date) ] ${TPUT_FAIL}${*}${TPUT_RESET}"
+    echo -e "[ $(date) ] ${TPUT_FAIL}${*}${TPUT_RESET}"
     exit "$2"
 }
 
@@ -169,7 +169,8 @@ wo_check_distro() {
         else
             check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
             if [ -z "$check_wo_linux_distro" ]; then
-                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x"
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x.\n
+                You can bypass this warning by adding the flag --force to the install command"
                 exit 100
             fi
         fi
@@ -426,8 +427,10 @@ wo_install_acme_sh() {
 wo_install() {
     cd /usr/local/lib/python3.*/dist-packages || exit 1
     if [ "$wo_branch" = "master" ]; then
+        python3 -m pip uninstall wo -y
         python3 -m pip install --upgrade wordops
     else
+        python3 -m pip uninstall wo -y
         python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
@@ -594,8 +597,7 @@ wo_domain_suffix() {
 }
 
 wo_clean() {
-    echo "pass"
-
+    rm -rf /usr/local/lib/python3.*/dist-packages/{wo-*.egg,cement-*.egg,wordops-*.egg}
 }
 
 wo_uninstall() {
@@ -623,6 +625,14 @@ wo_clean_repo() {
     fi
 }
 
+wo_woconf() {
+    if [ -f /etc/wo/wo.conf ]; then
+        if grep -q "log.logging" /etc/wo/wo.conf; then
+            sed -i "s/log.logging/log.colorlog/g" /etc/wo/wo.conf
+        fi
+    fi
+}
+
 wo_init() {
 
     ###
@@ -631,12 +641,12 @@ wo_init() {
 
     if [ -z "$wo_travis" ]; then
         # import easyengine opensusebuildservice gpg key to avoid issues with packages update
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 > /dev/null 2>&1
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 > /dev/null 2>&1
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 >/dev/null 2>&1
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 >/dev/null 2>&1
         # fix digitalocean mariadb repository issue
-        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list > /dev/null 2>&1
-        if [ -f /etc/apt/preferences.d/MariaDB.pref  ]; then
-        sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref > /dev/null 2>&1
+        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list >/dev/null 2>&1
+        if [ -f /etc/apt/preferences.d/MariaDB.pref ]; then
+            sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref >/dev/null 2>&1
         fi
         if ! {
             apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
@@ -696,16 +706,20 @@ else
     # 1 - WO already installed
     if [ -x /usr/local/bin/wo ]; then
         _run wo_clean
-    # 2 - Migration from EEv3
-    elif [ -x /usr/local/bin/ee ]; then
-        if [ -z "$wo_force_install" ]; then
-            echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
-            if [ "$WO_ANSWER" != "y" ] && [ "$WO_ANSWER" != "Y" ]; then
-                wo_lib_error "Not installing WordOps" 1
+        _run wo_woconf
+        # 2 - Migration from EEv3
+    else
+        if [ -x /usr/local/bin/ee ]; then
+            if [ -z "$wo_force_install" ]; then
+                echo -e "Migrate from EasyEngine to WordOps (y/n): " && read -r WO_ANSWER
+                if [ "$WO_ANSWER" != "y" ] && [ "$WO_ANSWER" != "Y" ]; then
+                    wo_lib_error "Not installing WordOps" 1
+                fi
             fi
+            _run wo_backup_ee "Backing-up EE install"
+            _run wo_remove_ee_cron "Removing EasyEngine cronjob"
         fi
-        _run wo_backup_ee "Backing-up EE install"
-        _run wo_remove_ee_cron "Removing EasyEngine cronjob"
+
     fi
     _run wo_install_dep "Installing wo dependencies"
     _run wo_timesync
@@ -737,10 +751,10 @@ else
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
         echo
-        wo_lib_echo "To upgrade WordOps web stacks use the command:"
+        wo_lib_echo "To upgrade WordOps web stacks, you can use the command:"
         wo_lib_echo_info "wo stack upgrade"
         echo
-        wo_lib_echo "To update all other packages use the command:"
+        wo_lib_echo "To update all other packages, you can use the command:"
         wo_lib_echo_info "wo maintenance"
     else
         wo_lib_echo "WordOps (wo) installed successfully"

@@ -26,15 +26,16 @@ fi
 if [ -n "$CURRENT_RELEASE" ] && [ -n "$LATEST_RELEASE" ]; then
     if [ "$CURRENT_RELEASE" != "$LATEST_RELEASE" ]; then
         # display message with motd-news on Ubuntu
-        echo '*** A new WordOps release is available ***' > "$NEWS" 2> "$ERR"
+        echo '*** A new WordOps release is available ***' >"$NEWS" 2>"$ERR"
 
         echo
         # At most, 10 lines of text, remove control characters, print at most 80 characters per line
         safe_print "$NEWS"
         # Try to update the cache
-        safe_print "$NEWS" 2> /dev/null > $CACHE || true
+        safe_print "$NEWS" 2>/dev/null >$CACHE || true
     else
         # clean news
-        echo '' > "$NEWS" 2> "$ERR"
-        safe_print "$NEWS" 2> /dev/null > $CACHE || true
+        echo '' >"$NEWS" 2>"$ERR"
+        safe_print "$NEWS" 2>/dev/null >$CACHE || true
+    fi
 fi
