@@ -453,7 +453,7 @@ def setupwordpress(self, data, vhostonly=False):
         raise SiteError("input WordPress user email failed")
 
     Log.debug(self, "Setting up WordPress tables")
-
+    Log.wait(self, "Installing WordPress")
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
         Log.debug(
@@ -476,6 +476,7 @@ def setupwordpress(self, data, vhostonly=False):
                     log=False):
                 pass
             else:
+                Log.failed(self, "Installing WordPress")
                 raise SiteError(
                     "setup WordPress tables failed for single site")
         except CommandExecutionError:
@@ -509,11 +510,12 @@ def setupwordpress(self, data, vhostonly=False):
                     log=False):
                 pass
             else:
+                Log.failed(self, "Installing WordPress")
                 raise SiteError(
                     "setup WordPress tables failed for wp multi site")
         except CommandExecutionError:
             raise SiteError("setup WordPress tables failed for wp multi site")
-
+        Log.valide(self, "Installing WordPress")
     Log.debug(self, "Updating WordPress permalink")
     try:
         WOShellExec.cmd_exec(self, " {0} --allow-root "
