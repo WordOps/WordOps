@@ -44,7 +44,7 @@ class Log:
         """
         Logs debug messages into log file
         """
-        self.app.log.debug(Log.HEADER + msg + Log.ENDC)
+        self.app.log.debug(Log.HEADER + msg + Log.ENDC, __name__)
 
     def wait(self, msg, end='\r', log=True):
         """
