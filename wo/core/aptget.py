@@ -189,7 +189,7 @@ class WOAptGet():
         """
         try:
             orig_out = sys.stdout
-            sys.stdout = open(self.app.config.get('log.logging', 'file'),
+            sys.stdout = open(self.app.config.get('log.colorlog', 'file'),
                               encoding='utf-8', mode='a')
             apt_get.autoclean("-y")
             sys.stdout = orig_out
