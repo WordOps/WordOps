@@ -33,7 +33,6 @@ server {
     location ~ \.php$ {
         try_files $uri =404;
         include fastcgi_params;
-        deny all;
         fastcgi_pass phpstatus;
         access_log off;
         log_not_found off;
