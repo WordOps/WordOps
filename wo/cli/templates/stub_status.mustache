@@ -28,12 +28,26 @@ server {
         log_not_found off;
     }
     location / {
-        try_files $uri $uri/ /cache/opcache/opgui.php$is_args$args;
+        try_files $uri $uri/ /index.php$is_args$args;
     }
-    location ~ \.php$ {
+    location /cache/opcache/php72.php {
         try_files $uri =404;
         include fastcgi_params;
-        fastcgi_pass phpstatus;
+        fastcgi_pass php72;
+        access_log off;
+        log_not_found off;
+    }
+    location /cache/opcache/php73.php {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php73;
+        access_log off;
+        log_not_found off;
+    }
+    location /cache/opcache/php74.php {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php74;
         access_log off;
         log_not_found off;
     }

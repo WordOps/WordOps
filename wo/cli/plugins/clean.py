@@ -74,19 +74,18 @@ class WOCleanController(CementBaseController):
     def clean_opcache(self):
         if (os.path.exists('/usr/sbin/nginx') and
                 os.path.exists(
-                    '/var/www/22222/htdocs/cache/opcache/opgui.php')):
+                    '/var/www/22222/htdocs/cache/opcache/php72.php')):
             try:
                 Log.info(self, "Cleaning opcache")
-                payload = {'RESET': '1'}
                 opgui = requests.get(
-                    "http://127.0.0.1/cache/opcache/ocp.php", params=payload)
+                    "http://127.0.0.1/cache/opcache/php72.php")
                 if opgui.status_code != '200' or opgui.status_code != '302':
                     Log.warn(self, 'Cleaning opcache failed')
             except Exception as e:
                 Log.debug(self, "{0}".format(e))
                 Log.debug(self, "Unable hit url, "
                           " http://127.0.0.1/cache/opcache/"
-                          "opgui.php?reset=1,"
+                          "php72.php,"
                           " please check you have admin tools installed")
                 Log.debug(self, "please check you have admin tools installed,"
                           " or install them with `wo stack install --admin`")

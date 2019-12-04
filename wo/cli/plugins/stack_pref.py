@@ -606,6 +606,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           encoding='utf-8', mode='w') as myfile:
                     myfile.write("<?php\nphpinfo();\n?>")
 
+            # write opcache clean for php72
+            if not os.path.exists('{0}22222/htdocs/cache/opcache'
+                                  .format(ngxroot)):
+                os.makedirs('{0}22222/htdocs/cache/opcache'
+                            .format(ngxroot))
+            WOFileUtils.textwrite(
+                self, '{0}22222/htdocs/cache/opcache/php72.php'
+                .format(ngxroot),
+                '<?php opcache_reset(); ?>')
+
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
                               'www-data',
@@ -743,6 +753,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                       encoding='utf-8', mode='w') as myfile:
                 myfile.write("<?php\nphpinfo();\n?>")
 
+            # write opcache clean for php73
+            if not os.path.exists('{0}22222/htdocs/cache/opcache'
+                                  .format(ngxroot)):
+                os.makedirs('{0}22222/htdocs/cache/opcache'
+                            .format(ngxroot))
+            WOFileUtils.textwrite(
+                self, '{0}22222/htdocs/cache/opcache/php73.php'
+                .format(ngxroot),
+                '<?php opcache_reset(); ?>')
+
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
                               'www-data',
@@ -878,6 +898,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOFileUtils.textwrite(
                 self, "{0}22222/htdocs/php/info.php"
                 .format(ngxroot), "<?php\nphpinfo();\n?>")
+
+            # write opcache clean for php74
+            if not os.path.exists('{0}22222/htdocs/cache/opcache'
+                                  .format(ngxroot)):
+                os.makedirs('{0}22222/htdocs/cache/opcache'
+                            .format(ngxroot))
+            WOFileUtils.textwrite(
+                self, '{0}22222/htdocs/cache/opcache/php74.php'
+                .format(ngxroot),
+                '<?php opcache_reset(); ?>')
 
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
