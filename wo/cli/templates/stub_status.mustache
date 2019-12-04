@@ -28,7 +28,7 @@ server {
         log_not_found off;
     }
     location / {
-        try_files $uri $uri/ /index.php$is_args$args;
+        try_files $uri $uri/ /cache/opcache/opgui.php$is_args$args;
     }
     location ~ \.php$ {
         try_files $uri =404;
