@@ -48,9 +48,21 @@ class WORepo():
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to add repo")
         if ppa is not None:
+            ppa_split = ppa.split(':')[1]
+            ppa_author = ppa_split.split('/')[0]
+            Log.debug(self, "ppa_author = {0}".format(ppa_author))
+            ppa_package = ppa_split.split('/')[1]
+            Log.debug(self, "ppa_package = {0}".format(ppa_package))
+            if os.path.exists(
+                '/etc/apt/sources.list.d/{0}-ubuntu-{1}-{2}.list'
+                    .format(ppa_author,
+                            ppa_package, WOVar.wo_platform_codename)):
+                Log.debug(self, "ppa already added")
+                return True
             if WOShellExec.cmd_exec(
                     self, "LC_ALL=C.UTF-8 add-apt-repository -y '{ppa_name}'"
                     .format(ppa_name=ppa)):
+                Log.debug(self, "Added PPA {0}".format(ppa))
                 return True
         return False
 
