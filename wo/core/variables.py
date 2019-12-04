@@ -150,7 +150,7 @@ class WOVar():
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
 
-    wo_php_extra = ["php-memcached", "php-imagick",
+    wo_php_extra = ["php-memcached", "php-imagick", "php-igbinary",
                     "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]

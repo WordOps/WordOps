@@ -184,10 +184,8 @@ class WOStackController(CementBaseController):
             if pargs.php72:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.2")
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php72
-                    if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
-                            WOAptGet.is_installed(self, 'php7.4-fpm')):
-                        apt_packages = apt_packages + WOVar.wo_php_extra
+                    apt_packages = (apt_packages + WOVar.wo_php72 +
+                                    WOVar.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.2 already installed")
                     Log.info(self, "PHP 7.2 already installed")
@@ -196,10 +194,8 @@ class WOStackController(CementBaseController):
             if pargs.php73:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.3")
                 if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = apt_packages + WOVar.wo_php73
-                    if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
-                            WOAptGet.is_installed(self, 'php7.4-fpm')):
-                        apt_packages = apt_packages + WOVar.wo_php_extra
+                    apt_packages = (apt_packages + WOVar.wo_php73 +
+                                    WOVar.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.3 already installed")
                     Log.info(self, "PHP 7.3 already installed")
@@ -208,10 +204,8 @@ class WOStackController(CementBaseController):
             if pargs.php74:
                 Log.debug(self, "Setting apt_packages variable for PHP 7.4")
                 if not WOAptGet.is_installed(self, 'php7.4-fpm'):
-                    apt_packages = apt_packages + WOVar.wo_php74
-                    if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
-                            WOAptGet.is_installed(self, 'php7.2-fpm')):
-                        apt_packages = apt_packages + WOVar.wo_php_extra
+                    apt_packages = (apt_packages + WOVar.wo_php74 +
+                                    WOVar.wo_php_extra)
                 else:
                     Log.debug(self, "PHP 7.4 already installed")
                     Log.info(self, "PHP 7.4 already installed")
