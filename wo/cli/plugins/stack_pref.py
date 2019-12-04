@@ -97,12 +97,9 @@ def pre_pref(self, apt_packages):
     # add nginx repository
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
         if (WOVar.wo_distro == 'ubuntu'):
-            if not os.path.isfile(
-                'wordops-ubuntu-nginx-wo-{0}.list'
-                    .format(WOVar.wo_platform_codename)):
-                Log.info(self, "Adding repository for NGINX, please wait...")
-                WORepo.add(self, ppa=WOVar.wo_nginx_repo)
-                Log.debug(self, 'Adding ppa for Nginx')
+            Log.info(self, "Adding repository for NGINX, please wait...")
+            WORepo.add(self, ppa=WOVar.wo_nginx_repo)
+            Log.debug(self, 'Adding ppa for Nginx')
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
@@ -117,11 +114,8 @@ def pre_pref(self, apt_packages):
             ('php7.2-fpm' in apt_packages) or ('php7.4-fpm' in apt_packages)):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
-            if not os.path.isfile(
-                '/etc/apt/sources.list.d/ondrej-ubuntu-php-{0}.list'
-                    .format(WOVar.wo_platform_codename)):
-                Log.info(self, "Adding repository for PHP, please wait...")
-                WORepo.add(self, ppa=WOVar.wo_php_repo)
+            Log.info(self, "Adding repository for PHP, please wait...")
+            WORepo.add(self, ppa=WOVar.wo_php_repo)
         else:
             # Add repository for php
             if (WOVar.wo_platform_codename == 'buster'):
@@ -144,13 +138,9 @@ def pre_pref(self, apt_packages):
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
         if WOVar.wo_distro == 'ubuntu':
-            if not os.path.isfile(
-                '/etc/apt/sources.list.d/'
-                'chris-lea-ubuntu-redis-server-{0}.list'
-                    .format(WOVar.wo_platform_codename)):
-                Log.info(self, "Adding repository for Redis, please wait...")
-                Log.debug(self, 'Adding ppa for redis')
-                WORepo.add(self, ppa=WOVar.wo_redis_repo)
+            Log.info(self, "Adding repository for Redis, please wait...")
+            Log.debug(self, 'Adding ppa for redis')
+            WORepo.add(self, ppa=WOVar.wo_redis_repo)
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
@@ -164,12 +154,8 @@ def pre_pref(self, apt_packages):
         if WOVar.wo_distro == 'ubuntu':
             if (WOVar.wo_platform_codename == 'bionic' or
                     WOVar.wo_platform_codename == 'xenial'):
-                if not os.path.exists(
-                        '/etc/apt/sources.list.d/'
-                        'jonathonf-ubuntu-backports-{0}.list'
-                        .format(WOVar.wo_platform_codename)):
-                    Log.debug(self, 'Adding ppa for nano')
-                    WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
+                Log.debug(self, 'Adding ppa for nano')
+                WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -620,6 +606,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           encoding='utf-8', mode='w') as myfile:
                     myfile.write("<?php\nphpinfo();\n?>")
 
+            # write opcache clean for php72
+            if not os.path.exists('{0}22222/htdocs/cache/opcache'
+                                  .format(ngxroot)):
+                os.makedirs('{0}22222/htdocs/cache/opcache'
+                            .format(ngxroot))
+            WOFileUtils.textwrite(
+                self, '{0}22222/htdocs/cache/opcache/php72.php'
+                .format(ngxroot),
+                '<?php opcache_reset(); ?>')
+
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
                               'www-data',
@@ -757,6 +753,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                       encoding='utf-8', mode='w') as myfile:
                 myfile.write("<?php\nphpinfo();\n?>")
 
+            # write opcache clean for php73
+            if not os.path.exists('{0}22222/htdocs/cache/opcache'
+                                  .format(ngxroot)):
+                os.makedirs('{0}22222/htdocs/cache/opcache'
+                            .format(ngxroot))
+            WOFileUtils.textwrite(
+                self, '{0}22222/htdocs/cache/opcache/php73.php'
+                .format(ngxroot),
+                '<?php opcache_reset(); ?>')
+
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
                               'www-data',
@@ -893,6 +899,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 self, "{0}22222/htdocs/php/info.php"
                 .format(ngxroot), "<?php\nphpinfo();\n?>")
 
+            # write opcache clean for php74
+            if not os.path.exists('{0}22222/htdocs/cache/opcache'
+                                  .format(ngxroot)):
+                os.makedirs('{0}22222/htdocs/cache/opcache'
+                            .format(ngxroot))
+            WOFileUtils.textwrite(
+                self, '{0}22222/htdocs/cache/opcache/php74.php'
+                .format(ngxroot),
+                '<?php opcache_reset(); ?>')
+
             WOFileUtils.chown(self, "{0}22222/htdocs"
                               .format(ngxroot),
                               'www-data',
@@ -997,35 +1013,34 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
 
         # create fail2ban configuration files
-        if set(WOVar.wo_fail2ban).issubset(set(apt_packages)):
+        if "fail2ban" in apt_packages:
             WOService.restart_service(self, 'fail2ban')
             WOGit.add(self, ["/etc/fail2ban"],
                       msg="Adding Fail2ban into Git")
-            if not os.path.isfile("/etc/fail2ban/jail.d/custom.conf"):
-                Log.info(self, "Configuring Fail2Ban")
-                data = dict(release=WOVar.wo_version)
-                WOTemplate.deploy(
-                    self,
-                    '/etc/fail2ban/jail.d/custom.conf',
-                    'fail2ban.mustache',
-                    data, overwrite=False)
-                WOTemplate.deploy(
-                    self,
-                    '/etc/fail2ban/filter.d/wo-wordpress.conf',
-                    'fail2ban-wp.mustache',
-                    data, overwrite=False)
-                WOTemplate.deploy(
-                    self,
-                    '/etc/fail2ban/filter.d/nginx-forbidden.conf',
-                    'fail2ban-forbidden.mustache',
-                    data, overwrite=False)
+            Log.info(self, "Configuring Fail2Ban")
+            data = dict(release=WOVar.wo_version)
+            WOTemplate.deploy(
+                self,
+                '/etc/fail2ban/jail.d/custom.conf',
+                'fail2ban.mustache',
+                data, overwrite=False)
+            WOTemplate.deploy(
+                self,
+                '/etc/fail2ban/filter.d/wo-wordpress.conf',
+                'fail2ban-wp.mustache',
+                data, overwrite=False)
+            WOTemplate.deploy(
+                self,
+                '/etc/fail2ban/filter.d/nginx-forbidden.conf',
+                'fail2ban-forbidden.mustache',
+                data, overwrite=False)
 
-                if not WOService.reload_service(self, 'fail2ban'):
-                    WOGit.rollback(
-                        self, ['/etc/fail2ban'], msg="Rollback f2b config")
-                else:
-                    WOGit.add(self, ["/etc/fail2ban"],
-                              msg="Adding Fail2ban into Git")
+            if not WOService.reload_service(self, 'fail2ban'):
+                WOGit.rollback(
+                    self, ['/etc/fail2ban'], msg="Rollback f2b config")
+            else:
+                WOGit.add(self, ["/etc/fail2ban"],
+                          msg="Adding Fail2ban into Git")
 
         # Proftpd configuration
         if "proftpd-basic" in apt_packages:

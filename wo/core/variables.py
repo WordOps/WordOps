@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.11.0"
+    wo_version = "3.11.1"
     # WordOps packages versions
     wo_wp_cli = "2.4.0"
     wo_adminer = "4.7.5"
@@ -150,7 +150,7 @@ class WOVar():
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
 
-    wo_php_extra = ["php-memcached", "php-imagick",
+    wo_php_extra = ["php-memcached", "php-imagick", "php-igbinary",
                     "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]

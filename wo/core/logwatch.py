@@ -65,7 +65,7 @@ class LogWatcher(object):
     def __del__(self):
         self.close()
 
-    def loop(self, interval=0.1, async=False):
+    def loop(self, interval=0.1, req_async=False):
         """Start the loop.
         If async is True make one loop then return.
         """
@@ -73,7 +73,7 @@ class LogWatcher(object):
             self.update_files()
             for fid, file in list(iter(self.files_map.items())):
                 self.readfile(file)
-            if async:
+            if req_async:
                 return
             time.sleep(interval)
 

@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.11.1 - 2019-12-04
+
+#### Added
+
+- `--fail2ban` in wo stack upgrade
+
+#### Fixed
+
+- error with `wo maintenance`
+- php-igbinary missing for php74 (run `wo stack upgrade` to install it)
+- opcache reset with `wo clean`
+
 ### v3.11.0 - 2019-12-03
 
 #### Added

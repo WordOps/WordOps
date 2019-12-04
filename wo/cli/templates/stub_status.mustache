@@ -10,7 +10,9 @@ server {
     server_name 127.0.0.1 localhost;
     access_log off;
     log_not_found off;
-    root /var/www/html;
+    root /var/www/22222/htdocs;
+    allow 127.0.0.1;
+    deny all;
     location ~ /(stub_status|nginx_status) {
         stub_status on;
         allow 127.0.0.1;
@@ -21,9 +23,31 @@ server {
     {{#phpconf}}
     location ~ /(status|ping) {
         include fastcgi_params;
-        allow 127.0.0.1;
-        deny all;
         fastcgi_pass phpstatus;
+        access_log off;
+        log_not_found off;
+    }
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+    location /cache/opcache/php72.php {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php72;
+        access_log off;
+        log_not_found off;
+    }
+    location /cache/opcache/php73.php {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php73;
+        access_log off;
+        log_not_found off;
+    }
+    location /cache/opcache/php74.php {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php74;
         access_log off;
         log_not_found off;
     }

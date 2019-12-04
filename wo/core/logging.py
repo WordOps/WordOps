@@ -38,13 +38,13 @@ class Log:
         Logs warning into log file
         """
         print(Log.WARNING + msg + Log.ENDC)
-        self.app.log.warn(Log.BOLD + msg + Log.ENDC)
+        self.app.log.warning(Log.BOLD + msg + Log.ENDC)
 
     def debug(self, msg):
         """
         Logs debug messages into log file
         """
-        self.app.log.debug(Log.HEADER + msg + Log.ENDC)
+        self.app.log.debug(Log.HEADER + msg + Log.ENDC, __name__)
 
     def wait(self, msg, end='\r', log=True):
         """

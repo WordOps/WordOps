@@ -26,6 +26,8 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade web stack', action='store_true')),
             (['--admin'],
                 dict(help='Upgrade admin tools stack', action='store_true')),
+            (['--security'],
+                dict(help='Upgrade security stack', action='store_true')),
             (['--nginx'],
                 dict(help='Upgrade Nginx stack', action='store_true')),
             (['--php'],
@@ -44,6 +46,8 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade Redis', action='store_true')),
             (['--netdata'],
                 dict(help='Upgrade Netdata', action='store_true')),
+            (['--fail2ban'],
+                dict(help='Upgrade Fail2Ban', action='store_true')),
             (['--dashboard'],
                 dict(help='Upgrade WordOps Dashboard', action='store_true')),
             (['--composer'],
@@ -71,18 +75,15 @@ class WOStackUpgradeController(CementBaseController):
         packages = []
         self.msg = []
         pargs = self.app.pargs
-        if ((not pargs.web) and (not pargs.nginx) and
-            (not pargs.php) and
-            (not pargs.php72) and (not pargs.php73) and
-            (not pargs.php74) and
-            (not pargs.mysql) and (not pargs.ngxblocker) and
-            (not pargs.all) and (not pargs.wpcli) and
-            (not pargs.netdata) and (not pargs.composer) and
-            (not pargs.phpmyadmin) and (not pargs.adminer) and
-            (not pargs.dashboard) and (not pargs.mysqltuner) and
-                (not pargs.redis)):
+        if not (pargs.web or pargs.nginx or pargs.php or
+                pargs.php72 or pargs.php73 or pargs.php74 or pargs.mysql or
+                pargs.ngxblocker or pargs.all or pargs.netdata or
+                pargs.wpcli or pargs.composer or pargs.phpmyadmin or
+                pargs.adminer or pargs.dashboard or pargs.mysqltuner or
+                pargs.redis or pargs.fail2ban or pargs.security):
             pargs.web = True
             pargs.admin = True
+            pargs.security = True
 
         if pargs.php:
             pargs.php72 = True
@@ -90,8 +91,8 @@ class WOStackUpgradeController(CementBaseController):
         if pargs.all:
             pargs.web = True
             pargs.admin = True
+            pargs.security = True
             pargs.redis = True
-            pargs.ngxblocker = True
 
         if pargs.web:
             pargs.nginx = True
@@ -109,6 +110,10 @@ class WOStackUpgradeController(CementBaseController):
             pargs.wpcli = True
             pargs.adminer = True
             pargs.mysqltuner = True
+
+        if pargs.security:
+            pargs.ngxblocker = True
+            pargs.fail2ban = True
 
         # nginx
         if pargs.nginx:
@@ -148,6 +153,11 @@ class WOStackUpgradeController(CementBaseController):
         if pargs.redis:
             if WOAptGet.is_installed(self, 'redis-server'):
                 apt_packages = apt_packages + ['redis-server']
+
+        # fail2ban
+        if pargs.fail2ban:
+            if WOAptGet.is_installed(self, 'fail2ban'):
+                apt_packages = apt_packages + ['fail2ban']
 
         # wp-cli
         if pargs.wpcli:
@@ -267,26 +277,26 @@ class WOStackUpgradeController(CementBaseController):
         else:
             pre_stack(self)
             if (apt_packages):
-                if (("php7.2-fpm" not in apt_packages) and
-                        ("php7.3-fpm" not in apt_packages) and
-                        ("php7.4-fpm" not in apt_packages) and
-                        ("redis-server" not in apt_packages) and
-                        ("nginx-custom" not in apt_packages) and
-                        ("mariadb-server" not in apt_packages)):
+                if not ("php7.2-fpm" in apt_packages or
+                        "php7.3-fpm" in apt_packages or
+                        "php7.4-fpm" in apt_packages or
+                        "redis-server" in apt_packages or
+                        "nginx-custom" in apt_packages or
+                        "mariadb-server" in apt_packages):
                     pass
                 else:
-                    Log.info(
+                    Log.warn(
                         self, "Your sites may be down for few seconds if "
                         "you are upgrading Nginx, PHP-FPM, MariaDB or Redis")
                 # Check prompt
-                if ((not pargs.no_prompt) and (not pargs.force)):
+                if not (pargs.no_prompt or pargs.force):
                     start_upgrade = input("Do you want to continue:[y/N]")
                     if start_upgrade != "Y" and start_upgrade != "y":
                         Log.error(self, "Not starting package update")
-                Log.wait(self, "Updating APT packages")
+                Log.wait(self, "Updating APT cache")
                 # apt-get update
                 WOAptGet.update(self)
-                Log.valide(self, "Updating APT packages")
+                Log.valide(self, "Updating APT cache")
 
                 # additional pre_pref
                 if "nginx-custom" in apt_packages:
