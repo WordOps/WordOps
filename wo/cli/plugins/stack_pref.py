@@ -321,9 +321,15 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         "'\"$http_referer\" "
                         "\"$http_user_agent\"';\n")
 
-                    # Nginx-Plus does not have nginx
-                    # package structure like this
-                    # So creating directories
+            if not os.path.exists('/etc/nginx/bots.d'):
+                WOFileUtils.textwrite(
+                    self, '/etc/nginx/conf.d/variables-hash.conf',
+                    'variables_hash_max_size 4096;\n'
+                    'variables_hash_bucket_size 4096;')
+
+                # Nginx-Plus does not have nginx
+                # package structure like this
+                # So creating directories
             if not os.path.exists('/etc/nginx/sites-available'):
                 Log.debug(self, 'Creating directory'
                           '/etc/nginx/sites-available')
@@ -1585,11 +1591,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # ngxblocker
         if any('/usr/local/sbin/install-ngxblocker' == x[1]
                for x in packages):
+            # remove duplicate directives
+            if os.path.exists('/etc/nginx/conf.d/variables-hash.conf'):
+                WOFileUtils.rm(self, '/etc/nginx/conf.d/variables-hash.conf')
             WOFileUtils.chmod(
                 self, "/usr/local/sbin/install-ngxblocker", 0o700)
             WOShellExec.cmd_exec(self, '/usr/local/sbin/install-ngxblocker -x')
             WOFileUtils.chmod(
                 self, "/usr/local/sbin/update-ngxblocker", 0o700)
+            if not WOService.restart_service(self, 'nginx'):
+                Log.error(self, 'ngxblocker install failed')
 
 
 def pre_stack(self):

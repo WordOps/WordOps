@@ -269,8 +269,6 @@ class WOStackUpgradeController(CementBaseController):
                     '/usr/local/sbin/update-ngxblocker',
                     'ngxblocker'
                 ]]
-            else:
-                Log.info(self, "ngxblocker is not installed")
 
         if ((not (apt_packages)) and (not(packages))):
             self.app.args.print_help()
@@ -347,6 +345,9 @@ class WOStackUpgradeController(CementBaseController):
                     WOFileUtils.chmod(self, "/usr/local/bin/wp", 0o775)
 
                 if WOAptGet.is_selected(self, 'ngxblocker', packages):
+                    if os.path.exists('/etc/nginx/conf.d/variables-hash.conf'):
+                        WOFileUtils.rm(
+                            self, '/etc/nginx/conf.d/variables-hash.conf')
                     WOFileUtils.chmod(
                         self, '/usr/local/sbin/update-ngxblocker', 0o775)
                     WOShellExec.cmd_exec(
