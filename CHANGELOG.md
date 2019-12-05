@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- Install ngxblocker with Nginx to set proper values for variables_hash_bucket_size & variables_hash_max_size without conflicts
+
 ### v3.11.1 - 2019-12-04
 
 #### Added
