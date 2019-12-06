@@ -241,6 +241,11 @@ class WOSiteController(CementBaseController):
         wo_site_webroot = getSiteInfo(self, wo_domain).site_path
         if os.path.isdir(wo_site_webroot):
             WOFileUtils.chdir(self, wo_site_webroot)
+
+        try:
+            subprocess.call(['/bin/bash'])
+        except OSError as e:
+            Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
         else:
             Log.error(self, "unable to change directory")
 
