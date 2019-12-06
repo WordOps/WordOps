@@ -1140,6 +1140,9 @@ class WOStackController(CementBaseController):
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata/netdata-"
                                          "uninstaller.sh -y -f")
+                if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+                    WOMysql.execute(
+                        self, "DELETE FROM mysql.user WHERE User = 'netdata';")
 
             if (apt_packages):
                 Log.wait(self, "Purging APT Packages        ")
