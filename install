@@ -388,9 +388,6 @@ wo_install_acme_sh() {
             --home /etc/letsencrypt \
             --config-home /etc/letsencrypt/config \
             --cert-home /etc/letsencrypt/renewal
-        # enable auto-upgrade
-        /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
-
     fi
 
     if [ -x "$HOME/.acme.sh/acme.sh" ]; then
