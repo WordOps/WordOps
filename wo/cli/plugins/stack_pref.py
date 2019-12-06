@@ -1410,11 +1410,15 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 try:
                     WOMysql.execute(
                         self,
-                        "create user 'netdata'@'localhost';",
+                        "DELETE FROM mysql.user WHERE User = 'netdata';",
                         log=False)
                     WOMysql.execute(
                         self,
-                        "grant usage on *.* to 'netdata'@'localhost';",
+                        "create user 'netdata'@'127.0.0.1';",
+                        log=False)
+                    WOMysql.execute(
+                        self,
+                        "grant usage on *.* to 'netdata'@'127.0.0.1';",
                         log=False)
                     WOMysql.execute(
                         self, "flush privileges;",
