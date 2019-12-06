@@ -411,8 +411,6 @@ wo_install_acme_sh() {
         mkdir "$HOME/.acme.sh"
         touch "$HOME/.acme.sh/acme.sh.env"
         # removing previous cronjob
-        crontab -l | sed '/41 0 \* \* \* "\/root\/\.acme\.sh"\/acme.sh --cron --home "\/root\/\.acme\.sh" > \/dev\/null/d' | crontab -
-
     fi
     # Let's Encrypt .well-known folder setup
     if [ ! -d /var/www/html/.well-known/acme-challenge ]; then
@@ -420,6 +418,13 @@ wo_install_acme_sh() {
     fi
     chown -R www-data:www-data /var/www/html /var/www/html/.well-known
     chmod 750 /var/www/html /var/www/html/.well-known
+    if [ -x /etc/letsencrypt/acme.sh ]; then
+        export LE_WORKING_DIR="/etc/letsencrypt"
+        export LE_CONFIG_HOME="/etc/letsencrypt/config"
+        /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
+        /etc/letsencrypt/acme.sh --config-home "/etc/letsencrypt/config" --uninstall-cronjob
+        /etc/letsencrypt/acme.sh --config-home "/etc/letsencrypt/config" --install-cronjob
+    fi
 
 }
 
