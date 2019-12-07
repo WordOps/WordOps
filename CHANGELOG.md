@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Issue with Nginx variables_hash_bucket_size & variables_hash_max_size
 - Netdata MySQL user error when purging/reinstalling Netdata stack
+- Fix `wo site cd`
 
 ### v3.11.1 - 2019-12-04
 
