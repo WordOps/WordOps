@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.11.2 - 2019-12-07
+
+#### Changed
+
+- Proxy virtualhost now include proxy_params with X-Forwarded-Proto header
+- Acme.sh upgrade
+
+#### Fixed
+
+- Issue with Nginx variables_hash_bucket_size & variables_hash_max_size
+- Netdata MySQL user error when purging/reinstalling Netdata stack
+- Fix `wo site cd`
+
 ### v3.11.1 - 2019-12-04
 
 #### Added

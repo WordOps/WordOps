@@ -108,17 +108,13 @@ class WOMysql():
                 if dbs == "":
                     continue
                 Log.info(self, "Backing up {0} database".format(dbs))
-                p1 = subprocess.Popen("/usr/bin/mysqldump {0}"
-                                      " --max_allowed_packet=1024M"
-                                      " --single-transaction".format(dbs),
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE, shell=True)
-                p2 = subprocess.Popen("/usr/bin/pigz -c > "
-                                      "/var/lib/wo-backup/mysql/{0}{1}.sql.gz"
-                                      .format(dbs, WOVar.wo_date),
-                                      stdin=p1.stdout,
-                                      shell=True)
-
+                p1 = subprocess.Popen(
+                    "/usr/bin/mysqldump {0} --max_allowed_packet=1024M "
+                    "--single-transaction ".format(dbs),
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                p2 = subprocess.Popen(
+                    "/usr/bin/pigz -c > /var/lib/wo-backup/mysql/{0}{1}.sql.gz"
+                    .format(dbs, WOVar.wo_date), stdin=p1.stdout, shell=True)
                 # Allow p1 to receive a SIGPIPE if p2 exits
                 p1.stdout.close()
                 output = p1.stderr.read()

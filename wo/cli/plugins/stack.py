@@ -166,6 +166,7 @@ class WOStackController(CementBaseController):
 
             # Nginx
             if pargs.nginx:
+                pargs.ngxblocker = True
                 Log.debug(self, "Setting apt_packages variable for Nginx")
                 if not WOAptGet.is_exec(self, 'nginx'):
                     apt_packages = apt_packages + WOVar.wo_nginx
@@ -1139,6 +1140,9 @@ class WOStackController(CementBaseController):
                     WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
                                          "libexec/netdata/netdata-"
                                          "uninstaller.sh -y -f")
+                if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+                    WOMysql.execute(
+                        self, "DELETE FROM mysql.user WHERE User = 'netdata';")
 
             if (apt_packages):
                 Log.wait(self, "Purging APT Packages        ")
