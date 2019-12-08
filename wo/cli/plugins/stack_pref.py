@@ -249,34 +249,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 for wo_php in wo_php_version:
                     data = dict(upstream="{0}".format(wo_php),
                                 release=WOVar.wo_version)
-                    WOTemplate.deploy(self,
-                                      '{0}/{1}.conf'
-                                      .format(ngxcom, wo_php),
-                                      'php.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/redis-{1}.conf'.format(ngxcom, wo_php),
-                        'redis.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpcommon-{1}.conf'.format(ngxcom, wo_php),
-                        'wpcommon.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpfc-{1}.conf'.format(ngxcom, wo_php),
-                        'wpfc.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpsc-{1}.conf'.format(ngxcom, wo_php),
-                        'wpsc.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wprocket-{1}.conf'.format(ngxcom, wo_php),
-                        'wprocket.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpce-{1}.conf'.format(ngxcom, wo_php),
-                        'wpce.mustache', data)
+                    WOConf.nginxcommon(self)
 
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))

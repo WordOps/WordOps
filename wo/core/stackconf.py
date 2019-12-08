@@ -14,9 +14,9 @@ class WOConf():
         """nginx common configuration deployment"""
         wo_php_version = ["php72", "php73", "php74"]
         ngxcom = '/etc/nginx/common'
+        if not os.path.exists(ngxcom):
+            os.mkdir(ngxcom)
         for wo_php in wo_php_version:
-            if not os.path.exists(ngxcom):
-                os.mkdir(ngxcom)
             Log.debug(self, 'deploying templates for {0}'.format(wo_php))
             data = dict(upstream="{0}".format(wo_php),
                         release=WOVar.wo_version)
