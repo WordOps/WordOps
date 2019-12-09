@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- Improve WordOps performance by removing useless imports in `wo site` code
+
+#### Fixed
+
+- Domain IP validation when using CNAME before issuing SSL certificate
+- Netdata stack purge/remove not working properly
+
 ### v3.11.2 - 2019-12-07
 
 #### Changed
