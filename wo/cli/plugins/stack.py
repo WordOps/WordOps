@@ -166,7 +166,6 @@ class WOStackController(CementBaseController):
 
             # Nginx
             if pargs.nginx:
-                pargs.ngxblocker = True
                 Log.debug(self, "Setting apt_packages variable for Nginx")
                 if not WOAptGet.is_exec(self, 'nginx'):
                     apt_packages = apt_packages + WOVar.wo_nginx
