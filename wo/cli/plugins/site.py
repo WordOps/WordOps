@@ -3,8 +3,9 @@ import os
 import subprocess
 
 from cement.core.controller import CementBaseController, expose
-from wo.cli.plugins.site_functions import *
-from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
+from wo.cli.plugins.site_functions import (
+    check_domain_exists, deleteDB, deleteWebRoot, removeNginxConf, logwatch)
+from wo.cli.plugins.sitedb import (deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
 from wo.cli.plugins.site_create import WOSiteCreateController
 from wo.cli.plugins.site_update import WOSiteUpdateController
