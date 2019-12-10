@@ -459,7 +459,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
                     WOService.restart_service(self, 'nginx')
 
-        if set(WOVar.wo_php72).issubset(set(apt_packages)):
+        if 'php7.2-fpm' in apt_packages:
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
@@ -599,6 +599,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
+
+            # enable imagick php extension
+            WOShellExec.cmd_exec(self, 'phpenmod -v ALL imagick')
 
             # check service restart or rollback configuration
             if not WOService.restart_service(self, 'php7.2-fpm'):
@@ -746,6 +749,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
+
+            # enable imagick php extension
+            WOShellExec.cmd_exec(self, 'phpenmod -v ALL imagick')
+
             # check service restart or rollback configuration
             if not WOService.restart_service(self, 'php7.3-fpm'):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
@@ -892,6 +899,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
+
+            # enable imagick php extension
+            WOShellExec.cmd_exec(self, 'phpenmod -v ALL imagick')
+
             # check service restart or rollback configuration
             if not WOService.restart_service(self, 'php7.4-fpm'):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")

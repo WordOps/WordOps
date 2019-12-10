@@ -10,7 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- Improve WordOps performance by removing useless imports in `wo site` code
+- Improved WordOps performance by removing useless imports in `wo site` code
+- Improved opcache cleaning with `wo clean --opcache`
+- Force php imagick extension to be enabled after php-fpm install
 
 #### Fixed
 

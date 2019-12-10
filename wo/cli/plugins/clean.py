@@ -72,16 +72,22 @@ class WOCleanController(CementBaseController):
 
     @expose(hide=True)
     def clean_opcache(self):
+        opcache_dir = '/var/www/22222/htdocs/cache/opcache/'
         if (os.path.exists('/usr/sbin/nginx') and
                 os.path.exists(
-                    '/var/www/22222/htdocs/cache/opcache/php72.php')):
+                    '/var/www/22222/htdocs/cache/opcache')):
             try:
                 Log.info(self, "Cleaning opcache")
-                opgui = requests.get(
-                    "http://127.0.0.1/cache/opcache/php72.php")
-                if opgui.status_code != '200' or opgui.status_code != '302':
-                    Log.warn(self, 'Cleaning opcache failed')
-            except Exception as e:
+                if os.path.exists('{0}php72.php'.format(opcache_dir)):
+                    requests.get(
+                        "http://127.0.0.1/cache/opcache/php72.php")
+                if os.path.exists('{0}php73.php'.format(opcache_dir)):
+                    requests.get(
+                        "http://127.0.0.1/cache/opcache/php73.php")
+                if os.path.exists('{0}php74.php'.format(opcache_dir)):
+                    requests.get(
+                        "http://127.0.0.1/cache/opcache/php74.php")
+            except requests.HTTPError as e:
                 Log.debug(self, "{0}".format(e))
                 Log.debug(self, "Unable hit url, "
                           " http://127.0.0.1/cache/opcache/"

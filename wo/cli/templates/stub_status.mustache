@@ -4,6 +4,12 @@
 upstream phpstatus {
     server unix:/run/php/php72-fpm.sock;
 }
+upstream php73opcache {
+    server unix:/run/php/php73-fpm.sock;
+}
+upstream php74opcache {
+    server unix:/run/php/php74-fpm.sock;
+}
 {{/phpconf}}
 server {
     listen 127.0.0.1:80;
@@ -33,21 +39,21 @@ server {
     location /cache/opcache/php72.php {
         try_files $uri =404;
         include fastcgi_params;
-        fastcgi_pass php72;
+        fastcgi_pass phpstatus;
         access_log off;
         log_not_found off;
     }
     location /cache/opcache/php73.php {
         try_files $uri =404;
         include fastcgi_params;
-        fastcgi_pass php73;
+        fastcgi_pass php73opcache;
         access_log off;
         log_not_found off;
     }
     location /cache/opcache/php74.php {
         try_files $uri =404;
         include fastcgi_params;
-        fastcgi_pass php74;
+        fastcgi_pass php74opcache;
         access_log off;
         log_not_found off;
     }
