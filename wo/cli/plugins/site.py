@@ -203,7 +203,6 @@ class WOSiteController(CementBaseController):
         # TODO Write code for wo site edit command here
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -276,11 +275,8 @@ class WOSiteEditController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
-
-        wo_site_webroot = WOVar.wo_webroot + wo_domain
 
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(wo_domain)):
@@ -341,7 +337,6 @@ class WOSiteDeleteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''
