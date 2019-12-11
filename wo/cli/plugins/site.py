@@ -133,7 +133,6 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         (wo_domain_type, wo_root_domain) = WODomain.getlevel(
             self, wo_domain)
         wo_db_name = ''
@@ -153,7 +152,6 @@ class WOSiteController(CementBaseController):
             wo_db_name = siteinfo.db_name
             wo_db_user = siteinfo.db_user
             wo_db_pass = siteinfo.db_password
-            wo_db_host = siteinfo.db_host
 
             php_version = siteinfo.php_version
 
@@ -164,7 +162,8 @@ class WOSiteController(CementBaseController):
             else:
                 sslprovider = ''
                 sslexpiry = ''
-            data = dict(domain=wo_domain, webroot=wo_site_webroot,
+            data = dict(domain=wo_domain, domain_type=wo_domain_type,
+                        webroot=wo_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=wo_db_name, dbuser=wo_db_user,
                         php_version=php_version,
