@@ -94,3 +94,7 @@ location ~* /(?:uploads|files)/.*\.php$ {
 location ~ \/wp-admin\/load-(scripts|styles).php {
     deny all;
 }
+# Protect Easy Digital Download files from being accessed directly.
+location ~ ^/wp-content/uploads/edd/(.*?)\.zip$ { 
+    rewrite / permanent; 
+}
