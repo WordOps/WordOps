@@ -151,13 +151,19 @@ def pre_pref(self, apt_packages):
 
     # nano
     if 'nano' in apt_packages:
-        if not WOFileUtils.grepcheck(
-                self, '/etc/apt/sources.list/wo-repo.list',
-                'WordOps'):
-            Log.info(self, "Adding repository for Nano, please wait...")
-            Log.debug(self, 'Adding repository for Nano')
-            WORepo.add_key(self, WOVar.wo_nginx_key)
-            WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
+        if WOVar.wo_distro == 'ubuntu':
+            if (WOVar.wo_platform_codename == 'bionic' or
+                    WOVar.wo_platform_codename == 'xenial'):
+                Log.debug(self, 'Adding ppa for nano')
+                WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
+        else:
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list/wo-repo.list',
+                    'WordOps'):
+                Log.info(self, "Adding repository for Nano, please wait...")
+                Log.debug(self, 'Adding repository for Nano')
+                WORepo.add_key(self, WOVar.wo_nginx_key)
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
