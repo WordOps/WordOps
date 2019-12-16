@@ -156,8 +156,8 @@ def pre_pref(self, apt_packages):
                 'WordOps'):
             Log.info(self, "Adding repository for Nano, please wait...")
             Log.debug(self, 'Adding repository for Nano')
-            WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
             WORepo.add_key(self, WOVar.wo_nginx_key)
+            WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
