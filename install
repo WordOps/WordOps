@@ -427,7 +427,9 @@ wo_install_acme_sh() {
 
 # WordOps install
 wo_install() {
-    cd /usr/local/lib/python3.*/dist-packages || exit 1
+    local python_ver
+    python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
+    cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip uninstall wo -y
         python3 -m pip install --upgrade wordops
@@ -435,14 +437,14 @@ wo_install() {
         python3 -m pip uninstall wo -y
         python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
-    cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
-    cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
-    cp -f /usr/local/lib/python3.*/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
+    cp -rf /usr/local/lib/python3."$python_ver"/dist-packages/usr/* /usr/
+    cp -rn /usr/local/lib/python3."$python_ver"/dist-packages/etc/* /etc/
+    cp -f /usr/local/lib/python3."$python_ver"/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
 }
 
 # Clone Github repository if it doesn't exist
 wo_travis_install() {
-
+    python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
     if [ -d ./dist ]; then
         rm -rf dist
     fi
@@ -452,9 +454,9 @@ wo_travis_install() {
     else
         python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
-    cp -rf /usr/local/lib/python3.*/dist-packages/usr/* /usr/
-    cp -rn /usr/local/lib/python3.*/dist-packages/etc/* /etc/
-    cp -f /usr/local/lib/python3.*/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
+    cp -rf /usr/local/lib/python3."$python_ver"/dist-packages/usr/* /usr/
+    cp -rn /usr/local/lib/python3."$python_ver"/dist-packages/etc/* /etc/
+    cp -f /usr/local/lib/python3."$python_ver"/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
 
 }
 
@@ -584,7 +586,9 @@ wo_backup_wo() {
 }
 
 wo_clean_ee() {
-    rm -rf /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3.*/dist-packages/ee-*.egg /etc/ee /var/lib/ee
+    local python_ver
+    python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
+    rm -rf /usr/local/bin/ee /etc/bash_completion.d/ee_auto.rc /usr/lib/ee/templates /usr/local/lib/python3."$python_ver"/dist-packages/ee-*.egg /etc/ee /var/lib/ee
     return 0
 }
 
@@ -599,14 +603,18 @@ wo_domain_suffix() {
 }
 
 wo_clean() {
-    rm -rf /usr/local/lib/python3.*/dist-packages/{wo-*.egg,cement-*.egg,wordops-*.egg}
+    local python_ver
+    python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
+    rm -rf /usr/local/lib/python3."$python_ver"/dist-packages/{wo-*.egg,cement-*.egg,wordops-*.egg}
 }
 
 wo_uninstall() {
+    local python_ver
+    python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
     if { python3 -m pip list | grep -q "wordops" >/dev/null 2>&1; }; then
         python3 -m pip uninstall wordops -y
     fi
-    rm -rf /usr/local/lib/python3.*/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
+    rm -rf /usr/local/lib/python3."$python_ver"/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
 }
 
 wo_clean_repo() {
