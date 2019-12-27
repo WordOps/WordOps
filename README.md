@@ -131,7 +131,7 @@ wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with ngi
 ### Switch between PHP versions
 
 ```bash
-wo site update example/com --php72 # switch to PHP 7.2
+wo site update example.com --php72 # switch to PHP 7.2
 wo site update example.com --php73 # switch to PHP 7.3
 wo site update example.com --php74 # switch to PHP 7.4
 ```
