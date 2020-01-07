@@ -430,6 +430,7 @@ wo_install() {
     local python_ver
     python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
     cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
+    rm -f /usr/local/bin/wo
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip uninstall wo -y
         python3 -m pip install --upgrade wordops

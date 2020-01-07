@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Domain IP validation when using CNAME before issuing SSL certificate
 - Netdata stack purge/remove not working properly
+- Do not backup all databases when purging `--mysql` stack with remote MySQL server
 
 ### v3.11.2 - 2019-12-07
 

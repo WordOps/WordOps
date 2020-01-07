@@ -1130,10 +1130,14 @@ class WOStackController(CementBaseController):
                 WOService.stop_service(self, 'fail2ban')
 
             if (set(["mariadb-server"]).issubset(set(apt_packages))):
-                if (os.path.isfile('/usr/bin/mysql') and
-                        os.path.isdir('/var/lib/mysql')):
+                if self.app.config.has_section('stack'):
+                    database_host = self.app.config.get(
+                        'stack', 'ip-address')
+                else:
+                    database_host = 'na'
+                if database_host == '127.0.0.1':
                     WOMysql.backupAll(self)
-                    WOService.stop_service(self, 'mysql')
+                WOService.stop_service(self, 'mysql')
 
             # Netdata uninstaller
             if '/var/lib/wo/tmp/kickstart.sh' in packages:
