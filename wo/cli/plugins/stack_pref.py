@@ -322,11 +322,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('/etc/nginx/sites-enabled')
 
             # 22222 port settings
-            data = dict(webroot=ngxroot, release=WOVar.wo_version)
-            WOTemplate.deploy(
-                self,
-                '/etc/nginx/sites-available/22222',
-                '22222.mustache', data, overwrite=True)
+            data = dict(webroot=ngxroot,
+                        release=WOVar.wo_version, port='22222')
+            if not WOFileUtils.grepcheck(
+                    self, 'WordOps', '/etc/nginx/sites-available/22222'):
+                WOTemplate.deploy(
+                    self,
+                    '/etc/nginx/sites-available/22222',
+                    '22222.mustache', data, overwrite=True)
             passwd = ''.join([random.choice
                               (string.ascii_letters + string.digits)
                               for n in range(24)])

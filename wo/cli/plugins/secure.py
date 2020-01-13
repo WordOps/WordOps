@@ -117,10 +117,10 @@ class WOSecureController(CementBaseController):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("WordOps admin port [22222]:")
             pargs.user_input = port
-        WOShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
-                             "{port} default_server ssl http2;/\" "
-                             "/etc/nginx/sites-available/22222"
-                             .format(port=pargs.user_input))
+        data = dict(release=WOVar.wo_version, port=port)
+        WOTemplate.deploy(
+            self, '/etc/nginx/sites-available/22222',
+            '22222.mustache', data)
         WOGit.add(self, ["/etc/nginx"],
                   msg="Adding changed secure port into Git")
         if not WOService.reload_service(self, 'nginx'):
@@ -145,8 +145,8 @@ class WOSecureController(CementBaseController):
             Log.debug(self, "{0}".format(e))
             user_ip = ['127.0.0.1']
         for ip_addr in user_ip:
-            if not ("exist_ip_address "+ip_addr in open('/etc/nginx/common/'
-                                                        'acl.conf').read()):
+            if not ("exist_ip_address " + ip_addr in open('/etc/nginx/common/'
+                                                          'acl.conf').read()):
                 WOShellExec.cmd_exec(self, "sed -i "
                                      "\"/deny/i allow {whitelist_address}\;\""
                                      " /etc/nginx/common/acl.conf"
