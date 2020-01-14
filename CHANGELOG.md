@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - Backported Nano editor package for Debian/Ubuntu/Raspbian (which support syntax highlighting with `--nanorc`)
+- Protect Easy Digital Download files from being accessed directly (PR [#222](https://github.com/WordOps/WordOps/pull/222))
 
 #### Changed
 

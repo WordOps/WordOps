@@ -216,8 +216,13 @@ class WOAcme:
             if wo_domain_name == row[0]:
                 # check if cert expiration exist
                 if not row[3] == '':
-                    return True
+                    acme_cert = True
         certfile.close()
+        if acme_cert is True:
+            if os.path.exists(
+                '/etc/letsencrypt/live/{0}/fullchain.pem'
+                    .format(wo_domain_name)):
+                return True
         return False
 
     def removeconf(self, domain):
