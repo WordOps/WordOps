@@ -17,12 +17,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Improved WordOps performance by removing useless imports in `wo site` code
 - Improved opcache cleaning with `wo clean --opcache`
 - Force php imagick extension to be enabled after php-fpm install
+- Netdata upgrade is now performed with fresh install script downloaded from github
 
 #### Fixed
 
 - Domain IP validation when using CNAME before issuing SSL certificate
 - Netdata stack purge/remove not working properly
 - Do not backup all databases when purging `--mysql` stack with remote MySQL server
+- Netdata upgrade failure due to missing arguments
 
 ### v3.11.2 - 2019-12-07
 

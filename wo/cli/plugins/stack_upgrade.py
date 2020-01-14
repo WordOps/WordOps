@@ -11,6 +11,7 @@ from wo.core.fileutils import WOFileUtils
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
+from wo.core.services import WOService
 
 
 class WOStackUpgradeController(CementBaseController):
@@ -360,29 +361,14 @@ class WOStackUpgradeController(CementBaseController):
 
                 # Netdata
                 if WOAptGet.is_selected(self, 'Netdata', packages):
+                    WOService.stop_service(self, 'netdata')
                     Log.wait(self, "Upgrading Netdata")
                     # detect static binaries install
-                    if os.path.isdir('/opt/netdata'):
-                        if os.path.exists(
-                            '/opt/netdata/usr/libexec/'
-                                'netdata/netdata-updater.sh'):
-                            WOShellExec.cmd_exec(
-                                self, "bash /opt/netdata/usr/"
-                                "libexec/netdata/netdata-"
-                                "updater.sh")
-                        else:
-                            WOShellExec.cmd_exec(
-                                self, "bash /var/lib/wo/tmp/kickstart.sh")
-                    # detect install from source
-                    elif os.path.isdir('/etc/netdata'):
-                        if os.path.exists(
-                                '/usr/libexec/netdata/netdata-updater.sh'):
-                            WOShellExec.cmd_exec(
-                                self,
-                                'bash /usr/libexec/netdata/netdata-updater.sh')
-                        else:
-                            WOShellExec.cmd_exec(
-                                self, "bash /var/lib/wo/tmp/kickstart.sh")
+                    WOShellExec.cmd_exec(
+                        self,
+                        "bash /var/lib/wo/tmp/kickstart.sh "
+                        "--dont-wait --no-updates",
+                        errormsg='', log=False)
                     Log.valide(self, "Upgrading Netdata")
 
                 if WOAptGet.is_selected(self, 'WordOps Dashboard', packages):
