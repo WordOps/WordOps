@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.11.3 - 2020-01-16
+
 #### Added
 
 - Backported Nano editor package for Debian/Ubuntu/Raspbian (which support syntax highlighting with `--nanorc`)
@@ -19,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Improved opcache cleaning with `wo clean --opcache`
 - Force php imagick extension to be enabled after php-fpm install
 - Netdata upgrade is now performed with fresh install script downloaded from github
+- Update phpmyadmin to v5.0.1
 
 #### Fixed
 
