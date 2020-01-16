@@ -48,7 +48,7 @@ location /wp-content/uploads {
         try_files $uri$webp_suffix $uri =404;
     }
     location ~* \.(php|gz|log|zip|tar|rar|xz)$ {
-        #Prevent Direct Access Of PHP Files & BackupsFrom Web Browsers
+        #Prevent Direct Access Of PHP Files & Backups from Web Browsers
         deny all;
     }
 }
@@ -95,6 +95,6 @@ location ~ \/wp-admin\/load-(scripts|styles).php {
     deny all;
 }
 # Protect Easy Digital Download files from being accessed directly.
-location ~ ^/wp-content/uploads/edd/(.*?)\.zip$ { 
-    rewrite / permanent; 
+location ~ ^/wp-content/uploads/edd/(.*?)\.zip$ {
+    rewrite / permanent;
 }

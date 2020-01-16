@@ -2,13 +2,13 @@
 
 server {
 
-  listen 22222 default_server ssl http2;
+  listen {{port}} default_server ssl http2;
 
   access_log   /var/log/nginx/22222.access.log rt_cache;
   error_log    /var/log/nginx/22222.error.log;
 
   # Force HTTP to HTTPS
-  error_page 497 =200 https://$host:22222$request_uri;
+  error_page 497 =200 https://$host:{{port}}$request_uri;
 
   root {{webroot}}22222/htdocs;
   index index.php index.htm index.html;

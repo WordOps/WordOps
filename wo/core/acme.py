@@ -188,20 +188,8 @@ class WOAcme:
         """Check if a list of domains point to the server IP"""
         server_ip = requests.get('https://v4.wordops.eu/').text
         for domain in acme_domains:
-            url = (
-                "https://cloudflare-dns.com/dns-query?name={0}&type=A"
-                .format(domain))
-            headers = {
-                'accept': 'application/dns-json'
-            }
-            try:
-                response = requests.get(url, headers=headers).json()
-                domain_ip = response["Answer"][0]['data']
-            except requests.RequestException:
-                Log.error(
-                    self, 'Resolving domain IP failed.\n'
-                    'The domain {0} do not exist or a DNS record is missing'
-                    .format(domain))
+            domain_ip = requests.get('http://v4.wordops.eu/dns/{0}/'
+                                     .format(domain)).text
             if(not domain_ip == server_ip):
                 Log.warn(
                     self, "{0}".format(domain) +
@@ -228,8 +216,13 @@ class WOAcme:
             if wo_domain_name == row[0]:
                 # check if cert expiration exist
                 if not row[3] == '':
-                    return True
+                    acme_cert = True
         certfile.close()
+        if acme_cert is True:
+            if os.path.exists(
+                '/etc/letsencrypt/live/{0}/fullchain.pem'
+                    .format(wo_domain_name)):
+                return True
         return False
 
     def removeconf(self, domain):

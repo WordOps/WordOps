@@ -3,8 +3,9 @@ import os
 import subprocess
 
 from cement.core.controller import CementBaseController, expose
-from wo.cli.plugins.site_functions import *
-from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo, getAllsites,
+from wo.cli.plugins.site_functions import (
+    check_domain_exists, deleteDB, deleteWebRoot, removeNginxConf, logwatch)
+from wo.cli.plugins.sitedb import (deleteSiteInfo, getAllsites,
                                    getSiteInfo, updateSiteInfo)
 from wo.cli.plugins.site_create import WOSiteCreateController
 from wo.cli.plugins.site_update import WOSiteUpdateController
@@ -132,7 +133,6 @@ class WOSiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         (wo_domain_type, wo_root_domain) = WODomain.getlevel(
             self, wo_domain)
         wo_db_name = ''
@@ -152,7 +152,6 @@ class WOSiteController(CementBaseController):
             wo_db_name = siteinfo.db_name
             wo_db_user = siteinfo.db_user
             wo_db_pass = siteinfo.db_password
-            wo_db_host = siteinfo.db_host
 
             php_version = siteinfo.php_version
 
@@ -163,7 +162,8 @@ class WOSiteController(CementBaseController):
             else:
                 sslprovider = ''
                 sslexpiry = ''
-            data = dict(domain=wo_domain, webroot=wo_site_webroot,
+            data = dict(domain=wo_domain, domain_type=wo_domain_type,
+                        webroot=wo_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=wo_db_name, dbuser=wo_db_user,
                         php_version=php_version,
@@ -203,7 +203,6 @@ class WOSiteController(CementBaseController):
         # TODO Write code for wo site edit command here
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
 
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
@@ -276,11 +275,8 @@ class WOSiteEditController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} does not exist".format(wo_domain))
-
-        wo_site_webroot = WOVar.wo_webroot + wo_domain
 
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(wo_domain)):
@@ -341,7 +337,6 @@ class WOSiteDeleteController(CementBaseController):
 
         pargs.site_name = pargs.site_name.strip()
         wo_domain = WODomain.validate(self, pargs.site_name)
-        wo_www_domain = "www.{0}".format(wo_domain)
         wo_db_name = ''
         wo_prompt = ''
         wo_nginx_prompt = ''

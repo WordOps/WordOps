@@ -166,7 +166,6 @@ class WOStackController(CementBaseController):
 
             # Nginx
             if pargs.nginx:
-                pargs.ngxblocker = True
                 Log.debug(self, "Setting apt_packages variable for Nginx")
                 if not WOAptGet.is_exec(self, 'nginx'):
                     apt_packages = apt_packages + WOVar.wo_nginx
@@ -767,9 +766,9 @@ class WOStackController(CementBaseController):
 
         # netdata
         if pargs.netdata:
-            Log.debug(self, "Removing Netdata")
-            if os.path.isfile('/opt/netdata/usr/'
-                              'libexec/netdata/netdata-uninstaller.sh'):
+            if (os.path.exists('/opt/netdata') or
+                    os.path.exists('/etc/netdata')):
+                Log.debug(self, "Removing Netdata")
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
         # wordops dashboard
@@ -814,20 +813,28 @@ class WOStackController(CementBaseController):
                 WOService.stop_service(self, 'mysql')
 
             # Netdata uninstaller
-            if (set(['/var/lib/wo/tmp/'
-                     'kickstart.sh']).issubset(set(packages))):
-                if WOVar.wo_distro == 'Raspbian':
+            if '/var/lib/wo/tmp/kickstart.sh' in packages:
+                if os.path.exists(
+                        '/usr/libexec/netdata/netdata-uninstaller.sh'):
+                    Log.debug(self, "Uninstalling Netdata from /etc/netdata")
                     WOShellExec.cmd_exec(
-                        self, "bash /usr/"
-                        "libexec/netdata/"
-                        "netdata-uninstaller.sh -y -f",
+                        self, "bash /usr/libexec/netdata/netdata-"
+                        "uninstaller.sh -y -f",
                         errormsg='', log=False)
+                    packages = packages + ["/etc/netdata"]
+                elif os.path.exists(
+                    '/opt/netdata/usr/libexec/'
+                        'netdata/netdata-uninstaller.sh'):
+                    Log.debug(self, "Uninstalling Netdata from /opt/netdata")
+                    WOShellExec.cmd_exec(
+                        self, "bash /opt/netdata/usr/libexec/netdata/netdata-"
+                        "uninstaller.sh -y -f")
+                    packages = packages + ["/opt/netdata"]
                 else:
-                    WOShellExec.cmd_exec(
-                        self, "bash /opt/netdata/usr/"
-                        "libexec/netdata/"
-                        "netdata-uninstaller.sh -y -f",
-                        errormsg='', log=False)
+                    Log.debug(self, "Netdata uninstaller not found")
+                if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+                    WOMysql.execute(
+                        self, "DELETE FROM mysql.user WHERE User = 'netdata';")
 
             if (packages):
                 Log.wait(self, "Removing packages           ")
@@ -1079,11 +1086,11 @@ class WOStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(WOVar.wo_webroot)
                                    ]
-
+        # netdata
         if pargs.netdata:
-            Log.debug(self, "Removing Netdata")
-            if os.path.isfile('/opt/netdata/usr/'
-                              'libexec/netdata/netdata-uninstaller.sh'):
+            if (os.path.exists('/opt/netdata') or
+                    os.path.exists('/etc/netdata')):
+                Log.debug(self, "Removing Netdata")
                 packages = packages + ['/var/lib/wo/tmp/kickstart.sh']
 
         # wordops dashboard
@@ -1123,23 +1130,35 @@ class WOStackController(CementBaseController):
                 WOService.stop_service(self, 'fail2ban')
 
             if (set(["mariadb-server"]).issubset(set(apt_packages))):
-                if (os.path.isfile('/usr/bin/mysql') and
-                        os.path.isdir('/var/lib/mysql')):
+                if self.app.config.has_section('stack'):
+                    database_host = self.app.config.get(
+                        'stack', 'ip-address')
+                else:
+                    database_host = 'na'
+                if database_host == '127.0.0.1':
                     WOMysql.backupAll(self)
-                    WOService.stop_service(self, 'mysql')
+                WOService.stop_service(self, 'mysql')
 
             # Netdata uninstaller
-            if (set(['/var/lib/wo/tmp/'
-                     'kickstart.sh']).issubset(set(packages))):
-                if WOVar.wo_distro == 'Raspbian':
-                    WOShellExec.cmd_exec(self, "bash /usr/"
-                                         "libexec/netdata/netdata-"
-                                         "uninstaller.sh -y -f",
-                                         errormsg='', log=False)
+            if '/var/lib/wo/tmp/kickstart.sh' in packages:
+                if os.path.exists(
+                        '/usr/libexec/netdata/netdata-uninstaller.sh'):
+                    Log.debug(self, "Uninstalling Netdata from /etc/netdata")
+                    WOShellExec.cmd_exec(
+                        self, "bash /usr/libexec/netdata/netdata-"
+                        "uninstaller.sh -y -f",
+                        errormsg='', log=False)
+                    packages = packages + ["/etc/netdata"]
+                elif os.path.exists(
+                    '/opt/netdata/usr/libexec/'
+                        'netdata/netdata-uninstaller.sh'):
+                    Log.debug(self, "Uninstalling Netdata from /opt/netdata")
+                    WOShellExec.cmd_exec(
+                        self, "bash /opt/netdata/usr/libexec/netdata/netdata-"
+                        "uninstaller.sh -y -f")
+                    packages = packages + ["/opt/netdata"]
                 else:
-                    WOShellExec.cmd_exec(self, "bash /opt/netdata/usr/"
-                                         "libexec/netdata/netdata-"
-                                         "uninstaller.sh -y -f")
+                    Log.debug(self, "Netdata uninstaller not found")
                 if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
                     WOMysql.execute(
                         self, "DELETE FROM mysql.user WHERE User = 'netdata';")

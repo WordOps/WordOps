@@ -156,6 +156,14 @@ def pre_pref(self, apt_packages):
                     WOVar.wo_platform_codename == 'xenial'):
                 Log.debug(self, 'Adding ppa for nano')
                 WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
+        else:
+            if not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list/wo-repo.list',
+                    'WordOps'):
+                Log.info(self, "Adding repository for Nano, please wait...")
+                Log.debug(self, 'Adding repository for Nano')
+                WORepo.add_key(self, WOVar.wo_nginx_key)
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -249,34 +257,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 for wo_php in wo_php_version:
                     data = dict(upstream="{0}".format(wo_php),
                                 release=WOVar.wo_version)
-                    WOTemplate.deploy(self,
-                                      '{0}/{1}.conf'
-                                      .format(ngxcom, wo_php),
-                                      'php.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/redis-{1}.conf'.format(ngxcom, wo_php),
-                        'redis.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpcommon-{1}.conf'.format(ngxcom, wo_php),
-                        'wpcommon.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpfc-{1}.conf'.format(ngxcom, wo_php),
-                        'wpfc.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpsc-{1}.conf'.format(ngxcom, wo_php),
-                        'wpsc.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wprocket-{1}.conf'.format(ngxcom, wo_php),
-                        'wprocket.mustache', data)
-
-                    WOTemplate.deploy(
-                        self, '{0}/wpce-{1}.conf'.format(ngxcom, wo_php),
-                        'wpce.mustache', data)
+                    WOConf.nginxcommon(self)
 
             except CommandExecutionError as e:
                 Log.debug(self, "{0}".format(e))
@@ -341,11 +322,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('/etc/nginx/sites-enabled')
 
             # 22222 port settings
-            data = dict(webroot=ngxroot, release=WOVar.wo_version)
-            WOTemplate.deploy(
-                self,
-                '/etc/nginx/sites-available/22222',
-                '22222.mustache', data, overwrite=True)
+            data = dict(webroot=ngxroot,
+                        release=WOVar.wo_version, port='22222')
+            if not WOFileUtils.grepcheck(
+                    self, 'WordOps', '/etc/nginx/sites-available/22222'):
+                WOTemplate.deploy(
+                    self,
+                    '/etc/nginx/sites-available/22222',
+                    '22222.mustache', data, overwrite=True)
             passwd = ''.join([random.choice
                               (string.ascii_letters + string.digits)
                               for n in range(24)])
@@ -486,7 +470,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
                     WOService.restart_service(self, 'nginx')
 
-        if set(WOVar.wo_php72).issubset(set(apt_packages)):
+        if 'php7.2-fpm' in apt_packages:
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
             Log.info(self, "Configuring php7.2-fpm")
             ngxroot = '/var/www/'
@@ -626,6 +610,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
+
+            # enable imagick php extension
+            WOShellExec.cmd_exec(self, 'phpenmod -v ALL imagick')
 
             # check service restart or rollback configuration
             if not WOService.restart_service(self, 'php7.2-fpm'):
@@ -773,6 +760,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
+
+            # enable imagick php extension
+            WOShellExec.cmd_exec(self, 'phpenmod -v ALL imagick')
+
             # check service restart or rollback configuration
             if not WOService.restart_service(self, 'php7.3-fpm'):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
@@ -919,6 +910,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               .format(ngxroot),
                               'www-data',
                               'www-data', recursive=True)
+
+            # enable imagick php extension
+            WOShellExec.cmd_exec(self, 'phpenmod -v ALL imagick')
+
             # check service restart or rollback configuration
             if not WOService.restart_service(self, 'php7.4-fpm'):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
@@ -1386,7 +1381,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.wait(self, "Installing Netdata")
             WOShellExec.cmd_exec(
                 self, "bash /var/lib/wo/tmp/kickstart.sh "
-                "--dont-wait", errormsg='', log=False)
+                "--dont-wait --no-updates", errormsg='', log=False)
             Log.valide(self, "Installing Netdata")
             if os.path.isdir('/etc/netdata'):
                 wo_netdata = "/"
