@@ -117,7 +117,8 @@ class WOSecureController(CementBaseController):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("WordOps admin port [22222]:")
             pargs.user_input = port
-        data = dict(release=WOVar.wo_version, port=pargs.user_input)
+        data = dict(release=WOVar.wo_version,
+                    port=pargs.user_input, webroot='/var/www/')
         WOTemplate.deploy(
             self, '/etc/nginx/sites-available/22222',
             '22222.mustache', data)
