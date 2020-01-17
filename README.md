@@ -63,7 +63,6 @@
 #### Also compatible
 
 - Ubuntu 16.04 LTS (Xenial)
-- Ubuntu 19.04 (Disco)
 - Debian 9 (Stretch)
 - Debian 10 (Buster)
 - Raspbian 9 (Stretch)
@@ -121,7 +120,7 @@ wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + C
 wo site create example.com --html     # create example.com for static/html sites
 wo site create example.com --php      # create example.com with php support
 wo site create example.com --php73      # create example.com with php 7.3 support
-wo site create example.com --php73      # create example.com with php 7.4 support
+wo site create example.com --php74      # create example.com with php 7.4 support
 wo site create example.com --mysql    # create example.com with php & mysql support
 wo site create example.com --mysql --php73   # create example.com with php 7.3 & mysql support
 wo site create example.com --mysql --php74   # create example.com with php 7.4 & mysql support
@@ -141,8 +140,8 @@ wo site update example.com --php74 # switch to PHP 7.4
 ```bash
 wo site create example.com --wp -le #  wordpress & letsencrypt
 wo site create sub.example.com --wp -le # wordpress & letsencrypt subdomain
-wo site create site.tld --wp --letsencrypt --hsts # wordpress & letsencrypt with HSTS
-wo site create site.tld --wp -le=wildcard --dns=dns_cf # wordpress & wildcard SSL certificate with Cloudflare DNS API
+wo site create example.com --wp --letsencrypt --hsts # wordpress & letsencrypt with HSTS
+wo site create example.com --wp -le=wildcard --dns=dns_cf # wordpress & wildcard SSL certificate with Cloudflare DNS API
 ```
 
 ## Update WordOps
@@ -183,9 +182,16 @@ Apps & Tools shipped with WordOps :
 - [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
 - [cheat.sh](https://github.com/chubin/cheat.sh)
 - [ProFTPd](https://github.com/proftpd/proftpd)
-- [nginx-ultimate-bad-bot-blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/)
+- [Nginx-ultimate-bad-bot-blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/)
+- [Nanorc](https://github.com/scopatz/nanorc)
 
-Cache Plugins supported by WordOps :
+Third-party debian packages shipped with WordOps :
+
+- [Nginx-wo by WordOps](https://build.opensuse.org/package/show/home:virtubox:WordOps/nginx)
+- [PHP by Ondřej Surý](https://launchpad.net/~ondrej/+archive/ubuntu/php)
+- [Redis by Chris Lea](https://launchpad.net/~chris-lea/+archive/ubuntu/redis-server)
+
+WordPress Cache Plugins supported by WordOps :
 
 - [Nginx-helper](https://github.com/rtCamp/nginx-helper)
 - [Cache-Enabler](https://github.com/keycdn/cache-enabler)
