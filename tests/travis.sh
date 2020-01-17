@@ -277,6 +277,18 @@ else
     exit_script
 
 fi
+echo -ne "       wo secure --port                   [..]\r"
+if {
+    wo secure --port 22223
+} >>/var/log/wo/test.log; then
+    echo -ne "       wo secure --port                   [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "       wo secure --port                   [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
+
+fi
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       WP-CLI info             '
