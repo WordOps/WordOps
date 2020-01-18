@@ -614,8 +614,9 @@ class WOSiteUpdateController(CementBaseController):
                         'www.{0}'.format(wo_domain)]
 
                 if WOAcme.cert_check(self, wo_domain):
-                    SSL.archivedcertificatehandle(
-                        self, wo_domain, acme_domains)
+                    if SSL.archivedcertificatehandle(
+                        self, wo_domain, acme_domains):
+                        letsencrypt = True
                 else:
                     if acme_subdomain:
                         Log.debug(self, "checkWildcardExist on *.{0}"
@@ -676,6 +677,7 @@ class WOSiteUpdateController(CementBaseController):
                               "check issues with `nginx -t` command")
                 Log.info(self, "Congratulations! Successfully "
                          "Configured SSL on https://{0}".format(wo_domain))
+                letsencrypt = True
                 if (SSL.getexpirationdays(self, wo_domain) > 0):
                     Log.info(self, "Your cert will expire within " +
                              str(SSL.getexpirationdays(self, wo_domain)) +
@@ -725,8 +727,9 @@ class WOSiteUpdateController(CementBaseController):
                     # auto-renewal") WOCron.remove_cron(self,'wo site
                     # update {0} --le=renew --min_expiry_limit 30
                     # 2> \/dev\/null'.format(wo_domain))
-                    Log.info(self, "Successfully Disabled SSl for Site "
-                             " http://{0}".format(wo_domain))
+                Log.info(self, "Successfully Disabled SSl for Site "
+                         " http://{0}".format(wo_domain))
+                letsencrypt = False
 
             # Add nginx conf folder into GIT
             WOGit.add(self, ["{0}/conf/nginx".format(wo_site_webroot)],
