@@ -1123,20 +1123,17 @@ class WOStackController(CementBaseController):
                 if start_purge != "Y" and start_purge != "y":
                     Log.error(self, "Not starting stack purge")
 
-            if (set(["nginx-custom"]).issubset(set(apt_packages))):
+            if "nginx-custom" in apt_packages:
                 WOService.stop_service(self, 'nginx')
 
-            if (set(["fail2ban"]).issubset(set(apt_packages))):
+            if "fail2ban" in apt_packages:
                 WOService.stop_service(self, 'fail2ban')
 
-            if (set(["mariadb-server"]).issubset(set(apt_packages))):
-                if self.app.config.has_section('stack'):
-                    database_host = self.app.config.get(
-                        'stack', 'ip-address')
-                else:
-                    database_host = 'na'
-                if database_host == '127.0.0.1':
-                    WOMysql.backupAll(self)
+            if "mariadb-server" in apt_packages:
+                if self.app.config.has_section('mysql'):
+                    if self.app.config.get(
+                            'mysql', 'grant-host') == 'localhost':
+                        WOMysql.backupAll(self)
                 WOService.stop_service(self, 'mysql')
 
             # Netdata uninstaller
