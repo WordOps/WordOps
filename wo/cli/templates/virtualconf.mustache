@@ -1,6 +1,8 @@
 
 server {
-
+    listen :80;
+    listen [::]:80;
+    
     {{#multisite}}
     # Uncomment the following line for domain mapping
     # listen 80 default_server;
