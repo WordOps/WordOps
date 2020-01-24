@@ -805,6 +805,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             config['opcache']['opcache.revalidate_freq'] = '5'
             config['opcache']['opcache.consistency_checks'] = '0'
             config['opcache']['opcache.validate_timestamps'] = '1'
+            config['opcache']['opcache.preload_user'] = 'www-data'
             with open('/etc/php/7.4/fpm/php.ini',
                       encoding='utf-8', mode='w') as configfile:
                 Log.debug(self, "Writting php configuration into "

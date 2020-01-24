@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- Set opcache.preload_user for PHP 7.4
+
 #### Fixed
 
-- MySQL databases backup when using remote MySQL server
+- MySQL databases backup when using remote MySQL serverlll
 
 ### v3.11.4 - 2020-01-17
 
