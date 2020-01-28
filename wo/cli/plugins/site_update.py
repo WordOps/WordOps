@@ -220,7 +220,6 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(
                         self, "service nginx reload failed. "
                         "check issues with `nginx -t` command")
-                return 0
 
             # setup ngxblocker
             if (pargs.ngxblocker):
@@ -244,7 +243,6 @@ class WOSiteUpdateController(CementBaseController):
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
-                return 0
 
             # letsencryot rebew
             if (pargs.letsencrypt == 'renew'):
@@ -615,7 +613,7 @@ class WOSiteUpdateController(CementBaseController):
 
                 if WOAcme.cert_check(self, wo_domain):
                     if SSL.archivedcertificatehandle(
-                        self, wo_domain, acme_domains):
+                            self, wo_domain, acme_domains):
                         letsencrypt = True
                 else:
                     if acme_subdomain:

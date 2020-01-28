@@ -158,6 +158,7 @@ class WOStackController(CementBaseController):
                 pargs.phpredisadmin = True
                 pargs.extplorer = True
                 pargs.cheat = True
+                pargs.nanorc = True
 
             if pargs.security:
                 pargs.fail2ban = True
@@ -178,7 +179,7 @@ class WOStackController(CementBaseController):
                     apt_packages = apt_packages + WOVar.wo_redis
 
                 else:
-                    Log.info(self, "Redis already installed")
+                    Log.debug(self, "Redis already installed")
 
             # PHP 7.2
             if pargs.php72:
