@@ -871,26 +871,44 @@ def site_package_check(self, stype):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-    if pargs.php and pargs.php73:
+    if ((pargs.php and pargs.php73) or (pargs.php and pargs.php74) or
+        (pargs.php73 and pargs.php74) or (pargs.php72 and pargs.php73) or
+            (pargs.php72 and pargs.php74)):
         Log.error(
             self, "Error: two different PHP versions cannot be "
                   "combined within the same WordOps site")
 
-    if pargs.php and pargs.php74:
-        Log.error(
-            self, "Error: two different PHP versions cannot be "
-                  "combined within the same WordOps site")
-
-    if pargs.php73 and pargs.php74:
-        Log.error(
-            self, "Error: two different PHP versions cannot be "
-                  "combined within the same WordOps site")
-
-    if ((not pargs.php73) and (not pargs.php74) and
-        stype in ['php', 'php72', 'mysql', 'wp', 'wpsubdir',
+    if ((not pargs.php72) and (not pargs.php73) and (not pargs.php74) and
+        stype in ['php', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
+        Log.debug(self, "Setting apt_packages variable for PHP")
+        php_check = 'php7.3-fpm'
+        if self.app.config.has_section('php'):
+            config_php_ver = self.app.config.get(
+                'php', 'version')
+            if config_php_ver == '7.2':
+                php_check = 'php7.2-fpm'
+                php_to_setup = WOVar.wo_php72
+            elif config_php_ver == '7.3':
+                php_check = 'php7.3-fpm'
+                php_to_setup = WOVar.wo_php73
+            elif config_php_ver == '7.4':
+                php_check = 'php7.4-fpm'
+                php_to_setup = WOVar.wo_php74
+            else:
+                php_check = 'php7.3-fpm'
+                php_to_setup = WOVar.wo_php73
+        else:
+            php_check = 'php7.3-fpm'
+            php_to_setup = WOVar.wo_php73
+
+        if not (WOAptGet.is_installed(self, php_check)):
+            apt_packages = apt_packages + php_to_setup + WOVar.wo_php_extra
+
+    if pargs.php72 and stype in ['php72', 'mysql', 'wp',
+                                          'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-        if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
+        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
             apt_packages = apt_packages + WOVar.wo_php72 + WOVar.wo_php_extra
 
     if pargs.php73 and stype in ['php73', 'mysql', 'wp',
