@@ -1018,7 +1018,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # create fail2ban configuration files
         if "fail2ban" in apt_packages:
             WOService.restart_service(self, 'fail2ban')
-            if os.path.exists('/etc/fail2ban:'):
+            if os.path.exists('/etc/fail2ban'):
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
                 Log.info(self, "Configuring Fail2Ban")
@@ -1039,12 +1039,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'fail2ban-forbidden.mustache',
                     data, overwrite=False)
 
-            if not WOService.reload_service(self, 'fail2ban'):
-                WOGit.rollback(
-                    self, ['/etc/fail2ban'], msg="Rollback f2b config")
-            else:
-                WOGit.add(self, ["/etc/fail2ban"],
-                          msg="Adding Fail2ban into Git")
+                if not WOService.reload_service(self, 'fail2ban'):
+                    WOGit.rollback(
+                        self, ['/etc/fail2ban'], msg="Rollback f2b config")
+                    WOService.restart_service(self, 'fail2ban')
+                else:
+                    WOGit.add(self, ["/etc/fail2ban"],
+                              msg="Adding Fail2ban into Git")
 
         # Proftpd configuration
         if "proftpd-basic" in apt_packages:
