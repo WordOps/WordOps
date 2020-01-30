@@ -1023,22 +1023,21 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           msg="Adding Fail2ban into Git")
                 Log.info(self, "Configuring Fail2Ban")
                 data = dict(release=WOVar.wo_version)
-                if WOAptGet.is_exec(self, 'nginx'):
-                    WOTemplate.deploy(
-                        self,
-                        '/etc/fail2ban/jail.d/custom.conf',
-                        'fail2ban.mustache',
-                        data, overwrite=False)
-                    WOTemplate.deploy(
-                        self,
-                        '/etc/fail2ban/filter.d/wo-wordpress.conf',
-                        'fail2ban-wp.mustache',
-                        data, overwrite=False)
-                    WOTemplate.deploy(
-                        self,
-                        '/etc/fail2ban/filter.d/nginx-forbidden.conf',
-                        'fail2ban-forbidden.mustache',
-                        data, overwrite=False)
+                WOTemplate.deploy(
+                    self,
+                    '/etc/fail2ban/jail.d/custom.conf',
+                    'fail2ban.mustache',
+                    data, overwrite=False)
+                WOTemplate.deploy(
+                    self,
+                    '/etc/fail2ban/filter.d/wo-wordpress.conf',
+                    'fail2ban-wp.mustache',
+                    data, overwrite=False)
+                WOTemplate.deploy(
+                    self,
+                    '/etc/fail2ban/filter.d/nginx-forbidden.conf',
+                    'fail2ban-forbidden.mustache',
+                    data, overwrite=False)
 
             if not WOService.reload_service(self, 'fail2ban'):
                 WOGit.rollback(
