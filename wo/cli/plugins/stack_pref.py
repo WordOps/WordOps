@@ -944,6 +944,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.write(config)
                 config_file.close()
             else:
+                # make sure root account have all privileges
                 if "PASSWORD" not in WOShellExec.cmd_exec_stdout(
                         self, 'mysql -e "use mysql; show grants;"'):
                     try:
@@ -1017,25 +1018,27 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # create fail2ban configuration files
         if "fail2ban" in apt_packages:
             WOService.restart_service(self, 'fail2ban')
-            WOGit.add(self, ["/etc/fail2ban"],
-                      msg="Adding Fail2ban into Git")
-            Log.info(self, "Configuring Fail2Ban")
-            data = dict(release=WOVar.wo_version)
-            WOTemplate.deploy(
-                self,
-                '/etc/fail2ban/jail.d/custom.conf',
-                'fail2ban.mustache',
-                data, overwrite=False)
-            WOTemplate.deploy(
-                self,
-                '/etc/fail2ban/filter.d/wo-wordpress.conf',
-                'fail2ban-wp.mustache',
-                data, overwrite=False)
-            WOTemplate.deploy(
-                self,
-                '/etc/fail2ban/filter.d/nginx-forbidden.conf',
-                'fail2ban-forbidden.mustache',
-                data, overwrite=False)
+            if os.path.exists('/etc/fail2ban:'):
+                WOGit.add(self, ["/etc/fail2ban"],
+                          msg="Adding Fail2ban into Git")
+                Log.info(self, "Configuring Fail2Ban")
+                data = dict(release=WOVar.wo_version)
+                WOTemplate.deploy(
+                    self,
+                    '/etc/fail2ban/jail.d/custom.conf',
+                    'fail2ban.mustache',
+                    data, overwrite=False)
+                if WOAptGet.is_exec(self, 'nginx'):
+                    WOTemplate.deploy(
+                        self,
+                        '/etc/fail2ban/filter.d/wo-wordpress.conf',
+                        'fail2ban-wp.mustache',
+                        data, overwrite=False)
+                    WOTemplate.deploy(
+                        self,
+                        '/etc/fail2ban/filter.d/nginx-forbidden.conf',
+                        'fail2ban-forbidden.mustache',
+                        data, overwrite=False)
 
             if not WOService.reload_service(self, 'fail2ban'):
                 WOGit.rollback(
@@ -1092,8 +1095,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to add UFW rules")
 
-            if ((os.path.isfile("/etc/fail2ban/jail.d/custom.conf")) and
-                (not WOFileUtils.grep(
+            if ((os.path.exists("/etc/fail2ban/jail.d/custom.conf")) and
+                (not WOFileUtils.grepcheck(
                     self, "/etc/fail2ban/jail.d/custom.conf",
                     "proftpd"))):
                 with open("/etc/fail2ban/jail.d/custom.conf",
