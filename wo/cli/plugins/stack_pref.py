@@ -1023,12 +1023,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           msg="Adding Fail2ban into Git")
                 Log.info(self, "Configuring Fail2Ban")
                 data = dict(release=WOVar.wo_version)
-                WOTemplate.deploy(
-                    self,
-                    '/etc/fail2ban/jail.d/custom.conf',
-                    'fail2ban.mustache',
-                    data, overwrite=False)
                 if WOAptGet.is_exec(self, 'nginx'):
+                    WOTemplate.deploy(
+                        self,
+                        '/etc/fail2ban/jail.d/custom.conf',
+                        'fail2ban.mustache',
+                        data, overwrite=False)
                     WOTemplate.deploy(
                         self,
                         '/etc/fail2ban/filter.d/wo-wordpress.conf',
