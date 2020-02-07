@@ -400,7 +400,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    .format(ngxroot))):
                 SSL.selfsignedcert(self, proftpd=False, backend=True)
 
-            if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
+            if not os.path.exists('{0}22222/conf/nginx/ssl.conf'
                                   .format(ngxroot)):
                 with open("/var/www/22222/conf/nginx/"
                           "ssl.conf", "w") as php_file:
