@@ -33,6 +33,7 @@ server {
     location /.well-known/acme-challenge/ {
         alias /var/www/html/.well-known/acme-challenge/;
         allow all;
+        auth_basic off;
     }
     {{/proxy}}
 
