@@ -322,14 +322,28 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('/etc/nginx/sites-enabled')
 
             # 22222 port settings
+            if os.path.exists('/etc/nginx/sites-available/22222'):
+                Log.debug(self, "looking for the current backend port")
+                for line in open('/etc/nginx/sites-available/22222',
+                                 encoding='utf-8'):
+                    if 'listen' in line:
+                        listen_line = line.strip()
+                        break
+                port = (listen_line).split(' ')
+                current_backend_port = (port[1]).strip()
+            else:
+                current_backend_port = '22222'
+
+            if 'current_backend_port' not in locals():
+                current_backend_port = '22222'
+
             data = dict(webroot=ngxroot,
-                        release=WOVar.wo_version, port='22222')
-            if not WOFileUtils.grepcheck(
-                    self, 'WordOps', '/etc/nginx/sites-available/22222'):
-                WOTemplate.deploy(
-                    self,
-                    '/etc/nginx/sites-available/22222',
-                    '22222.mustache', data, overwrite=True)
+                        release=WOVar.wo_version, port=current_backend_port)
+            WOTemplate.deploy(
+                self,
+                '/etc/nginx/sites-available/22222',
+                '22222.mustache', data, overwrite=True)
+
             passwd = ''.join([random.choice
                               (string.ascii_letters + string.digits)
                               for n in range(24)])

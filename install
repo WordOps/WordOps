@@ -7,9 +7,9 @@
 # Copyright (c) 2019-2020 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# wget -qO wo wops.cc && sudo bash wo
+# wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.11.4 - 2020-01-17
+# Version 3.11.5 - 2020-02-11
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -433,10 +433,10 @@ wo_install() {
     rm -f /usr/local/bin/wo
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip uninstall wo -y
-        python3 -m pip install --upgrade wordops
+        python3 -m pip install -I wordops
     else
         python3 -m pip uninstall wo -y
-        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /usr/local/lib/python3."$python_ver"/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3."$python_ver"/dist-packages/etc/* /etc/
