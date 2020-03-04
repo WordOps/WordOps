@@ -101,7 +101,7 @@ class SSL:
                     WOShellExec.cmd_exec(
                         self, "{0} search-replace \'http://{1}\'"
                         "\'https://{1}\' --skip-columns=guid "
-                        "--skip-tables=wp_users"
+                        "--skip-tables=wp_users --allow-root"
                         .format(WOVar.wo_wpcli_path, domain))
                 except Exception as e:
                     Log.debug(self, str(e))
