@@ -36,7 +36,7 @@ class WODownload():
                 return False
         return 0
 
-    def latest_release(self, repository):
+    def latest_release(self, repository, name=False):
         """Get the latest release number of a GitHub repository.\n
         repository format should be: \"user/repo\""""
         try:
@@ -48,5 +48,19 @@ class WODownload():
         except requests.RequestException as e:
             Log.debug(self, str(e))
             Log.error(self, "Unable to query GitHub API")
+        if name:
+            return github_json["name"]
+        else:
+            return github_json["tag_name"]
 
-        return github_json["tag_name"]
+    def pma_release(self):
+        """Get the latest phpmyadmin release number from a json file"""
+        try:
+            req = requests.get(
+                'https://www.phpmyadmin.net/home_page/version.json',
+                timeout=(5, 30))
+            pma_json = req.json()
+        except requests.RequestException as e:
+            Log.debug(self, str(e))
+            Log.error(self, "Unable to query phpmyadmin API")
+        return pma_json["version"]
