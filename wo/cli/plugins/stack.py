@@ -299,10 +299,11 @@ class WOStackController(CementBaseController):
                 if not os.path.isdir('/var/www/22222/htdocs/db/pma'):
                     Log.debug(self, "Setting packages variable "
                               "for phpMyAdmin ")
-                    packages = packages + [["https://github.com/phpmyadmin/"
-                                            "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz",
-                                            "phpMyAdmin"]]
+                    packages = packages + [[
+                        "https://www.phpmyadmin.net/"
+                        "downloads/phpMyAdmin-latest-all-languages.tar.gz",
+                        "/var/lib/wo/tmp/pma.tar.gz",
+                        "PHPMyAdmin"]]
                 else:
                     Log.debug(self, "phpMyAdmin already installed")
                     Log.info(self, "phpMyAdmin already installed")

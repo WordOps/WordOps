@@ -21,6 +21,7 @@ from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVar
 from wo.core.stackconf import WOConf
+from wo.core.download import WODownload
 
 
 def pre_pref(self, apt_packages):
@@ -1266,6 +1267,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # PHPMyAdmin
         if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
                for x in packages):
+            wo_phpmyadmin = WODownload.pma_release(self)
             WOExtract.extract(
                 self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
             Log.debug(self, 'Extracting file /var/lib/wo/tmp/pma.tar.gz to '
@@ -1279,7 +1281,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             .format(WOVar.wo_webroot))
             if not os.path.exists('{0}22222/htdocs/db/pma/'
                                   .format(WOVar.wo_webroot)):
-                shutil.move('/var/lib/wo/tmp/phpmyadmin-STABLE/',
+                shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
+                            '-all-languages/'
+                            .format(wo_phpmyadmin),
                             '{0}22222/htdocs/db/pma/'
                             .format(WOVar.wo_webroot))
                 shutil.copyfile('{0}22222/htdocs/db/pma'
