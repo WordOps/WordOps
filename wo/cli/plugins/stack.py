@@ -346,10 +346,7 @@ class WOStackController(CementBaseController):
                                       .format(WOVar.wo_webroot)):
                     Log.debug(self, "Setting packages variable for Adminer ")
                     packages = packages + [[
-                        "https://github.com/vrana/adminer/"
-                        "releases/download/v{0}"
-                        "/adminer-{0}.php"
-                        .format(WOVar.wo_adminer),
+                        "https://www.adminer.org/latest.php",
                         "{0}22222/"
                         "htdocs/db/adminer/index.php"
                         .format(WOVar.wo_webroot),
