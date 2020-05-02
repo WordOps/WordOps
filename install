@@ -419,8 +419,8 @@ wo_install_acme_sh() {
         export LE_WORKING_DIR="/etc/letsencrypt"
         export LE_CONFIG_HOME="/etc/letsencrypt/config"
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
-        /etc/letsencrypt/acme.sh --config-home "/etc/letsencrypt/config" --uninstall-cronjob
-        /etc/letsencrypt/acme.sh --config-home "/etc/letsencrypt/config" --install-cronjob
+        /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --uninstall-cronjob
+        /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --install-cronjob
     fi
 
 }
@@ -429,13 +429,12 @@ wo_install_acme_sh() {
 wo_install() {
     local python_ver
     python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
-    cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
-    rm -f /usr/local/bin/wo
+    if [ -d /usr/local/lib/python3."$python_ver"/dist-packages ]; then
+        cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
+    fi
     if [ "$wo_branch" = "master" ]; then
-        python3 -m pip uninstall wo -y
         python3 -m pip install -I wordops
     else
-        python3 -m pip uninstall wo -y
         python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /usr/local/lib/python3."$python_ver"/dist-packages/usr/* /usr/
@@ -445,6 +444,7 @@ wo_install() {
 
 # Clone Github repository if it doesn't exist
 wo_travis_install() {
+    local python_ver
     python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
     if [ -d ./dist ]; then
         rm -rf dist
