@@ -1000,8 +1000,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     inno_buffer=wo_ram_innodb,
                     inno_log_buffer=wo_ram_log_buffer,
                     innodb_instances=wo_innodb_instance)
-                WOTemplate.deploy(
-                    self, '/etc/mysql/my.cnf', 'my.mustache', data)
+                if os.path.exists('/etc/mysql/mariadb.conf.d/50-server.cnf'):
+                    WOTemplate.deploy(
+                        self, '/etc/mysql/my.cnf', 'my.mustache', data)
+                else:
+                    WOTemplate.deploy(
+                        self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
                 if os.path.isdir('/etc/systemd/system/mariadb.service.d'):
