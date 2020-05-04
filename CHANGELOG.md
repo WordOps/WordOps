@@ -32,7 +32,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Installation on raspberry pi 4
 - Fail2ban configuration when Nginx is not installed
 
-
 ### v3.11.4 - 2020-01-17
 
 #### Fixed

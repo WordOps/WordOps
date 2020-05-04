@@ -142,7 +142,7 @@ class WOStackController(CementBaseController):
 
             if pargs.web:
                 pargs.nginx = True
-                pargs.php72 = True
+                pargs.php73 = True
                 pargs.mysql = True
                 pargs.wpcli = True
                 pargs.sendmail = True
@@ -587,7 +587,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php72 = True
+            pargs.php73 = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
@@ -898,7 +898,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php72 = True
+            pargs.php73 = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
