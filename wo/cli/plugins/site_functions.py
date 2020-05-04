@@ -872,6 +872,7 @@ def site_package_check(self, stype):
                                    '\t$request_filename;\n')
 
     if ((pargs.php and pargs.php73) or (pargs.php and pargs.php74) or
+        (pargs.php and pargs.php72) or
         (pargs.php73 and pargs.php74) or (pargs.php72 and pargs.php73) or
             (pargs.php72 and pargs.php74)):
         Log.error(
@@ -883,6 +884,7 @@ def site_package_check(self, stype):
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP")
         php_check = 'php7.3-fpm'
+        php_to_setup = WOVar.wo_php73
         if self.app.config.has_section('php'):
             config_php_ver = self.app.config.get(
                 'php', 'version')
