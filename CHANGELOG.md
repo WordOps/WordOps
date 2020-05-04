@@ -14,16 +14,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Link to GitHub changelog after WordOps upgrade
 - Automated PHPMyAdmin and Adminer latest release download and install
 - Enable Let's Encrypt SSL on sites with http auth (PR [#254](https://github.com/WordOps/WordOps/pull/254))
+- Ubuntu 20.04 LTS Support (testing)
+- New Nginx 1.18.0 package built with OpenSSL 1.1.1g
+- Default PHP version can be set in /etc/wo/wo.conf
 
 #### Changed
 
 - Improved caching rules (PR [#265](https://github.com/WordOps/WordOps/pull/265))
+- Default PHP version is now 7.3
 
 #### Fixed
 
 - MySQL databases backup when using remote MySQL server
 - PHPMyAdmin assets missing after installation
 - Missing WP-CLI argument when switching site URL to https (PR [#257](https://github.com/WordOps/WordOps/pull/257))
+- WordOps installation failure with pip
+- Installation on raspberry pi 4
+- Fail2ban configuration when Nginx is not installed
+
 
 ### v3.11.4 - 2020-01-17
 
