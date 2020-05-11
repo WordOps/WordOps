@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.12.0 - 2020-05-11
+
 #### Added
 
 - Set opcache.preload_user for PHP 7.4
@@ -31,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - WordOps installation failure with pip
 - Installation on raspberry pi 4
 - Fail2ban configuration when Nginx is not installed
+- Wo-kernel systemd service start failure
 
 ### v3.11.4 - 2020-01-17
 

@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.12.0 - 2020-04-24
+# Version 3.12.0 - 2020-05-12
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -644,6 +644,12 @@ wo_woconf() {
     fi
 }
 
+wo_fix_kernel() {
+    if [ -f /opt/wo-kernel.sh ]; then
+        chmod +x /opt/wo-kernel.sh
+    fi
+}
+
 wo_init() {
 
     ###
@@ -718,6 +724,7 @@ else
     if [ -x /usr/local/bin/wo ]; then
         _run wo_clean
         _run wo_woconf
+        _run wo_fix_kernel
         # 2 - Migration from EEv3
     else
         if [ -x /usr/local/bin/ee ]; then

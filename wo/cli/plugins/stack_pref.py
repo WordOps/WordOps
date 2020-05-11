@@ -1709,6 +1709,7 @@ def pre_stack(self):
         if not os.path.isfile('/opt/wo-kernel.sh'):
             WOTemplate.deploy(self, '/opt/wo-kernel.sh',
                               'wo-kernel-script.mustache', data)
+        WOFileUtils.chmod(self, '/opt/wo-kernel.sh', 0o700)
         if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
             WOTemplate.deploy(
                 self, '/lib/systemd/system/wo-kernel.service',
