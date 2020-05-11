@@ -641,6 +641,12 @@ wo_woconf() {
         if grep -q "log.logging" /etc/wo/wo.conf; then
             sed -i "s/log.logging/log.colorlog/g" /etc/wo/wo.conf
         fi
+        if ! grep -q "letsencrypt" /etc/wo/wo.conf; then
+            echo -e '\n[letsencrypt]\n\nkeylength = "ec-384"' >>/etc/wo/wo.conf
+        fi
+        if ! grep -q "php" /etc/wo/wo.conf; then
+            echo -e '\n[php]\n\nversion = 7.3' >>/etc/wo/wo.conf
+        fi
     fi
 }
 
