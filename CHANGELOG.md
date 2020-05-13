@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
-### v3.12.0 - 2020-05-11
+### v3.12.0 - 2020-05-13
 
 #### Added
 
@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Link to GitHub changelog after WordOps upgrade
 - Automated PHPMyAdmin and Adminer latest release download and install
 - Enable Let's Encrypt SSL on sites with http auth (PR [#254](https://github.com/WordOps/WordOps/pull/254))
-- Ubuntu 20.04 LTS Support (testing)
+- Ubuntu 20.04 LTS Support (experimental)
 - New Nginx 1.18.0 package built with OpenSSL 1.1.1g
 - Default PHP version can be set in /etc/wo/wo.conf
 
@@ -34,7 +34,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Installation on raspberry pi 4
 - Fail2ban configuration when Nginx is not installed
 - Wo-kernel systemd service start failure
-- Fix missing letsencrypt settings in wo.conf
+- missing letsencrypt settings in wo.conf
+- MariaDB issue with innodb_buffer_pool_instances
 
 ### v3.11.4 - 2020-01-17
 
