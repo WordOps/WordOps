@@ -139,9 +139,10 @@ def pre_pref(self, apt_packages):
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
         if WOVar.wo_distro == 'ubuntu':
-            Log.info(self, "Adding repository for Redis, please wait...")
-            Log.debug(self, 'Adding ppa for redis')
-            WORepo.add(self, ppa=WOVar.wo_redis_repo)
+            if not WOVar.wo_platform_codename == 'focal':
+                Log.info(self, "Adding repository for Redis, please wait...")
+                Log.debug(self, 'Adding ppa for redis')
+                WORepo.add(self, ppa=WOVar.wo_redis_repo)
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
