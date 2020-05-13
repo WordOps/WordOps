@@ -64,6 +64,13 @@ fs.suid_dumpable = 0
 # Hide exposed kernel pointers
 kernel.kptr_restrict = 1
 
+# Restrict access to kernel logs
+kernel.dmesg_restrict = 1
+
+# Restrict ptrace scope
+kernel.yama.ptrace_scope = 1
+
+
 ###
 ### IMPROVE SYSTEM MEMORY MANAGEMENT ###
 ###
@@ -95,6 +102,9 @@ vm.min_free_kbytes = 65535
 ###
 ### GENERAL NETWORK SECURITY OPTIONS ###
 ###
+
+# Harden BPF JIT compiler
+net.core.bpf_jit_harden = 1
 
 #Prevent SYN attack, enable SYNcookies (they will kick-in when the max_syn_backlog reached)
 net.ipv4.tcp_syncookies = 1
@@ -206,7 +216,6 @@ net.core.optmem_max = 65535
 net.ipv4.tcp_max_tw_buckets = 1440000
 
 # try to reuse time-wait connections, but don't recycle them (recycle can break clients behind NAT)
-net.ipv4.tcp_tw_recycle = 0
 net.ipv4.tcp_tw_reuse = 1
 
 # Limit number of orphans, each orphan can eat up to 16M (max wmem) of unswappable memory

@@ -154,7 +154,7 @@ _wo_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --php73 --php74 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --wpredis --wprocket --wpce -le --letsencrypt  --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon" \
+                                    -W "--user --pass --email --html --php --php72 --php73 --php74 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --wpredis --wprocket --wpce -le --letsencrypt  --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon" \
                                  -- $cur) )
                 ;;
 
@@ -206,7 +206,7 @@ _wo_complete()
         "--wp")
             if [ "${COMP_WORDS[1]}" != "debug" ]; then
                 if [ "${COMP_WORDS[2]}" == "create" ]; then
-                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce --letsencrypt -le --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon --php73 --php74"
+                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce --letsencrypt -le --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon --php72 --php73 --php74"
                 elif [ "${COMP_WORDS[2]}" == "update" ]; then
                     retlist="--wp --wpfc --wpsc --php72 --php73 --php74 --wpredis --wprocket --wpce -le --letsencrypt --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon"
                 else
@@ -225,7 +225,7 @@ _wo_complete()
         "--wpsubdir" | "--wpsubdomain")
             if [ "${COMP_WORDS[1]}" != "debug" ]; then
                 if [ "${COMP_WORDS[2]}" == "create" ]; then
-                    retlist="--wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce  -le -le=wildcard --letsencrypt --letsencrypt=wildcard --php73 --php74 --dns --dns=dns_cf --dns=dns_dgon"
+                    retlist="--wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce  -le -le=wildcard --letsencrypt --letsencrypt=wildcard --php72 --php73 --php74 --dns --dns=dns_cf --dns=dns_dgon"
                 elif [ "${COMP_WORDS[2]}" == "update" ]; then
                     retlist="--wpfc --wpsc --php72 --php73 --php74 --wpredis --wprocket --wpce -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
                 else
@@ -243,7 +243,7 @@ _wo_complete()
 
         "--wpredis" | "--wprocket" | "--wpce" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
             if [ "${COMP_WORDS[2]}" == "create" ]; then
-                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --php73 --php74 -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --php72 --php73 --php74 -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
             else
                 retlist=""
             fi
@@ -267,7 +267,7 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--php74" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--ufw" | "--redis" | "--phpredisadmin" | "--netdata" | "--sendmail" | "--composer" | "--proftpd" | "--cheat" | "--nanorc" | "--clamav")
+        "--web" | "--admin" | "--nginx" | "--php" | "--php73" | "--php74" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--ufw" | "--redis" | "--phpredisadmin" | "--netdata" | "--sendmail" | "--composer" | "--proftpd" | "--cheat" | "--nanorc" | "--clamav" | "--dashboard")
             if [[ "${COMP_WORDS[2]}" == "install" || "${COMP_WORDS[2]}" == "purge" || "${COMP_WORDS[2]}" == "remove" ]]; then
                 retlist="--web --admin --security --nginx --php --php73 --php74 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --ufw --phpredisadmin --netdata --force"
             elif [[ "${COMP_WORDS[2]}" == "start" || "${COMP_WORDS[2]}" == "reload" || "${COMP_WORDS[2]}" == "restart" || "${COMP_WORDS[2]}" == "stop" ]]; then

@@ -41,7 +41,7 @@
 
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Custom Nginx build** : Nginx 1.16.1 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
+- **Custom Nginx build** : Nginx 1.18.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
 - **Up-to-date** : PHP 7.2, 7.3 & 7.4, MariaDB 10.3 & Redis 5.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
@@ -62,6 +62,7 @@
 
 #### Also compatible
 
+- Ubuntu 20.04 LTS (Focal) (experimental)
 - Ubuntu 16.04 LTS (Xenial)
 - Debian 9 (Stretch)
 - Debian 10 (Buster)
@@ -82,8 +83,8 @@ Detailed Getting Started guide with additional installation methods can be found
 ### Standard WordPress sites
 
 ```bash
-wo site create example.com --wp                  # install wordpress without any page caching
-wo site create example.com --wp  --php73         # install wordpress with PHP 7.3  without any page caching
+wo site create example.com --wp                  # install wordpress with PHP 7.3 without any page caching
+wo site create example.com --wp  --php72         # install wordpress with PHP 7.2  without any page caching
 wo site create example.com --wp  --php74         # install wordpress with PHP 7.4  without any page caching
 wo site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis             # install wordpress + nginx redis_cache
@@ -118,11 +119,11 @@ wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + C
 
 ```bash
 wo site create example.com --html     # create example.com for static/html sites
-wo site create example.com --php      # create example.com with php support
-wo site create example.com --php73      # create example.com with php 7.3 support
+wo site create example.com --php      # create example.com with php 7.3 support
+wo site create example.com --php72      # create example.com with php 7.2 support
 wo site create example.com --php74      # create example.com with php 7.4 support
-wo site create example.com --mysql    # create example.com with php & mysql support
-wo site create example.com --mysql --php73   # create example.com with php 7.3 & mysql support
+wo site create example.com --mysql    # create example.com with php 7.3 & mysql support
+wo site create example.com --mysql --php72   # create example.com with php 7.2 & mysql support
 wo site create example.com --mysql --php74   # create example.com with php 7.4 & mysql support
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
 ```

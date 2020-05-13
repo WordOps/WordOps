@@ -31,9 +31,8 @@ class WOMysql():
         # Makes connection with MySQL server
         try:
             if os.path.exists('/etc/mysql/conf.d/my.cnf'):
-                connection = \
-                    pymysql.connect(read_default_file='/etc/mysql/'
-                                    'conf.d/my.cnf')
+                connection = pymysql.connect(
+                    read_default_file='/etc/mysql/conf.d/my.cnf')
             else:
                 connection = pymysql.connect(read_default_file='~/.my.cnf')
             return connection

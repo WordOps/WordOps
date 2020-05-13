@@ -211,21 +211,35 @@ class WOSiteCreateController(CementBaseController):
         else:
             pass
 
+        data['php73'] = False
+        data['php74'] = False
+        data['php72'] = False
+
         if data and pargs.php73:
             data['php73'] = True
-            data['php74'] = False
-            data['php72'] = False
             data['wo_php'] = 'php73'
         elif data and pargs.php74:
-            data['php72'] = False
             data['php74'] = True
-            data['php73'] = False
             data['wo_php'] = 'php74'
-        else:
-            data['php74'] = False
+        elif data and pargs.php72:
             data['php72'] = True
-            data['php73'] = False
             data['wo_php'] = 'php72'
+        else:
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                if config_php_ver == '7.2':
+                    data['php72'] = True
+                    data['wo_php'] = 'php72'
+                elif config_php_ver == '7.3':
+                    data['php73'] = True
+                    data['wo_php'] = 'php73'
+                elif config_php_ver == '7.4':
+                    data['php74'] = True
+                    data['wo_php'] = 'php74'
+            else:
+                data['php73'] = True
+                data['wo_php'] = 'php73'
 
         if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
@@ -288,12 +302,12 @@ class WOSiteCreateController(CementBaseController):
                          " http://{0}".format(wo_domain))
                 return
 
-            if data['php73']:
-                php_version = "7.3"
+            if data['php72']:
+                php_version = "7.2"
             elif data['php74']:
                 php_version = "7.4"
             else:
-                php_version = "7.2"
+                php_version = "7.3"
 
             addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
                        php_version=php_version)

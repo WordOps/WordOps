@@ -76,6 +76,7 @@ class WOStackUpgradeController(CementBaseController):
         packages = []
         self.msg = []
         pargs = self.app.pargs
+        wo_phpmyadmin = WODownload.pma_release(self)
         if not (pargs.web or pargs.nginx or pargs.php or
                 pargs.php72 or pargs.php73 or pargs.php74 or pargs.mysql or
                 pargs.ngxblocker or pargs.all or pargs.netdata or
@@ -207,7 +208,7 @@ class WOStackUpgradeController(CementBaseController):
                     "https://files.phpmyadmin.net"
                     "/phpMyAdmin/{0}/phpMyAdmin-{0}-"
                     "all-languages.tar.gz"
-                    .format(WOVar.wo_phpmyadmin),
+                    .format(wo_phpmyadmin),
                     "/var/lib/wo/tmp/pma.tar.gz",
                     "PHPMyAdmin"]]
             else:
@@ -220,10 +221,7 @@ class WOStackUpgradeController(CementBaseController):
                               .format(WOVar.wo_webroot)):
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [[
-                    "https://github.com/vrana/adminer/"
-                    "releases/download/v{0}"
-                    "/adminer-{0}.php"
-                    .format(WOVar.wo_adminer),
+                    "https://www.adminer.org/latest.php",
                     "{0}22222/"
                     "htdocs/db/adminer/index.php"
                     .format(WOVar.wo_webroot),
@@ -403,13 +401,13 @@ class WOStackUpgradeController(CementBaseController):
                                      .format(WOVar.wo_webroot)),
                                     ('/var/lib/wo/tmp/phpMyAdmin-{0}'
                                      '-all-languages/config.inc.php'
-                                     .format(WOVar.wo_phpmyadmin))
+                                     .format(wo_phpmyadmin))
                                     )
                     WOFileUtils.rm(self, '{0}22222/htdocs/db/pma'
                                    .format(WOVar.wo_webroot))
                     shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
                                 '-all-languages/'
-                                .format(WOVar.wo_phpmyadmin),
+                                .format(wo_phpmyadmin),
                                 '{0}22222/htdocs/db/pma/'
                                 .format(WOVar.wo_webroot))
                     WOFileUtils.chown(self, "{0}22222/htdocs"

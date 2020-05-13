@@ -17,6 +17,7 @@
 *.bash     text eol=lf
 *.fish     text eol=lf
 *.sh       text eol=lf
+*.rc       text eol=lf
 
 # Source files
 # ============

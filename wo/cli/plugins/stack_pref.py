@@ -21,6 +21,7 @@ from wo.core.sslutils import SSL
 from wo.core.template import WOTemplate
 from wo.core.variables import WOVar
 from wo.core.stackconf import WOConf
+from wo.core.download import WODownload
 
 
 def pre_pref(self, apt_packages):
@@ -28,7 +29,7 @@ def pre_pref(self, apt_packages):
 
     if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
-        if (not WOVar.wo_distro == 'raspbian'):
+        if ((not WOVar.wo_distro == 'raspbian') and (not WOVar.wo_platform_codename == 'focal')):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = (
                 "Package: *\nPin: origin mariadb.mirrors.ovh.net"
@@ -322,14 +323,28 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 os.makedirs('/etc/nginx/sites-enabled')
 
             # 22222 port settings
+            if os.path.exists('/etc/nginx/sites-available/22222'):
+                Log.debug(self, "looking for the current backend port")
+                for line in open('/etc/nginx/sites-available/22222',
+                                 encoding='utf-8'):
+                    if 'listen' in line:
+                        listen_line = line.strip()
+                        break
+                port = (listen_line).split(' ')
+                current_backend_port = (port[1]).strip()
+            else:
+                current_backend_port = '22222'
+
+            if 'current_backend_port' not in locals():
+                current_backend_port = '22222'
+
             data = dict(webroot=ngxroot,
-                        release=WOVar.wo_version, port='22222')
-            if not WOFileUtils.grepcheck(
-                    self, 'WordOps', '/etc/nginx/sites-available/22222'):
-                WOTemplate.deploy(
-                    self,
-                    '/etc/nginx/sites-available/22222',
-                    '22222.mustache', data, overwrite=True)
+                        release=WOVar.wo_version, port=current_backend_port)
+            WOTemplate.deploy(
+                self,
+                '/etc/nginx/sites-available/22222',
+                '22222.mustache', data, overwrite=True)
+
             passwd = ''.join([random.choice
                               (string.ascii_letters + string.digits)
                               for n in range(24)])
@@ -400,7 +415,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    .format(ngxroot))):
                 SSL.selfsignedcert(self, proftpd=False, backend=True)
 
-            if not os.path.isfile('{0}22222/conf/nginx/ssl.conf'
+            if not os.path.exists('{0}22222/conf/nginx/ssl.conf'
                                   .format(ngxroot)):
                 with open("/var/www/22222/conf/nginx/"
                           "ssl.conf", "w") as php_file:
@@ -805,6 +820,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             config['opcache']['opcache.revalidate_freq'] = '5'
             config['opcache']['opcache.consistency_checks'] = '0'
             config['opcache']['opcache.validate_timestamps'] = '1'
+            config['opcache']['opcache.preload_user'] = 'www-data'
             with open('/etc/php/7.4/fpm/php.ini',
                       encoding='utf-8', mode='w') as configfile:
                 Log.debug(self, "Writting php configuration into "
@@ -943,6 +959,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.write(config)
                 config_file.close()
             else:
+                # make sure root account have all privileges
                 if "PASSWORD" not in WOShellExec.cmd_exec_stdout(
                         self, 'mysql -e "use mysql; show grants;"'):
                     try:
@@ -983,8 +1000,12 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     inno_buffer=wo_ram_innodb,
                     inno_log_buffer=wo_ram_log_buffer,
                     innodb_instances=wo_innodb_instance)
-                WOTemplate.deploy(
-                    self, '/etc/mysql/my.cnf', 'my.mustache', data)
+                if os.path.exists('/etc/mysql/mariadb.conf.d/50-server.cnf'):
+                    WOTemplate.deploy(
+                        self, '/etc/mysql/my.cnf', 'my.mustache', data)
+                else:
+                    WOTemplate.deploy(
+                        self, '/etc/mysql/my.cnf', 'my.mustache', data)
                 # replacing default values
                 Log.debug(self, "Tuning MySQL configuration")
                 if os.path.isdir('/etc/systemd/system/mariadb.service.d'):
@@ -1016,32 +1037,34 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # create fail2ban configuration files
         if "fail2ban" in apt_packages:
             WOService.restart_service(self, 'fail2ban')
-            WOGit.add(self, ["/etc/fail2ban"],
-                      msg="Adding Fail2ban into Git")
-            Log.info(self, "Configuring Fail2Ban")
-            data = dict(release=WOVar.wo_version)
-            WOTemplate.deploy(
-                self,
-                '/etc/fail2ban/jail.d/custom.conf',
-                'fail2ban.mustache',
-                data, overwrite=False)
-            WOTemplate.deploy(
-                self,
-                '/etc/fail2ban/filter.d/wo-wordpress.conf',
-                'fail2ban-wp.mustache',
-                data, overwrite=False)
-            WOTemplate.deploy(
-                self,
-                '/etc/fail2ban/filter.d/nginx-forbidden.conf',
-                'fail2ban-forbidden.mustache',
-                data, overwrite=False)
-
-            if not WOService.reload_service(self, 'fail2ban'):
-                WOGit.rollback(
-                    self, ['/etc/fail2ban'], msg="Rollback f2b config")
-            else:
+            if os.path.exists('/etc/fail2ban'):
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
+                Log.info(self, "Configuring Fail2Ban")
+                data = dict(release=WOVar.wo_version)
+                WOTemplate.deploy(
+                    self,
+                    '/etc/fail2ban/jail.d/custom.conf',
+                    'fail2ban.mustache',
+                    data, overwrite=False)
+                WOTemplate.deploy(
+                    self,
+                    '/etc/fail2ban/filter.d/wo-wordpress.conf',
+                    'fail2ban-wp.mustache',
+                    data, overwrite=False)
+                WOTemplate.deploy(
+                    self,
+                    '/etc/fail2ban/filter.d/nginx-forbidden.conf',
+                    'fail2ban-forbidden.mustache',
+                    data, overwrite=False)
+
+                if not WOService.reload_service(self, 'fail2ban'):
+                    WOGit.rollback(
+                        self, ['/etc/fail2ban'], msg="Rollback f2b config")
+                    WOService.restart_service(self, 'fail2ban')
+                else:
+                    WOGit.add(self, ["/etc/fail2ban"],
+                              msg="Adding Fail2ban into Git")
 
         # Proftpd configuration
         if "proftpd-basic" in apt_packages:
@@ -1091,8 +1114,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to add UFW rules")
 
-            if ((os.path.isfile("/etc/fail2ban/jail.d/custom.conf")) and
-                (not WOFileUtils.grep(
+            if ((os.path.exists("/etc/fail2ban/jail.d/custom.conf")) and
+                (not WOFileUtils.grepcheck(
                     self, "/etc/fail2ban/jail.d/custom.conf",
                     "proftpd"))):
                 with open("/etc/fail2ban/jail.d/custom.conf",
@@ -1248,6 +1271,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # PHPMyAdmin
         if any('/var/lib/wo/tmp/pma.tar.gz' == x[1]
                for x in packages):
+            wo_phpmyadmin = WODownload.pma_release(self)
             WOExtract.extract(
                 self, '/var/lib/wo/tmp/pma.tar.gz', '/var/lib/wo/tmp/')
             Log.debug(self, 'Extracting file /var/lib/wo/tmp/pma.tar.gz to '
@@ -1261,7 +1285,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             .format(WOVar.wo_webroot))
             if not os.path.exists('{0}22222/htdocs/db/pma/'
                                   .format(WOVar.wo_webroot)):
-                shutil.move('/var/lib/wo/tmp/phpmyadmin-STABLE/',
+                shutil.move('/var/lib/wo/tmp/phpMyAdmin-{0}'
+                            '-all-languages/'
+                            .format(wo_phpmyadmin),
                             '{0}22222/htdocs/db/pma/'
                             .format(WOVar.wo_webroot))
                 shutil.copyfile('{0}22222/htdocs/db/pma'
@@ -1683,6 +1709,7 @@ def pre_stack(self):
         if not os.path.isfile('/opt/wo-kernel.sh'):
             WOTemplate.deploy(self, '/opt/wo-kernel.sh',
                               'wo-kernel-script.mustache', data)
+        WOFileUtils.chmod(self, '/opt/wo-kernel.sh', 0o700)
         if not os.path.isfile('/lib/systemd/system/wo-kernel.service'):
             WOTemplate.deploy(
                 self, '/lib/systemd/system/wo-kernel.service',

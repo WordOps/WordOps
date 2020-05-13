@@ -14,11 +14,11 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.11.4"
+    wo_version = "3.12.0"
     # WordOps packages versions
     wo_wp_cli = "2.4.0"
     wo_adminer = "4.7.5"
-    wo_phpmyadmin = "5.0.1"
+    wo_phpmyadmin = "5.0.2"
     wo_extplorer = "2.1.13"
     wo_dashboard = "1.2"
 
@@ -140,18 +140,22 @@ class WOVar():
                  "zip", "xml", "soap"]
     wo_php72 = []
     for module in wo_module:
-        wo_php72 = wo_php72 + ["php7.2-{0}".format(module),
-                               "php7.2-recode"]
+        wo_php72 = wo_php72 + ["php7.2-{0}".format(module)]
+    wo_php72 = wo_php72 + ["php7.2-recode"]
     wo_php73 = []
     for module in wo_module:
-        wo_php73 = wo_php73 + ["php7.3-{0}".format(module),
-                               "php7.3-recode"]
+        wo_php73 = wo_php73 + ["php7.3-{0}".format(module)]
+    wo_php73 = wo_php73 + ["php7.3-recode"]
     wo_php74 = []
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
 
-    wo_php_extra = ["php-memcached", "php-imagick", "php-igbinary",
-                    "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+    if not wo_platform_codename == 'focal':
+        wo_php_extra = ["php-memcached", "php-imagick", "php-igbinary",
+                        "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+    else:
+        wo_php_extra = ["php-imagick", "php-igbinary",
+                        "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]
     if wo_distro == 'raspbian':

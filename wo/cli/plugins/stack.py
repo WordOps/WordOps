@@ -142,7 +142,7 @@ class WOStackController(CementBaseController):
 
             if pargs.web:
                 pargs.nginx = True
-                pargs.php72 = True
+                pargs.php73 = True
                 pargs.mysql = True
                 pargs.wpcli = True
                 pargs.sendmail = True
@@ -158,6 +158,7 @@ class WOStackController(CementBaseController):
                 pargs.phpredisadmin = True
                 pargs.extplorer = True
                 pargs.cheat = True
+                pargs.nanorc = True
 
             if pargs.security:
                 pargs.fail2ban = True
@@ -178,7 +179,7 @@ class WOStackController(CementBaseController):
                     apt_packages = apt_packages + WOVar.wo_redis
 
                 else:
-                    Log.info(self, "Redis already installed")
+                    Log.debug(self, "Redis already installed")
 
             # PHP 7.2
             if pargs.php72:
@@ -298,10 +299,11 @@ class WOStackController(CementBaseController):
                 if not os.path.isdir('/var/www/22222/htdocs/db/pma'):
                     Log.debug(self, "Setting packages variable "
                               "for phpMyAdmin ")
-                    packages = packages + [["https://github.com/phpmyadmin/"
-                                            "phpmyadmin/archive/STABLE.tar.gz",
-                                            "/var/lib/wo/tmp/pma.tar.gz",
-                                            "phpMyAdmin"]]
+                    packages = packages + [[
+                        "https://www.phpmyadmin.net/"
+                        "downloads/phpMyAdmin-latest-all-languages.tar.gz",
+                        "/var/lib/wo/tmp/pma.tar.gz",
+                        "PHPMyAdmin"]]
                 else:
                     Log.debug(self, "phpMyAdmin already installed")
                     Log.info(self, "phpMyAdmin already installed")
@@ -344,10 +346,7 @@ class WOStackController(CementBaseController):
                                       .format(WOVar.wo_webroot)):
                     Log.debug(self, "Setting packages variable for Adminer ")
                     packages = packages + [[
-                        "https://github.com/vrana/adminer/"
-                        "releases/download/v{0}"
-                        "/adminer-{0}.php"
-                        .format(WOVar.wo_adminer),
+                        "https://www.adminer.org/latest.php",
                         "{0}22222/"
                         "htdocs/db/adminer/index.php"
                         .format(WOVar.wo_webroot),
@@ -588,7 +587,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php72 = True
+            pargs.php73 = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
@@ -899,7 +898,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php72 = True
+            pargs.php73 = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
@@ -1123,20 +1122,17 @@ class WOStackController(CementBaseController):
                 if start_purge != "Y" and start_purge != "y":
                     Log.error(self, "Not starting stack purge")
 
-            if (set(["nginx-custom"]).issubset(set(apt_packages))):
+            if "nginx-custom" in apt_packages:
                 WOService.stop_service(self, 'nginx')
 
-            if (set(["fail2ban"]).issubset(set(apt_packages))):
+            if "fail2ban" in apt_packages:
                 WOService.stop_service(self, 'fail2ban')
 
-            if (set(["mariadb-server"]).issubset(set(apt_packages))):
-                if self.app.config.has_section('stack'):
-                    database_host = self.app.config.get(
-                        'stack', 'ip-address')
-                else:
-                    database_host = 'na'
-                if database_host == '127.0.0.1':
-                    WOMysql.backupAll(self)
+            if "mariadb-server" in apt_packages:
+                if self.app.config.has_section('mysql'):
+                    if self.app.config.get(
+                            'mysql', 'grant-host') == 'localhost':
+                        WOMysql.backupAll(self)
                 WOService.stop_service(self, 'mysql')
 
             # Netdata uninstaller

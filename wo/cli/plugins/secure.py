@@ -133,15 +133,16 @@ class WOSecureController(CementBaseController):
     @expose(hide=True)
     def secure_ip(self):
         """IP whitelisting"""
-        WOGit.add(self, ["/etc/nginx"],
-                  msg="Add Nginx to into Git")
+        if os.path.exists('/etc/nginx'):
+            WOGit.add(self, ["/etc/nginx"],
+                      msg="Add Nginx to into Git")
         pargs = self.app.pargs
         if not pargs.user_input:
             ip = input("Enter the comma separated IP addresses "
                        "to white list [127.0.0.1]:")
             pargs.user_input = ip
         try:
-            user_ip = pargs.user_input.split(',')
+            user_ip = pargs.user_input.strip().split(',')
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             user_ip = ['127.0.0.1']
@@ -170,8 +171,9 @@ class WOSecureController(CementBaseController):
                                  'Harden SSH security [y/N]')
             if start_secure != "Y" and start_secure != "y":
                 Log.error(self, "Not hardening SSH security")
-        WOGit.add(self, ["/etc/ssh"],
-                  msg="Adding SSH into Git")
+        if os.path.exists('/etc/ssh'):
+            WOGit.add(self, ["/etc/ssh"],
+                      msg="Adding SSH into Git")
         Log.debug(self, "check if /etc/ssh/sshd_config exist")
         if os.path.isfile('/etc/ssh/sshd_config'):
             Log.debug(self, "looking for the current ssh port")

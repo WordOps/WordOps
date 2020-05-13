@@ -7,9 +7,9 @@
 # Copyright (c) 2019-2020 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
-# wget -qO wo wops.cc && sudo bash wo
+# wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.11.4 - 2020-01-17
+# Version 3.12.0 - 2020-05-13
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -167,9 +167,9 @@ wo_check_distro() {
             wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
-            check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster")
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster|focal")
             if [ -z "$check_wo_linux_distro" ]; then
-                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/19.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x.\n
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/20.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x.\n
                 You can bypass this warning by adding the flag --force to the install command"
                 exit 100
             fi
@@ -419,8 +419,8 @@ wo_install_acme_sh() {
         export LE_WORKING_DIR="/etc/letsencrypt"
         export LE_CONFIG_HOME="/etc/letsencrypt/config"
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
-        /etc/letsencrypt/acme.sh --config-home "/etc/letsencrypt/config" --uninstall-cronjob
-        /etc/letsencrypt/acme.sh --config-home "/etc/letsencrypt/config" --install-cronjob
+        /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --uninstall-cronjob
+        /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --install-cronjob
     fi
 
 }
@@ -429,14 +429,13 @@ wo_install_acme_sh() {
 wo_install() {
     local python_ver
     python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
-    cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
-    rm -f /usr/local/bin/wo
+    if [ -d /usr/local/lib/python3."$python_ver"/dist-packages ]; then
+        cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
+    fi
     if [ "$wo_branch" = "master" ]; then
-        python3 -m pip uninstall wo -y
-        python3 -m pip install --upgrade wordops
+        python3 -m pip install -I wordops
     else
-        python3 -m pip uninstall wo -y
-        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /usr/local/lib/python3."$python_ver"/dist-packages/usr/* /usr/
     cp -rn /usr/local/lib/python3."$python_ver"/dist-packages/etc/* /etc/
@@ -445,6 +444,7 @@ wo_install() {
 
 # Clone Github repository if it doesn't exist
 wo_travis_install() {
+    local python_ver
     python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
     if [ -d ./dist ]; then
         rm -rf dist
@@ -641,6 +641,18 @@ wo_woconf() {
         if grep -q "log.logging" /etc/wo/wo.conf; then
             sed -i "s/log.logging/log.colorlog/g" /etc/wo/wo.conf
         fi
+        if ! grep -q "letsencrypt" /etc/wo/wo.conf; then
+            echo -e '\n[letsencrypt]\n\nkeylength = "ec-384"' >>/etc/wo/wo.conf
+        fi
+        if ! grep -q "php" /etc/wo/wo.conf; then
+            echo -e '\n[php]\n\nversion = 7.3' >>/etc/wo/wo.conf
+        fi
+    fi
+}
+
+wo_fix_kernel() {
+    if [ -f /opt/wo-kernel.sh ]; then
+        chmod +x /opt/wo-kernel.sh
     fi
 }
 
@@ -718,6 +730,7 @@ else
     if [ -x /usr/local/bin/wo ]; then
         _run wo_clean
         _run wo_woconf
+        _run wo_fix_kernel
         # 2 - Migration from EEv3
     else
         if [ -x /usr/local/bin/ee ]; then
@@ -761,6 +774,7 @@ else
         echo
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
+        wo_lib_echo "Changelog is available on https://github.com/WordOps/WordOps/releases/tag/$wo_version_new"
         echo
         wo_lib_echo "To upgrade WordOps web stacks, you can use the command:"
         wo_lib_echo_info "wo stack upgrade"
