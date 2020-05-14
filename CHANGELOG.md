@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.12.1 - 2020-05-14
+
+#### Fixed
+
+- Redis repository on Ubuntu 20.04 LTS
+
+#### Changed
+
+- MariaDB offical repository available for Ubuntu 20.04 LTS
+
 ### v3.12.0 - 2020-05-13
 
 #### Added
