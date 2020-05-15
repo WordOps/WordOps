@@ -104,3 +104,14 @@ upstream redis {
     server 127.0.0.1:6379;
     keepalive 10;
 }
+
+#-------------------------------
+# Multi PHP
+#-------------------------------
+
+# Multi PHP upstream for WordOps backend
+upstream multiphp {
+    server unix:/var/run/php/php73-fpm.sock;
+    server unix:/var/run/php/php74-fpm.sock;
+    server unix:/var/run/php/php72-fpm.sock;
+}
