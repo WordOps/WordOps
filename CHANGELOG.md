@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.12.2 - 2020-05-15
+
+#### Fixed
+
+- Wrong PHP upstream for WordOps backend
+
 ### v3.12.1 - 2020-05-14
 
 #### Fixed
