@@ -1048,7 +1048,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     self,
                     '/etc/fail2ban/jail.d/custom.conf',
                     'fail2ban.mustache',
-                    data, overwrite=False)
+                    data, overwrite=True)
                 WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/filter.d/wo-wordpress.conf',
