@@ -1042,7 +1042,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
                 Log.info(self, "Configuring Fail2Ban")
-                data = dict(release=WOVar.wo_version)
+                nginxf2b = bool(os.path.exists('/var/log/nginx'))
+                data = dict(release=WOVar.wo_version, nginx=nginxf2b)
                 WOTemplate.deploy(
                     self,
                     '/etc/fail2ban/jail.d/custom.conf',

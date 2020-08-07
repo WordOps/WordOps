@@ -15,11 +15,11 @@ export LANG='en_US.UTF-8'
 export LC_ALL='C.UTF-8'
 
 if [ -z "$1" ]; then
-{
-    apt-get -qq purge mysql* graphviz* redis* php73-* php-*
-    apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
-    sudo apt-get -qq autoremove --purge
-} > /dev/null 2>&1
+    {
+        apt-get -qq purge mysql* graphviz* redis* php73-* php-*
+        apt-get install -qq git python3-setuptools python3-dev python3-apt ccze tree
+        sudo apt-get -qq autoremove --purge
+    } >/dev/null 2>&1
 fi
 
 exit_script() {
@@ -349,3 +349,18 @@ for stack in $stack_purge; do
 
     fi
 done
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo stack fail2ban              '
+echo -e "${CGREEN}#############################################${CEND}"
+if {
+    wo stack install --fail2ban
+} >>/var/log/wo/test.log; then
+    echo -ne "       purging $stack               [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "        purging $stack              [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
+
+fi
