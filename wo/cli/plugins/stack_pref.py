@@ -1060,7 +1060,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'fail2ban-forbidden.mustache',
                     data, overwrite=False)
 
-                if not WOService.reload_service(self, 'fail2ban'):
+                if not WOShellExec.cmd_exec(self, 'fail2ban-client reload'):
                     WOGit.rollback(
                         self, ['/etc/fail2ban'], msg="Rollback f2b config")
                     WOService.restart_service(self, 'fail2ban')
