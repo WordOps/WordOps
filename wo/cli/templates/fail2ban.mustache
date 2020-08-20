@@ -4,7 +4,7 @@ ignoreip = 127.0.0.1/8 ::1
 [recidive]
 enabled = true
 
-[nginx-http-auth]
+{{#nginx}}[nginx-http-auth]
 enabled   = true
 logpath = /var/log/nginx/*error*.log
 
@@ -23,4 +23,4 @@ maxretry = 5
 enabled = true
 filter = nginx-forbidden
 action = iptables-multiport[name="nginx-forbidden", port="http,https"]
-logpath = /var/log/nginx/*error*.log
+logpath = /var/log/nginx/*error*.log{{/nginx}}

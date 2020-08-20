@@ -1,12 +1,20 @@
 <IfModule mod_tls.c>
-TLSEngine                  on
-TLSLog                     /var/log/proftpd/tls.log
-TLSProtocol TLSv1.2
-TLSCipherSuite AES256+EECDH:AES256+EDH
-TLSOptions                 NoCertRequest AllowClientRenegotiations NoSessionReuseRequired
-TLSRSACertificateFile      /etc/proftpd/ssl/proftpd.crt
-TLSRSACertificateKeyFile   /etc/proftpd/ssl/proftpd.key
+
+TLSEngine                     on
+TLSRequired                   on
+TLSLog                        /var/log/proftpd/tls.log
+
+# intermediate configuration from ssl-config.mozilla.org
+TLSProtocol                   TLSv1.2 TLSv1.3
+TLSCipherSuite                ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+TLSServerCipherPreference     off
+TLSessionTickets              off
+TLSOptions                    NoCertRequest AllowClientRenegotiations NoSessionReuseRequired
+
+TLSRSACertificateFile         /etc/proftpd/ssl/proftpd.crt
+TLSRSACertificateKeyFile      /etc/proftpd/ssl/proftpd.key
+
 TLSVerifyClient            off
-TLSRequired                on
 RequireValidShell          no
+
 </IfModule>
