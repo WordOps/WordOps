@@ -72,7 +72,7 @@ class WOSiteCreateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'subdomain', 'wildcard'),
                      const='on', nargs='?')),
-            (['-ss', '--self-signed'],
+            (['-ss', '--selfsigned'],
              dict(help="install a self-signed certificate for the site",
                   action='store_true')),
             (['--force'],
@@ -573,3 +573,5 @@ class WOSiteCreateController(CementBaseController):
 
         if pargs.selfsigned:
             SSL.selfsignedcert(self, selfsite=True,wo_domain_name=wo_domain)
+            data['selfsigned'] = True
+            selfsigned = True
