@@ -45,7 +45,7 @@ location /wp-content/uploads {
         access_log off;
         log_not_found off;
         expires max;
-        try_files $uri$webp_suffix $uri =404;
+        try_files $uri$avif_suffix $uri$webp_suffix $uri =404;
     }
     location ~* \.(php|gz|log|zip|tar|rar|xz)$ {
         #Prevent Direct Access Of PHP Files & Backups from Web Browsers
