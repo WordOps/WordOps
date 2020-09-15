@@ -203,6 +203,27 @@ for site in $wp_site_types; do
 
     fi
 done
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site create self signed cert              '
+echo -e "${CGREEN}#############################################${CEND}"
+
+wp_site_types='wpfc wpsc wpce wprocket wpredis php html'
+for site in $wp_site_types; do
+    echo -ne "        Creating self-signed site $site              [..]\r"
+    if {
+        wo site create "$site".io --selfsinged --${site}
+    } >>/var/log/wo/test.log; then
+        echo -ne "       Creating self-signed site $site               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Creating self-signed site $site              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+
 if [ -z "$1" ]; then
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       wo stack upgrade              '
