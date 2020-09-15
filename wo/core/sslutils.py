@@ -166,7 +166,7 @@ class SSL:
                 Log.info(self, "HSTS is not enabled")
                 return 0
 
-    def selfsignedcert(self, proftpd=False, backend=False):
+    def selfsignedcert(self, proftpd=False, backend=False, selfsite=False, wo_domain_name=""):
         """issue a self-signed certificate"""
 
         selfs_tmp = '/var/lib/wo/tmp/selfssl'
@@ -207,6 +207,13 @@ class SSL:
             Log.error(
                 self, "Failed to generate HTTPS "
                 "certificate for 22222", False)
+        if selfsite:
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.key".format(selfs_tmp),
+                "/var/www/{0}/cert/{0}.key".format(wo_domain_name))
+            WOFileUtils.mvfile(
+                self, "{0}/ssl.crt".format(selfs_tmp),
+                "/var/www/{0}/cert/{0}.crt".format(wo_domain_name))
         if backend:
             WOFileUtils.mvfile(
                 self, "{0}/ssl.key"

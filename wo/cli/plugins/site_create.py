@@ -570,3 +570,6 @@ class WOSiteCreateController(CementBaseController):
                           msg="Adding letsencrypts config of site: {0}"
                           .format(wo_domain))
                 updateSiteInfo(self, wo_domain, ssl=letsencrypt)
+
+        if pargs.selfsigned:
+            SSL.selfsignedcert(self, selfsite=True,wo_domain_name=wo_domain)
