@@ -74,7 +74,7 @@ class WOSiteCreateController(CementBaseController):
                      const='on', nargs='?')),
             (['-ss', '--self-signed'],
              dict(help="install a self-signed certificate for the site",
-                  action='store')),
+                  action='store_true')),
             (['--force'],
                 dict(help="force Let's Encrypt certificate issuance",
                      action='store_true')),
