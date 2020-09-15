@@ -208,6 +208,8 @@ class SSL:
                 self, "Failed to generate HTTPS "
                 "certificate for 22222", False)
         if selfsite:
+            if not os.path.isdir("/var/www/{0}/cert/".format(wo_domain_name)):
+                WOFileUtils.mkdir(self, "/var/www/{0}/cert/".format(wo_domain_name))
             WOFileUtils.mvfile(
                 self, "{0}/ssl.key".format(selfs_tmp),
                 "/var/www/{0}/cert/{0}.key".format(wo_domain_name))
