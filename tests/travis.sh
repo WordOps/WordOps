@@ -49,7 +49,7 @@ done
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       Simple site create              '
 echo -e "${CGREEN}#############################################${CEND}"
-site_types='html php php72 php73 php74 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+site_types='html php php72 php73 php74 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker selfsigned'
 for site in $site_types; do
     echo -ne "       Creating $site               [..]\r"
     if {
@@ -208,11 +208,11 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site create self signed cert              '
 echo -e "${CGREEN}#############################################${CEND}"
 
-wp_site_types='wpfc wpsc wpce wprocket wpredis php html'
+wp_site_types='html mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $wp_site_types; do
     echo -ne "        Creating self-signed site $site              [..]\r"
     if {
-        wo site create "$site".io --selfsinged --${site}
+        wo site create "$site".io --selfsigned --${site}
     } >>/var/log/wo/test.log; then
         echo -ne "       Creating self-signed site $site               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
