@@ -584,4 +584,4 @@ class WOSiteCreateController(CementBaseController):
                 Log.error(self, "service nginx reload failed. "
                                 "check issues with `nginx -t` command")
             Log.info(self, "Congratulations! Successfully Configured "
-                           "SSL (self-signeed) on https://{0}".format(wo_domain))
+                           "SSL (self-signed) on https://{0}".format(wo_domain))
