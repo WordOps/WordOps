@@ -212,7 +212,7 @@ wp_site_types='html mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket w
 for site in $wp_site_types; do
     echo -ne "        Creating self-signed site $site              [..]\r"
     if {
-        wo site create "$site".io --selfsigned --${site}
+        wo site create selfsigned-"$site".io --selfsigned --${site}
     } >>/var/log/wo/test.log; then
         echo -ne "       Creating self-signed site $site               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
