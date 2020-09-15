@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Changed
+
+- Use zstd instead of pigz for archive compression
+
+#### Fixed
+
+- fail2ban install without Nginx
+
 ### v3.12.2 - 2020-05-15
 
 #### Fixed
