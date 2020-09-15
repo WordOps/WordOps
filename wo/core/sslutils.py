@@ -333,3 +333,18 @@ class SSL:
                                .format(domain))
 
         return ssl
+
+    def deployselfsignedcert(self, wo_domain_name):
+        if os.path.isdir("/var/www/{0}/conf/nginx"
+                             .format(wo_domain_name)):
+            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                           .format(wo_domain_name)
+                           , encoding='utf-8', mode='w')
+            sslconf.write(
+                "listen 443 ssl http2;\n"
+                "listen [::]:443 ssl http2;\n"
+                "ssl_certificate     /var/www/{0}/cert/{0}.crt;\n"
+                "ssl_certificate_key     /var/www/{0}/cert/{0}.key;\n".format(wo_domain_name))
+            sslconf.close()
+
+        return sslconf

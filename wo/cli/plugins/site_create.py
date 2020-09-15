@@ -572,6 +572,16 @@ class WOSiteCreateController(CementBaseController):
                 updateSiteInfo(self, wo_domain, ssl=letsencrypt)
 
         if pargs.selfsigned:
-            SSL.selfsignedcert(self, selfsite=True,wo_domain_name=wo_domain)
+            SSL.selfsignedcert(self, selfsite=True, wo_domain_name=wo_domain)
             data['selfsigned'] = True
-            selfsigned = True
+
+            SSL.httpsredirect(self, wo_domain, ['{0}'.format(wo_domain)], True)
+            SSL.siteurlhttps(self, wo_domain)
+
+            SSL.deployselfsignedcert(self, wo_domain_name=wo_domain)
+
+            if not WOService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                                "check issues with `nginx -t` command")
+            Log.info(self, "Congratulations! Successfully Configured "
+                           "SSL (self-signeed) on https://{0}".format(wo_domain))
