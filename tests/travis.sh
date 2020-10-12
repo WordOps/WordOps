@@ -79,7 +79,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php74              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql php72 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php74              [..]\r"
     if {
@@ -125,7 +125,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php72              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php72              [..]\r"
     if {
@@ -321,7 +321,7 @@ sites=$(wo site list 2>&1)
 for site in $sites; do
     echo -ne "       deleting $site              [..]\r"
     if {
-        wo site delete $site --force
+        wo site delete "$site" --force
     } >>/var/log/wo/test.log; then
         echo -ne "       deleting $site              [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
