@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.12.2 - 2020-05-14
+# Version 3.12.3 - 2020-10-12
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -699,6 +699,20 @@ wo_init() {
     wo_lib_echo "Welcome to WordOps install/update script ${wo_version_new}"
     echo ""
 
+}
+
+wo_php_fix() {
+    local php_versions="5.6 7.0 7.1 7.2 7.3 7.4"
+
+    apt-get autoremove --assume-yes --purge php8.0-* php-igbinary php-memcached php-msgpack php-redis php-imagick php-xdebug
+    for php_version in $php_versions; do
+        if [ -f "/usr/sbin/php-fpm$php_version" ]; then
+            local php_extensions="igbinary memcached msgpack redis imagick xdebug"
+            for php_ext in $php_extensions; do
+                apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install "php$php_version-$php_ext"
+            done
+        fi
+    done
 }
 
 ###

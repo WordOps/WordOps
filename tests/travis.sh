@@ -73,7 +73,9 @@ echo
 wo site info php72.net
 echo
 echo
-
+wo site list
+echo
+echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php74              '
 echo -e "${CGREEN}#############################################${CEND}"
