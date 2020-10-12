@@ -745,6 +745,7 @@ else
         _run wo_clean
         _run wo_woconf
         _run wo_fix_kernel
+        _run wo_php_fix
         # 2 - Migration from EEv3
     else
         if [ -x /usr/local/bin/ee ]; then
