@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - fail2ban install without Nginx
 - Grant MySQL permissions on all MySQL/MariaDB variant ([PR #285](https://github.com/WordOps/WordOps/pull/285))
+- PHP PECL extensions and PHP 8.0 issues
 
 ### v3.12.2 - 2020-05-15
 
