@@ -1,12 +1,13 @@
-# avif NGINX CONFIGURATION - WordOps {{release}}
+# Image suffix NGINX CONFIGURATION - WordOps {{release}}
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 
-map $http_accept $avif_suffix_valid {
+map $http_accept $image_suffix_valid {
    default 1;
-   "~*avif" 0;
+   "~*avif" 2;
+   "~*webp" 3;
 }
 
-map $realip_remote_addr $avif_suffix_cf {
+map $realip_remote_addr $image_suffix_cf {
     default 0;
     103.21.244.0/22         1;
     103.22.200.0/22         1;
@@ -33,7 +34,8 @@ map $realip_remote_addr $avif_suffix_cf {
 
 }
 
-map $avif_suffix_cf$avif_suffix_valid $avif_suffix {
+map $image_suffix_cf$image_suffix_valid $image_suffix {
     default "";
-    00 ".avif";
+    02 ".avif";
+    03 ".webp";
 }
