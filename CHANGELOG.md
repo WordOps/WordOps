@@ -8,6 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.12.3 - 2020-10-13
+
+#### Added
+
+- Add avif (AV1 Image Format) support into Nginx ([PR #314](https://github.com/WordOps/WordOps/pull/314))
+
+#### Changed
+
+- Use zstd instead of pigz for archive compression
+- Exclude Nginx_vts status page from traffic calculation ([PR #294](https://github.com/WordOps/WordOps/pull/294))
+
+#### Fixed
+
+- fail2ban install without Nginx
+- Grant MySQL permissions on all MySQL/MariaDB variant ([PR #285](https://github.com/WordOps/WordOps/pull/285))
+- PHP PECL extensions and PHP 8.0 issues
+
 ### v3.12.2 - 2020-05-15
 
 #### Fixed

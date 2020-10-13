@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.12.2 - 2020-05-14
+# Version 3.12.3 - 2020-10-13
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -140,9 +140,9 @@ wo_init_variables() {
     readonly wo_install_log=/var/log/wo/install.log
     readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
     readonly TIME=$(date +"$TIME_FORMAT")
-    readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.gz"
-    readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.gz"
-    readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.gz"
+    readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.zst"
+    readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.zst"
+    readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.zst"
 
     if [ -x /usr/local/bin/ee ]; then
         ee_migration=1
@@ -208,14 +208,14 @@ wo_install_dep() {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3-pip python3-apt python3-dev sqlite3 git tar software-properties-common pigz \
-            gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp >/dev/null 2>&1
+            build-essential curl gzip python3-pip python3-apt gcc python3-dev sqlite3 git tar software-properties-common pigz \
+            gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd >/dev/null 2>&1
         curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3-pip python3-apt python3-dev ca-certificates sqlite3 git tar \
-            software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp >/dev/null 2>&1
+            build-essential curl gzip dirmngr sudo python3-pip python3-apt gcc python3-dev ca-certificates sqlite3 git tar \
+            software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp zstd >/dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
         # add nginx repository gpg key
@@ -224,7 +224,7 @@ wo_install_dep() {
     locale-gen en
     # enable unattended upgades
     if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
-        cp /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
+        cp -f /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
     fi
     # upgrade pip
     python3 -m pip install --upgrade pip
@@ -392,7 +392,7 @@ wo_install_acme_sh() {
 
     if [ -x "$HOME/.acme.sh/acme.sh" ]; then
         # backup acme.sh folder
-        /bin/tar -I pigz -cf /var/lib/wo-backup/acme.sh.tar.gz "$HOME/.acme.sh"
+        /bin/tar -I zstd -cf /var/lib/wo-backup/acme.sh.tar.zst "$HOME/.acme.sh"
         # rsync previous certificates to new acme.sh location
         /usr/bin/rsync -rltgoDpz --exclude="account.conf" \
             --exclude="acme.sh" \
@@ -468,7 +468,7 @@ wo_upgrade_nginx() {
     wo_distro_version=$(lsb_release -sc)
 
     if [ -d /var/lib/wo-backup/nginx ]; then
-        /bin/tar -I pigz "$NGINX_BACKUP_FILE" /var/lib/wo-backup/nginx
+        /bin/tar -I zstd "$NGINX_BACKUP_FILE" /var/lib/wo-backup/nginx
         rm -rf /var/lib/wo-backup/nginx
     fi
     # backup nginx conf
@@ -575,13 +575,13 @@ wo_backup_ee() {
     local BACKUP_EE=""
     [ -d /etc/nginx ] && { BACKUP_EE="$BACKUP_EE /etc/nginx"; }
     [ -d /etc/letsencrypt ] && { BACKUP_EE="$BACKUP_EE /etc/letsencrypt"; }
-    /bin/tar -I pigz -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /etc/ee /var/lib/ee "$BACKUP_EE"
+    /bin/tar -I zstd -cf "$EE_BACKUP_FILE" /usr/local/bin/ee /usr/lib/ee/templates /etc/ee /var/lib/ee "$BACKUP_EE"
     return 0
 }
 
 wo_backup_wo() {
     if [ -d /etc/nginx ] && [ -d /etc/wo ] && [ -d /var/lib/wo ]; then
-        /bin/tar -I pigz -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo
+        /bin/tar -I zstd -cf "$WO_BACKUP_FILE" /etc/nginx /etc/wo /var/lib/wo
     fi
     return 0
 }
@@ -701,6 +701,20 @@ wo_init() {
 
 }
 
+wo_php_fix() {
+    local php_versions="5.6 7.0 7.1 7.2 7.3 7.4"
+
+    apt-get autoremove --assume-yes --purge php8.0-* php-igbinary php-memcached php-msgpack php-redis php-imagick php-xdebug
+    for php_version in $php_versions; do
+        if [ -f "/usr/sbin/php-fpm$php_version" ]; then
+            local php_extensions="igbinary memcached msgpack redis imagick xdebug"
+            for php_ext in $php_extensions; do
+                apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install "php$php_version-$php_ext"
+            done
+        fi
+    done
+}
+
 ###
 # 4 - WO MAIN SETUP
 ###
@@ -731,6 +745,7 @@ else
         _run wo_clean
         _run wo_woconf
         _run wo_fix_kernel
+        _run wo_php_fix
         # 2 - Migration from EEv3
     else
         if [ -x /usr/local/bin/ee ]; then

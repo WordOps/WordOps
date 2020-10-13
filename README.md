@@ -63,7 +63,6 @@
 
 #### Also compatible
 
-- Ubuntu 20.04 LTS (Focal)
 - Ubuntu 16.04 LTS (Xenial)
 - Debian 9 (Stretch)
 - Debian 10 (Buster)

@@ -112,7 +112,8 @@ class WOMysql():
                     "--single-transaction ".format(dbs),
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
                 p2 = subprocess.Popen(
-                    "/usr/bin/pigz -c > /var/lib/wo-backup/mysql/{0}{1}.sql.gz"
+                    "/usr/bin/zstd -T0 -c > "
+                    "/var/lib/wo-backup/mysql/{0}{1}.sql.zst"
                     .format(dbs, WOVar.wo_date), stdin=p1.stdout, shell=True)
                 # Allow p1 to receive a SIGPIPE if p2 exits
                 p1.stdout.close()

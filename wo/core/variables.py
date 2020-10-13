@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.12.2"
+    wo_version = "3.12.3"
     # WordOps packages versions
     wo_wp_cli = "2.4.0"
     wo_adminer = "4.7.5"
@@ -137,7 +137,9 @@ class WOVar():
                  "readline", "common",
                  "cli", "mbstring", "intl",
                  "bcmath", "mysql", "opcache",
-                 "zip", "xml", "soap"]
+                 "zip", "xml", "soap", "memcached",
+                 "imagick", "igbinary", "msgpack",
+                 "redis", "xdebug"]
     wo_php72 = []
     for module in wo_module:
         wo_php72 = wo_php72 + ["php7.2-{0}".format(module)]
@@ -150,12 +152,7 @@ class WOVar():
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
 
-    if not wo_platform_codename == 'focal':
-        wo_php_extra = ["php-memcached", "php-imagick", "php-igbinary",
-                        "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
-    else:
-        wo_php_extra = ["php-imagick", "php-igbinary",
-                        "graphviz", "php-xdebug", "php-msgpack", "php-redis"]
+    wo_php_extra = ["graphviz"]
 
     wo_mysql = ["mariadb-server", "percona-toolkit"]
     if wo_distro == 'raspbian':

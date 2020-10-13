@@ -73,11 +73,13 @@ echo
 wo site info php72.net
 echo
 echo
-
+wo site list
+echo
+echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php74              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql php72 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php74              [..]\r"
     if {
@@ -123,7 +125,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php72              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php72              [..]\r"
     if {
@@ -312,24 +314,24 @@ echo -e '       wo info             '
 echo -e "${CGREEN}#############################################${CEND}"
 wo info
 
-echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       wo site delete              '
-echo -e "${CGREEN}#############################################${CEND}"
-sites=$(wo site list 2>&1)
-for site in $sites; do
-    echo -ne "       deleting $site              [..]\r"
-    if {
-        wo site delete $site --force
-    } >>/var/log/wo/test.log; then
-        echo -ne "       deleting $site              [${CGREEN}OK${CEND}]\\r"
-        echo -ne '\n'
-    else
-        echo -e "       deleting $site              [${CRED}FAIL${CEND}]"
-        echo -ne '\n'
-        exit_script
+# echo -e "${CGREEN}#############################################${CEND}"
+# echo -e '       wo site delete              '
+# echo -e "${CGREEN}#############################################${CEND}"
+# sites=$(wo site list 2>&1)
+# for site in $sites; do
+#     echo -ne "       deleting $site              [..]\r"
+#     if {
+#         wo site delete "$site" --force
+#     } >>/var/log/wo/test.log; then
+#         echo -ne "       deleting $site              [${CGREEN}OK${CEND}]\\r"
+#         echo -ne '\n'
+#     else
+#         echo -e "       deleting $site              [${CRED}FAIL${CEND}]"
+#         echo -ne '\n'
+#         exit_script
 
-    fi
-done
+#     fi
+# done
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '

@@ -219,7 +219,11 @@ def setupdatabase(self, data):
     Log.debug(self, "Setting up user privileges")
     try:
         WOMysql.execute(self,
-                        "grant select, insert, update, delete, create, drop, references, index, alter, create temporary tables, lock tables, execute, create view, show view, create routine, alter routine, event, trigger on `{0}`.* to `{1}`@`{2}`"
+                        "grant select, insert, update, delete, create, drop, "
+                        "references, index, alter, create temporary tables, "
+                        "lock tables, execute, create view, show view, "
+                        "create routine, alter routine, event, "
+                        "trigger on `{0}`.* to `{1}`@`{2}`"
                         .format(wo_db_name,
                                 wo_db_username, wo_mysql_grant_host))
     except StatementExcecutionError:
@@ -806,8 +810,8 @@ def sitebackup(self, data):
         Log.info(self, 'Backing up database \t\t', end='')
         try:
             if not WOShellExec.cmd_exec(self, "mysqldump --single-transaction "
-                                        "{0} | pigz -9 -p\"$(nproc)\" "
-                                        "> {1}/{0}.gz"
+                                        "{0} | zstd -T0 -c"
+                                        "> {1}/{0}.zst"
                                         .format(data['wo_db_name'],
                                                 backup_path)):
                 Log.info(self,
