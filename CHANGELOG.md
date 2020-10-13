@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+### v3.12.3 - 2020-10-13
+
 #### Added
 
 - Add avif (AV1 Image Format) support into Nginx ([PR #314](https://github.com/WordOps/WordOps/pull/314))
