@@ -34,6 +34,6 @@ map $realip_remote_addr $avif_suffix_cf {
 }
 
 map $avif_suffix_cf$avif_suffix_valid $avif_suffix {
-    default "";
+    default ".notexists";
     00 ".avif";
 }

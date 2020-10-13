@@ -61,7 +61,7 @@ location /wp-content/plugins/ewww-image-optimizer/images {
         access_log off;
         log_not_found off;
         expires max;
-        try_files $uri$webp_suffix $uri =404;
+        try_files $uri$avif_suffix $uri$webp_suffix $uri =404;
     }
     location ~ \.php$ {
     #Prevent Direct Access Of PHP Files From Web Browsers
