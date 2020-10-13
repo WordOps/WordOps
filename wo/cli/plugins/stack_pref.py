@@ -221,8 +221,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'stub_status.mustache', data)
                 data = dict(release=WOVar.wo_version)
                 WOTemplate.deploy(
-                    self, '{0}/image_suffix.conf'.format(ngxcnf),
-                    'image_suffix.mustache', data, overwrite=False)
+                    self, '{0}/webp.conf'.format(ngxcnf),
+                    'webp.mustache', data, overwrite=False)
+                WOTemplate.deploy(
+                    self, '{0}/avif.conf'.format(ngxcnf),
+                    'avif.mustache', data, overwrite=False)
 
                 WOTemplate.deploy(
                     self, '{0}/cloudflare.conf'.format(ngxcnf),
