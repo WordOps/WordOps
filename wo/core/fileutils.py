@@ -387,11 +387,6 @@ class WOFileUtils():
             else:
                 return False
 
-    def writeConversion(self, file):
-        with codecs.open('tmp' + '/' + file, 'w', 'utf-8') as targetFile:
-            for line in file:
-                targetFile.write(line)
-
     def convertFileBestGuess(self, filename, filepath):
         """Convert file to utf-8"""
         sourceFormats = ['ascii', 'iso-8859-1']
@@ -399,8 +394,11 @@ class WOFileUtils():
             try:
                 os.chdir(filepath)
                 with codecs.open(filename, 'rU', format) as sourceFile:
-                    self.writeConversion(sourceFile)
-                return
+                    with codecs.open(
+                        'tmp' + '/' + sourceFile, 'w', 'utf-8') as targetFile:
+                        for line in sourceFile:
+                            targetFile.write(line)
+                    return
             except UnicodeDecodeError:
                 pass
         if os.path.exists("/tmp/{0}".format(filename)):
