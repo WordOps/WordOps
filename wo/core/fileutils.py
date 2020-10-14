@@ -386,27 +386,3 @@ class WOFileUtils():
                 return True
             else:
                 return False
-
-    def convertFileBestGuess(self, filename, filepath):
-        """Convert file to utf-8"""
-        sourceFormats = ['ascii', 'iso-8859-1']
-        for format in sourceFormats:
-            try:
-                os.chdir(filepath)
-                with codecs.open(filename, 'rU', format) as sourceFile:
-                    with codecs.open(
-                        'tmp' + '/' + sourceFile, 'w', 'utf-8') as targetFile:
-                        for line in sourceFile:
-                            targetFile.write(line)
-                    return
-            except UnicodeDecodeError:
-                pass
-        if os.path.exists("/tmp/{0}".format(filename)):
-            try:
-                self.rm(filepath + filename)
-                self.mvfile("/tmp/{0}".format(filename), filepath + filename)
-            except Exception as e:
-                Log.debug(self, "{0}".format(e))
-                Log.error(
-                    self,
-                    "Unable to move file : {0} ".format(filepath + filename))
