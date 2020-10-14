@@ -409,4 +409,6 @@ class WOFileUtils():
                 self.mvfile("/tmp/{0}".format(filename), filepath + filename)
             except Exception as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to change owner : {0} ".format(path))
+                Log.error(
+                    self,
+                    "Unable to move file : {0} ".format(filepath + filename))
