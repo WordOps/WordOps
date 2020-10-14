@@ -23,7 +23,7 @@ before_script:
   - sudo rm -rf /etc/mysql
   - sudo bash -c 'echo example.com > /etc/hostname'
   - unset LANG
-  - sudo apt-get update --allow-releaseinfo-change -qq
+  - sudo apt-get update -qq
   - sudo apt-get -qq purge mysql* graphviz* redis* php*
   - sudo apt-get -qq autoremove --purge
 
