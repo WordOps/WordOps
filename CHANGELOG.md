@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Avif (AV1 Image Format) & WebP Nginx conditional support([PR #322](https://github.com/WordOps/WordOps/pull/322))
 - Sendmail initial configuration with sendmailconfig
+- SSL certificates export encoding with utf-8
 
 ### v3.12.3 - 2020-10-13
 
