@@ -3,6 +3,7 @@ import fileinput
 import os
 import pwd
 import shutil
+import codecs
 
 from wo.core.logging import Log
 
@@ -385,3 +386,27 @@ class WOFileUtils():
                 return True
             else:
                 return False
+
+    def writeConversion(self, file):
+        with codecs.open('tmp' + '/' + file, 'w', 'utf-8') as targetFile:
+            for line in file:
+                targetFile.write(line)
+
+    def convertFileBestGuess(self, filename, filepath):
+        """Convert file to utf-8"""
+        sourceFormats = ['ascii', 'iso-8859-1']
+        for format in sourceFormats:
+            try:
+                os.chdir(filepath)
+                with codecs.open(filename, 'rU', format) as sourceFile:
+                    self.writeConversion(sourceFile)
+                return
+            except UnicodeDecodeError:
+                pass
+        if os.path.exists("/tmp/{0}".format(filename)):
+            try:
+                self.rm(filepath + filename)
+                self.mvfile("/tmp/{0}".format(filename), filepath + filename)
+            except Exception as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to change owner : {0} ".format(path))

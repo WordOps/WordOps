@@ -206,12 +206,15 @@ class WOAcme:
     def cert_check(self, wo_domain_name):
         """Check certificate existance with acme.sh and return Boolean"""
         WOAcme.export_cert(self)
+        WOFileUtils.convertFileBestGuess(self, "cert.csv",
+                                         "/var/lib/wo/")
         # set variable acme_cert
         acme_cert = False
         # define new csv dialect
         csv.register_dialect('acmeconf', delimiter='|')
         # open file
-        certfile = open('/var/lib/wo/cert.csv', mode='r', encoding='utf-8')
+        certfile = open('/var/lib/wo/cert.csv',
+                        mode='r', encoding='utf-8')
         reader = csv.reader(certfile, 'acmeconf')
         for row in reader:
             # check if domain exist
