@@ -1135,6 +1135,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOGit.add(self, ["/etc/proftpd"],
                           msg="Adding ProFTPd into Git")
 
+        # Sendmail configuration
+        if "sendmail" in apt_packages:
+            if (os.path.exists("/usr/bin/yes") and
+                    os.path.exists("/usr/sbin/sendmailconfig")):
+                Log.wait(self, "Configuring Sendmail")
+                if WOShellExec.cmd_exec(self, "yes 'y' | sendmailconfig"):
+                    Log.valide(self, "Configuring Sendmail")
+                else:
+                    Log.failed(self, "Configuring Sendmail")
+
         if "ufw" in apt_packages:
             # check if ufw is already enabled
             if not WOFileUtils.grep(self,
