@@ -354,18 +354,3 @@ for stack in $stack_purge; do
 
     fi
 done
-
-echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       wo stack fail2ban              '
-echo -e "${CGREEN}#############################################${CEND}"
-if {
-    wo stack install --fail2ban
-} >>/var/log/wo/test.log; then
-    echo -ne "       purging $stack               [${CGREEN}OK${CEND}]\\r"
-    echo -ne '\n'
-else
-    echo -e "        purging $stack              [${CRED}FAIL${CEND}]"
-    echo -ne '\n'
-    exit_script
-
-fi
