@@ -51,11 +51,14 @@ class WOAcme:
         """Export acme.sh csv certificate list"""
         # check acme.sh is installed
         WOAcme.check_acme(self)
-        if not WOShellExec.cmd_exec(
-                self, "{0} ".format(WOAcme.wo_acme_exec) +
-                "--list --listraw > /var/lib/wo/cert.csv"):
+        acme_list = WOShellExec.cmd_exec_stdout(
+            self, "{0} ".format(WOAcme.wo_acme_exec) +
+            "--list --listraw")
+        if acme_list:
+            WOFileUtils.textwrite(self, '/var/lib/wo/cert.csv', acme_list)
+            WOFileUtils.chmod(self, '/var/lib/wo/cert.csv', 0o600)
+        else:
             Log.error(self, "Unable to export certs list")
-        WOFileUtils.chmod(self, '/var/lib/wo/cert.csv', 0o600)
 
     def setupletsencrypt(self, acme_domains, acmedata):
         """Issue SSL certificates with acme.sh"""
@@ -211,7 +214,8 @@ class WOAcme:
         # define new csv dialect
         csv.register_dialect('acmeconf', delimiter='|')
         # open file
-        certfile = open('/var/lib/wo/cert.csv', mode='r', encoding='utf-8')
+        certfile = open('/var/lib/wo/cert.csv',
+                        mode='r', encoding='utf-8')
         reader = csv.reader(certfile, 'acmeconf')
         for row in reader:
             # check if domain exist

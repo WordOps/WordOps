@@ -3,6 +3,7 @@ import fileinput
 import os
 import pwd
 import shutil
+import codecs
 
 from wo.core.logging import Log
 

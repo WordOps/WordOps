@@ -139,10 +139,9 @@ def pre_pref(self, apt_packages):
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
         if WOVar.wo_distro == 'ubuntu':
-            if not WOVar.wo_platform_codename == 'focal':
-                Log.info(self, "Adding repository for Redis, please wait...")
-                Log.debug(self, 'Adding ppa for redis')
-                WORepo.add(self, ppa=WOVar.wo_redis_repo)
+            Log.info(self, "Adding repository for Redis, please wait...")
+            Log.debug(self, 'Adding ppa for redis')
+            WORepo.add(self, ppa=WOVar.wo_redis_repo)
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
@@ -154,14 +153,17 @@ def pre_pref(self, apt_packages):
     # nano
     if 'nano' in apt_packages:
         if WOVar.wo_distro == 'ubuntu':
-            if (WOVar.wo_platform_codename == 'bionic' or
-                    WOVar.wo_platform_codename == 'xenial'):
+            if WOVar.wo_platform_codename == 'bionic':
                 Log.debug(self, 'Adding ppa for nano')
                 WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
+            elif WOVar.wo_platform_codename == 'xenial':
+                Log.debug(self, 'Adding ppa for nano')
+                WORepo.add_key(self, WOVar.wo_nginx_key)
+                WORepo.add(self, repo_url=WOVar.wo_extra_repo)
         else:
-            if not WOFileUtils.grepcheck(
+            if (not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
-                    'WordOps'):
+                    'WordOps')):
                 Log.info(self, "Adding repository for Nano, please wait...")
                 Log.debug(self, 'Adding repository for Nano')
                 WORepo.add_key(self, WOVar.wo_nginx_key)
@@ -1134,6 +1136,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             else:
                 WOGit.add(self, ["/etc/proftpd"],
                           msg="Adding ProFTPd into Git")
+
+        # Sendmail configuration
+        if "sendmail" in apt_packages:
+            if (os.path.exists("/usr/bin/yes") and
+                    os.path.exists("/usr/sbin/sendmailconfig")):
+                Log.wait(self, "Configuring Sendmail")
+                if WOShellExec.cmd_exec(self, "yes 'y' | sendmailconfig"):
+                    Log.valide(self, "Configuring Sendmail")
+                else:
+                    Log.failed(self, "Configuring Sendmail")
 
         if "ufw" in apt_packages:
             # check if ufw is already enabled

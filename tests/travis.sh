@@ -13,6 +13,7 @@ export DEBIAN_FRONTEND=noninteractive
 unset LANG
 export LANG='en_US.UTF-8'
 export LC_ALL='C.UTF-8'
+wo_distro=$(lsb_release -sc)
 
 if [ -z "$1" ]; then
     {
@@ -30,7 +31,7 @@ exit_script() {
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_list='nginx php php73 php74 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw ngxblocker cheat nanorc'
+stack_list='nginx php php73 php74 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis sendmail phpredisadmin mysqltuner utils ufw ngxblocker cheat nanorc'
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
     if {
@@ -259,29 +260,31 @@ else
     exit_script
 
 fi
-echo -ne "       wo secure --sshport                [..]\r"
-if {
-    wo secure --sshport 2022
-} >>/var/log/wo/test.log; then
-    echo -ne "       wo secure --sshport                [${CGREEN}OK${CEND}]\\r"
-    echo -ne '\n'
-else
-    echo -e "       wo secure --sshport                [${CRED}FAIL${CEND}]"
-    echo -ne '\n'
-    exit_script
+if [ "$wo_distro" != "focal" ]; then
+    echo -ne "       wo secure --sshport                [..]\r"
+    if {
+        wo secure --sshport 2022
+    } >>/var/log/wo/test.log; then
+        echo -ne "       wo secure --sshport                [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "       wo secure --sshport                [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
 
-fi
-echo -ne "       wo secure --ssh                    [..]\r"
-if {
-    wo secure --ssh --force
-} >>/var/log/wo/test.log; then
-    echo -ne "       wo secure --ssh                    [${CGREEN}OK${CEND}]\\r"
-    echo -ne '\n'
-else
-    echo -e "       wo secure --ssh                    [${CRED}FAIL${CEND}]"
-    echo -ne '\n'
-    exit_script
+    fi
+    echo -ne "       wo secure --ssh                    [..]\r"
+    if {
+        wo secure --ssh --force
+    } >>/var/log/wo/test.log; then
+        echo -ne "       wo secure --ssh                    [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "       wo secure --ssh                    [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
 
+    fi
 fi
 echo -ne "       wo secure --port                   [..]\r"
 if {
@@ -351,18 +354,3 @@ for stack in $stack_purge; do
 
     fi
 done
-
-echo -e "${CGREEN}#############################################${CEND}"
-echo -e '       wo stack fail2ban              '
-echo -e "${CGREEN}#############################################${CEND}"
-if {
-    wo stack install --fail2ban
-} >>/var/log/wo/test.log; then
-    echo -ne "       purging $stack               [${CGREEN}OK${CEND}]\\r"
-    echo -ne '\n'
-else
-    echo -e "        purging $stack              [${CRED}FAIL${CEND}]"
-    echo -ne '\n'
-    exit_script
-
-fi

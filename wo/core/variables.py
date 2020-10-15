@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.12.3"
+    wo_version = "3.12.4"
     # WordOps packages versions
     wo_wp_cli = "2.4.0"
     wo_adminer = "4.7.5"
@@ -111,6 +111,10 @@ class WOVar():
     # Nginx repo and packages
     if wo_distro == 'ubuntu':
         wo_nginx_repo = "ppa:wordops/nginx-wo"
+        wo_extra_repo = (
+            "deb http://download.opensuse.org"
+            "/repositories/home:/virtubox:"
+            "/WordOps/xUbuntu_{0}/ /".format(wo_platform_version))
     else:
         if wo_distro == 'debian':
             if wo_platform_codename == 'jessie':
