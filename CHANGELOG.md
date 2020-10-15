@@ -10,11 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.12.4 - 2020-10-14
 
+#### Changed
+
+- Redis 6.0.6 available on Ubuntu LTS
+
 #### Fixed
 
 - Avif (AV1 Image Format) & WebP Nginx conditional support([PR #322](https://github.com/WordOps/WordOps/pull/322))
 - Sendmail initial configuration with sendmailconfig
 - SSL certificates export encoding with utf-8
+- Nanorc install on Ubuntu 16.04 LTS
 
 ### v3.12.3 - 2020-10-13
 

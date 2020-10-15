@@ -139,10 +139,9 @@ def pre_pref(self, apt_packages):
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
         if WOVar.wo_distro == 'ubuntu':
-            if not WOVar.wo_platform_codename == 'focal':
-                Log.info(self, "Adding repository for Redis, please wait...")
-                Log.debug(self, 'Adding ppa for redis')
-                WORepo.add(self, ppa=WOVar.wo_redis_repo)
+            Log.info(self, "Adding repository for Redis, please wait...")
+            Log.debug(self, 'Adding ppa for redis')
+            WORepo.add(self, ppa=WOVar.wo_redis_repo)
         else:
             if not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
@@ -157,9 +156,9 @@ def pre_pref(self, apt_packages):
             Log.debug(self, 'Adding ppa for nano')
             WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
         else:
-            if not WOFileUtils.grepcheck(
+            if (not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
-                    'WordOps'):
+                    'WordOps') and not WOVar.wo_platform_codename == 'focal'):
                 Log.info(self, "Adding repository for Nano, please wait...")
                 Log.debug(self, 'Adding repository for Nano')
                 WORepo.add_key(self, WOVar.wo_nginx_key)
