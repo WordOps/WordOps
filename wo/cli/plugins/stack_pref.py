@@ -1260,7 +1260,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                       'added by WordOps')
 
         # nanorc
-        if 'nano' in apt_packages:
+        if (('nano' in apt_packages) and
+                (not WOVar.wo_platform_codename == 'xenial')):
             Log.debug(self, 'Setting up nanorc')
             WOGit.clone(self, 'https://github.com/scopatz/nanorc.git',
                         '/usr/share/nano-syntax-highlighting')
