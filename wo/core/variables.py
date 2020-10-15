@@ -111,6 +111,10 @@ class WOVar():
     # Nginx repo and packages
     if wo_distro == 'ubuntu':
         wo_nginx_repo = "ppa:wordops/nginx-wo"
+        wo_extra_repo = (
+            "deb http://download.opensuse.org"
+            "/repositories/home:/virtubox:"
+            "/WordOps/xUbuntu_{0}/".format(wo_platform_version))
     else:
         if wo_distro == 'debian':
             if wo_platform_codename == 'jessie':
