@@ -13,6 +13,7 @@ export DEBIAN_FRONTEND=noninteractive
 unset LANG
 export LANG='en_US.UTF-8'
 export LC_ALL='C.UTF-8'
+wo_distro=$(lsb_release -sc)
 
 if [ -z "$1" ]; then
     {
@@ -259,29 +260,31 @@ else
     exit_script
 
 fi
-echo -ne "       wo secure --sshport                [..]\r"
-if {
-    wo secure --sshport 2022
-} >>/var/log/wo/test.log; then
-    echo -ne "       wo secure --sshport                [${CGREEN}OK${CEND}]\\r"
-    echo -ne '\n'
-else
-    echo -e "       wo secure --sshport                [${CRED}FAIL${CEND}]"
-    echo -ne '\n'
-    exit_script
+if [ "$wo_distro" != "focal" ]; then
+    echo -ne "       wo secure --sshport                [..]\r"
+    if {
+        wo secure --sshport 2022
+    } >>/var/log/wo/test.log; then
+        echo -ne "       wo secure --sshport                [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "       wo secure --sshport                [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
 
-fi
-echo -ne "       wo secure --ssh                    [..]\r"
-if {
-    wo secure --ssh --force
-} >>/var/log/wo/test.log; then
-    echo -ne "       wo secure --ssh                    [${CGREEN}OK${CEND}]\\r"
-    echo -ne '\n'
-else
-    echo -e "       wo secure --ssh                    [${CRED}FAIL${CEND}]"
-    echo -ne '\n'
-    exit_script
+    fi
+    echo -ne "       wo secure --ssh                    [..]\r"
+    if {
+        wo secure --ssh --force
+    } >>/var/log/wo/test.log; then
+        echo -ne "       wo secure --ssh                    [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "       wo secure --ssh                    [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
 
+    fi
 fi
 echo -ne "       wo secure --port                   [..]\r"
 if {
