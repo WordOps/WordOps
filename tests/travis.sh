@@ -80,7 +80,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php74              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql php72 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php73 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php74              [..]\r"
     if {
@@ -103,7 +103,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php73              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql wp php72 php73 wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='html mysql wp php72 php73 wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php73              [..]\r"
     if {
@@ -126,7 +126,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php72              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php73 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php72              [..]\r"
     if {

@@ -298,19 +298,13 @@ class WOStackUpgradeController(CementBaseController):
                 # additional pre_pref
                 if "nginx-custom" in apt_packages:
                     pre_pref(self, WOVar.wo_nginx)
-                if "php7.2-fpm" in apt_packages:
-                    WOAptGet.remove(self, ['php7.2-fpm'],
-                                    auto=False, purge=True)
-                if "php7.3-fpm" in apt_packages:
-                    WOAptGet.remove(self, ['php7.3-fpm'],
-                                    auto=False, purge=True)
-                if "php7.4-fpm" in apt_packages:
-                    WOAptGet.remove(self, ['php7.4-fpm'],
-                                    auto=False, purge=True)
                 # check if nginx upgrade is blocked
                 if os.path.isfile(
                         '/etc/apt/preferences.d/nginx-block'):
                     post_pref(self, WOVar.wo_nginx, [], True)
+                # redis pre_pref
+                if "redis-server" in apt_packages:
+                    pre_pref(self, WOVar.wo_redis)
                 # upgrade packages
                 WOAptGet.install(self, apt_packages)
                 Log.wait(self, "Configuring APT Packages")
