@@ -704,13 +704,18 @@ wo_init() {
 wo_php_fix() {
     local php_versions="5.6 7.0 7.1 7.2 7.3 7.4"
 
-    apt-get autoremove --assume-yes --purge php8.0-* php-igbinary php-memcached php-msgpack php-redis php-imagick php-xdebug
+    apt-get autoremove --assume-yes --purge php8.0-* php-igbinary php-memcached php-msgpack php-redis php-imagick php-xdebug php-memcache
     for php_version in $php_versions; do
-        if [ -f "/usr/sbin/php-fpm$php_version" ]; then
-            local php_extensions="igbinary memcached msgpack redis imagick xdebug"
-            for php_ext in $php_extensions; do
-                apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install "php$php_version-$php_ext"
-            done
+        if [ -f "/usr/bin/php$php_version" ]; then
+            if [ -f "/usr/sbin/php-fpm$php_version" ]; then
+                local php_extensions="igbinary memcached msgpack redis imagick xdebug"
+                for php_ext in $php_extensions; do
+                    apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install "php$php_version-$php_ext"
+                done
+            else
+                apt-get autoremove --assume-yes --purge "php$php_version-*"
+            fi
+
         fi
     done
 }
