@@ -933,11 +933,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.close()
             else:
                 # make sure root account have all privileges
-                if "IDENTIFIED BY PASSWORD" not in WOShellExec.cmd_exec_stdout(
-                        self, 'mysql -e "use mysql; show grants;"'):
+                if os.path.exists('/etc/mysql/conf.d/my.cnf.tmp'):
                     try:
-                        if not os.path.exists('/etc/mysql/conf.d/my.cnf.tmp'):
-                            Log.error(self, 'my.cnf not found')
                         config = configparser.ConfigParser()
                         config.read('/etc/mysql/conf.d/my.cnf.tmp')
                         chars = config['client']['password']
@@ -981,10 +978,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     inno_buffer=wo_ram_innodb,
                     inno_log_buffer=wo_ram_log_buffer,
                     innodb_instances=wo_innodb_instance,
-                    newmariadb=mariadbconf)
+                    newmariadb=mariadbconf, release=WOVar.wo_version)
                 if os.path.exists('/etc/mysql/mariadb.conf.d/50-server.cnf'):
                     WOTemplate.deploy(
-                        self, '/etc/mysql/my.cnf', 'my.mustache', data)
+                        self, '/etc/mysql/mariadb.conf.d/50-server.cnf',
+                        'my.mustache', data)
                 else:
                     WOTemplate.deploy(
                         self, '/etc/mysql/my.cnf', 'my.mustache', data)
