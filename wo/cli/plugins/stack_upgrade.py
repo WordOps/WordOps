@@ -12,6 +12,7 @@ from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
 from wo.core.services import WOService
+from wo.core.mysql import WOMysql
 
 
 class WOStackUpgradeController(CementBaseController):
@@ -290,14 +291,20 @@ class WOStackUpgradeController(CementBaseController):
                     start_upgrade = input("Do you want to continue:[y/N]")
                     if start_upgrade != "Y" and start_upgrade != "y":
                         Log.error(self, "Not starting package update")
+                # additional pre_pref
+                if "nginx-custom" in apt_packages:
+                    pre_pref(self, WOVar.wo_nginx)
+                if "mariadb-server" in apt_packages:
+                    mariadbmajorupgrade = bool(
+                        WOFileUtils.grepcheck(
+                            self, '/etc/apt/sources.list.d/wo-repo.list',
+                            'MariaDB/repo/10.3'))
+                    pre_pref(self, WOVar.wo_mysql)
                 Log.wait(self, "Updating APT cache")
                 # apt-get update
                 WOAptGet.update(self)
                 Log.valide(self, "Updating APT cache")
 
-                # additional pre_pref
-                if "nginx-custom" in apt_packages:
-                    pre_pref(self, WOVar.wo_nginx)
                 # check if nginx upgrade is blocked
                 if os.path.isfile(
                         '/etc/apt/preferences.d/nginx-block'):
@@ -305,7 +312,12 @@ class WOStackUpgradeController(CementBaseController):
                 # redis pre_pref
                 if "redis-server" in apt_packages:
                     pre_pref(self, WOVar.wo_redis)
-                # upgrade packages
+                # mariadb upgrade
+                if ("mariadb-server" in apt_packages and
+                        mariadbmajorupgrade is True):
+                    WOMysql.backupAll(self)
+                    WOAptGet.remove(self, ["mariadb-server"])
+                    # upgrade packages
                 WOAptGet.install(self, apt_packages)
                 Log.wait(self, "Configuring APT Packages")
                 post_pref(self, apt_packages, [], True)

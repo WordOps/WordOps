@@ -37,12 +37,23 @@ def pre_pref(self, apt_packages):
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
-            WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
+            if not os.path.exists('/etc/apt/sources.list.d/wo-repo.list'):
+                WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
+            else:
+                if not WOFileUtils.grepcheck(
+                        self, '/etc/apt/sources.list.d/wo-repo.list',
+                        'MariaDB/repo/10.3'):
+                    WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
+                else:
+                    WOFileUtils.searchreplace(
+                        self, '/etc/apt/sources.list.d/wo-repo.list',
+                        '10.3', '10.5')
             WORepo.add_key(self, '0xcbcb082a1bb943db',
                            keyserver='keyserver.ubuntu.com')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
                            keyserver='keyserver.ubuntu.com')
-    if "mariadb-server" in apt_packages:
+    if ("mariadb-server" in apt_packages and
+            not os.path.exists('/etc/mysql/conf.d/my.cnf')):
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
         # generate my.cnf root credentials
