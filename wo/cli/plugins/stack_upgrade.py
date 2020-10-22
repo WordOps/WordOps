@@ -315,7 +315,7 @@ class WOStackUpgradeController(CementBaseController):
                 # mariadb upgrade
                 if ("mariadb-server" in apt_packages and
                         mariadbmajorupgrade is True):
-                    WOMysql.backupAll(self)
+                    WOMysql.backupAll(self, fulldump=True)
                     WOAptGet.remove(self, ["mariadb-server"])
                     # upgrade packages
                 WOAptGet.install(self, apt_packages)

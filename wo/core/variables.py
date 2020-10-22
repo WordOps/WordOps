@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.12.4"
+    wo_version = "3.13.0"
     # WordOps packages versions
     wo_wp_cli = "2.4.0"
     wo_adminer = "4.7.5"
@@ -83,7 +83,7 @@ class WOVar():
         while not match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
                         wo_email):
             print("Whoops, seems like you made a typo - "
-                  "the e-mailaddress is invalid...")
+                  "the e-mail address is invalid...")
             wo_email = input("Enter your email: ")
 
         git.config("--global", "user.name", "{0}".format(wo_user))

@@ -964,7 +964,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             '/etc/mysql/conf.d/my.cnf')
                     except CommandExecutionError:
                         Log.error(self, "Unable to set MySQL password")
-                Log.info(self, "Tuning MariaDB configuration")
+                    WOGit.add(self, ["/etc/mysql"],
+                              msg="Adding MySQL into Git")
+                Log.wait(self, "Tuning MariaDB configuration")
                 if not os.path.isfile("/etc/mysql/my.cnf.default-pkg"):
                     WOFileUtils.copyfile(self, "/etc/mysql/my.cnf",
                                          "/etc/mysql/my.cnf.default-pkg")
@@ -1013,15 +1015,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             'mariadb.service.d/limits.conf',
                             '[Service]\nLimitNOFILE=500000')
                         WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
+                Log.valide(self, "Tuning MySQL configuration")
                 # set innodb_buffer_pool_instances depending
                 # on the amount of RAM
 
-                WOService.stop_service(self, 'mysql')
+                WOService.restart_service(self, 'mysql')
+
                 # WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
                 #                    '/var/lib/mysql/ib_logfile0.bak')
                 # WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile1',
                 #                    '/var/lib/mysql/ib_logfile1.bak')
-                WOService.start_service(self, 'mysql')
 
             WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
                                   '> /dev/null 2>&1',

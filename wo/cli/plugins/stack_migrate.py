@@ -26,7 +26,7 @@ class WOStackMigrateController(CementBaseController):
     @expose(hide=True)
     def migrate_mariadb(self):
         # Backup all database
-        WOMysql.backupAll(self)
+        WOMysql.backupAll(self, fulldump=True)
 
         if not WOVar.wo_distro == 'raspbian':
             if (not WOVar.wo_platform_codename == 'jessie'):
