@@ -994,6 +994,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOTemplate.deploy(
                         self, '/etc/mysql/mariadb.conf.d/50-server.cnf',
                         'my.mustache', data)
+                    WOFileUtils.mvfile(
+                        self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
+                    WOFileUtils.create_symlink(
+                        self, ['/etc/mysql/mariadb.cnf', '/etc/mysql/my.cnf'])
                 else:
                     WOTemplate.deploy(
                         self, '/etc/mysql/my.cnf', 'my.mustache', data)
