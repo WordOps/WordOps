@@ -45,39 +45,6 @@ def pre_pref(self, apt_packages):
     if "mariadb-server" in apt_packages:
         # generate random 24 characters root password
         chars = ''.join(random.sample(string.ascii_letters, 24))
-
-        Log.debug(self, "Pre-seeding MySQL")
-        Log.debug(self, "echo \"mariadb-server-{0} "
-                  "mysql-server/root_password "
-                  "password \" | "
-                  "debconf-set-selections"
-                  .format(WOVar.mariadb_ver))
-        try:
-            WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
-                                 "mysql-server/root_password "
-                                 "password {chars}\" | "
-                                 "debconf-set-selections"
-                                 .format(WOVar.mariadb_ver, chars=chars),
-                                 log=False)
-        except CommandExecutionError as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Failed to initialize MySQL package")
-
-        Log.debug(self, "echo \"mariadb-server-{0} "
-                  "mysql-server/root_password_again "
-                  "password \" | "
-                  "debconf-set-selections"
-                  .format(WOVar.mariadb_ver))
-        try:
-            WOShellExec.cmd_exec(self, "echo \"mariadb-server-{0} "
-                                 "mysql-server/root_password_again "
-                                 "password {chars}\" | "
-                                 "debconf-set-selections"
-                                 .format(WOVar.mariadb_ver, chars=chars),
-                                 log=False)
-        except CommandExecutionError as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Failed to initialize MySQL package")
         # generate my.cnf root credentials
         mysql_config = """
             [client]
@@ -966,7 +933,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 config_file.close()
             else:
                 # make sure root account have all privileges
-                if "PASSWORD" not in WOShellExec.cmd_exec_stdout(
+                if "IDENTIFIED BY PASSWORD" not in WOShellExec.cmd_exec_stdout(
                         self, 'mysql -e "use mysql; show grants;"'):
                     try:
                         if not os.path.exists('/etc/mysql/conf.d/my.cnf'):
@@ -975,10 +942,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         config.read('/etc/mysql/conf.d/my.cnf')
                         chars = config['client']['password']
                         WOShellExec.cmd_exec(
-                            self, "mysql -e \"use mysql; "
-                            "GRANT ALL PRIVILEGES on "
-                            "*.* TO 'root'@'127.0.0.1' IDENTIFIED by "
-                            "'{0}' WITH GRANT OPTION\"".format(chars))
+                            self,
+                            'mysql -e "ALTER USER root@localhost '
+                            'IDENTIFIED VIA mysql_native_password;"')
+                        WOShellExec.cmd_exec(
+                            self,
+                            'mysql -e "SET PASSWORD = '
+                            'PASSWORD(\'{0}\');"'.format(chars))
                         WOShellExec.cmd_exec(
                             self, 'mysql -e "flush privileges;"')
                     except CommandExecutionError:
@@ -1001,11 +971,14 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 elif (wo_ram > 64000):
                     wo_innodb_instance = int(64)
                     tmp_table_size = int(256)
+                mariadbconf = bool(not os.path.exists(
+                    '/etc/mysql/mariadb.conf.d/50-server.cnf'))
                 data = dict(
                     tmp_table_size=tmp_table_size, inno_log=wo_ram_log_size,
                     inno_buffer=wo_ram_innodb,
                     inno_log_buffer=wo_ram_log_buffer,
-                    innodb_instances=wo_innodb_instance)
+                    innodb_instances=wo_innodb_instance,
+                    newmariadb=mariadbconf)
                 if os.path.exists('/etc/mysql/mariadb.conf.d/50-server.cnf'):
                     WOTemplate.deploy(
                         self, '/etc/mysql/my.cnf', 'my.mustache', data)
