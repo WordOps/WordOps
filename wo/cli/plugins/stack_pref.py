@@ -54,13 +54,13 @@ def pre_pref(self, apt_packages):
         config = configparser.ConfigParser()
         config.read_string(mysql_config)
         Log.debug(self, 'Writting configuration into MySQL file')
-        conf_path = "/etc/mysql/conf.d/my.cnf"
+        conf_path = "/etc/mysql/conf.d/my.cnf.tmp"
         os.makedirs(os.path.dirname(conf_path), exist_ok=True)
         with open(conf_path, encoding='utf-8',
                   mode='w') as configfile:
             config.write(configfile)
         Log.debug(self, 'Setting my.cnf permission')
-        WOFileUtils.chmod(self, "/etc/mysql/conf.d/my.cnf", 0o600)
+        WOFileUtils.chmod(self, "/etc/mysql/conf.d/my.cnf.tmp", 0o600)
 
     # add nginx repository
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
@@ -936,10 +936,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 if "IDENTIFIED BY PASSWORD" not in WOShellExec.cmd_exec_stdout(
                         self, 'mysql -e "use mysql; show grants;"'):
                     try:
-                        if not os.path.exists('/etc/mysql/conf.d/my.cnf'):
+                        if not os.path.exists('/etc/mysql/conf.d/my.cnf.tmp'):
                             Log.error(self, 'my.cnf not found')
                         config = configparser.ConfigParser()
-                        config.read('/etc/mysql/conf.d/my.cnf')
+                        config.read('/etc/mysql/conf.d/my.cnf.tmp')
                         chars = config['client']['password']
                         WOShellExec.cmd_exec(
                             self,
@@ -951,6 +951,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             'PASSWORD(\'{0}\');"'.format(chars))
                         WOShellExec.cmd_exec(
                             self, 'mysql -e "flush privileges;"')
+                        WOFileUtils.mvfile(
+                            self, '/etc/mysql/conf.d/my.cnf.tmp',
+                            '/etc/mysql/conf.d/my.cnf')
                     except CommandExecutionError:
                         Log.error(self, "Unable to set MySQL password")
                 Log.info(self, "Tuning MariaDB configuration")
@@ -1001,10 +1004,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 # on the amount of RAM
 
                 WOService.stop_service(self, 'mysql')
-                WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
-                                   '/var/lib/mysql/ib_logfile0.bak')
-                WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile1',
-                                   '/var/lib/mysql/ib_logfile1.bak')
+                # WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
+                #                    '/var/lib/mysql/ib_logfile0.bak')
+                # WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile1',
+                #                    '/var/lib/mysql/ib_logfile1.bak')
                 WOService.start_service(self, 'mysql')
 
             WOCron.setcron_weekly(self, 'mysqlcheck -Aos --auto-repair '
