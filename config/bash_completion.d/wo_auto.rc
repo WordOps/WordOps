@@ -82,7 +82,6 @@ _wo_complete()
                               -W "--web --admin --utils --nginx --php72 --php73 --php74 --mysql --all --netdata --composer --phpmyadmin --adminer --dashboard --mysqltuner --wpcli --force" \
                               -- $cur) )
                 ;;
-                ;;
             "migrate")
                 COMPREPLY=( $(compgen \
                               -W "--mariadb --force" \
