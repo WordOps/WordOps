@@ -7,7 +7,8 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
-
+from wo.core.fileutils import WOFileUtils
+from wo.core.apt_repo import WORepo
 
 class WOStackMigrateController(CementBaseController):
     class Meta:
@@ -29,6 +30,17 @@ class WOStackMigrateController(CementBaseController):
         # Backup all database
         WOMysql.backupAll(self, fulldump=True)
 
+        # Remove previous MariaDB repository
+        wo_mysql_old_repo = (
+            "deb [arch=amd64,ppc64el] "
+            "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
+            "10.3/{distro} {codename} main"
+            .format(distro=WOVar.wo_distro,
+                    codename=WOVar.wo_platform_codename))
+        if WOFileUtils.grepcheck(
+                self, '/etc/apt/sources.list.d/wo-repo.list',
+                wo_mysql_old_repo):
+            WORepo.remove(self, repo_url=wo_mysql_old_repo)
         # Add MariaDB repo
         Log.info(self, "Adding repository for MariaDB, please wait...")
         pre_pref(self, WOVar.wo_mysql)
