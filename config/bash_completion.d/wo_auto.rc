@@ -35,7 +35,7 @@ _wo_complete()
 
             "stack")
                 COMPREPLY=( $(compgen \
-                              -W "upgrade install purge reload remove restart start status stop" \
+                              -W "upgrade install migrate purge reload remove restart start status stop" \
                               -- $cur) )
                 ;;
 
@@ -80,6 +80,12 @@ _wo_complete()
             "upgrade" )
                 COMPREPLY=( $(compgen \
                               -W "--web --admin --utils --nginx --php72 --php73 --php74 --mysql --all --netdata --composer --phpmyadmin --adminer --dashboard --mysqltuner --wpcli --force" \
+                              -- $cur) )
+                ;;
+                ;;
+            "migrate")
+                COMPREPLY=( $(compgen \
+                              -W "--mariadb --force" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
