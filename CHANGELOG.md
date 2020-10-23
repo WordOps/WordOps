@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### Added
+
+- MariaDB 10.5 support (installed by default)
+- Upgrade to MariaDB 10.5 with `wo stack migrate --mariadb`
+
+#### Fixed
+
+- Useless php-cli version removal
+- Redis 6.0.6 not installed on Ubuntu 20.04 LTS
+
 ### v3.12.4 - 2020-10-14
 
 #### Changed

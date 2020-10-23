@@ -42,23 +42,26 @@ class WOStackMigrateController(CementBaseController):
                 wo_mysql_old_repo):
             WORepo.remove(self, repo_url=wo_mysql_old_repo)
         # Add MariaDB repo
-        Log.info(self, "Adding repository for MariaDB, please wait...")
         pre_pref(self, WOVar.wo_mysql)
 
         # Install MariaDB
 
-        Log.info(self, "Updating apt-cache, hang on...")
+        Log.wait(self, "Updating apt-cache          ")
         WOAptGet.update(self)
-        Log.info(self, "Installing MariaDB, hang on...")
+        Log.valide(self, "Updating apt-cache          ")
+        Log.wait(self, "Upgrading MariaDB          ")
         WOAptGet.remove(self, ["mariadb-server"])
         WOAptGet.auto_remove(self)
         WOAptGet.install(self, WOVar.wo_mysql)
-        post_pref(self, WOVar.wo_mysql, [])
-        WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
+        Log.valide(self, "Upgrading MariaDB          ")
         WOFileUtils.mvfile(
             self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
         WOFileUtils.create_symlink(
             self, ['/etc/mysql/mariadb.cnf', '/etc/mysql/my.cnf'])
+        WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
+        post_pref(self, WOVar.wo_mysql, [])
+
+
 
     @expose(hide=True)
     def default(self):
