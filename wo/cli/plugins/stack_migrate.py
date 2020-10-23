@@ -7,8 +7,8 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
-from wo.core.fileutils import WOFileUtils
 from wo.core.apt_repo import WORepo
+
 
 class WOStackMigrateController(CementBaseController):
     class Meta:
