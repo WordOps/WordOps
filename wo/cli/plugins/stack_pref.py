@@ -37,17 +37,7 @@ def pre_pref(self, apt_packages):
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
-            if not os.path.exists('/etc/apt/sources.list.d/wo-repo.list'):
-                WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
-            else:
-                if not WOFileUtils.grepcheck(
-                        self, '/etc/apt/sources.list.d/wo-repo.list',
-                        'MariaDB/repo/10.3'):
-                    WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
-                else:
-                    WOFileUtils.searchreplace(
-                        self, '/etc/apt/sources.list.d/wo-repo.list',
-                        '10.3', '10.5')
+            WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
             WORepo.add_key(self, '0xcbcb082a1bb943db',
                            keyserver='keyserver.ubuntu.com')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
@@ -996,10 +986,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOTemplate.deploy(
                         self, '/etc/mysql/mariadb.conf.d/50-server.cnf',
                         'my.mustache', data)
-                    WOFileUtils.mvfile(
-                        self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
-                    WOFileUtils.create_symlink(
-                        self, ['/etc/mysql/mariadb.cnf', '/etc/mysql/my.cnf'])
                 else:
                     WOTemplate.deploy(
                         self, '/etc/mysql/my.cnf', 'my.mustache', data)

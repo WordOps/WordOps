@@ -294,12 +294,6 @@ class WOStackUpgradeController(CementBaseController):
                 # additional pre_pref
                 if "nginx-custom" in apt_packages:
                     pre_pref(self, WOVar.wo_nginx)
-                if "mariadb-server" in apt_packages:
-                    mariadbmajorupgrade = bool(
-                        WOFileUtils.grepcheck(
-                            self, '/etc/apt/sources.list.d/wo-repo.list',
-                            'MariaDB/repo/10.3'))
-                    pre_pref(self, WOVar.wo_mysql)
                 Log.wait(self, "Updating APT cache")
                 # apt-get update
                 WOAptGet.update(self)
@@ -312,17 +306,10 @@ class WOStackUpgradeController(CementBaseController):
                 # redis pre_pref
                 if "redis-server" in apt_packages:
                     pre_pref(self, WOVar.wo_redis)
-                # mariadb upgrade
-                if ("mariadb-server" in apt_packages and
-                        mariadbmajorupgrade is True):
-                    WOMysql.backupAll(self, fulldump=True)
-                    WOAptGet.remove(self, ["mariadb-server"])
-                    # upgrade packages
+                # upgrade packages
                 WOAptGet.install(self, apt_packages)
                 Log.wait(self, "Configuring APT Packages")
                 post_pref(self, apt_packages, [], True)
-                if "mariadb-server" in apt_packages:
-                    WOShellExec.cmd_exec(self, 'mysql_upgrade')
                 Log.valide(self, "Configuring APT Packages")
                 # Post Actions after package updates
 

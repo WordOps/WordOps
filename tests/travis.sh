@@ -226,6 +226,24 @@ if [ -z "$1" ]; then
         fi
     done
 fi
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo stack migrate --mariadb              '
+echo -e "${CGREEN}#############################################${CEND}"
+
+        echo -ne "      Upgrading mariadb               [..]\r"
+        if {
+            wo stack migrate --mariadb --force
+        } >>/var/log/wo/test.log; then
+            echo -ne "       Upgrading mariadb               [${CGREEN}OK${CEND}]\\r"
+            echo -ne '\n'
+        else
+            echo -e "        Upgrading mariadb              [${CRED}FAIL${CEND}]"
+            echo -ne '\n'
+            exit_script
+
+        fi
+
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo clean              '
 echo -e "${CGREEN}#############################################${CEND}"
