@@ -61,8 +61,6 @@ class WOStackMigrateController(CementBaseController):
         WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
         post_pref(self, WOVar.wo_mysql, [])
 
-
-
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
