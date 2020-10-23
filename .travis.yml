@@ -4,9 +4,11 @@ jobs:
   include:
     - os: linux
       dist: xenial
-    - os: linux
+    - if: branch = master
+      os: linux
       dist: bionic
-    - os: linux
+    - if: branch = master
+      os: linux
       dist: focal
 
 notifications:
