@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - MariaDB 10.5 support (installed by default)
 - Upgrade to MariaDB 10.5 with `wo stack migrate --mariadb`
 
+#### Changed
+
+- Improved Nginx caching rules to cache requests with query strings related to analytics (utm_, fbclid)
+
 #### Fixed
 
 - Useless php-cli version removal

@@ -60,9 +60,23 @@ map $http_user_agent $mobile_prefix {
 }
 
 # do not cache requests with query strings
-map $is_args $query_no_cache {
+map $is_args $is_args_no_cache {
     default 1;
     "" 0;
+}
+
+# cache requests with query string related to analytics
+map $args $args_to_cache {
+    default 0;
+    "~*utm_" 1;
+    "~*fbclid" 1;
+}
+
+# do not cache requests with query strings excepted analytics related queries
+map $is_args_no_cache$args_to_cache $query_no_cache {
+    defaut 1;
+    00 0;
+    11 0;
 }
 
 # if all previous check are passed, $skip_cache = 0
