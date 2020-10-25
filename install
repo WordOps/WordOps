@@ -462,11 +462,17 @@ wo_travis_install() {
         rm -rf dist
     fi
     if [ -f ./setup.py ]; then
-        python3 setup.py sdist bdist_wheel
-        mkdir -p /opt/wo
-        python3 -m venv --system-site-packages /opt/wo
-        source /opt/wo/bin/activate
-        python3 -m pip install --upgrade dist/*.whl
+        if [ -d /opt/wo ]; then
+            cd /opt/wo || exit 1
+            source bin/activate
+        else
+            mkdir -p /opt/wo
+            cd /opt || exit 1
+            python3 -m venv --system-site-packages wo
+            source wo/bin/activate
+        fi
+        python3 -m pip install -U pip setuptools wheel
+        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     else
         python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
