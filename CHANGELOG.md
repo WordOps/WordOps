@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### v3.13.0 - 2020-10-25
+
 #### Added
 
 - MariaDB 10.5 support (installed by default)
@@ -16,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - Improved Nginx caching rules to cache requests with query strings related to analytics (utm_, fbclid)
+- WordOps is installed inside a Python virtual environment in /opt/wo to isolate it from the system's Python libraries
 
 #### Fixed
 

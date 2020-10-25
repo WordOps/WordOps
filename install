@@ -449,7 +449,7 @@ wo_install() {
     cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
     cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
     cp -f /opt/wo/lib/python3."$python_ver"/site-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
-    rm -f /usr/local/bin/wo
+    rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_ver"/dist-packages/{etc,usr}
     ln -s /opt/wo/bin/wo /usr/local/bin/
     deactivate
 }
@@ -638,7 +638,7 @@ wo_uninstall() {
     if { python3 -m pip list | grep -q "wordops" >/dev/null 2>&1; }; then
         python3 -m pip uninstall wordops -y
     fi
-    rm -rf /usr/local/lib/python3."$python_ver"/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
+    rm -rf /usr/local/lib/python3."$python_ver"/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates /opt/wo
 }
 
 wo_clean_repo() {
