@@ -467,7 +467,7 @@ wo_travis_install() {
         else
             mkdir -p /opt/wo
             python3 -m venv --system-site-packages /opt/wo
-            source wo/bin/activate
+            source /opt/wo/bin/activate
         fi
         python3 -m pip install -U pip setuptools wheel
         python3 -m pip install -U .
