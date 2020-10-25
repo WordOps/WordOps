@@ -463,12 +463,10 @@ wo_travis_install() {
     fi
     if [ -f ./setup.py ]; then
         if [ -d /opt/wo ]; then
-            cd /opt/wo || exit 1
-            source bin/activate
+            source /opt/wo/bin/activate
         else
             mkdir -p /opt/wo
-            cd /opt || exit 1
-            python3 -m venv --system-site-packages wo
+            python3 -m venv --system-site-packages /opt/wo
             source wo/bin/activate
         fi
         python3 -m pip install -U pip setuptools wheel
