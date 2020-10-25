@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.12.4 - 2020-10-14
+# Version 3.13.0 - 2020-10-25
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -167,7 +167,7 @@ wo_check_distro() {
             wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
-            check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|disco|jessie|stretch|buster|focal")
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|jessie|stretch|buster|focal")
             if [ -z "$check_wo_linux_distro" ]; then
                 wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/20.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x.\n
                 You can bypass this warning by adding the flag --force to the install command"
@@ -208,13 +208,13 @@ wo_install_dep() {
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3-pip python3-apt gcc python3-dev sqlite3 git tar software-properties-common pigz \
+            build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn >/dev/null 2>&1
         curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
     else
         # install dependencies
         apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3-pip python3-apt gcc python3-dev ca-certificates sqlite3 git tar \
+            build-essential curl gzip dirmngr sudo python3-pip python3-apt python3-venv gcc python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp zstd idn >/dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
@@ -228,8 +228,6 @@ wo_install_dep() {
     fi
     # upgrade pip
     python3 -m pip install --upgrade pip
-    python3 -m pip install --upgrade setuptools wheel
-
 }
 
 wo_timesync() {
@@ -432,14 +430,28 @@ wo_install() {
     if [ -d /usr/local/lib/python3."$python_ver"/dist-packages ]; then
         cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
     fi
+    python3 -m pip uninstall -yq wo wordops ee
+    if [ -d /opt/wo ]; then
+        cd /opt/wo || exit 1
+        source bin/activate
+    else
+        mkdir -p /opt/wo
+        cd /opt || exit 1
+        python3 -m venv --system-site-packages wo
+        source wo/bin/activate
+    fi
+    python3 -m pip install -U pip setuptools wheel
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip install -I wordops
     else
         python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
-    cp -rf /usr/local/lib/python3."$python_ver"/dist-packages/usr/* /usr/
-    cp -rn /usr/local/lib/python3."$python_ver"/dist-packages/etc/* /etc/
-    cp -f /usr/local/lib/python3."$python_ver"/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
+    cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
+    cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
+    cp -f /opt/wo/lib/python3."$python_ver"/site-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
+    rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_ver"/dist-packages/{etc,usr}
+    ln -s /opt/wo/bin/wo /usr/local/bin/
+    deactivate
 }
 
 # Clone Github repository if it doesn't exist
@@ -450,15 +462,24 @@ wo_travis_install() {
         rm -rf dist
     fi
     if [ -f ./setup.py ]; then
-        python3 setup.py sdist bdist_wheel
-        python3 -m pip install --upgrade dist/*.whl
+        if [ -d /opt/wo ]; then
+            source /opt/wo/bin/activate
+        else
+            mkdir -p /opt/wo
+            python3 -m venv --system-site-packages /opt/wo
+            source /opt/wo/bin/activate
+        fi
+        python3 -m pip install -U pip setuptools wheel
+        python3 -m pip install -U .
     else
         python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
-    cp -rf /usr/local/lib/python3."$python_ver"/dist-packages/usr/* /usr/
-    cp -rn /usr/local/lib/python3."$python_ver"/dist-packages/etc/* /etc/
-    cp -f /usr/local/lib/python3."$python_ver"/dist-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
-
+    cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
+    cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
+    cp -f /opt/wo/lib/python3."$python_ver"/site-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
+    rm -f /usr/local/bin/wo
+    ln -s /opt/wo/bin/wo /usr/local/bin/
+    deactivate
 }
 
 wo_upgrade_nginx() {
@@ -615,7 +636,7 @@ wo_uninstall() {
     if { python3 -m pip list | grep -q "wordops" >/dev/null 2>&1; }; then
         python3 -m pip uninstall wordops -y
     fi
-    rm -rf /usr/local/lib/python3."$python_ver"/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates
+    rm -rf /usr/local/lib/python3."$python_ver"/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates /opt/wo
 }
 
 wo_clean_repo() {
@@ -704,13 +725,18 @@ wo_init() {
 wo_php_fix() {
     local php_versions="5.6 7.0 7.1 7.2 7.3 7.4"
 
-    apt-get autoremove --assume-yes --purge php8.0-* php-igbinary php-memcached php-msgpack php-redis php-imagick php-xdebug
+    apt-get autoremove --assume-yes --purge php8.0-* php-igbinary php-memcached php-msgpack php-redis php-imagick php-xdebug php-memcache
     for php_version in $php_versions; do
-        if [ -f "/usr/sbin/php-fpm$php_version" ]; then
-            local php_extensions="igbinary memcached msgpack redis imagick xdebug"
-            for php_ext in $php_extensions; do
-                apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install "php$php_version-$php_ext"
-            done
+        if [ -f "/usr/bin/php$php_version" ]; then
+            if [ -f "/usr/sbin/php-fpm$php_version" ]; then
+                local php_extensions="igbinary memcached msgpack redis imagick xdebug"
+                for php_ext in $php_extensions; do
+                    apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install "php$php_version-$php_ext"
+                done
+            else
+                apt-get autoremove --assume-yes --purge "php$php_version-*"
+            fi
+
         fi
     done
 }

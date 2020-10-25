@@ -35,7 +35,7 @@ _wo_complete()
 
             "stack")
                 COMPREPLY=( $(compgen \
-                              -W "upgrade install purge reload remove restart start status stop" \
+                              -W "upgrade install migrate purge reload remove restart start status stop" \
                               -- $cur) )
                 ;;
 
@@ -74,17 +74,22 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --security --nginx --php --php73 --php74 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --ufw --dashboard --proftpd --clamav --sendmail --ngxblocker --mysqlclient --mysqltuner --extplorer --nanorc --cheat --all --force" \
+                              -W "--web --admin --security --nginx --php72 --php73 --php74 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --ufw --dashboard --proftpd --clamav --sendmail --ngxblocker --mysqlclient --mysqltuner --extplorer --nanorc --cheat --all --force" \
                               -- $cur) )
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --utils --nginx --php --php73 --php74 --mysql --all --netdata --composer --phpmyadmin --adminer --dashboard --mysqtuner --wpcli --force" \
+                              -W "--web --admin --utils --nginx --php72 --php73 --php74 --mysql --all --netdata --composer --phpmyadmin --adminer --dashboard --mysqltuner --wpcli --force" \
+                              -- $cur) )
+                ;;
+            "migrate")
+                COMPREPLY=( $(compgen \
+                              -W "--mariadb --force" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --php73 --php74 --mysql --redis --fail2ban --ufw --netdata -proftpd" \
+                              -W "--nginx --php --php72 --php73 --php74 --mysql --redis --fail2ban --ufw --netdata -proftpd" \
                               -- $cur) )
                 ;;
             "list")

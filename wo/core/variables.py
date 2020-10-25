@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.12.4"
+    wo_version = "3.13.0"
     # WordOps packages versions
     wo_wp_cli = "2.4.0"
     wo_adminer = "4.7.5"
@@ -83,7 +83,7 @@ class WOVar():
         while not match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
                         wo_email):
             print("Whoops, seems like you made a typo - "
-                  "the e-mailaddress is invalid...")
+                  "the e-mail address is invalid...")
             wo_email = input("Enter your email: ")
 
         git.config("--global", "user.name", "{0}".format(wo_user))
@@ -166,7 +166,7 @@ class WOVar():
         else:
             mariadb_ver = '10.3'
     else:
-        mariadb_ver = '10.3'
+        mariadb_ver = '10.5'
         if wo_platform_codename == 'jessie':
             wo_mysql = wo_mysql + ["python3-mysql.connector"]
         else:
@@ -185,7 +185,7 @@ class WOVar():
     # APT repositories
     wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                     "10.3/{distro} {codename} main"
+                     "10.5/{distro} {codename} main"
                      .format(distro=wo_distro,
                              codename=wo_platform_codename))
     if wo_distro == 'ubuntu':

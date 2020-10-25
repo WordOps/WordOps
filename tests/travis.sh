@@ -80,7 +80,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php74              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql php72 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php73 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php74              [..]\r"
     if {
@@ -103,7 +103,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php73              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='html mysql wp php72 php73 wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='html mysql wp php72 php73 wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php73              [..]\r"
     if {
@@ -126,7 +126,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php72              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql php72 php73 php74 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+other_site_types='mysql php72 php73 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php72              [..]\r"
     if {
@@ -226,6 +226,24 @@ if [ -z "$1" ]; then
         fi
     done
 fi
+
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo stack migrate --mariadb              '
+echo -e "${CGREEN}#############################################${CEND}"
+
+        echo -ne "      Upgrading mariadb               [..]\r"
+        if {
+            wo stack migrate --mariadb --force
+        } >>/var/log/wo/test.log; then
+            echo -ne "       Upgrading mariadb               [${CGREEN}OK${CEND}]\\r"
+            echo -ne '\n'
+        else
+            echo -e "        Upgrading mariadb              [${CRED}FAIL${CEND}]"
+            echo -ne '\n'
+            exit_script
+
+        fi
+
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo clean              '
 echo -e "${CGREEN}#############################################${CEND}"

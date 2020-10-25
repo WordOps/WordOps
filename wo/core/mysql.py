@@ -88,7 +88,7 @@ class WOMysql():
         finally:
             connection.close()
 
-    def backupAll(self):
+    def backupAll(self, fulldump=False):
         import subprocess
         try:
             Log.info(self, "Backing up database at location: "
@@ -98,24 +98,47 @@ class WOMysql():
                 Log.debug(self, 'Creating directory'
                           '/var/lib/wo-backup/mysql')
                 os.makedirs('/var/lib/wo-backup/mysql')
-
-            db = subprocess.check_output(["/usr/bin/mysql "
-                                          "-Bse \'show databases\'"],
-                                         universal_newlines=True,
-                                         shell=True).split('\n')
-            for dbs in db:
-                if dbs == "":
-                    continue
-                Log.info(self, "Backing up {0} database".format(dbs))
+            if not fulldump:
+                db = subprocess.check_output(
+                    ["/usr/bin/mysql "
+                     "-Bse \'show databases\'"],
+                    universal_newlines=True,
+                    shell=True).split('\n')
+                for dbs in db:
+                    if dbs == "":
+                        continue
+                    Log.info(self, "Backing up {0} database".format(dbs))
+                    p1 = subprocess.Popen(
+                        "/usr/bin/mysqldump {0} --max_allowed_packet=1024M "
+                        "--single-transaction ".format(dbs),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE, shell=True)
+                    p2 = subprocess.Popen(
+                        "/usr/bin/zstd -T0 -c > "
+                        "/var/lib/wo-backup/mysql/{0}{1}.sql.zst"
+                        .format(dbs, WOVar.wo_date),
+                        stdin=p1.stdout, shell=True)
+                    # Allow p1 to receive a SIGPIPE if p2 exits
+                    p1.stdout.close()
+                    output = p1.stderr.read()
+                    p1.wait()
+                    if p1.returncode == 0:
+                        Log.debug(self, "done")
+                    else:
+                        Log.error(self, output.decode("utf-8"))
+            else:
+                Log.info(self, "Backing up all databases")
                 p1 = subprocess.Popen(
-                    "/usr/bin/mysqldump {0} --max_allowed_packet=1024M "
-                    "--single-transaction ".format(dbs),
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                    "/usr/bin/mysqldump --all-databases "
+                    "--max_allowed_packet=1024M "
+                    "--single-transaction --events",
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE, shell=True)
                 p2 = subprocess.Popen(
                     "/usr/bin/zstd -T0 -c > "
-                    "/var/lib/wo-backup/mysql/{0}{1}.sql.zst"
-                    .format(dbs, WOVar.wo_date), stdin=p1.stdout, shell=True)
-                # Allow p1 to receive a SIGPIPE if p2 exits
+                    "/var/lib/wo-backup/mysql/fulldump-{0}.sql.zst"
+                    .format(WOVar.wo_date),
+                    stdin=p1.stdout, shell=True)
                 p1.stdout.close()
                 output = p1.stderr.read()
                 p1.wait()
@@ -123,6 +146,7 @@ class WOMysql():
                     Log.debug(self, "done")
                 else:
                     Log.error(self, output.decode("utf-8"))
+
         except Exception as e:
             Log.error(self, "Error: process exited with status %s"
                             % e)
