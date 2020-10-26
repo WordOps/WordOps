@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.9.x - [Unreleased]
 
+#### v3.13.1 - 2020-10-26
+
 #### Fixed
 
 - Python virtualenv configuration
