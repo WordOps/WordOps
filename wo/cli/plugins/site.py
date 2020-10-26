@@ -17,6 +17,7 @@ from wo.core.services import WOService
 from wo.core.shellexec import WOShellExec, CommandExecutionError
 from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
+from wo.core.acme import WOAcme
 
 
 def wo_site_hook(app):
@@ -432,6 +433,7 @@ class WOSiteDeleteController(CementBaseController):
                 # TODO Delete nginx conf
                 removeNginxConf(self, wo_domain)
                 deleteSiteInfo(self, wo_domain)
+                WOAcme.removeconf(self, wo_domain)
                 Log.info(self, "Deleted site {0}".format(wo_domain))
                 # else:
                 # Log.error(self, " site {0} does
@@ -442,6 +444,10 @@ class WOSiteDeleteController(CementBaseController):
                 # TODO Delete nginx conf
                 removeNginxConf(self, wo_domain)
                 deleteSiteInfo(self, wo_domain)
+                # To improve
+                if not WOFileUtils.grepcheck(
+                        self, '/var/www/22222/conf/nginx/ssl.conf', wo_domain):
+                    WOAcme.removeconf(self, wo_domain)
                 Log.info(self, "Deleted site {0}".format(wo_domain))
 
 
