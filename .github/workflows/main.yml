@@ -1,0 +1,26 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Prepare VM
+      run: |
+        unset LANG
+        sudo apt update -qq
+        sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php -y
+        sudo rm -rf /etc/mysql /var/lib/mysql
+        sudo apt-get purge --option=Dpkg::options::=--force-all --assume-yes graphviz* redis* php* mysql*
+        sudo apt-get install -qq git python3-setuptools python3-dev python3-apt python3-wheel python3-pip ccze tree
+        sudo apt-get -qq autoremove --purge
+        sudo python3 setup.py sdist bdist_wheel
+        sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > $HOME/.gitconfig'
+    - name: Install WordOps
+      run: sudo timeout 1800 bash install --travis
+    - name: Run tests
+      run: sudo timeout 1800 bash tests/travis.sh --actions
