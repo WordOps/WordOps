@@ -207,14 +207,14 @@ wo_install_dep() {
     wo_linux_distro=$(lsb_release -is)
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
-        apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
+        apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
             python3-distutils-extra libapt-pkg-dev >/dev/null 2>&1
         curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
     else
         # install dependencies
-        apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
+        apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip dirmngr sudo python3-pip python3-apt python3-venv gcc python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
             python3-distutils-extra libapt-pkg-dev >/dev/null 2>&1
