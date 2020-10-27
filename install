@@ -785,6 +785,10 @@ wo_php_fix() {
 
         fi
     done
+    if [ -f /lib/systemd/system/mariadb.service ]; then
+        systemctl daemon-reload
+        systemctl enable mariadb
+    fi
 }
 
 ###
