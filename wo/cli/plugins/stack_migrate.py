@@ -59,6 +59,7 @@ class WOStackMigrateController(CementBaseController):
         WOFileUtils.create_symlink(
             self, ['/etc/mysql/mariadb.cnf', '/etc/mysql/my.cnf'])
         WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
+        WOShellExec.cmd_exec(self, 'systemctl enable mariadb')
         post_pref(self, WOVar.wo_mysql, [])
 
     @expose(hide=True)
