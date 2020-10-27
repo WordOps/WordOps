@@ -437,6 +437,7 @@ wo_install() {
         cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
     fi
     python3 -m pip uninstall -yq wo wordops ee
+    cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
         python3 -m pip install -U pip setuptools wheel
@@ -473,6 +474,10 @@ wo_install() {
     rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_ver"/dist-packages/{etc,usr}
     ln -s /opt/wo/bin/wo /usr/local/bin/
     deactivate
+    if ! { /usr/local/bin/wo >/dev/null 2>&1; }; then
+        python3 -m venv --system-site-packages /opt/wo
+    fi
+
 }
 
 # Clone Github repository if it doesn't exist
