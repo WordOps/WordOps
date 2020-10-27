@@ -2,7 +2,8 @@ language: shell
 
 jobs:
   include:
-    - os: linux
+    - if: branch = master
+      os: linux
       dist: xenial
     - if: branch = master
       os: linux
