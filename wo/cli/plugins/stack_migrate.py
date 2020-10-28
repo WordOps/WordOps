@@ -23,6 +23,10 @@ class WOStackMigrateController(CementBaseController):
             (['--force'],
                 dict(help="Force Packages upgrade without any prompt",
                      action='store_true')),
+            (['--ci'],
+                dict(help="Argument used for testing, "
+                     "do not use it on your server",
+                     action='store_true')),
         ]
 
     @expose(hide=True)
@@ -53,7 +57,8 @@ class WOStackMigrateController(CementBaseController):
         WOAptGet.remove(self, ["mariadb-server"])
         WOAptGet.auto_remove(self)
         WOAptGet.install(self, WOVar.wo_mysql)
-        WOAptGet.dist_upgrade(self)
+        if not self.app.args.ci:
+            WOAptGet.dist_upgrade(self)
         WOAptGet.auto_remove(self)
         Log.valide(self, "Upgrading MariaDB          ")
         WOFileUtils.mvfile(
@@ -70,6 +75,8 @@ class WOStackMigrateController(CementBaseController):
         if ((not pargs.mariadb)):
             self.app.args.print_help()
         if pargs.mariadb:
+            if WOVar.wo_distro == 'raspbian':
+                Log.error(self, "MariaDB upgrade is not available on Raspbian")
             if WOVar.wo_mysql_host != "localhost":
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")

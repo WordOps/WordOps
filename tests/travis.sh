@@ -237,7 +237,7 @@ echo -e "${CGREEN}#############################################${CEND}"
 
         echo -ne "      Upgrading mariadb               [..]\r"
         if {
-            wo stack migrate --mariadb --force
+            wo stack migrate --mariadb --force --ci
         } >>/var/log/wo/test.log; then
             echo -ne "       Upgrading mariadb               [${CGREEN}OK${CEND}]\\r"
             echo -ne '\n'
