@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - updating-configuration
+      - master
   pull_request:
     branches:
       - master
@@ -25,12 +26,14 @@ jobs:
     - name: Prepare VM
       run: |
         unset LANG
-        sudo apt update -qq
-        sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php -y
+        echo "$HOME" && sudo echo "$HOME"
+        echo "$PWD"
+        sudo apt update -qq > /dev/null 2>&1
+        sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php -y > /dev/null 2>&1
         sudo rm -rf /etc/mysql /var/lib/mysql
-        sudo apt-get purge --option=Dpkg::options::=--force-all --assume-yes graphviz* redis* php* mysql*
-        sudo apt-get install -qq git ccze tree
-        sudo apt-get -qq autoremove --purge
+        sudo apt-get purge --option=Dpkg::options::=--force-all --assume-yes graphviz* redis* php* mysql* > /dev/null 2>&1
+        sudo apt-get install -qq git ccze tree > /dev/null 2>&1
+        sudo apt-get -qq autoremove --purge > /dev/null 2>&1
         sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > $HOME/.gitconfig'
     - name: Install WordOps
       run: sudo timeout 1800 bash install --travis
