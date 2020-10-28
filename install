@@ -468,10 +468,12 @@ wo_install() {
     else
         python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
-    cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
-    cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
-    cp -f /opt/wo/lib/python3."$python_ver"/site-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
-    rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_ver"/dist-packages/{etc,usr}
+    local python_venv
+    python_venv=$(python3 -c "import sys; print(sys.version_info[1])")
+    cp -rf /opt/wo/lib/python3."$python_venv"/site-packages/usr/* /usr/
+    cp -rn /opt/wo/lib/python3."$python_venv"/site-packages/etc/* /etc/
+    cp -f /opt/wo/lib/python3."$python_venv"/site-packages/etc/bash_completion.d/wo_auto.rc /etc/bash_completion.d/wo_auto.rc
+    rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_venv"/dist-packages/{etc,usr}
     ln -s /opt/wo/bin/wo /usr/local/bin/
     deactivate
     if ! { /usr/local/bin/wo >/dev/null 2>&1; }; then
