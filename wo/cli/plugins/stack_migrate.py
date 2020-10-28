@@ -53,6 +53,8 @@ class WOStackMigrateController(CementBaseController):
         WOAptGet.remove(self, ["mariadb-server"])
         WOAptGet.auto_remove(self)
         WOAptGet.install(self, WOVar.wo_mysql)
+        WOAptGet.dist_upgrade(self)
+        WOAptGet.auto_remove(self)
         Log.valide(self, "Upgrading MariaDB          ")
         WOFileUtils.mvfile(
             self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
