@@ -49,6 +49,8 @@ class WOStackController(CementBaseController):
                 dict(help='Install PHP 7.4 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
+            (['--mariadb'],
+                dict(help='Install MySQL stack alias', action='store_true')),
             (['--mysqlclient'],
                 dict(help='Install MySQL client for remote MySQL server',
                      action='store_true')),
@@ -120,7 +122,7 @@ class WOStackController(CementBaseController):
                     pargs.dashboard or pargs.fail2ban or pargs.security or
                     pargs.mysqlclient or pargs.mysqltuner or
                     pargs.admin or pargs.adminer or
-                    pargs.utils or pargs.redis or
+                    pargs.utils or pargs.redis or pargs.mariadb or
                     pargs.proftpd or pargs.extplorer or
                     pargs.clamav or pargs.cheat or pargs.nanorc or
                     pargs.ufw or pargs.ngxblocker or
@@ -131,6 +133,9 @@ class WOStackController(CementBaseController):
 
             if pargs.php:
                 pargs.php72 = True
+
+            if pargs.mariadb:
+                pargs.mysql = True
 
             if pargs.all:
                 pargs.web = True
@@ -555,6 +560,7 @@ class WOStackController(CementBaseController):
         if ((not pargs.web) and (not pargs.admin) and
             (not pargs.nginx) and (not pargs.php) and
             (not pargs.mysql) and (not pargs.wpcli) and
+            (not pargs.mariadb) and
             (not pargs.phpmyadmin) and (not pargs.composer) and
                 (not pargs.netdata) and (not pargs.dashboard) and
                 (not pargs.fail2ban) and (not pargs.security) and
@@ -571,6 +577,9 @@ class WOStackController(CementBaseController):
 
         if pargs.php:
             pargs.php72 = True
+
+        if pargs.mariadb:
+            pargs.mysql = True
 
         if pargs.all:
             pargs.web = True
@@ -868,6 +877,7 @@ class WOStackController(CementBaseController):
         if ((not pargs.web) and (not pargs.admin) and
             (not pargs.nginx) and (not pargs.php) and
             (not pargs.mysql) and (not pargs.wpcli) and
+            (not pargs.mariadb) and
             (not pargs.phpmyadmin) and (not pargs.composer) and
                 (not pargs.netdata) and (not pargs.dashboard) and
                 (not pargs.fail2ban) and (not pargs.security) and
@@ -884,6 +894,9 @@ class WOStackController(CementBaseController):
 
         if pargs.php:
             pargs.php72 = True
+
+        if pargs.mariadb:
+            pargs.mysql = True
 
         if pargs.all:
             pargs.web = True

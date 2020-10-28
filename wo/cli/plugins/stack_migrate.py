@@ -30,7 +30,7 @@ class WOStackMigrateController(CementBaseController):
         ]
 
     @expose(hide=True)
-    def migrate_mariadb(self):
+    def migrate_mariadb(self, ci=False):
         # Backup all database
         WOMysql.backupAll(self, fulldump=True)
 
@@ -57,7 +57,7 @@ class WOStackMigrateController(CementBaseController):
         WOAptGet.remove(self, ["mariadb-server"])
         WOAptGet.auto_remove(self)
         WOAptGet.install(self, WOVar.wo_mysql)
-        if not self.app.args.ci:
+        if not ci:
             WOAptGet.dist_upgrade(self)
         WOAptGet.auto_remove(self)
         Log.valide(self, "Upgrading MariaDB          ")
@@ -91,7 +91,10 @@ class WOStackMigrateController(CementBaseController):
                     start_upgrade = input("Do you want to continue:[y/N]")
                     if start_upgrade != "Y" and start_upgrade != "y":
                         Log.error(self, "Not starting package update")
-                self.migrate_mariadb()
+                if not pargs.ci:
+                    self.migrate_mariadb()
+                else:
+                    self.migrate_mariadb(ci=True)
             else:
                 Log.error(self, "Your current MySQL is not alive or "
                           "you allready installed MariaDB")
