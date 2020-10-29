@@ -380,14 +380,15 @@ def setupwordpress(self, data, vhostonly=False):
 
     # set all wp-config.php variables
     wp_conf_variables = [
-        ['WP_CACHE_KEY_SALT', '{0}:'.format(wo_domain_name)],
+        ['WP_REDIS_PREFIX', '{0}:'.format(wo_domain_name)],
         ['WP_MEMORY_LIMIT', '128M'],
         ['WP_MAX_MEMORY_LIMIT', '256M'],
         ['CONCATENATE_SCRIPTS', 'false'],
         ['WP_POST_REVISIONS', '10'],
         ['MEDIA_TRASH', 'true'],
         ['EMPTY_TRASH_DAYS', '15'],
-        ['WP_AUTO_UPDATE_CORE', 'minor']]
+        ['WP_AUTO_UPDATE_CORE', 'minor'],
+        ['WP_REDIS_DISABLE_BANNERS', 'true']]
     Log.wait(self, "Configuring WordPress")
     for wp_conf in wp_conf_variables:
         wp_var = wp_conf[0]

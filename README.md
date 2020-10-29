@@ -11,6 +11,7 @@
 
 <p align="center">
 <a href="https://travis-ci.org/WordOps/WordOps" target="_blank"><img src="https://travis-ci.org/WordOps/WordOps.svg?branch=master" alt="build"></a>
+<a href="https://github.com/WordOps/WordOps/actions" target="_blank"><img src="https://github.com/WordOps/WordOps/workflows/CI/badge.svg?branch=master" alt="CI"></a>
 <img src="https://img.shields.io/github/license/wordops/wordops.svg?cacheSeconds=86400" alt="MIT">
 <img src="https://img.shields.io/github/last-commit/wordops/wordops.svg?cacheSeconds=86400" alt="Commits">
 <img alt="GitHub release" src="https://img.shields.io/github/release/WordOps/WordOps.svg">
@@ -158,7 +159,7 @@ For any other questions about WordOps or if you need support, please use the [Co
 
 # Contributing
 
-If you'd like to contribute, please fork the reposi7tory and make changes as you'd like. Pull requests are warmly welcome.
+If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
 There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.net).
 
 ## Credits

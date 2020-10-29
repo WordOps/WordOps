@@ -41,6 +41,9 @@ class WOStackUpgradeController(CementBaseController):
              dict(help='Upgrade PHP 7.4 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
+            (['--mariadb'],
+                dict(help='Upgrade MySQL stack alias',
+                     action='store_true')),
             (['--wpcli'],
                 dict(help='Upgrade WPCLI', action='store_true')),
             (['--redis'],
@@ -79,13 +82,17 @@ class WOStackUpgradeController(CementBaseController):
         wo_phpmyadmin = WODownload.pma_release(self)
         if not (pargs.web or pargs.nginx or pargs.php or
                 pargs.php72 or pargs.php73 or pargs.php74 or pargs.mysql or
-                pargs.ngxblocker or pargs.all or pargs.netdata or
-                pargs.wpcli or pargs.composer or pargs.phpmyadmin or
-                pargs.adminer or pargs.dashboard or pargs.mysqltuner or
-                pargs.redis or pargs.fail2ban or pargs.security):
+                pargs.mariadb or pargs.ngxblocker or pargs.all
+                or pargs.netdata or pargs.wpcli or pargs.composer or
+                pargs.phpmyadmin or pargs.adminer or pargs.dashboard or
+                pargs.mysqltuner or pargs.redis or
+                pargs.fail2ban or pargs.security):
             pargs.web = True
             pargs.admin = True
             pargs.security = True
+
+        if pargs.mariadb:
+            pargs.mysql = True
 
         if pargs.php:
             pargs.php72 = True

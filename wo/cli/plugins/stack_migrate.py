@@ -23,10 +23,14 @@ class WOStackMigrateController(CementBaseController):
             (['--force'],
                 dict(help="Force Packages upgrade without any prompt",
                      action='store_true')),
+            (['--ci'],
+                dict(help="Argument used for testing, "
+                     "do not use it on your server",
+                     action='store_true')),
         ]
 
     @expose(hide=True)
-    def migrate_mariadb(self):
+    def migrate_mariadb(self, ci=False):
         # Backup all database
         WOMysql.backupAll(self, fulldump=True)
 
@@ -53,6 +57,9 @@ class WOStackMigrateController(CementBaseController):
         WOAptGet.remove(self, ["mariadb-server"])
         WOAptGet.auto_remove(self)
         WOAptGet.install(self, WOVar.wo_mysql)
+        if not ci:
+            WOAptGet.dist_upgrade(self)
+        WOAptGet.auto_remove(self)
         Log.valide(self, "Upgrading MariaDB          ")
         WOFileUtils.mvfile(
             self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
@@ -68,6 +75,8 @@ class WOStackMigrateController(CementBaseController):
         if ((not pargs.mariadb)):
             self.app.args.print_help()
         if pargs.mariadb:
+            if WOVar.wo_distro == 'raspbian':
+                Log.error(self, "MariaDB upgrade is not available on Raspbian")
             if WOVar.wo_mysql_host != "localhost":
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
@@ -82,7 +91,10 @@ class WOStackMigrateController(CementBaseController):
                     start_upgrade = input("Do you want to continue:[y/N]")
                     if start_upgrade != "Y" and start_upgrade != "y":
                         Log.error(self, "Not starting package update")
-                self.migrate_mariadb()
+                if not pargs.ci:
+                    self.migrate_mariadb()
+                else:
+                    self.migrate_mariadb(ci=True)
             else:
                 Log.error(self, "Your current MySQL is not alive or "
                           "you allready installed MariaDB")
