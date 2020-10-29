@@ -476,10 +476,9 @@ wo_install() {
     rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_venv"/dist-packages/{etc,usr}
     ln -s /opt/wo/bin/wo /usr/local/bin/
     deactivate
-    if ! { /usr/local/bin/wo >/dev/null 2>&1; }; then
+    if [ ! -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ];then
         python3 -m venv --system-site-packages /opt/wo
     fi
-
 }
 
 # Clone Github repository if it doesn't exist
