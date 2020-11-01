@@ -78,8 +78,8 @@ class WOStackStatusController(CementBaseController):
         if pargs.mysql:
             if ((WOVar.wo_mysql_host == "localhost") or
                     (WOVar.wo_mysql_host == "127.0.0.1")):
-                if os.path.exists('/etc/systemd/system/mysql.service'):
-                    services = services + ['mysql']
+                if os.path.exists('/lib/systemd/system/mariadb.service'):
+                    services = services + ['mariadb']
                 else:
                     Log.info(self, "MySQL is not installed")
             else:
@@ -176,8 +176,8 @@ class WOStackStatusController(CementBaseController):
         if pargs.mysql:
             if ((WOVar.wo_mysql_host == "localhost") or
                     (WOVar.wo_mysql_host == "127.0.0.1")):
-                if os.path.exists('/etc/systemd/system/mysql.service'):
-                    services = services + ['mysql']
+                if os.path.exists('/lib/systemd/system/mariadb.service'):
+                    services = services + ['mariadb']
                 else:
                     Log.info(self, "MySQL is not installed")
             else:
@@ -275,8 +275,8 @@ class WOStackStatusController(CementBaseController):
         if pargs.mysql:
             if ((WOVar.wo_mysql_host == "localhost") or
                     (WOVar.wo_mysql_host == "127.0.0.1")):
-                if os.path.exists('/etc/systemd/system/mysql.service'):
-                    services = services + ['mysql']
+                if os.path.exists('/lib/systemd/system/mariadb.service'):
+                    services = services + ['mariadb']
                 else:
                     Log.info(self, "MySQL is not installed")
             else:
@@ -377,8 +377,8 @@ class WOStackStatusController(CementBaseController):
         if pargs.mysql:
             if ((WOVar.wo_mysql_host == "localhost") or
                     (WOVar.wo_mysql_host == "127.0.0.1")):
-                if os.path.exists('/etc/systemd/system/mysql.service'):
-                    services = services + ['mysql']
+                if os.path.exists('/lib/systemd/system/mariadb.service'):
+                    services = services + ['mariadb']
                 else:
                     Log.info(self, "MySQL is not installed")
             else:
@@ -487,7 +487,7 @@ class WOStackStatusController(CementBaseController):
         if pargs.mysql:
             if ((WOVar.wo_mysql_host == "localhost") or
                     (WOVar.wo_mysql_host == "127.0.0.1")):
-                if os.path.exists('/etc/systemd/system/mysql.service'):
+                if os.path.exists('/lib/systemd/system/mariadb.service'):
                     services = services + ['mysql']
                 else:
                     Log.info(self, "MySQL is not installed")
