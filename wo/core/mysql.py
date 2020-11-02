@@ -110,7 +110,7 @@ class WOMysql():
                     Log.info(self, "Backing up {0} database".format(dbs))
                     p1 = subprocess.Popen(
                         "/usr/bin/mysqldump {0} --max_allowed_packet=1024M "
-                        "--single-transaction ".format(dbs),
+                        "--single-transaction --hex-blob".format(dbs),
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE, shell=True)
                     p2 = subprocess.Popen(
@@ -130,7 +130,7 @@ class WOMysql():
                 Log.info(self, "Backing up all databases")
                 p1 = subprocess.Popen(
                     "/usr/bin/mysqldump --all-databases "
-                    "--max_allowed_packet=1024M "
+                    "--max_allowed_packet=1024M --hex-blob "
                     "--single-transaction --events",
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE, shell=True)
