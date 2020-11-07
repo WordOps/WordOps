@@ -1660,7 +1660,7 @@ def pre_stack(self):
                 'sysctl.mustache', data, True)
             # use tcp_bbr congestion algorithm only on new kernels
             if (WOVar.wo_platform_codename == 'bionic' or
-                WOVar.wo_platform_codename == 'disco' or
+                WOVar.wo_platform_codename == 'focal' or
                     WOVar.wo_platform_codename == 'buster'):
                 try:
                     WOShellExec.cmd_exec(
