@@ -146,8 +146,18 @@ class WOStackController(CementBaseController):
                 pargs.proftpd = True
 
             if pargs.web:
+                if self.app.config.has_section('php'):
+                    config_php_ver = self.app.config.get(
+                        'php', 'version')
+                if config_php_ver == '7.2':
+                    pargs.php72 = True
+                elif config_php_ver == '7.3':
+                    pargs.php73 = True
+                elif config_php_ver == '7.4':
+                    pargs.php74 = True
+                else:
+                    pargs.php74 = True
                 pargs.nginx = True
-                pargs.php73 = True
                 pargs.mysql = True
                 pargs.wpcli = True
                 pargs.sendmail = True
@@ -476,7 +486,7 @@ class WOStackController(CementBaseController):
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
                         WOAptGet.is_installed(self, 'php7.3-fpm') or
                         WOAptGet.is_installed(self, 'php7.4-fpm')):
-                    pargs.php = True
+                    pargs.php74 = True
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [[
                     "https://raw.githubusercontent.com"
