@@ -925,7 +925,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # create mysql config if it doesn't exist
         if "mariadb-server" in apt_packages:
             WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
-            if not os.path.isfile("/etc/mysql/my.cnf"):
+            if not os.path.exists("/etc/mysql/my.cnf"):
                 config = ("[mysqld]\nwait_timeout = 30\n"
                           "interactive_timeout=60\nperformance_schema = 0"
                           "\nquery_cache_type = 1")
