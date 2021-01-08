@@ -114,7 +114,7 @@ class WOMysql():
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE, shell=True)
                     p2 = subprocess.Popen(
-                        "/usr/bin/zstd -T0 -c > "
+                        "/usr/bin/zstd -c > "
                         "/var/lib/wo-backup/mysql/{0}{1}.sql.zst"
                         .format(dbs, WOVar.wo_date),
                         stdin=p1.stdout, shell=True)
@@ -135,7 +135,7 @@ class WOMysql():
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE, shell=True)
                 p2 = subprocess.Popen(
-                    "/usr/bin/zstd -T0 -c > "
+                    "/usr/bin/zstd -c > "
                     "/var/lib/wo-backup/mysql/fulldump-{0}.sql.zst"
                     .format(WOVar.wo_date),
                     stdin=p1.stdout, shell=True)
