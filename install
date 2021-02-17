@@ -513,7 +513,7 @@ wo_travis_install() {
                 elif [ "$wo_distro_codename" = "bionic" ]; then
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
                 else
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.y-xenial#egg=python-apt
+                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.0_beta1ubuntu0.16.04.9#egg=python-apt
                 fi
             fi
         fi
