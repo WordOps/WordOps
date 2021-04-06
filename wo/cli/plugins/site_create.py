@@ -344,7 +344,7 @@ class WOSiteCreateController(CementBaseController):
                     wodbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
                                      "\ndefine('DB_USER', '{1}'); "
                                      "\ndefine('DB_PASSWORD', '{2}');"
-                                     "\ndefine('DB_HOST', '{3}');\n?>"
+                                     "\ndefine('DB_HOST', '{3}');\n"
                                      .format(data['wo_db_name'],
                                              data['wo_db_user'],
                                              data['wo_db_pass'],
