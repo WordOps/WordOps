@@ -65,6 +65,8 @@ class WOStackMigrateController(CementBaseController):
             self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
         WOFileUtils.create_symlink(
             self, ['/etc/mysql/mariadb.cnf', '/etc/mysql/my.cnf'])
+        WOFileUtils.create_symlink(
+            self, ['/usr/lib/systemd/system/mariadb.service', '/etc/systemd/system/mysql.service'])
         WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
         WOShellExec.cmd_exec(self, 'systemctl enable mariadb')
         post_pref(self, WOVar.wo_mysql, [])
