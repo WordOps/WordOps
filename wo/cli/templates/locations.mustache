@@ -24,7 +24,7 @@ location ~* \.(?:css(\.map)?|js(\.map)?)$ {
     more_set_headers  "Cache-Control : public, no-transform";
     access_log off;
     log_not_found off;
-    expires 30d;
+    expires 1y;
 }
 # Security settings for better privacy
 # Deny hidden files

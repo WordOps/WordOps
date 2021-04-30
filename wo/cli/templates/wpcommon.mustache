@@ -75,7 +75,7 @@ location /wp-content/cache {
         more_set_headers 'Access-Control-Allow-Origin : *';
         access_log off;
         log_not_found off;
-        expires 30d;
+        expires 1y;
     }
     location ~ \.php$ {
         #Prevent Direct Access Of PHP Files From Web Browsers
