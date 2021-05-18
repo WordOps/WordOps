@@ -14,7 +14,7 @@ server {
     {{/multisite}}
 
     access_log /var/log/nginx/{{site_name}}.access.log {{^wpredis}}{{^static}}rt_cache{{/static}}{{/wpredis}}{{#wpredis}}rt_cache_redis{{/wpredis}};
-    error_log /var/log/nginx/{{site_name}}.error.log;
+    error_log /var/log/nginx/{{site_name}}.error.log warn;
 
     {{#proxy}}
     add_header X-Proxy-Cache $upstream_cache_status;
