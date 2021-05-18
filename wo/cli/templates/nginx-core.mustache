@@ -93,10 +93,15 @@ http {
 	error_log /var/log/nginx/error.log warn;
 
 	# Log format Settings
-	log_format rt_cache '$remote_addr $upstream_response_time $upstream_cache_status [$time_local] '
-	'$http_host "$request" $status $body_bytes_sent '
-	'"$http_referer" "$http_user_agent" "$server_protocol"';
-
+	log_format  main_ext  '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for" '
+                        '"$host" sn="$server_name" '
+                        'rt=$request_time '
+                        'ua="$upstream_addr" us="$upstream_status" '
+                        'ut="$upstream_response_time" ul="$upstream_response_length" '
+                        'cs=$upstream_cache_status' ;
+						
 	##
 	# Virtual Host Configs
 	##

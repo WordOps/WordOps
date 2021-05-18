@@ -4,7 +4,7 @@ server {
 
   listen {{port}} default_server ssl http2;
 
-  access_log   /var/log/nginx/22222.access.log rt_cache;
+  access_log   /var/log/nginx/22222.access.log main_ext;
   error_log    /var/log/nginx/22222.error.log warn;
 
   # Force HTTP to HTTPS
