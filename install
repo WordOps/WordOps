@@ -4,12 +4,12 @@
 # -------------------------------------------------------------------------
 # Website:       https://wordops.net
 # GitHub:        https://github.com/WordOps/WordOps
-# Copyright (c) 2019-2020 - WordOps
+# Copyright (c) 2019-2021 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.13.3 - 2020-10-27
+# Version 3.13.3 - 2021-05-20
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -211,7 +211,7 @@ wo_install_dep() {
             build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
             python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
-        curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
     else
         # install dependencies
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
@@ -221,7 +221,7 @@ wo_install_dep() {
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
         # add nginx repository gpg key
-        curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_10/Release.key | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
     fi
     locale-gen en
     # enable unattended upgades
@@ -553,9 +553,9 @@ wo_upgrade_nginx() {
     # add new Nginx repository
     if [ "$wo_distro_version" == "jessie" ]; then
         # import the respository key for updates
-        curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
     else
-        curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
     fi
 
     # install new nginx package
