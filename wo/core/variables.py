@@ -184,7 +184,7 @@ class WOVar():
                              codename=wo_platform_codename))
     if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
-        wo_redis_repo = ("ppa:chris-lea/redis-server")
+        wo_redis_repo = ("ppa:redislabs/redis")
         wo_goaccess_repo = ("ppa:alex-p/goaccess")
 
     else:
