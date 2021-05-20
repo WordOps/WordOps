@@ -17,7 +17,7 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04]
+        platform: [ubuntu-20.04, ubuntu-18.04]
 
     runs-on: ${{ matrix.platform }}
     
@@ -30,8 +30,9 @@ jobs:
         echo "$PWD"
         sudo apt update -qq > /dev/null 2>&1
         sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php -y > /dev/null 2>&1
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 188C9FB063F0247A 
         sudo rm -rf /etc/mysql /var/lib/mysql
-        sudo apt-get purge --option=Dpkg::options::=--force-all --assume-yes graphviz* redis* php* mysql* > /dev/null 2>&1
+        sudo apt-get purge --option=Dpkg::options::=--force-all --assume-yes graphviz* redis* php* mysql* nginx* > /dev/null 2>&1
         sudo apt-get install -qq git ccze tree > /dev/null 2>&1
         sudo apt-get -qq autoremove --purge > /dev/null 2>&1
         sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > $HOME/.gitconfig'

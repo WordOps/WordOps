@@ -51,6 +51,7 @@ def pre_pref(self, apt_packages):
             [client]
             user = root
             password = {chars}
+            socket = /run/mysqld/mysqld.sock
             """.format(chars=chars)
         config = configparser.ConfigParser()
         config.read_string(mysql_config)
@@ -924,7 +925,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # create mysql config if it doesn't exist
         if "mariadb-server" in apt_packages:
             WOGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
-            if not os.path.isfile("/etc/mysql/my.cnf"):
+            if not os.path.exists("/etc/mysql/my.cnf"):
                 config = ("[mysqld]\nwait_timeout = 30\n"
                           "interactive_timeout=60\nperformance_schema = 0"
                           "\nquery_cache_type = 1")
@@ -941,14 +942,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         chars = config['client']['password']
                         WOShellExec.cmd_exec(
                             self,
-                            'mysql -e "ALTER USER root@localhost '
-                            'IDENTIFIED VIA mysql_native_password;"')
-                        WOShellExec.cmd_exec(
-                            self,
                             'mysql -e "SET PASSWORD = '
-                            'PASSWORD(\'{0}\');"'.format(chars))
-                        WOShellExec.cmd_exec(
-                            self, 'mysql -e "flush privileges;"')
+                            'PASSWORD(\'{0}\'); flush privileges;"'
+                            .format(chars))
                         WOFileUtils.mvfile(
                             self, '/etc/mysql/conf.d/my.cnf.tmp',
                             '/etc/mysql/conf.d/my.cnf')
@@ -956,6 +952,30 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         Log.error(self, "Unable to set MySQL password")
                     WOGit.add(self, ["/etc/mysql"],
                               msg="Adding MySQL into Git")
+                elif os.path.exists('/etc/mysql/conf.d/my.cnf'):
+                    if ((WOAptGet.is_installed(
+                        self, 'mariadb-server-10.5')) and
+                            not (WOFileUtils.grepcheck(
+                                self, '/etc/mysql/conf.d/my.cnf', 'socket'))):
+                        try:
+                            config = configparser.ConfigParser()
+                            config.read('/etc/mysql/conf.d/my.cnf')
+                            chars = config['client']['password']
+                            WOShellExec.cmd_exec(
+                                self,
+                                'mysql -e "ALTER USER root@localhost '
+                                'IDENTIFIED VIA unix_socket OR '
+                                'mysql_native_password; '
+                                'SET PASSWORD = PASSWORD(\'{0}\'); '
+                                'flush privileges;"'.format(chars))
+                            WOFileUtils.textappend(
+                                self, '/etc/mysql/conf.d/my.cnf',
+                                'socket = /run/mysqld/mysqld.sock')
+                        except CommandExecutionError:
+                            Log.error(self, "Unable to set MySQL password")
+                        WOGit.add(self, ["/etc/mysql"],
+                                  msg="Adding MySQL into Git")
+
                 Log.wait(self, "Tuning MariaDB configuration")
                 if not os.path.isfile("/etc/mysql/my.cnf.default-pkg"):
                     WOFileUtils.copyfile(self, "/etc/mysql/my.cnf",
@@ -1660,7 +1680,7 @@ def pre_stack(self):
                 'sysctl.mustache', data, True)
             # use tcp_bbr congestion algorithm only on new kernels
             if (WOVar.wo_platform_codename == 'bionic' or
-                WOVar.wo_platform_codename == 'disco' or
+                WOVar.wo_platform_codename == 'focal' or
                     WOVar.wo_platform_codename == 'buster'):
                 try:
                     WOShellExec.cmd_exec(

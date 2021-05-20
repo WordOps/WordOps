@@ -810,11 +810,11 @@ def sitebackup(self, data):
     if data['wo_db_name']:
         Log.info(self, 'Backing up database \t\t', end='')
         try:
-            if not WOShellExec.cmd_exec(self, "mysqldump --single-transaction "
-                                        "{0} | zstd -T0 -c"
-                                        "> {1}/{0}.zst"
-                                        .format(data['wo_db_name'],
-                                                backup_path)):
+            if not WOShellExec.cmd_exec(
+                self, "mysqldump --single-transaction --hex-blob "
+                "{0} | zstd -c > {1}/{0}.zst"
+                .format(data['wo_db_name'],
+                        backup_path)):
                 Log.info(self,
                          "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
                 raise SiteError("mysqldump failed to backup database")
