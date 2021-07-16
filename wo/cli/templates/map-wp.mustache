@@ -51,6 +51,7 @@ map $request_uri $uri_no_cache {
     "~*/embed" 1;
     "~*/commande/" 1;
     "~*/resetpass/" 1;
+    "~*/wp.serviceworker" 1;
 }
 # mobile_prefix needed for WP-Rocket
 map $http_user_agent $mobile_prefix {
