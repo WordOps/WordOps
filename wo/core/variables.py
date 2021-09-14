@@ -177,7 +177,7 @@ class WOVar():
     wo_ubuntu_backports = 'ppa:jonathonf/backports'
 
     # APT repositories
-    wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+    wo_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
                      "10.5/{distro} {codename} main"
                      .format(distro=wo_distro,
