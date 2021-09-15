@@ -440,7 +440,9 @@ wo_install() {
     cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
-        python3 -m pip install -U pip setuptools wheel
+        python3 -m pip uninstall setuptools
+        python3 -m pip install -I setuptools==57.5.0
+        python3 -m pip install -U pip wheel
     else
         rm -rf /opt/wo
         python3 -m venv /opt/wo
