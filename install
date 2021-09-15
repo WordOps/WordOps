@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.13.3 - 2021-05-20
+# Version 3.13.3 - 2021-09-15
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -441,14 +441,14 @@ wo_install() {
     cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
-        python3 -m pip uninstall setuptools
+        python3 -m pip uninstall setuptools -y
         python3 -m pip install -I setuptools==57.5.0
         python3 -m pip install -U pip wheel
     else
         rm -rf /opt/wo
         python3 -m venv /opt/wo
         source /opt/wo/bin/activate
-        python3 -m pip uninstall setuptools
+        python3 -m pip uninstall setuptools -y
         python3 -m pip install -I setuptools==57.5.0
         python3 -m pip install -U pip wheel
         if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
@@ -500,14 +500,14 @@ wo_travis_install() {
     if [ -f ./setup.py ]; then
         if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
             source /opt/wo/bin/activate
-            python3 -m pip uninstall setuptools
+            python3 -m pip uninstall setuptools -y
             python3 -m pip install -I setuptools==57.5.0
             python3 -m pip install -U pip wheel
         else
             rm -rf /opt/wo
             python3 -m venv /opt/wo
             source /opt/wo/bin/activate
-            python3 -m pip uninstall setuptools
+            python3 -m pip uninstall setuptools -y
             python3 -m pip install -I setuptools==57.5.0
             python3 -m pip install -U pip wheel
             if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
