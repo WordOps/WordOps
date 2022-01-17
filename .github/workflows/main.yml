@@ -14,12 +14,9 @@ on:
     - cron: '0 0 * * 0'
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        platform: [ubuntu-20.04, ubuntu-18.04]
-
-    runs-on: ${{ matrix.platform }}
+  my_job:
+    name: test WordOps
+    runs-on: ubuntu-18.04
     
     steps:
     - uses: actions/checkout@v2
