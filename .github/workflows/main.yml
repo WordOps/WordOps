@@ -23,11 +23,8 @@ jobs:
     - name: Prepare VM
       run: |
         unset LANG
-        echo "$HOME" && sudo echo "$HOME"
-        echo "$PWD"
         sudo apt update -qq > /dev/null 2>&1
         sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php -y > /dev/null 2>&1
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 188C9FB063F0247A 
         sudo rm -rf /etc/mysql /var/lib/mysql
         sudo apt-get purge --option=Dpkg::options::=--force-all --assume-yes graphviz* redis* php* mysql* nginx* > /dev/null 2>&1
         sudo apt-get install -qq git ccze tree > /dev/null 2>&1
