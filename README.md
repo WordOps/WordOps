@@ -177,7 +177,6 @@ Apps & Tools shipped with WordOps :
 - [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
 - [opcacheGUI](https://github.com/amnuts/opcache-gui)
 - [eXtplorer](https://github.com/soerennb/extplorer)
-- [MySQLTuner](https://github.com/major/MySQLTuner-perl/)
 - [Webgrind](https://github.com/jokkedk/webgrind)
 - [MySQLTuner](https://github.com/major/MySQLTuner-perl)
 - [Fail2Ban](https://github.com/fail2ban/fail2ban)

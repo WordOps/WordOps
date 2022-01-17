@@ -421,6 +421,7 @@ wo_install_acme_sh() {
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --uninstall-cronjob
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --install-cronjob
+        /etc/letsencrypt/acme.sh --set-default-ca --server letsencrypt
     fi
 
 }
