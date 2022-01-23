@@ -14,9 +14,9 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.13.3"
+    wo_version = "3.13.3-fork"
     # WordOps packages versions
-    wo_wp_cli = "2.5.0"
+    wo_wp_cli = "2.4.0"
     wo_adminer = "4.7.5"
     wo_phpmyadmin = "5.0.2"
     wo_extplorer = "2.1.13"
@@ -137,13 +137,10 @@ class WOVar():
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
 
-    wo_module = ["fpm", "curl", "gd", "imap",
-                 "readline", "common",
-                 "cli", "mbstring", "intl",
-                 "bcmath", "mysql", "opcache",
-                 "zip", "xml", "soap", "memcached",
-                 "imagick", "igbinary", "msgpack",
-                 "redis", "xdebug"]
+    wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
+                 "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
+                 "mysql", "opcache", "readline", "redis", "soap", "xdebug",
+                 "xml", "zip"]
     wo_php72 = []
     for module in wo_module:
         wo_php72 = wo_php72 + ["php7.2-{0}".format(module)]
@@ -152,9 +149,15 @@ class WOVar():
     for module in wo_module:
         wo_php73 = wo_php73 + ["php7.3-{0}".format(module)]
     wo_php73 = wo_php73 + ["php7.3-recode"]
-    wo_php74 = []
+    wo_php74 = ["geoip", "json"]
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
+    wo_php80 = []
+    for module in wo_module:
+        wo_php80 = wo_php80 + ["php8.0-{0}".format(module)]
+    wo_php81 = []
+    for module in wo_module:
+        wo_php81 = wo_php81 + ["php8.1-{0}".format(module)]
 
     wo_php_extra = ["graphviz"]
 
