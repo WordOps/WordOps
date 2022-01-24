@@ -607,7 +607,7 @@ class WODebugController(CementBaseController):
             self.debug_fpm73()
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
-            if WOVar.wo_mysql_host is "localhost":
+            if WOVar.wo_mysql_host == "localhost":
                 self.app.pargs.mysql = 'off'
                 self.debug_mysql()
             else:
