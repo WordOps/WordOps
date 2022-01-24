@@ -149,9 +149,10 @@ class WOVar():
     for module in wo_module:
         wo_php73 = wo_php73 + ["php7.3-{0}".format(module)]
     wo_php73 = wo_php73 + ["php7.3-recode"]
-    wo_php74 = ["geoip", "json"]
+    wo_php74 = []
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
+    wo_php74 = wo_php74 + ["php7.4-geoip", "php7.4-json"]
     wo_php80 = []
     for module in wo_module:
         wo_php80 = wo_php80 + ["php8.0-{0}".format(module)]
