@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.9.x - [Unreleased]
+### v3.14.0 - [Unreleased]
+
+#### Added
+
+- PHP 8.0 and 8.1 support
 
 #### v3.13.2 - 2020-10-27
 
