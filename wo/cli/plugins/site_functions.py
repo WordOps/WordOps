@@ -884,7 +884,7 @@ def site_package_check(self, stype):
         (pargs.php74 and pargs.php80) or (pargs.php80 and pargs.php81) or
         (pargs.php72 and pargs.php80) or (pargs.php72 and pargs.php81) or
         (pargs.php73 and pargs.php81) or (pargs.php74 and pargs.php81) or
-        (pargs.php80 and pargs.php81)):
+            (pargs.php80 and pargs.php81)):
         Log.error(
             self, "Error: two different PHP versions cannot be "
                   "combined within the same WordOps site")
@@ -894,8 +894,8 @@ def site_package_check(self, stype):
         stype in ['php', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP")
-        php_check = 'php7.3-fpm'
-        php_to_setup = WOVar.wo_php73
+        php_check = 'php8.0-fpm'
+        php_to_setup = WOVar.wo_php80
         if self.app.config.has_section('php'):
             config_php_ver = self.app.config.get(
                 'php', 'version')
@@ -915,11 +915,11 @@ def site_package_check(self, stype):
                 php_check = 'php8.1-fpm'
                 php_to_setup = WOVar.wo_php81
             else:
-                php_check = 'php7.3-fpm'
-                php_to_setup = WOVar.wo_php73
+                php_check = 'php8.0-fpm'
+                php_to_setup = WOVar.wo_php80
         else:
-            php_check = 'php7.3-fpm'
-            php_to_setup = WOVar.wo_php73
+            php_check = 'php8.0-fpm'
+            php_to_setup = WOVar.wo_php80
 
         if not (WOAptGet.is_installed(self, php_check)):
             apt_packages = apt_packages + php_to_setup + WOVar.wo_php_extra

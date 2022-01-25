@@ -43,7 +43,7 @@
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
 - **Custom Nginx build** : Nginx 1.18.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.2, 7.3 & 7.4, MariaDB 10.5 & Redis 6.0
+- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0 & 8.1 - MariaDB 10.5 & Redis 6.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
@@ -64,7 +64,6 @@
 
 #### Also compatible
 
-- Ubuntu 16.04 LTS (Xenial)
 - Debian 9 (Stretch)
 - Debian 10 (Buster)
 - Raspbian 9 (Stretch)
@@ -135,6 +134,8 @@ wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with ngi
 wo site update example.com --php72 # switch to PHP 7.2
 wo site update example.com --php73 # switch to PHP 7.3
 wo site update example.com --php74 # switch to PHP 7.4
+wo site update example.com --php80 # switch to PHP 8.0
+wo site update example.com --php81 # switch to PHP 8.1
 ```
 
 ### Sites secured with Let's Encrypt
