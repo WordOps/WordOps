@@ -39,9 +39,9 @@ class WOStackUpgradeController(CementBaseController):
              dict(help='Upgrade PHP 7.3 stack', action='store_true')),
             (['--php74'],
              dict(help='Upgrade PHP 7.4 stack', action='store_true')),
-             (['--php80'],
+            (['--php80'],
              dict(help='Upgrade PHP 8.0 stack', action='store_true')),
-             (['--php81'],
+            (['--php81'],
              dict(help='Upgrade PHP 8.1 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
@@ -87,8 +87,8 @@ class WOStackUpgradeController(CementBaseController):
         if not (pargs.web or pargs.nginx or pargs.php or
                 pargs.php72 or pargs.php73 or pargs.php74 or
                 pargs.php80 or pargs.php81 or pargs.mysql or
-                pargs.mariadb or pargs.ngxblocker or pargs.all
-                or pargs.netdata or pargs.wpcli or pargs.composer or
+                pargs.mariadb or pargs.ngxblocker or pargs.all or
+                pargs.netdata or pargs.wpcli or pargs.composer or
                 pargs.phpmyadmin or pargs.adminer or pargs.dashboard or
                 pargs.mysqltuner or pargs.redis or
                 pargs.fail2ban or pargs.security):

@@ -137,7 +137,7 @@ class WOStackController(CementBaseController):
                 pargs.fail2ban = True
 
             if pargs.php:
-                pargs.php72 = True
+                pargs.php80 = True
 
             if pargs.mariadb:
                 pargs.mysql = True
@@ -165,9 +165,9 @@ class WOStackController(CementBaseController):
                 elif config_php_ver == '8.0':
                     pargs.php80 = True
                 elif config_php_ver == '8.1':
-                    pargs.php80 = True
+                    pargs.php81 = True
                 else:
-                    pargs.php74 = True
+                    pargs.php80 = True
                 pargs.nginx = True
                 pargs.mysql = True
                 pargs.wpcli = True
@@ -519,7 +519,7 @@ class WOStackController(CementBaseController):
                         WOAptGet.is_installed(self, 'php7.4-fpm') or
                         WOAptGet.is_installed(self, 'php8.0-fpm') or
                         WOAptGet.is_installed(self, 'php8.1-fpm')):
-                    pargs.php74 = True
+                    pargs.php80 = True
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [[
                     "https://raw.githubusercontent.com"
@@ -615,7 +615,7 @@ class WOStackController(CementBaseController):
                 (not pargs.ufw) and (not pargs.ngxblocker) and
                 (not pargs.phpredisadmin) and (not pargs.sendmail) and
                 (not pargs.php73) and (not pargs.php74) and
-                (not pargs.php72) (not pargs.php80) and
+                (not pargs.php72) and (not pargs.php80) and
                 (not pargs.php81) and (not pargs.all)):
             self.app.args.print_help()
 
@@ -1040,7 +1040,7 @@ class WOStackController(CementBaseController):
                         WOAptGet.is_installed(self, 'php7.4-fpm') or
                         WOAptGet.is_installed(self, 'php8.0-fpm') or
                         WOAptGet.is_installed(self, 'php8.1-fpm')):
-                     apt_packages = apt_packages + WOVar.wo_php_extra
+                    apt_packages = apt_packages + WOVar.wo_php_extra
             else:
                 Log.debug(self, "PHP 7.3 is not installed")
                 Log.info(self, "PHP 7.3 is not installed")
