@@ -86,6 +86,46 @@ upstream debug74 {
 }
 
 #-------------------------------
+# PHP 8.0
+#-------------------------------
+
+# PHP 8.0 upstream with load-balancing on two unix sockets
+upstream php80 {
+    least_conn;
+
+    server unix:/var/run/php/php80-fpm.sock;
+    server unix:/var/run/php/php80-two-fpm.sock;
+
+    keepalive 5;
+}
+
+# PHP 8.0 debug
+upstream debug80 {
+    # Debug Pool
+    server 127.0.0.1:9175;
+}
+
+#-------------------------------
+# PHP 8.1
+#-------------------------------
+
+# PHP 8.1 upstream with load-balancing on two unix sockets
+upstream php81 {
+    least_conn;
+
+    server unix:/var/run/php/php81-fpm.sock;
+    server unix:/var/run/php/php81-two-fpm.sock;
+
+    keepalive 5;
+}
+
+# PHP 8.1 debug
+upstream debug81 {
+    # Debug Pool
+    server 127.0.0.1:9176;
+}
+
+#-------------------------------
 # Netdata
 #-------------------------------
 

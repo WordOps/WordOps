@@ -6,8 +6,8 @@ from wo.cli.plugins.site_functions import (
     pre_run_checks, setupdomain, SiteError,
     doCleanupAction, setupdatabase, setupwordpress, setwebrootpermissions,
     display_cache_settings, copyWildcardCert)
-from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo,
-                                   updateSiteInfo)
+from wo.cli.plugins.sitedb import (deleteSiteInfo, getAllsites,
+                                   getSiteInfo, updateSiteInfo)
 from wo.core.acme import WOAcme
 from wo.core.domainvalidate import WODomain
 from wo.core.git import WOGit
@@ -18,92 +18,22 @@ from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
 
 
-class WOSiteCreateController(CementBaseController):
+class WOSiteBackupController(CementBaseController):
     class Meta:
-        label = 'create'
+        label = 'backup'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = ('this commands set up configuration and installs '
-                       'required files as options are provided')
+        description = ('this commands allow you to backup your sites')
         arguments = [
             (['site_name'],
-                dict(help='domain name for the site to be created.',
+                dict(help='domain name for the site to be cloned.',
                      nargs='?')),
-            (['--html'],
-                dict(help="create html site", action='store_true')),
-            (['--php'],
-             dict(help="create php 7.2 site", action='store_true')),
-            (['--php72'],
-                dict(help="create php 7.2 site", action='store_true')),
-            (['--php73'],
-                dict(help="create php 7.3 site", action='store_true')),
-            (['--php74'],
-                dict(help="create php 7.4 site", action='store_true')),
-            (['--php80'],
-                dict(help="create php 8.0 site", action='store_true')),
-            (['--php81'],
-                dict(help="create php 8.1 site", action='store_true')),
-            (['--mysql'],
-                dict(help="create mysql site", action='store_true')),
-            (['--wp'],
-                dict(help="create WordPress single site",
-                     action='store_true')),
-            (['--wpsubdir'],
-                dict(help="create WordPress multisite with subdirectory setup",
-                     action='store_true')),
-            (['--wpsubdomain'],
-                dict(help="create WordPress multisite with subdomain setup",
-                     action='store_true')),
-            (['--wpfc'],
-                dict(help="create WordPress single/multi site with "
-                     "Nginx fastcgi_cache",
-                     action='store_true')),
-            (['--wpsc'],
-                dict(help="create WordPress single/multi site with wpsc cache",
-                     action='store_true')),
-            (['--wprocket'],
-             dict(help="create WordPress single/multi site with WP-Rocket",
-                  action='store_true')),
-            (['--wpce'],
-             dict(help="create WordPress single/multi site with Cache-Enabler",
-                  action='store_true')),
-            (['--wpredis'],
-                dict(help="create WordPress single/multi site "
-                     "with redis cache",
-                     action='store_true')),
-            (['-le', '--letsencrypt'],
-                dict(help="configure letsencrypt ssl for the site",
-                     action='store' or 'store_const',
-                     choices=('on', 'subdomain', 'wildcard'),
-                     const='on', nargs='?')),
-            (['--force'],
-                dict(help="force Let's Encrypt certificate issuance",
-                     action='store_true')),
-            (['--dns'],
-                dict(help="choose dns provider api for letsencrypt",
-                     action='store' or 'store_const',
-                     const='dns_cf', nargs='?')),
-            (['--dnsalias'],
-                dict(help="set domain used for acme dns alias validation",
-                     action='store', nargs='?')),
-            (['--hsts'],
-                dict(help="enable HSTS for site secured with letsencrypt",
-                     action='store_true')),
-            (['--ngxblocker'],
-                dict(help="enable HSTS for site secured with letsencrypt",
-                     action='store_true')),
-            (['--user'],
-                dict(help="provide user for WordPress site")),
-            (['--email'],
-                dict(help="provide email address for WordPress site")),
-            (['--pass'],
-                dict(help="provide password for WordPress user",
-                     dest='wppass')),
-            (['--proxy'],
-                dict(help="create proxy for site", nargs='+')),
-            (['--vhostonly'], dict(help="only create vhost and database "
-                                   "without installing WordPress",
-                                   action='store_true')),
+            (['--db'],
+                dict(help="backup only site database", action='store_true')),
+            (['--files'],
+                dict(help="backup only site files", action='store_true')),
+            (['--all'],
+                dict(help="backup all sites", action='store_true')),
         ]
 
     @expose(hide=True)
@@ -112,27 +42,9 @@ class WOSiteCreateController(CementBaseController):
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
-        host, port = None, None
-        try:
-            stype, cache = detSitePar(vars(pargs))
-        except RuntimeError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "Please provide valid options to creating site")
+        sites = getAllsites(self)
 
-        if stype is None and pargs.proxy:
-            stype, cache = 'proxy', ''
-            proxyinfo = pargs.proxy[0].strip()
-            if not proxyinfo:
-                Log.error(self, "Please provide proxy server host information")
-            proxyinfo = proxyinfo.split(':')
-            host = proxyinfo[0].strip()
-            port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy:
-            stype, cache = 'html', 'basic'
-        elif stype and pargs.proxy:
-            Log.error(self, "proxy should not be used with other site types")
-
-        if not pargs.site_name:
+        if not pargs.site_name and not pargs.all:
             try:
                 while not pargs.site_name:
                     # preprocessing before finalize site name
@@ -153,133 +65,13 @@ class WOSiteCreateController(CementBaseController):
 
         wo_site_webroot = WOVar.wo_webroot + wo_domain
 
-        if check_domain_exists(self, wo_domain):
+        if not check_domain_exists(self, wo_domain):
             Log.error(self, "site {0} already exists".format(wo_domain))
         elif os.path.isfile('/etc/nginx/sites-available/{0}'
                             .format(wo_domain)):
             Log.error(self, "Nginx configuration /etc/nginx/sites-available/"
                       "{0} already exists".format(wo_domain))
 
-        if stype == 'proxy':
-            data = dict(
-                site_name=wo_domain, www_domain=wo_www_domain,
-                static=True, basic=False, wp=False,
-                wpfc=False, wpsc=False, wprocket=False, wpce=False,
-                multisite=False, wpsubdir=False, webroot=wo_site_webroot)
-            data['proxy'] = True
-            data['host'] = host
-            data['port'] = port
-            data['basic'] = True
-
-        if (pargs.php72 or pargs.php73 or pargs.php74 or
-                pargs.php80 or pargs.php81):
-            data = dict(
-                site_name=wo_domain, www_domain=wo_www_domain,
-                static=False, basic=False,
-                wp=False, wpfc=False, wpsc=False, wprocket=False,
-                wpce=False, multisite=False,
-                wpsubdir=False, webroot=wo_site_webroot)
-            data['basic'] = True
-
-        if stype in ['html', 'php']:
-            data = dict(
-                site_name=wo_domain, www_domain=wo_www_domain,
-                static=True, basic=False, wp=False,
-                wpfc=False, wpsc=False, wprocket=False, wpce=False,
-                multisite=False, wpsubdir=False, webroot=wo_site_webroot)
-
-            if stype == 'php':
-                data['static'] = False
-                data['basic'] = True
-
-        elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-
-            data = dict(
-                site_name=wo_domain, www_domain=wo_www_domain,
-                static=False, basic=True, wp=False, wpfc=False,
-                wpsc=False, wpredis=False, wprocket=False, wpce=False,
-                multisite=False, wpsubdir=False, webroot=wo_site_webroot,
-                wo_db_name='', wo_db_user='', wo_db_pass='',
-                wo_db_host='')
-
-            if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
-                data['wp'] = True
-                data['basic'] = False
-                data[cache] = True
-                data['wp-user'] = pargs.user
-                data['wp-email'] = pargs.email
-                data['wp-pass'] = pargs.wppass
-                if stype in ['wpsubdir', 'wpsubdomain']:
-                    data['multisite'] = True
-                    if stype == 'wpsubdir':
-                        data['wpsubdir'] = True
-        else:
-            pass
-
-        data['php73'] = False
-        data['php74'] = False
-        data['php72'] = False
-        data['php80'] = False
-        data['php81'] = False
-
-        if data and pargs.php73:
-            data['php73'] = True
-            data['wo_php'] = 'php73'
-        elif data and pargs.php74:
-            data['php74'] = True
-            data['wo_php'] = 'php74'
-        elif data and pargs.php72:
-            data['php72'] = True
-            data['wo_php'] = 'php72'
-        elif data and pargs.php80:
-            data['php80'] = True
-            data['wo_php'] = 'php80'
-        elif data and pargs.php81:
-            data['php81'] = True
-            data['wo_php'] = 'php81'
-        else:
-            if self.app.config.has_section('php'):
-                config_php_ver = self.app.config.get(
-                    'php', 'version')
-                if config_php_ver == '7.2':
-                    data['php72'] = True
-                    data['wo_php'] = 'php72'
-                elif config_php_ver == '7.3':
-                    data['php73'] = True
-                    data['wo_php'] = 'php73'
-                elif config_php_ver == '7.4':
-                    data['php74'] = True
-                    data['wo_php'] = 'php74'
-                elif config_php_ver == '8.0':
-                    data['php80'] = True
-                    data['wo_php'] = 'php80'
-                elif config_php_ver == '8.1':
-                    data['php81'] = True
-                    data['wo_php'] = 'php81'
-            else:
-                data['php73'] = True
-                data['wo_php'] = 'php73'
-
-        if ((not pargs.wpfc) and (not pargs.wpsc) and
-            (not pargs.wprocket) and
-            (not pargs.wpce) and
-                (not pargs.wpredis)):
-            data['basic'] = True
-
-        if (cache == 'wpredis'):
-            cache = 'wpredis'
-            data['wpredis'] = True
-            data['basic'] = False
-            pargs.wpredis = True
-
-        # Check rerequired packages are installed or not
-        wo_auth = site_package_check(self, stype)
-
-        try:
-            pre_run_checks(self)
-        except SiteError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "NGINX configuration check failed.")
 
         try:
             try:
@@ -325,10 +117,6 @@ class WOSiteCreateController(CementBaseController):
                 php_version = "7.2"
             elif data['php74']:
                 php_version = "7.4"
-            elif data['php80']:
-                php_version = "8.0"
-            elif data['php81']:
-                php_version = "8.1"
             else:
                 php_version = "7.3"
 
