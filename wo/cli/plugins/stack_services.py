@@ -411,6 +411,14 @@ class WOStackStatusController(CementBaseController):
                 services = services + ['php7.4-fpm']
             else:
                 Log.info(self, "PHP7.4-FPM is not installed")
+            if os.path.exists('{0}'.format(wo_system) + 'php8.0-fpm.service'):
+                services = services + ['php8.0-fpm']
+            else:
+                Log.info(self, "PHP8.0-FPM is not installed")
+            if os.path.exists('{0}'.format(wo_system) + 'php8.1-fpm.service'):
+                services = services + ['php8.1-fpm']
+            else:
+                Log.info(self, "PHP8.1-FPM is not installed")
 
         if pargs.php72:
             if os.path.exists('{0}'.format(wo_system) + 'php7.2-fpm.service'):

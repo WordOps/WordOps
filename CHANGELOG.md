@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Update WP-CLI to v2.6.0 with PHP 8.0/8.1 support
 - Update adminer to v4.8.1
 - Update Redis repository ([PR #377](https://github.com/WordOps/WordOps/pull/377))
+- Set PHP 8.0 as default PHP version. Can be changed in `/etc/wo/wo.conf`
 
 #### Fixed
 
