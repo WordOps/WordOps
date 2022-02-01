@@ -1747,7 +1747,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.wait(self, "Installing Netdata")
             WOShellExec.cmd_exec(
                 self, "bash /var/lib/wo/tmp/kickstart.sh "
-                "--dont-wait --no-updates", errormsg='', log=False)
+                "--dont-wait --no-updates --static-only",
+                errormsg='', log=False)
             Log.valide(self, "Installing Netdata")
             if os.path.isdir('/etc/netdata'):
                 wo_netdata = "/"

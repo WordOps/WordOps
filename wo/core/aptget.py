@@ -99,7 +99,8 @@ class WOAptGet():
                     "--option=Dpkg::options::=--force-confdef "
                     "--option=Dpkg::options::=--force-unsafe-io "
                     "--option=Dpkg::options::=--force-confold "
-                    "--assume-yes --quiet dist-upgrade",
+                    "--assume-yes --quiet --allow-downgrades "
+                    "dist-upgrade",
                     shell=True, stdin=None,
                     stdout=f, stderr=f,
                     executable="/bin/bash")

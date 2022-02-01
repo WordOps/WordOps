@@ -429,16 +429,10 @@ class WOStackController(CementBaseController):
                         os.path.isdir("/etc/netdata")):
                     Log.debug(
                         self, "Setting packages variable for Netdata")
-                    if WOVar.wo_distro == 'raspbian':
-                        packages = packages + [['https://my-netdata.io/'
-                                                'kickstart.sh',
-                                                '/var/lib/wo/tmp/kickstart.sh',
-                                                'Netdata']]
-                    else:
-                        packages = packages + [['https://my-netdata.io/'
-                                                'kickstart-static64.sh',
-                                                '/var/lib/wo/tmp/kickstart.sh',
-                                                'Netdata']]
+                    packages = packages + [['https://my-netdata.io/'
+                                            'kickstart.sh',
+                                            '/var/lib/wo/tmp/kickstart.sh',
+                                            'Netdata']]
                 else:
                     Log.debug(self, "Netdata already installed")
                     Log.info(self, "Netdata already installed")
