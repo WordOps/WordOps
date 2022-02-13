@@ -32,7 +32,7 @@ declare -r cfIPv4="https://www.cloudflare.com/ips-v4"
 declare -r cfIPv6="https://www.cloudflare.com/ips-v6"
 declare -r cfConf='/etc/nginx/conf.d/cloudflare.conf'
 declare allOK='true'
-declare ips4 ips6
+declare ips4 ips6 ip
 
 ips4=$( ${CURL_BIN} -sL "${cfIPv4}" )
 ips6=$( ${CURL_BIN} -sL "${cfIPv6}" )
