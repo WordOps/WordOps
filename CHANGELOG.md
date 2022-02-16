@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.15.0 - [Unreleased]
 
+### v3.14.1 - 2022-02-16
+
+#### Fixed
+
+- Cloudflare IP range script ([PR #422](https://github.com/WordOps/WordOps/pull/422))
+- Netdata stack installation
+- Missing php upstream in WordOps backend
+
 ### v3.14.0 - 2022-01-26
 
 #### Added
