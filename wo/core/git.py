@@ -1,5 +1,6 @@
 """WordOps GIT module"""
 import os
+from pathlib import Path
 
 from sh import ErrorReturnCode, git
 from wo.core.logging import Log
@@ -30,7 +31,8 @@ class WOGit:
                         Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to git init at {0}"
                                   .format(path))
-                if not WOFileUtils.grep(self, "~/.gitconfig",
+                if not WOFileUtils.grep(self,
+                                        "{0}/.gitconfig".format(Path.home()),
                                         "{0}".format(path)):
                     git.config("--global", "--add", "safe.directory",
                                "{0}".format(path))
