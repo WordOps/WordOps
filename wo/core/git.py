@@ -31,7 +31,7 @@ class WOGit:
                         Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to git init at {0}"
                                   .format(path))
-                wogitsafe
+                wogitsafe.config()
                 status = wogit.status("-s")
                 if len(status.splitlines()) > 0:
                     try:
