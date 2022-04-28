@@ -30,7 +30,7 @@ class WOGit:
                         Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to git init at {0}"
                                   .format(path))
-                if not WOFileUtils.grep(self, "/root/.gitconfig",
+                if not WOFileUtils.grep(self, "$HOME/.gitconfig",
                                         "{0}".format(path)):
                     git.config("--global", "--add", "safe.directory",
                                "{0}".format(path))
