@@ -326,7 +326,7 @@ def setupwordpress(self, data, vhostonly=False):
                                             data['wo_db_user'],
                                             data['wo_db_host']
                                             ) +
-                                    "--dbpass=\'{0}\' "
+                                    "--dbpass=\'{0}\'\""
                                     .format(data['wo_db_pass']),
                                     log=False
                                     ):
