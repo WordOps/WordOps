@@ -471,7 +471,7 @@ wo_install() {
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip install -U wordops
     else
-        python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     local python_venv
     python_venv=$(python3 -c "import sys; print(sys.version_info[1])")
@@ -528,7 +528,7 @@ wo_travis_install() {
         fi
         python3 -m pip install -U .
     else
-        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
     cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
