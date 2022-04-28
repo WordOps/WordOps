@@ -29,7 +29,8 @@ class WOGit:
                         Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to git init at {0}"
                                   .format(path))
-                git.config("--global --add safe.directory", "{0}".format(path))
+                git.config("--global", "--add", "safe.directory",
+                           "{0}".format(path))
                 status = wogit.status("-s")
                 if len(status.splitlines()) > 0:
                     try:
