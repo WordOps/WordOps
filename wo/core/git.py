@@ -19,8 +19,6 @@ class WOGit:
         for path in paths:
             global git
             wogit = git.bake("-C", "{0}".format(path))
-            wogitsafe = git.bake("--global --add safe.directory",
-                                 "{0}".format(path))
             if os.path.isdir(path):
                 if not os.path.isdir(path + "/.git"):
                     try:
@@ -31,7 +29,7 @@ class WOGit:
                         Log.debug(self, "{0}".format(e))
                         Log.error(self, "Unable to git init at {0}"
                                   .format(path))
-                wogitsafe.config()
+                git.config("--global --add safe.directory", "{0}".format(path))
                 status = wogit.status("-s")
                 if len(status.splitlines()) > 0:
                     try:
