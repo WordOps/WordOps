@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.14.1"
+    wo_version = "3.14.2"
     # WordOps packages versions
     wo_wp_cli = "2.6.0"
     wo_adminer = "4.8.1"

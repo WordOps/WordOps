@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.15.0 - [Unreleased]
 
+### v3.14.2 - 2022-04-29
+
+#### Fixed
+
+- Git unsafe directories issue
+- WP_DEBUG variable in wp-config.php
+
 ### v3.14.1 - 2022-02-16
 
 #### Fixed

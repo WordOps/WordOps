@@ -326,11 +326,8 @@ def setupwordpress(self, data, vhostonly=False):
                                             data['wo_db_user'],
                                             data['wo_db_host']
                                             ) +
-                                    "--dbpass=\'{0}\' "
-                                    "--extra-php<<PHP \n"
-                                    "\n{1}\nPHP\""
-                                    .format(data['wo_db_pass'],
-                                            "\ndefine(\'WP_DEBUG\', false);"),
+                                    "--dbpass=\'{0}\'\""
+                                    .format(data['wo_db_pass']),
                                     log=False
                                     ):
                 pass
@@ -347,13 +344,12 @@ def setupwordpress(self, data, vhostonly=False):
                   .format(data['wo_db_name'],
                           wo_wp_prefix, data['wo_db_host']) +
                   "--dbuser=\'{0}\' --dbpass= "
-                  "--extra-php<<PHP \n {1} {2} {3} \nPHP\""
+                  "--extra-php<<PHP \n {1} {2} \nPHP\""
                   .format(data['wo_db_user'],
                           "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                           " true);",
                           "\ndefine(\'CONCATENATE_SCRIPTS\',"
-                          " false);",
-                          "\n\ndefine(\'WP_DEBUG\', false);"))
+                          " false);"))
         try:
             if WOShellExec.cmd_exec(self, "/bin/bash -c \"{0} --allow-root"
                                     .format(WOVar.wo_wpcli_path) +
@@ -364,12 +360,11 @@ def setupwordpress(self, data, vhostonly=False):
                                             data['wo_db_host']) +
                                     "--dbuser=\'{0}\' --dbpass=\'{1}\' "
                                     "--extra-php<<PHP \n "
-                                    "\n{2} {3}\nPHP\""
+                                    "\n{2} \nPHP\""
                                     .format(data['wo_db_user'],
                                             data['wo_db_pass'],
                                             "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
-                                            " true);",
-                                            "\ndefine(\'WP_DEBUG\', false);"),
+                                            " true);"),
                                     log=False
                                     ):
                 pass

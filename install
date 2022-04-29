@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.14.1 - 2022-02-16
+# Version 3.14.2 - 2022-04-29
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -207,11 +207,12 @@ wo_install_dep() {
     wo_linux_distro=$(lsb_release -is)
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
+        add-apt-repository ppa:git-core/ppa -y
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
             python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
-        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     else
         # install dependencies
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
@@ -221,7 +222,7 @@ wo_install_dep() {
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
         # add nginx repository gpg key
-        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     fi
     locale-gen en
     # enable unattended upgades
@@ -471,7 +472,7 @@ wo_install() {
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip install -U wordops
     else
-        python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     local python_venv
     python_venv=$(python3 -c "import sys; print(sys.version_info[1])")
@@ -481,7 +482,7 @@ wo_install() {
     rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_venv"/dist-packages/{etc,usr}
     ln -s /opt/wo/bin/wo /usr/local/bin/
     deactivate
-    if [ ! -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ];then
+    if [ ! -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         python3 -m venv --system-site-packages /opt/wo
     fi
 }
@@ -528,7 +529,7 @@ wo_travis_install() {
         fi
         python3 -m pip install -U .
     else
-        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
     cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
@@ -562,9 +563,9 @@ wo_upgrade_nginx() {
     # add new Nginx repository
     if [ "$wo_distro_version" == "jessie" ]; then
         # import the respository key for updates
-        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     else
-        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key  | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     fi
 
     # install new nginx package
@@ -785,6 +786,12 @@ wo_php_fix() {
     fi
 }
 
+wo_git_secure_path() {
+    if ! grep -q "safe" ~/.gitconfig; then
+        echo -e "\n[safe]\n  directory = *" >> ~/.gitconfig
+    fi
+}
+
 ###
 # 4 - WO MAIN SETUP
 ###
@@ -851,6 +858,7 @@ else
     _run secure_wo_db
 
     wo sync
+    _run wo_git_secure_path
 
     if [ "$ee_migration" = "1" ]; then
         echo
