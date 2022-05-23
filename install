@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.14.2 - 2022-04-29
+# Version 3.15.0 - 2022-05-23
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -167,9 +167,9 @@ wo_check_distro() {
             wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
-            check_wo_linux_distro=$(lsb_release -sc | grep -E "xenial|bionic|jessie|stretch|buster|focal")
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "bionic|stretch|buster|focal|jammy|bullseye")
             if [ -z "$check_wo_linux_distro" ]; then
-                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 16.04/18.04/20.04 LTS, Debian 9.x/10.x and Raspbian 9.x/10x.\n
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 18.04/20.04/22.04 LTS, Debian 10.x/11.x and Raspbian 10x./11.x \n
                 You can bypass this warning by adding the flag --force to the install command"
                 exit 100
             fi
@@ -455,6 +455,8 @@ wo_install() {
         if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
             if [ "$wo_distro_codename" = "stretch" ]; then
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
+            elif [ "$wo_distro_codename" = "bullseye" ]; then
+                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
             else
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
             fi
@@ -463,6 +465,8 @@ wo_install() {
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
             elif [ "$wo_distro_codename" = "bionic" ]; then
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
+            elif [ "$wo_distro_codename" = "jammy" ]; then
+                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
             else
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.y-xenial#egg=python-apt
             fi

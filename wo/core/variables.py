@@ -14,7 +14,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.14.2"
+    wo_version = "3.15.0"
     # WordOps packages versions
     wo_wp_cli = "2.6.0"
     wo_adminer = "4.8.1"
@@ -123,11 +123,15 @@ class WOVar():
                 wo_deb_repo = "Debian_9.0"
             elif wo_platform_codename == 'buster':
                 wo_deb_repo = "Debian_10"
+            elif wo_platform_codename == 'bullseye':
+                wo_deb_repo = "Debian_11"
         elif wo_distro == 'raspbian':
             if wo_platform_codename == 'stretch':
                 wo_deb_repo = "Raspbian_9.0"
             elif wo_platform_codename == 'buster':
                 wo_deb_repo = "Raspbian_10"
+            elif wo_platform_codename == 'bullseye':
+                wo_deb_repo = "Raspbian_11"
         # debian/raspbian nginx repository
         wo_nginx_repo = ("deb http://download.opensuse.org"
                          "/repositories/home:"
@@ -171,7 +175,7 @@ class WOVar():
         else:
             mariadb_ver = '10.3'
     else:
-        mariadb_ver = '10.5'
+        mariadb_ver = '10.6'
         wo_mysql = wo_mysql + ["mariadb-backup"]
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
@@ -183,7 +187,7 @@ class WOVar():
     # APT repositories
     wo_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                     "10.5/{distro} {codename} main"
+                     "10.6/{distro} {codename} main"
                      .format(distro=wo_distro,
                              codename=wo_platform_codename))
     if wo_distro == 'ubuntu':
