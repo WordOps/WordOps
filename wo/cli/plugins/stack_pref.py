@@ -398,7 +398,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     php_file.write("ssl_certificate "
                                    "/var/www/22222/cert/22222.crt;\n"
                                    "ssl_certificate_key "
-                                   "/var/www/22222/cert/22222.key;\n")
+                                   "/var/www/22222/cert/22222.key;\n"
+                                   "ssl_stapling off;\n")
 
                 server_ip = requests.get('http://v4.wordops.eu')
 
