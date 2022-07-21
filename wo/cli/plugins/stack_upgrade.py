@@ -204,7 +204,7 @@ class WOStackUpgradeController(CementBaseController):
             # detect static binaries install
             if os.path.isdir('/opt/netdata'):
                 packages = packages + [[
-                    'https://my-netdata.io/kickstart-static64.sh',
+                    'https://my-netdata.io/kickstart.sh',
                     '/var/lib/wo/tmp/kickstart.sh', 'Netdata']]
             # detect install from source
             elif os.path.isdir('/etc/netdata'):
