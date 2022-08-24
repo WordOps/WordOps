@@ -18,15 +18,17 @@ from wo.core.sslutils import SSL
 from wo.core.variables import WOVar
 
 
-class WOSiteCreateController(CementBaseController):
+class WOSiteCloneController(CementBaseController):
     class Meta:
-        label = 'create'
+        label = 'clone'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = ('this commands set up configuration and installs '
-                       'required files as options are provided')
+        description = ('this commands allow you to clone a site')
         arguments = [
             (['site_name'],
+                dict(help='domain name for the site to be cloned.',
+                     nargs='?')),
+            (['newsite_name'],
                 dict(help='domain name for the site to be created.',
                      nargs='?')),
             (['--html'],
@@ -39,10 +41,6 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create php 7.3 site", action='store_true')),
             (['--php74'],
                 dict(help="create php 7.4 site", action='store_true')),
-            (['--php80'],
-                dict(help="create php 8.0 site", action='store_true')),
-            (['--php81'],
-                dict(help="create php 8.1 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -171,8 +169,7 @@ class WOSiteCreateController(CementBaseController):
             data['port'] = port
             data['basic'] = True
 
-        if (pargs.php72 or pargs.php73 or pargs.php74 or
-                pargs.php80 or pargs.php81):
+        if pargs.php72 or pargs.php73 or pargs.php74:
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=False,
@@ -219,8 +216,6 @@ class WOSiteCreateController(CementBaseController):
         data['php73'] = False
         data['php74'] = False
         data['php72'] = False
-        data['php80'] = False
-        data['php81'] = False
 
         if data and pargs.php73:
             data['php73'] = True
@@ -231,12 +226,6 @@ class WOSiteCreateController(CementBaseController):
         elif data and pargs.php72:
             data['php72'] = True
             data['wo_php'] = 'php72'
-        elif data and pargs.php80:
-            data['php80'] = True
-            data['wo_php'] = 'php80'
-        elif data and pargs.php81:
-            data['php81'] = True
-            data['wo_php'] = 'php81'
         else:
             if self.app.config.has_section('php'):
                 config_php_ver = self.app.config.get(
@@ -250,12 +239,6 @@ class WOSiteCreateController(CementBaseController):
                 elif config_php_ver == '7.4':
                     data['php74'] = True
                     data['wo_php'] = 'php74'
-                elif config_php_ver == '8.0':
-                    data['php80'] = True
-                    data['wo_php'] = 'php80'
-                elif config_php_ver == '8.1':
-                    data['php81'] = True
-                    data['wo_php'] = 'php81'
             else:
                 data['php73'] = True
                 data['wo_php'] = 'php73'
@@ -325,10 +308,6 @@ class WOSiteCreateController(CementBaseController):
                 php_version = "7.2"
             elif data['php74']:
                 php_version = "7.4"
-            elif data['php80']:
-                php_version = "8.0"
-            elif data['php81']:
-                php_version = "8.1"
             else:
                 php_version = "7.3"
 
@@ -367,7 +346,7 @@ class WOSiteCreateController(CementBaseController):
                     wodbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
                                      "\ndefine('DB_USER', '{1}'); "
                                      "\ndefine('DB_PASSWORD', '{2}');"
-                                     "\ndefine('DB_HOST', '{3}');\n"
+                                     "\ndefine('DB_HOST', '{3}');\n?>"
                                      .format(data['wo_db_name'],
                                              data['wo_db_user'],
                                              data['wo_db_pass'],

@@ -4,12 +4,12 @@
 # -------------------------------------------------------------------------
 # Website:       https://wordops.net
 # GitHub:        https://github.com/WordOps/WordOps
-# Copyright (c) 2019-2020 - WordOps
+# Copyright (c) 2019-2022 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.13.2 - 2020-10-27
+# Version 3.14.2 - 2022-04-29
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -207,21 +207,22 @@ wo_install_dep() {
     wo_linux_distro=$(lsb_release -is)
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
+        add-apt-repository ppa:git-core/ppa -y
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
-            python3-distutils-extra libapt-pkg-dev >/dev/null 2>&1
-        curl -sL https://download.opensuse.org/repositories/home:/virtubox:/WordOps/xUbuntu_18.04/Release.key | apt-key add -
+            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     else
         # install dependencies
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip dirmngr sudo python3-pip python3-apt python3-venv gcc python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
-            python3-distutils-extra libapt-pkg-dev >/dev/null 2>&1
+            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
         # add php repository gpg key
         [ -d /etc/apt/trusted.gpg.d ] && { wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg; }
         # add nginx repository gpg key
-        curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_10/Release.key | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     fi
     locale-gen en
     # enable unattended upgades
@@ -421,6 +422,7 @@ wo_install_acme_sh() {
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --upgrade --auto-upgrade
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --uninstall-cronjob
         /etc/letsencrypt/acme.sh --config-home '/etc/letsencrypt/config' --install-cronjob
+        /etc/letsencrypt/acme.sh --set-default-ca --server letsencrypt
     fi
 
 }
@@ -440,12 +442,16 @@ wo_install() {
     cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
-        python3 -m pip install -U pip setuptools wheel
+        python3 -m pip uninstall setuptools -y
+        python3 -m pip install -I setuptools==57.5.0
+        python3 -m pip install -U pip wheel
     else
         rm -rf /opt/wo
         python3 -m venv /opt/wo
         source /opt/wo/bin/activate
-        python3 -m pip install -U pip setuptools wheel
+        python3 -m pip uninstall setuptools -y
+        python3 -m pip install -I setuptools==57.5.0
+        python3 -m pip install -U pip wheel
         if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
             if [ "$wo_distro_codename" = "stretch" ]; then
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
@@ -466,7 +472,7 @@ wo_install() {
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip install -U wordops
     else
-        python3 -m pip install -I "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     local python_venv
     python_venv=$(python3 -c "import sys; print(sys.version_info[1])")
@@ -476,7 +482,7 @@ wo_install() {
     rm -rf /usr/local/bin/wo /usr/local/lib/python3."$python_venv"/dist-packages/{etc,usr}
     ln -s /opt/wo/bin/wo /usr/local/bin/
     deactivate
-    if [ ! -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ];then
+    if [ ! -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         python3 -m venv --system-site-packages /opt/wo
     fi
 }
@@ -495,12 +501,16 @@ wo_travis_install() {
     if [ -f ./setup.py ]; then
         if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
             source /opt/wo/bin/activate
-            python3 -m pip install -U pip setuptools wheel
+            python3 -m pip uninstall setuptools -y
+            python3 -m pip install -I setuptools==57.5.0
+            python3 -m pip install -U pip wheel
         else
             rm -rf /opt/wo
             python3 -m venv /opt/wo
             source /opt/wo/bin/activate
-            python3 -m pip install -U pip setuptools wheel
+            python3 -m pip uninstall setuptools -y
+            python3 -m pip install -I setuptools==57.5.0
+            python3 -m pip install -U pip wheel
             if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
                 if [ "$wo_distro_codename" = "stretch" ]; then
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
@@ -513,13 +523,13 @@ wo_travis_install() {
                 elif [ "$wo_distro_codename" = "bionic" ]; then
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
                 else
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.y-xenial#egg=python-apt
+                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.0_beta1ubuntu0.16.04.9#egg=python-apt
                 fi
             fi
         fi
         python3 -m pip install -U .
     else
-        python3 -m pip install -U "git+git://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
     cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
@@ -553,9 +563,9 @@ wo_upgrade_nginx() {
     # add new Nginx repository
     if [ "$wo_distro_version" == "jessie" ]; then
         # import the respository key for updates
-        curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_8.0/Release.key | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     else
-        curl -sL https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_9.0/Release.key | apt-key add -
+        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
     fi
 
     # install new nginx package
@@ -713,7 +723,7 @@ wo_woconf() {
             echo -e '\n[letsencrypt]\n\nkeylength = "ec-384"' >>/etc/wo/wo.conf
         fi
         if ! grep -q "php" /etc/wo/wo.conf; then
-            echo -e '\n[php]\n\nversion = 7.3' >>/etc/wo/wo.conf
+            echo -e '\n[php]\n\nversion = 7.4' >>/etc/wo/wo.conf
         fi
     fi
 }
@@ -770,25 +780,15 @@ wo_init() {
 }
 
 wo_php_fix() {
-    local php_versions="5.6 7.0 7.1 7.2 7.3 7.4"
-
-    apt-get autoremove --assume-yes --purge php8.0-* php-igbinary php-memcached php-msgpack php-redis php-imagick php-xdebug php-memcache
-    for php_version in $php_versions; do
-        if [ -f "/usr/bin/php$php_version" ]; then
-            if [ -f "/usr/sbin/php-fpm$php_version" ]; then
-                local php_extensions="igbinary memcached msgpack redis imagick xdebug"
-                for php_ext in $php_extensions; do
-                    apt-get -option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install "php$php_version-$php_ext"
-                done
-            else
-                apt-get autoremove --assume-yes --purge "php$php_version-*"
-            fi
-
-        fi
-    done
     if [ -f /lib/systemd/system/mariadb.service ]; then
         systemctl daemon-reload
         systemctl enable mariadb
+    fi
+}
+
+wo_git_secure_path() {
+    if ! grep -q "safe" ~/.gitconfig; then
+        echo -e "\n[safe]\n  directory = *" >> ~/.gitconfig
     fi
 }
 
@@ -858,6 +858,7 @@ else
     _run secure_wo_db
 
     wo sync
+    _run wo_git_secure_path
 
     if [ "$ee_migration" = "1" ]; then
         echo

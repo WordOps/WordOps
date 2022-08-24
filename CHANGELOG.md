@@ -6,7 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.9.x - [Unreleased]
+### v3.15.0 - [Unreleased]
+
+### v3.14.2 - 2022-04-29
+
+#### Fixed
+
+- Git unsafe directories issue
+- WP_DEBUG variable in wp-config.php
+
+### v3.14.1 - 2022-02-16
+
+#### Fixed
+
+- Cloudflare IP range script ([PR #422](https://github.com/WordOps/WordOps/pull/422))
+- Netdata stack installation
+- Missing php upstream in WordOps backend
+
+### v3.14.0 - 2022-01-26
+
+#### Added
+
+- PHP 8.0 and 8.1 support ([PR #413](https://github.com/WordOps/WordOps/pull/413))
+- Support arm64 architecture ([PR #392](https://github.com/WordOps/WordOps/pull/392))
+
+#### Changed
+
+- Update WP-CLI to v2.6.0 with PHP 8.0/8.1 support
+- Update adminer to v4.8.1
+- Update Redis repository ([PR #377](https://github.com/WordOps/WordOps/pull/377))
+- Set PHP 8.0 as default PHP version. Can be changed in `/etc/wo/wo.conf`
+
+#### Fixed
+
+- WordOps install script issues
+- acme.sh issues with zero-ssl CA
 
 #### v3.13.2 - 2020-10-27
 

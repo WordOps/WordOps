@@ -28,22 +28,22 @@ map $http_cookie $cookie_no_cache {
 map $request_uri $uri_no_cache {
     default 0;
     "~*/wp-admin/" 1;
-    "~*/wp-[a-zA-Z0-9-]+.php" 1;
+    "~*/wp-[a-zA-Z0-9-]+\.php" 1;
     "~*/feed/" 1;
-    "~*/index.php" 1;
-    "~*/[a-z0-9_-]+-sitemap([0-9]+)?.xml" 1;
-    "~*/sitemap(_index)?.xml" 1;
-    "~*/wp-comments-popup.php" 1;
-    "~*/wp-links-opml.php" 1;
-    "~*/xmlrpc.php" 1;
-    "~*/edd-sl/*" 1;
+    "~*/index\.php" 1;
+    "~*/[a-z0-9_-]+-sitemap([0-9]+)?\.xml" 1;
+    "~*/sitemap(_index)?\.xml" 1;
+    "~*/wp-comments-popup\.php" 1;
+    "~*/wp-links-opml\.php" 1;
+    "~*/xmlrpc\.php" 1;
+    "~*/edd-sl/.*" 1;
     "~*/add_to_cart/" 1;
     "~*/cart/" 1;
     "~*/account/" 1;
     "~*/my-account/" 1;
     "~*/checkout/" 1;
     "~*/addons/" 1;
-    "~*/wc-api/*" 1;
+    "~*/wc-api/.*" 1;
     "~*/logout/" 1;
     "~*/lost-password/" 1;
     "~*/panier/" 1;
@@ -51,6 +51,7 @@ map $request_uri $uri_no_cache {
     "~*/embed" 1;
     "~*/commande/" 1;
     "~*/resetpass/" 1;
+    "~*/wp.serviceworker" 1;
 }
 # mobile_prefix needed for WP-Rocket
 map $http_user_agent $mobile_prefix {

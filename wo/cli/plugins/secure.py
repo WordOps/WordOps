@@ -23,7 +23,7 @@ class WOSecureController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         description = (
-            'Secure command provide the ability to'
+            'Secure command provide the ability to '
             'adjust settings for backend and to harden server security.')
         arguments = [
             (['--auth'],

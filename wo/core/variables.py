@@ -14,10 +14,10 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.13.2"
+    wo_version = "3.14.2"
     # WordOps packages versions
-    wo_wp_cli = "2.4.0"
-    wo_adminer = "4.7.5"
+    wo_wp_cli = "2.6.0"
+    wo_adminer = "4.8.1"
     wo_phpmyadmin = "5.0.2"
     wo_extplorer = "2.1.13"
     wo_dashboard = "1.2"
@@ -137,13 +137,10 @@ class WOVar():
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = '188C9FB063F0247A'
 
-    wo_module = ["fpm", "curl", "gd", "imap",
-                 "readline", "common",
-                 "cli", "mbstring", "intl",
-                 "bcmath", "mysql", "opcache",
-                 "zip", "xml", "soap", "memcached",
-                 "imagick", "igbinary", "msgpack",
-                 "redis", "xdebug"]
+    wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
+                 "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
+                 "mysql", "opcache", "readline", "redis", "soap", "xdebug",
+                 "xml", "zip"]
     wo_php72 = []
     for module in wo_module:
         wo_php72 = wo_php72 + ["php7.2-{0}".format(module)]
@@ -155,6 +152,13 @@ class WOVar():
     wo_php74 = []
     for module in wo_module:
         wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
+    wo_php74 = wo_php74 + ["php7.4-geoip", "php7.4-json"]
+    wo_php80 = []
+    for module in wo_module:
+        wo_php80 = wo_php80 + ["php8.0-{0}".format(module)]
+    wo_php81 = []
+    for module in wo_module:
+        wo_php81 = wo_php81 + ["php8.1-{0}".format(module)]
 
     wo_php_extra = ["graphviz"]
 
@@ -177,14 +181,14 @@ class WOVar():
     wo_ubuntu_backports = 'ppa:jonathonf/backports'
 
     # APT repositories
-    wo_mysql_repo = ("deb [arch=amd64,ppc64el] "
+    wo_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
                      "10.5/{distro} {codename} main"
                      .format(distro=wo_distro,
                              codename=wo_platform_codename))
     if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
-        wo_redis_repo = ("ppa:chris-lea/redis-server")
+        wo_redis_repo = ("ppa:redislabs/redis")
         wo_goaccess_repo = ("ppa:alex-p/goaccess")
 
     else:

@@ -92,15 +92,15 @@ class WOLogShowController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php/7.2/slow.log', 'a').close()
-            open('/var/log/php7.2-fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
-                                   '/var/log/php7.2-fpm.log']
+            #open('/var/log/php/7.2/slow.log', 'a').close()
+            #open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/*/slow.log',
+                                   '/var/log/php*-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":
-                if os.path.isfile('/var/log/mysql/mysql-slow.log'):
-                    self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
+                if os.path.isfile('/var/log/mysql/mariadb-slow.log'):
+                    self.msg = self.msg + ['/var/log/mysql/*-slow.log']
                 else:
                     Log.info(self, "MySQL slow-log not found, skipped")
             else:
@@ -231,15 +231,15 @@ class WOLogResetController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php/7.2/slow.log', 'a').close()
-            open('/var/log/php7.2-fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
-                                   '/var/log/php7.2-fpm.log']
+            #open('/var/log/php/7.2/slow.log', 'a').close()
+            #open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/*/slow.log',
+                                   '/var/log/php*-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":
-                if os.path.isfile('/var/log/mysql/mysql-slow.log'):
-                    self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
+                if os.path.isfile('/var/log/mysql/mariadb-slow.log'):
+                    self.msg = self.msg + ['/var/log/mysql/*-slow.log']
                 else:
                     Log.info(self, "MySQL slow-log not found, skipped")
             else:
@@ -359,15 +359,15 @@ class WOLogGzipController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php/7.2/slow.log', 'a').close()
-            open('/var/log/php7.2-fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
-                                   '/var/log/php7.2-fpm.log']
+            #open('/var/log/php/7.2/slow.log', 'a').close()
+            #open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/*/slow.log',
+                                   '/var/log/php*-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":
-                if os.path.isfile('/var/log/mysql/mysql-slow.log'):
-                    self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
+                if os.path.isfile('/var/log/mysql/mariadb-slow.log'):
+                    self.msg = self.msg + ['/var/log/mysql/*-slow.log']
                 else:
                     Log.info(self, "MySQL slow-log not found, skipped")
 
@@ -445,10 +445,10 @@ class WOLogMailController(CementBaseController):
             (['--nginx'],
                 dict(help='Mail Nginx Error logs file', action='store_true')),
             (['--php'],
-                dict(help='Mail PHP 7.2 Error logs file',
+                dict(help='Mail PHP Error logs file',
                      action='store_true')),
             (['--fpm'],
-                dict(help='Mail PHP 7.2-fpm slow logs file',
+                dict(help='Mail PHP fpm slow logs file',
                      action='store_true')),
             (['--mysql'],
                 dict(help='Mail MySQL logs file', action='store_true')),
@@ -497,15 +497,15 @@ class WOLogMailController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php/7.2/slow.log', 'a').close()
-            open('/var/log/php7.2-fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php/7.2/slow.log',
-                                   '/var/log/php7.2-fpm.log']
+            #open('/var/log/php/7.2/slow.log', 'a').close()
+            #open('/var/log/php7.2-fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/*/slow.log',
+                                   '/var/log/php*-fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if WOVar.wo_mysql_host == "localhost":
-                if os.path.isfile('/var/log/mysql/mysql-slow.log'):
-                    self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
+                if os.path.isfile('/var/log/mysql/mariadb-slow.log'):
+                    self.msg = self.msg + ['/var/log/mysql/*-slow.log']
                 else:
                     Log.info(self, "MySQL slow-log not found, skipped")
             else:
