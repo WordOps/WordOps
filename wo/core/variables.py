@@ -187,7 +187,7 @@ class WOVar():
     # APT repositories
     wo_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                     "10.5/{distro} {codename} main"
+                     "10.6/{distro} {codename} main"
                      .format(distro=wo_distro,
                              codename=wo_platform_codename))
     if wo_distro == 'ubuntu':
