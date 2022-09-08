@@ -126,10 +126,6 @@ def pre_pref(self, apt_packages):
             if WOVar.wo_platform_codename == 'bionic':
                 Log.debug(self, 'Adding ppa for nano')
                 WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
-            elif WOVar.wo_platform_codename == 'xenial':
-                Log.debug(self, 'Adding ppa for nano')
-                WORepo.add_key(self, WOVar.wo_nginx_key)
-                WORepo.add(self, repo_url=WOVar.wo_extra_repo)
         else:
             if (not WOFileUtils.grepcheck(
                     self, '/etc/apt/sources.list/wo-repo.list',
@@ -2008,7 +2004,9 @@ def pre_stack(self):
             # use tcp_bbr congestion algorithm only on new kernels
             if (WOVar.wo_platform_codename == 'bionic' or
                 WOVar.wo_platform_codename == 'focal' or
-                    WOVar.wo_platform_codename == 'buster'):
+                WOVar.wo_platform_codename == 'buster' or
+                WOVar.wo_platform_codename == 'jammy' or
+                    WOVar.wo_platform_codename == 'bullseye'):
                 try:
                     WOShellExec.cmd_exec(
                         self, 'modprobe tcp_bbr')
