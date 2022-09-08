@@ -1347,7 +1347,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 # set innodb_buffer_pool_instances depending
                 # on the amount of RAM
 
-                WOService.restart_service(self, 'mysql')
+                WOService.restart_service(self, 'mariadb')
 
                 # WOFileUtils.mvfile(self, '/var/lib/mysql/ib_logfile0',
                 #                    '/var/lib/mysql/ib_logfile0.bak')
