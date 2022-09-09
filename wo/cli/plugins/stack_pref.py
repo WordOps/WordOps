@@ -1276,7 +1276,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 elif os.path.exists('/etc/mysql/conf.d/my.cnf'):
                     if ((WOAptGet.is_installed(
                         self,
-                        'mariadb-server-{0}').format(WOVar.mariadb_ver)) and
+                        'mariadb-server-{0}'.format(WOVar.mariadb_ver))) and
                             not (WOFileUtils.grepcheck(
                                 self, '/etc/mysql/conf.d/my.cnf', 'socket'))):
                         try:
