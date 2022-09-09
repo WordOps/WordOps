@@ -182,10 +182,7 @@ class WOVar():
         else:
             mariadb_ver = '10.3'
     else:
-        if wo_platform_codename == 'jammy':
-            mariadb_ver = '10.8'
-        else:
-            mariadb_ver = '10.5'
+        mariadb_ver = '10.6'
         wo_mysql = wo_mysql + ["mariadb-backup"]
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
