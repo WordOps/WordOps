@@ -16,7 +16,10 @@ on:
 jobs:
   my_job:
     name: test WordOps
-    runs-on: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-18.04, ubuntu-20.04]
     
     steps:
     - uses: actions/checkout@v2
