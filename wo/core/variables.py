@@ -15,7 +15,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.14.2"
+    wo_version = "3.15.0"
     # WordOps packages versions
     wo_wp_cli = "2.6.0"
     wo_adminer = "4.8.1"
@@ -130,11 +130,15 @@ class WOVar():
                 wo_deb_repo = "Debian_9.0"
             elif wo_platform_codename == 'buster':
                 wo_deb_repo = "Debian_10"
+            elif wo_platform_codename == 'bullseye':
+                wo_deb_repo = "Debian_11"
         elif wo_distro == 'raspbian':
             if wo_platform_codename == 'stretch':
                 wo_deb_repo = "Raspbian_9.0"
             elif wo_platform_codename == 'buster':
                 wo_deb_repo = "Raspbian_10"
+            elif wo_platform_codename == 'bullseye':
+                wo_deb_repo = "Raspbian_11"
         # debian/raspbian nginx repository
         wo_nginx_repo = ("deb http://download.opensuse.org"
                          "/repositories/home:"
