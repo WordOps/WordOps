@@ -41,8 +41,8 @@
 
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Custom Nginx build** : Nginx 1.18.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0 & 8.1 - MariaDB 10.5 & Redis 6.0
+- **Custom Nginx build** : Nginx 1.22.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
+- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0 & 8.1 - MariaDB 10.6 & Redis 6.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
@@ -58,15 +58,19 @@
 
 #### Recommended
 
+- Ubuntu 22.04 LTS (Jammy)
 - Ubuntu 20.04 LTS (Focal)
 - Ubuntu 18.04 LTS (Bionic)
 
 #### Also compatible
 
-- Debian 9 (Stretch)
 - Debian 10 (Buster)
-- Raspbian 9 (Stretch)
 - Raspbian 10 (Buster)
+
+#### For testing purpose only
+
+- Debian 11 (Bullseye)
+- Raspbian 11 (Bullseye)
 
 ## Getting Started
 
@@ -121,7 +125,7 @@ wo site create example.com --html     # create example.com for static/html sites
 wo site create example.com --php      # create example.com with php 8.0 support
 wo site create example.com --php80      # create example.com with php 8.0 support
 wo site create example.com --php74      # create example.com with php 7.4 support
-wo site create example.com --mysql    # create example.com with php 7.3 & mysql support
+wo site create example.com --mysql    # create example.com with php 8.0 & mysql support
 wo site create example.com --mysql --php81   # create example.com with php 8.1 & mysql support
 wo site create example.com --mysql --php73   # create example.com with php 7.3 & mysql support
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
