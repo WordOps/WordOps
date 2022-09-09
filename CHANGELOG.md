@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.15.1 - [Unreleased]
+### v3.15.2 - [Unreleased]
+
+### v3.15.1 - 2022-09-09
+
+#### Fixed
+
+- Hotfix outdated python distro package cause issues on some servers
 
 ### v3.15.0 - 2022-09-09
 

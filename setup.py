@@ -27,7 +27,7 @@ if os.geteuid() == 0:
         os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.15.0',
+      version='3.15.1',
       description='An essential toolset that eases server administration',
       long_description=LONG,
       long_description_content_type='text/markdown',
@@ -69,7 +69,7 @@ setup(name='wordops',
           'sh >= 1.14.1',
           'SQLAlchemy >= 1.3.20',
           'requests >= 2.24.0',
-          'distro >= 1.5.0',
+          'distro >= 1.7.0',
           'argcomplete >= 1.12.0',
           'colorlog >= 4.6.2',
       ],
