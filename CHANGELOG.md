@@ -8,16 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.15.1 - [Unreleased]
 
-### v3.15.0 - 2022-05-26
+### v3.15.0 - 2022-09-09
+
+#### Added
+
+- Ubuntu 22.04 LTS Support
 
 #### Changed
 
-- New Nginx package based on latest Nginx stable release 1.20.2
+- New Nginx package based on latest Nginx stable release 1.22.2
 - Better Referrer-Policy ([PR #434](https://github.com/WordOps/WordOps/pull/434))
+- MariaDB default version is now 10.6
 
 #### Fixed
 
 - `wo log reset --all` ([PR #438](https://github.com/WordOps/WordOps/pull/438))
+- Outdated Nginx directives
+- Netdata stack upgrade([PR #439](https://github.com/WordOps/WordOps/pull/439))
 
 ### v3.14.2 - 2022-04-29
 

@@ -58,15 +58,19 @@
 
 #### Recommended
 
+- Ubuntu 22.04 LTS (Jammy)
 - Ubuntu 20.04 LTS (Focal)
 - Ubuntu 18.04 LTS (Bionic)
 
 #### Also compatible
 
-- Debian 9 (Stretch)
 - Debian 10 (Buster)
-- Raspbian 9 (Stretch)
 - Raspbian 10 (Buster)
+
+#### For testing purpose only
+
+- Debian 11 (Bullseye)
+- Raspbian 11 (Bullseye)
 
 ## Getting Started
 
@@ -121,7 +125,7 @@ wo site create example.com --html     # create example.com for static/html sites
 wo site create example.com --php      # create example.com with php 8.0 support
 wo site create example.com --php80      # create example.com with php 8.0 support
 wo site create example.com --php74      # create example.com with php 7.4 support
-wo site create example.com --mysql    # create example.com with php 7.3 & mysql support
+wo site create example.com --mysql    # create example.com with php 8.0 & mysql support
 wo site create example.com --mysql --php81   # create example.com with php 8.1 & mysql support
 wo site create example.com --mysql --php73   # create example.com with php 7.3 & mysql support
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
