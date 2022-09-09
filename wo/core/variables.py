@@ -1,12 +1,13 @@
 """WordOps core variable module"""
 import configparser
 import os
+import sys
 from datetime import datetime
 from re import match
 from socket import getfqdn
 from shutil import copy2
 
-from distro import linux_distribution
+from distro import distro, linux_distribution
 from sh import git
 
 
@@ -30,13 +31,19 @@ class WOVar():
 
     # WordOps core variables
     # linux distribution
-    wo_distro = linux_distribution(
-        full_distribution_name=False)[0].lower()
-    wo_platform_version = linux_distribution(
-        full_distribution_name=False)[1].lower()
-    # distro codename (bionic, xenial, stretch ...)
-    wo_platform_codename = linux_distribution(
-        full_distribution_name=False)[2].lower()
+    if sys.version_info <= (3, 7):
+        wo_distro = linux_distribution(
+            full_distribution_name=False)[0].lower()
+        wo_platform_version = linux_distribution(
+            full_distribution_name=False)[1].lower()
+        # distro codename (bionic, xenial, stretch ...)
+        wo_platform_codename = linux_distribution(
+            full_distribution_name=False)[2].lower()
+    else:
+        wo_distro = distro.id()
+        wo_platform_version = distro.version()
+        # distro codename (bionic, xenial, stretch ...)
+        wo_platform_codename = distro.codename()
 
     # Get timezone of system
     if os.path.isfile('/etc/timezone'):
@@ -175,7 +182,10 @@ class WOVar():
         else:
             mariadb_ver = '10.3'
     else:
-        mariadb_ver = '10.5'
+        if wo_platform_codename == 'jammy':
+            mariadb_ver = '10.8'
+        else:
+            mariadb_ver = '10.5'
         wo_mysql = wo_mysql + ["mariadb-backup"]
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
@@ -187,8 +197,9 @@ class WOVar():
     # APT repositories
     wo_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                     "10.6/{distro} {codename} main"
-                     .format(distro=wo_distro,
+                     "{version}/{distro} {codename} main"
+                     .format(version=mariadb_ver,
+                             distro=wo_distro,
                              codename=wo_platform_codename))
     if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
