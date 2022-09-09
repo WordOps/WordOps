@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.15.0 - 2022-09-09
+# Version 3.15.1 - 2022-09-09
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -452,6 +452,7 @@ wo_install() {
         python3 -m pip uninstall setuptools -y
         python3 -m pip install -I setuptools==57.5.0
         python3 -m pip install -U pip wheel
+        python3 -m pip install -U distro
         if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
             if [ "$wo_distro_codename" = "stretch" ]; then
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
