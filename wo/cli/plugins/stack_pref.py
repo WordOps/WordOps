@@ -1270,7 +1270,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             self,
                             'mysql -e "SET PASSWORD = '
                             'PASSWORD(\'{0}\'); flush privileges;"'
-                            .format(chars))
+                            .format(chars), log=False)
                         WOFileUtils.mvfile(
                             self, '/etc/mysql/conf.d/my.cnf.tmp',
                             '/etc/mysql/conf.d/my.cnf')
@@ -1294,7 +1294,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                 'IDENTIFIED VIA unix_socket OR '
                                 'mysql_native_password; '
                                 'SET PASSWORD = PASSWORD(\'{0}\'); '
-                                'flush privileges;"'.format(chars))
+                                'flush privileges;"'.format(chars), log=False)
                             WOFileUtils.textappend(
                                 self, '/etc/mysql/conf.d/my.cnf',
                                 'socket = /run/mysqld/mysqld.sock')
