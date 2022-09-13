@@ -37,6 +37,13 @@ location /.well-known/acme-challenge/ {
    allow all;
    auth_basic off;
 }
+# Private Prefetch Proxy
+# https://developer.chrome.com/blog/private-prefetch-proxy/
+location /.well-known/traffic-advice {
+   types { } default_type "application/trafficadvice+json; charset=utf-8";
+   alias /var/www/html/.well-known/traffic-advice;
+   allow all;
+}
 # Return 403 forbidden for readme.(txt|html) or license.(txt|html) or example.(txt|html) or other common git repository files
 location ~*  "/(^$|readme|license|example|README|LEGALNOTICE|INSTALLATION|CHANGELOG)\.(txt|html|md)" {
     deny all;

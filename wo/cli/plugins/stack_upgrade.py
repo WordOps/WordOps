@@ -295,11 +295,11 @@ class WOStackUpgradeController(CementBaseController):
                     'ngxblocker'
                 ]]
 
-        if ((not (apt_packages)) and (not(packages))):
+        if not apt_packages and not packages:
             self.app.args.print_help()
         else:
             pre_stack(self)
-            if (apt_packages):
+            if apt_packages:
                 if not ("php7.2-fpm" in apt_packages or
                         "php7.3-fpm" in apt_packages or
                         "php7.4-fpm" in apt_packages or
@@ -340,7 +340,7 @@ class WOStackUpgradeController(CementBaseController):
                 Log.valide(self, "Configuring APT Packages")
                 # Post Actions after package updates
 
-            if (packages):
+            if packages:
                 if WOAptGet.is_selected(self, 'WP-CLI', packages):
                     WOFileUtils.rm(self, '/usr/local/bin/wp')
 

@@ -220,6 +220,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                   '{0}/locations-wo.conf'
                                   .format(ngxcom),
                                   'locations.mustache', data)
+                # traffic advice file
+                WOTemplate.deploy(self,
+                                  '/var/www/html/'
+                                  '.well-known/traffic-advice',
+                                  'traffic-advice.mustache', data)
 
                 WOTemplate.deploy(self,
                                   '{0}/wpsubdir.conf'
