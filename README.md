@@ -49,6 +49,7 @@
 - **Modern** : Strong ciphers_suite, modern TLS protocols and HSTS support (Grade A+ on [ssllabs](https://www.ssllabs.com/ssltest/analyze.html?d=demo.wordops.eu&latest))
 - **Monitoring** : Live Nginx vhost traffic with ngx_vts_module and server monitoring with Netdata
 - **User Friendly** : WordOps dashboard with server status/monitoring and tools ([demo](https://demo.wordops.eu))
+- **Release cycle** : WordOps stable releases are published in June and December.
 
 ---
 
