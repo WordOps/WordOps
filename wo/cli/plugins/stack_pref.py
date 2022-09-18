@@ -194,11 +194,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOTemplate.deploy(
                     self, '{0}/avif.conf'.format(ngxcnf),
                     'avif.mustache', data, overwrite=False)
-
-                WOTemplate.deploy(
-                    self, '{0}/cloudflare.conf'.format(ngxcnf),
-                    'cloudflare.mustache', data)
-
                 WOTemplate.deploy(
                     self,
                     '{0}/map-wp-fastcgi-cache.conf'.format(ngxcnf),
@@ -421,16 +416,17 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                             .format(server_ip.text,
                                                     WOVar.wo_fqdn)])
 
-            if not os.path.isfile("/opt/cf-update.sh"):
-                data = dict(release=WOVar.wo_version)
-                WOTemplate.deploy(self, '/opt/cf-update.sh',
-                                  'cf-update.mustache',
-                                  data, overwrite=False)
-                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
-                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
-                                      '> /dev/null 2>&1',
-                                      comment='Cloudflare IP refresh cronjob '
-                                      'added by WordOps')
+            data = dict(release=WOVar.wo_version)
+            WOTemplate.deploy(self, '/opt/cf-update.sh',
+                              'cf-update.mustache',
+                              data, overwrite=True)
+            WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
+            Log.debug(self, 'Creating Cloudflare.conf')
+            WOShellExec.cmd_exec(self, '/opt/cf-update.sh')
+            WOCron.setcron_weekly(self, '/opt/cf-update.sh '
+                                  '> /dev/null 2>&1',
+                                  comment='Cloudflare IP refresh cronjob '
+                                  'added by WordOps')
 
             # Nginx Configation into GIT
             if not WOService.restart_service(self, 'nginx'):
