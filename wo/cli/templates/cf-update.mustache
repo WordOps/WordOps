@@ -28,14 +28,13 @@ IFS=$'\n\t'
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; tput cnorm ; exit $s' ERR
 
 declare -r CURL_BIN=$(command -v curl)
-declare -r cfIPv4="https://www.cloudflare.com/ips-v4"
-declare -r cfIPv6="https://www.cloudflare.com/ips-v6"
+declare -r cfIP="https://api.cloudflare.com/client/v4/ips"
 declare -r cfConf='/etc/nginx/conf.d/cloudflare.conf'
 declare allOK='true'
 declare ips4 ips6 ip
 
-ips4=$( ${CURL_BIN} -sL "${cfIPv4}" )
-ips6=$( ${CURL_BIN} -sL "${cfIPv6}" )
+ips4=$( ${CURL_BIN} -sL "${cfIP}" | jq -r '.result.ipv4_cidrs[]' )
+ips6=$( ${CURL_BIN} -sL "${cfIP}" | jq -r '.result.ipv6_cidrs[]' )
 
 
 if [ -d /etc/nginx/conf.d ]; then
@@ -75,4 +74,3 @@ else
 fi
 echo "Cloudflare IPs updated"
 echo ""
-
