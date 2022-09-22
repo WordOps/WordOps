@@ -324,7 +324,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 try:
                     WOShellExec.cmd_exec(
                         self, "printf \"WordOps:"
-                        "$(openssl passwd -crypt "
+                        "$(openssl passwd -apr1 "
                         "{password} 2> /dev/null)\n\""
                         "> /etc/nginx/htpasswd-wo "
                         "2>/dev/null"
