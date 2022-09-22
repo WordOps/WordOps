@@ -83,11 +83,11 @@ class WOSecureController(CementBaseController):
             if password == "":
                 pargs.user_pass = passwd
         Log.debug(self, "printf username:"
-                  "$(openssl passwd -crypt "
+                  "$(openssl passwd -apr1 "
                   "password 2> /dev/null)\n\""
                   "> /etc/nginx/htpasswd-wo 2>/dev/null")
         WOShellExec.cmd_exec(self, "printf \"{username}:"
-                             "$(openssl passwd -crypt "
+                             "$(openssl passwd -apr1 "
                              "{password} 2> /dev/null)\n\""
                              "> /etc/nginx/htpasswd-wo 2>/dev/null"
                              .format(username=pargs.user_input,
