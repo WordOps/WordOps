@@ -202,12 +202,8 @@ class WOStackUpgradeController(CementBaseController):
         # netdata
         if pargs.netdata:
             # detect static binaries install
-            if os.path.isdir('/opt/netdata'):
-                packages = packages + [[
-                    'https://my-netdata.io/kickstart.sh',
-                    '/var/lib/wo/tmp/kickstart.sh', 'Netdata']]
-            # detect install from source
-            elif os.path.isdir('/etc/netdata'):
+            if (os.path.isdir('/opt/netdata') or
+                    os.path.isdir('/etc/netdata')):
                 packages = packages + [[
                     'https://my-netdata.io/kickstart.sh',
                     '/var/lib/wo/tmp/kickstart.sh', 'Netdata']]
@@ -295,11 +291,11 @@ class WOStackUpgradeController(CementBaseController):
                     'ngxblocker'
                 ]]
 
-        if ((not (apt_packages)) and (not(packages))):
+        if not apt_packages and not packages:
             self.app.args.print_help()
         else:
             pre_stack(self)
-            if (apt_packages):
+            if apt_packages:
                 if not ("php7.2-fpm" in apt_packages or
                         "php7.3-fpm" in apt_packages or
                         "php7.4-fpm" in apt_packages or
@@ -340,7 +336,7 @@ class WOStackUpgradeController(CementBaseController):
                 Log.valide(self, "Configuring APT Packages")
                 # Post Actions after package updates
 
-            if (packages):
+            if packages:
                 if WOAptGet.is_selected(self, 'WP-CLI', packages):
                     WOFileUtils.rm(self, '/usr/local/bin/wp')
 
@@ -385,7 +381,7 @@ class WOStackUpgradeController(CementBaseController):
                     WOShellExec.cmd_exec(
                         self,
                         "bash /var/lib/wo/tmp/kickstart.sh "
-                        "--dont-wait --no-updates",
+                        "--dont-wait --no-updates --stable-channel",
                         errormsg='', log=False)
                     Log.valide(self, "Upgrading Netdata")
 

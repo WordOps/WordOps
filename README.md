@@ -49,6 +49,7 @@
 - **Modern** : Strong ciphers_suite, modern TLS protocols and HSTS support (Grade A+ on [ssllabs](https://www.ssllabs.com/ssltest/analyze.html?d=demo.wordops.eu&latest))
 - **Monitoring** : Live Nginx vhost traffic with ngx_vts_module and server monitoring with Netdata
 - **User Friendly** : WordOps dashboard with server status/monitoring and tools ([demo](https://demo.wordops.eu))
+- **Release cycle** : WordOps stable releases are published in June and December.
 
 ---
 
@@ -165,6 +166,7 @@ For any other questions about WordOps or if you need support, please use the [Co
 
 If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
 There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.net).
+Otherwise, you can still contribute to the project by making a donation on [Ko-Fi](https://ko-fi.com/wordops).
 
 ## Credits
 

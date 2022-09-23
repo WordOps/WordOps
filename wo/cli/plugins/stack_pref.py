@@ -194,11 +194,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 WOTemplate.deploy(
                     self, '{0}/avif.conf'.format(ngxcnf),
                     'avif.mustache', data, overwrite=False)
-
-                WOTemplate.deploy(
-                    self, '{0}/cloudflare.conf'.format(ngxcnf),
-                    'cloudflare.mustache', data)
-
                 WOTemplate.deploy(
                     self,
                     '{0}/map-wp-fastcgi-cache.conf'.format(ngxcnf),
@@ -220,6 +215,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                   '{0}/locations-wo.conf'
                                   .format(ngxcom),
                                   'locations.mustache', data)
+                # traffic advice file
+                WOTemplate.deploy(self,
+                                  '/var/www/html/'
+                                  '.well-known/traffic-advice',
+                                  'traffic-advice.mustache', data)
 
                 WOTemplate.deploy(self,
                                   '{0}/wpsubdir.conf'
@@ -324,7 +324,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 try:
                     WOShellExec.cmd_exec(
                         self, "printf \"WordOps:"
-                        "$(openssl passwd -crypt "
+                        "$(openssl passwd -apr1 "
                         "{password} 2> /dev/null)\n\""
                         "> /etc/nginx/htpasswd-wo "
                         "2>/dev/null"
@@ -417,16 +417,17 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                             .format(server_ip.text,
                                                     WOVar.wo_fqdn)])
 
-            if not os.path.isfile("/opt/cf-update.sh"):
-                data = dict(release=WOVar.wo_version)
-                WOTemplate.deploy(self, '/opt/cf-update.sh',
-                                  'cf-update.mustache',
-                                  data, overwrite=False)
-                WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
-                WOCron.setcron_weekly(self, '/opt/cf-update.sh '
-                                      '> /dev/null 2>&1',
-                                      comment='Cloudflare IP refresh cronjob '
-                                      'added by WordOps')
+            data = dict(release=WOVar.wo_version)
+            WOTemplate.deploy(self, '/opt/cf-update.sh',
+                              'cf-update.mustache',
+                              data, overwrite=True)
+            WOFileUtils.chmod(self, "/opt/cf-update.sh", 0o775)
+            Log.debug(self, 'Creating Cloudflare.conf')
+            WOShellExec.cmd_exec(self, '/opt/cf-update.sh')
+            WOCron.setcron_weekly(self, '/opt/cf-update.sh '
+                                  '> /dev/null 2>&1',
+                                  comment='Cloudflare IP refresh cronjob '
+                                  'added by WordOps')
 
             # Nginx Configation into GIT
             if not WOService.restart_service(self, 'nginx'):
@@ -1266,7 +1267,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             self,
                             'mysql -e "SET PASSWORD = '
                             'PASSWORD(\'{0}\'); flush privileges;"'
-                            .format(chars))
+                            .format(chars), log=False)
                         WOFileUtils.mvfile(
                             self, '/etc/mysql/conf.d/my.cnf.tmp',
                             '/etc/mysql/conf.d/my.cnf')
@@ -1290,7 +1291,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                 'IDENTIFIED VIA unix_socket OR '
                                 'mysql_native_password; '
                                 'SET PASSWORD = PASSWORD(\'{0}\'); '
-                                'flush privileges;"'.format(chars))
+                                'flush privileges;"'.format(chars), log=False)
                             WOFileUtils.textappend(
                                 self, '/etc/mysql/conf.d/my.cnf',
                                 'socket = /run/mysqld/mysqld.sock')
