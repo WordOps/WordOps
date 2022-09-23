@@ -6,7 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.15.2 - [Unreleased]
+### v3.16.0 - [Unreleased]
+
+### v3.15.2 - 2022-09-23
+
+#### Added
+
+- Add support for Chrome Privacy Preserving Prefetch Proxy [Issue 440](https://github.com/WordOps/WordOps/issues/440)
+
+#### Changed
+
+- Cloudflare IP script for Nginx now fetch Cloudflare IPs using the API
+
+#### Fixed
+
+- wo secure --auth on Ubuntu 22.04
 
 ### v3.15.1 - 2022-09-09
 
