@@ -60,6 +60,7 @@ class WOStackMigrateController(CementBaseController):
         if not ci:
             WOAptGet.dist_upgrade(self)
         WOAptGet.auto_remove(self)
+        WOAptGet.auto_clean(self)
         Log.valide(self, "Upgrading MariaDB          ")
         WOFileUtils.mvfile(
             self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
