@@ -73,7 +73,7 @@ class WOStackMigrateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if ((not pargs.mariadb)):
+        if not pargs.mariadb:
             self.app.args.print_help()
         if pargs.mariadb:
             if WOVar.wo_distro == 'raspbian':
@@ -82,7 +82,7 @@ class WOStackMigrateController(CementBaseController):
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
 
-            if (WOShellExec.cmd_exec(self, "mysqladmin ping")):
+            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
 
                 Log.info(self, "If your database size is big, "
                          "migration may take some time.")
