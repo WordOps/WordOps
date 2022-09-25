@@ -60,6 +60,7 @@ class WOStackMigrateController(CementBaseController):
         if not ci:
             WOAptGet.dist_upgrade(self)
         WOAptGet.auto_remove(self)
+        WOAptGet.auto_clean(self)
         Log.valide(self, "Upgrading MariaDB          ")
         WOFileUtils.mvfile(
             self, '/etc/mysql/my.cnf', '/etc/mysql/my.cnf.old')
@@ -72,7 +73,7 @@ class WOStackMigrateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if ((not pargs.mariadb)):
+        if not pargs.mariadb:
             self.app.args.print_help()
         if pargs.mariadb:
             if WOVar.wo_distro == 'raspbian':
@@ -81,7 +82,7 @@ class WOStackMigrateController(CementBaseController):
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
 
-            if (WOShellExec.cmd_exec(self, "mysqladmin ping")):
+            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
 
                 Log.info(self, "If your database size is big, "
                          "migration may take some time.")
