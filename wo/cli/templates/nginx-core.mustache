@@ -63,13 +63,10 @@ http {
 	ssl_protocols TLSv1.2 TLSv1.3;
 	ssl_ecdh_curve X25519:P-521:P-384:P-256;
 
-
 	# Common security headers
 	more_set_headers "X-Frame-Options : SAMEORIGIN";
-	more_set_headers "X-Xss-Protection : 1; mode=block";
 	more_set_headers "X-Content-Type-Options : nosniff";
 	more_set_headers "Referrer-Policy : strict-origin-when-cross-origin";
-	more_set_headers "X-Download-Options : noopen";
 
 	# oscp settings
 	resolver 8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1 valid=300s;
