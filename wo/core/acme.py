@@ -96,7 +96,7 @@ class WOAcme:
             Log.failed(self, "Issuing SSL cert with acme.sh")
             if acmedata['dns'] is True:
                 Log.error(
-                    self, "Please make sure your properly "
+                    self, "Please make sure you properly "
                     "set your DNS API credentials for acme.sh\n"
                     "If you are using sudo, use \"sudo -E wo\"")
                 return False
