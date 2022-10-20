@@ -108,17 +108,12 @@ def pre_pref(self, apt_packages):
             WORepo.add_key(self, WOVar.wo_php_key)
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
-        if WOVar.wo_distro == 'ubuntu':
+        if not WOFileUtils.grepcheck(
+                self, '/etc/apt/sources.list/wo-repo.list',
+                'redis.io'):
             Log.info(self, "Adding repository for Redis, please wait...")
-            Log.debug(self, 'Adding ppa for redis')
-            WORepo.add(self, ppa=WOVar.wo_redis_repo)
-        else:
-            if not WOFileUtils.grepcheck(
-                    self, '/etc/apt/sources.list/wo-repo.list',
-                    'WordOps'):
-                Log.info(self, "Adding repository for Redis, please wait...")
-                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
-            WORepo.add_key(self, WOVar.wo_nginx_key)
+            WORepo.add(self, repo_url=WOVar.wo_redis_repo)
+            WORepo.download_key(self, WOVar.wo_redis_key_url)
 
     # nano
     if 'nano' in apt_packages:

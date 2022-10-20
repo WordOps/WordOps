@@ -208,7 +208,8 @@ class WOVar():
             "deb https://packages.sury.org/php/ {codename} main"
             .format(codename=wo_platform_codename))
         wo_php_key = 'AC0E47584A7A714D'
-        wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
+        wo_redis_key_url = "https://packages.redis.io/gpg"
+        wo_redis_repo = ("deb https://packages.redis.io/deb {codename} main"
                          .format(codename=wo_platform_codename))
 
     wo_redis = ['redis-server']
