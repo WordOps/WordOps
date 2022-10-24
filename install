@@ -732,7 +732,7 @@ wo_woconf() {
             echo -e '\n[letsencrypt]\n\nkeylength = "ec-384"' >>/etc/wo/wo.conf
         fi
         if ! grep -q "php" /etc/wo/wo.conf; then
-            echo -e '\n[php]\n\nversion = 7.4' >>/etc/wo/wo.conf
+            echo -e '\n[php]\n\nversion = 8.0' >>/etc/wo/wo.conf
         fi
     fi
 }
