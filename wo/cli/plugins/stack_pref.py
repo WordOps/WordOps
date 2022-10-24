@@ -1395,18 +1395,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                       msg="Adding ProFTPd into Git")
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
                 Log.debug(self, "Setting up Proftpd configuration")
-                WOFileUtils.searchreplace(
-                    self, "/etc/proftpd/proftpd.conf",
-                    "# DefaultRoot", "DefaultRoot")
-                WOFileUtils.searchreplace(
-                    self, "/etc/proftpd/proftpd.conf",
-                    "# RequireValidShell", "RequireValidShell")
-                WOFileUtils.searchreplace(
-                    self, "/etc/proftpd/proftpd.conf",
-                    "# PassivePorts                  "
-                    "49152 65534",
-                    "PassivePorts              "
-                    "    49000 50000")
+                data = dict()
+                WOTemplate.deploy(self,
+                                  '/etc/proftpd/proftpd.conf',
+                                  'proftpd.mustache', data)
             # proftpd TLS configuration
             if not os.path.isdir("/etc/proftpd/ssl"):
                 WOFileUtils.mkdir(self, "/etc/proftpd/ssl")
@@ -1416,10 +1408,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             data = dict()
             WOTemplate.deploy(self, '/etc/proftpd/tls.conf',
                               'proftpd-tls.mustache', data)
-            WOFileUtils.searchreplace(self, "/etc/proftpd/"
-                                      "proftpd.conf",
-                                      "#Include /etc/proftpd/tls.conf",
-                                      "Include /etc/proftpd/tls.conf")
             WOService.restart_service(self, 'proftpd')
 
             if os.path.isfile('/etc/ufw/ufw.conf'):
