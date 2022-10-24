@@ -8,19 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.16.0 - [Unreleased]
 
+### v3.15.3 - 2022-10-24
+
+#### Added
+
+- Support for Debian 10/11
+
 #### Changed
 
 - Install redis from official repository
 - Redis version bump to 7.0.5
 - WP-CLI version bump to 2.7.1
-- Outdated Nginx directives removed by @nsgoyat
+- Remove outdated Nginx directives
 - Updated repository GPG Key
+- UFW stack detect proftpd during install
 
 #### Fixed
 
 - Netdata upgrade failure on old servers
 - MariaDB service disabled after upgrade with `wo stack migrate --mariadb`
-- Proftpd install on Ubuntu 22.04
+- Proftpd install on Ubuntu 22.04 and Debian 11
 
 ### v3.15.2 - 2022-09-23
 
