@@ -41,7 +41,7 @@ location /.well-known/acme-challenge/ {
 # https://developer.chrome.com/blog/private-prefetch-proxy/
 location /.well-known/traffic-advice {
    types { } default_type "application/trafficadvice+json; charset=utf-8";
-   return 200 "[\{\n  \"user_agent\": \"prefetch-proxy\",\n  \"google_prefetch_proxy_eap\": \{\n    \"fraction\": 1.0\n  \}\n\}]";
+   return 200 "[{\n  \"user_agent\": \"prefetch-proxy\",\n  \"google_prefetch_proxy_eap\": {\n    \"fraction\": 1.0\n  }\n}]";
    allow all;
 }
 # Return 403 forbidden for readme.(txt|html) or license.(txt|html) or example.(txt|html) or other common git repository files
