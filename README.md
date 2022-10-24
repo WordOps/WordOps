@@ -87,13 +87,13 @@ Detailed Getting Started guide with additional installation methods can be found
 ### Standard WordPress sites
 
 ```bash
-wo site create example.com --wp                  # install wordpress with PHP 8.0 without any page caching
-wo site create example.com --wp  --php81         # install wordpress with PHP 8.1  without any page caching
-wo site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
-wo site create example.com --wpredis             # install wordpress + nginx redis_cache
-wo site create example.com --wprocket            # install wordpress with WP-Rocket plugin
-wo site create example.com --wpce                # install wordpress with Cache-enabler plugin
-wo site create example.com --wpsc                # install wordpress with wp-super-cache plugin
+wo site create example.com --wp                # install wordpress with PHP 8.0 without any page caching
+wo site create example.com --wp  --php81       # install wordpress with PHP 8.1  without any page caching
+wo site create example.com --wpfc              # install wordpress + nginx fastcgi_cache
+wo site create example.com --wpredis           # install wordpress + nginx redis_cache
+wo site create example.com --wprocket          # install wordpress with WP-Rocket plugin
+wo site create example.com --wpce              # install wordpress with Cache-enabler plugin
+wo site create example.com --wpsc              # install wordpress with wp-super-cache plugin
 ```
 
 ### WordPress multisite with subdirectory
