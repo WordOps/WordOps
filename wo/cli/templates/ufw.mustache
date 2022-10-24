@@ -46,6 +46,13 @@ wo_ufw_setup() {
         # wordops backend
         ufw limit 22222
     fi
+
+    # allow proftpd port if installed
+    if [ -f /etc/proftpd/proftpd.conf ]; then
+        ufw limit 21
+        ufw allow 49000:50000/tcp
+    fi
+
     # enable ufw
     if [ -n "$CURRENT_SSH_PORT" ]; then
         ufw --force enable

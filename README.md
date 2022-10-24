@@ -41,8 +41,8 @@
 
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Custom Nginx build** : Nginx 1.22.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0 & 8.1 - MariaDB 10.6 & Redis 6.0
+- **Custom Nginx build** : Nginx 1.22.1 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
+- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0 & 8.1 - MariaDB 10.6 & Redis 7.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
@@ -66,11 +66,11 @@
 #### Also compatible
 
 - Debian 10 (Buster)
-- Raspbian 10 (Buster)
+- Debian 11 (Bullseye)
 
 #### For testing purpose only
 
-- Debian 11 (Bullseye)
+- Raspbian 10 (Buster)
 - Raspbian 11 (Bullseye)
 
 ## Getting Started
@@ -87,14 +87,13 @@ Detailed Getting Started guide with additional installation methods can be found
 ### Standard WordPress sites
 
 ```bash
-wo site create example.com --wp                  # install wordpress with PHP 7.3 without any page caching
-wo site create example.com --wp  --php80         # install wordpress with PHP 8.0  without any page caching
-wo site create example.com --wp  --php81         # install wordpress with PHP 8.1  without any page caching
-wo site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
-wo site create example.com --wpredis             # install wordpress + nginx redis_cache
-wo site create example.com --wprocket            # install wordpress with WP-Rocket plugin
-wo site create example.com --wpce                # install wordpress with Cache-enabler plugin
-wo site create example.com --wpsc                # install wordpress with wp-super-cache plugin
+wo site create example.com --wp                # install wordpress with PHP 8.0 without any page caching
+wo site create example.com --wp  --php81       # install wordpress with PHP 8.1  without any page caching
+wo site create example.com --wpfc              # install wordpress + nginx fastcgi_cache
+wo site create example.com --wpredis           # install wordpress + nginx redis_cache
+wo site create example.com --wprocket          # install wordpress with WP-Rocket plugin
+wo site create example.com --wpce              # install wordpress with Cache-enabler plugin
+wo site create example.com --wpsc              # install wordpress with wp-super-cache plugin
 ```
 
 ### WordPress multisite with subdirectory
@@ -125,10 +124,9 @@ wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + C
 wo site create example.com --html     # create example.com for static/html sites
 wo site create example.com --php      # create example.com with php 8.0 support
 wo site create example.com --php80      # create example.com with php 8.0 support
-wo site create example.com --php74      # create example.com with php 7.4 support
+wo site create example.com --php81      # create example.com with php 8.1 support
 wo site create example.com --mysql    # create example.com with php 8.0 & mysql support
 wo site create example.com --mysql --php81   # create example.com with php 8.1 & mysql support
-wo site create example.com --mysql --php73   # create example.com with php 7.3 & mysql support
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
 ```
 
@@ -196,7 +194,7 @@ Third-party debian packages shipped with WordOps :
 
 - [Nginx-wo by WordOps](https://build.opensuse.org/package/show/home:virtubox:WordOps/nginx)
 - [PHP by Ondřej Surý](https://launchpad.net/~ondrej/+archive/ubuntu/php)
-- [Redis by Chris Lea](https://launchpad.net/~chris-lea/+archive/ubuntu/redis-server)
+- [Redis](https://redis.io/docs/getting-started/installation/install-redis-on-linux/)
 
 WordPress Cache Plugins supported by WordOps :
 

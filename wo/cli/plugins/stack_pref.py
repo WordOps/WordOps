@@ -108,17 +108,12 @@ def pre_pref(self, apt_packages):
             WORepo.add_key(self, WOVar.wo_php_key)
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
-        if WOVar.wo_distro == 'ubuntu':
+        if not WOFileUtils.grepcheck(
+                self, '/etc/apt/sources.list/wo-repo.list',
+                'redis.io'):
             Log.info(self, "Adding repository for Redis, please wait...")
-            Log.debug(self, 'Adding ppa for redis')
-            WORepo.add(self, ppa=WOVar.wo_redis_repo)
-        else:
-            if not WOFileUtils.grepcheck(
-                    self, '/etc/apt/sources.list/wo-repo.list',
-                    'WordOps'):
-                Log.info(self, "Adding repository for Redis, please wait...")
-                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
-            WORepo.add_key(self, WOVar.wo_nginx_key)
+            WORepo.add(self, repo_url=WOVar.wo_redis_repo)
+            WORepo.download_key(self, WOVar.wo_redis_key_url)
 
     # nano
     if 'nano' in apt_packages:
@@ -1401,18 +1396,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                       msg="Adding ProFTPd into Git")
             if os.path.isfile("/etc/proftpd/proftpd.conf"):
                 Log.debug(self, "Setting up Proftpd configuration")
-                WOFileUtils.searchreplace(
-                    self, "/etc/proftpd/proftpd.conf",
-                    "# DefaultRoot", "DefaultRoot")
-                WOFileUtils.searchreplace(
-                    self, "/etc/proftpd/proftpd.conf",
-                    "# RequireValidShell", "RequireValidShell")
-                WOFileUtils.searchreplace(
-                    self, "/etc/proftpd/proftpd.conf",
-                    "# PassivePorts                  "
-                    "49152 65534",
-                    "PassivePorts              "
-                    "    49000 50000")
+                data = dict()
+                WOTemplate.deploy(self,
+                                  '/etc/proftpd/proftpd.conf',
+                                  'proftpd.mustache', data)
             # proftpd TLS configuration
             if not os.path.isdir("/etc/proftpd/ssl"):
                 WOFileUtils.mkdir(self, "/etc/proftpd/ssl")
@@ -1422,10 +1409,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             data = dict()
             WOTemplate.deploy(self, '/etc/proftpd/tls.conf',
                               'proftpd-tls.mustache', data)
-            WOFileUtils.searchreplace(self, "/etc/proftpd/"
-                                      "proftpd.conf",
-                                      "#Include /etc/proftpd/tls.conf",
-                                      "Include /etc/proftpd/tls.conf")
             WOService.restart_service(self, 'proftpd')
 
             if os.path.isfile('/etc/ufw/ufw.conf'):

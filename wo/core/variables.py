@@ -15,9 +15,9 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.15.2"
+    wo_version = "3.15.3"
     # WordOps packages versions
-    wo_wp_cli = "2.6.0"
+    wo_wp_cli = "2.7.1"
     wo_adminer = "4.8.1"
     wo_phpmyadmin = "5.2.0"
     wo_extplorer = "2.1.13"
@@ -200,7 +200,6 @@ class WOVar():
                              codename=wo_platform_codename))
     if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
-        wo_redis_repo = ("ppa:redislabs/redis")
         wo_goaccess_repo = ("ppa:alex-p/goaccess")
 
     else:
@@ -208,8 +207,9 @@ class WOVar():
             "deb https://packages.sury.org/php/ {codename} main"
             .format(codename=wo_platform_codename))
         wo_php_key = 'AC0E47584A7A714D'
-        wo_redis_repo = ("deb https://packages.sury.org/php/ {codename} all"
-                         .format(codename=wo_platform_codename))
+    wo_redis_key_url = "https://packages.redis.io/gpg"
+    wo_redis_repo = ("deb https://packages.redis.io/deb {codename} main"
+                     .format(codename=wo_platform_codename))
 
     wo_redis = ['redis-server']
 
