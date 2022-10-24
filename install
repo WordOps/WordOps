@@ -519,6 +519,8 @@ wo_travis_install() {
             if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
                 if [ "$wo_distro_codename" = "stretch" ]; then
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
+                elif [ "$wo_distro_codename" = "bullseye" ]; then
+                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
                 else
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
                 fi
@@ -527,8 +529,10 @@ wo_travis_install() {
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
                 elif [ "$wo_distro_codename" = "bionic" ]; then
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
+                elif [ "$wo_distro_codename" = "jammy" ]; then
+                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
                 else
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.0_beta1ubuntu0.16.04.9#egg=python-apt
+                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.y-xenial#egg=python-apt
                 fi
             fi
         fi
@@ -793,7 +797,7 @@ wo_php_fix() {
 
 wo_git_secure_path() {
     if ! grep -q "safe" ~/.gitconfig; then
-        echo -e "\n[safe]\n  directory = *" >> ~/.gitconfig
+        echo -e "\n[safe]\n  directory = *" >>~/.gitconfig
     fi
 }
 

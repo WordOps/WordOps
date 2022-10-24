@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.16.0 - [Unreleased]
 
+#### Changed
+
+- Install redis from official repository
+- Redis version bump to 7.0.5
+- WP-CLI version bump to 2.7.1
+- Outdated Nginx directives removed by @nsgoyat
+- Updated repository GPG Key
+
+#### Fixed
+
+- Netdata upgrade failure on old servers
+- MariaDB service disabled after upgrade with `wo stack migrate --mariadb`
+
 ### v3.15.2 - 2022-09-23
 
 #### Added

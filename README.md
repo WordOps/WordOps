@@ -41,8 +41,8 @@
 
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Custom Nginx build** : Nginx 1.22.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0 & 8.1 - MariaDB 10.6 & Redis 6.0
+- **Custom Nginx build** : Nginx 1.22.1 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
+- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0 & 8.1 - MariaDB 10.6 & Redis 7.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
@@ -87,8 +87,7 @@ Detailed Getting Started guide with additional installation methods can be found
 ### Standard WordPress sites
 
 ```bash
-wo site create example.com --wp                  # install wordpress with PHP 7.3 without any page caching
-wo site create example.com --wp  --php80         # install wordpress with PHP 8.0  without any page caching
+wo site create example.com --wp                  # install wordpress with PHP 8.0 without any page caching
 wo site create example.com --wp  --php81         # install wordpress with PHP 8.1  without any page caching
 wo site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis             # install wordpress + nginx redis_cache
