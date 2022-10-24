@@ -2,7 +2,7 @@
 # /etc/proftpd/proftpd.conf -- This is a basic ProFTPD configuration file.
 # To really apply changes, reload proftpd after modifications, if
 # it runs in daemon mode. It is not required in inetd/xinetd mode.
-# 
+#
 
 # Includes DSO modules
 Include /etc/proftpd/modules.conf
@@ -10,8 +10,9 @@ Include /etc/proftpd/modules.conf
 # Set off to disable IPv6 support which is annoying on IPv4 only boxes.
 UseIPv6				off
 # If set on you can experience a longer connection delay in many cases.
+<IfModule mod_ident.c>
 IdentLookups			off
-
+</IfModule>
 ServerName			"Debian"
 # Set to inetd only if you would run proftpd by inetd/xinetd.
 # Read README.Debian for more information on proper configuration.
@@ -32,7 +33,7 @@ ListOptions                	"-l"
 
 DenyFilter			\*.*/
 
-# Use this to jail all users in their homes 
+# Use this to jail all users in their homes
 DefaultRoot			~
 
 # Users require a valid shell listed in /etc/shells to login.
@@ -98,7 +99,7 @@ SystemLog   /var/log/proftpd/proftpd.log
 # from /etc/localtime.  If this is not set, and proftpd is configured to
 # chroot (e.g. DefaultRoot or <Anonymous>), it will use the non-daylight
 # savings timezone regardless of whether DST is in effect.
-#SetEnv TZ :/etc/localtime
+SetEnv TZ :/etc/localtime
 
 <IfModule mod_quotatab.c>
 QuotaEngine off
@@ -111,7 +112,7 @@ Ratios off
 
 # Delay engine reduces impact of the so-called Timing Attack described in
 # http://www.securityfocus.com/bid/11430/discuss
-# It is on by default. 
+# It is on by default.
 <IfModule mod_delay.c>
 DelayEngine on
 </IfModule>
@@ -128,64 +129,10 @@ ControlsSocket        /var/run/proftpd/proftpd.sock
 AdminControlsEngine off
 </IfModule>
 
-#
-# Alternative authentication frameworks
-#
-#Include /etc/proftpd/ldap.conf
-#Include /etc/proftpd/sql.conf
 
-#
 # This is used for FTPS connections
 #
 Include /etc/proftpd/tls.conf
-
-#
-# Useful to keep VirtualHost/VirtualRoot directives separated
-#
-#Include /etc/proftpd/virtuals.conf
-
-# A basic anonymous configuration, no upload directories.
-
-# <Anonymous ~ftp>
-#   User				ftp
-#   Group				nogroup
-#   # We want clients to be able to login with "anonymous" as well as "ftp"
-#   UserAlias			anonymous ftp
-#   # Cosmetic changes, all files belongs to ftp user
-#   DirFakeUser	on ftp
-#   DirFakeGroup on ftp
-# 
-#   RequireValidShell		off
-# 
-#   # Limit the maximum number of anonymous logins
-#   MaxClients			10
-# 
-#   # We want 'welcome.msg' displayed at login, and '.message' displayed
-#   # in each newly chdired directory.
-#   DisplayLogin			welcome.msg
-#   DisplayChdir		.message
-# 
-#   # Limit WRITE everywhere in the anonymous chroot
-#   <Directory *>
-#     <Limit WRITE>
-#       DenyAll
-#     </Limit>
-#   </Directory>
-# 
-#   # Uncomment this if you're brave.
-#   # <Directory incoming>
-#   #   # Umask 022 is a good standard umask to prevent new files and dirs
-#   #   # (second parm) from being group and world writable.
-#   #   Umask				022  022
-#   #            <Limit READ WRITE>
-#   #            DenyAll
-#   #            </Limit>
-#   #            <Limit STOR>
-#   #            AllowAll
-#   #            </Limit>
-#   # </Directory>
-# 
-# </Anonymous>
 
 # Include other custom configuration files
 Include /etc/proftpd/conf.d/

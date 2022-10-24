@@ -4,6 +4,8 @@ TLSEngine                     on
 TLSRequired                   on
 TLSLog                        /var/log/proftpd/tls.log
 
+TLSDHParamFile                /etc/proftpd/dhparams.pem
+
 # intermediate configuration from ssl-config.mozilla.org
 TLSProtocol                   TLSv1.2
 TLSCipherSuite                ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384

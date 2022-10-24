@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Netdata upgrade failure on old servers
 - MariaDB service disabled after upgrade with `wo stack migrate --mariadb`
+- Proftpd install on Ubuntu 22.04
 
 ### v3.15.2 - 2022-09-23
 
