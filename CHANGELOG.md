@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.16.0 - [Unreleased]
 
+### v3.15.4 - 2022-10-25
+
+#### Fixed
+
+- Nginx prefetch-proxy configuration
+- Linux distribution variable not set properly
+
 ### v3.15.3 - 2022-10-24
 
 #### Added
