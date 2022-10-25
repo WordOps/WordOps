@@ -4,12 +4,12 @@
 # -------------------------------------------------------------------------
 # Website:       https://wordops.net
 # GitHub:        https://github.com/WordOps/WordOps
-# Copyright (c) 2019-2022 - WordOps
+# Copyright (c) 2019-2023 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.15.3 - 2022-10-24
+# Version 3.15.4 - 2022-10-25
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -167,7 +167,7 @@ wo_check_distro() {
             wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
-            check_wo_linux_distro=$(lsb_release -sc | grep -E "bionic|stretch|buster|focal|jammy|bullseye")
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "bionic|buster|focal|jammy|bullseye")
             if [ -z "$check_wo_linux_distro" ]; then
                 wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 18.04/20.04/22.04 LTS, Debian 10.x/11.x and Raspbian 10x./11.x \n
                 You can bypass this warning by adding the flag --force to the install command"

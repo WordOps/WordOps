@@ -15,7 +15,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.15.3"
+    wo_version = "3.15.4"
     # WordOps packages versions
     wo_wp_cli = "2.7.1"
     wo_adminer = "4.8.1"
@@ -31,7 +31,7 @@ class WOVar():
 
     # WordOps core variables
     # linux distribution
-    if sys.version_info <= (3, 7):
+    if sys.version_info <= (3, 5):
         wo_distro = linux_distribution(
             full_distribution_name=False)[0].lower()
         wo_platform_version = linux_distribution(
