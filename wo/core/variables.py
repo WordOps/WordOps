@@ -31,7 +31,7 @@ class WOVar():
 
     # WordOps core variables
     # linux distribution
-    if sys.version_info <= (3, 7):
+    if sys.version_info <= (3, 5):
         wo_distro = linux_distribution(
             full_distribution_name=False)[0].lower()
         wo_platform_version = linux_distribution(
