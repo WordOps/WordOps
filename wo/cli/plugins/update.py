@@ -59,6 +59,7 @@ class WOUpdateController(CementBaseController):
             install_args = install_args + "--travis "
             wo_branch = "updating-configuration"
 
+        # check if WordOps already up-to-date
         if ((not pargs.force) and (not pargs.travis) and
             (not pargs.mainline) and (not pargs.beta) and
                 (not pargs.branch)):
@@ -70,6 +71,17 @@ class WOUpdateController(CementBaseController):
                     .format(wo_latest))
                 self.app.close(0)
 
+        # prompt user before starting upgrade
+        if not pargs.force:
+            Log.info(
+                self, "WordOps changelog available on "
+                "https://github.com/WordOps/WordOps/releases/tag/{0}"
+                .format(wo_latest))
+            start_upgrade = input("Do you want to continue:[y/N]")
+            if start_upgrade not in ("Y", "y"):
+                Log.error(self, "Not starting WordOps update")
+
+        # download the install/update script
         if not os.path.isdir('/var/lib/wo/tmp'):
             os.makedirs('/var/lib/wo/tmp')
         WODownload.download(self, [["https://raw.githubusercontent.com/"
@@ -78,6 +90,7 @@ class WOUpdateController(CementBaseController):
                                     "/var/lib/wo/tmp/{0}".format(filename),
                                     "update script"]])
 
+        # launch install script
         if os.path.isfile('install'):
             Log.info(self, "updating WordOps from local install\n")
             try:
