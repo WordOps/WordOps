@@ -170,6 +170,9 @@ class WOVar():
     wo_php81 = []
     for module in wo_module:
         wo_php81 = wo_php81 + ["php8.1-{0}".format(module)]
+    wo_php82 = []
+    for module in wo_module:
+        wo_php82 = wo_php82 + ["php8.2-{0}".format(module)]
 
     wo_php_extra = ["graphviz"]
 

@@ -41,6 +41,9 @@ class WOInfoController(CementBaseController):
             (['--php81'],
                 dict(help='Get PHP 8.1 configuration information',
                      action='store_true')),
+            (['--php82'],
+                dict(help='Get PHP 8.2 configuration information',
+                     action='store_true')),
             (['--nginx'],
                 dict(help='Get Nginx configuration information',
                      action='store_true')),
@@ -509,6 +512,93 @@ class WOInfoController(CementBaseController):
         self.app.render((data), 'info_php.mustache')
 
     @expose(hide=True)
+    def info_php82(self):
+        """Display PHP information"""
+        version = os.popen("/usr/bin/php8.2 -v 2>/dev/null | "
+                           "head -n1 | cut -d' ' -f2 |"
+                           " cut -d'+' -f1 | tr -d '\n'").read
+        config = configparser.ConfigParser()
+        config.read('/etc/php/8.2/fpm/php.ini')
+        expose_php = config['PHP']['expose_php']
+        memory_limit = config['PHP']['memory_limit']
+        post_max_size = config['PHP']['post_max_size']
+        upload_max_filesize = config['PHP']['upload_max_filesize']
+        max_execution_time = config['PHP']['max_execution_time']
+
+        if os.path.exists('/etc/php/8.2/fpm/pool.d/www.conf'):
+            config.read('/etc/php/8.2/fpm/pool.d/www.conf')
+        else:
+            Log.error(self, 'php-fpm pool config not found')
+        if config.has_section('www'):
+            wconfig = config['www']
+        elif config.has_section('www-php82'):
+            wconfig = config['www-php82']
+        else:
+            Log.error(self, 'Unable to parse configuration')
+        www_listen = wconfig['listen']
+        www_ping_path = wconfig['ping.path']
+        www_pm_status_path = wconfig['pm.status_path']
+        www_pm = wconfig['pm']
+        www_pm_max_requests = wconfig['pm.max_requests']
+        www_pm_max_children = wconfig['pm.max_children']
+        www_pm_start_servers = wconfig['pm.start_servers']
+        www_pm_min_spare_servers = wconfig['pm.min_spare_servers']
+        www_pm_max_spare_servers = wconfig['pm.max_spare_servers']
+        www_request_terminate_time = (wconfig
+                                      ['request_terminate_timeout'])
+        try:
+            www_xdebug = (wconfig
+                          ['php_admin_flag[xdebug.profiler_enable'
+                           '_trigger]'])
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            www_xdebug = 'off'
+
+        config.read('/etc/php/8.2/fpm/pool.d/debug.conf')
+        debug_listen = config['debug']['listen']
+        debug_ping_path = config['debug']['ping.path']
+        debug_pm_status_path = config['debug']['pm.status_path']
+        debug_pm = config['debug']['pm']
+        debug_pm_max_requests = config['debug']['pm.max_requests']
+        debug_pm_max_children = config['debug']['pm.max_children']
+        debug_pm_start_servers = config['debug']['pm.start_servers']
+        debug_pm_min_spare_servers = config['debug']['pm.min_spare_servers']
+        debug_pm_max_spare_servers = config['debug']['pm.max_spare_servers']
+        debug_request_terminate = (config['debug']
+                                         ['request_terminate_timeout'])
+        try:
+            debug_xdebug = (config['debug']['php_admin_flag[xdebug.profiler_'
+                                            'enable_trigger]'])
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            debug_xdebug = 'off'
+
+        data = dict(version=version, expose_php=expose_php,
+                    memory_limit=memory_limit, post_max_size=post_max_size,
+                    upload_max_filesize=upload_max_filesize,
+                    max_execution_time=max_execution_time,
+                    www_listen=www_listen, www_ping_path=www_ping_path,
+                    www_pm_status_path=www_pm_status_path, www_pm=www_pm,
+                    www_pm_max_requests=www_pm_max_requests,
+                    www_pm_max_children=www_pm_max_children,
+                    www_pm_start_servers=www_pm_start_servers,
+                    www_pm_min_spare_servers=www_pm_min_spare_servers,
+                    www_pm_max_spare_servers=www_pm_max_spare_servers,
+                    www_request_terminate_timeout=www_request_terminate_time,
+                    www_xdebug_profiler_enable_trigger=www_xdebug,
+                    debug_listen=debug_listen, debug_ping_path=debug_ping_path,
+                    debug_pm_status_path=debug_pm_status_path,
+                    debug_pm=debug_pm,
+                    debug_pm_max_requests=debug_pm_max_requests,
+                    debug_pm_max_children=debug_pm_max_children,
+                    debug_pm_start_servers=debug_pm_start_servers,
+                    debug_pm_min_spare_servers=debug_pm_min_spare_servers,
+                    debug_pm_max_spare_servers=debug_pm_max_spare_servers,
+                    debug_request_terminate_timeout=debug_request_terminate,
+                    debug_xdebug_profiler_enable_trigger=debug_xdebug)
+        self.app.render((data), 'info_php.mustache')
+
+    @expose(hide=True)
     def info_mysql(self):
         """Display MySQL information"""
         version = os.popen("/usr/bin/mysql -V | awk '{print($5)}' | "
@@ -549,7 +639,7 @@ class WOInfoController(CementBaseController):
         if (not pargs.nginx and not pargs.php and
                 not pargs.mysql and not pargs.php73 and
                 not pargs.php74 and not pargs.php80 and
-                not pargs.php81):
+                not pargs.php81 and not pargs.php82):
             pargs.nginx = True
             pargs.php = True
             pargs.mysql = True
@@ -561,6 +651,8 @@ class WOInfoController(CementBaseController):
                 pargs.php80 = True
             if WOAptGet.is_installed(self, 'php8.1-fpm'):
                 pargs.php81 = True
+            if WOAptGet.is_installed(self, 'php8.2-fpm'):
+                pargs.php82 = True
 
         if pargs.nginx:
             if ((not WOAptGet.is_installed(self, 'nginx-custom')) and
@@ -598,6 +690,12 @@ class WOInfoController(CementBaseController):
                 self.info_php81()
             else:
                 Log.info(self, "PHP 8.1 is not installed")
+
+        if pargs.php82:
+            if WOAptGet.is_installed(self, 'php8.2-fpm'):
+                self.info_php82()
+            else:
+                Log.info(self, "PHP 8.2 is not installed")
 
         if pargs.mysql:
             if WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
