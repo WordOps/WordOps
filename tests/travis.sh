@@ -32,9 +32,9 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
 if [ "$wo_distro" != "xenial" ]; then
-stack_list='nginx php php73 php74 php80 php81 php82 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis sendmail phpredisadmin mysqltuner utils ufw cheat nanorc'
+stack_list='nginx php php73 php74 php80 php81 php82 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer redis sendmail phpredisadmin mysqltuner utils ufw cheat nanorc'
 else
-stack_list='nginx php php73 php74 php80 php81 php82 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis phpredisadmin mysqltuner utils ufw cheat nanorc'
+stack_list='nginx php php73 php74 php80 php81 php82 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer redis phpredisadmin mysqltuner utils ufw cheat nanorc'
 fi
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
