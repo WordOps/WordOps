@@ -237,7 +237,7 @@ def setupdatabase(self, data):
     data['wo_db_pass'] = wo_db_password
     data['wo_db_host'] = WOVar.wo_mysql_host
     data['wo_mysql_grant_host'] = wo_mysql_grant_host
-    return(data)
+    return (data)
 
 
 def setupwordpress(self, data, vhostonly=False):
@@ -628,7 +628,7 @@ def setupwordpress(self, data, vhostonly=False):
     wp_creds = dict(wp_user=wo_wp_user, wp_pass=wo_wp_pass,
                     wp_email=wo_wp_email)
 
-    return(wp_creds)
+    return (wp_creds)
 
 
 def setupwordpressnetwork(self, data):
@@ -990,8 +990,8 @@ def site_package_check(self, stype):
                   "/usr/local/sbin/install-ngxblocker",
                   "ngxblocker"]]
 
-    return(stack.install(apt_packages=apt_packages, packages=packages,
-                         disp_msg=False))
+    return (stack.install(apt_packages=apt_packages, packages=packages,
+                          disp_msg=False))
 
 
 def updatewpuserpassword(self, wo_domain, wo_site_webroot):

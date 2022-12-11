@@ -276,7 +276,8 @@ class WOSiteUpdateController(CementBaseController):
 
         if (((stype == 'php' and
               oldsitetype not in ['html', 'proxy', 'php', 'php72',
-                                  'php73', 'php74', 'php80', 'php81']) or
+                                  'php73', 'php74', 'php80',
+                                  'php81', 'php82']) or
              (stype == 'mysql' and oldsitetype not in [
                  'html', 'php', 'php72', 'php73', 'php74', 'php80', 'php81',
                  'php82', 'proxy']) or
@@ -337,7 +338,7 @@ class WOSiteUpdateController(CementBaseController):
                 (not data)):
             Log.debug(
                 self, "pargs php72, or php73, or php74, "
-                "or php80, or php81 enabled")
+                "or php80, or php81 or php82 enabled")
             data = dict(
                 site_name=wo_domain,
                 www_domain=wo_www_domain,
