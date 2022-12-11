@@ -43,6 +43,8 @@ class WOStackUpgradeController(CementBaseController):
              dict(help='Upgrade PHP 8.0 stack', action='store_true')),
             (['--php81'],
              dict(help='Upgrade PHP 8.1 stack', action='store_true')),
+            (['--php82'],
+             dict(help='Upgrade PHP 8.2 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
             (['--mariadb'],
@@ -86,7 +88,7 @@ class WOStackUpgradeController(CementBaseController):
         wo_phpmyadmin = WODownload.pma_release(self)
         if not (pargs.web or pargs.nginx or pargs.php or
                 pargs.php72 or pargs.php73 or pargs.php74 or
-                pargs.php80 or pargs.php81 or pargs.mysql or
+                pargs.php80 or pargs.php81 or pargs.php82 or pargs.mysql or
                 pargs.mariadb or pargs.ngxblocker or pargs.all or
                 pargs.netdata or pargs.wpcli or pargs.composer or
                 pargs.phpmyadmin or pargs.adminer or pargs.dashboard or
@@ -100,7 +102,7 @@ class WOStackUpgradeController(CementBaseController):
             pargs.mysql = True
 
         if pargs.php:
-            pargs.php72 = True
+            pargs.php81 = True
 
         if pargs.all:
             pargs.web = True
@@ -115,6 +117,7 @@ class WOStackUpgradeController(CementBaseController):
             pargs.php74 = True
             pargs.php80 = True
             pargs.php81 = True
+            pargs.php82 = True
             pargs.mysql = True
             pargs.wpcli = True
 
@@ -170,6 +173,12 @@ class WOStackUpgradeController(CementBaseController):
         if pargs.php81:
             if WOAptGet.is_installed(self, 'php8.1-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php81 + \
+                    WOVar.wo_php_extra
+
+        # php 8.2
+        if pargs.php82:
+            if WOAptGet.is_installed(self, 'php8.2-fpm'):
+                apt_packages = apt_packages + WOVar.wo_php82 + \
                     WOVar.wo_php_extra
 
         # mysql
@@ -301,6 +310,7 @@ class WOStackUpgradeController(CementBaseController):
                         "php7.4-fpm" in apt_packages or
                         "php8.0-fpm" in apt_packages or
                         "php8.1-fpm" in apt_packages or
+                        "php8.2-fpm" in apt_packages or
                         "redis-server" in apt_packages or
                         "nginx-custom" in apt_packages or
                         "mariadb-server" in apt_packages):

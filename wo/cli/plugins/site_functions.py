@@ -775,7 +775,8 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'php72', 'php74',
-                                'php73', 'php80', 'php81', 'proxy', 'mysql']:
+                                'php73', 'php80', 'php81', 'php82',
+                                'proxy', 'mysql']:
         if not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
             WOFileUtils.copyfiles(self, wo_site_webroot +
@@ -835,7 +836,7 @@ def site_package_check(self, stype):
     stack.app = self.app
     pargs = self.app.pargs
     if stype in ['html', 'proxy', 'php', 'php72', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain', 'php73', 'php74', 'php80', 'php81']:
+                 'wpsubdomain', 'php73', 'php74', 'php80', 'php81', 'php82']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
@@ -873,19 +874,22 @@ def site_package_check(self, stype):
 
     if ((pargs.php and pargs.php73) or (pargs.php and pargs.php74) or
         (pargs.php and pargs.php72) or (pargs.php and pargs.php80) or
-        (pargs.php and pargs.php81) or
-        (pargs.php73 and pargs.php74) or (pargs.php72 and pargs.php73) or
-        (pargs.php72 and pargs.php74) or (pargs.php73 and pargs.php80) or
-        (pargs.php74 and pargs.php80) or (pargs.php80 and pargs.php81) or
+        (pargs.php and pargs.php81) or (pargs.php and pargs.php82) or
+        (pargs.php72 and pargs.php73) or (pargs.php72 and pargs.php74) or
         (pargs.php72 and pargs.php80) or (pargs.php72 and pargs.php81) or
-        (pargs.php73 and pargs.php81) or (pargs.php74 and pargs.php81) or
-            (pargs.php80 and pargs.php81)):
+        (pargs.php72 and pargs.php82) or
+        (pargs.php73 and pargs.php74) or (pargs.php73 and pargs.php80) or
+        (pargs.php73 and pargs.php81) or (pargs.php73 and pargs.php82) or
+        (pargs.php74 and pargs.php80) or (pargs.php74 and pargs.php81) or
+        (pargs.php74 and pargs.php82) or
+        (pargs.php80 and pargs.php81) or (pargs.php80 and pargs.php82) or
+            (pargs.php81 and pargs.php82)):
         Log.error(
             self, "Error: two different PHP versions cannot be "
                   "combined within the same WordOps site")
 
     if ((not pargs.php72) and (not pargs.php73) and (not pargs.php74) and
-        (not pargs.php80) and (not pargs.php81) and
+        (not pargs.php80) and (not pargs.php81) and (not pargs.php82) and
         stype in ['php', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP")
@@ -909,12 +913,15 @@ def site_package_check(self, stype):
             elif config_php_ver == '8.1':
                 php_check = 'php8.1-fpm'
                 php_to_setup = WOVar.wo_php81
+            elif config_php_ver == '8.2':
+                php_check = 'php8.2-fpm'
+                php_to_setup = WOVar.wo_php82
             else:
-                php_check = 'php8.0-fpm'
-                php_to_setup = WOVar.wo_php80
+                php_check = 'php8.1-fpm'
+                php_to_setup = WOVar.wo_php81
         else:
-            php_check = 'php8.0-fpm'
-            php_to_setup = WOVar.wo_php80
+            php_check = 'php8.1-fpm'
+            php_to_setup = WOVar.wo_php81
 
         if not (WOAptGet.is_installed(self, php_check)):
             apt_packages = apt_packages + php_to_setup + WOVar.wo_php_extra
@@ -948,6 +955,12 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for PHP 8.1")
         if not WOAptGet.is_installed(self, 'php8.1-fpm'):
             apt_packages = apt_packages + WOVar.wo_php81 + WOVar.wo_php_extra
+
+    if pargs.php82 and stype in ['php82', 'mysql', 'wp',
+                                 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for PHP 8.2")
+        if not WOAptGet.is_installed(self, 'php8.2-fpm'):
+            apt_packages = apt_packages + WOVar.wo_php82 + WOVar.wo_php_extra
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -1130,7 +1143,7 @@ def detSitePar(opts):
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain', 'php72',
-                           'php73', 'php74', 'php80', 'php81']:
+                           'php73', 'php74', 'php80', 'php81', 'php82', ]:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket', 'wpce']:
             cachelist.append(key)
@@ -1176,6 +1189,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('php82', 'mysql', 'html') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('php', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
@@ -1207,6 +1226,12 @@ def detSitePar(opts):
             else:
                 cachetype = cachelist[0]
         elif False not in [x in ('php81', 'mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php82', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1266,6 +1291,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wp', 'php82') for x in typelist]:
+            sitetype = 'wp'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('wpsubdir', 'php72') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
@@ -1291,6 +1322,12 @@ def detSitePar(opts):
             else:
                 cachetype = cachelist[0]
         elif False not in [x in ('wpsubdir', 'php81') for x in typelist]:
+            sitetype = 'wpsubdir'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdir', 'php82') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
                 cachetype = 'basic'
@@ -1326,6 +1363,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdomain', 'php82') for x in typelist]:
+            sitetype = 'wpsubdomain'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         else:
             raise RuntimeError("could not determine site and cache type")
     else:
@@ -1345,6 +1388,9 @@ def detSitePar(opts):
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif (not typelist or "php81" in typelist) and cachelist:
+            sitetype = 'wp'
+            cachetype = cachelist[0]
+        elif (not typelist or "php82" in typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif typelist and (not cachelist):
