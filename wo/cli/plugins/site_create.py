@@ -43,6 +43,8 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create php 8.0 site", action='store_true')),
             (['--php81'],
                 dict(help="create php 8.1 site", action='store_true')),
+            (['--php82'],
+                dict(help="create php 8.2 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -221,6 +223,7 @@ class WOSiteCreateController(CementBaseController):
         data['php72'] = False
         data['php80'] = False
         data['php81'] = False
+        data['php82'] = False
 
         if data and pargs.php73:
             data['php73'] = True
@@ -237,6 +240,10 @@ class WOSiteCreateController(CementBaseController):
         elif data and pargs.php81:
             data['php81'] = True
             data['wo_php'] = 'php81'
+        elif data and pargs.php82:
+            data['php82'] = True
+            data['wo_php'] = 'php82'
+
         else:
             if self.app.config.has_section('php'):
                 config_php_ver = self.app.config.get(
@@ -256,6 +263,9 @@ class WOSiteCreateController(CementBaseController):
                 elif config_php_ver == '8.1':
                     data['php81'] = True
                     data['wo_php'] = 'php81'
+                elif config_php_ver == '8.1':
+                    data['php82'] = True
+                    data['wo_php'] = 'php82'
             else:
                 data['php73'] = True
                 data['wo_php'] = 'php73'
@@ -329,6 +339,8 @@ class WOSiteCreateController(CementBaseController):
                 php_version = "8.0"
             elif data['php81']:
                 php_version = "8.1"
+            elif data['php82']:
+                php_version = "8.2"
             else:
                 php_version = "7.3"
 
