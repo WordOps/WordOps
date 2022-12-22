@@ -579,7 +579,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if ((php73 is old_php73) and (php72 is old_php72) and
             (php74 is old_php74) and (php80 is old_php80) and
-            (php81 is old_php81) and (php82 is old_php82)
+            (php81 is old_php81) and (php82 is old_php82) and
             (stype == oldsitetype and
              cache == oldcachetype)):
             Log.debug(self, "Nothing to update")
