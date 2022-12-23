@@ -15,7 +15,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.15.4"
+    wo_version = "3.16.0"
     # WordOps packages versions
     wo_wp_cli = "2.7.1"
     wo_adminer = "4.8.1"
@@ -170,6 +170,9 @@ class WOVar():
     wo_php81 = []
     for module in wo_module:
         wo_php81 = wo_php81 + ["php8.1-{0}".format(module)]
+    wo_php82 = []
+    for module in wo_module:
+        wo_php82 = wo_php82 + ["php8.2-{0}".format(module)]
 
     wo_php_extra = ["graphviz"]
 
