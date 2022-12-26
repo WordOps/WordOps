@@ -1115,7 +1115,7 @@ class WOStackController(CementBaseController):
         if pargs.php81:
             Log.debug(self, "Setting apt_packages variable for PHP 8.1")
             if WOAptGet.is_installed(self, 'php8.1-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php74
+                apt_packages = apt_packages + WOVar.wo_php81
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
                         WOAptGet.is_installed(self, 'php7.2-fpm') or
                         WOAptGet.is_installed(self, 'php8.0-fpm') or
@@ -1132,7 +1132,7 @@ class WOStackController(CementBaseController):
         if pargs.php82:
             Log.debug(self, "Setting apt_packages variable for PHP 8.2")
             if WOAptGet.is_installed(self, 'php8.2-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php74
+                apt_packages = apt_packages + WOVar.wo_php82
                 if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
                         WOAptGet.is_installed(self, 'php7.2-fpm') or
                         WOAptGet.is_installed(self, 'php8.0-fpm') or
