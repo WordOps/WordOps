@@ -442,7 +442,7 @@ class WOSiteUpdateController(CementBaseController):
         elif pargs.php82:
             Log.debug(self, "pargs.php82 detected")
             data['php82'] = True
-            php81 = True
+            php82 = True
 
         if pargs.php72:
             if php72 is old_php72:
