@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.17.0 - [Unreleased]
 
+### v3.16.1 - 2022-12-26
+
+#### Fixed
+
+- PHP 8.2 install not working with `wo site update` ([PR #487](https://github.com/WordOps/WordOps/pull/487)) @janiosarmento
+
 ### v3.16.0 - 2022-12-22
 
 #### Added
