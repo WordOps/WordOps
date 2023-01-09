@@ -20,7 +20,7 @@ class WOVar():
     wo_wp_cli = "2.7.1"
     wo_adminer = "4.8.1"
     wo_phpmyadmin = "5.2.0"
-    wo_extplorer = "2.1.13"
+    wo_extplorer = "2.1.15"
     wo_dashboard = "1.2"
 
     # Get WPCLI path
