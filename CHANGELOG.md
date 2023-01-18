@@ -6,7 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.16.0 - [Unreleased]
+### v3.17.0 - [Unreleased]
+
+### v3.16.1 - 2022-12-26
+
+#### Fixed
+
+- PHP 8.2 install not working with `wo site update` ([PR #487](https://github.com/WordOps/WordOps/pull/487)) @janiosarmento
+
+### v3.16.0 - 2022-12-22
+
+#### Added
+
+- Add PHP 8.2 support ([PR #482](https://github.com/WordOps/WordOps/pull/483)) @janiosarmento
+- Prompt user before WordOps update with `wo update`
+
+#### Changed
+
+- Default PHP version bumped to 8.1
+
+#### Fixed
+
+- psutil dependency upgrade
+- Fix wrong else statements in stack_services.py ([PR #475](https://github.com/WordOps/WordOps/pull/475)) @stodorovic
+
 
 ### v3.15.4 - 2022-10-25
 

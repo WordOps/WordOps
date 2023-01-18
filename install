@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.15.4 - 2022-10-25
+# Version 3.16.1 - 2022-12-26
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -445,6 +445,7 @@ wo_install() {
         python3 -m pip uninstall setuptools -y
         python3 -m pip install -I setuptools==57.5.0
         python3 -m pip install -U pip wheel
+        python3 -m pip uninstall psutil -y
     else
         rm -rf /opt/wo
         python3 -m venv /opt/wo
@@ -509,6 +510,7 @@ wo_travis_install() {
             python3 -m pip uninstall setuptools -y
             python3 -m pip install -I setuptools==57.5.0
             python3 -m pip install -U pip wheel
+            python3 -m pip uninstall psutil -y
         else
             rm -rf /opt/wo
             python3 -m venv /opt/wo
@@ -570,12 +572,8 @@ wo_upgrade_nginx() {
     CHECK_PHP72=$(command -v php-fpm7.2)
 
     # add new Nginx repository
-    if [ "$wo_distro_version" == "jessie" ]; then
-        # import the respository key for updates
-        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
-    else
-        curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
-    fi
+    # import the respository key for updates
+    curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
 
     # install new nginx package
     if {
@@ -753,6 +751,7 @@ wo_init() {
         # import easyengine opensusebuildservice gpg key to avoid issues with packages update
         apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 >/dev/null 2>&1
         apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 >/dev/null 2>&1
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys cf0b928cded64f3b >/dev/null 2>&1
         # fix digitalocean mariadb repository issue
         sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list >/dev/null 2>&1
         if [ -f /etc/apt/preferences.d/MariaDB.pref ]; then
