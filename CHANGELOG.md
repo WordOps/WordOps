@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.17.0 - [Unreleased]
 
+### v3.16.2 - 2023-01-21
+
+#### Changed
+
+- Allow all Communications Between Jetpack and WordPress.com ([PR #494](https://github.com/WordOps/WordOps/pull/494)) @ihfbib
+
+#### Fixed
+
+- GPG keys for Nginx repository on Debian
+- Extplorer update for PHP 8.x
+
 ### v3.16.1 - 2022-12-26
 
 #### Fixed
