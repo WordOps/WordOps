@@ -592,16 +592,16 @@ def setupwordpress(self, data, vhostonly=False):
     """Install Cache-Enabler"""
     if data['wpce']:
         installwp_plugin(self, 'cache-enabler', data)
-        plugin_data_object = {"expires": 24,
-                              "new_post": 1,
-                              "new_comment": 0,
-                              "webp": 0,
+        plugin_data_object = {"cache_expires": 24,
+                              "clear_site_cache_on_saved_post": 1,
+                              "clear_site_cache_on_saved_comment": 0,
+                              "convert_image_urls_to_webp": 0,
                               "clear_on_upgrade": 1,
-                              "compress": 0,
-                              "excl_ids": "",
-                              "excl_regexp": "",
-                              "excl_cookies": "",
-                              "incl_attributes": "",
+                              "compress_cache": 1,
+                              "excluded_post_ids": "",
+                              "excluded_query_strings": "",
+                              "excluded_cookies": "",
+                              "minify_inline_css_js": 1,
                               "minify_html": 1}
         plugin_data = json.dumps(plugin_data_object)
         setupwp_plugin(self, 'cache-enabler', 'cache-enabler',
