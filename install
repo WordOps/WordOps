@@ -446,6 +446,7 @@ wo_install() {
         python3 -m pip install -I setuptools==57.5.0
         python3 -m pip install -U pip wheel
         python3 -m pip uninstall psutil -y
+        python3 -m pip uninstall SQLAlchemy -y
     else
         rm -rf /opt/wo
         python3 -m venv /opt/wo
@@ -511,6 +512,7 @@ wo_travis_install() {
             python3 -m pip install -I setuptools==57.5.0
             python3 -m pip install -U pip wheel
             python3 -m pip uninstall psutil -y
+            python3 -m pip uninstall SQLAlchemy -y
         else
             rm -rf /opt/wo
             python3 -m venv /opt/wo
