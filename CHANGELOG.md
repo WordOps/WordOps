@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.17.0 - [Unreleased]
 
+### v3.16.3 - 2023-01-29
+
+#### Fixed
+
+- SQLAlchemy version locked
+
 ### v3.16.2 - 2023-01-21
 
 #### Changed
