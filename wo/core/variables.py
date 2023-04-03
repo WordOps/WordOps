@@ -185,7 +185,7 @@ class WOVar():
         else:
             mariadb_ver = '10.3'
     else:
-        mariadb_ver = '10.6'
+        mariadb_ver = '10.11'
         wo_mysql = wo_mysql + ["mariadb-backup"]
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
