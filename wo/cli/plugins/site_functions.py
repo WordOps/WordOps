@@ -376,8 +376,8 @@ def setupwordpress(self, data, vhostonly=False):
     # set all wp-config.php variables
     wp_conf_variables = [
         ['WP_REDIS_PREFIX', '{0}:'.format(wo_domain_name)],
-        ['WP_MEMORY_LIMIT', '128M'],
-        ['WP_MAX_MEMORY_LIMIT', '256M'],
+        ['WP_MEMORY_LIMIT', '256M'],
+        ['WP_MAX_MEMORY_LIMIT', '512M'],
         ['CONCATENATE_SCRIPTS', 'false'],
         ['WP_POST_REVISIONS', '10'],
         ['MEDIA_TRASH', 'true'],
