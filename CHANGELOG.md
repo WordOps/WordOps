@@ -106,7 +106,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - New Nginx package based on latest Nginx stable release 1.22.2
 - Better Referrer-Policy ([PR #434](https://github.com/WordOps/WordOps/pull/434))
-- MariaDB default version is now 10.6
+- MariaDB default version is now 10.11
 
 #### Fixed
 
