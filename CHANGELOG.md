@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.17.0 - [Unreleased]
 
+#### Changed
+
+- MariaDB default version is now 10.11
+- New Nginx package based on latest Nginx stable release 1.24.0
+- Update memory limit to WooCommerce recommended requirements ([PR #512](https://github.com/WordOps/WordOps/pull/512)) @yogeshbeniwal
+
 ### v3.16.3 - 2023-01-29
 
 #### Fixed
@@ -106,7 +112,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - New Nginx package based on latest Nginx stable release 1.22.2
 - Better Referrer-Policy ([PR #434](https://github.com/WordOps/WordOps/pull/434))
-- MariaDB default version is now 10.11
+- MariaDB default version is now 10.6
 
 #### Fixed
 
