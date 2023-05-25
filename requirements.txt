@@ -1,7 +1,7 @@
 cement==2.10.12
 pynginxconfig==0.3.4
 PyMySQL==1.0.3
-psutil==5.9.4
+psutil==5.9.5
 sh==2.0.4
 SQLAlchemy==1.4.48
 requests>=2.20.0
