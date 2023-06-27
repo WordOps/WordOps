@@ -17,9 +17,10 @@ def WOSendMail(send_from, send_to, subject, text, files, server="localhost",
 
     msg.attach(MIMEText(text))
 
-    for f in files:
+    for file in files:
         part = MIMEBase('application', "octet-stream")
-        part.set_payload(open(f, "rb").read())
+        with open(file, 'rb') as f:
+            part.set_payload(f.read())
         encoders.encode_base64(part)
         part.add_header('Content-Disposition', 'attachment; filename="{0}"'
                         .format(os.path.basename(f)))
