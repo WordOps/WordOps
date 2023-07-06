@@ -3,7 +3,7 @@ pynginxconfig==0.3.4
 PyMySQL==1.0.3
 psutil==5.9.5
 sh==2.0.4
-SQLAlchemy==1.4.48
+SQLAlchemy==1.4.49
 requests>=2.20.0
 distro==1.8.0
 argcomplete==3.0.8
