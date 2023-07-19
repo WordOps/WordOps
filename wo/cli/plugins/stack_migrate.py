@@ -31,20 +31,40 @@ class WOStackMigrateController(CementBaseController):
 
     @expose(hide=True)
     def migrate_mariadb(self, ci=False):
-        # Backup all database
-        WOMysql.backupAll(self, fulldump=True)
 
-        # Remove previous MariaDB repository
-        wo_mysql_old_repo = (
-            "deb [arch=amd64,ppc64el] "
-            "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-            "10.3/{distro} {codename} main"
-            .format(distro=WOVar.wo_distro,
-                    codename=WOVar.wo_platform_codename))
+        if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+            # Backup all database
+            WOMysql.backupAll(self, fulldump=True)
+        else:
+            Log.error(self, "Unable to connect to MariaDB")
+
+        # Check current MariaDB version
+        wo_mysql_current_repo = WOFileUtils.grep(
+            self, '/etc/apt/sources.list.d/wo-repo.list', 'mariadb')
+        if wo_mysql_current_repo:
+            current_mysql_version = wo_mysql_current_repo.split('/')
+        else:
+            Log.error(self, "MariaDB is not installed yet")
+        if 'repo' in current_mysql_version:
+            current_mysql_version = current_mysql_version[5]
+
+        mariadb_release = WOVar.mariadb_ver
+        if mariadb_release <= current_mysql_version:
+            Log.info(self, "You already have the latest "
+                     "MariaDB version available")
+            return 0
+
+        wo_old_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
+                             "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
+                             "{version}/{distro} {codename} main"
+                             .format(version=current_mysql_version,
+                                     distro=WOVar.wo_distro,
+                                     codename=WOVar.platform_codename))
+
         if WOFileUtils.grepcheck(
                 self, '/etc/apt/sources.list.d/wo-repo.list',
-                wo_mysql_old_repo):
-            WORepo.remove(self, repo_url=wo_mysql_old_repo)
+                wo_old_mysql_repo):
+            WORepo.remove(self, repo_url=wo_old_mysql_repo)
         # Add MariaDB repo
         pre_pref(self, WOVar.wo_mysql)
 
