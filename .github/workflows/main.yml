@@ -37,3 +37,5 @@ jobs:
       run: sudo timeout 1800 bash install --travis
     - name: Run tests
       run: sudo timeout 1800 bash tests/travis.sh --actions
+    - name: Display log
+      run: sudo cat /var/log/wo/test.log | ccze -A
