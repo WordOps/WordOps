@@ -813,15 +813,15 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 self, '/etc/php/7.4/fpm/php-fpm.conf',
                 'php-fpm.mustache', data)
 
-            data = dict(pool='www-php74', listen='php74-fpm.sock',
+            data = dict(pool='www-php74', listen='/var/run/php/php74-fpm.sock',
                         user='www-data',
-                        group='www-data', listenuser='root',
+                        group='www-data', listenuser='www-data',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self, '/etc/php/7.4/fpm/pool.d/www.conf',
                               'php-pool.mustache', data)
-            data = dict(pool='www-two-php74', listen='php74-two-fpm.sock',
+            data = dict(pool='www-two-php74', listen='/var/run/php/php74-two-fpm.sock',
                         user='www-data',
-                        group='www-data', listenuser='root',
+                        group='www-data', listenuser='www-data',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self, '/etc/php/7.4/fpm/pool.d/www-two.conf',
                               'php-pool.mustache', data)
