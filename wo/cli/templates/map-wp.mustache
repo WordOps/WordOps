@@ -7,6 +7,12 @@ map $http_x_requested_with $http_request_no_cache {
     XMLHttpRequest 1;
 }
 
+# do not cache requests with Authorization: header set
+map $http_authorization $http_auth_no_cache {
+    default 1;
+    "" 0;
+}
+
 # do not cache requests on cookies
 map $http_cookie $cookie_no_cache {
     default 0;
@@ -81,9 +87,9 @@ map $is_args_no_cache$args_to_cache $query_no_cache {
 }
 
 # if all previous check are passed, $skip_cache = 0
-map $http_request_no_cache$cookie_no_cache$uri_no_cache$query_no_cache $skip_cache {
+map $http_request_no_cache$http_auth_no_cache$cookie_no_cache$uri_no_cache$query_no_cache $skip_cache {
     default 1;
-    0000 0;
+    00000 0;
 }
 
 # map $skip_cache with $cache_uri for --wpsc --wpce & --wprocket stack
