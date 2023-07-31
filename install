@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.16.4 - 2023-06-25
+# Version 3.17.0 - 2023-07-21
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -461,7 +461,7 @@ wo_install() {
             elif [ "$wo_distro_codename" = "bullseye" ]; then
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
             elif [ "$wo_distro_codename" = "bookworm" ]; then
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
+                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.5.3#egg=python-apt
             else
                 python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
             fi
@@ -527,6 +527,8 @@ wo_travis_install() {
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
                 elif [ "$wo_distro_codename" = "bullseye" ]; then
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
+                elif [ "$wo_distro_codename" = "bookworm" ]; then
+                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.5.3#egg=python-apt
                 else
                     python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
                 fi
