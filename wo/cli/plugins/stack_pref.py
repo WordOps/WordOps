@@ -29,7 +29,8 @@ def pre_pref(self, apt_packages):
 
     if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
-        if not WOVar.wo_distro == 'raspbian':
+        if not (WOVar.wo_distro == 'raspbian' or
+                WOVar.wo_platform_codename == 'bookworm'):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = (
                 "Package: *\nPin: origin mariadb.mirrors.ovh.net"
