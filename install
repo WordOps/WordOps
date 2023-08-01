@@ -438,7 +438,12 @@ wo_install() {
     if [ -d /usr/local/lib/python3."$python_ver"/dist-packages ]; then
         cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
     fi
-    python3 -m pip uninstall -yq wo wordops ee
+    if [ "$wo_distro_codename" = "bookworm" ]; then
+        python3 -m pip uninstall -yq wo wordops ee --break-system-packages
+    else
+        python3 -m pip uninstall -yq wo wordops ee
+    fi
+
     cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
