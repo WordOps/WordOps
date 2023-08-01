@@ -148,7 +148,7 @@ class WOVar():
                          .format(wo_deb_repo))
 
     wo_nginx = ["nginx-custom", "nginx-wo"]
-    wo_nginx_key = '188C9FB063F0247A'
+    wo_nginx_key = 'FB898660'
 
     wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
                  "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
@@ -211,7 +211,7 @@ class WOVar():
         wo_php_repo = (
             "deb https://packages.sury.org/php/ {codename} main"
             .format(codename=wo_platform_codename))
-        wo_php_key = 'AC0E47584A7A714D'
+        wo_php_key = '95BD4743'
     wo_redis_key_url = "https://packages.redis.io/gpg"
     wo_redis_repo = ("deb https://packages.redis.io/deb {codename} main"
                      .format(codename=wo_platform_codename))
