@@ -229,17 +229,17 @@ wo_install_dep() {
     if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
         cp -f /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
     fi
-    # upgrade pip
-    python3 -m pip install --upgrade pip
 }
 
 wo_timesync() {
     # set default ntp pools
-    if [ -f /etc/systemd/timesyncd.conf ]; then
-        if ! grep -q "time.cloudflare.com" /etc/systemd/timesyncd.conf; then
-            sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
-            # enable ntp
-            timedatectl set-ntp 1
+    if [ "$wo_distro_codename" != "bookworm" ]; then
+        if [ -f /etc/systemd/timesyncd.conf ]; then
+            if ! grep -q "time.cloudflare.com" /etc/systemd/timesyncd.conf; then
+                sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
+                # enable ntp
+                timedatectl set-ntp 1
+            fi
         fi
     fi
 }
@@ -438,9 +438,7 @@ wo_install() {
     if [ -d /usr/local/lib/python3."$python_ver"/dist-packages ]; then
         cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
     fi
-    if [ "$wo_distro_codename" = "bookworm" ]; then
-        python3 -m pip uninstall -yq wo wordops ee --break-system-packages
-    else
+    if [ "$wo_distro_codename" != "bookworm" ]; then
         python3 -m pip uninstall -yq wo wordops ee
     fi
 
