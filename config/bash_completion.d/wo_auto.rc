@@ -53,7 +53,7 @@ _wo_complete()
 
             "info")
                 COMPREPLY=( $(compgen \
-                              -W "--mysql --php --php73 --php74 --nginx" \
+                              -W "--mysql --php --php72 --php73 --php74 --php80 --php81 --nginx" \
                               -- $cur) )
                 ;;
 
