@@ -64,6 +64,7 @@
 
 - Debian 10 (Buster)
 - Debian 11 (Bullseye)
+- Debian 12 (Bookworm)
 
 #### For testing purpose only
 
