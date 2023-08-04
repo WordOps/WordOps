@@ -44,7 +44,7 @@ class WOStackMigrateController(CementBaseController):
         if wo_mysql_current_repo:
             current_mysql_version = wo_mysql_current_repo.split('/')
         else:
-            Log.error(self, "MariaDB is not installed yet")
+            Log.error(self, "MariaDB is not installed from repository yet")
         if 'repo' in current_mysql_version:
             current_mysql_version = current_mysql_version[5]
 

@@ -6,11 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.17.0 - [Unreleased]
+### v3.18.0 - [Unreleased]
+
+### v3.17.0 - 2023-08-04
+
+#### Added
+
+- Debian 12 support
 
 #### Changed
 
 - MariaDB default version is now 10.11
+- `wo stack migrate --mariadb` improved to properly upgrade mariadb
 - New Nginx package based on latest Nginx stable release 1.24.0
 - Update memory limit to WooCommerce recommended requirements ([PR #512](https://github.com/WordOps/WordOps/pull/512)) @yogeshbeniwal
 
