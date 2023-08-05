@@ -1137,268 +1137,39 @@ def detSitePar(opts):
         2. raises RuntimeError when wrong combination is used like
             "--wp --wpsubdir" or "--html --wp"
     """
+    # Initialize sitetype and cachetype
     sitetype, cachetype = '', ''
+
+    # Initialize type and cache lists
     typelist = list()
     cachelist = list()
+
+    # Populate type and cache lists based on opts
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain', 'php72',
-                           'php73', 'php74', 'php80', 'php81', 'php82', ]:
+                           'wpsubdir', 'wpsubdomain',
+                           'php72', 'php73', 'php74',
+                           'php80', 'php81', 'php82']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket', 'wpce']:
             cachelist.append(key)
 
+    # Determine sitetype and cachetype
     if len(typelist) > 1 or len(cachelist) > 1:
-        if len(cachelist) > 1:
-            raise RuntimeError(
-                "Could not determine cache type."
-                "Multiple cache parameter entered")
-        elif False not in [x in ('php', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php72', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php73', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php74', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php80', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php81', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php82', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php72', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php73', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php74', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php80', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php81', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php82', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('html', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php', 'html') for x in typelist]:
-            sitetype = 'php'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'wpsubdir') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'wpsubdomain') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php72') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php73') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php74') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php80') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php81') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php82') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php72') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php73') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php74') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php80') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php81') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php82') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php72') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php73') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php74') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php80') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php81') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php82') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        else:
-            raise RuntimeError("could not determine site and cache type")
+        raise RuntimeError(
+            "Could not determine site or cache type. "
+            "Multiple types or caches entered.")
+
+    # If no type or cache specified, set to None
+    if not typelist and not cachelist:
+        sitetype = None
+        cachetype = None
     else:
-        if not typelist and not cachelist:
-            sitetype = None
-            cachetype = None
-        elif (not typelist or "php72" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php73" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php74" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php80" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php81" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php82" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif typelist and (not cachelist):
-            sitetype = typelist[0]
-            cachetype = 'basic'
-        else:
-            sitetype = typelist[0]
-            cachetype = cachelist[0]
+        # Use the first specified type or 'wp' if not specified
+        sitetype = typelist[0] if typelist else 'wp'
+
+        # Use the first specified cache or 'basic' if not specified
+        cachetype = cachelist[0] if cachelist else 'basic'
 
     return (sitetype, cachetype)
 
