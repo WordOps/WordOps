@@ -164,12 +164,12 @@ class WOVar():
                      "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
                      "mysql", "opcache", "readline", "redis", "soap", "xdebug",
                      "xml", "zip"]
-        php_modules = ["{0}-{1}".format(version_prefix, module) for module in wo_module]
+        php_modules = ["php{0}-{1}".format(version_number, module) for module in wo_module]
 
         if version_prefix == 'php72' or version_prefix == 'php73':
-            php_modules.append("{0}-recode".format(version_prefix))
+            php_modules.append("php{0}-recode".format(version_number))
         elif version_prefix == 'php74':
-            php_modules.extend(["{0}-geoip".format(version_prefix), "{0}-json".format(version_prefix)])
+            php_modules.extend(["php{0}-geoip".format(version_number), "php{0}-json".format(version_number)])
 
         return php_modules
 
