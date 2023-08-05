@@ -139,7 +139,11 @@ class WOStackController(CementBaseController):
                 pargs.fail2ban = True
 
             if pargs.php:
-                pargs.php80 = True
+                if self.app.config.has_section('php'):
+                    config_php_ver = self.app.config.get(
+                        'php', 'version')
+                    current_php = config_php_ver.replace(".", "")
+                    setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
             if pargs.mariadb:
                 pargs.mysql = True
@@ -156,23 +160,7 @@ class WOStackController(CementBaseController):
                 pargs.proftpd = True
 
             if pargs.web:
-                if self.app.config.has_section('php'):
-                    config_php_ver = self.app.config.get(
-                        'php', 'version')
-                if config_php_ver == '7.2':
-                    pargs.php72 = True
-                elif config_php_ver == '7.3':
-                    pargs.php73 = True
-                elif config_php_ver == '7.4':
-                    pargs.php74 = True
-                elif config_php_ver == '8.0':
-                    pargs.php80 = True
-                elif config_php_ver == '8.1':
-                    pargs.php81 = True
-                elif config_php_ver == '8.2':
-                    pargs.php82 = True
-                else:
-                    pargs.php81 = True
+                pargs.php = True
                 pargs.nginx = True
                 pargs.mysql = True
                 pargs.wpcli = True
@@ -272,7 +260,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "PHP 8.2 already installed")
                     Log.info(self, "PHP 8.2 already installed")
 
-            # MariaDB 10.3
+            # MariaDB
             if pargs.mysql:
                 pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -529,7 +517,7 @@ class WOStackController(CementBaseController):
                         WOAptGet.is_installed(self, 'php8.0-fpm') or
                         WOAptGet.is_installed(self, 'php8.1-fpm') or
                         WOAptGet.is_installed(self, 'php8.2-fpm')):
-                    pargs.php80 = True
+                    pargs.php = True
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [[
                     "https://raw.githubusercontent.com"
@@ -630,7 +618,11 @@ class WOStackController(CementBaseController):
             self.app.args.print_help()
 
         if pargs.php:
-            pargs.php72 = True
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                current_php = config_php_ver.replace(".", "")
+                setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
         if pargs.mariadb:
             pargs.mysql = True
@@ -640,6 +632,9 @@ class WOStackController(CementBaseController):
             pargs.admin = True
             pargs.php73 = True
             pargs.php74 = True
+            pargs.php80 = True
+            pargs.php81 = True
+            pargs.php82 = True
             pargs.fail2ban = True
             pargs.proftpd = True
             pargs.utils = True
@@ -650,7 +645,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php73 = True
+            pargs.php = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
@@ -1005,7 +1000,11 @@ class WOStackController(CementBaseController):
             self.app.args.print_help()
 
         if pargs.php:
-            pargs.php81 = True
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                current_php = config_php_ver.replace(".", "")
+                setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
         if pargs.mariadb:
             pargs.mysql = True
@@ -1027,7 +1026,7 @@ class WOStackController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php73 = True
+            pargs.php = True
             pargs.mysql = True
             pargs.wpcli = True
             pargs.sendmail = True
