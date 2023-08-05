@@ -200,65 +200,23 @@ class WOStackController(CementBaseController):
                 else:
                     Log.debug(self, "Redis already installed")
 
-            # PHP 7.2
-            if pargs.php72:
-                Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm')):
-                    apt_packages = (apt_packages + WOVar.wo_php72 +
-                                    WOVar.wo_php_extra)
-                else:
-                    Log.debug(self, "PHP 7.2 already installed")
-                    Log.info(self, "PHP 7.2 already installed")
+            wo_vars = {
+                'php72': WOVar.wo_php72,
+                'php73': WOVar.wo_php73,
+                'php74': WOVar.wo_php74,
+                'php80': WOVar.wo_php80,
+                'php81': WOVar.wo_php81,
+                'php82': WOVar.wo_php82,
+            }
 
-            # PHP 7.3
-            if pargs.php73:
-                Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-                if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php73 +
-                                    WOVar.wo_php_extra)
-                else:
-                    Log.debug(self, "PHP 7.3 already installed")
-                    Log.info(self, "PHP 7.3 already installed")
-
-            # PHP 7.4
-            if pargs.php74:
-                Log.debug(self, "Setting apt_packages variable for PHP 7.4")
-                if not WOAptGet.is_installed(self, 'php7.4-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php74 +
-                                    WOVar.wo_php_extra)
-                else:
-                    Log.debug(self, "PHP 7.4 already installed")
-                    Log.info(self, "PHP 7.4 already installed")
-
-            # PHP 8.0
-            if pargs.php80:
-                Log.debug(self, "Setting apt_packages variable for PHP 8.0")
-                if not WOAptGet.is_installed(self, 'php8.0-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php80 +
-                                    WOVar.wo_php_extra)
-                else:
-                    Log.debug(self, "PHP 8.0 already installed")
-                    Log.info(self, "PHP 8.0 already installed")
-
-            # PHP 8.1
-            if pargs.php81:
-                Log.debug(self, "Setting apt_packages variable for PHP 8.1")
-                if not WOAptGet.is_installed(self, 'php8.1-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php81 +
-                                    WOVar.wo_php_extra)
-                else:
-                    Log.debug(self, "PHP 8.1 already installed")
-                    Log.info(self, "PHP 8.1 already installed")
-
-            # PHP 8.2
-            if pargs.php82:
-                Log.debug(self, "Setting apt_packages variable for PHP 8.2")
-                if not WOAptGet.is_installed(self, 'php8.2-fpm'):
-                    apt_packages = (apt_packages + WOVar.wo_php82 +
-                                    WOVar.wo_php_extra)
-                else:
-                    Log.debug(self, "PHP 8.2 already installed")
-                    Log.info(self, "PHP 8.2 already installed")
+            for parg_version, version in WOVar.wo_php_versions.items():
+                if getattr(pargs, parg_version, False):
+                    Log.debug(self, f"Setting apt_packages variable for PHP {version}")
+                    if not WOAptGet.is_installed(self, f'php{version}-fpm'):
+                        apt_packages = apt_packages + wo_vars[parg_version] + WOVar.wo_php_extra
+                    else:
+                        Log.debug(self, f"PHP {version} already installed")
+                        Log.info(self, f"PHP {version} already installed")
 
             # MariaDB
             if pargs.mysql:
