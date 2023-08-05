@@ -905,7 +905,7 @@ def site_package_check(self, stype):
                         WOVar, f'wo_{version_key}') + WOVar.wo_php_extra
 
     for version_key, version_number in php_versions.items():
-        if getattr(self.pargs, version_key) and stype in [version_key, 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        if getattr(pargs, version_key) and stype in [version_key, 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
             Log.debug(self, f"Setting apt_packages variable for PHP {version_number}")
             if not WOAptGet.is_installed(self, f'php{version_number}-fpm'):
                 apt_packages += getattr(WOVar, f'wo_{version_key}') + WOVar.wo_php_extra
