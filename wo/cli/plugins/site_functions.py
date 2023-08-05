@@ -872,95 +872,34 @@ def site_package_check(self, stype):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-    if ((pargs.php and pargs.php73) or (pargs.php and pargs.php74) or
-        (pargs.php and pargs.php72) or (pargs.php and pargs.php80) or
-        (pargs.php and pargs.php81) or (pargs.php and pargs.php82) or
-        (pargs.php72 and pargs.php73) or (pargs.php72 and pargs.php74) or
-        (pargs.php72 and pargs.php80) or (pargs.php72 and pargs.php81) or
-        (pargs.php72 and pargs.php82) or
-        (pargs.php73 and pargs.php74) or (pargs.php73 and pargs.php80) or
-        (pargs.php73 and pargs.php81) or (pargs.php73 and pargs.php82) or
-        (pargs.php74 and pargs.php80) or (pargs.php74 and pargs.php81) or
-        (pargs.php74 and pargs.php82) or
-        (pargs.php80 and pargs.php81) or (pargs.php80 and pargs.php82) or
-            (pargs.php81 and pargs.php82)):
-        Log.error(
-            self, "Error: two different PHP versions cannot be "
-                  "combined within the same WordOps site")
+        php_versions = ['php72', 'php73', 'php74', 'php80', 'php81', 'php82']
+
+        selected_versions = [version for version in php_versions if getattr(pargs, version)]
+        if len(selected_versions) > 1:
+            Log.error(self, "Error: two different PHP versions cannot be "
+                      "combined within the same WordOps site")
 
     if ((not pargs.php72) and (not pargs.php73) and (not pargs.php74) and
         (not pargs.php80) and (not pargs.php81) and (not pargs.php82) and
         stype in ['php', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP")
-        php_check = 'php8.0-fpm'
-        php_to_setup = WOVar.wo_php80
-        if self.app.config.has_section('php'):
-            config_php_ver = self.app.config.get(
-                'php', 'version')
-            if config_php_ver == '7.2':
-                php_check = 'php7.2-fpm'
-                php_to_setup = WOVar.wo_php72
-            elif config_php_ver == '7.3':
-                php_check = 'php7.3-fpm'
-                php_to_setup = WOVar.wo_php73
-            elif config_php_ver == '7.4':
-                php_check = 'php7.4-fpm'
-                php_to_setup = WOVar.wo_php74
-            elif config_php_ver == '8.0':
-                php_check = 'php8.0-fpm'
-                php_to_setup = WOVar.wo_php80
-            elif config_php_ver == '8.1':
-                php_check = 'php8.1-fpm'
-                php_to_setup = WOVar.wo_php81
-            elif config_php_ver == '8.2':
-                php_check = 'php8.2-fpm'
-                php_to_setup = WOVar.wo_php82
-            else:
-                php_check = 'php8.1-fpm'
-                php_to_setup = WOVar.wo_php81
-        else:
-            php_check = 'php8.1-fpm'
-            php_to_setup = WOVar.wo_php81
 
-        if not (WOAptGet.is_installed(self, php_check)):
-            apt_packages = apt_packages + php_to_setup + WOVar.wo_php_extra
+        for version_key, version_number in WOVar.wo_php_versions.items():
+            if (self.app.config.has_section('php') and
+                    self.app.config.get('php', 'version') == version_number):
+                Log.debug(
+                    self,
+                    f"Setting apt_packages variable for PHP {version_number}")
+                if not WOAptGet.is_installed(self, f'php{version_number}-fpm'):
+                    apt_packages += getattr(
+                        WOVar, f'wo_{version_key}') + WOVar.wo_php_extra
 
-    if pargs.php72 and stype in ['php72', 'mysql', 'wp',
-                                          'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP 7.2")
-        if not WOAptGet.is_installed(self, 'php7.2-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php72 + WOVar.wo_php_extra
-
-    if pargs.php73 and stype in ['php73', 'mysql', 'wp',
-                                          'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP 7.3")
-        if not WOAptGet.is_installed(self, 'php7.3-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php73 + WOVar.wo_php_extra
-
-    if pargs.php74 and stype in ['php74', 'mysql', 'wp',
-                                 'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP 7.4")
-        if not WOAptGet.is_installed(self, 'php7.4-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php74 + WOVar.wo_php_extra
-
-    if pargs.php80 and stype in ['php80', 'mysql', 'wp',
-                                 'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP 8.0")
-        if not WOAptGet.is_installed(self, 'php8.0-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php80 + WOVar.wo_php_extra
-
-    if pargs.php81 and stype in ['php81', 'mysql', 'wp',
-                                 'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP 8.1")
-        if not WOAptGet.is_installed(self, 'php8.1-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php81 + WOVar.wo_php_extra
-
-    if pargs.php82 and stype in ['php82', 'mysql', 'wp',
-                                 'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PHP 8.2")
-        if not WOAptGet.is_installed(self, 'php8.2-fpm'):
-            apt_packages = apt_packages + WOVar.wo_php82 + WOVar.wo_php_extra
+    for version_key, version_number in WOVar.wo_php_versions.items():
+        if getattr(pargs, version_key) and stype in [version_key, 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+            Log.debug(self, f"Setting apt_packages variable for PHP {version_number}")
+            if not WOAptGet.is_installed(self, f'php{version_number}-fpm'):
+                apt_packages += getattr(WOVar, f'wo_{version_key}') + WOVar.wo_php_extra
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -1137,268 +1076,39 @@ def detSitePar(opts):
         2. raises RuntimeError when wrong combination is used like
             "--wp --wpsubdir" or "--html --wp"
     """
+    # Initialize sitetype and cachetype
     sitetype, cachetype = '', ''
+
+    # Initialize type and cache lists
     typelist = list()
     cachelist = list()
+
+    # Populate type and cache lists based on opts
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain', 'php72',
-                           'php73', 'php74', 'php80', 'php81', 'php82', ]:
+                           'wpsubdir', 'wpsubdomain',
+                           'php72', 'php73', 'php74',
+                           'php80', 'php81', 'php82']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket', 'wpce']:
             cachelist.append(key)
 
+    # Determine sitetype and cachetype
     if len(typelist) > 1 or len(cachelist) > 1:
-        if len(cachelist) > 1:
-            raise RuntimeError(
-                "Could not determine cache type."
-                "Multiple cache parameter entered")
-        elif False not in [x in ('php', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php72', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php73', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php74', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php80', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php81', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php82', 'mysql', 'html') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php72', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php73', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php74', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php80', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php81', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php82', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('html', 'mysql') for x in typelist]:
-            sitetype = 'mysql'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('php', 'html') for x in typelist]:
-            sitetype = 'php'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'wpsubdir') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'wpsubdomain') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php72') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php73') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php74') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php80') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php81') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wp', 'php82') for x in typelist]:
-            sitetype = 'wp'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php72') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php73') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php74') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php80') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php81') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdir', 'php82') for x in typelist]:
-            sitetype = 'wpsubdir'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php72') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php73') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php74') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php80') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php81') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        elif False not in [x in ('wpsubdomain', 'php82') for x in typelist]:
-            sitetype = 'wpsubdomain'
-            if not cachelist:
-                cachetype = 'basic'
-            else:
-                cachetype = cachelist[0]
-        else:
-            raise RuntimeError("could not determine site and cache type")
+        raise RuntimeError(
+            "Could not determine site or cache type. "
+            "Multiple types or caches entered.")
+
+    # If no type or cache specified, set to None
+    if not typelist and not cachelist:
+        sitetype = None
+        cachetype = None
     else:
-        if not typelist and not cachelist:
-            sitetype = None
-            cachetype = None
-        elif (not typelist or "php72" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php73" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php74" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php80" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php81" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif (not typelist or "php82" in typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif typelist and (not cachelist):
-            sitetype = typelist[0]
-            cachetype = 'basic'
-        else:
-            sitetype = typelist[0]
-            cachetype = cachelist[0]
+        # Use the first specified type or 'wp' if not specified
+        sitetype = typelist[0] if typelist else 'wp'
+
+        # Use the first specified cache or 'basic' if not specified
+        cachetype = cachelist[0] if cachelist else 'basic'
 
     return (sitetype, cachetype)
 

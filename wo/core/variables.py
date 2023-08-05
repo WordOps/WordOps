@@ -150,31 +150,35 @@ class WOVar():
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = 'FB898660'
 
-    wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
-                 "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
-                 "mysql", "opcache", "readline", "redis", "soap", "xdebug",
-                 "xml", "zip"]
-    wo_php72 = []
-    for module in wo_module:
-        wo_php72 = wo_php72 + ["php7.2-{0}".format(module)]
-    wo_php72 = wo_php72 + ["php7.2-recode"]
-    wo_php73 = []
-    for module in wo_module:
-        wo_php73 = wo_php73 + ["php7.3-{0}".format(module)]
-    wo_php73 = wo_php73 + ["php7.3-recode"]
-    wo_php74 = []
-    for module in wo_module:
-        wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
-    wo_php74 = wo_php74 + ["php7.4-geoip", "php7.4-json"]
-    wo_php80 = []
-    for module in wo_module:
-        wo_php80 = wo_php80 + ["php8.0-{0}".format(module)]
-    wo_php81 = []
-    for module in wo_module:
-        wo_php81 = wo_php81 + ["php8.1-{0}".format(module)]
-    wo_php82 = []
-    for module in wo_module:
-        wo_php82 = wo_php82 + ["php8.2-{0}".format(module)]
+    wo_php_versions = {
+        'php72': '7.2',
+        'php73': '7.3',
+        'php74': '7.4',
+        'php80': '8.0',
+        'php81': '8.1',
+        'php82': '8.2',
+    }
+
+    def generate_php_modules(version_prefix, version_number):
+        wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
+                     "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
+                     "mysql", "opcache", "readline", "redis", "soap", "xdebug",
+                     "xml", "zip"]
+        php_modules = ["php{0}-{1}".format(version_number, module) for module in wo_module]
+
+        if version_prefix == 'php72' or version_prefix == 'php73':
+            php_modules.append("php{0}-recode".format(version_number))
+        elif version_prefix == 'php74':
+            php_modules.extend(["php{0}-geoip".format(version_number), "php{0}-json".format(version_number)])
+
+        return php_modules
+
+    wo_php72 = generate_php_modules('php72', '7.2')
+    wo_php73 = generate_php_modules('php73', '7.3')
+    wo_php74 = generate_php_modules('php74', '7.4')
+    wo_php80 = generate_php_modules('php80', '8.0')
+    wo_php81 = generate_php_modules('php81', '8.1')
+    wo_php82 = generate_php_modules('php82', '8.2')
 
     wo_php_extra = ["graphviz"]
 
@@ -182,10 +186,7 @@ class WOVar():
         "mariadb-server", "percona-toolkit",
         "mariadb-common", "python3-mysqldb"]
     if wo_distro == 'raspbian':
-        if wo_platform_codename == 'stretch':
-            mariadb_ver = '10.1'
-        else:
-            mariadb_ver = '10.3'
+        mariadb_ver = '10.3'
     else:
         mariadb_ver = '10.11'
         wo_mysql = wo_mysql + ["mariadb-backup"]
