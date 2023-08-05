@@ -670,15 +670,6 @@ class WOStackController(CementBaseController):
                 apt_packages = apt_packages + WOVar.wo_nginx
 
         # Create a dictionary that maps PHP versions to corresponding variables.
-        php_versions = {
-            'php72': '7.2',
-            'php73': '7.3',
-            'php74': '7.4',
-            'php80': '8.0',
-            'php81': '8.1',
-            'php82': '8.2',
-        }
-
         wo_vars = {
             'php72': WOVar.wo_php72,
             'php73': WOVar.wo_php73,
@@ -689,7 +680,7 @@ class WOStackController(CementBaseController):
         }
 
         # Loop through all versions.
-        for parg_version, version in php_versions.items():
+        for parg_version, version in WOVar.wo_php_versions.items():
             # Check if this version is present in pargs.
             if getattr(pargs, parg_version):
                 Log.debug(self, f"Setting apt_packages variable for PHP {version}")
@@ -699,7 +690,7 @@ class WOStackController(CementBaseController):
 
                     # Check if other versions are installed.
                     if not any(WOAptGet.is_installed(self, f'php{other_version}-fpm') for
-                               other_version in php_versions.values() if other_version != version):
+                               other_version in WOVar.wo_php_versions.values() if other_version != version):
                         apt_packages += WOVar.wo_php_extra
 
                 else:

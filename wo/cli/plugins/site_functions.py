@@ -879,22 +879,13 @@ def site_package_check(self, stype):
             Log.error(self, "Error: two different PHP versions cannot be "
                       "combined within the same WordOps site")
 
-    php_versions = {
-        'php72': '7.2',
-        'php73': '7.3',
-        'php74': '7.4',
-        'php80': '8.0',
-        'php81': '8.1',
-        'php82': '8.2',
-    }
-
     if ((not pargs.php72) and (not pargs.php73) and (not pargs.php74) and
         (not pargs.php80) and (not pargs.php81) and (not pargs.php82) and
         stype in ['php', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP")
 
-        for version_key, version_number in php_versions.items():
+        for version_key, version_number in WOVar.wo_php_versions.items():
             if (self.app.config.has_section('php') and
                     self.app.config.get('php', 'version') == version_number):
                 Log.debug(
@@ -904,7 +895,7 @@ def site_package_check(self, stype):
                     apt_packages += getattr(
                         WOVar, f'wo_{version_key}') + WOVar.wo_php_extra
 
-    for version_key, version_number in php_versions.items():
+    for version_key, version_number in WOVar.wo_php_versions.items():
         if getattr(pargs, version_key) and stype in [version_key, 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
             Log.debug(self, f"Setting apt_packages variable for PHP {version_number}")
             if not WOAptGet.is_installed(self, f'php{version_number}-fpm'):

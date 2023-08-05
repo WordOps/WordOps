@@ -12,7 +12,7 @@ class WOConf():
 
     def nginxcommon(self):
         """nginx common configuration deployment"""
-        wo_php_version = ["php72", "php73", "php74", "php80", "php81", "php82"]
+        wo_php_version = list(WOVar.wo_php_versions.keys())
         ngxcom = '/etc/nginx/common'
         if not os.path.exists(ngxcom):
             os.mkdir(ngxcom)

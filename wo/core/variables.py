@@ -150,31 +150,32 @@ class WOVar():
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = 'FB898660'
 
+    wo_php_versions = {
+        'php72': '7.2',
+        'php73': '7.3',
+        'php74': '7.4',
+        'php80': '8.0',
+        'php81': '8.1',
+        'php82': '8.2',
+    }
+
     wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
                  "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
                  "mysql", "opcache", "readline", "redis", "soap", "xdebug",
                  "xml", "zip"]
-    wo_php72 = []
-    for module in wo_module:
-        wo_php72 = wo_php72 + ["php7.2-{0}".format(module)]
-    wo_php72 = wo_php72 + ["php7.2-recode"]
-    wo_php73 = []
-    for module in wo_module:
-        wo_php73 = wo_php73 + ["php7.3-{0}".format(module)]
-    wo_php73 = wo_php73 + ["php7.3-recode"]
-    wo_php74 = []
-    for module in wo_module:
-        wo_php74 = wo_php74 + ["php7.4-{0}".format(module)]
-    wo_php74 = wo_php74 + ["php7.4-geoip", "php7.4-json"]
-    wo_php80 = []
-    for module in wo_module:
-        wo_php80 = wo_php80 + ["php8.0-{0}".format(module)]
-    wo_php81 = []
-    for module in wo_module:
-        wo_php81 = wo_php81 + ["php8.1-{0}".format(module)]
-    wo_php82 = []
-    for module in wo_module:
-        wo_php82 = wo_php82 + ["php8.2-{0}".format(module)]
+
+    wo_php_modules = {}
+
+    for version_key, version_number in wo_php_versions.items():
+        wo_php_modules[version_key] = []
+        for module in wo_module:
+            wo_php_modules[version_key].append("{0}-{1}".format(version_key, module))
+
+        # Add version-specific modules
+        if version_key == 'php72' or version_key == 'php73':
+            wo_php_modules[version_key].append("{0}-recode".format(version_key))
+        elif version_key == 'php74':
+            wo_php_modules[version_key].extend(["{0}-geoip".format(version_key), "{0}-json".format(version_key)])
 
     wo_php_extra = ["graphviz"]
 
