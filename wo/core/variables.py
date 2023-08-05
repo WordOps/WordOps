@@ -159,23 +159,26 @@ class WOVar():
         'php82': '8.2',
     }
 
-    wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
-                 "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
-                 "mysql", "opcache", "readline", "redis", "soap", "xdebug",
-                 "xml", "zip"]
+    def generate_php_modules(version_prefix, version_number):
+        wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
+                     "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
+                     "mysql", "opcache", "readline", "redis", "soap", "xdebug",
+                     "xml", "zip"]
+        php_modules = ["{0}-{1}".format(version_prefix, module) for module in wo_module]
 
-    wo_php_modules = {}
+        if version_prefix == 'php72' or version_prefix == 'php73':
+            php_modules.append("{0}-recode".format(version_prefix))
+        elif version_prefix == 'php74':
+            php_modules.extend(["{0}-geoip".format(version_prefix), "{0}-json".format(version_prefix)])
 
-    for version_key, version_number in wo_php_versions.items():
-        wo_php_modules[version_key] = []
-        for module in wo_module:
-            wo_php_modules[version_key].append("{0}-{1}".format(version_key, module))
+        return php_modules
 
-        # Add version-specific modules
-        if version_key == 'php72' or version_key == 'php73':
-            wo_php_modules[version_key].append("{0}-recode".format(version_key))
-        elif version_key == 'php74':
-            wo_php_modules[version_key].extend(["{0}-geoip".format(version_key), "{0}-json".format(version_key)])
+    wo_php72 = generate_php_modules('php72', '7.2')
+    wo_php73 = generate_php_modules('php73', '7.3')
+    wo_php74 = generate_php_modules('php74', '7.4')
+    wo_php80 = generate_php_modules('php80', '8.0')
+    wo_php81 = generate_php_modules('php81', '8.1')
+    wo_php82 = generate_php_modules('php82', '8.2')
 
     wo_php_extra = ["graphviz"]
 
@@ -183,10 +186,7 @@ class WOVar():
         "mariadb-server", "percona-toolkit",
         "mariadb-common", "python3-mysqldb"]
     if wo_distro == 'raspbian':
-        if wo_platform_codename == 'stretch':
-            mariadb_ver = '10.1'
-        else:
-            mariadb_ver = '10.3'
+        mariadb_ver = '10.3'
     else:
         mariadb_ver = '10.11'
         wo_mysql = wo_mysql + ["mariadb-backup"]
