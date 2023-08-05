@@ -483,29 +483,29 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         for php_version in php_list:
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-            Log.info(self, "Configuring php{0}-fpm".format(php_version))
+            Log.info(self, "Configuring php{0}-fpm".format(php_version[0]))
             ngxroot = '/var/www/'
 
             # Create log directories
-            if not os.path.exists('/var/log/php/{0}/'.format(php_version)):
+            if not os.path.exists('/var/log/php/{0}/'.format(php_version[0])):
                 Log.debug(
                     self, 'Creating directory /var/log/php/{0}/'
-                    .format(php_version))
-                os.makedirs('/var/log/php/{0}/'.format(php_version))
+                    .format(php_version[0]))
+                os.makedirs('/var/log/php/{0}/'.format(php_version[0]))
 
             if not os.path.isfile(
-                    '/etc/php/{0}/fpm/php.ini.orig'.format(php_version)):
+                    '/etc/php/{0}/fpm/php.ini.orig'.format(php_version[0])):
                 WOFileUtils.copyfile(self,
                                      '/etc/php/{0}/fpm/php.ini'.format(
-                                         php_version),
+                                         php_version[0]),
                                      '/etc/php/{0}/fpm/php.ini.orig'
-                                     .format(php_version))
+                                     .format(php_version[0]))
 
             # Parse etc/php/x.x/fpm/php.ini
             config = configparser.ConfigParser()
             Log.debug(self, "configuring php file "
-                      "/etc/php/{0}/fpm/php.ini".format(php_version))
-            config.read('/etc/php/{0}/fpm/php.ini.orig'.format(php_version))
+                      "/etc/php/{0}/fpm/php.ini".format(php_version[0]))
+            config.read('/etc/php/{0}/fpm/php.ini.orig'.format(php_version[0]))
             config['PHP']['expose_php'] = 'Off'
             config['PHP']['post_max_size'] = '100M'
             config['PHP']['upload_max_filesize'] = '100M'
@@ -521,29 +521,29 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             config['opcache']['opcache.revalidate_freq'] = '5'
             config['opcache']['opcache.consistency_checks'] = '0'
             config['opcache']['opcache.validate_timestamps'] = '1'
-            with open('/etc/php/{0}/fpm/php.ini'.format(php_version),
+            with open('/etc/php/{0}/fpm/php.ini'.format(php_version[0]),
                       encoding='utf-8', mode='w') as configfile:
                 Log.debug(self, "Writting php configuration into "
-                          "/etc/php/{0}/fpm/php.ini".format(php_version))
+                          "/etc/php/{0}/fpm/php.ini".format(php_version[0]))
                 config.write(configfile)
 
             # Render php-fpm pool template for phpx.x
-            data = dict(pid="/run/php/php{0}-fpm.pid".format(php_version),
+            data = dict(pid="/run/php/php{0}-fpm.pid".format(php_version[0]),
                         error_log="/var/log/php{0}-fpm.log".format(
-                            php_version),
+                            php_version[0]),
                         include="/etc/php/{0}/fpm/pool.d/*.conf"
-                        .format(php_version))
+                        .format(php_version[0]))
             WOTemplate.deploy(
-                self, '/etc/php/{0}/fpm/php-fpm.conf'.format(php_version),
+                self, '/etc/php/{0}/fpm/php-fpm.conf'.format(php_version[0]),
                 'php-fpm.mustache', data)
-            php_short = php_version.replace(".", "")
+            php_short = php_version[0].replace(".", "")
             data = dict(pool='www-php{0}'.format(php_short),
                         listen='php{0}-fpm.sock'.format(php_short),
                         user='www-data',
                         group='www-data', listenuser='root',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self, '/etc/php/{0}/fpm/pool.d/www.conf'
-                              .format(php_version),
+                              .format(php_version[0]),
                               'php-pool.mustache', data)
             data = dict(pool='www-two-php{0}'.format(php_short),
                         listen='php{0}-two-fpm.sock'.format(php_short),
@@ -552,37 +552,39 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self,
                               '/etc/php/{0}/fpm/pool.d/www-two.conf'.format(
-                                  php_version),
+                                  php_version[0]),
                               'php-pool.mustache', data)
 
             # Generate /etc/php/x.x/fpm/pool.d/debug.conf
             WOFileUtils.copyfile(self,
                                  "/etc/php/{0}/fpm/pool.d/www.conf".format(
-                                     php_version),
+                                     php_version[0]),
                                  "/etc/php/{0}/fpm/pool.d/debug.conf"
-                                 .format(php_version))
+                                 .format(php_version[0]))
             WOFileUtils.searchreplace(self,
                                       "/etc/php/{0}/fpm/pool.d/"
-                                      "debug.conf".format(php_version),
+                                      "debug.conf".format(php_version[0]),
                                       "[www-php{0}]".format(php_short),
                                       "[debug]")
             config = configparser.ConfigParser()
             config.read(
-                '/etc/php/{0}/fpm/pool.d/debug.conf'.format(php_version))
+                '/etc/php/{0}/fpm/pool.d/debug.conf'.format(php_version[0]))
             config['debug']['listen'] = '127.0.0.1:91{0}'.format(php_short)
             config['debug']['rlimit_core'] = 'unlimited'
             config['debug']['slowlog'] = '/var/log/php/{0}/slow.log'.format(
-                php_version)
+                php_version[0])
             config['debug']['request_slowlog_timeout'] = '10s'
-            with open('/etc/php/{0}/fpm/pool.d/debug.conf'.format(php_version),
+            with open('/etc/php/{0}/fpm/pool.d/debug.conf'
+                      .format(php_version[0]),
                       encoding='utf-8', mode='w') as confifile:
                 Log.debug(self,
                           "writting PHP configuration into "
                           "/etc/php/{0}/fpm/pool.d/debug.conf"
-                          .format(php_version))
+                          .format(php_version[0]))
                 config.write(confifile)
 
-            with open("/etc/php/{0}/fpm/pool.d/debug.conf".format(php_version),
+            with open("/etc/php/{0}/fpm/pool.d/debug.conf"
+                      .format(php_version[0]),
                       encoding='utf-8', mode='a') as myfile:
                 myfile.write("php_admin_value[xdebug.profiler_output_dir] "
                              "= /tmp/ \nphp_admin_value[xdebug.profiler_"
@@ -594,10 +596,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             # Disable xdebug
             if not WOShellExec.cmd_exec(self, "grep -q \';zend_extension\'"
                                         " /etc/php/{0}/mods-available/"
-                                        "xdebug.ini".format(php_version)):
+                                        "xdebug.ini".format(php_version[0])):
                 WOFileUtils.searchreplace(self, "/etc/php/{0}/"
                                           "mods-available/"
-                                          "xdebug.ini".format(php_version),
+                                          "xdebug.ini".format(php_version[0]),
                                           "zend_extension",
                                           ";zend_extension")
 
@@ -650,7 +652,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
             # check service restart or rollback configuration
             if not WOService.restart_service(self,
-                                             'php{0}-fpm'.format(php_version)):
+                                             'php{0}-fpm'
+                                             .format(php_version[0])):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
             else:
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
