@@ -20,15 +20,6 @@ server {
     location / {
         return 301 https://{{alias_name}}$request_uri;
     }
-    {{/alias}}
-    {{#proxy}}
-    add_header X-Proxy-Cache $upstream_cache_status;
-    location / {
-        proxy_pass http://{{host}}:{{port}};
-        proxy_redirect      off;
-        include proxy_params;
-    }
-    {{#alias}}
     # Security settings for better privacy
     # Deny hidden files
     location ~ /\.(?!well-known\/) {
@@ -41,6 +32,25 @@ server {
         auth_basic off;
     }
     {{/alias}}
+    {{#proxy}}
+    add_header X-Proxy-Cache $upstream_cache_status;
+    location / {
+        proxy_pass http://{{host}}:{{port}};
+        proxy_redirect      off;
+        include proxy_params;
+    }
+
+    # Security settings for better privacy
+    # Deny hidden files
+    location ~ /\.(?!well-known\/) {
+        deny all;
+    }
+    # letsencrypt validation
+    location /.well-known/acme-challenge/ {
+        alias /var/www/html/.well-known/acme-challenge/;
+        allow all;
+        auth_basic off;
+    }
     {{/proxy}}
 
     {{^proxy}}
