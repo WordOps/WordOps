@@ -16,6 +16,10 @@ server {
     access_log /var/log/nginx/{{site_name}}.access.log {{^wpredis}}{{^static}}rt_cache{{/static}}{{/wpredis}}{{#wpredis}}rt_cache_redis{{/wpredis}};
     error_log /var/log/nginx/{{site_name}}.error.log;
 
+    {{#alias}}
+    location / {
+        return 301 https://{{alias_name}}$request_uri;
+    }
     {{#proxy}}
     add_header X-Proxy-Cache $upstream_cache_status;
     location / {
@@ -23,7 +27,7 @@ server {
         proxy_redirect      off;
         include proxy_params;
     }
-
+    {{#alias}}
     # Security settings for better privacy
     # Deny hidden files
     location ~ /\.(?!well-known\/) {
@@ -35,9 +39,11 @@ server {
         allow all;
         auth_basic off;
     }
+    {{/alias}}
     {{/proxy}}
 
     {{^proxy}}
+    {{^alias}}
     root {{webroot}}/htdocs;
 
     index {{^static}}index.php{{/static}} index.html index.htm;
@@ -51,7 +57,7 @@ server {
     {{^static}}include {{#basic}}common/{{wo_php}}.conf;{{/basic}}{{#wpfc}}common/wpfc-{{wo_php}}.conf;{{/wpfc}}{{#wpsc}}common/wpsc-{{wo_php}}.conf;{{/wpsc}}{{#wpredis}}common/redis-{{wo_php}}.conf;{{/wpredis}}{{#wprocket}}common/wprocket-{{wo_php}}.conf;{{/wprocket}}{{#wpce}}common/wpce-{{wo_php}}.conf;{{/wpce}}
     {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}{{/static}}
     {{#wp}}include common/wpcommon-{{wo_php}}.conf;{{/wp}}
-    include common/locations-wo.conf;{{/proxy}}
+    include common/locations-wo.conf;{{/proxy}}{{/alias}}
     include {{webroot}}/conf/nginx/*.conf;
 
 }

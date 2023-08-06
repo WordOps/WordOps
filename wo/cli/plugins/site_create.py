@@ -73,6 +73,9 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create WordPress single/multi site "
                      "with redis cache",
                      action='store_true')),
+            (['--alias'],
+                dict(help="domain name to redirect to",
+                     action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -129,10 +132,17 @@ class WOSiteCreateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy:
+        elif stype is None and not pargs.proxy and not pargs.alias:
             stype, cache = 'html', 'basic'
+        elif stype is None and pargs.alias:
+            stype, cache = 'alias', ''
+            alias_name = pargs.alias.strip()
+            if not alias_name:
+                Log.error(self, "Please provide alias name")
         elif stype and pargs.proxy:
             Log.error(self, "proxy should not be used with other site types")
+        elif stype and pargs.alias:
+            Log.error(self, "alias should not be used with other site types")
 
         if not pargs.site_name:
             try:
@@ -171,6 +181,16 @@ class WOSiteCreateController(CementBaseController):
             data['proxy'] = True
             data['host'] = host
             data['port'] = port
+            data['basic'] = True
+
+        if stype == 'alias':
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=True, basic=False, wp=False,
+                wpfc=False, wpsc=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot)
+            data['alias'] = True
+            data['alias_name'] = alias_name
             data['basic'] = True
 
         if (pargs.php72 or pargs.php73 or pargs.php74 or
@@ -281,6 +301,27 @@ class WOSiteCreateController(CementBaseController):
                           "and please try again")
 
             if 'proxy' in data.keys() and data['proxy']:
+                addNewSite(self, wo_domain, stype, cache, wo_site_webroot)
+                # Service Nginx Reload
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain)
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
+                if wo_auth and len(wo_auth):
+                    for msg in wo_auth:
+                        Log.info(self, Log.ENDC + msg, log=False)
+                Log.info(self, "Successfully created site"
+                         " http://{0}".format(wo_domain))
+                return
+
+            if 'alias' in data.keys() and data['alias']:
                 addNewSite(self, wo_domain, stype, cache, wo_site_webroot)
                 # Service Nginx Reload
                 if not WOService.reload_service(self, 'nginx'):
