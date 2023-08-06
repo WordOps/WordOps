@@ -218,57 +218,27 @@ class WOSiteCreateController(CementBaseController):
         else:
             pass
 
-        data['php73'] = False
-        data['php74'] = False
-        data['php72'] = False
-        data['php80'] = False
-        data['php81'] = False
-        data['php82'] = False
+        # Initialize all PHP versions to False
+        for version in WOVar.wo_php_versions:
+            data[version] = False
 
-        if data and pargs.php73:
-            data['php73'] = True
-            data['wo_php'] = 'php73'
-        elif data and pargs.php74:
-            data['php74'] = True
-            data['wo_php'] = 'php74'
-        elif data and pargs.php72:
-            data['php72'] = True
-            data['wo_php'] = 'php72'
-        elif data and pargs.php80:
-            data['php80'] = True
-            data['wo_php'] = 'php80'
-        elif data and pargs.php81:
-            data['php81'] = True
-            data['wo_php'] = 'php81'
-        elif data and pargs.php82:
-            data['php82'] = True
-            data['wo_php'] = 'php82'
-
+        # Check for PHP versions in pargs
+        for pargs_version, version in WOVar.wo_php_versions.items():
+            if data and getattr(pargs, pargs_version, False):
+                data[pargs_version] = True
+                data['wo_php'] = pargs_version
+                php_version = version
+                break
         else:
             if self.app.config.has_section('php'):
-                config_php_ver = self.app.config.get(
-                    'php', 'version')
-                if config_php_ver == '7.2':
-                    data['php72'] = True
-                    data['wo_php'] = 'php72'
-                elif config_php_ver == '7.3':
-                    data['php73'] = True
-                    data['wo_php'] = 'php73'
-                elif config_php_ver == '7.4':
-                    data['php74'] = True
-                    data['wo_php'] = 'php74'
-                elif config_php_ver == '8.0':
-                    data['php80'] = True
-                    data['wo_php'] = 'php80'
-                elif config_php_ver == '8.1':
-                    data['php81'] = True
-                    data['wo_php'] = 'php81'
-                elif config_php_ver == '8.2':
-                    data['php82'] = True
-                    data['wo_php'] = 'php82'
-            else:
-                data['php73'] = True
-                data['wo_php'] = 'php73'
+                config_php_ver = self.app.config.get('php', 'version')
+
+                for wo_key, php_ver in WOVar.wo_php_versions.items():
+                    if php_ver == config_php_ver:
+                        data[wo_key] = True
+                        data['wo_php'] = wo_key
+                        php_version = php_ver
+                        break
 
         if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
@@ -330,19 +300,6 @@ class WOSiteCreateController(CementBaseController):
                 Log.info(self, "Successfully created site"
                          " http://{0}".format(wo_domain))
                 return
-
-            if data['php72']:
-                php_version = "7.2"
-            elif data['php74']:
-                php_version = "7.4"
-            elif data['php80']:
-                php_version = "8.0"
-            elif data['php81']:
-                php_version = "8.1"
-            elif data['php82']:
-                php_version = "8.2"
-            else:
-                php_version = "7.3"
 
             addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
                        php_version=php_version)
