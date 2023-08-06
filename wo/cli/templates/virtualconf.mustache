@@ -20,6 +20,7 @@ server {
     location / {
         return 301 https://{{alias_name}}$request_uri;
     }
+    {{/alias}}
     {{#proxy}}
     add_header X-Proxy-Cache $upstream_cache_status;
     location / {
