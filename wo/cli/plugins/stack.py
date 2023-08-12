@@ -94,10 +94,11 @@ class WOStackController(CementBaseController):
                 dict(help='Force install/remove/purge without prompt',
                      action='store_true')),
         ]
-        for php_version, php_number in WOVar.wo_php_versions:
-            php_args = arguments + [([f'--{php_version}'],
-                                     dict(help=f'Install PHP {php_number} stack',
-                                          action='store_true'))]
+        for php_version, php_number in WOVar.wo_php_versions.items():
+            arguments.append(([f'--{php_version}'],
+                              dict(help=f'Install PHP {php_number} stack',
+                                   action='store_true')))
+
         usage = "wo stack (command) [options]"
 
     @expose(hide=True)
