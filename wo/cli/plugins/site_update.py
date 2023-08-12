@@ -61,6 +61,9 @@ class WOSiteUpdateController(CementBaseController):
                      action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
+            (['--alias'],
+                dict(help="domain name to redirect to",
+                     action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -147,10 +150,16 @@ class WOSiteUpdateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not (pargs.proxy or pargs.letsencrypt):
+        elif stype is None and pargs.alias:
+            stype, cache = 'alias', ''
+            alias_name = pargs.alias.strip()
+            if not alias_name:
+                Log.error(self, "Please provide alias name")
+        elif stype is None and not (pargs.proxy or
+                                    pargs.letsencrypt or pargs.alias):
             stype, cache = 'html', 'basic'
-        elif stype and pargs.proxy:
-            Log.error(self, "--proxy can not be used with other site types")
+        elif stype and (pargs.proxy or pargs.alias):
+            Log.error(self, "--proxy/alias can not be used with other site types")
 
         if not pargs.site_name:
             try:
@@ -273,6 +282,15 @@ class WOSiteUpdateController(CementBaseController):
             data['webroot'] = wo_site_webroot
             data['currsitetype'] = oldsitetype
             data['currcachetype'] = oldcachetype
+
+        if stype == 'alias':
+            data['site_name'] = wo_domain
+            data['www_domain'] = wo_www_domain
+            data['webroot'] = wo_site_webroot
+            data['currsitetype'] = oldsitetype
+            data['currcachetype'] = oldcachetype
+            data['alias'] = True
+            data['alias_name'] = alias_name
 
         if stype == 'php':
             data = dict(
