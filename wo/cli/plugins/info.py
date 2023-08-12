@@ -9,6 +9,7 @@ from pynginxconfig import NginxConfig
 from wo.core.aptget import WOAptGet
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
+from wo.core.variables import WOVar
 
 
 def wo_info_hook(app):
@@ -27,28 +28,17 @@ class WOInfoController(CementBaseController):
                 dict(help='Get MySQL configuration information',
                      action='store_true')),
             (['--php'],
-                dict(help='Get PHP 7.2 configuration information',
-                     action='store_true')),
-            (['--php73'],
-                dict(help='Get PHP 7.3 configuration information',
-                     action='store_true')),
-            (['--php74'],
-                dict(help='Get PHP 7.4 configuration information',
-                     action='store_true')),
-            (['--php80'],
-                dict(help='Get PHP 8.0 configuration information',
-                     action='store_true')),
-            (['--php81'],
-                dict(help='Get PHP 8.1 configuration information',
-                     action='store_true')),
-            (['--php82'],
-                dict(help='Get PHP 8.2 configuration information',
+                dict(help='Get PHP configuration information',
                      action='store_true')),
             (['--nginx'],
                 dict(help='Get Nginx configuration information',
                      action='store_true')),
         ]
         usage = "wo info [options]"
+        for php_version, php_number in WOVar.wo_php_versions.items():
+            arguments.append(([f'--{php_version}'],
+                              dict(help=f'Get PHP {php_number} configuration information',
+                                   action='store_true')))
 
     @expose(hide=True)
     def info_nginx(self):

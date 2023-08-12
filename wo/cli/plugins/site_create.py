@@ -32,19 +32,7 @@ class WOSiteCreateController(CementBaseController):
             (['--html'],
                 dict(help="create html site", action='store_true')),
             (['--php'],
-             dict(help="create php 7.2 site", action='store_true')),
-            (['--php72'],
-                dict(help="create php 7.2 site", action='store_true')),
-            (['--php73'],
-                dict(help="create php 7.3 site", action='store_true')),
-            (['--php74'],
-                dict(help="create php 7.4 site", action='store_true')),
-            (['--php80'],
-                dict(help="create php 8.0 site", action='store_true')),
-            (['--php81'],
-                dict(help="create php 8.1 site", action='store_true')),
-            (['--php82'],
-                dict(help="create php 8.2 site", action='store_true')),
+             dict(help="create php site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -110,6 +98,10 @@ class WOSiteCreateController(CementBaseController):
                                    "without installing WordPress",
                                    action='store_true')),
         ]
+        for php_version, php_number in WOVar.wo_php_versions.items():
+            arguments.append(([f'--{php_version}'],
+                              dict(help=f'Create PHP {php_number} site',
+                                   action='store_true')))
 
     @expose(hide=True)
     def default(self):
