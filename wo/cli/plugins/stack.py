@@ -41,18 +41,6 @@ class WOStackController(CementBaseController):
                 dict(help='Install Nginx stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP 7.2 stack', action='store_true')),
-            (['--php72'],
-                dict(help='Install PHP 7.2 stack', action='store_true')),
-            (['--php73'],
-                dict(help='Install PHP 7.3 stack', action='store_true')),
-            (['--php74'],
-                dict(help='Install PHP 7.4 stack', action='store_true')),
-            (['--php80'],
-                dict(help='Install PHP 8.0 stack', action='store_true')),
-            (['--php81'],
-                dict(help='Install PHP 8.1 stack', action='store_true')),
-            (['--php82'],
-                dict(help='Install PHP 8.2 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
             (['--mariadb'],
@@ -106,6 +94,10 @@ class WOStackController(CementBaseController):
                 dict(help='Force install/remove/purge without prompt',
                      action='store_true')),
         ]
+        for php_version, php_number in WOVar.wo_php_versions:
+            php_args = arguments + [([f'--{php_version}'],
+                                     dict(help=f'Install PHP {php_number} stack',
+                                          action='store_true'))]
         usage = "wo stack (command) [options]"
 
     @expose(hide=True)
