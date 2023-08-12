@@ -128,12 +128,8 @@ class WOSiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         pargs = self.app.pargs
         letsencrypt = False
-        php73 = False
-        php74 = False
-        php72 = False
-        php80 = False
-        php81 = False
-        php82 = False
+        for pargs_version in WOVar.wo_php_versions:
+            globals()[pargs_version] = False
 
         data = dict()
         try:
