@@ -836,7 +836,7 @@ def site_package_check(self, stype):
     stack.app = self.app
     pargs = self.app.pargs
     if stype in ['html', 'proxy', 'php', 'php72', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain', 'php73', 'php74', 'php80', 'php81', 'php82']:
+                 'wpsubdomain', 'php73', 'php74', 'php80', 'php81', 'php82', 'alias']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
