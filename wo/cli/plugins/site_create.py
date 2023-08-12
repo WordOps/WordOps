@@ -32,19 +32,7 @@ class WOSiteCreateController(CementBaseController):
             (['--html'],
                 dict(help="create html site", action='store_true')),
             (['--php'],
-             dict(help="create php 7.2 site", action='store_true')),
-            (['--php72'],
-                dict(help="create php 7.2 site", action='store_true')),
-            (['--php73'],
-                dict(help="create php 7.3 site", action='store_true')),
-            (['--php74'],
-                dict(help="create php 7.4 site", action='store_true')),
-            (['--php80'],
-                dict(help="create php 8.0 site", action='store_true')),
-            (['--php81'],
-                dict(help="create php 8.1 site", action='store_true')),
-            (['--php82'],
-                dict(help="create php 8.2 site", action='store_true')),
+             dict(help="create php site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -73,6 +61,9 @@ class WOSiteCreateController(CementBaseController):
                 dict(help="create WordPress single/multi site "
                      "with redis cache",
                      action='store_true')),
+            (['--alias'],
+                dict(help="domain name to redirect to",
+                     action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -107,6 +98,10 @@ class WOSiteCreateController(CementBaseController):
                                    "without installing WordPress",
                                    action='store_true')),
         ]
+        for php_version, php_number in WOVar.wo_php_versions.items():
+            arguments.append(([f'--{php_version}'],
+                              dict(help=f'Create PHP {php_number} site',
+                                   action='store_true')))
 
     @expose(hide=True)
     def default(self):
@@ -129,10 +124,17 @@ class WOSiteCreateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy:
+        elif stype is None and not pargs.proxy and not pargs.alias:
             stype, cache = 'html', 'basic'
+        elif stype is None and pargs.alias:
+            stype, cache = 'alias', ''
+            alias_name = pargs.alias.strip()
+            if not alias_name:
+                Log.error(self, "Please provide alias name")
         elif stype and pargs.proxy:
             Log.error(self, "proxy should not be used with other site types")
+        elif stype and pargs.alias:
+            Log.error(self, "alias should not be used with other site types")
 
         if not pargs.site_name:
             try:
@@ -171,6 +173,16 @@ class WOSiteCreateController(CementBaseController):
             data['proxy'] = True
             data['host'] = host
             data['port'] = port
+            data['basic'] = True
+
+        if stype == 'alias':
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=True, basic=False, wp=False,
+                wpfc=False, wpsc=False, wprocket=False, wpce=False,
+                multisite=False, wpsubdir=False, webroot=wo_site_webroot)
+            data['alias'] = True
+            data['alias_name'] = alias_name
             data['basic'] = True
 
         if (pargs.php72 or pargs.php73 or pargs.php74 or
@@ -218,57 +230,27 @@ class WOSiteCreateController(CementBaseController):
         else:
             pass
 
-        data['php73'] = False
-        data['php74'] = False
-        data['php72'] = False
-        data['php80'] = False
-        data['php81'] = False
-        data['php82'] = False
+        # Initialize all PHP versions to False
+        for version in WOVar.wo_php_versions:
+            data[version] = False
 
-        if data and pargs.php73:
-            data['php73'] = True
-            data['wo_php'] = 'php73'
-        elif data and pargs.php74:
-            data['php74'] = True
-            data['wo_php'] = 'php74'
-        elif data and pargs.php72:
-            data['php72'] = True
-            data['wo_php'] = 'php72'
-        elif data and pargs.php80:
-            data['php80'] = True
-            data['wo_php'] = 'php80'
-        elif data and pargs.php81:
-            data['php81'] = True
-            data['wo_php'] = 'php81'
-        elif data and pargs.php82:
-            data['php82'] = True
-            data['wo_php'] = 'php82'
-
+        # Check for PHP versions in pargs
+        for pargs_version, version in WOVar.wo_php_versions.items():
+            if data and getattr(pargs, pargs_version, False):
+                data[pargs_version] = True
+                data['wo_php'] = pargs_version
+                php_version = version
+                break
         else:
             if self.app.config.has_section('php'):
-                config_php_ver = self.app.config.get(
-                    'php', 'version')
-                if config_php_ver == '7.2':
-                    data['php72'] = True
-                    data['wo_php'] = 'php72'
-                elif config_php_ver == '7.3':
-                    data['php73'] = True
-                    data['wo_php'] = 'php73'
-                elif config_php_ver == '7.4':
-                    data['php74'] = True
-                    data['wo_php'] = 'php74'
-                elif config_php_ver == '8.0':
-                    data['php80'] = True
-                    data['wo_php'] = 'php80'
-                elif config_php_ver == '8.1':
-                    data['php81'] = True
-                    data['wo_php'] = 'php81'
-                elif config_php_ver == '8.2':
-                    data['php82'] = True
-                    data['wo_php'] = 'php82'
-            else:
-                data['php73'] = True
-                data['wo_php'] = 'php73'
+                config_php_ver = self.app.config.get('php', 'version')
+
+                for wo_key, php_ver in WOVar.wo_php_versions.items():
+                    if php_ver == config_php_ver:
+                        data[wo_key] = True
+                        data['wo_php'] = wo_key
+                        php_version = php_ver
+                        break
 
         if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
@@ -331,18 +313,26 @@ class WOSiteCreateController(CementBaseController):
                          " http://{0}".format(wo_domain))
                 return
 
-            if data['php72']:
-                php_version = "7.2"
-            elif data['php74']:
-                php_version = "7.4"
-            elif data['php80']:
-                php_version = "8.0"
-            elif data['php81']:
-                php_version = "8.1"
-            elif data['php82']:
-                php_version = "8.2"
-            else:
-                php_version = "7.3"
+            if 'alias' in data.keys() and data['alias']:
+                addNewSite(self, wo_domain, stype, cache, wo_site_webroot)
+                # Service Nginx Reload
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain)
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
+                if wo_auth and len(wo_auth):
+                    for msg in wo_auth:
+                        Log.info(self, Log.ENDC + msg, log=False)
+                Log.info(self, "Successfully created site"
+                         " http://{0}".format(wo_domain))
+                return
 
             addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
                        php_version=php_version)

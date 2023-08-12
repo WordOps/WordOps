@@ -33,18 +33,6 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help='Upgrade Nginx stack', action='store_true')),
             (['--php'],
                 dict(help='Upgrade PHP 7.2 stack', action='store_true')),
-            (['--php72'],
-                dict(help='Upgrade PHP 7.2 stack', action='store_true')),
-            (['--php73'],
-             dict(help='Upgrade PHP 7.3 stack', action='store_true')),
-            (['--php74'],
-             dict(help='Upgrade PHP 7.4 stack', action='store_true')),
-            (['--php80'],
-             dict(help='Upgrade PHP 8.0 stack', action='store_true')),
-            (['--php81'],
-             dict(help='Upgrade PHP 8.1 stack', action='store_true')),
-            (['--php82'],
-             dict(help='Upgrade PHP 8.2 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
             (['--mariadb'],
@@ -77,6 +65,10 @@ class WOStackUpgradeController(CementBaseController):
                 dict(help="Force Packages upgrade without any prompt",
                      action='store_true')),
         ]
+        for php_version, php_number in WOVar.wo_php_versions.items():
+            arguments.append(([f'--{php_version}'],
+                              dict(help=f'Upgrade PHP {php_number} stack',
+                                   action='store_true')))
 
     @expose(hide=True)
     def default(self, disp_msg=False):
@@ -102,7 +94,11 @@ class WOStackUpgradeController(CementBaseController):
             pargs.mysql = True
 
         if pargs.php:
-            pargs.php81 = True
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                current_php = config_php_ver.replace(".", "")
+                setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
         if pargs.all:
             pargs.web = True
@@ -145,41 +141,23 @@ class WOStackUpgradeController(CementBaseController):
                 else:
                     Log.info(self, "Nginx Stable is not already installed")
 
-        # php 7.2
-        if pargs.php72:
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php72 + \
-                    WOVar.wo_php_extra
+        wo_vars = {
+            'php72': WOVar.wo_php72,
+            'php73': WOVar.wo_php73,
+            'php74': WOVar.wo_php74,
+            'php80': WOVar.wo_php80,
+            'php81': WOVar.wo_php81,
+            'php82': WOVar.wo_php82,
+        }
 
-        # php 7.3
-        if pargs.php73:
-            if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php73 + \
-                    WOVar.wo_php_extra
-
-        # php 7.4
-        if pargs.php74:
-            if WOAptGet.is_installed(self, 'php7.4-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php74 + \
-                    WOVar.wo_php_extra
-
-        # php 8.0
-        if pargs.php80:
-            if WOAptGet.is_installed(self, 'php8.0-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php80 + \
-                    WOVar.wo_php_extra
-
-        # php 8.1
-        if pargs.php81:
-            if WOAptGet.is_installed(self, 'php8.1-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php81 + \
-                    WOVar.wo_php_extra
-
-        # php 8.2
-        if pargs.php82:
-            if WOAptGet.is_installed(self, 'php8.2-fpm'):
-                apt_packages = apt_packages + WOVar.wo_php82 + \
-                    WOVar.wo_php_extra
+        for parg_version, version in WOVar.wo_php_versions.items():
+            if getattr(pargs, parg_version, False):
+                Log.debug(self, f"Setting apt_packages variable for PHP {version}")
+                if WOAptGet.is_installed(self, f'php{version}-fpm'):
+                    apt_packages = apt_packages + wo_vars[parg_version] + WOVar.wo_php_extra
+                else:
+                    Log.debug(self, f"PHP {version} not installed")
+                    Log.info(self, f"PHP {version} not installed")
 
         # mysql
         if pargs.mysql:

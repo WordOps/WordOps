@@ -41,18 +41,6 @@ class WOSiteUpdateController(CementBaseController):
                 dict(help="update to html site", action='store_true')),
             (['--php'],
              dict(help="update to php site", action='store_true')),
-            (['--php72'],
-                dict(help="update to php72 site", action='store_true')),
-            (['--php73'],
-                dict(help="update to php73 site", action='store_true')),
-            (['--php74'],
-                dict(help="update to php74 site", action='store_true')),
-            (['--php80'],
-                dict(help="update to php80 site", action='store_true')),
-            (['--php81'],
-                dict(help="update to php81 site", action='store_true')),
-            (['--php82'],
-                dict(help="update to php82 site", action='store_true')),
             (['--mysql'],
                 dict(help="update to mysql site", action='store_true')),
             (['--wp'],
@@ -104,6 +92,10 @@ class WOSiteUpdateController(CementBaseController):
             (['--all'],
                 dict(help="update all sites", action='store_true')),
         ]
+        for php_version, php_number in WOVar.wo_php_versions.items():
+            arguments.append(([f'--{php_version}'],
+                              dict(help=f'Update site to PHP {php_number}',
+                                   action='store_true')))
 
     @expose(help="Update site type or cache")
     def default(self):
