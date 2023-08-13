@@ -8,6 +8,7 @@ from wo.core.git import WOGit
 from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec, CommandExecutionError
 from wo.core.variables import WOVar
+from wo.core.template import WOTemplate
 
 
 class WOAcme:
@@ -140,30 +141,21 @@ class WOAcme:
             if os.path.isdir('/var/www/{0}/conf/nginx'
                              .format(wo_domain_name)):
 
-                sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
-                               .format(wo_domain_name),
-                               encoding='utf-8', mode='w')
-                sslconf.write(
-                    "listen 443 ssl http2;\n"
-                    "listen [::]:443 ssl http2;\n"
-                    "ssl_certificate     {0}/{1}/fullchain.pem;\n"
-                    "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                    "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
-                    "ssl_stapling_verify on;\n"
-                    .format(WOVar.wo_ssl_live, wo_domain_name))
-                sslconf.close()
+                data = dict(ssl_live_path=WOVar.wo_ssl_live,
+                            domain=wo_domain_name)
+                WOTemplate.deploy(self,
+                                  '/var/www/{0}/conf/nginx/ssl.conf'
+                                  .format(wo_domain_name),
+                                  'ssl.mustache', data, overwrite=False)
 
             if not WOFileUtils.grep(self, '/var/www/22222/conf/nginx/ssl.conf',
                                     '/etc/letsencrypt'):
                 Log.info(self, "Securing WordOps backend with current cert")
-                sslconf = open("/var/www/22222/conf/nginx/ssl.conf",
-                               encoding='utf-8', mode='w')
-                sslconf.write("ssl_certificate     {0}/{1}/fullchain.pem;\n"
-                              "ssl_certificate_key     {0}/{1}/key.pem;\n"
-                              "ssl_trusted_certificate {0}/{1}/ca.pem;\n"
-                              "ssl_stapling_verify on;\n"
-                              .format(WOVar.wo_ssl_live, wo_domain_name))
-                sslconf.close()
+                data = dict(ssl_live_path=WOVar.wo_ssl_live,
+                            domain=wo_domain_name)
+                WOTemplate.deploy(self,
+                                  '/var/www/22222/conf/nginx/ssl.conf',
+                                  'ssl.mustache', data, overwrite=False)
 
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
@@ -193,7 +185,7 @@ class WOAcme:
         for domain in acme_domains:
             domain_ip = requests.get('http://v4.wordops.eu/dns/{0}/'
                                      .format(domain)).text
-            if(not domain_ip == server_ip):
+            if (not domain_ip == server_ip):
                 Log.warn(
                     self, "{0}".format(domain) +
                     " point to the IP {0}".format(domain_ip) +

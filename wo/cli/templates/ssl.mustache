@@ -1,0 +1,6 @@
+listen 443 ssl http2;
+listen [::]:443 ssl http2;
+ssl_certificate     {{ssl_live_path}}/{{domain}}/fullchain.pem;
+ssl_certificate_key     {{ssl_live_path}}/{{domain}}/key.pem;
+ssl_trusted_certificate {{ssl_live_path}}/{{domain}}/ca.pem;
+ssl_stapling_verify on;
