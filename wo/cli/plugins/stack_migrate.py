@@ -59,7 +59,7 @@ class WOStackMigrateController(CementBaseController):
                              "{version}/{distro} {codename} main"
                              .format(version=current_mysql_version,
                                      distro=WOVar.wo_distro,
-                                     codename=WOVar.platform_codename))
+                                     codename=WOVar.wo_platform_codename))
 
         if WOFileUtils.grepcheck(
                 self, '/etc/apt/sources.list.d/wo-repo.list',
