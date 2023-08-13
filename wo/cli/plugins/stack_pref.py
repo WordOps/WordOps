@@ -1179,8 +1179,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'SEND_EMAIL="NO"')
 
             WOFileUtils.searchreplace(
-                self, "{0}etc/netdata/orig/health_alarm_notify.conf"
-                .format(wo_netdata),
+                self, "{0}etc/netdata/orig/health_alarm_notify.conf",
                 'SEND_EMAIL="YES"',
                 'SEND_EMAIL="NO"')
             # check if mysql credentials are available
