@@ -48,8 +48,14 @@ class WOStackMigrateController(CementBaseController):
         if 'repo' in current_mysql_version:
             current_mysql_version = current_mysql_version[5]
 
-        mariadb_release = WOVar.mariadb_ver
-        if mariadb_release != current_mysql_version:
+        if self.app.config.has_section('mariadb'):
+            mariadb_release = self.app.config.get(
+                'mariadb', 'release')
+            if mariadb_release < WOVar.mariadb_ver:
+                mariadb_release = WOVar.mariadb_ver
+        else:
+            mariadb_release = WOVar.mariadb_ver
+        if mariadb_release == current_mysql_version:
             Log.info(self, "You already have the latest "
                      "MariaDB version available")
             return 0
