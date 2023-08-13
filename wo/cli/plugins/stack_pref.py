@@ -38,7 +38,19 @@ def pre_pref(self, apt_packages):
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
-            WORepo.add(self, repo_url=WOVar.wo_mysql_repo)
+            if self.app.config.has_section('mariadb'):
+                mariadb_ver = self.app.config.get(
+                    'mariadb', 'release')
+                wo_mysql_repo_conf = ("deb [arch=amd64,arm64,ppc64el] "
+                                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
+                                      "{version}/{distro} {codename} main"
+                                      .format(version=mariadb_ver,
+                                              distro=WOVar.wo_distro,
+                                              codename=WOVar.wo_platform_codename))
+            else:
+                wo_mysql_repo_conf = WOVar.wo_mysql_repo
+            # APT repositories
+            WORepo.add(self, repo_url=wo_mysql_repo_conf)
             WORepo.add_key(self, '0xcbcb082a1bb943db',
                            keyserver='keyserver.ubuntu.com')
             WORepo.add_key(self, '0xF1656F24C74CD1D8',
@@ -227,14 +239,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                   .format(ngxcom),
                                   'wpsubdir.mustache', data)
 
-                wo_php_version = ["php72",
-                                  "php73",
-                                  "php74",
-                                  "php80",
-                                  "php81",
-                                  "php82",
-                                  ]
-                for wo_php in wo_php_version:
+                for wo_php in WOVar.wo_php_versions:
                     data = dict(upstream="{0}".format(wo_php),
                                 release=WOVar.wo_version)
                     WOConf.nginxcommon(self)
@@ -468,18 +473,10 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         # php conf
         php_list = []
-        if 'php7.2-fpm' in apt_packages:
-            php_list = php_list + [["7.2"]]
-        if 'php7.3-fpm' in apt_packages:
-            php_list = php_list + [["7.3"]]
-        if 'php7.4-fpm' in apt_packages:
-            php_list = php_list + [["7.4"]]
-        if 'php8.0-fpm' in apt_packages:
-            php_list = php_list + [["8.0"]]
-        if 'php8.1-fpm' in apt_packages:
-            php_list = php_list + [["8.1"]]
-        if 'php8.2-fpm' in apt_packages:
-            php_list = php_list + [["8.2"]]
+        for pargs_version, version in WOVar.wo_php_versions.items():
+            package_name = 'php' + version.replace('.', '') + '-fpm'
+            if package_name in apt_packages:
+                php_list.append([version])
 
         for php_version in php_list:
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
