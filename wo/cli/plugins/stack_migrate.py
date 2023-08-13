@@ -49,7 +49,7 @@ class WOStackMigrateController(CementBaseController):
             current_mysql_version = current_mysql_version[5]
 
         mariadb_release = WOVar.mariadb_ver
-        if mariadb_release != current_mysql_version:
+        if mariadb_release == current_mysql_version:
             Log.info(self, "You already have the latest "
                      "MariaDB version available")
             return 0
