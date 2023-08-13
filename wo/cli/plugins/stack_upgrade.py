@@ -362,17 +362,9 @@ class WOStackUpgradeController(CementBaseController):
                     WOShellExec.cmd_exec(
                         self,
                         "bash /var/lib/wo/tmp/kickstart.sh "
-                        "--dont-wait --no-updates --stable-channel",
+                        "--dont-wait --no-updates --stable-channel "
+                        "--reinstall-even-if-unsafe",
                         errormsg='', log=False)
-                    if (os.path.exists('/opt/netdata') and
-                            not os.path.exists(
-                                '/opt/netdata/var/run/netdata/netdata.pid')):
-                        WOShellExec.cmd_exec(
-                            self,
-                            'bash /var/lib/wo/tmp/kickstart.sh '
-                            '--dont-wait --no-updates '
-                            '--stable-channel --reinstall-even-if-unsafe',
-                            errormsg='', log=False)
                     Log.valide(self, "Upgrading Netdata")
 
                 if WOAptGet.is_selected(self, 'WordOps Dashboard', packages):

@@ -1160,26 +1160,28 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.wait(self, "Installing Netdata")
             WOShellExec.cmd_exec(
                 self, "bash /var/lib/wo/tmp/kickstart.sh "
-                "--dont-wait --no-updates --static-only",
+                "--dont-wait --no-updates --stable-channel "
+                "--reinstall-even-if-unsafe",
                 errormsg='', log=False)
             Log.valide(self, "Installing Netdata")
-            if os.path.isdir('/etc/netdata'):
-                wo_netdata = "/"
-            elif os.path.isdir('/opt/netdata'):
-                wo_netdata = "/opt/netdata/"
+
             # disable mail notifications
+            if os.path.isdir('/usr/lib/netdata/conf.d/health_alarm_notify.conf'):
+                WOFileUtils.searchreplace(
+                    self, "/usr/lib/netdata/conf.d/health_alarm_notify.conf",
+                    'SEND_EMAIL="YES"',
+                    'SEND_EMAIL="NO"')
+
+            if os.path.isdir('/opt/netdata/etc/netdata/health_alarm_notify.conf'):
+                WOFileUtils.searchreplace(
+                    self, "/opt/netdata/etc/netdata/health_alarm_notify.conf",
+                    'SEND_EMAIL="YES"',
+                    'SEND_EMAIL="NO"')
+
             WOFileUtils.searchreplace(
-                self, "{0}etc/netdata/orig/health_alarm_notify.conf"
-                .format(wo_netdata),
+                self, "{0}etc/netdata/orig/health_alarm_notify.conf",
                 'SEND_EMAIL="YES"',
                 'SEND_EMAIL="NO"')
-            # make changes persistant
-            WOFileUtils.copyfile(
-                self, "{0}etc/netdata/orig/"
-                "health_alarm_notify.conf"
-                .format(wo_netdata),
-                "{0}etc/netdata/health_alarm_notify.conf"
-                .format(wo_netdata))
             # check if mysql credentials are available
             if WOShellExec.cmd_exec(self, "mysqladmin ping"):
                 try:
@@ -1202,11 +1204,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     Log.debug(self, "{0}".format(e))
                     Log.info(
                         self, "fail to setup mysql user for netdata")
-            WOFileUtils.chown(self, '{0}etc/netdata'
-                              .format(wo_netdata),
-                              'netdata',
-                              'netdata',
-                              recursive=True)
             WOService.restart_service(self, 'netdata')
 
         # WordOps Dashboard
