@@ -114,19 +114,7 @@ class WOStackController(CementBaseController):
 
         try:
             # Default action for stack installation
-            if not (pargs.web or pargs.admin or pargs.nginx or
-                    pargs.php or pargs.php72 or pargs.php73 or pargs.php74 or
-                    pargs.php80 or pargs.php81 or pargs.php82 or
-                    pargs.mysql or pargs.wpcli or pargs.phpmyadmin or
-                    pargs.composer or pargs.netdata or pargs.composer or
-                    pargs.dashboard or pargs.fail2ban or pargs.security or
-                    pargs.mysqlclient or pargs.mysqltuner or
-                    pargs.admin or pargs.adminer or
-                    pargs.utils or pargs.redis or pargs.mariadb or
-                    pargs.proftpd or pargs.extplorer or
-                    pargs.clamav or pargs.cheat or pargs.nanorc or
-                    pargs.ufw or pargs.ngxblocker or
-                    pargs.phpredisadmin or pargs.sendmail or pargs.all):
+            if all(value is None or value is False for value in vars(pargs).values()):
                 pargs.web = True
                 pargs.admin = True
                 pargs.fail2ban = True
@@ -549,23 +537,7 @@ class WOStackController(CementBaseController):
         apt_packages = []
         packages = []
         pargs = self.app.pargs
-        if ((not pargs.web) and (not pargs.admin) and
-            (not pargs.nginx) and (not pargs.php) and
-            (not pargs.mysql) and (not pargs.wpcli) and
-            (not pargs.mariadb) and
-            (not pargs.phpmyadmin) and (not pargs.composer) and
-                (not pargs.netdata) and (not pargs.dashboard) and
-                (not pargs.fail2ban) and (not pargs.security) and
-                (not pargs.mysqlclient) and (not pargs.mysqltuner) and
-                (not pargs.adminer) and (not pargs.utils) and
-                (not pargs.redis) and (not pargs.proftpd) and
-                (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and (not pargs.nanorc) and
-                (not pargs.ufw) and (not pargs.ngxblocker) and
-                (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                (not pargs.php73) and (not pargs.php74) and
-                (not pargs.php72) and (not pargs.php80) and
-                (not pargs.php81) and (not pargs.php82) and (not pargs.all)):
+        if all(value is None or value is False for value in vars(pargs).values()):
             self.app.args.print_help()
 
         if pargs.php:
@@ -866,24 +838,7 @@ class WOStackController(CementBaseController):
         packages = []
         pargs = self.app.pargs
         # Default action for stack purge
-        if ((not pargs.web) and (not pargs.admin) and
-            (not pargs.nginx) and (not pargs.php) and
-            (not pargs.mysql) and (not pargs.wpcli) and
-            (not pargs.mariadb) and
-            (not pargs.phpmyadmin) and (not pargs.composer) and
-                (not pargs.netdata) and (not pargs.dashboard) and
-                (not pargs.fail2ban) and (not pargs.security) and
-                (not pargs.mysqlclient) and (not pargs.mysqltuner) and
-                (not pargs.adminer) and (not pargs.utils) and
-                (not pargs.redis) and (not pargs.proftpd) and
-                (not pargs.extplorer) and (not pargs.clamav) and
-                (not pargs.cheat) and (not pargs.nanorc) and
-                (not pargs.ufw) and (not pargs.ngxblocker) and
-                (not pargs.phpredisadmin) and (not pargs.sendmail) and
-                (not pargs.php80) and (not pargs.php81) and
-                (not pargs.php82) and
-                (not pargs.php73) and (not pargs.php74) and
-                (not pargs.php72) and (not pargs.all)):
+        if all(value is None or value is False for value in vars(pargs).values()):
             self.app.args.print_help()
 
         if pargs.php:
@@ -945,9 +900,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for PHP 7.2")
             if (WOAptGet.is_installed(self, 'php7.2-fpm')):
                 apt_packages = apt_packages + WOVar.wo_php72
-                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
-                        WOAptGet.is_installed(self, 'php7.4-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php_extra
             else:
                 Log.debug(self, "PHP 7.2 is not installed")
                 Log.info(self, "PHP 7.2 is not installed")
@@ -957,12 +909,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for PHP 7.3")
             if WOAptGet.is_installed(self, 'php7.3-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php73
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
-                        WOAptGet.is_installed(self, 'php7.4-fpm') or
-                        WOAptGet.is_installed(self, 'php8.0-fpm') or
-                        WOAptGet.is_installed(self, 'php8.1-fpm') or
-                        WOAptGet.is_installed(self, 'php8.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php_extra
             else:
                 Log.debug(self, "PHP 7.3 is not installed")
                 Log.info(self, "PHP 7.3 is not installed")
@@ -972,12 +918,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for PHP 7.4")
             if WOAptGet.is_installed(self, 'php7.4-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php74
-                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
-                        WOAptGet.is_installed(self, 'php7.2-fpm') or
-                        WOAptGet.is_installed(self, 'php8.0-fpm') or
-                        WOAptGet.is_installed(self, 'php8.1-fpm') or
-                        WOAptGet.is_installed(self, 'php8.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php_extra
             else:
                 Log.debug(self, "PHP 7.4 is not installed")
                 Log.info(self, "PHP 7.4 is not installed")
@@ -987,12 +927,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for PHP 8.0")
             if WOAptGet.is_installed(self, 'php8.0-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php80
-                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
-                        WOAptGet.is_installed(self, 'php7.2-fpm') or
-                        WOAptGet.is_installed(self, 'php7.4-fpm') or
-                        WOAptGet.is_installed(self, 'php8.1-fpm') or
-                        WOAptGet.is_installed(self, 'php8.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php_extra
             else:
                 Log.debug(self, "PHP 8.0 is not installed")
                 Log.info(self, "PHP 8.0 is not installed")
@@ -1002,12 +936,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for PHP 8.1")
             if WOAptGet.is_installed(self, 'php8.1-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php81
-                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
-                        WOAptGet.is_installed(self, 'php7.2-fpm') or
-                        WOAptGet.is_installed(self, 'php8.0-fpm') or
-                        WOAptGet.is_installed(self, 'php7.4-fpm') or
-                        WOAptGet.is_installed(self, 'php8.2-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php_extra
             else:
                 Log.debug(self, "PHP 8.1 is not installed")
                 Log.info(self, "PHP 8.1 is not installed")
@@ -1019,13 +947,6 @@ class WOStackController(CementBaseController):
             Log.debug(self, "Setting apt_packages variable for PHP 8.2")
             if WOAptGet.is_installed(self, 'php8.2-fpm'):
                 apt_packages = apt_packages + WOVar.wo_php82
-                if not (WOAptGet.is_installed(self, 'php7.3-fpm') or
-                        WOAptGet.is_installed(self, 'php7.2-fpm') or
-                        WOAptGet.is_installed(self, 'php8.0-fpm') or
-                        WOAptGet.is_installed(self, 'php7.4-fpm') or
-                        WOAptGet.is_installed(self, 'php8.0-fpm') or
-                        WOAptGet.is_installed(self, 'php8.1-fpm')):
-                    apt_packages = apt_packages + WOVar.wo_php_extra
             else:
                 Log.debug(self, "PHP 8.2 is not installed")
                 Log.info(self, "PHP 8.2 is not installed")

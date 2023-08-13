@@ -61,6 +61,9 @@ class WOSiteUpdateController(CementBaseController):
                      action='store_true')),
             (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
+            (['--alias'],
+                dict(help="domain name to redirect to",
+                     action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -108,19 +111,8 @@ class WOSiteUpdateController(CementBaseController):
             if pargs.html:
                 Log.error(self, "No site can be updated to html")
 
-            if not (pargs.php or pargs.php72 or pargs.php73 or pargs.php74 or
-                    pargs.php80 or pargs.php81 or pargs.php82 or
-                    pargs.mysql or pargs.wp or pargs.wpsubdir or
-                    pargs.wpsubdomain or pargs.wpfc or pargs.wpsc or
-                    pargs.wprocket or pargs.wpce or
-                    pargs.wpredis or pargs.letsencrypt or pargs.hsts or
-                    pargs.dns or pargs.force):
+            if all(value is None or value is False for value in vars(pargs).values()):
                 Log.error(self, "Please provide options to update sites.")
-
-        if pargs.all:
-            if pargs.site_name:
-                Log.error(self, "`--all` option cannot be used with site name"
-                          " provided")
 
             sites = getAllsites(self)
             if not sites:
@@ -139,12 +131,8 @@ class WOSiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         pargs = self.app.pargs
         letsencrypt = False
-        php73 = False
-        php74 = False
-        php72 = False
-        php80 = False
-        php81 = False
-        php82 = False
+        for pargs_version in WOVar.wo_php_versions:
+            globals()[pargs_version] = False
 
         data = dict()
         try:
@@ -162,10 +150,16 @@ class WOSiteUpdateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not (pargs.proxy or pargs.letsencrypt):
+        elif stype is None and pargs.alias:
+            stype, cache = 'alias', ''
+            alias_name = pargs.alias.strip()
+            if not alias_name:
+                Log.error(self, "Please provide alias name")
+        elif stype is None and not (pargs.proxy or
+                                    pargs.letsencrypt or pargs.alias):
             stype, cache = 'html', 'basic'
-        elif stype and pargs.proxy:
-            Log.error(self, "--proxy can not be used with other site types")
+        elif stype and (pargs.proxy or pargs.alias):
+            Log.error(self, "--proxy/alias can not be used with other site types")
 
         if not pargs.site_name:
             try:
@@ -189,13 +183,6 @@ class WOSiteUpdateController(CementBaseController):
             oldcachetype = check_site.cache_type
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
-
-            old_php72 = bool(check_php_version == "7.2")
-            old_php73 = bool(check_php_version == "7.3")
-            old_php74 = bool(check_php_version == "7.4")
-            old_php80 = bool(check_php_version == "8.0")
-            old_php81 = bool(check_php_version == "8.1")
-            old_php82 = bool(check_php_version == "8.2")
 
         if ((pargs.password or pargs.hsts or
              pargs.ngxblocker or pargs.letsencrypt == 'renew') and not (
@@ -296,6 +283,15 @@ class WOSiteUpdateController(CementBaseController):
             data['currsitetype'] = oldsitetype
             data['currcachetype'] = oldcachetype
 
+        if stype == 'alias':
+            data['site_name'] = wo_domain
+            data['www_domain'] = wo_www_domain
+            data['webroot'] = wo_site_webroot
+            data['currsitetype'] = oldsitetype
+            data['currcachetype'] = oldcachetype
+            data['alias'] = True
+            data['alias_name'] = alias_name
+
         if stype == 'php':
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
@@ -368,131 +364,37 @@ class WOSiteUpdateController(CementBaseController):
                 data['multisite'] = True
                 data['wpsubdir'] = False
 
-            if oldcachetype == 'basic':
-                data['basic'] = True
-                data['wpfc'] = False
-                data['wpsc'] = False
-                data['wpredis'] = False
-                data['wprocket'] = False
-                data['wpce'] = False
-            elif oldcachetype == 'wpfc':
-                data['basic'] = False
-                data['wpfc'] = True
-                data['wpsc'] = False
-                data['wpredis'] = False
-                data['wprocket'] = False
-                data['wpce'] = False
-            elif oldcachetype == 'wpsc':
-                data['basic'] = False
-                data['wpfc'] = False
-                data['wpsc'] = True
-                data['wpredis'] = False
-                data['wprocket'] = False
-                data['wpce'] = False
-            elif oldcachetype == 'wpredis':
-                data['basic'] = False
-                data['wpfc'] = False
-                data['wpsc'] = False
-                data['wpredis'] = True
-                data['wprocket'] = False
-                data['wpce'] = False
-            elif oldcachetype == 'wprocket':
-                data['basic'] = False
-                data['wpfc'] = False
-                data['wpsc'] = False
-                data['wpredis'] = False
-                data['wprocket'] = True
-                data['wpce'] = False
-            elif oldcachetype == 'wpce':
-                data['basic'] = False
-                data['wpfc'] = False
-                data['wpsc'] = False
-                data['wpredis'] = False
-                data['wprocket'] = False
-                data['wpce'] = True
+            # Set all variables to false
+            data['basic'] = False
+            data['wpfc'] = False
+            data['wpsc'] = False
+            data['wpredis'] = False
+            data['wprocket'] = False
+            data['wpce'] = False
 
-        if pargs.php72:
-            Log.debug(self, "pargs.php72 detected")
-            data['php72'] = True
-            php72 = True
-        elif pargs.php73:
-            Log.debug(self, "pargs.php73 detected")
-            data['php73'] = True
-            php73 = True
-        elif pargs.php74:
-            Log.debug(self, "pargs.php74 detected")
-            data['php74'] = True
-            php74 = True
-        elif pargs.php80:
-            Log.debug(self, "pargs.php80 detected")
-            data['php80'] = True
-            php80 = True
-        elif pargs.php81:
-            Log.debug(self, "pargs.php81 detected")
-            data['php81'] = True
-            php81 = True
-        elif pargs.php82:
-            Log.debug(self, "pargs.php82 detected")
-            data['php82'] = True
-            php82 = True
+            # set the data if oldcachetype is True
+            if oldcachetype in data:
+                data[oldcachetype] = True
 
-        if pargs.php72:
-            if php72 is old_php72:
-                Log.info(self, "PHP 7.2 is already enabled for given "
-                         "site")
-                pargs.php72 = False
+        for pargs_version in WOVar.wo_php_versions:
+            if getattr(pargs, pargs_version):
+                Log.debug(self, f"pargs.{pargs_version} detected")
+                data[pargs_version] = True
+                globals()[pargs_version] = True
+                break
 
-        if pargs.php73:
-            if php73 is old_php73:
-                Log.info(self, "PHP 7.3 is already enabled for given "
-                         "site")
-                pargs.php73 = False
+        for pargs_version, version in WOVar.wo_php_versions.items():
+            old_version_var = bool(check_php_version == version)
 
-        if pargs.php74:
-            if php74 is old_php74:
-                Log.info(self, "PHP 7.4 is already enabled for given "
-                         "site")
-                pargs.php74 = False
+            if getattr(pargs, pargs_version):
+                if globals()[pargs_version] is old_version_var:
+                    Log.info(self, f"PHP {version} is already enabled for given site")
+                    setattr(pargs, pargs_version, False)
 
-        if pargs.php80:
-            if php80 is old_php80:
-                Log.info(self, "PHP 8.0 is already enabled for given "
-                         "site")
-                pargs.php80 = False
-
-        if pargs.php81:
-            if php81 is old_php81:
-                Log.info(self, "PHP 8.1 is already enabled for given "
-                         "site")
-                pargs.php81 = False
-
-        if pargs.php82:
-            if php82 is old_php82:
-                Log.info(self, "PHP 8.2 is already enabled for given "
-                         "site")
-                pargs.php82 = False
-
-        if (data and (not pargs.php73) and
-                (not pargs.php74) and (not pargs.php72) and
-                (not pargs.php80) and (not pargs.php81) and (not pargs.php82)):
-            data['php72'] = bool(old_php72 is True)
-            Log.debug(self, "data php72 = {0}".format(data['php72']))
-            php72 = bool(old_php72 is True)
-            data['php73'] = bool(old_php73 is True)
-            Log.debug(self, "data php73 = {0}".format(data['php73']))
-            php73 = bool(old_php73 is True)
-            data['php74'] = bool(old_php74 is True)
-            Log.debug(self, "data php74 = {0}".format(data['php74']))
-            php74 = bool(old_php74 is True)
-            data['php80'] = bool(old_php80 is True)
-            Log.debug(self, "data php80 = {0}".format(data['php80']))
-            php80 = bool(old_php80 is True)
-            data['php81'] = bool(old_php81 is True)
-            Log.debug(self, "data php81 = {0}".format(data['php81']))
-            php81 = bool(old_php81 is True)
-            data['php82'] = bool(old_php82 is True)
-            Log.debug(self, "data php82 = {0}".format(data['php82']))
-            php82 = bool(old_php82 is True)
+            if (data and not getattr(pargs, pargs_version)):
+                data[pargs_version] = bool(old_version_var is True)
+                Log.debug(self, f"data {pargs_version} = {data[pargs_version]}")
+                globals()[pargs_version] = bool(old_version_var is True)
 
         if pargs.letsencrypt:
             acme_domains = []
@@ -569,35 +471,18 @@ class WOSiteUpdateController(CementBaseController):
             data['basic'] = False
             cache = 'wpce'
 
-        if ((php73 is old_php73) and (php72 is old_php72) and
-            (php74 is old_php74) and (php80 is old_php80) and
-            (php81 is old_php81) and (php82 is old_php82) and
-            (stype == oldsitetype and
-             cache == oldcachetype)):
+        # Vérification si rien n'a changé
+        if all(globals()[version_key] is bool(check_php_version == version) for version_key,
+               version in WOVar.wo_php_versions.items()) and (stype == oldsitetype and cache == oldcachetype):
             Log.debug(self, "Nothing to update")
             return 1
 
-        if php73 is True:
-            data['wo_php'] = 'php73'
-            check_php_version = '7.3'
-        elif php74 is True:
-            data['wo_php'] = 'php74'
-            check_php_version = '7.4'
-        elif php72 is True:
-            data['wo_php'] = 'php72'
-            check_php_version = '7.2'
-        elif php80 is True:
-            data['wo_php'] = 'php80'
-            check_php_version = '8.0'
-        elif php81 is True:
-            data['wo_php'] = 'php81'
-            check_php_version = '8.1'
-        elif php82 is True:
-            data['wo_php'] = 'php82'
-            check_php_version = '8.2'
-        else:
-            data['wo_php'] = 'php80'
-            check_php_version = '8.0'
+        # Mise à jour de la version PHP
+        for pargs_version, version in WOVar.wo_php_versions.items():
+            if globals()[pargs_version] is True:
+                data['wo_php'] = pargs_version
+                check_php_version = version
+                break
 
         if pargs.hsts:
             data['hsts'] = bool(pargs.hsts == "on")

@@ -78,14 +78,7 @@ class WOStackUpgradeController(CementBaseController):
         self.msg = []
         pargs = self.app.pargs
         wo_phpmyadmin = WODownload.pma_release(self)
-        if not (pargs.web or pargs.nginx or pargs.php or
-                pargs.php72 or pargs.php73 or pargs.php74 or
-                pargs.php80 or pargs.php81 or pargs.php82 or pargs.mysql or
-                pargs.mariadb or pargs.ngxblocker or pargs.all or
-                pargs.netdata or pargs.wpcli or pargs.composer or
-                pargs.phpmyadmin or pargs.adminer or pargs.dashboard or
-                pargs.mysqltuner or pargs.redis or
-                pargs.fail2ban or pargs.security):
+        if all(value is None or value is False for value in vars(pargs).values()):
             pargs.web = True
             pargs.admin = True
             pargs.security = True
