@@ -533,7 +533,7 @@ class WOSiteUpdateController(CementBaseController):
                      " http://{0}".format(wo_domain))
             return 0
 
-        if 'alias' in data.keys() and data['alias_name']:
+        if 'alias_name' in data.keys() and data['alias']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
                            ssl=(bool(check_site.is_ssl)))
             Log.info(self, "Successfully updated site"
