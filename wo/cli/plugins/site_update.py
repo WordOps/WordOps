@@ -475,7 +475,9 @@ class WOSiteUpdateController(CementBaseController):
         # Vérification si rien n'a changé
         if all(globals()[version_key] is bool(check_php_version == version) for version_key,
                version in WOVar.wo_php_versions.items()) and (stype == oldsitetype
-                                                              and cache == oldcachetype and stype != 'alias'):
+                                                              and cache == oldcachetype
+                                                              and stype != 'alias'
+                                                              and stype != 'proxy'):
             Log.debug(self, "Nothing to update")
             return 1
 
