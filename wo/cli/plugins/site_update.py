@@ -336,7 +336,7 @@ class WOSiteUpdateController(CementBaseController):
                 webroot=wo_site_webroot)
             stype = oldsitetype
             cache = oldcachetype
-            if oldsitetype == 'html' or oldsitetype == 'proxy':
+            if oldsitetype == 'html' or oldsitetype == 'proxy' or oldsitetype == 'alias':
                 data['static'] = False
                 data['wp'] = False
                 data['multisite'] = False
