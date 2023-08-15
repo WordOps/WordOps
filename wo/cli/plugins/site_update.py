@@ -268,7 +268,8 @@ class WOSiteUpdateController(CementBaseController):
              (stype == oldsitetype and cache == oldcachetype)) and
                 not (pargs.php72 or pargs.php73 or
                      pargs.php74 or pargs.php80 or
-                     pargs.php81 or pargs.php82)):
+                     pargs.php81 or pargs.php82 or
+                     pargs.alias)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -526,6 +527,13 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         if 'proxy' in data.keys() and data['proxy']:
+            updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
+                           ssl=(bool(check_site.is_ssl)))
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(wo_domain))
+            return 0
+
+        if 'alias' in data.keys() and data['alias_name']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
                            ssl=(bool(check_site.is_ssl)))
             Log.info(self, "Successfully updated site"
