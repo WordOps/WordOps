@@ -268,7 +268,8 @@ class WOSiteUpdateController(CementBaseController):
              (stype == oldsitetype and cache == oldcachetype)) and
                 not (pargs.php72 or pargs.php73 or
                      pargs.php74 or pargs.php80 or
-                     pargs.php81 or pargs.php82)):
+                     pargs.php81 or pargs.php82 or
+                     pargs.alias)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -335,7 +336,7 @@ class WOSiteUpdateController(CementBaseController):
                 webroot=wo_site_webroot)
             stype = oldsitetype
             cache = oldcachetype
-            if oldsitetype == 'html' or oldsitetype == 'proxy':
+            if oldsitetype == 'html' or oldsitetype == 'proxy' or oldsitetype == 'alias':
                 data['static'] = False
                 data['wp'] = False
                 data['multisite'] = False
@@ -473,7 +474,10 @@ class WOSiteUpdateController(CementBaseController):
 
         # Vérification si rien n'a changé
         if all(globals()[version_key] is bool(check_php_version == version) for version_key,
-               version in WOVar.wo_php_versions.items()) and (stype == oldsitetype and cache == oldcachetype):
+               version in WOVar.wo_php_versions.items()) and (stype == oldsitetype
+                                                              and cache == oldcachetype
+                                                              and stype != 'alias'
+                                                              and stype != 'proxy'):
             Log.debug(self, "Nothing to update")
             return 1
 
@@ -526,6 +530,13 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         if 'proxy' in data.keys() and data['proxy']:
+            updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
+                           ssl=(bool(check_site.is_ssl)))
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(wo_domain))
+            return 0
+
+        if 'alias_name' in data.keys() and data['alias']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
                            ssl=(bool(check_site.is_ssl)))
             Log.info(self, "Successfully updated site"
