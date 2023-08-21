@@ -1175,10 +1175,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'SEND_EMAIL="YES"',
                     'SEND_EMAIL="NO"')
 
-            WOFileUtils.searchreplace(
-                self, "{0}etc/netdata/orig/health_alarm_notify.conf",
-                'SEND_EMAIL="YES"',
-                'SEND_EMAIL="NO"')
+            if os.path.isdir('/etc/netdata/orig/health_alarm_notify.conf'):
+                WOFileUtils.searchreplace(
+                    self, "/etc/netdata/orig/health_alarm_notify.conf",
+                    'SEND_EMAIL="YES"',
+                    'SEND_EMAIL="NO"')
             # check if mysql credentials are available
             if WOShellExec.cmd_exec(self, "mysqladmin ping"):
                 try:
