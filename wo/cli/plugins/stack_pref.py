@@ -474,7 +474,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # php conf
         php_list = []
         for version in list(WOVar.wo_php_versions.values()):
-            package_name = 'php' + version.replace('.', '') + '-fpm'
+            package_name = 'php' + version + '-fpm'
             if package_name in apt_packages:
                 php_list.append([version])
 
