@@ -154,7 +154,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
     if (apt_packages):
         # Nginx configuration
         if set(WOVar.wo_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Applying Nginx configuration templates")
+            Log.wait(self, "Configuring Nginx")
             # Nginx main configuration
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
@@ -458,6 +458,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             "Use the command nginx -t to identify "
                             "the cause of this issue", False)
             else:
+                Log.valide(self, "Configuring Nginx")
                 WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
                 if not os.path.isdir('/etc/systemd/system/nginx.service.d'):
                     WOFileUtils.mkdir(self,
@@ -480,7 +481,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
 
         for php_version in php_list:
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-            Log.info(self, "Configuring php{0}-fpm".format(php_version[0]))
+            Log.wait(self, "Configuring php{0}-fpm".format(php_version[0]))
             ngxroot = '/var/www/'
 
             # Create log directories
@@ -653,6 +654,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                              .format(php_version[0])):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
             else:
+                Log.valide(self, "Configuring php{0}-fpm".format(php_version[0]))
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
 
             if os.path.exists('/etc/nginx/conf.d/upstream.conf'):
