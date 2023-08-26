@@ -791,7 +791,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if os.path.exists('/etc/fail2ban'):
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
-                Log.info(self, "Configuring Fail2Ban")
+                Log.wait(self, "Configuring Fail2Ban")
                 nginxf2b = bool(os.path.exists('/var/log/nginx'))
                 data = dict(release=WOVar.wo_version, nginx=nginxf2b)
                 WOTemplate.deploy(
@@ -815,6 +815,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         self, ['/etc/fail2ban'], msg="Rollback f2b config")
                     WOService.restart_service(self, 'fail2ban')
                 else:
+                    Log.valide(self, "Configuring Fail2Ban")
                     WOGit.add(self, ["/etc/fail2ban"],
                               msg="Adding Fail2ban into Git")
 
