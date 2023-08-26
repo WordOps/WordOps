@@ -68,7 +68,41 @@ for site in $site_types; do
     fi
 done
 echo
+echo
 echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       Proxy site create              '
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+if {
+    wo site create proxy.net --proxy=127.0.0.1:3000
+} >>/var/log/wo/test.log; then
+    echo -ne "       Creating proxy.net               [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "        Creating proxy.net              [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
+fi
+echo
+echo
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       Alias site create              '
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+if {
+    wo site create alias.net --alias anothersite.net
+} >>/var/log/wo/test.log; then
+    echo -ne "       Creating alias.net               [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "        Creating alias.net              [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
+fi
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
 echo
 wo site info php.net
 echo
@@ -300,18 +334,18 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack migrate --mariadb              '
 echo -e "${CGREEN}#############################################${CEND}"
 
-        echo -ne "      Upgrading mariadb               [..]\r"
-        if {
-            wo stack migrate --mariadb --force --ci
-        } >>/var/log/wo/test.log; then
-            echo -ne "       Upgrading mariadb               [${CGREEN}OK${CEND}]\\r"
-            echo -ne '\n'
-        else
-            echo -e "        Upgrading mariadb              [${CRED}FAIL${CEND}]"
-            echo -ne '\n'
-            exit_script
+echo -ne "      Upgrading mariadb               [..]\r"
+if {
+    wo stack migrate --mariadb --force --ci
+} >>/var/log/wo/test.log; then
+    echo -ne "       Upgrading mariadb               [${CGREEN}OK${CEND}]\\r"
+    echo -ne '\n'
+else
+    echo -e "        Upgrading mariadb              [${CRED}FAIL${CEND}]"
+    echo -ne '\n'
+    exit_script
 
-        fi
+fi
 
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo clean              '
