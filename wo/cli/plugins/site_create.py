@@ -311,9 +311,8 @@ class WOSiteCreateController(CementBaseController):
                         Log.info(self, Log.ENDC + msg, log=False)
                 Log.info(self, "Successfully created site"
                          " http://{0}".format(wo_domain))
-                return
 
-            if 'alias' in data.keys() and data['alias']:
+            elif 'alias' in data.keys() and data['alias']:
                 addNewSite(self, wo_domain, stype, cache, wo_site_webroot)
                 # Service Nginx Reload
                 if not WOService.reload_service(self, 'nginx'):
@@ -332,10 +331,10 @@ class WOSiteCreateController(CementBaseController):
                         Log.info(self, Log.ENDC + msg, log=False)
                 Log.info(self, "Successfully created site"
                          " http://{0}".format(wo_domain))
-                return
 
-            addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
-                       php_version=php_version)
+            else:
+                addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
+                           php_version=php_version)
 
             # Setup database for MySQL site
             if 'wo_db_name' in data.keys() and not data['wp']:
