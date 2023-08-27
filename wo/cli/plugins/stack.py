@@ -119,13 +119,6 @@ class WOStackController(CementBaseController):
                 pargs.admin = True
                 pargs.fail2ban = True
 
-            if pargs.php:
-                if self.app.config.has_section('php'):
-                    config_php_ver = self.app.config.get(
-                        'php', 'version')
-                    current_php = config_php_ver.replace(".", "")
-                    setattr(self.app.pargs, 'php{0}'.format(current_php), True)
-
             if pargs.mariadb:
                 pargs.mysql = True
 
@@ -164,6 +157,13 @@ class WOStackController(CementBaseController):
                 pargs.fail2ban = True
                 pargs.clamav = True
                 pargs.ngxblocker = True
+
+            if pargs.php:
+                if self.app.config.has_section('php'):
+                    config_php_ver = self.app.config.get(
+                        'php', 'version')
+                    current_php = config_php_ver.replace(".", "")
+                    setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
             # Nginx
             if pargs.nginx:

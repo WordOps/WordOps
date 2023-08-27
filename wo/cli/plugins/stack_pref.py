@@ -154,7 +154,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
     if (apt_packages):
         # Nginx configuration
         if set(WOVar.wo_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Applying Nginx configuration templates")
+            Log.wait(self, "Configuring Nginx")
             # Nginx main configuration
             ngxcnf = '/etc/nginx/conf.d'
             ngxcom = '/etc/nginx/common'
@@ -458,6 +458,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             "Use the command nginx -t to identify "
                             "the cause of this issue", False)
             else:
+                Log.valide(self, "Configuring Nginx")
                 WOGit.add(self, ["/etc/nginx"], msg="Adding Nginx into Git")
                 if not os.path.isdir('/etc/systemd/system/nginx.service.d'):
                     WOFileUtils.mkdir(self,
@@ -474,13 +475,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
         # php conf
         php_list = []
         for version in list(WOVar.wo_php_versions.values()):
-            package_name = 'php' + version.replace('.', '') + '-fpm'
+            package_name = 'php' + version + '-fpm'
             if package_name in apt_packages:
                 php_list.append([version])
 
         for php_version in php_list:
             WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
-            Log.info(self, "Configuring php{0}-fpm".format(php_version[0]))
+            Log.wait(self, "Configuring php{0}-fpm".format(php_version[0]))
             ngxroot = '/var/www/'
 
             # Create log directories
@@ -653,6 +654,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                              .format(php_version[0])):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
             else:
+                Log.valide(self, "Configuring php{0}-fpm".format(php_version[0]))
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
 
             if os.path.exists('/etc/nginx/conf.d/upstream.conf'):
@@ -791,7 +793,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if os.path.exists('/etc/fail2ban'):
                 WOGit.add(self, ["/etc/fail2ban"],
                           msg="Adding Fail2ban into Git")
-                Log.info(self, "Configuring Fail2Ban")
+                Log.wait(self, "Configuring Fail2Ban")
                 nginxf2b = bool(os.path.exists('/var/log/nginx'))
                 data = dict(release=WOVar.wo_version, nginx=nginxf2b)
                 WOTemplate.deploy(
@@ -815,6 +817,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         self, ['/etc/fail2ban'], msg="Rollback f2b config")
                     WOService.restart_service(self, 'fail2ban')
                 else:
+                    Log.valide(self, "Configuring Fail2Ban")
                     WOGit.add(self, ["/etc/fail2ban"],
                               msg="Adding Fail2ban into Git")
 
@@ -1175,10 +1178,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     'SEND_EMAIL="YES"',
                     'SEND_EMAIL="NO"')
 
-            WOFileUtils.searchreplace(
-                self, "{0}etc/netdata/orig/health_alarm_notify.conf",
-                'SEND_EMAIL="YES"',
-                'SEND_EMAIL="NO"')
+            if os.path.isdir('/etc/netdata/orig/health_alarm_notify.conf'):
+                WOFileUtils.searchreplace(
+                    self, "/etc/netdata/orig/health_alarm_notify.conf",
+                    'SEND_EMAIL="YES"',
+                    'SEND_EMAIL="NO"')
             # check if mysql credentials are available
             if WOShellExec.cmd_exec(self, "mysqladmin ping"):
                 try:
