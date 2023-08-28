@@ -6,7 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.18.0 - [Unreleased]
+### v3.19.0 - [Unreleased]
+
+### v3.18.0 - 2023-08-28
+
+#### Added
+
+- Alias site support with `wo site create site.tld --alias othersite.tld`
+- MariaDB version choice in `/etc/wo/wo.conf` (before install or before `wo stack migrate` usage)
+
+#### Changed
+
+- Improve php versions management to support next php releases
+- Refactor WordOps code to make it simpler and easier to edit
+- Update ProFTPd umask to avoid permission issues
+- Deploy ssl.conf from a mustache template to allow customization
+- Do not cache requests with Authorization header set [PR #548](https://github.com/WordOps/WordOps/pull/548) @nylen
+
+#### Fixed
+
+- Netdata install and upgrade
+- `wo site create site.tld --proxy` not working with `-le`
+- `wo stack migrate --mariadb` version detection
+- Ability to set default php version in `/etc/wo/wo.conf` not working as expected
 
 ### v3.17.0 - 2023-08-04
 
