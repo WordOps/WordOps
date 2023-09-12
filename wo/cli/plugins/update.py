@@ -75,7 +75,7 @@ class WOUpdateController(CementBaseController):
         if not pargs.force:
             Log.info(
                 self, "WordOps changelog available on "
-                "https://github.com/WordOps/WordOps/releases/tag/{0}"
+                "https://github.com/dimitris-am/WordOps/releases/tag/{0}"
                 .format(wo_latest))
             start_upgrade = input("Do you want to continue:[y/N]")
             if start_upgrade not in ("Y", "y"):

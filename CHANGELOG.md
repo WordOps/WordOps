@@ -21,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Refactor WordOps code to make it simpler and easier to edit
 - Update ProFTPd umask to avoid permission issues
 - Deploy ssl.conf from a mustache template to allow customization
-- Do not cache requests with Authorization header set [PR #548](https://github.com/WordOps/WordOps/pull/548) @nylen
+- Do not cache requests with Authorization header set [PR #548](https://github.com/dimitris-am/WordOps/pull/548) @nylen
 
 #### Fixed
 
@@ -41,7 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - MariaDB default version is now 10.11
 - `wo stack migrate --mariadb` improved to properly upgrade mariadb
 - New Nginx package based on latest Nginx stable release 1.24.0
-- Update memory limit to WooCommerce recommended requirements ([PR #512](https://github.com/WordOps/WordOps/pull/512)) @yogeshbeniwal
+- Update memory limit to WooCommerce recommended requirements ([PR #512](https://github.com/dimitris-am/WordOps/pull/512)) @yogeshbeniwal
 
 ### v3.16.3 - 2023-01-29
 
@@ -53,7 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Changed
 
-- Allow all Communications Between Jetpack and WordPress.com ([PR #494](https://github.com/WordOps/WordOps/pull/494)) @ihfbib
+- Allow all Communications Between Jetpack and WordPress.com ([PR #494](https://github.com/dimitris-am/WordOps/pull/494)) @ihfbib
 
 #### Fixed
 
@@ -64,13 +64,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- PHP 8.2 install not working with `wo site update` ([PR #487](https://github.com/WordOps/WordOps/pull/487)) @janiosarmento
+- PHP 8.2 install not working with `wo site update` ([PR #487](https://github.com/dimitris-am/WordOps/pull/487)) @janiosarmento
 
 ### v3.16.0 - 2022-12-22
 
 #### Added
 
-- Add PHP 8.2 support ([PR #482](https://github.com/WordOps/WordOps/pull/483)) @janiosarmento
+- Add PHP 8.2 support ([PR #482](https://github.com/dimitris-am/WordOps/pull/483)) @janiosarmento
 - Prompt user before WordOps update with `wo update`
 
 #### Changed
@@ -80,7 +80,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Fixed
 
 - psutil dependency upgrade
-- Fix wrong else statements in stack_services.py ([PR #475](https://github.com/WordOps/WordOps/pull/475)) @stodorovic
+- Fix wrong else statements in stack_services.py ([PR #475](https://github.com/dimitris-am/WordOps/pull/475)) @stodorovic
 
 
 ### v3.15.4 - 2022-10-25
@@ -115,7 +115,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- Add support for Chrome Privacy Preserving Prefetch Proxy [Issue 440](https://github.com/WordOps/WordOps/issues/440)
+- Add support for Chrome Privacy Preserving Prefetch Proxy [Issue 440](https://github.com/dimitris-am/WordOps/issues/440)
 
 #### Changed
 
@@ -140,14 +140,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Changed
 
 - New Nginx package based on latest Nginx stable release 1.22.2
-- Better Referrer-Policy ([PR #434](https://github.com/WordOps/WordOps/pull/434))
+- Better Referrer-Policy ([PR #434](https://github.com/dimitris-am/WordOps/pull/434))
 - MariaDB default version is now 10.6
 
 #### Fixed
 
-- `wo log reset --all` ([PR #438](https://github.com/WordOps/WordOps/pull/438))
+- `wo log reset --all` ([PR #438](https://github.com/dimitris-am/WordOps/pull/438))
 - Outdated Nginx directives
-- Netdata stack upgrade([PR #439](https://github.com/WordOps/WordOps/pull/439))
+- Netdata stack upgrade([PR #439](https://github.com/dimitris-am/WordOps/pull/439))
 
 ### v3.14.2 - 2022-04-29
 
@@ -160,7 +160,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- Cloudflare IP range script ([PR #422](https://github.com/WordOps/WordOps/pull/422))
+- Cloudflare IP range script ([PR #422](https://github.com/dimitris-am/WordOps/pull/422))
 - Netdata stack installation
 - Missing php upstream in WordOps backend
 
@@ -168,14 +168,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- PHP 8.0 and 8.1 support ([PR #413](https://github.com/WordOps/WordOps/pull/413))
-- Support arm64 architecture ([PR #392](https://github.com/WordOps/WordOps/pull/392))
+- PHP 8.0 and 8.1 support ([PR #413](https://github.com/dimitris-am/WordOps/pull/413))
+- Support arm64 architecture ([PR #392](https://github.com/dimitris-am/WordOps/pull/392))
 
 #### Changed
 
 - Update WP-CLI to v2.6.0 with PHP 8.0/8.1 support
 - Update adminer to v4.8.1
-- Update Redis repository ([PR #377](https://github.com/WordOps/WordOps/pull/377))
+- Update Redis repository ([PR #377](https://github.com/dimitris-am/WordOps/pull/377))
 - Set PHP 8.0 as default PHP version. Can be changed in `/etc/wo/wo.conf`
 
 #### Fixed
@@ -222,7 +222,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- Avif (AV1 Image Format) & WebP Nginx conditional support([PR #322](https://github.com/WordOps/WordOps/pull/322))
+- Avif (AV1 Image Format) & WebP Nginx conditional support([PR #322](https://github.com/dimitris-am/WordOps/pull/322))
 - Sendmail initial configuration with sendmailconfig
 - SSL certificates export encoding with utf-8
 - Nanorc install on Ubuntu 16.04 LTS
@@ -231,17 +231,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- Add avif (AV1 Image Format) support into Nginx ([PR #314](https://github.com/WordOps/WordOps/pull/314))
+- Add avif (AV1 Image Format) support into Nginx ([PR #314](https://github.com/dimitris-am/WordOps/pull/314))
 
 #### Changed
 
 - Use zstd instead of pigz for archive compression
-- Exclude Nginx_vts status page from traffic calculation ([PR #294](https://github.com/WordOps/WordOps/pull/294))
+- Exclude Nginx_vts status page from traffic calculation ([PR #294](https://github.com/dimitris-am/WordOps/pull/294))
 
 #### Fixed
 
 - fail2ban install without Nginx
-- Grant MySQL permissions on all MySQL/MariaDB variant ([PR #285](https://github.com/WordOps/WordOps/pull/285))
+- Grant MySQL permissions on all MySQL/MariaDB variant ([PR #285](https://github.com/dimitris-am/WordOps/pull/285))
 - PHP PECL extensions and PHP 8.0 issues
 
 ### v3.12.2 - 2020-05-15
@@ -267,21 +267,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Set opcache.preload_user for PHP 7.4
 - Link to GitHub changelog after WordOps upgrade
 - Automated PHPMyAdmin and Adminer latest release download and install
-- Enable Let's Encrypt SSL on sites with http auth (PR [#254](https://github.com/WordOps/WordOps/pull/254))
+- Enable Let's Encrypt SSL on sites with http auth (PR [#254](https://github.com/dimitris-am/WordOps/pull/254))
 - Ubuntu 20.04 LTS Support (experimental)
 - New Nginx 1.18.0 package built with OpenSSL 1.1.1g
 - Default PHP version can be set in /etc/wo/wo.conf
 
 #### Changed
 
-- Improved caching rules (PR [#265](https://github.com/WordOps/WordOps/pull/265))
+- Improved caching rules (PR [#265](https://github.com/dimitris-am/WordOps/pull/265))
 - Default PHP version is now 7.3
 
 #### Fixed
 
 - MySQL databases backup when using remote MySQL server
 - PHPMyAdmin assets missing after installation
-- Missing WP-CLI argument when switching site URL to https (PR [#257](https://github.com/WordOps/WordOps/pull/257))
+- Missing WP-CLI argument when switching site URL to https (PR [#257](https://github.com/dimitris-am/WordOps/pull/257))
 - WordOps installation failure with pip
 - Installation on raspberry pi 4
 - Fail2ban configuration when Nginx is not installed
@@ -301,7 +301,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - Backported Nano editor package for Debian/Ubuntu/Raspbian (which support syntax highlighting with `--nanorc`)
-- Protect Easy Digital Download files from being accessed directly (PR [#222](https://github.com/WordOps/WordOps/pull/222))
+- Protect Easy Digital Download files from being accessed directly (PR [#222](https://github.com/dimitris-am/WordOps/pull/222))
 
 #### Changed
 
@@ -348,28 +348,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 #### Added
 
 - PHP 7.4 support
-- Improved Webp images support with Cloudflare (Issue [#95](https://github.com/WordOps/WordOps/issues/95)). Nginx will not serve webp images alternative with Cloudflare IP ranges.
+- Improved Webp images support with Cloudflare (Issue [#95](https://github.com/dimitris-am/WordOps/issues/95)). Nginx will not serve webp images alternative with Cloudflare IP ranges.
 - Stack upgrade for adminer
 - Check acme.sh installation and setup acme.sh if needed before issuing certificate
 - Add `--ufw` to `wo stack status`
-- Add Nginx directive `gzip_static on;` to serve precompressed assets with Cache-Enabler or WP-Rocket. (Issue [#207](https://github.com/WordOps/WordOps/issues/207))
+- Add Nginx directive `gzip_static on;` to serve precompressed assets with Cache-Enabler or WP-Rocket. (Issue [#207](https://github.com/dimitris-am/WordOps/issues/207))
 
 #### Changed
 
 - Previous `--php73` & `--php73=off` flags are replaced by `--php72`, `--php73`, `--php74` to switch site's php version
 - phpMyAdmin updated to v4.9.2
 - Adminer updated to v4.7.5
-- Replace dot and dashes by underscores in database names (Issue [#206](https://github.com/WordOps/WordOps/issues/206))
+- Replace dot and dashes by underscores in database names (Issue [#206](https://github.com/dimitris-am/WordOps/issues/206))
 - Increased database name length to 32 characters from domain name + 8 random characters
 
 #### Fixed
 
-- typo error in motd-news script (Issue [#204](https://github.com/WordOps/WordOps/issues/204))
+- typo error in motd-news script (Issue [#204](https://github.com/dimitris-am/WordOps/issues/204))
 - Install Nginx before ngxblocker
 - WordOps install/update script text color
 - Issue with MySQL stack on Raspbian 9/10
-- Typo error  (PR [#205](https://github.com/WordOps/WordOps/pull/205))
-- php version in `wo debug` (PR [#209](https://github.com/WordOps/WordOps/pull/209))
+- Typo error  (PR [#205](https://github.com/dimitris-am/WordOps/pull/205))
+- php version in `wo debug` (PR [#209](https://github.com/dimitris-am/WordOps/pull/209))
 - SSL certificates expiration display with shared wildcard certificates
 
 ### v3.10.3 - 2019-11-11
@@ -479,7 +479,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `wo secure --auth`
 - `wo secure --sshport` not working with default ssh config
 - Issues after APT repositories informations changed
-- `www` was added to WordPress site url with subdomains [Issue #178](https://github.com/WordOps/WordOps/issues/178)
+- `www` was added to WordPress site url with subdomains [Issue #178](https://github.com/dimitris-am/WordOps/issues/178)
 - Issuing certificate with acme.sh for sub.sub-domains not working
 
 ### v3.9.9.2 - 2019-10-04
@@ -569,8 +569,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- htpasswd protection when migrating from EasyEngine v3 [Issue #152](https://github.com/WordOps/WordOps/issues/152)
-- acme.sh install when migration from EasyEngine v3 [Issue #153](https://github.com/WordOps/WordOps/issues/153)
+- htpasswd protection when migrating from EasyEngine v3 [Issue #152](https://github.com/dimitris-am/WordOps/issues/152)
+- acme.sh install when migration from EasyEngine v3 [Issue #153](https://github.com/dimitris-am/WordOps/issues/153)
 
 ### v3.9.8.11 - 2019-09-06
 
@@ -593,7 +593,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- Fix cheat.sh install [PR #139](https://github.com/WordOps/WordOps/pull/139)
+- Fix cheat.sh install [PR #139](https://github.com/dimitris-am/WordOps/pull/139)
 - sslutils error when trying to display SSL certificate expiration
 - Fix cheat.sh symbolic link check before creation
 - subdomain detection with complex suffixes like com.br
@@ -637,8 +637,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - netdata configuration
 - extplorer installation
 - add LANG='en_US.UTF-8' in install script
-- Read public_suffix list with utf8 encoding. Issue [#128](https://github.com/WordOps/WordOps/issues/128)
-- Netdata uninstall script path. PR [#135](https://github.com/WordOps/WordOps/pull/135)
+- Read public_suffix list with utf8 encoding. Issue [#128](https://github.com/dimitris-am/WordOps/issues/128)
+- Netdata uninstall script path. PR [#135](https://github.com/dimitris-am/WordOps/pull/135)
 - SSL Certificates expiration for subdomains
 
 ### v3.9.8.7 - 2019-08-31
@@ -714,7 +714,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- typo error in `wo site update` : [PR #126](https://github.com/WordOps/WordOps/pull/126)
+- typo error in `wo site update` : [PR #126](https://github.com/dimitris-am/WordOps/pull/126)
 
 ### v3.9.8.3 - 2019-08-21
 
@@ -734,7 +734,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- Additional cache expection for Easy Digital Downloads [PR #120](https://github.com/WordOps/WordOps/pull/120)
+- Additional cache expection for Easy Digital Downloads [PR #120](https://github.com/dimitris-am/WordOps/pull/120)
 - Additional settings to support mobile with WP-Rocket
 - Add the ability to block nginx configuration overwriting by adding a file .custom. Example with /etc/nginx/conf.d/webp.conf -> `touch /etc/nginx/conf.d/webp.conf.custom`
 - If there is a custom file, WordOps will write the configuration in a file named fileconf.conf.orig to let users implement possible changes
@@ -942,7 +942,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - WP_CACHE_KEY_SALT set twice with wpredis
 - WordOps version check when using `wo update`
 - robots.txt file download if not created
-- PHP-FPM socket path in stub_status.conf : PR [#82](https://github.com/WordOps/WordOps/pull/82)
+- PHP-FPM socket path in stub_status.conf : PR [#82](https://github.com/dimitris-am/WordOps/pull/82)
 
 ### v3.9.5.1 - 2019-05-10
 
@@ -1069,9 +1069,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Fixed
 
-- Nginx variable $webp_suffix on fresh install ([#21](https://github.com/WordOps/WordOps/issues/21))
-- wo update command ([#7](https://github.com/WordOps/WordOps/issues/7))
-- Fix php services management ([#12](https://github.com/WordOps/WordOps/issues/12))
+- Nginx variable $webp_suffix on fresh install ([#21](https://github.com/dimitris-am/WordOps/issues/21))
+- wo update command ([#7](https://github.com/dimitris-am/WordOps/issues/7))
+- Fix php services management ([#12](https://github.com/dimitris-am/WordOps/issues/12))
 - Fix WP-CLI install
 
 ### v3.9.2 - 2018-11-30

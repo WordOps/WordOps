@@ -18,7 +18,7 @@ Community growth allows the project to attract new talent willing to contribute.
 
 ### Provide feedback
 
-Is there anything that bothers you about WordOps? Did you experience an issue while installing it or using it? Would you like to see it evolve to you need? Let us know. [Open a github issue](https://github.com/WordOps/WordOps/issues) to discuss it or open a thread on our [Community Forum](https://community.wordops.net/). Feedback is very important for open-source projects. We can't commit we will do everything, but your feedback influences our road-map significantly.
+Is there anything that bothers you about WordOps? Did you experience an issue while installing it or using it? Would you like to see it evolve to you need? Let us know. [Open a github issue](https://github.com/dimitris-am/WordOps/issues) to discuss it or open a thread on our [Community Forum](https://community.wordops.net/). Feedback is very important for open-source projects. We can't commit we will do everything, but your feedback influences our road-map significantly.
 
 ## Experienced Users
 

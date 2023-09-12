@@ -3,7 +3,7 @@
 # WordOps install and update script
 # -------------------------------------------------------------------------
 # Website:       https://wordops.net
-# GitHub:        https://github.com/WordOps/WordOps
+# GitHub:        https://github.com/dimitris-am/WordOps
 # Copyright (c) 2019-2023 - WordOps
 # This script is licensed under M.I.T
 # -------------------------------------------------------------------------
@@ -484,7 +484,7 @@ wo_install() {
     if [ "$wo_branch" = "master" ]; then
         python3 -m pip install -U wordops
     else
-        python3 -m pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -I "git+https://github.com/dimitris-am/WordOps.git@$wo_branch#egg=wordops"
     fi
     local python_venv
     python_venv=$(python3 -c "import sys; print(sys.version_info[1])")
@@ -549,7 +549,7 @@ wo_travis_install() {
         fi
         python3 -m pip install -U .
     else
-        python3 -m pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        python3 -m pip install -U "git+https://github.com/dimitris-am/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
     cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
@@ -884,7 +884,7 @@ else
         echo
     elif [ "$wo_upgrade" = "1" ]; then
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
-        wo_lib_echo "Changelog is available on https://github.com/WordOps/WordOps/releases/tag/$wo_version_new"
+        wo_lib_echo "Changelog is available on https://github.com/dimitris-am/WordOps/releases/tag/$wo_version_new"
         echo
         wo_lib_echo "To upgrade WordOps web stacks, you can use the command:"
         wo_lib_echo_info "wo stack upgrade"
@@ -908,6 +908,6 @@ else
     wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
     wo_lib_echo "WordOps Community Chat : https://chat.wordops.net"
     echo
-    wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
+    wo_lib_echo "Give WordOps a GitHub star : https://github.com/dimitris-am/WordOps/"
     echo
 fi
