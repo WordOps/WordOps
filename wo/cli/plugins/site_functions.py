@@ -855,7 +855,7 @@ def site_package_check(self, stype):
                                "installed Nginx package. "
                                "It may or may not have required modules. "
                                "\nIf you need help, please create an issue at "
-                               "https://github.com/WordOps/WordOps/issues/ \n")
+                               "https://github.com/dimitris-am/WordOps/issues/ \n")
                 apt = ["nginx"] + WOVar.wo_nginx
                 # apt_packages = apt_packages + WOVar.wo_nginx
                 post_pref(self, apt, packages)

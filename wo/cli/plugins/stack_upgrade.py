@@ -195,7 +195,7 @@ class WOStackUpgradeController(CementBaseController):
             if (os.path.isfile('/var/www/22222/htdocs/index.php') or
                     os.path.isfile('/var/www/22222/htdocs/index.html')):
                 packages = packages + [[
-                    "https://github.com/WordOps/wordops-dashboard/"
+                    "https://github.com/dimitris-am/wordops-dashboard/"
                     "releases/download/v{0}/wordops-dashboard.tar.gz"
                     .format(WOVar.wo_dashboard),
                     "/var/lib/wo/tmp/wo-dashboard.tar.gz",
