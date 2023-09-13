@@ -185,7 +185,7 @@ class WOSiteCreateController(CementBaseController):
             data['alias_name'] = alias_name
             data['basic'] = True
 
-        if (pargs.php72 or pargs.php73 or pargs.php74 or
+        if (pargs.php70 or pargs.php72 or pargs.php73 or pargs.php74 or
                 pargs.php80 or pargs.php81 or pargs.php82):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,

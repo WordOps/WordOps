@@ -125,6 +125,7 @@ class WOStackController(CementBaseController):
             if pargs.all:
                 pargs.web = True
                 pargs.admin = True
+                pargs.php70 = True
                 pargs.php73 = True
                 pargs.php74 = True
                 pargs.php80 = True
@@ -182,6 +183,7 @@ class WOStackController(CementBaseController):
                     Log.debug(self, "Redis already installed")
 
             wo_vars = {
+                'php70': WOVar.wo_php70,
                 'php72': WOVar.wo_php72,
                 'php73': WOVar.wo_php73,
                 'php74': WOVar.wo_php74,
@@ -553,6 +555,7 @@ class WOStackController(CementBaseController):
         if pargs.all:
             pargs.web = True
             pargs.admin = True
+            pargs.php70 = True
             pargs.php73 = True
             pargs.php74 = True
             pargs.php80 = True
@@ -594,6 +597,7 @@ class WOStackController(CementBaseController):
 
         # Create a dictionary that maps PHP versions to corresponding variables.
         wo_vars = {
+            'php70': WOVar.wo_php72,
             'php72': WOVar.wo_php72,
             'php73': WOVar.wo_php73,
             'php74': WOVar.wo_php74,
@@ -854,6 +858,7 @@ class WOStackController(CementBaseController):
         if pargs.all:
             pargs.web = True
             pargs.admin = True
+            pargs.php70 = True
             pargs.php72 = True
             pargs.php73 = True
             pargs.php74 = True
@@ -894,6 +899,15 @@ class WOStackController(CementBaseController):
                 apt_packages = apt_packages + WOVar.wo_nginx
             else:
                 Log.info(self, "Nginx is not installed")
+
+        # PHP 7.0
+        if pargs.php70:
+            Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+            if (WOAptGet.is_installed(self, 'php7.0-fpm')):
+                apt_packages = apt_packages + WOVar.wo_php70
+            else:
+                Log.debug(self, "PHP 7.0 is not installed")
+                Log.info(self, "PHP 7.0 is not installed")
 
         # PHP 7.2
         if pargs.php72:

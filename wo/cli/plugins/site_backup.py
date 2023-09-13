@@ -115,6 +115,8 @@ class WOSiteBackupController(CementBaseController):
 
             if data['php72']:
                 php_version = "7.2"
+            elif data['php70']:
+                php_version = "7.0"
             elif data['php74']:
                 php_version = "7.4"
             else:

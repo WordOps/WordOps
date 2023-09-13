@@ -35,6 +35,8 @@ class WOSiteCloneController(CementBaseController):
                 dict(help="create html site", action='store_true')),
             (['--php'],
              dict(help="create php 7.2 site", action='store_true')),
+            (['--php70'],
+                dict(help="create php 7.0 site", action='store_true')),
             (['--php72'],
                 dict(help="create php 7.2 site", action='store_true')),
             (['--php73'],
@@ -169,7 +171,7 @@ class WOSiteCloneController(CementBaseController):
             data['port'] = port
             data['basic'] = True
 
-        if pargs.php72 or pargs.php73 or pargs.php74:
+        if pargs.php70 or pargs.php72 or pargs.php73 or pargs.php74:
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=False,
@@ -226,11 +228,17 @@ class WOSiteCloneController(CementBaseController):
         elif data and pargs.php72:
             data['php72'] = True
             data['wo_php'] = 'php72'
+        elif data and pargs.php70:
+            data['php70'] = True
+            data['wo_php'] = 'php70'
         else:
             if self.app.config.has_section('php'):
                 config_php_ver = self.app.config.get(
                     'php', 'version')
-                if config_php_ver == '7.2':
+                if config_php_ver == '7.0':
+                    data['php70'] = True
+                    data['wo_php'] = 'php70'
+                elif config_php_ver == '7.2':
                     data['php72'] = True
                     data['wo_php'] = 'php72'
                 elif config_php_ver == '7.3':
@@ -304,7 +312,9 @@ class WOSiteCloneController(CementBaseController):
                          " http://{0}".format(wo_domain))
                 return
 
-            if data['php72']:
+            if data['php70']:
+                php_version = "7.0"
+            elif data['php72']:
                 php_version = "7.2"
             elif data['php74']:
                 php_version = "7.4"

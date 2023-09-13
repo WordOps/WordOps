@@ -5,6 +5,8 @@
 
 <h2 align="center">An essential toolset that eases WordPress site and server administration</h2>
 
+<h3 align="center">The only difference here compared to WordOps/WordOps is the support of PHP 7.0</h2>
+
 <p align="center">
 <img src="https://docs.wordops.net/images/wordops-intro.gif" width="800" alt="WordOps" />
 </p>

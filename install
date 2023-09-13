@@ -613,6 +613,7 @@ wo_upgrade_nginx() {
         [ -f /etc/nginx/htpasswd-ee ] && { cp -f /etc/nginx/htpasswd-ee /etc/nginx/htpasswd-wo; }
         sed -i "s/locations.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php7.conf/locations-wo.conf/" /etc/nginx/sites-available/*
+        sed -i "s/locations-php70.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php71.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php72.conf/locations-wo.conf/" /etc/nginx/sites-available/*
         sed -i "s/locations-php73.conf/locations-wo.conf/" /etc/nginx/sites-available/*

@@ -16,12 +16,20 @@ server 127.0.0.1:{{debug}};
 # PHP 7.0
 #-------------------------------
 
-upstream php7 {
-server 127.0.0.1:{{php7}};
+# PHP 7.0 upstream with load-balancing on two unix sockets
+upstream php70 {
+    least_conn;
+
+    server unix:/var/run/php/php70-fpm.sock;
+    server unix:/var/run/php/php70-two-fpm.sock;
+
+    keepalive 5;
 }
-upstream debug7 {
-# Debug Pool
-server 127.0.0.1:{{debug7}};
+
+# PHP 7.2 debug
+upstream debug70 {
+    # Debug Pool
+    server 127.0.0.1:9170;
 }
 
 
@@ -174,6 +182,7 @@ upstream multiphp {
     server unix:/var/run/php/php73-fpm.sock;
     server unix:/var/run/php/php74-fpm.sock;
     server unix:/var/run/php/php72-fpm.sock;
+    server unix:/var/run/php/php70-fpm.sock;
     server unix:/var/run/php/php80-fpm.sock;
     server unix:/var/run/php/php81-fpm.sock;
     server unix:/var/run/php/php82-fpm.sock;

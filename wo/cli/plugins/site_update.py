@@ -186,7 +186,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if ((pargs.password or pargs.hsts or
              pargs.ngxblocker or pargs.letsencrypt == 'renew') and not (
-            pargs.html or pargs.php or pargs.php72 or pargs.php73 or
+            pargs.html or pargs.php or pargs.php70 or pargs.php72 or pargs.php73 or
             pargs.php74 or pargs.php80 or pargs.php81 or pargs.php82 or
             pargs.mysql or pargs.wp or pargs.wpfc or pargs.wpsc or
             pargs.wprocket or pargs.wpce or
@@ -254,19 +254,19 @@ class WOSiteUpdateController(CementBaseController):
                 return 0
 
         if (((stype == 'php' and
-              oldsitetype not in ['html', 'proxy', 'php', 'php72',
+              oldsitetype not in ['html', 'proxy', 'php', 'php70', 'php72',
                                   'php73', 'php74', 'php80',
                                   'php81', 'php82']) or
              (stype == 'mysql' and oldsitetype not in [
-                 'html', 'php', 'php72', 'php73', 'php74', 'php80', 'php81',
+                 'html', 'php', 'php70', 'php72', 'php73', 'php74', 'php80', 'php81',
                  'php82', 'proxy']) or
              (stype == 'wp' and oldsitetype not in [
-                 'html', 'php', 'php72', 'php73', 'php74', 'php80', 'php81',
+                 'html', 'php', 'php70', 'php72', 'php73', 'php74', 'php80', 'php81',
                  'php82', 'mysql', 'proxy', 'wp']) or
              (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
              (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
              (stype == oldsitetype and cache == oldcachetype)) and
-                not (pargs.php72 or pargs.php73 or
+                not (pargs.php70 or pargs.php72 or pargs.php73 or
                      pargs.php74 or pargs.php80 or
                      pargs.php81 or pargs.php82 or
                      pargs.alias)):
@@ -297,7 +297,7 @@ class WOSiteUpdateController(CementBaseController):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
-                php72=False, php73=False, php74=False,
+                php70=False, php72=False, php73=False, php74=False,
                 php80=False, php81=False, php82=False,
                 wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
@@ -322,11 +322,11 @@ class WOSiteUpdateController(CementBaseController):
                 if stype == 'wpsubdir':
                     data['wpsubdir'] = True
 
-        if ((pargs.php72 or pargs.php73 or pargs.php74 or
+        if ((pargs.php70 or pargs.php72 or pargs.php73 or pargs.php74 or
              pargs.php80 or pargs.php81 or pargs.php82) and
                 (not data)):
             Log.debug(
-                self, "pargs php72, or php73, or php74, "
+                self, "pargs php70, php72, or php73, or php74, "
                 "or php80, or php81 or php82 enabled")
             data = dict(
                 site_name=wo_domain,
@@ -342,7 +342,7 @@ class WOSiteUpdateController(CementBaseController):
                 data['multisite'] = False
                 data['wpsubdir'] = False
             elif (oldsitetype == 'php' or oldsitetype == 'mysql' or
-                  oldsitetype == 'php73' or oldsitetype == 'php74' or
+                  oldsitetype == 'php70' or oldsitetype == 'php73' or oldsitetype == 'php74' or
                   oldsitetype == 'php80' or oldsitetype == 'php81' or
                   oldsitetype == 'php82'):
                 data['static'] = False
@@ -790,7 +790,7 @@ class WOSiteUpdateController(CementBaseController):
                 return 1
 
         # Setup WordPress if old sites are html/php/mysql sites
-        if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'php72',
+        if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'php70', 'php72',
                                           'mysql', 'php73', 'php74', 'php80',
                                           'php81', ]:
             try:
