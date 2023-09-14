@@ -389,12 +389,14 @@ class WOSiteUpdateController(CementBaseController):
 
             if getattr(pargs, pargs_version):
                 if globals()[pargs_version] is old_version_var:
-                    Log.info(self, f"PHP {version} is already enabled for given site")
+                    Log.info(
+                        self, f"PHP {version} is already enabled for given site")
                     setattr(pargs, pargs_version, False)
 
             if (data and not getattr(pargs, pargs_version)):
                 data[pargs_version] = bool(old_version_var is True)
-                Log.debug(self, f"data {pargs_version} = {data[pargs_version]}")
+                Log.debug(
+                    self, f"data {pargs_version} = {data[pargs_version]}")
                 globals()[pargs_version] = bool(old_version_var is True)
 
         if pargs.letsencrypt:
@@ -485,7 +487,9 @@ class WOSiteUpdateController(CementBaseController):
         for pargs_version, version in WOVar.wo_php_versions.items():
             if globals()[pargs_version] is True:
                 data['wo_php'] = pargs_version
+                Log.debug(self, f"data wo_php set to {pargs_version}")
                 check_php_version = version
+                Log.debug(self, f"check_php_versions et to {version}")
                 break
 
         if pargs.hsts:
