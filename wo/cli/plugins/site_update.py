@@ -382,6 +382,7 @@ class WOSiteUpdateController(CementBaseController):
                 Log.debug(self, f"pargs.{pargs_version} detected")
                 data[pargs_version] = True
                 globals()[pargs_version] = True
+                setattr(pargs, pargs_version)
                 break
 
         for pargs_version, version in WOVar.wo_php_versions.items():
