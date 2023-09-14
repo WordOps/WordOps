@@ -382,11 +382,11 @@ class WOSiteUpdateController(CementBaseController):
                 Log.debug(self, f"pargs.{pargs_version} detected")
                 data[pargs_version] = True
                 globals()[pargs_version] = True
-                setattr(pargs, pargs_version, True)
                 break
 
         for pargs_version, version in WOVar.wo_php_versions.items():
             old_version_var = bool(check_php_version == version)
+            Log.debug(self, f"old_version_var for {version} = {old_version_var}")
 
             if getattr(pargs, pargs_version):
                 if globals()[pargs_version] is old_version_var:
@@ -394,7 +394,9 @@ class WOSiteUpdateController(CementBaseController):
                         self, f"PHP {version} is already enabled for given site")
                     setattr(pargs, pargs_version, False)
 
-            else:
+            if (data and (not pargs.php73) and
+                (not pargs.php74) and (not pargs.php72) and
+                    (not pargs.php80) and (not pargs.php81) and (not pargs.php82)):
                 data[pargs_version] = bool(old_version_var is True)
                 Log.debug(
                     self, f"data {pargs_version} = {data[pargs_version]}")
