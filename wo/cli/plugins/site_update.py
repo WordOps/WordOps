@@ -390,7 +390,7 @@ class WOSiteUpdateController(CementBaseController):
                 globals()[pargs_version] = True
                 break
 
-            elif (data and getattr(pargs, pargs_version)):
+            elif (data and not getattr(pargs, pargs_version)):
                 data[pargs_version] = bool(old_version_var is True)
                 Log.debug(
                     self, f"data {pargs_version} = {data[pargs_version]}")
