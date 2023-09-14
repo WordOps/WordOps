@@ -377,6 +377,13 @@ class WOSiteUpdateController(CementBaseController):
             if oldcachetype in data:
                 data[oldcachetype] = True
 
+        for pargs_version in WOVar.wo_php_versions:
+            if getattr(pargs, pargs_version):
+                Log.debug(self, f"pargs.{pargs_version} detected")
+                data[pargs_version] = True
+                globals()[pargs_version] = True
+                break
+
         for pargs_version, version in WOVar.wo_php_versions.items():
             old_version_var = bool(check_php_version == version)
 
@@ -385,12 +392,8 @@ class WOSiteUpdateController(CementBaseController):
                     Log.info(
                         self, f"PHP {version} is already enabled for given site")
                     setattr(pargs, pargs_version, False)
-                Log.debug(self, f"pargs.{pargs_version} detected")
-                data[pargs_version] = True
-                globals()[pargs_version] = True
-                break
 
-            elif (data and not getattr(pargs, pargs_version)):
+            elif data:
                 data[pargs_version] = bool(old_version_var is True)
                 Log.debug(
                     self, f"data {pargs_version} = {data[pargs_version]}")
