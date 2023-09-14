@@ -393,7 +393,7 @@ class WOSiteUpdateController(CementBaseController):
                         self, f"PHP {version} is already enabled for given site")
                     setattr(pargs, pargs_version, False)
 
-            if (data and not getattr(pargs, pargs_version)):
+            if (data and not getattr(pargs, pargs_version, True)):
                 data[pargs_version] = bool(old_version_var is True)
                 Log.debug(
                     self, f"data {pargs_version} = {data[pargs_version]}")
@@ -796,7 +796,7 @@ class WOSiteUpdateController(CementBaseController):
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'php72',
                                           'mysql', 'php73', 'php74', 'php80',
-                                          'php81', ]:
+                                          'php81', 'php82']:
             try:
                 wo_wp_creds = setupwordpress(self, data)
             except SiteError as e:
