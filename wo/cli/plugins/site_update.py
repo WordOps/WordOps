@@ -393,7 +393,7 @@ class WOSiteUpdateController(CementBaseController):
                         self, f"PHP {version} is already enabled for given site")
                     setattr(pargs, pargs_version, False)
 
-            if (data and not getattr(pargs, pargs_version, True)):
+            if (data and getattr(pargs, pargs_version, False)):
                 data[pargs_version] = bool(old_version_var is True)
                 Log.debug(
                     self, f"data {pargs_version} = {data[pargs_version]}")
