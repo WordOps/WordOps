@@ -1303,62 +1303,6 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               'www-data',
                               'www-data',
                               recursive=True)
-        # anemometer
-        if any('/var/lib/wo/tmp/anemometer.tar.gz' == x[1]
-               for x in packages):
-            Log.debug(self, "Extracting file anemometer.tar.gz to "
-                      "location /var/lib/wo/tmp/ ")
-            WOExtract.extract(
-                self, '/var/lib/wo/tmp/anemometer.tar.gz',
-                '/var/lib/wo/tmp/')
-            if not os.path.exists('{0}22222/htdocs/db/'
-                                  .format(WOVar.wo_webroot)):
-                Log.debug(self, "Creating directory")
-                os.makedirs('{0}22222/htdocs/db/'
-                            .format(WOVar.wo_webroot))
-            if not os.path.exists('{0}22222/htdocs/db/anemometer'
-                                  .format(WOVar.wo_webroot)):
-                shutil.move('/var/lib/wo/tmp/Anemometer-master',
-                            '{0}22222/htdocs/db/anemometer'
-                            .format(WOVar.wo_webroot))
-                chars = ''.join(random.sample(string.ascii_letters, 8))
-                try:
-                    WOShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
-                                         '/anemometer/install.sql'
-                                         .format(WOVar.wo_webroot))
-                except Exception as e:
-                    Log.debug(self, "{0}".format(e))
-                    Log.error(self, "failed to configure Anemometer",
-                              exit=False)
-                if self.app.config.has_section('mysql'):
-                    wo_grant_host = self.app.config.get('mysql', 'grant-host')
-                else:
-                    wo_grant_host = 'localhost'
-                WOMysql.execute(self, 'grant select on'
-                                ' *.* to \'anemometer\''
-                                '@\'{0}\' IDENTIFIED'
-                                ' BY \'{1}\''.format(wo_grant_host,
-                                                     chars))
-                Log.debug(self, "grant all on slow-query-log.*"
-                          " to anemometer@root_user"
-                          " IDENTIFIED BY password ")
-                WOMysql.execute(
-                    self, 'grant all on slow_query_log.* to'
-                    '\'anemometer\'@\'{0}\' IDENTIFIED'
-                    ' BY \'{1}\''.format(self.app.config.get(
-                        'mysql', 'grant-host'),
-                        chars),
-                    errormsg="cannot grant priviledges",
-                    log=False)
-
-                # Custom Anemometer configuration
-                Log.debug(self, "configration Anemometer")
-                data = dict(host=WOVar.wo_mysql_host, port='3306',
-                            user='anemometer', password=chars)
-                WOTemplate.deploy(self, '{0}22222/htdocs/db/anemometer'
-                                  '/conf/config.inc.php'
-                                  .format(WOVar.wo_webroot),
-                                  'anemometer.mustache', data)
 
         # pt-query-advisor
         if any('/usr/bin/pt-query-advisor' == x[1]
