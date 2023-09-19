@@ -42,7 +42,7 @@
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
 - **Custom Nginx build** : Nginx 1.24.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0, 8.1 & 8.2 - MariaDB 10.11 LTS & Redis 7.0
+- **Up-to-date** : PHP 7.0, 7.2, 7.3, 7.4, 8.0, 8.1 & 8.2 - MariaDB 10.11 LTS & Redis 7.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
