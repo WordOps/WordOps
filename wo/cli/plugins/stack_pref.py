@@ -1183,8 +1183,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     self, "/etc/netdata/orig/health_alarm_notify.conf",
                     'SEND_EMAIL="YES"',
                     'SEND_EMAIL="NO"')
+            if self.app.config.has_section('mysql'):
+                wo_grant_host = self.app.config.get('mysql', 'grant-host')
+            else:
+                wo_grant_host = 'localhost'
             # check if mysql credentials are available
-            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+            if (WOShellExec.cmd_exec(self, "mysqladmin ping")
+                    and wo_grant_host == 'localhost'):
                 try:
                     WOMysql.execute(
                         self,
