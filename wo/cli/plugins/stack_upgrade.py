@@ -32,7 +32,7 @@ class WOStackUpgradeController(CementBaseController):
             (['--nginx'],
                 dict(help='Upgrade Nginx stack', action='store_true')),
             (['--php'],
-                dict(help='Upgrade PHP 7.2 stack', action='store_true')),
+                dict(help='Upgrade PHP stack', action='store_true')),
             (['--mysql'],
                 dict(help='Upgrade MySQL stack', action='store_true')),
             (['--mariadb'],
