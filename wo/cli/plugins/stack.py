@@ -489,11 +489,7 @@ class WOStackController(CementBaseController):
                     ["https://www.percona.com/"
                      "get/pt-query-digest",
                      "/usr/bin/pt-query-advisor",
-                     "pt-query-advisor"],
-                    ["https://github.com/box/Anemometer/"
-                     "archive/master.tar.gz",
-                     '/var/lib/wo/tmp/anemometer.tar.gz',
-                     'Anemometer']]
+                     "pt-query-advisor"]]
 
         except Exception as e:
             Log.debug(self, "{0}".format(e))

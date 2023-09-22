@@ -256,13 +256,6 @@ class WOStackStatusController(CementBaseController):
                 if os.path.exists(f'{wo_system}' + f'php{version}-fpm.service'):
                     services = services + [f'php{version}-fpm']
 
-        for parg_version, version in WOVar.wo_php_versions.items():
-            if (getattr(pargs, parg_version, False) and
-                    os.path.exists(f'{wo_system}' + f'php{version}-fpm.service')):
-                services = services + [f'php{version}-fpm']
-            else:
-                Log.info(self, f"PHP{version}-FPM is not installed")
-
         if pargs.mysql:
             if ((WOVar.wo_mysql_host == "localhost") or
                     (WOVar.wo_mysql_host == "127.0.0.1")):
