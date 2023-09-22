@@ -76,8 +76,8 @@
 ## Getting Started
 
 ```bash
-wget -qO wo wops.cc && sudo bash wo      # Install WordOps
-sudo wo site create example.com --wp     # Install required packages & setup WordPress on example.com
+git clone https://github.com/dimitris-am/WordOps.git    # fetch WordOps
+cd WordOps && sudo bash install                         # Install required packages & setup WordPress on example.com
 ```
 
 Detailed Getting Started guide with additional installation methods can be found in [the documentation](https://docs.wordops.net/getting-started/installation-guide/).
