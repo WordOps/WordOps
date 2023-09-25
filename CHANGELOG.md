@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.19.0 - [Unreleased]
 
+### v3.18.1 - 2023-09-26
+
+#### Fixed
+
+- `wo site update` not changing site's php version
+- Netdata install with a remote MySQL server
+- Remove outdated Anemometer package
+- Update bash_completion
+
 ### v3.18.0 - 2023-08-28
 
 #### Added
@@ -81,7 +90,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - psutil dependency upgrade
 - Fix wrong else statements in stack_services.py ([PR #475](https://github.com/WordOps/WordOps/pull/475)) @stodorovic
-
 
 ### v3.15.4 - 2022-10-25
 
@@ -448,7 +456,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `wo clean --opcache` not working with invalid SSL certificate
 - `wo stack install --cheat` wasn't working properly previously
 - `wo info` failure depending on php-fpm pool name. ConfigParser will now detect the section name.
-
 
 ### v3.9.9.4 -  2019-10-18
 
@@ -967,7 +974,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - WordOps configuration backup before upgrade
 - Previous acme.sh certs migration
 - "wo maintenance" command to perform server package update & cleanup
-- Support for Netdata on backend : https://server.hostname:22222/netdata/
+- Support for Netdata on backend : <https://server.hostname:22222/netdata/>
 - New Stacks : composer and netdata
 - additional argument for letsencrypt : --hsts
 - Clean Theme for adminer
