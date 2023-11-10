@@ -492,7 +492,7 @@ class WOSiteUpdateController(CementBaseController):
                 data['wo_php'] = pargs_version
                 Log.debug(self, f"data wo_php set to {pargs_version}")
                 check_php_version = version
-                Log.debug(self, f"check_php_versions et to {version}")
+                Log.debug(self, f"check_php_versions set to {version}")
                 break
 
         if pargs.hsts:
@@ -524,7 +524,6 @@ class WOSiteUpdateController(CementBaseController):
                 Log.debug(self, str(e))
                 Log.info(self, Log.FAIL + "Check the log for details: "
                          "`tail /var/log/wo/wordops.log` and please try again")
-                return 1
 
             # setup NGINX configuration, and webroot
             try:
