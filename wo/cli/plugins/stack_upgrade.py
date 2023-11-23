@@ -284,6 +284,7 @@ class WOStackUpgradeController(CementBaseController):
                         "php8.0-fpm" in apt_packages or
                         "php8.1-fpm" in apt_packages or
                         "php8.2-fpm" in apt_packages or
+                        "php8.3-fpm" in apt_packages or
                         "redis-server" in apt_packages or
                         "nginx-custom" in apt_packages or
                         "mariadb-server" in apt_packages):

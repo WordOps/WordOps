@@ -457,7 +457,8 @@ class WOStackController(CementBaseController):
                         WOAptGet.is_installed(self, 'php7.4-fpm') or
                         WOAptGet.is_installed(self, 'php8.0-fpm') or
                         WOAptGet.is_installed(self, 'php8.1-fpm') or
-                        WOAptGet.is_installed(self, 'php8.2-fpm')):
+                        WOAptGet.is_installed(self, 'php8.2-fpm') or
+                        WOAptGet.is_installed(self, 'php8.3-fpm')):
                     pargs.php = True
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [[
