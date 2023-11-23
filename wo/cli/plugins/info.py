@@ -629,7 +629,7 @@ class WOInfoController(CementBaseController):
         if (not pargs.nginx and not pargs.php and
                 not pargs.mysql and not pargs.php73 and
                 not pargs.php74 and not pargs.php80 and
-                not pargs.php81 and not pargs.php82):
+                not pargs.php81 and not pargs.php82) and not (pargs.php83):
             pargs.nginx = True
             pargs.php = True
             pargs.mysql = True
@@ -643,6 +643,8 @@ class WOInfoController(CementBaseController):
                 pargs.php81 = True
             if WOAptGet.is_installed(self, 'php8.2-fpm'):
                 pargs.php82 = True
+            if WOAptGet.is_installed(self, 'php8.3-fpm'):
+                pargs.php83 = True
 
         if pargs.nginx:
             if ((not WOAptGet.is_installed(self, 'nginx-custom')) and
