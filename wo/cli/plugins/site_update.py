@@ -523,8 +523,6 @@ class WOSiteUpdateController(CementBaseController):
                 sitebackup(self, data)
             except Exception as e:
                 Log.debug(self, str(e))
-                Log.info(self, Log.FAIL + "Check the log for details: "
-                         "`tail /var/log/wo/wordops.log` and please try again")
 
             # setup NGINX configuration, and webroot
             try:
