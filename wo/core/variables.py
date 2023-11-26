@@ -17,7 +17,7 @@ class WOVar():
     # WordOps version
     wo_version = "3.19.0"
     # WordOps packages versions
-    wo_wp_cli = "2.8.1"
+    wo_wp_cli = "2.9.0"
     wo_adminer = "4.8.1"
     wo_phpmyadmin = "5.2.0"
     wo_extplorer = "2.1.15"
@@ -163,7 +163,7 @@ class WOVar():
     def generate_php_modules(version_prefix, version_number):
         wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
                      "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
-                     "mysql", "opcache", "readline", "redis", "soap", "xdebug",
+                     "mysql", "opcache", "readline", "redis", "soap",
                      "xml", "zip"]
         php_modules = ["php{0}-{1}".format(version_number, module) for module in wo_module]
 
@@ -171,6 +171,8 @@ class WOVar():
             php_modules.append("php{0}-recode".format(version_number))
         elif version_prefix == 'php74':
             php_modules.extend(["php{0}-geoip".format(version_number), "php{0}-json".format(version_number)])
+        elif version_prefix != 'php83':
+            php_modules.append("php{0}-xdebug".format(version_number))
 
         return php_modules
 
