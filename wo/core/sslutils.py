@@ -244,6 +244,7 @@ class SSL:
                 try:
                     WOTemplate.deploy(self,
                                       f'/etc/nginx/conf.d/force-ssl-{wo_domain_name}.conf',
+                                      'force-ssl.mustache',
                                       data)
                 except IOError as e:
                     Log.debug(self, str(e))

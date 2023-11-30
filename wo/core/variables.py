@@ -163,16 +163,15 @@ class WOVar():
     def generate_php_modules(version_prefix, version_number):
         wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
                      "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
-                     "mysql", "opcache", "readline", "redis", "soap",
+                     "mysql", "opcache", "readline", "redis", "soap", "xdebug",
                      "xml", "zip"]
         php_modules = ["php{0}-{1}".format(version_number, module) for module in wo_module]
 
         if version_prefix == 'php72' or version_prefix == 'php73':
             php_modules.append("php{0}-recode".format(version_number))
         elif version_prefix == 'php74':
-            php_modules.extend(["php{0}-geoip".format(version_number), "php{0}-json".format(version_number)])
-        elif version_prefix != 'php83':
-            php_modules.append("php{0}-xdebug".format(version_number))
+            php_modules.extend(["php{0}-geoip".format(version_number),
+                                "php{0}-json".format(version_number)])
 
         return php_modules
 
