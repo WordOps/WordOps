@@ -107,6 +107,7 @@ class WOStackUpgradeController(CementBaseController):
             pargs.php80 = True
             pargs.php81 = True
             pargs.php82 = True
+            pargs.php83 = True
             pargs.mysql = True
             pargs.wpcli = True
 
@@ -141,6 +142,7 @@ class WOStackUpgradeController(CementBaseController):
             'php80': WOVar.wo_php80,
             'php81': WOVar.wo_php81,
             'php82': WOVar.wo_php82,
+            'php83': WOVar.wo_php83,
         }
 
         for parg_version, version in WOVar.wo_php_versions.items():
@@ -282,6 +284,7 @@ class WOStackUpgradeController(CementBaseController):
                         "php8.0-fpm" in apt_packages or
                         "php8.1-fpm" in apt_packages or
                         "php8.2-fpm" in apt_packages or
+                        "php8.3-fpm" in apt_packages or
                         "redis-server" in apt_packages or
                         "nginx-custom" in apt_packages or
                         "mariadb-server" in apt_packages):
