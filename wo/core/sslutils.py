@@ -7,6 +7,7 @@ from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
 from wo.core.acme import WOAcme
+from wo.core.template import WOTemplate
 
 
 class SSL:
@@ -231,6 +232,7 @@ class SSL:
     def httpsredirect(self, wo_domain_name, acme_domains, redirect=True):
         """Create Nginx redirection from http to https"""
         wo_acme_domains = ' '.join(acme_domains)
+        data = dict(domains=wo_acme_domains)
         if redirect:
             Log.wait(self, "Adding HTTPS redirection")
             if WOFileUtils.enabledisable(
@@ -240,19 +242,9 @@ class SSL:
                 return 0
             else:
                 try:
-                    sslconf = open(
-                        "/etc/nginx/conf.d/force-ssl-{0}.conf"
-                        .format(wo_domain_name),
-                        encoding='utf-8', mode='w')
-                    sslconf.write(
-                        "server {\n"
-                        "\tlisten 80;\n" +
-                        "\tlisten [::]:80;\n" +
-                        "\tserver_name {0};\n"
-                        .format(wo_acme_domains) +
-                        "\treturn 301 https://$host"
-                        "$request_uri;\n}")
-                    sslconf.close()
+                    WOTemplate.deploy(self,
+                                      f'/etc/nginx/conf.d/force-ssl-{wo_domain_name}.conf',
+                                      data)
                 except IOError as e:
                     Log.debug(self, str(e))
                     Log.debug(
