@@ -1,0 +1,65 @@
+name: "\U0001F41E Bug Report"
+description: Found a bug? Please fill in the report below to help us improve
+body:
+  - type: textarea
+    id: current_behaviour
+    attributes:
+      label: Current behavior
+      description: Tell us what happens instead of the expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behaviour
+    attributes:
+      label: Expected behavior
+      description: Describe the correct behavior
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Provide detailed steps, live links, or code that would be helpful to reproduce a bug 
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true     
+  - type: input
+    id: wpforms_version_is
+    attributes:
+      label: Environment where the issue is reproducible
+      description: Specify WPForms, Addon version or branch where the issue is reproduced
+      placeholder: e.g. WPForms 1.8.2.3, Stripe 3.0, develop (1.8.2.2)
+    validations:
+      required: true
+  - type: input
+    id: wpforms_version_is_not
+    attributes:
+      label: Environment where the issue is NOT reproducible
+      description: Specify WPForms, Addon version or branch where the issue is NOT reproduced
+      placeholder: e.g. WPForms 1.8.2.3, Stripe 3.0, develop (1.8.2.2)
+    validations:
+      required: false
+  - type: input
+    id: other_environment
+    attributes:
+      label: Other system details
+      description: Please provide other system or configuration details that could be helpful for issue reproducing
+      placeholder: e.g. WP 6.2.2, PHP 8.1, Chrome browser 
+    validations:
+      required: false
+  - type: textarea
+    id: attachment
+    attributes:
+      label: Attachments
+      description: Add a screenshot by dragging and dropping `png`, `jpg`, `gif` or setting a screencast link
+  - type: textarea
+    id: notes
+    attributes:
+      label: Other notes
+      description: Specify additional helpful info (suggest a fix, link Helpscout Ticket, provide other details that could be applied to the issue)
+      
+
