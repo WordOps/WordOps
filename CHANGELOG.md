@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - PHP 8.3 support
 - force-ssl-{domain}.conf now available as a mustache template
 
+#### Changed
+
+- Default PHP version bump to 8.2
+
 #### Fixed
 
 - wo site update --phpXX errors in some case

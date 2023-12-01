@@ -85,7 +85,7 @@ Detailed Getting Started guide with additional installation methods can be found
 ### Standard WordPress sites
 
 ```bash
-wo site create example.com --wp                # install wordpress with PHP 8.1 without any page caching
+wo site create example.com --wp                # install wordpress with PHP 8.2 without any page caching
 wo site create example.com --wp  --php83       # install wordpress with PHP 8.3  without any page caching
 wo site create example.com --wpfc              # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis           # install wordpress + nginx redis_cache
@@ -120,11 +120,11 @@ wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + C
 
 ```bash
 wo site create example.com --html     # create example.com for static/html sites
-wo site create example.com --php      # create example.com with php 8.1 support
+wo site create example.com --php      # create example.com with php 8.2 support
 wo site create example.com --php80      # create example.com with php 8.0 support
 wo site create example.com --php81      # create example.com with php 8.1 support
 wo site create example.com --php82      # create example.com with php 8.2 support
-wo site create example.com --mysql    # create example.com with php 8.1 & mysql support
+wo site create example.com --mysql    # create example.com with php 8.2 & mysql support
 wo site create example.com --mysql --php83   # create example.com with php 8.3 & mysql support
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
 ```
