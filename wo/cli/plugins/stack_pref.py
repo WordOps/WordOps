@@ -29,8 +29,7 @@ def pre_pref(self, apt_packages):
 
     if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
-        if not (WOVar.wo_distro == 'raspbian' or
-                WOVar.wo_platform_codename == 'bookworm'):
+        if not (WOVar.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = (
                 "Package: *\nPin: origin mariadb.mirrors.ovh.net"
@@ -134,20 +133,15 @@ def pre_pref(self, apt_packages):
 
     # nano
     if 'nano' in apt_packages:
-        if WOVar.wo_distro == 'ubuntu':
-            if WOVar.wo_platform_codename == 'bionic':
-                Log.debug(self, 'Adding ppa for nano')
-                WORepo.add(self, ppa=WOVar.wo_ubuntu_backports)
-        else:
-            if WOVar.wo_platform_codename == 'buster':
-                if (not WOFileUtils.grepcheck(
-                        self, '/etc/apt/sources.list/wo-repo.list',
-                        'WordOps')):
-                    Log.info(self,
-                             "Adding repository for Nano, please wait...")
-                    Log.debug(self, 'Adding repository for Nano')
-                    WORepo.add_key(self, WOVar.wo_nginx_key)
-                    WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
+        if WOVar.wo_platform_codename == 'buster':
+            if (not WOFileUtils.grepcheck(
+                    self, '/etc/apt/sources.list/wo-repo.list',
+                    'WordOps')):
+                Log.info(self,
+                         "Adding repository for Nano, please wait...")
+                Log.debug(self, 'Adding repository for Nano')
+                WORepo.add_key(self, WOVar.wo_nginx_key)
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -1366,11 +1360,11 @@ def pre_stack(self):
                 self, '/etc/sysctl.d/60-wo-tweaks.conf',
                 'sysctl.mustache', data, True)
             # use tcp_bbr congestion algorithm only on new kernels
-            if (WOVar.wo_platform_codename == 'bionic' or
-                WOVar.wo_platform_codename == 'focal' or
+            if (WOVar.wo_platform_codename == 'focal' or
                 WOVar.wo_platform_codename == 'buster' or
                 WOVar.wo_platform_codename == 'jammy' or
-                    WOVar.wo_platform_codename == 'bullseye'):
+                    WOVar.wo_platform_codename == 'bullseye' or
+                    WOVar.wo_platform_codename == 'bookworm'):
                 try:
                     WOShellExec.cmd_exec(
                         self, 'modprobe tcp_bbr')
