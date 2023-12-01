@@ -26,7 +26,7 @@ body:
         2.
         3.
     validations:
-      required: true     
+      required: true
   - type: input
     id: wpforms_version_is
     attributes:
@@ -34,7 +34,7 @@ body:
       description: Specify WPForms, Addon version or branch where the issue is reproduced
       placeholder: e.g. WPForms 1.8.2.3, Stripe 3.0, develop (1.8.2.2)
     validations:
-      required: true
+      required: false
   - type: input
     id: wpforms_version_is_not
     attributes:
@@ -62,4 +62,3 @@ body:
       label: Other notes
       description: Specify additional helpful info (suggest a fix, link Helpscout Ticket, provide other details that could be applied to the issue)
       
-
