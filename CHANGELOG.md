@@ -6,7 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.19.0 - [Unreleased]
+### v3.20.0 - [Unreleased]
+
+### v3.19.0 - 2023-12-01
+
+#### Added
+
+- PHP 8.3 support
+- force-ssl-{domain}.conf now available as a mustache template
+
+#### Fixed
+
+- wo site update --phpXX errors in some case
+
+#### Fixed
 
 ### v3.18.1 - 2023-09-26
 

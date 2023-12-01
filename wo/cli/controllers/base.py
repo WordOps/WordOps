@@ -8,7 +8,7 @@ VERSION = WOVar.wo_version
 
 BANNER = """
 WordOps v%s
-Copyright (c) 2023 WordOps.
+Copyright (c) 2024 WordOps.
 """ % VERSION
 
 

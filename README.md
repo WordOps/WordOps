@@ -40,7 +40,7 @@
 - **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 - **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
 - **Custom Nginx build** : Nginx 1.24.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0, 8.1 & 8.2 - MariaDB 10.11 LTS & Redis 7.0
+- **Up-to-date** : PHP 7.2, 7.3, 7.4, 8.0, 8.1, 8.2 &8.3 - MariaDB 10.11 LTS & Redis 7.0
 - **Secured** : Hardened WordPress security with strict Nginx location directives
 - **Powerful** : Optimized Nginx configurations with multiple cache backends support
 - **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
@@ -86,7 +86,7 @@ Detailed Getting Started guide with additional installation methods can be found
 
 ```bash
 wo site create example.com --wp                # install wordpress with PHP 8.1 without any page caching
-wo site create example.com --wp  --php82       # install wordpress with PHP 8.2  without any page caching
+wo site create example.com --wp  --php83       # install wordpress with PHP 8.3  without any page caching
 wo site create example.com --wpfc              # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis           # install wordpress + nginx redis_cache
 wo site create example.com --wprocket          # install wordpress with WP-Rocket plugin
@@ -125,7 +125,7 @@ wo site create example.com --php80      # create example.com with php 8.0 suppor
 wo site create example.com --php81      # create example.com with php 8.1 support
 wo site create example.com --php82      # create example.com with php 8.2 support
 wo site create example.com --mysql    # create example.com with php 8.1 & mysql support
-wo site create example.com --mysql --php81   # create example.com with php 8.1 & mysql support
+wo site create example.com --mysql --php83   # create example.com with php 8.3 & mysql support
 wo site create example.com --proxy=127.0.0.1:3000 #  create example.com with nginx as reverse-proxy
 ```
 
@@ -138,6 +138,7 @@ wo site update example.com --php74 # switch to PHP 7.4
 wo site update example.com --php80 # switch to PHP 8.0
 wo site update example.com --php81 # switch to PHP 8.1
 wo site update example.com --php82 # switch to PHP 8.2
+wo site update example.com --php83 # switch to PHP 8.3
 ```
 
 ### Sites secured with Let's Encrypt
