@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.20.0 - [Unreleased]
 
+### v3.19.1 - 2023-12-03
+
+#### Fixed
+
+- fix missing braces on force-ssl.mustache [PR #593](https://github.com/WordOps/WordOps/pull/593) @janiosarmento
+
 ### v3.19.0 - 2023-12-01
 
 #### Added
