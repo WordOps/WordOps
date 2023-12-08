@@ -7,7 +7,7 @@ from wo.cli.plugins.site_functions import (
     doCleanupAction, setupdatabase, setupwordpress, setwebrootpermissions,
     display_cache_settings, copyWildcardCert)
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo,
-                                   updateSiteInfo)
+                                   updateSiteInfo, getSiteInfo)
 from wo.core.acme import WOAcme
 from wo.core.domainvalidate import WODomain
 from wo.core.git import WOGit
@@ -196,14 +196,18 @@ class WOSiteCreateController(CementBaseController):
             data['basic'] = True
 
         if stype == 'subsite':
+            # Get parent site data
+            data = getSiteInfo(self, subsite_name)
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=True, basic=False, wp=False,
                 wpfc=False, wpsc=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot)
+            data["site_name"] = wo_domain
+            data["www_domain"] = wo_www_domain
             data['subsite'] = True
             data['subsite_name'] = subsite_name
-            data['basic'] = True
+
 
         if (pargs.php72 or pargs.php73 or pargs.php74 or
                 pargs.php80 or pargs.php81 or pargs.php82 or pargs.php83):
