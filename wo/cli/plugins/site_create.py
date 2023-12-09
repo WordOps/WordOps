@@ -127,7 +127,7 @@ class WOSiteCreateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy and not pargs.alias:
+        elif stype is None and not pargs.proxy and not pargs.alias and not pargs.subsite:
             stype, cache = 'html', 'basic'
         elif stype is None and pargs.alias:
             stype, cache = 'alias', ''
@@ -197,16 +197,32 @@ class WOSiteCreateController(CementBaseController):
 
         if stype == 'subsite':
             # Get parent site data
-            data = getSiteInfo(self, subsite_name)
+            parent_site_info = getSiteInfo(self, subsite_name)
+            if not parent_site_info:
+                Log.error(self, "Parent site {0} does not exist"
+                          .format(subsite_name))
+            if not parent_site_info.is_enabled:
+                Log.error(self, "Parent site {0} is not enabled"
+                          .format(subsite_name))
+            if 'wp' not in parent_site_info.site_type:
+                Log.error(self, "Parent site {0} is not WordPress site"
+                          .format(subsite_name))
+
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
-                static=True, basic=False, wp=False,
-                wpfc=False, wpsc=False, wprocket=False, wpce=False,
-                multisite=False, wpsubdir=False, webroot=wo_site_webroot)
-            data["site_name"] = wo_domain
-            data["www_domain"] = wo_www_domain
+                static=False, basic=False, multisite=False, webroot=wo_site_webroot)
+
+            data["wp"] = parent_site_info.site_type == 'wp'
+            data["wpfc"] = parent_site_info.cache_type == 'wpfc'
+            data["wpsc"] = parent_site_info.cache_type == 'wpsc'
+            data["wprocket"] = parent_site_info.cache_type == 'wprocket'
+            data["wpce"] = parent_site_info.cache_type == 'wpce'
+            data["wpredis"] = parent_site_info.cache_type == 'wpredis'
+            data["wpsubdir"] = parent_site_info.site_type == 'wpsubdir'
+            data["wo_php"]  = ("php" + parent_site_info.php_version).replace(".", "")
             data['subsite'] = True
             data['subsite_name'] = subsite_name
+            data['subsite_webroot'] = parent_site_info.site_path
 
 
         if (pargs.php72 or pargs.php73 or pargs.php74 or
@@ -279,7 +295,8 @@ class WOSiteCreateController(CementBaseController):
         if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
             (not pargs.wpce) and
-                (not pargs.wpredis)):
+            (not pargs.wpredis) and
+            (not pargs.subsite)):
             data['basic'] = True
 
         if (cache == 'wpredis'):
