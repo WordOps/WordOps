@@ -67,11 +67,6 @@ def setupdomain(self, data):
     wo_domain_name = data['site_name']
     wo_site_webroot = data['webroot']
 
-    if 'subsite' in data.keys() and data['subsite']:
-        wo_parent_site = data["subsiteof_name"]
-        wo_parent_info = getSiteInfo(wo_parent_site)
-        data["webroot"] = wo_parent_info["webroot"]
-
     # Check if nginx configuration already exists
     # if os.path.isfile('/etc/nginx/sites-available/{0}'
     #                   .format(wo_domain_name)):
