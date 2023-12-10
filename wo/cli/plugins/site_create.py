@@ -127,7 +127,7 @@ class WOSiteCreateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy and not pargs.alias and not pargs.subsiteofof:
+        elif stype is None and not pargs.proxy and not pargs.alias and not pargs.subsiteof:
             stype, cache = 'html', 'basic'
         elif stype is None and pargs.alias:
             stype, cache = 'alias', ''
