@@ -68,7 +68,7 @@ def setupdomain(self, data):
     wo_site_webroot = data['webroot']
 
     if 'subsite' in data.keys() and data['subsite']:
-        wo_parent_site = data["subsite_name"]
+        wo_parent_site = data["subsiteof_name"]
         wo_parent_info = getSiteInfo(wo_parent_site)
         data["webroot"] = wo_parent_info["webroot"]
 

@@ -159,13 +159,13 @@ _wo_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --php72 --php73 --php74 --php80 --php81 --php82 --php83  --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --alias --subsite --wpredis --wprocket --wpce -le --letsencrypt  --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon" \
+                                    -W "--user --pass --email --html --php --php72 --php73 --php74 --php80 --php81 --php82 --php83  --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --alias --subsiteof --wpredis --wprocket --wpce -le --letsencrypt  --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --php72 --php73 --php74 --php80 --php81 --php82 --php83  --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --alias --subsite -le -le=off --letsencrypt --letsencrypt=off --letsencrypt=clean -le=wildcard -le=clean --dns --dns=dns_cf --dns=dns_dgon --ngxblocker --ngxblocker=off" \
+                                    -W "--password --php --php72 --php73 --php74 --php80 --php81 --php82 --php83  --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --alias --subsiteof -le -le=off --letsencrypt --letsencrypt=off --letsencrypt=clean -le=wildcard -le=clean --dns --dns=dns_cf --dns=dns_dgon --ngxblocker --ngxblocker=off" \
                                  -- $cur) )
                 ;;
             "delete")
