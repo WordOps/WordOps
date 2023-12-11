@@ -164,7 +164,7 @@ class WOSiteUpdateController(CementBaseController):
             if not subsiteof_name:
                 Log.error(self, "Please provide multisite parent name")
         elif stype is None and not (pargs.proxy or
-                                    pargs.letsencrypt or 
+                                    pargs.letsencrypt or
                                     pargs.alias or
                                     pargs.subsiteof):
             stype, cache = 'html', 'basic'
@@ -587,7 +587,7 @@ class WOSiteUpdateController(CementBaseController):
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(wo_domain))
             return 0
-        
+
         if 'subsite' in data.keys() and data['subsite']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
                            ssl=(bool(check_site.is_ssl)))
