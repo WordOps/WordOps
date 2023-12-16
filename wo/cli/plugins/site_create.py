@@ -7,7 +7,7 @@ from wo.cli.plugins.site_functions import (
     doCleanupAction, setupdatabase, setupwordpress, setwebrootpermissions,
     display_cache_settings, copyWildcardCert)
 from wo.cli.plugins.sitedb import (addNewSite, deleteSiteInfo,
-                                   updateSiteInfo)
+                                   updateSiteInfo, getSiteInfo)
 from wo.core.acme import WOAcme
 from wo.core.domainvalidate import WODomain
 from wo.core.git import WOGit
@@ -64,6 +64,9 @@ class WOSiteCreateController(CementBaseController):
             (['--alias'],
                 dict(help="domain name to redirect to",
                      action='store', nargs='?')),
+            (['--subsiteof'],
+                dict(help="create a subsite of a multisite install",
+                    action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -124,17 +127,24 @@ class WOSiteCreateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy and not pargs.alias:
+        elif stype is None and not pargs.proxy and not pargs.alias and not pargs.subsiteof:
             stype, cache = 'html', 'basic'
         elif stype is None and pargs.alias:
             stype, cache = 'alias', ''
             alias_name = pargs.alias.strip()
             if not alias_name:
                 Log.error(self, "Please provide alias name")
+        elif stype is None and pargs.subsiteof:
+            stype, cache = 'subsite', ''
+            subsiteof_name = pargs.subsiteof.strip()
+            if not subsiteof_name:
+                Log.error(self, "Please provide multisite parent name")
         elif stype and pargs.proxy:
             Log.error(self, "proxy should not be used with other site types")
         elif stype and pargs.alias:
             Log.error(self, "alias should not be used with other site types")
+        elif stype and pargs.subsiteof:
+            Log.error(self, "subsiteof should not be used with other site types")
 
         if not pargs.site_name:
             try:
@@ -184,6 +194,36 @@ class WOSiteCreateController(CementBaseController):
             data['alias'] = True
             data['alias_name'] = alias_name
             data['basic'] = True
+
+        if stype == 'subsite':
+            # Get parent site data
+            parent_site_info = getSiteInfo(self, subsiteof_name)
+            if not parent_site_info:
+                Log.error(self, "Parent site {0} does not exist"
+                          .format(subsiteof_name))
+            if not parent_site_info.is_enabled:
+                Log.error(self, "Parent site {0} is not enabled"
+                          .format(subsiteof_name))
+            if parent_site_info.site_type not in ['wpsubdomain', 'wpsubdir']:
+                Log.error(self, "Parent site {0} is not WordPress multisite"
+                          .format(subsiteof_name))
+
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False, basic=False, multisite=False, webroot=wo_site_webroot)
+
+            data["wp"] = parent_site_info.site_type == 'wp'
+            data["wpfc"] = parent_site_info.cache_type == 'wpfc'
+            data["wpsc"] = parent_site_info.cache_type == 'wpsc'
+            data["wprocket"] = parent_site_info.cache_type == 'wprocket'
+            data["wpce"] = parent_site_info.cache_type == 'wpce'
+            data["wpredis"] = parent_site_info.cache_type == 'wpredis'
+            data["wpsubdir"] = parent_site_info.site_type == 'wpsubdir'
+            data["wo_php"]  = ("php" + parent_site_info.php_version).replace(".", "")
+            data['subsite'] = True
+            data['subsiteof_name'] = subsiteof_name
+            data['subsiteof_webroot'] = parent_site_info.site_path
+
 
         if (pargs.php72 or pargs.php73 or pargs.php74 or
                 pargs.php80 or pargs.php81 or pargs.php82 or pargs.php83):
@@ -255,7 +295,8 @@ class WOSiteCreateController(CementBaseController):
         if ((not pargs.wpfc) and (not pargs.wpsc) and
             (not pargs.wprocket) and
             (not pargs.wpce) and
-                (not pargs.wpredis)):
+            (not pargs.wpredis) and
+            (not pargs.subsiteof)):
             data['basic'] = True
 
         if (cache == 'wpredis'):
@@ -313,6 +354,26 @@ class WOSiteCreateController(CementBaseController):
                          " http://{0}".format(wo_domain))
 
             elif 'alias' in data.keys() and data['alias']:
+                addNewSite(self, wo_domain, stype, cache, wo_site_webroot)
+                # Service Nginx Reload
+                if not WOService.reload_service(self, 'nginx'):
+                    Log.info(self, Log.FAIL +
+                             "There was a serious error encountered...")
+                    Log.info(self, Log.FAIL + "Cleaning up afterwards...")
+                    doCleanupAction(self, domain=wo_domain)
+                    deleteSiteInfo(self, wo_domain)
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
+                    Log.error(self, "Check the log for details: "
+                              "`tail /var/log/wo/wordops.log` "
+                              "and please try again")
+                if wo_auth and len(wo_auth):
+                    for msg in wo_auth:
+                        Log.info(self, Log.ENDC + msg, log=False)
+                Log.info(self, "Successfully created site"
+                         " http://{0}".format(wo_domain))
+
+            elif 'subsite' in data.keys() and data['subsite']:
                 addNewSite(self, wo_domain, stype, cache, wo_site_webroot)
                 # Service Nginx Reload
                 if not WOService.reload_service(self, 'nginx'):

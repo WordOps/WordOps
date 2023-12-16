@@ -64,6 +64,9 @@ class WOSiteUpdateController(CementBaseController):
             (['--alias'],
                 dict(help="domain name to redirect to",
                      action='store', nargs='?')),
+            (['--subsiteof'],
+                dict(help="create a subsite of a multisite install",
+                    action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -155,11 +158,18 @@ class WOSiteUpdateController(CementBaseController):
             alias_name = pargs.alias.strip()
             if not alias_name:
                 Log.error(self, "Please provide alias name")
+        elif stype is None and pargs.subsiteof:
+            stype, cache = 'subsite', ''
+            subsiteof_name = pargs.subsiteof.strip()
+            if not subsiteof_name:
+                Log.error(self, "Please provide multisite parent name")
         elif stype is None and not (pargs.proxy or
-                                    pargs.letsencrypt or pargs.alias):
+                                    pargs.letsencrypt or
+                                    pargs.alias or
+                                    pargs.subsiteof):
             stype, cache = 'html', 'basic'
-        elif stype and (pargs.proxy or pargs.alias):
-            Log.error(self, "--proxy/alias can not be used with other site types")
+        elif stype and (pargs.proxy or pargs.alias or pargs.subsiteof):
+            Log.error(self, "--proxy/alias/subsiteof can not be used with other site types")
 
         if not pargs.site_name:
             try:
@@ -292,6 +302,35 @@ class WOSiteUpdateController(CementBaseController):
             data['currcachetype'] = oldcachetype
             data['alias'] = True
             data['alias_name'] = alias_name
+
+        if stype == 'subsite':
+            # Get parent site data
+            parent_site_info = getSiteInfo(self, subsiteof_name)
+            if not parent_site_info:
+                Log.error(self, "Parent site {0} does not exist"
+                          .format(subsiteof_name))
+            if not parent_site_info.is_enabled:
+                Log.error(self, "Parent site {0} is not enabled"
+                          .format(subsiteof_name))
+            if parent_site_info.site_type not in ['wpsubdomain', 'wpsubdir']:
+                Log.error(self, "Parent site {0} is not WordPress multisite"
+                          .format(subsiteof_name))
+
+            data = dict(
+                site_name=wo_domain, www_domain=wo_www_domain,
+                static=False, basic=False, multisite=False, webroot=wo_site_webroot)
+
+            data["wp"] = parent_site_info.site_type == 'wp'
+            data["wpfc"] = parent_site_info.cache_type == 'wpfc'
+            data["wpsc"] = parent_site_info.cache_type == 'wpsc'
+            data["wprocket"] = parent_site_info.cache_type == 'wprocket'
+            data["wpce"] = parent_site_info.cache_type == 'wpce'
+            data["wpredis"] = parent_site_info.cache_type == 'wpredis'
+            data["wpsubdir"] = parent_site_info.site_type == 'wpsubdir'
+            data["wo_php"]  = ("php" + parent_site_info.php_version).replace(".", "")
+            data['subsite'] = True
+            data['subsiteof_name'] = subsiteof_name
+            data['subsiteof_webroot'] = parent_site_info.site_path
 
         if stype == 'php':
             data = dict(
@@ -483,7 +522,8 @@ class WOSiteUpdateController(CementBaseController):
                version in WOVar.wo_php_versions.items()) and (stype == oldsitetype
                                                               and cache == oldcachetype
                                                               and stype != 'alias'
-                                                              and stype != 'proxy'):
+                                                              and stype != 'proxy'
+                                                              and stype != 'subsite'):
             Log.debug(self, "Nothing to update")
             return 1
 
@@ -542,6 +582,13 @@ class WOSiteUpdateController(CementBaseController):
             return 0
 
         if 'alias_name' in data.keys() and data['alias']:
+            updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
+                           ssl=(bool(check_site.is_ssl)))
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(wo_domain))
+            return 0
+
+        if 'subsite' in data.keys() and data['subsite']:
             updateSiteInfo(self, wo_domain, stype=stype, cache=cache,
                            ssl=(bool(check_site.is_ssl)))
             Log.info(self, "Successfully updated site"

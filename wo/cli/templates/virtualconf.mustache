@@ -45,7 +45,14 @@ server {
 
     {{^proxy}}
     {{^alias}}
+    
+    {{^subsite}}
     root {{webroot}}/htdocs;
+    {{/subsite}}
+    
+    {{#subsite}}
+    root {{subsiteof_webroot}}/htdocs;
+    {{/subsite}}
 
     index {{^static}}index.php{{/static}} index.html index.htm;
 
