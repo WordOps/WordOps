@@ -28,6 +28,13 @@ class WOStackStatusController(CementBaseController):
             pargs.netdata = True
             pargs.ufw = True
 
+        if pargs.php:
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                current_php = config_php_ver.replace(".", "")
+                setattr(self.app.pargs, 'php{0}'.format(current_php), True)
+
         if pargs.nginx:
             if os.path.exists('{0}'.format(wo_system) + 'nginx.service'):
                 services = services + ['nginx']
@@ -98,6 +105,13 @@ class WOStackStatusController(CementBaseController):
             pargs.nginx = True
             pargs.php = True
             pargs.mysql = True
+
+        if pargs.php:
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                current_php = config_php_ver.replace(".", "")
+                setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
         if pargs.nginx:
             if os.path.exists('{0}'.format(wo_system) + 'nginx.service'):
@@ -170,6 +184,13 @@ class WOStackStatusController(CementBaseController):
             pargs.php = True
             pargs.mysql = True
             pargs.netdata = True
+
+        if pargs.php:
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                current_php = config_php_ver.replace(".", "")
+                setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
         if pargs.nginx:
             if os.path.exists('{0}'.format(wo_system) + 'nginx.service'):
@@ -320,6 +341,13 @@ class WOStackStatusController(CementBaseController):
             pargs.php = True
             pargs.mysql = True
             pargs.fail2ban = True
+
+        if pargs.php:
+            if self.app.config.has_section('php'):
+                config_php_ver = self.app.config.get(
+                    'php', 'version')
+                current_php = config_php_ver.replace(".", "")
+                setattr(self.app.pargs, 'php{0}'.format(current_php), True)
 
         if pargs.nginx:
             if os.path.exists('{0}'.format(wo_system) + 'nginx.service'):
