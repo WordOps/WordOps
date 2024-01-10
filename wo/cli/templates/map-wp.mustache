@@ -33,6 +33,7 @@ map $http_cookie $cookie_no_cache {
 # do not cache the following uri
 map $request_uri $uri_no_cache {
     default 0;
+    "~*/wishlist/" 1;
     "~*/wp-admin/" 1;
     "~*/wp-[a-zA-Z0-9-]+\.php" 1;
     "~*/feed/" 1;
