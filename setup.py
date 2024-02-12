@@ -61,7 +61,7 @@ setup(name='wordops',
           # Required to build documentation
           # "Sphinx >= 1.0",
           # Required to function
-          'cement == 2.10.12',
+          'cement == 2.10.14',
           'pystache',
           'pynginxconfig',
           'PyMySQL >= 1.0.2',
