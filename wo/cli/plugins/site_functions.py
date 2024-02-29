@@ -836,7 +836,7 @@ def site_package_check(self, stype):
     stack.app = self.app
     pargs = self.app.pargs
     if stype in ['html', 'proxy', 'php', 'php70', 'php72', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain', 'php73', 'php74', 'php80', 'php81', 'php82', 'alias']:
+                 'wpsubdomain', 'php73', 'php74', 'php80', 'php81', 'php82', 'php83', 'alias']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
@@ -872,7 +872,7 @@ def site_package_check(self, stype):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-        php_versions = ['php70', 'php72', 'php73', 'php74', 'php80', 'php81', 'php82']
+        php_versions = ['php70', 'php72', 'php73', 'php74', 'php80', 'php81', 'php82', 'php83']
 
         selected_versions = [version for version in php_versions if getattr(pargs, version)]
         if len(selected_versions) > 1:
@@ -880,7 +880,7 @@ def site_package_check(self, stype):
                       "combined within the same WordOps site")
 
     if ((not pargs.php70) and (not pargs.php72) and (not pargs.php73) and (not pargs.php74) and
-        (not pargs.php80) and (not pargs.php81) and (not pargs.php82) and
+        (not pargs.php80) and (not pargs.php81) and (not pargs.php82) and (not pargs.php83) and
         stype in ['php', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP")
@@ -1082,7 +1082,7 @@ def detSitePar(opts):
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain', 'php70', 'php72',
-                           'php73', 'php74', 'php80', 'php81', 'php82', ]:
+                           'php73', 'php74', 'php80', 'php81', 'php82', 'php83', ]:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'wpredis', 'wprocket', 'wpce']:
             cachelist.append(key)
@@ -1140,6 +1140,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('php83', 'mysql', 'html') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('php', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
@@ -1183,6 +1189,12 @@ def detSitePar(opts):
             else:
                 cachetype = cachelist[0]
         elif False not in [x in ('php82', 'mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php83', 'mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1254,6 +1266,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+         elif False not in [x in ('wp', 'php83') for x in typelist]:
+             sitetype = 'wp'
+             if not cachelist:
+                 cachetype = 'basic'
+             else:
+                 cachetype = cachelist[0]
         elif False not in [x in ('wpsubdir', 'php70') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
@@ -1296,6 +1314,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdir', 'php83') for x in typelist]:
+             sitetype = 'wpsubdir'
+             if not cachelist:
+                 cachetype = 'basic'
+             else:
+                 cachetype = cachelist[0]
         elif False not in [x in ('wpsubdomain', 'php70') for x in typelist]:
             sitetype = 'wpsubdomain'
             if not cachelist:
@@ -1338,6 +1362,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdomain', 'php83') for x in typelist]:
+            sitetype = 'wpsubdomain'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         else:
             raise RuntimeError("could not determine site and cache type")
     else:
@@ -1363,6 +1393,9 @@ def detSitePar(opts):
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif (not typelist or "php82" in typelist) and cachelist:
+            sitetype = 'wp'
+            cachetype = cachelist[0]
+        elif (not typelist or "php83" in typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif typelist and (not cachelist):

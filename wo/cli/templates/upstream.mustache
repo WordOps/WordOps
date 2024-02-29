@@ -154,6 +154,26 @@ upstream debug82 {
 }
 
 #-------------------------------
+# PHP 8.3
+#-------------------------------
+
+# PHP 8.3 upstream with load-balancing on two unix sockets
+upstream php83 {
+	least_conn;
+
+	server unix:/var/run/php/php83-fpm.sock;
+	server unix:/var/run/php/php83-two-fpm.sock;
+
+	keepalive 5;
+}
+
+# PHP 8.3 debug
+upstream debug83 {
+	# Debug Pool
+	server 127.0.0.1:9178;
+}
+
+#-------------------------------
 # Netdata
 #-------------------------------
 
@@ -186,4 +206,5 @@ upstream multiphp {
     server unix:/var/run/php/php80-fpm.sock;
     server unix:/var/run/php/php81-fpm.sock;
     server unix:/var/run/php/php82-fpm.sock;
+	server unix:/var/run/php/php83-fpm.sock;
 }

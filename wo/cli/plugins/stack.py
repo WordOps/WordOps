@@ -190,6 +190,7 @@ class WOStackController(CementBaseController):
                 'php80': WOVar.wo_php80,
                 'php81': WOVar.wo_php81,
                 'php82': WOVar.wo_php82,
+                'php83': WOVar.wo_php83,
             }
 
             for parg_version, version in WOVar.wo_php_versions.items():
@@ -600,6 +601,7 @@ class WOStackController(CementBaseController):
             'php80': WOVar.wo_php80,
             'php81': WOVar.wo_php81,
             'php82': WOVar.wo_php82,
+            'php83': WOVar.wo_php83,
         }
 
         # Loop through all versions.
@@ -861,6 +863,7 @@ class WOStackController(CementBaseController):
             pargs.php80 = True
             pargs.php81 = True
             pargs.php82 = True
+            pargs.php83 = True
             pargs.fail2ban = True
             pargs.proftpd = True
             pargs.utils = True
@@ -962,6 +965,17 @@ class WOStackController(CementBaseController):
                 Log.info(self, "PHP 8.2 is not installed")
 
                 Log.info(self, "PHP 8.2 is not installed")
+
+        # PHP 8.3
+        if pargs.php83:
+            Log.debug(self, "Setting apt_packages variable for PHP 8.3")
+            if WOAptGet.is_installed(self, 'php8.3-fpm'):
+                apt_packages = apt_packages + WOVar.wo_php83
+            else:
+                Log.debug(self, "PHP 8.3 is not installed")
+                Log.info(self, "PHP 8.3 is not installed")
+
+                Log.info(self, "PHP 8.3 is not installed")
 
         # REDIS
         if pargs.redis:

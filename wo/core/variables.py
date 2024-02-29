@@ -158,6 +158,7 @@ class WOVar():
         'php80': '8.0',
         'php81': '8.1',
         'php82': '8.2',
+        'php83': '8.3',
     }
 
     def generate_php_modules(version_prefix, version_number):
@@ -181,6 +182,7 @@ class WOVar():
     wo_php80 = generate_php_modules('php80', '8.0')
     wo_php81 = generate_php_modules('php81', '8.1')
     wo_php82 = generate_php_modules('php82', '8.2')
+    wo_php83 = generate_php_modules('php83', '8.3')
 
     wo_php_extra = ["graphviz"]
 
