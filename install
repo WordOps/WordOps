@@ -879,11 +879,11 @@ else
 
     if [ "$ee_migration" = "1" ]; then
         echo
-        wo_lib_echo "The migration from EasyEngine to WordOps was succesfull!"
+        wo_lib_echo "The migration from EasyEngine to WordOps was successful!"
         wo_lib_echo "The EasyEngine backup files can be found in /var/lib/wo-backup/ee-backup.tgz"
         echo
     elif [ "$wo_upgrade" = "1" ]; then
-        wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was succesfull!"
+        wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was successful!"
         wo_lib_echo "Changelog is available on https://github.com/WordOps/WordOps/releases/tag/$wo_version_new"
         echo
         wo_lib_echo "To upgrade WordOps web stacks, you can use the command:"
