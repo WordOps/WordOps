@@ -21,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Update install by @michaelangelocobo in [PR #628](https://github.com/WordOps/WordOps/pull/628)
 - Fix WordOps server ip check in Nginx stack install
 - Fix WordOps create new site duration
--
+
 
 ### v3.19.1 - 2023-12-03
 
