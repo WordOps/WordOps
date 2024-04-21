@@ -253,8 +253,7 @@ class WOAcme:
             for dir in acmedir:
                 if os.path.exists('{0}'.format(dir)):
                     WOFileUtils.rm(self, '{0}'.format(dir))
-            # find all broken symlinks
-            WOFileUtils.findBrokenSymlink(self, "/var/www")
+
         else:
             if os.path.islink("{0}".format(sslconf)):
                 WOFileUtils.remove_symlink(self, "{0}".format(sslconf))

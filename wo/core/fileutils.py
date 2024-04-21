@@ -318,10 +318,9 @@ class WOFileUtils():
         """
         links = []
         broken = []
-        ignored_dirs = ['./.git', './htdocs']
 
         for root, dirs, files in os.walk(sympath):
-            if any(root.startswith(ignore_dir) for ignore_dir in ignored_dirs):
+            if root.startswith('./.git'):
                 # Ignore the .git directory.
                 continue
             for filename in files:
