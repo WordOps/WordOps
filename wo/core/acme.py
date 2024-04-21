@@ -9,6 +9,7 @@ from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec, CommandExecutionError
 from wo.core.variables import WOVar
 from wo.core.template import WOTemplate
+from wo.core.checkfqdn import WOFqdn
 
 
 class WOAcme:
@@ -181,10 +182,10 @@ class WOAcme:
 
     def check_dns(self, acme_domains):
         """Check if a list of domains point to the server IP"""
-        server_ip = requests.get('https://v4.wordops.eu/').text
+        server_ip = WOFqdn.get_server_ip(self)
         for domain in acme_domains:
-            domain_ip = requests.get('http://v4.wordops.eu/dns/{0}/'
-                                     .format(domain)).text
+            domain_ip = WOFqdn.get_domain_ip(self, domain)
+
             if (not domain_ip == server_ip):
                 Log.warn(
                     self, "{0}".format(domain) +

@@ -51,3 +51,14 @@ class WOFqdn:
         except requests.exceptions.RequestException as e:
             print("Error occurred during request:", e)
             return None
+
+    def get_domain_ip(self, wo_domain):
+        """Get the server externet IP"""
+        try:
+            y = requests.get('http://v4.wordops.eu/dns/{0}/'.format(wo_domain))
+            domain_ip = (y.text).strip()
+
+            return domain_ip
+        except requests.exceptions.RequestException as e:
+            print("Error occurred during request:", e)
+            return None
