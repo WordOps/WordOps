@@ -6,7 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.20.0 - [Unreleased]
+### v3.21.0 - [Unreleased]
+
+### v3.20.0 - 2024-04-21
+
+#### Added
+
+- Create subsite by @doofusdavid in [PR #598](https://github.com/WordOps/WordOps/pull/598)
+
+#### Fixed
+
+- Fix PHP{version}-FPM is not installed and fix support for php 8.3 by @gabrielgiordan in [PR #604](https://github.com/WordOps/WordOps/pull/604)
+- do not cache wishlist by @admarty in [PR #608](https://github.com/WordOps/WordOps/pull/608)
+- Update install by @michaelangelocobo in [PR #628](https://github.com/WordOps/WordOps/pull/628)
+- Fix WordOps server ip check in Nginx stack install
+- Fix WordOps create new site duration
+
 
 ### v3.19.1 - 2023-12-03
 
