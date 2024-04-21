@@ -1,5 +1,6 @@
 # NGINX Tweaks  - WordOps {{release}}
-	directio 4m;
+	# Enables the use of the O_DIRECT flag t can be useful for serving large files
+    directio 4m;
 	directio_alignment 512;
 	large_client_header_buffers 8 64k;
 
