@@ -22,6 +22,7 @@ from wo.core.template import WOTemplate
 from wo.core.variables import WOVar
 from wo.core.stackconf import WOConf
 from wo.core.download import WODownload
+from wo.core.checkfqdn import WOFqdn
 
 
 def pre_pref(self, apt_packages):
@@ -404,7 +405,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    "/var/www/22222/cert/22222.key;\n"
                                    "ssl_stapling off;\n")
 
-                server_ip = requests.get('http://v4.wordops.eu')
+                server_ip = WOFqdn.get_server_ip(self)
+                if server_ip is None:
+                    server_ip = "0.0.0.0"
 
                 if set(["nginx"]).issubset(set(apt_packages)):
                     print("WordOps backend configuration was successful\n"
