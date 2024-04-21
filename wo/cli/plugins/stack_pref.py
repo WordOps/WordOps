@@ -424,7 +424,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     self.msg = (self.msg + ["WordOps backend is available "
                                             "on https://{0}:22222 "
                                             "or https://{1}:22222"
-                                            .format(server_ip.text,
+                                            .format(server_ip,
                                                     WOVar.wo_fqdn)])
 
             data = dict(release=WOVar.wo_version)
