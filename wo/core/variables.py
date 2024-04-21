@@ -17,11 +17,11 @@ class WOVar():
     # WordOps version
     wo_version = "3.19.1"
     # WordOps packages versions
-    wo_wp_cli = "2.9.0"
+    wo_wp_cli = "2.10.0"
     wo_adminer = "4.8.1"
     wo_phpmyadmin = "5.2.0"
     wo_extplorer = "2.1.15"
-    wo_dashboard = "1.2"
+    wo_dashboard = "1.3"
 
     # Get WPCLI path
     wo_wpcli_path = '/usr/local/bin/wp'

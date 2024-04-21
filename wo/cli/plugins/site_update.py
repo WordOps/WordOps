@@ -66,7 +66,7 @@ class WOSiteUpdateController(CementBaseController):
                      action='store', nargs='?')),
             (['--subsiteof'],
                 dict(help="create a subsite of a multisite install",
-                    action='store', nargs='?')),
+                     action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -327,7 +327,7 @@ class WOSiteUpdateController(CementBaseController):
             data["wpce"] = parent_site_info.cache_type == 'wpce'
             data["wpredis"] = parent_site_info.cache_type == 'wpredis'
             data["wpsubdir"] = parent_site_info.site_type == 'wpsubdir'
-            data["wo_php"]  = ("php" + parent_site_info.php_version).replace(".", "")
+            data["wo_php"] = ("php" + parent_site_info.php_version).replace(".", "")
             data['subsite'] = True
             data['subsiteof_name'] = subsiteof_name
             data['subsiteof_webroot'] = parent_site_info.site_path
@@ -722,15 +722,20 @@ class WOSiteUpdateController(CementBaseController):
                                                'hsts.conf.disabled'
                                                .format(wo_site_webroot))
                         # find all broken symlinks
-                        sympath = "/var/www"
+                        sympath = (f'{wo_site_webroot}/conf')
                         WOFileUtils.findBrokenSymlink(self, sympath)
 
                 elif (pargs.letsencrypt == "clean" or
                       pargs.letsencrypt == "purge"):
                     WOAcme.removeconf(self, wo_domain)
                     # find all broken symlinks
-                    sympath = "/var/www"
-                    WOFileUtils.findBrokenSymlink(self, sympath)
+                    allsites = getAllsites(self)
+                    for site in allsites:
+                        if not site:
+                            pass
+                        sympath = "{0}/conf".format(site.site_path)
+                        WOFileUtils.findBrokenSymlink(self, sympath)
+
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")

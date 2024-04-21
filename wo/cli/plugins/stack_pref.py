@@ -22,6 +22,7 @@ from wo.core.template import WOTemplate
 from wo.core.variables import WOVar
 from wo.core.stackconf import WOConf
 from wo.core.download import WODownload
+from wo.core.checkfqdn import WOFqdn
 
 
 def pre_pref(self, apt_packages):
@@ -404,7 +405,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                    "/var/www/22222/cert/22222.key;\n"
                                    "ssl_stapling off;\n")
 
-                server_ip = requests.get('http://v4.wordops.eu')
+                server_ip = WOFqdn.get_server_ip(self)
+                if server_ip is None:
+                    server_ip = WOVar.wo_fqdn
 
                 if set(["nginx"]).issubset(set(apt_packages)):
                     print("WordOps backend configuration was successful\n"
@@ -418,11 +421,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                             "Name: WordOps"] +
                                 ["HTTP Auth Password : {0}"
                                  .format(passwd)])
-                    self.msg = (self.msg + ["WordOps backend is available "
-                                            "on https://{0}:22222 "
-                                            "or https://{1}:22222"
-                                            .format(server_ip.text,
-                                                    WOVar.wo_fqdn)])
+                    self.msg = (self.msg + [f'WordOps backend is available on https://{server_ip}:22222]) '
+                                            'or https://{WOVar.wo_fqdn}:22222'])
 
             data = dict(release=WOVar.wo_version)
             WOTemplate.deploy(self, '/opt/cf-update.sh',

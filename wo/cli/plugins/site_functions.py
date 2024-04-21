@@ -757,7 +757,7 @@ def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
 def setwebrootpermissions(self, webroot):
     Log.debug(self, "Setting up permissions")
     try:
-        WOFileUtils.findBrokenSymlink(self, '/var/www/')
+        WOFileUtils.findBrokenSymlink(self, f'{webroot}')
         WOFileUtils.chown(self, webroot, WOVar.wo_php_user,
                           WOVar.wo_php_user, recursive=True)
     except Exception as e:
