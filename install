@@ -140,7 +140,7 @@ wo_init_variables() {
     readonly wo_install_log=/var/log/wo/install.log
     readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
     TIME=$(date +"$TIME_FORMAT")
-    readonly "$TIME"
+    readonly TIME
     readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.zst"
     readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.zst"
     readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.zst"
