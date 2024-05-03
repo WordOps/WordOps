@@ -30,7 +30,7 @@ def pre_pref(self, apt_packages):
 
     if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
-        if not (WOVar.wo_distro == 'raspbian'):
+        if not (WOVar.wo_distro == 'raspbian') and not (WOVar.wo_platform_codename == 'noble'):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = (
                 "Package: *\nPin: origin mariadb.mirrors.ovh.net"
@@ -127,7 +127,7 @@ def pre_pref(self, apt_packages):
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
         if not WOFileUtils.grepcheck(
                 self, '/etc/apt/sources.list/wo-repo.list',
-                'redis.io'):
+                'redis.io') and not (WOVar.wo_platform_codename == 'noble'):
             Log.info(self, "Adding repository for Redis, please wait...")
             WORepo.add(self, repo_url=WOVar.wo_redis_repo)
             WORepo.download_key(self, WOVar.wo_redis_key_url)
