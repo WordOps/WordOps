@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.20.0 - 2024-04-21
+# Version 3.21.0 - 2024-05-03
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -139,7 +139,8 @@ wo_init_variables() {
     fi
     readonly wo_install_log=/var/log/wo/install.log
     readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
-    readonly TIME=$(date +"$TIME_FORMAT")
+    TIME=$(date +"$TIME_FORMAT")
+    readonly "$TIME"
     readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.zst"
     readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.zst"
     readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.zst"
@@ -167,9 +168,9 @@ wo_check_distro() {
             wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
-            check_wo_linux_distro=$(lsb_release -sc | grep -E "buster|focal|jammy|bullseye|bookworm")
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "buster|focal|jammy|bullseye|bookworm|noble")
             if [ -z "$check_wo_linux_distro" ]; then
-                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 20.04/22.04 LTS, Debian 10.x/11.x/12.x and Raspbian 10x./11.x \n
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 20.04/22.04/24.04 LTS, Debian 10.x/11.x/12.x and Raspbian 10x./11.x/12.x \n
                 You can bypass this warning by adding the flag --force to the install command"
                 exit 100
             fi
@@ -233,7 +234,7 @@ wo_install_dep() {
 
 wo_timesync() {
     # set default ntp pools
-    if [ "$wo_distro_codename" != "bookworm" ]; then
+    if [ "$wo_distro_codename" != "bookworm" ] && [ "$wo_distro_codename" != "noble" ]; then
         if [ -f /etc/systemd/timesyncd.conf ]; then
             if ! grep -q "time.cloudflare.com" /etc/systemd/timesyncd.conf; then
                 sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
@@ -739,7 +740,7 @@ wo_woconf() {
             echo -e '\n[letsencrypt]\n\nkeylength = "ec-384"' >>/etc/wo/wo.conf
         fi
         if ! grep -q "php" /etc/wo/wo.conf; then
-            echo -e '\n[php]\n\nversion = 8.0' >>/etc/wo/wo.conf
+            echo -e '\n[php]\n\nversion = 8.2' >>/etc/wo/wo.conf
         fi
     fi
 }

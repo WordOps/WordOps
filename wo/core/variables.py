@@ -198,7 +198,6 @@ class WOVar():
 
     wo_fail2ban = ["fail2ban"]
     wo_clamav = ["clamav", "clamav-freshclam"]
-    wo_ubuntu_backports = 'ppa:jonathonf/backports'
 
     # APT repositories
     wo_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
