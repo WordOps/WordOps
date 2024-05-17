@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.20.0 - 2024-04-21
+# Version 3.21.0 - 2024-05-03
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -139,7 +139,8 @@ wo_init_variables() {
     fi
     readonly wo_install_log=/var/log/wo/install.log
     readonly TIME_FORMAT='%d-%b-%Y-%H%M%S'
-    readonly TIME=$(date +"$TIME_FORMAT")
+    TIME=$(date +"$TIME_FORMAT")
+    readonly TIME
     readonly NGINX_BACKUP_FILE="/var/lib/wo-backup/nginx-backup.$TIME.tar.zst"
     readonly EE_BACKUP_FILE="/var/lib/wo-backup/ee-backup.$TIME.tar.zst"
     readonly WO_BACKUP_FILE="/var/lib/wo-backup/wo-backup.$TIME.tar.zst"
@@ -167,9 +168,9 @@ wo_check_distro() {
             wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
-            check_wo_linux_distro=$(lsb_release -sc | grep -E "buster|focal|jammy|bullseye|bookworm")
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "buster|focal|jammy|bullseye|bookworm|noble")
             if [ -z "$check_wo_linux_distro" ]; then
-                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 20.04/22.04 LTS, Debian 10.x/11.x/12.x and Raspbian 10x./11.x \n
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 20.04/22.04/24.04 LTS, Debian 10.x/11.x/12.x and Raspbian 10x./11.x/12.x \n
                 You can bypass this warning by adding the flag --force to the install command"
                 exit 100
             fi
@@ -233,7 +234,7 @@ wo_install_dep() {
 
 wo_timesync() {
     # set default ntp pools
-    if [ "$wo_distro_codename" != "bookworm" ]; then
+    if [ "$wo_distro_codename" != "bookworm" ] && [ "$wo_distro_codename" != "noble" ]; then
         if [ -f /etc/systemd/timesyncd.conf ]; then
             if ! grep -q "time.cloudflare.com" /etc/systemd/timesyncd.conf; then
                 sed -e 's/^#NTP=/NTP=time.cloudflare.com 0.ubuntu.pool.ntp.org 1.ubuntu.pool.ntp.org 2.ubuntu.pool.ntp.org 3.ubuntu.pool.ntp.org/' -i /etc/systemd/timesyncd.conf
@@ -439,52 +440,50 @@ wo_install() {
         cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
     fi
     if [ "$wo_distro_codename" != "bookworm" ]; then
-        python3 -m pip uninstall -yq wo wordops ee
+        /opt/wo/bin/pip uninstall -yq wo wordops ee
     fi
 
     cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
-        python3 -m pip uninstall setuptools -y
-        python3 -m pip install -I setuptools==57.5.0
-        python3 -m pip install -U pip wheel
-        python3 -m pip uninstall psutil -y
-        python3 -m pip uninstall SQLAlchemy -y
+        /opt/wo/bin/pip install -U setuptools
+        /opt/wo/bin/pip install -U pip wheel
+        /opt/wo/bin/pip uninstall psutil -y
+        /opt/wo/bin/pip uninstall SQLAlchemy -y
     else
         rm -rf /opt/wo
         python3 -m venv /opt/wo
         source /opt/wo/bin/activate
-        python3 -m pip uninstall setuptools -y
-        python3 -m pip install -I setuptools==57.5.0
-        python3 -m pip install -U pip wheel
-        python3 -m pip install -U distro
+        /opt/wo/bin/pip install -U setuptools
+        /opt/wo/bin/pip install -U pip wheel
+        /opt/wo/bin/pip install -U distro
         if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
             if [ "$wo_distro_codename" = "stretch" ]; then
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
             elif [ "$wo_distro_codename" = "bullseye" ]; then
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
             elif [ "$wo_distro_codename" = "bookworm" ]; then
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.5.3#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.5.3#egg=python-apt
             else
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
             fi
         else
             if [ "$wo_distro_codename" = "focal" ]; then
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
             elif [ "$wo_distro_codename" = "bionic" ]; then
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
             elif [ "$wo_distro_codename" = "jammy" ]; then
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
             else
-                python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.y-xenial#egg=python-apt
+                /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.8.y#egg=python-apt
             fi
         fi
     fi
 
     if [ "$wo_branch" = "master" ]; then
-        python3 -m pip install -U wordops
+        /opt/wo/bin/pip install -U wordops
     else
-        python3 -m pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        /opt/wo/bin/pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     local python_venv
     python_venv=$(python3 -c "import sys; print(sys.version_info[1])")
@@ -513,43 +512,41 @@ wo_travis_install() {
     if [ -f ./setup.py ]; then
         if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
             source /opt/wo/bin/activate
-            python3 -m pip uninstall setuptools -y
-            python3 -m pip install -I setuptools==57.5.0
-            python3 -m pip install -U pip wheel
-            python3 -m pip uninstall psutil -y
-            python3 -m pip uninstall SQLAlchemy -y
+            /opt/wo/bin/pip install -U setuptool
+            /opt/wo/bin/pip install -U pip wheel
+            /opt/wo/bin/pip uninstall psutil -y
+            /opt/wo/bin/pip uninstall SQLAlchemy -y
         else
             rm -rf /opt/wo
             python3 -m venv /opt/wo
             source /opt/wo/bin/activate
-            python3 -m pip uninstall setuptools -y
-            python3 -m pip install -I setuptools==57.5.0
-            python3 -m pip install -U pip wheel
+            /opt/wo/bin/pip install -U setuptools
+            /opt/wo/bin/pip install -U pip wheel
             if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
                 if [ "$wo_distro_codename" = "stretch" ]; then
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.4.y#egg=python-apt
                 elif [ "$wo_distro_codename" = "bullseye" ]; then
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
                 elif [ "$wo_distro_codename" = "bookworm" ]; then
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.5.3#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.5.3#egg=python-apt
                 else
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
                 fi
             else
                 if [ "$wo_distro_codename" = "focal" ]; then
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
                 elif [ "$wo_distro_codename" = "bionic" ]; then
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
                 elif [ "$wo_distro_codename" = "jammy" ]; then
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.2.1#egg=python-apt
                 else
-                    python3 -m pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.1.y-xenial#egg=python-apt
+                    /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.8.y#egg=python-apt
                 fi
             fi
         fi
-        python3 -m pip install -U .
+        /opt/wo/bin/pip install -U .
     else
-        python3 -m pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        /opt/wo/bin/pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
     fi
     cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
     cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
@@ -706,8 +703,8 @@ wo_clean() {
 wo_uninstall() {
     local python_ver
     python_ver=$(python3 -c "import sys; print(sys.version_info[1])")
-    if { python3 -m pip list | grep -q "wordops" >/dev/null 2>&1; }; then
-        python3 -m pip uninstall wordops -y
+    if { /opt/wo/bin/pip list | grep -q "wordops" >/dev/null 2>&1; }; then
+        /opt/wo/bin/pip uninstall wordops -y
     fi
     rm -rf /usr/local/lib/python3."$python_ver"/dist-packages/{pystache-*,cement-2.*,wo-*,wordops-*} /usr/local/bin/wo /etc/bash_completion.d/wo_auto.rc /var/lib/wo /etc/wo /usr/lib/wo/templates /opt/wo
 }
@@ -739,7 +736,7 @@ wo_woconf() {
             echo -e '\n[letsencrypt]\n\nkeylength = "ec-384"' >>/etc/wo/wo.conf
         fi
         if ! grep -q "php" /etc/wo/wo.conf; then
-            echo -e '\n[php]\n\nversion = 8.0' >>/etc/wo/wo.conf
+            echo -e '\n[php]\n\nversion = 8.2' >>/etc/wo/wo.conf
         fi
     fi
 }

@@ -30,7 +30,7 @@ def pre_pref(self, apt_packages):
 
     if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
-        if not (WOVar.wo_distro == 'raspbian'):
+        if not (WOVar.wo_distro == 'raspbian') and not (WOVar.wo_platform_codename == 'noble'):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = (
                 "Package: *\nPin: origin mariadb.mirrors.ovh.net"
@@ -71,11 +71,8 @@ def pre_pref(self, apt_packages):
         Log.debug(self, 'Writting configuration into MySQL file')
         conf_path = "/etc/mysql/conf.d/my.cnf.tmp"
         os.makedirs(os.path.dirname(conf_path), exist_ok=True)
-        with open(conf_path, encoding='utf-8',
-                  mode='w') as configfile:
+        with os.fdopen(os.open(conf_path, os.O_WRONLY | os.O_CREAT, 0o600), 'w', encoding='utf-8') as configfile:
             config.write(configfile)
-        Log.debug(self, 'Setting my.cnf permission')
-        WOFileUtils.chmod(self, "/etc/mysql/conf.d/my.cnf.tmp", 0o600)
 
     # add nginx repository
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
@@ -127,7 +124,7 @@ def pre_pref(self, apt_packages):
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
         if not WOFileUtils.grepcheck(
                 self, '/etc/apt/sources.list/wo-repo.list',
-                'redis.io'):
+                'redis.io') and not (WOVar.wo_platform_codename == 'noble'):
             Log.info(self, "Adding repository for Redis, please wait...")
             WORepo.add(self, repo_url=WOVar.wo_redis_repo)
             WORepo.download_key(self, WOVar.wo_redis_key_url)
