@@ -3,6 +3,7 @@ import os
 import random
 import shutil
 import string
+import stat
 
 import psutil
 import requests
@@ -71,11 +72,8 @@ def pre_pref(self, apt_packages):
         Log.debug(self, 'Writting configuration into MySQL file')
         conf_path = "/etc/mysql/conf.d/my.cnf.tmp"
         os.makedirs(os.path.dirname(conf_path), exist_ok=True)
-        with open(conf_path, encoding='utf-8',
-                  mode='w') as configfile:
+        with os.fdopen(os.open(conf_path, os.O_WRONLY | os.O_CREAT, 0o600), 'w', encoding='utf-8') as configfile:
             config.write(configfile)
-        Log.debug(self, 'Setting my.cnf permission')
-        WOFileUtils.chmod(self, "/etc/mysql/conf.d/my.cnf.tmp", 0o600)
 
     # add nginx repository
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
