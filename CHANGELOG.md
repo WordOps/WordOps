@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.21.0 - [Unreleased]
 
+#### Added
+
+- Ubuntu 24.04 LTS support
+- New Nginx package with HTTP/3 QUIC support
+
+
+#### Security
+
+- Fix [CVE-2024-34528](https://github.com/advisories/GHSA-23qq-p4gq-gc2g)
+
 ### v3.20.0 - 2024-04-21
 
 #### Added
