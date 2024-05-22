@@ -1,10 +1,10 @@
 # Use a custom port in the following range : 1024-65536
 Port {{sshport}}
 
-#Prefer ed25519 & ECDSA keys rather than 2048 bit RSA
+# Supported HostKey algorithms by order of preference.
+HostKey /etc/ssh/ssh_host_ed25519_key
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_ecdsa_key
-HostKey /etc/ssh/ssh_host_ed25519_key
 
 # Allow root access with ssh keys
 PermitRootLogin without-password
