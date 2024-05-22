@@ -440,14 +440,14 @@ wo_install() {
         cd /usr/local/lib/python3."$python_ver"/dist-packages || exit 1
     fi
     if [ "$wo_distro_codename" != "bookworm" ]; then
-        /opt/wo/bin/pip uninstall -yq wo wordops ee
+        pip uninstall -yq wo wordops ee
     fi
 
     cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
         /opt/wo/bin/pip install -U setuptools
-        /opt/wo/bin/pip install -U pip wheel
+        /opt/wo/bin/pip install -U pip wheel distro
         /opt/wo/bin/pip uninstall psutil -y
         /opt/wo/bin/pip uninstall SQLAlchemy -y
     else
@@ -481,9 +481,9 @@ wo_install() {
     fi
 
     if [ "$wo_branch" = "master" ]; then
-        /opt/wo/bin/pip install -U wordops
+        /opt/wo/bin/pip install -U wordops --upgrade-strategy=eager
     else
-        /opt/wo/bin/pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        /opt/wo/bin/pip install -I "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops" --upgrade-strategy=eager
     fi
     local python_venv
     python_venv=$(python3 -c "import sys; print(sys.version_info[1])")
@@ -544,9 +544,9 @@ wo_travis_install() {
                 fi
             fi
         fi
-        /opt/wo/bin/pip install -U .
+        /opt/wo/bin/pip install -U . --upgrade-strategy=eager
     else
-        /opt/wo/bin/pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops"
+        /opt/wo/bin/pip install -U "git+https://github.com/WordOps/WordOps.git@$wo_branch#egg=wordops" --upgrade-strategy=eager
     fi
     cp -rf /opt/wo/lib/python3."$python_ver"/site-packages/usr/* /usr/
     cp -rn /opt/wo/lib/python3."$python_ver"/site-packages/etc/* /etc/
