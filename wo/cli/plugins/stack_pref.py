@@ -5,7 +5,6 @@ import shutil
 import string
 
 import psutil
-import requests
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
