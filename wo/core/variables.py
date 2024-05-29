@@ -124,23 +124,19 @@ class WOVar():
             "/WordOps/xUbuntu_{0}/ /".format(wo_platform_version))
     else:
         if wo_distro == 'debian':
-            if wo_platform_codename == 'jessie':
-                wo_deb_repo = "Debian_8.0"
-            elif wo_platform_codename == 'stretch':
-                wo_deb_repo = "Debian_9.0"
-            elif wo_platform_codename == 'buster':
+            if wo_platform_codename == 'buster':
                 wo_deb_repo = "Debian_10"
             elif wo_platform_codename == 'bullseye':
                 wo_deb_repo = "Debian_11"
             elif wo_platform_codename == 'bookworm':
                 wo_deb_repo = "Debian_12"
         elif wo_distro == 'raspbian':
-            if wo_platform_codename == 'stretch':
-                wo_deb_repo = "Raspbian_9.0"
-            elif wo_platform_codename == 'buster':
+            if wo_platform_codename == 'buster':
                 wo_deb_repo = "Raspbian_10"
             elif wo_platform_codename == 'bullseye':
                 wo_deb_repo = "Raspbian_11"
+            elif wo_platform_codename == 'bookworm':
+                wo_deb_repo = "Raspbian_12"
         # debian/raspbian nginx repository
         wo_nginx_repo = ("deb http://download.opensuse.org"
                          "/repositories/home:"
@@ -151,8 +147,6 @@ class WOVar():
     wo_nginx_key = 'FB898660'
 
     wo_php_versions = {
-        'php72': '7.2',
-        'php73': '7.3',
         'php74': '7.4',
         'php80': '8.0',
         'php81': '8.1',
@@ -167,16 +161,12 @@ class WOVar():
                      "xml", "zip"]
         php_modules = ["php{0}-{1}".format(version_number, module) for module in wo_module]
 
-        if version_prefix == 'php72' or version_prefix == 'php73':
-            php_modules.append("php{0}-recode".format(version_number))
-        elif version_prefix == 'php74':
+        if version_prefix == 'php74':
             php_modules.extend(["php{0}-geoip".format(version_number),
                                 "php{0}-json".format(version_number)])
 
         return php_modules
 
-    wo_php72 = generate_php_modules('php72', '7.2')
-    wo_php73 = generate_php_modules('php73', '7.3')
     wo_php74 = generate_php_modules('php74', '7.4')
     wo_php80 = generate_php_modules('php80', '8.0')
     wo_php81 = generate_php_modules('php81', '8.1')
