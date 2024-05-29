@@ -903,6 +903,7 @@ else
     echo
     wo_lib_echo "WordOps Documentation : https://docs.wordops.net"
     wo_lib_echo "WordOps Community Forum : https://community.wordops.net"
+    wo_lib_echo "WordOps Community Chat : https://chat.wordops.net"
     echo
     wo_lib_echo "Give WordOps a GitHub star : https://github.com/WordOps/WordOps/"
     echo

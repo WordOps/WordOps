@@ -1,6 +1,8 @@
 import csv
 import os
 
+import requests
+
 from wo.core.fileutils import WOFileUtils
 from wo.core.git import WOGit
 from wo.core.logging import Log
@@ -53,9 +55,10 @@ class WOAcme:
         WOAcme.check_acme(self)
         acme_list = WOShellExec.cmd_exec_stdout(
             self, "{0} ".format(WOAcme.wo_acme_exec) +
-            "--list --listraw", log=False)
+            "--list --listraw")
         if acme_list:
-            WOFileUtils.textwrite(self, '/var/lib/wo/cert.csv', acme_list, perm="0o600")
+            WOFileUtils.textwrite(self, '/var/lib/wo/cert.csv', acme_list)
+            WOFileUtils.chmod(self, '/var/lib/wo/cert.csv', 0o600)
         else:
             Log.error(self, "Unable to export certs list")
 
@@ -91,7 +94,7 @@ class WOAcme:
         if not WOShellExec.cmd_exec(
                 self, "{0} ".format(WOAcme.wo_acme_exec) +
                 "--issue -d '{0}' {1} -k {2} -f"
-                .format(all_domains, acme_mode, keylenght), log=False):
+                .format(all_domains, acme_mode, keylenght)):
             Log.failed(self, "Issuing SSL cert with acme.sh")
             if acmedata['dns'] is True:
                 Log.error(
@@ -171,7 +174,7 @@ class WOAcme:
         try:
             WOShellExec.cmd_exec(
                 self, "{0} ".format(WOAcme.wo_acme_exec) +
-                "--renew -d {0} --ecc --force".format(domain), log=False)
+                "--renew -d {0} --ecc --force".format(domain))
         except CommandExecutionError as e:
             Log.debug(self, str(e))
             Log.error(self, 'Unable to renew certificate')
