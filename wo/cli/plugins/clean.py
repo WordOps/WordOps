@@ -89,7 +89,7 @@ class WOCleanController(CementBaseController):
                 Log.debug(self, "{0}".format(e))
                 Log.debug(self, "Unable hit url, "
                           " http://127.0.0.1/cache/opcache/"
-                          "php72.php,"
+                          "phpXX.php,"
                           " please check you have admin tools installed")
                 Log.debug(self, "please check you have admin tools installed,"
                           " or install them with `wo stack install --admin`")

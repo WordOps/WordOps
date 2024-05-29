@@ -66,7 +66,7 @@ class WOSiteCreateController(CementBaseController):
                      action='store', nargs='?')),
             (['--subsiteof'],
                 dict(help="create a subsite of a multisite install",
-                    action='store', nargs='?')),
+                     action='store', nargs='?')),
             (['-le', '--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
@@ -219,14 +219,13 @@ class WOSiteCreateController(CementBaseController):
             data["wpce"] = parent_site_info.cache_type == 'wpce'
             data["wpredis"] = parent_site_info.cache_type == 'wpredis'
             data["wpsubdir"] = parent_site_info.site_type == 'wpsubdir'
-            data["wo_php"]  = ("php" + parent_site_info.php_version).replace(".", "")
+            data["wo_php"] = ("php" + parent_site_info.php_version).replace(".", "")
             data['subsite'] = True
             data['subsiteof_name'] = subsiteof_name
             data['subsiteof_webroot'] = parent_site_info.site_path
 
-
-        if (pargs.php72 or pargs.php73 or pargs.php74 or
-                pargs.php80 or pargs.php81 or pargs.php82 or pargs.php83):
+        if (pargs.php74 or pargs.php80 or pargs.php81 or
+                pargs.php82 or pargs.php83):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=False,
@@ -296,7 +295,7 @@ class WOSiteCreateController(CementBaseController):
             (not pargs.wprocket) and
             (not pargs.wpce) and
             (not pargs.wpredis) and
-            (not pargs.subsiteof)):
+                (not pargs.subsiteof)):
             data['basic'] = True
 
         if (cache == 'wpredis'):

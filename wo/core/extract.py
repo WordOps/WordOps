@@ -18,5 +18,5 @@ class WOExtract():
             return True
         except tarfile.TarError as e:
             Log.debug(self, "{0}".format(e))
-            Log.error(self, 'Unable to extract file \{0}'.format(file))
+            Log.error(self, 'Unable to extract file {0}'.format(file))
             return False

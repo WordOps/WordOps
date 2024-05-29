@@ -101,8 +101,6 @@ class WOStackUpgradeController(CementBaseController):
 
         if pargs.web:
             pargs.nginx = True
-            pargs.php72 = True
-            pargs.php73 = True
             pargs.php74 = True
             pargs.php80 = True
             pargs.php81 = True
@@ -136,8 +134,6 @@ class WOStackUpgradeController(CementBaseController):
                     Log.info(self, "Nginx Stable is not already installed")
 
         wo_vars = {
-            'php72': WOVar.wo_php72,
-            'php73': WOVar.wo_php73,
             'php74': WOVar.wo_php74,
             'php80': WOVar.wo_php80,
             'php81': WOVar.wo_php81,
