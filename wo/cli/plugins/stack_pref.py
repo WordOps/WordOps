@@ -5,7 +5,6 @@ import shutil
 import string
 
 import psutil
-import requests
 from wo.core.apt_repo import WORepo
 from wo.core.aptget import WOAptGet
 from wo.core.cron import WOCron
@@ -419,7 +418,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                 ["HTTP Auth Password : {0}"
                                  .format(passwd)])
                     self.msg = (self.msg + [f'WordOps backend is available on https://{server_ip}:22222]) '
-                                            'or https://{WOVar.wo_fqdn}:22222'])
+                                            f'or https://{WOVar.wo_fqdn}:22222'])
 
             data = dict(release=WOVar.wo_version)
             WOTemplate.deploy(self, '/opt/cf-update.sh',
@@ -646,7 +645,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                              .format(php_version[0])):
                 WOGit.rollback(self, ["/etc/php"], msg="Rollback PHP")
             else:
-                Log.valide(self, "Configuring php{0}-fpm".format(php_version[0]))
+                Log.valide(
+                    self, "Configuring php{0}-fpm".format(php_version[0]))
                 WOGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
 
             if os.path.exists('/etc/nginx/conf.d/upstream.conf'):
