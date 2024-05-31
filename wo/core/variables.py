@@ -17,13 +17,13 @@ class WOVar():
     # WordOps version
     wo_version = "3.21.0"
     # WordOps packages versions
-    wo_wp_cli = "2.10.0"
     wo_adminer = "4.8.1"
     wo_phpmyadmin = "5.2.0"
     wo_extplorer = "2.1.15"
     wo_dashboard = "1.3"
 
     # Get WPCLI path
+    wpcli_url = "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
     wo_wpcli_path = '/usr/local/bin/wp'
 
     # Current date and time of System
@@ -210,6 +210,8 @@ class WOVar():
                      .format(codename=wo_platform_codename))
 
     wo_redis = ['redis-server']
+
+    netdata_script_url = "https://get.netdata.cloud/kickstart.sh"
 
     # Repo path
     wo_repo_file = "wo-repo.list"

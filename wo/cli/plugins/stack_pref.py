@@ -1152,25 +1152,18 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             Log.wait(self, "Installing Netdata")
             WOShellExec.cmd_exec(
                 self, "bash /var/lib/wo/tmp/kickstart.sh "
-                "--dont-wait --no-updates --stable-channel "
-                "--reinstall-even-if-unsafe",
+                "--dont-wait --stable-channel",
                 errormsg='', log=False)
             Log.valide(self, "Installing Netdata")
 
             # disable mail notifications
-            if os.path.isdir('/usr/lib/netdata/conf.d/health_alarm_notify.conf'):
+            if os.path.exists('/usr/lib/netdata/conf.d/health_alarm_notify.conf'):
                 WOFileUtils.searchreplace(
                     self, "/usr/lib/netdata/conf.d/health_alarm_notify.conf",
                     'SEND_EMAIL="YES"',
                     'SEND_EMAIL="NO"')
 
-            if os.path.isdir('/opt/netdata/etc/netdata/health_alarm_notify.conf'):
-                WOFileUtils.searchreplace(
-                    self, "/opt/netdata/etc/netdata/health_alarm_notify.conf",
-                    'SEND_EMAIL="YES"',
-                    'SEND_EMAIL="NO"')
-
-            if os.path.isdir('/etc/netdata/orig/health_alarm_notify.conf'):
+            if os.path.exists('/etc/netdata/orig/health_alarm_notify.conf'):
                 WOFileUtils.searchreplace(
                     self, "/etc/netdata/orig/health_alarm_notify.conf",
                     'SEND_EMAIL="YES"',

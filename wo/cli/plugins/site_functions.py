@@ -910,10 +910,7 @@ def site_package_check(self, stype):
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting packages variable for WP-CLI")
         if not WOAptGet.is_exec(self, "wp"):
-            packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                    "releases/download/v{0}/"
-                                    "wp-cli-{0}.phar"
-                                    .format(WOVar.wo_wp_cli),
+            packages = packages + [[f"{WOVar.wpcli_url}",
                                     "/usr/local/bin/wp", "WP-CLI"]]
     if pargs.wpredis:
         Log.debug(self, "Setting apt_packages variable for redis")
