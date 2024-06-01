@@ -286,6 +286,7 @@ class WOStackController(CementBaseController):
             # brotli
             if pargs.brotli:
                 Log.wait(self, "Enabling Brotli")
+                WOGit.add(self, ["/etc/nginx"], msg="Commiting pending changes")
                 if os.path.exists('/etc/nginx/conf.d/brotli.conf.disabled'):
                     WOFileUtils.mvfile(self, '/etc/nginx/conf.d/brotli.conf.disabled',
                                        '/etc/nginx/conf.d/brotli.conf')
@@ -297,11 +298,11 @@ class WOStackController(CementBaseController):
                                        '/etc/nginx/conf.d/gzip.conf.disabled')
                 if check_config(self):
                     Log.valide(self, "Enabling Brotli")
-                    WOGit.add(self, "/etc/nginx")
+                    WOGit.add(self, ["/etc/nginx"], msg="Enabling Brotli")
                     WOService.reload_service(self, "nginx")
                 else:
                     Log.failed(self, "Enabling Brotli")
-                    WOGit.rollback(self, '/etc/nginx')
+                    WOGit.rollback(self, ["/etc/nginx"])
 
             # PHPMYADMIN
             if pargs.phpmyadmin:
@@ -684,6 +685,7 @@ class WOStackController(CementBaseController):
         # brotli
         if pargs.brotli:
             Log.wait(self, "Disabling Brotli")
+            WOGit.add(self, ["/etc/nginx"], msg="Commiting pending changes")
             if os.path.exists('/etc/nginx/conf.d/brotli.conf'):
                 WOFileUtils.mvfile(self, '/etc/nginx/conf.d/brotli.conf',
                                    '/etc/nginx/conf.d/brotli.conf.disabled')
@@ -695,11 +697,11 @@ class WOStackController(CementBaseController):
                                    '/etc/nginx/conf.d/gzip.conf')
             if check_config(self):
                 Log.valide(self, "Disabling Brotli")
-                WOGit.add(self, "/etc/nginx")
+                WOGit.add(self, ["/etc/nginx"], msg="Disabling Brotli")
                 WOService.reload_service(self, "nginx")
             else:
                 Log.failed(self, "Disabling Brotli")
-                WOGit.rollback(self, '/etc/nginx')
+                WOGit.rollback(self, ["/etc/nginx"])
 
         # UFW
         if pargs.ufw:
