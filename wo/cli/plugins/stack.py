@@ -223,10 +223,7 @@ class WOStackController(CementBaseController):
             if pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
                 if not WOAptGet.is_exec(self, 'wp'):
-                    packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                            "releases/download/v{0}/"
-                                            "wp-cli-{0}.phar"
-                                            "".format(WOVar.wo_wp_cli),
+                    packages = packages + [[f"{WOVar.wpcli_url}"
                                             "/usr/local/bin/wp",
                                             "WP-CLI"]]
                 else:
@@ -371,8 +368,7 @@ class WOStackController(CementBaseController):
                         os.path.isdir("/etc/netdata")):
                     Log.debug(
                         self, "Setting packages variable for Netdata")
-                    packages = packages + [['https://my-netdata.io/'
-                                            'kickstart.sh',
+                    packages = packages + [[f"{WOVar.netdata_script_url}",
                                             '/var/lib/wo/tmp/kickstart.sh',
                                             'Netdata']]
                 else:

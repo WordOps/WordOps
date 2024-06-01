@@ -168,12 +168,9 @@ class WOStackUpgradeController(CementBaseController):
         # wp-cli
         if pargs.wpcli:
             if os.path.isfile('/usr/local/bin/wp'):
-                packages = packages + [[
-                    "https://github.com/wp-cli/wp-cli/"
-                    "releases/download/v{0}/"
-                    "wp-cli-{0}.phar".format(WOVar.wo_wp_cli),
-                    "/usr/local/bin/wp",
-                    "WP-CLI"]]
+                packages = packages + [[f"{WOVar.wpcli_url}",
+                                        "/usr/local/bin/wp",
+                                        "WP-CLI"]]
             else:
                 Log.info(self, "WPCLI is not installed with WordOps")
 
@@ -183,7 +180,7 @@ class WOStackUpgradeController(CementBaseController):
             if (os.path.isdir('/opt/netdata') or
                     os.path.isdir('/etc/netdata')):
                 packages = packages + [[
-                    'https://my-netdata.io/kickstart.sh',
+                    f"{WOVar.netdata_script_url}",
                     '/var/lib/wo/tmp/kickstart.sh', 'Netdata']]
             else:
                 Log.info(self, 'Netdata is not installed')
@@ -356,6 +353,11 @@ class WOStackUpgradeController(CementBaseController):
                 # Netdata
                 if WOAptGet.is_selected(self, 'Netdata', packages):
                     WOService.stop_service(self, 'netdata')
+                    if os.path.exists('/opt/netdata/usr/libexec/netdata/netdata-uninstaller.sh'):
+                        WOShellExec.cmd_exec(self,
+                                             "/opt/netdata/usr/libexec/"
+                                             "netdata/netdata-uninstaller.sh --yes --force",
+                                             log=False)
                     Log.wait(self, "Upgrading Netdata")
                     # detect static binaries install
                     WOShellExec.cmd_exec(
