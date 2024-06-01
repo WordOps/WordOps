@@ -417,7 +417,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                             "Name: WordOps"] +
                                 ["HTTP Auth Password : {0}"
                                  .format(passwd)])
-                    self.msg = (self.msg + [f'WordOps backend is available on https://{server_ip}:22222]) '
+                    self.msg = (self.msg + [f'WordOps backend is available on https://{server_ip}:22222 '
                                             f'or https://{WOVar.wo_fqdn}:22222'])
 
             data = dict(release=WOVar.wo_version)

@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.21.0 - 2024-05-03
+# Version 3.21.0 - 2024-06-01
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -213,7 +213,6 @@ wo_install_dep() {
             build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
             python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
-        curl -fsSL https://build.opensuse.org/projects/home:virtubox/public_key | gpg --dearmor -o /usr/share/keyrings/wordops-archive-keyring.gpg
     else
         # install dependencies
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
@@ -223,8 +222,7 @@ wo_install_dep() {
         # add php repository gpg key
         curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
         dpkg -i /tmp/debsuryorg-archive-keyring.deb && rm -f /tmp/debsuryorg-archive-keyring.deb
-        # add nginx repository gpg key
-        curl -fsSL https://build.opensuse.org/projects/home:virtubox/public_key | gpg --dearmor -o /usr/share/keyrings/wordops-archive-keyring.gpg
+        sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
     fi
     locale-gen en
     # enable unattended upgades
