@@ -146,8 +146,7 @@ class SSL:
                     self, "Adding /var/www/{0}/conf/nginx/hsts.conf"
                     .format(wo_domain_name))
 
-                hstsconf = open("/var/www/{0}/conf/nginx/hsts.conf"
-                                .format(wo_domain_name),
+                hstsconf = open(f"/var/www/{wo_domain_name}/conf/nginx/hsts.conf",
                                 encoding='utf-8', mode='w')
                 hstsconf.write("more_set_headers "
                                "\"Strict-Transport-Security: "
@@ -177,13 +176,11 @@ class SSL:
         try:
             WOShellExec.cmd_exec(
                 self, "openssl genrsa -out "
-                "{0}/ssl.key 2048"
-                .format(selfs_tmp))
+                f"{selfs_tmp}/ssl.key 2048")
             WOShellExec.cmd_exec(
                 self, "openssl req -new -batch  "
                 "-subj /commonName=localhost/ "
-                "-key {0}/ssl.key -out {0}/ssl.csr"
-                .format(selfs_tmp))
+                f"-key {selfs_tmp}/ssl.key -out {selfs_tmp}/ssl.csr")
 
             WOFileUtils.mvfile(
                 self, "{0}/ssl.key"
