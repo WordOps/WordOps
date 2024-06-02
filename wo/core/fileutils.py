@@ -370,7 +370,7 @@ class WOFileUtils():
 
     def enabledisable(self, path, enable=True):
         """Switch conf from .conf.disabled to .conf or vice-versa"""
-        if enable:
+        if enable is True:
             Log.debug(self, "Check if disabled file exist")
             if os.path.exists('{0}.disabled'.format(path)):
                 Log.debug(self, "Moving .disabled file")

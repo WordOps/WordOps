@@ -136,7 +136,7 @@ class SSL:
 
     def setuphsts(self, wo_domain_name, enable=True):
         """Enable or disable htsts for a site"""
-        if enable:
+        if enable is True:
             if WOFileUtils.enabledisable(
                 self, '/var/www/{0}/conf/nginx/hsts.conf'
             ):
