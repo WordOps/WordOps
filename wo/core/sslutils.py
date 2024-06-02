@@ -138,7 +138,7 @@ class SSL:
         """Enable or disable htsts for a site"""
         if enable is True:
             if WOFileUtils.enabledisable(
-                self, '/var/www/{0}/conf/nginx/hsts.conf'
+                self, f'/var/www/{wo_domain_name}/conf/nginx/hsts.conf'
             ):
                 return 0
             else:
@@ -158,7 +158,7 @@ class SSL:
                 return 0
         else:
             if WOFileUtils.enabledisable(
-                self, '/var/www/{0}/conf/nginx/hsts.conf',
+                self, f'/var/www/{wo_domain_name}/conf/nginx/hsts.conf',
                 enable=False
             ):
                 Log.info(self, "HSTS disabled")
