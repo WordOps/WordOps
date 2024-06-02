@@ -222,8 +222,9 @@ class WOSiteUpdateController(CementBaseController):
                     Log.error(
                         self, "service nginx reload failed. "
                         "check issues with `nginx -t` command")
-
-            # setup ngxblocker
+                else:
+                    return 0
+                    # setup ngxblocker
             if (pargs.ngxblocker):
                 if pargs.ngxblocker == "on":
                     if os.path.isdir('/etc/nginx/bots.d'):
@@ -245,6 +246,8 @@ class WOSiteUpdateController(CementBaseController):
                 if not WOService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")
+                else:
+                    return 0
 
             # letsencryot rebew
             if (pargs.letsencrypt == 'renew'):
