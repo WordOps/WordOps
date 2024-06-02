@@ -532,12 +532,6 @@ class WOSiteUpdateController(CementBaseController):
                 Log.debug(self, f"check_php_versions set to {version}")
                 break
 
-        if pargs.hsts:
-            data['hsts'] = bool(pargs.hsts == "on")
-
-        if pargs.ngxblocker:
-            ngxblocker = bool(pargs.ngxblocker == 'on')
-
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
                       .format(wo_domain))
@@ -749,53 +743,6 @@ class WOSiteUpdateController(CementBaseController):
                       .format(wo_domain))
             updateSiteInfo(self, wo_domain, ssl=letsencrypt)
             return 0
-
-        if pargs.hsts:
-            if data['hsts'] is True:
-                if os.path.isfile(("{0}/conf/nginx/ssl.conf")
-                                  .format(wo_site_webroot)):
-                    if not os.path.isfile("{0}/conf/nginx/hsts.conf"
-                                          .format(wo_site_webroot)):
-                        SSL.setuphsts(self, wo_domain)
-                    else:
-                        Log.error(self, "HSTS is already configured for given "
-                                        "site")
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                else:
-                    Log.error(self, "HTTPS is not configured for given "
-                              "site")
-
-            elif data['hsts'] is False:
-                if os.path.isfile(("{0}/conf/nginx/hsts.conf")
-                                  .format(wo_site_webroot)):
-                    WOFileUtils.mvfile(self, "{0}/conf/nginx/hsts.conf"
-                                       .format(wo_site_webroot),
-                                       '{0}/conf/nginx/hsts.conf.disabled'
-                                       .format(wo_site_webroot))
-                    if not WOService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                                  "check issues with `nginx -t` command")
-                else:
-                    Log.error(self, "HSTS is not configured for given "
-                              "site")
-        if pargs.ngxblocker:
-            if ngxblocker is True:
-                setupngxblocker(self, wo_domain)
-            elif ngxblocker is False:
-                if os.path.isfile("{0}/conf/nginx/ngxblocker.conf"
-                                  .format(wo_site_webroot)):
-                    WOFileUtils.mvfile(
-                        self,
-                        "{0}/conf/nginx/ngxblocker.conf"
-                        .format(wo_site_webroot),
-                        "{0}/conf/nginx/ngxblocker.conf.disabled"
-                        .format(wo_site_webroot))
-            # Service Nginx Reload
-            if not WOService.reload_service(self, 'nginx'):
-                Log.error(self, "service nginx reload failed. "
-                          "check issues with `nginx -t` command")
 
         if stype == oldsitetype and cache == oldcachetype:
 
