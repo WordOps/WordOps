@@ -29,7 +29,7 @@ def pre_pref(self, apt_packages):
 
     if ("mariadb-server" in apt_packages or "mariadb-client" in apt_packages):
         # add mariadb repository excepted on raspbian and ubuntu 19.04
-        if not (WOVar.wo_distro == 'raspbian') and not (WOVar.wo_platform_codename == 'noble'):
+        if not (WOVar.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = (
                 "Package: *\nPin: origin mariadb.mirrors.ovh.net"
@@ -40,12 +40,9 @@ def pre_pref(self, apt_packages):
             if self.app.config.has_section('mariadb'):
                 mariadb_ver = self.app.config.get(
                     'mariadb', 'release')
-                wo_mysql_repo_conf = ("deb [arch=amd64,arm64,ppc64el] "
+                wo_mysql_repo_conf = ("deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] "
                                       "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                                      "{version}/{distro} {codename} main"
-                                      .format(version=mariadb_ver,
-                                              distro=WOVar.wo_distro,
-                                              codename=WOVar.wo_platform_codename))
+                                      f"{mariadb_ver}/{WOVar.wo_distro} {WOVar.wo_platform_codename} main")
             else:
                 wo_mysql_repo_conf = WOVar.wo_mysql_repo
             # APT repositories

@@ -231,6 +231,16 @@ wo_install_dep() {
     fi
 }
 
+wo_download_gpg_keys() {
+    # redis gpg key
+    curl -fsSL https://packages.redis.io/gpg | gpg --dearmor | tee /usr/share/keyrings/redis-archive-keyring.gpg >/dev/null 2>&1
+
+    # mariadb
+    mkdir -p /etc/apt/keyrings
+    curl -o /etc/apt/keyrings/mariadb-keyring.pgp 'https://mariadb.org/mariadb_release_signing_key.pgp'
+
+}
+
 wo_timesync() {
     # set default ntp pools
     if [ "$wo_distro_codename" != "bookworm" ] && [ "$wo_distro_codename" != "noble" ]; then
@@ -851,6 +861,7 @@ else
 
     fi
     _run wo_install_dep "Installing wo dependencies"
+    _run wo_download_gpg_keys
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
