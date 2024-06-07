@@ -631,10 +631,6 @@ wo_upgrade_nginx() {
     CHECK_NGINX_EE=$(dpkg --list | grep nginx-ee)
     CHECK_PHP72=$(command -v php-fpm7.2)
 
-    # add new Nginx repository
-    # import the respository key for updates
-    curl -sL https://build.opensuse.org/projects/home:virtubox/public_key | apt-key add -
-
     # install new nginx package
     if {
         if [ -n "$CHECK_NGINX_EE" ]; then
