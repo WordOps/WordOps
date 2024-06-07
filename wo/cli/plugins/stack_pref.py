@@ -46,11 +46,7 @@ def pre_pref(self, apt_packages):
             else:
                 wo_mysql_repo_conf = WOVar.wo_mysql_repo
             # APT repositories
-            WORepo.add(self, repo_url=wo_mysql_repo_conf)
-            WORepo.add_key(self, '0xcbcb082a1bb943db',
-                           keyserver='keyserver.ubuntu.com')
-            WORepo.add_key(self, '0xF1656F24C74CD1D8',
-                           keyserver='keyserver.ubuntu.com')
+            WORepo.add(self, repo_url=wo_mysql_repo_conf, repo_name="mariadb")
     if ("mariadb-server" in apt_packages and
             not os.path.exists('/etc/mysql/conf.d/my.cnf')):
         # generate random 24 characters root password
@@ -77,13 +73,10 @@ def pre_pref(self, apt_packages):
             WORepo.add(self, ppa=WOVar.wo_nginx_repo)
             Log.debug(self, 'Adding ppa for Nginx')
         else:
-            if not WOFileUtils.grepcheck(
-                    self, '/etc/apt/sources.list/wo-repo.list',
-                    'WordOps'):
+            if not os.path.exists('/etc/apt/sources.list.d/wordops.list'):
                 Log.info(self, "Adding repository for NGINX, please wait...")
                 Log.debug(self, 'Adding repository for Nginx')
-                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
-            WORepo.add_key(self, WOVar.wo_nginx_key)
+                WORepo.add(self, repo_url=WOVar.wo_nginx_repo, repo_name="wordops")
 
     # add php repository
     if (('php7.3-fpm' in apt_packages) or
@@ -108,34 +101,15 @@ def pre_pref(self, apt_packages):
                         'PHP.pref', mode='w',
                         encoding='utf-8') as php_pref_file:
                     php_pref_file.write(php_pref)
-            if not WOFileUtils.grepcheck(
-                    self, '/etc/apt/sources.list.d/wo-repo.list',
-                    'packages.sury.org'):
+            if not os.path.exists('/etc/apt/sources.list.d/php.list'):
                 Log.debug(self, 'Adding repo_url of php for debian')
                 Log.info(self, "Adding repository for PHP, please wait...")
-                WORepo.add(self, repo_url=WOVar.wo_php_repo)
-            Log.debug(self, 'Adding deb.sury GPG key')
-            WORepo.add_key(self, WOVar.wo_php_key)
+                WORepo.add(self, repo_url=WOVar.wo_php_repo, repo_name="php")
+
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
-        if not WOFileUtils.grepcheck(
-                self, '/etc/apt/sources.list/wo-repo.list',
-                'redis.io') and not (WOVar.wo_platform_codename == 'noble'):
-            Log.info(self, "Adding repository for Redis, please wait...")
-            WORepo.add(self, repo_url=WOVar.wo_redis_repo)
-            WORepo.download_key(self, WOVar.wo_redis_key_url)
-
-    # nano
-    if 'nano' in apt_packages:
-        if WOVar.wo_platform_codename == 'buster':
-            if (not WOFileUtils.grepcheck(
-                    self, '/etc/apt/sources.list/wo-repo.list',
-                    'WordOps')):
-                Log.info(self,
-                         "Adding repository for Nano, please wait...")
-                Log.debug(self, 'Adding repository for Nano')
-                WORepo.add_key(self, WOVar.wo_nginx_key)
-                WORepo.add(self, repo_url=WOVar.wo_nginx_repo)
+        if not os.path.exists('/etc/apt/sources.list.d/redis.list'):
+            WORepo.add(self, repo_url=WOVar.wo_redis_repo, repo_name="redis")
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):

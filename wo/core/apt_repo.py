@@ -13,7 +13,7 @@ class WORepo():
         """Initialize """
         pass
 
-    def add(self, repo_url=None, ppa=None):
+    def add(self, repo_url=None, ppa=None, repo_name=None):
         """
         This function used to add apt repositories and or ppa's
         If repo_url is provided adds repo file to
@@ -24,8 +24,9 @@ class WORepo():
         """
 
         if repo_url is not None:
-            repo_file_path = ("/etc/apt/sources.list.d/" +
-                              WOVar().wo_repo_file)
+            if repo_name is not None:
+                repo_file_path = ("/etc/apt/sources.list.d/" +
+                                  f"{repo_name}.list")
             try:
                 if not os.path.isfile(repo_file_path):
                     with open(repo_file_path,

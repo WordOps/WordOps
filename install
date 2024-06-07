@@ -222,7 +222,6 @@ wo_install_dep() {
         # add php repository gpg key
         curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
         dpkg -i /tmp/debsuryorg-archive-keyring.deb && rm -f /tmp/debsuryorg-archive-keyring.deb
-        sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
     fi
     locale-gen en
     # enable unattended upgades
@@ -232,13 +231,59 @@ wo_install_dep() {
 }
 
 wo_download_gpg_keys() {
+    local wo_distro_version
+    wo_distro_version=$(lsb_release -rs | grep -oE '[0-9]+')
+    local wo_linux_distro
+    wo_linux_distro=$(lsb_release -is)
+
+    # create directories
+    mkdir -p /usr/share/keyrings /etc/apt/keyrings
+
     # redis gpg key
     curl -fsSL https://packages.redis.io/gpg | gpg --dearmor | tee /usr/share/keyrings/redis-archive-keyring.gpg >/dev/null 2>&1
 
     # mariadb
-    mkdir -p /etc/apt/keyrings
     curl -o /etc/apt/keyrings/mariadb-keyring.pgp 'https://mariadb.org/mariadb_release_signing_key.pgp'
 
+    # nginx
+    if [ "$wo_linux_distro" == "Debian" ]; then
+        curl -fsSL "https://download.opensuse.org/repositories/home:virtubox:WordOps/Debian_$wo_distro_version/Release.key" | gpg --dearmor | tee /usr/share/keyrings/wordops-archive-keyring.gpg >/dev/null 2>&1
+    fi
+    if [ "$wo_linux_distro" == "Raspbian" ]; then
+        curl -fsSL "https://download.opensuse.org/repositories/home:virtubox:WordOps/Raspbian_$wo_distro_version/Release.key" | gpg --dearmor | tee /usr/share/keyrings/wordops-archive-keyring.gpg >/dev/null 2>&1
+    fi
+}
+
+wo_update_repo() {
+    local wo_linux_codename
+    wo_linux_codename=$(lsb_release -sc)
+    if [ -f /etc/apt/sources.list.d/wo-repo.list ]; then
+        # properly define sury repository
+        if grep -q sury /etc/apt/sources.list.d/wo-repo.list; then
+            echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $wo_linux_codename main" >/etc/apt/sources.list.d/php.list
+        fi
+        # properly define mariadb repository
+        if grep -q mariadb /etc/apt/sources.list.d/wo-repo.list; then
+            mariadb_repo=$(grep mariadb /etc/apt/sources.list.d/wo-repo.list | awk -F\  '{ print $3 }')
+            echo "deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] $mariadb_repo $wo_linux_codename main" >/etc/apt/sources.list.d/mariadb.list
+        fi
+        # properly define redis repository
+        if grep -q redis /etc/apt/sources.list.d/wo-repo.list; then
+            echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $wo_linux_codename main" >/etc/apt/sources.list.d/redis.list
+        fi
+        # properly define WordOps nginx repository
+        if grep -q WordOps /etc/apt/sources.list.d/wo-repo.list; then
+            wo_repo=$(grep WordOps /etc/apt/sources.list.d/wo-repo.list | awk -F\  '{ print $2 }')
+            echo "deb [signed-by=/usr/share/keyrings/wordops-archive-keyring.gpg] $wo_repo /" >/etc/apt/sources.list.d/wordops.list
+        fi
+        # cleanup wo-repo.list
+        if grep -Eqv "WordOps|mariadb|sury|redis" /etc/apt/sources.list.d/wo-repo.list; then
+            rm -f /etc/apt/sources.list.d/wo-repo.list
+        else
+            clean_wo_repo=$(grep -Ev "WordOps|mariadb|sury|redis" /etc/apt/sources.list.d/wo-repo.list)
+            echo "$clean_wo_repo" >/etc/apt/sources.list.d/wo-repo.list
+        fi
+    fi
 }
 
 wo_timesync() {
@@ -763,12 +808,6 @@ wo_init() {
     ###
 
     if [ -z "$wo_travis" ]; then
-        # import easyengine opensusebuildservice gpg key to avoid issues with packages update
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3050ac3cd2ae6f03 >/dev/null 2>&1
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xF1656F24C74CD1D8 >/dev/null 2>&1
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys cf0b928cded64f3b >/dev/null 2>&1
-        # fix digitalocean mariadb repository issue
-        sed -i 's/sfo1.mirrors.digitalocean.com\/mariadb/mariadb.mirrors.ovh.net\/MariaDB/' /etc/apt/sources.list.d/*.list >/dev/null 2>&1
         if [ -f /etc/apt/preferences.d/MariaDB.pref ]; then
             sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref >/dev/null 2>&1
         fi
@@ -786,14 +825,19 @@ wo_init() {
         if ! command_exists jq; then
             apt-get install jq -qq >/dev/null 2>&1
         fi
+        if ! command_exists gpg; then
+            apt-get install gpg -qq >/dev/null 2>&1
+        fi
     fi
     if [ "$wo_force_install" = "y" ]; then
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
     fi
     if [ -f ./setup.py ]; then
-        readonly wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print $2}' 2>&1)
+        readonly wo_version_new
+        wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print $2}' 2>&1)
     else
-        readonly wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest 2>&1 | jq -r '.tag_name')
+        readonly wo_version_new
+        wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest 2>&1 | jq -r '.tag_name')
     fi
 
     echo ""
@@ -821,12 +865,13 @@ wo_git_secure_path() {
 
 # create required directories
 wo_dir_init
-# install lsb_release, curl and display header
+# install lsb_release, curl, gpg and display header
 wo_init
 # define main variables
 wo_init_variables
 # remove old repositories
 _run wo_clean_repo
+_run wo_download_gpg_keys
 
 if [ -z "$wo_force_install" ]; then
     # check distribution support
@@ -846,6 +891,7 @@ else
         _run wo_woconf
         _run wo_fix_kernel
         _run wo_php_fix
+        _run wo_update_repo
         # 2 - Migration from EEv3
     else
         if [ -x /usr/local/bin/ee ]; then
@@ -861,7 +907,6 @@ else
 
     fi
     _run wo_install_dep "Installing wo dependencies"
-    _run wo_download_gpg_keys
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then
