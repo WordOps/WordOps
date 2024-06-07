@@ -833,10 +833,8 @@ wo_init() {
         [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
     fi
     if [ -f ./setup.py ]; then
-        readonly wo_version_new
         wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print $2}' 2>&1)
     else
-        readonly wo_version_new
         wo_version_new=$(curl -m 5 --retry 3 -sL https://api.github.com/repos/WordOps/WordOps/releases/latest 2>&1 | jq -r '.tag_name')
     fi
 
