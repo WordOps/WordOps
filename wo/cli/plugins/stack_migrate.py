@@ -1,3 +1,5 @@
+import os
+import re
 from cement.core.controller import CementBaseController, expose
 
 from wo.cli.plugins.stack_pref import post_pref, pre_pref
@@ -39,14 +41,25 @@ class WOStackMigrateController(CementBaseController):
             Log.error(self, "Unable to connect to MariaDB")
 
         # Check current MariaDB version
-        wo_mysql_current_repo = WOFileUtils.grep(
-            self, '/etc/apt/sources.list.d/wo-repo.list', 'mariadb')
+        if (os.path.exists('/etc/apt/sources.list.d/wo-repo.list') and
+                WOFileUtils.grepcheck(self, "/etc/apt/sources.list.d/wo-repo.list", "mariadb")):
+            wo_mysql_current_repo = WOFileUtils.grep(
+                self, '/etc/apt/sources.list.d/wo-repo.list', 'mariadb')
+            repo_path = '/etc/apt/sources.list.d/wo-repo.list'
+        elif (os.path.exists('/etc/apt/sources.list.d/mariadb.list') and
+              WOFileUtils.grepcheck(self, '/etc/apt/sources.list.d/mariadb.list', "mariadb")):
+            wo_mysql_current_repo = WOFileUtils.grep(
+                self, '/etc/apt/sources.list.d/mariadb.list', 'mariadb')
+            repo_path = '/etc/apt/sources.list.d/mariadb.list'
+
         if wo_mysql_current_repo:
-            current_mysql_version = wo_mysql_current_repo.split('/')
+            Log.debug(self, "Looking for MariaDB version")
+            pattern = r"/(\d+\.\d+)/"
+            match = re.search(pattern, wo_mysql_current_repo)
+            current_mysql_version = match.group(1)
+            Log.debug(self, f"Current MariaDB version is {current_mysql_version}")
         else:
             Log.error(self, "MariaDB is not installed from repository yet")
-        if 'repo' in current_mysql_version:
-            current_mysql_version = current_mysql_version[5]
 
         if self.app.config.has_section('mariadb'):
             mariadb_release = self.app.config.get(
@@ -60,17 +73,7 @@ class WOStackMigrateController(CementBaseController):
                      "MariaDB version available")
             return 0
 
-        wo_old_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
-                             "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                             "{version}/{distro} {codename} main"
-                             .format(version=current_mysql_version,
-                                     distro=WOVar.wo_distro,
-                                     codename=WOVar.wo_platform_codename))
-
-        if WOFileUtils.grepcheck(
-                self, '/etc/apt/sources.list.d/wo-repo.list',
-                wo_old_mysql_repo):
-            WORepo.remove(self, repo_url=wo_old_mysql_repo)
+        WOFileUtils.rm(self, repo_path)
         # Add MariaDB repo
         pre_pref(self, WOVar.wo_mysql)
 
