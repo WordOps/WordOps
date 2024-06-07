@@ -400,6 +400,14 @@ echo -e '       wo info             '
 echo -e "${CGREEN}#############################################${CEND}"
 wo info
 
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       display repositories             '
+echo -e "${CGREEN}#############################################${CEND}"
+ls -alh /etc/apt/sources.list.d/
+cat /etc/apt/sources.list.d/mariadb.list
+cat /etc/apt/sources.list.d/redis.list
+
 # echo -e "${CGREEN}#############################################${CEND}"
 # echo -e '       wo site delete              '
 # echo -e "${CGREEN}#############################################${CEND}"
