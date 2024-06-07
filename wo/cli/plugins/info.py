@@ -8,8 +8,8 @@ from pynginxconfig import NginxConfig
 
 from wo.core.aptget import WOAptGet
 from wo.core.logging import Log
-from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
+from wo.core.mysql import WOMysql
 
 
 def wo_info_hook(app):
@@ -598,11 +598,7 @@ class WOInfoController(CementBaseController):
             self.info_php()
 
         if pargs.mysql:
-            if os.path.exists('/usr/bin/mariadb-admin'):
-                mariadb_admin = "/usr/bin/mariadb-admin"
-            else:
-                mariadb_admin = "/usr/bin/mysqladmin"
-            if WOShellExec.cmd_exec(self, f"{mariadb_admin} ping"):
+            if WOMysql.mariadb_ping(self):
                 self.info_mysql()
             else:
                 Log.info(self, "MySQL is not installed")

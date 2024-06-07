@@ -208,7 +208,7 @@ class WOStackController(CementBaseController):
             if pargs.mysql:
                 pargs.mysqltuner = True
                 Log.debug(self, "Setting apt_packages variable for MySQL")
-                if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
+                if not WOMysql.mariadb_ping(self):
                     apt_packages = apt_packages + WOVar.wo_mysql
                 else:
                     Log.debug(self, "MySQL already installed and alive")
@@ -218,7 +218,7 @@ class WOStackController(CementBaseController):
             if pargs.mysqlclient:
                 Log.debug(self, "Setting apt_packages variable "
                           "for MySQL Client")
-                if not WOShellExec.cmd_exec(self, "mysqladmin ping"):
+                if not WOMysql.mariadb_ping(self):
                     apt_packages = apt_packages + WOVar.wo_mysql_client
                 else:
                     Log.debug(self, "MySQL already installed and alive")
@@ -470,7 +470,7 @@ class WOStackController(CementBaseController):
 
             # UTILS
             if pargs.utils:
-                if not WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+                if not WOMysql.mariadb_ping(self):
                     pargs.mysql = True
                 if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
                         WOAptGet.is_installed(self, 'php7.3-fpm') or
@@ -655,7 +655,7 @@ class WOStackController(CementBaseController):
         if pargs.mysqlclient:
             Log.debug(self, "Removing apt_packages variable "
                       "for MySQL Client")
-            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+            if WOMysql.mariadb_ping(self):
                 apt_packages = apt_packages + WOVar.wo_mysql_client
 
         # fail2ban
@@ -844,7 +844,7 @@ class WOStackController(CementBaseController):
                     packages = packages + ["/opt/netdata"]
                 else:
                     Log.debug(self, "Netdata uninstaller not found")
-                if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+                if WOMysql.mariadb_ping(self):
                     WOMysql.execute(
                         self, "DELETE FROM mysql.user WHERE User = 'netdata';")
 
@@ -972,7 +972,7 @@ class WOStackController(CementBaseController):
 
         # mysqlclient
         if pargs.mysqlclient:
-            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+            if WOMysql.mariadb_ping(self):
                 Log.debug(self, "Add MySQL client to apt_packages list")
                 apt_packages = apt_packages + WOVar.wo_mysql_client
 
@@ -1145,7 +1145,7 @@ class WOStackController(CementBaseController):
                     packages = packages + ["/opt/netdata"]
                 else:
                     Log.debug(self, "Netdata uninstaller not found")
-                if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+                if WOMysql.mariadb_ping(self):
                     WOMysql.execute(
                         self, "DELETE FROM mysql.user WHERE User = 'netdata';")
 

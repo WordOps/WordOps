@@ -34,7 +34,7 @@ class WOStackMigrateController(CementBaseController):
     @expose(hide=True)
     def migrate_mariadb(self, ci=False):
 
-        if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+        if WOMysql.mariadb_ping(self):
             # Backup all database
             WOMysql.backupAll(self, fulldump=True)
         else:
@@ -111,7 +111,7 @@ class WOStackMigrateController(CementBaseController):
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
 
-            if WOShellExec.cmd_exec(self, "mysqladmin ping"):
+            if WOMysql.mariadb_ping(self):
 
                 Log.info(self, "If your database size is big, "
                          "migration may take some time.")

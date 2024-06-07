@@ -1144,7 +1144,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             else:
                 wo_grant_host = 'localhost'
             # check if mysql credentials are available
-            if (WOShellExec.cmd_exec(self, "mysqladmin ping")
+            if (WOMysql.mariadb_ping(self)
                     and wo_grant_host == 'localhost'):
                 try:
                     WOMysql.execute(
