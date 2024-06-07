@@ -12,7 +12,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Ubuntu 24.04 LTS support
 - New Nginx package with HTTP/3 QUIC support
+- `wo stack install/remove --brotli` to enable/disable brotli compression
 
+#### Changed
+
+- Bump MariaDB release to v11.4
+- Remove php72 and php73 stacks
+- All APT repositories are properly signed with gpg keys
+- Netdata is installed from debian packages when available
+- Less logs in acme.sh operation
+
+#### Fixed
+
+- wo info php versions display
+- Repositories's gpg keys are not managed with apt-key anymore
+- `wo site update site.tld --hsts` errors
+- `wo site update site.tld --ngxblocker` errors
+- Netdata install and upgrade
 
 #### Security
 

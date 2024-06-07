@@ -7,6 +7,7 @@ from pymysql import DatabaseError, Error, connections
 
 from wo.core.logging import Log
 from wo.core.variables import WOVar
+from wo.core.shellexec import WOShellExec
 
 
 class MySQLConnectionError(Exception):
@@ -160,4 +161,18 @@ class WOMysql():
             return False
         except MySQLConnectionError as e:
             Log.debug(self, str(e))
+            return False
+
+    def mariadb_ping(self):
+        if os.path.exists('/usr/bin/mariadb-admin'):
+            mariadb_admin = "/usr/bin/mariadb-admin"
+        elif os.path.exists('/usr/bin/mysqladmin'):
+            mariadb_admin = "/usr/bin/mysqladmin"
+        else:
+            Log.info(self, "MariaDB server isn't installed")
+            return False
+        if WOShellExec.cmd_exec(self, f"{mariadb_admin} ping"):
+            return True
+        else:
+            Log.info(self, "Unable to connect to MariaDB server")
             return False

@@ -12,6 +12,7 @@ from wo.core.logging import Log
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
 from wo.core.services import WOService
+from wo.core.mysql import WOMysql
 
 
 class WOStackUpgradeController(CementBaseController):
@@ -152,7 +153,7 @@ class WOStackUpgradeController(CementBaseController):
 
         # mysql
         if pargs.mysql:
-            if WOShellExec.cmd_exec(self, 'mysqladmin ping'):
+            if WOMysql.mariadb_ping(self):
                 apt_packages = apt_packages + ['mariadb-server']
 
         # redis

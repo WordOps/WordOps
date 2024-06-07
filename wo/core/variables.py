@@ -118,10 +118,7 @@ class WOVar():
     # Nginx repo and packages
     if wo_distro == 'ubuntu':
         wo_nginx_repo = "ppa:wordops/nginx-wo"
-        wo_extra_repo = (
-            "deb http://download.opensuse.org"
-            "/repositories/home:/virtubox:"
-            "/WordOps/xUbuntu_{0}/ /".format(wo_platform_version))
+
     else:
         if wo_distro == 'debian':
             if wo_platform_codename == 'buster':
@@ -138,10 +135,10 @@ class WOVar():
             elif wo_platform_codename == 'bookworm':
                 wo_deb_repo = "Raspbian_12"
         # debian/raspbian nginx repository
-        wo_nginx_repo = ("deb http://download.opensuse.org"
-                         "/repositories/home:"
-                         "/virtubox:/WordOps/{0}/ /"
-                         .format(wo_deb_repo))
+        wo_nginx_repo = ("deb [signed-by=/usr/share/keyrings/wordops-archive-keyring.gpg] "
+                         "http://download.opensuse.org"
+                         f"/repositories/home:/virtubox:/WordOps/{wo_deb_repo}/ /")
+        wo_nginx_key = (f"https://download.opensuse.org/repositories/home:virtubox:WordOps/{wo_deb_repo}/Release.key")
 
     wo_nginx = ["nginx-custom", "nginx-wo"]
     wo_nginx_key = 'FB898660'
@@ -190,24 +187,23 @@ class WOVar():
     wo_clamav = ["clamav", "clamav-freshclam"]
 
     # APT repositories
-    wo_mysql_repo = ("deb [arch=amd64,arm64,ppc64el] "
+    wo_mysql_repo = ("deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] "
                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
-                     "{version}/{distro} {codename} main"
-                     .format(version=mariadb_ver,
-                             distro=wo_distro,
-                             codename=wo_platform_codename))
+                     f"{mariadb_ver}/{wo_distro} {wo_platform_codename} main")
+    mariadb_repo_key = "https://mariadb.org/mariadb_release_signing_key.pgp"
     if wo_distro == 'ubuntu':
         wo_php_repo = "ppa:ondrej/php"
         wo_goaccess_repo = ("ppa:alex-p/goaccess")
 
     else:
         wo_php_repo = (
-            "deb https://packages.sury.org/php/ {codename} main"
-            .format(codename=wo_platform_codename))
+            "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] "
+            f"https://packages.sury.org/php/ {wo_platform_codename} main")
         wo_php_key = '95BD4743'
     wo_redis_key_url = "https://packages.redis.io/gpg"
-    wo_redis_repo = ("deb https://packages.redis.io/deb {codename} main"
-                     .format(codename=wo_platform_codename))
+    wo_redis_repo = (
+        "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] "
+        f"https://packages.redis.io/deb {wo_platform_codename} main")
 
     wo_redis = ['redis-server']
 

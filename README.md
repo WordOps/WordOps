@@ -120,7 +120,7 @@ wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + C
 
 ```bash
 wo site create example.com --html     # create example.com for static/html sites
-wo site create example.com --php      # create example.com with php 8.2 support
+wo site create example.com --php      # create example.com with php support
 wo site create example.com --php80      # create example.com with php 8.0 support
 wo site create example.com --php81      # create example.com with php 8.1 support
 wo site create example.com --php82      # create example.com with php 8.2 support

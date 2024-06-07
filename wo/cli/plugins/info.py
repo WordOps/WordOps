@@ -8,8 +8,8 @@ from pynginxconfig import NginxConfig
 
 from wo.core.aptget import WOAptGet
 from wo.core.logging import Log
-from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
+from wo.core.mysql import WOMysql
 
 
 def wo_info_hook(app):
@@ -540,28 +540,33 @@ class WOInfoController(CementBaseController):
     @expose(hide=True)
     def info_mysql(self):
         """Display MySQL information"""
-        version = os.popen("/usr/bin/mysql -V | awk '{print($5)}' | "
+        if os.path.exists('/usr/bin/mariadb'):
+            mariadb_exec = "/usr/bin/mariadb"
+        else:
+            mariadb_exec = "/usr/bin/mysql"
+        version = os.popen(f"{mariadb_exec} -V |"
+                           "awk '{print($5)}' | "
                            "cut -d ',' "
                            "-f1 | tr -d '\n'").read()
         host = "localhost"
-        port = os.popen("/usr/bin/mysql -e \"show variables\" | "
+        port = os.popen(f"{mariadb_exec} -e \"show variables\" | "
                         "/bin/grep ^port | awk "
                         "'{print($2)}' | tr -d '\n'").read()
-        wait_timeout = os.popen("/usr/bin/mysql -e \"show variables\" | grep "
+        wait_timeout = os.popen(f"{mariadb_exec} -e \"show variables\" | grep "
                                 "^wait_timeout | awk '{print($2)}' | "
                                 "tr -d '\n'").read()
-        interactive_timeout = os.popen("/usr/bin/mysql -e "
+        interactive_timeout = os.popen(f"{mariadb_exec} -e "
                                        "\"show variables\" | grep "
                                        "^interactive_timeout | awk "
                                        "'{print($2)}' | tr -d '\n'").read()
-        max_used_connections = os.popen("/usr/bin/mysql -e "
+        max_used_connections = os.popen(f"{mariadb_exec} - e "
                                         "\"show global status\" | "
                                         "grep Max_used_connections | awk "
                                         "'{print($2)}' | tr -d '\n'").read()
-        datadir = os.popen("/usr/bin/mysql -e \"show variables\" | "
+        datadir = os.popen(f"{mariadb_exec} -e \"show variables\" | "
                            "/bin/grep datadir | awk"
                            " '{print($2)}' | tr -d '\n'").read()
-        socket = os.popen("/usr/bin/mysql -e \"show variables\" | "
+        socket = os.popen(f"{mariadb_exec} -e \"show variables\" | "
                           "/bin/grep \"^socket\" | "
                           "awk '{print($2)}' | tr -d '\n'").read()
         data = dict(version=version, host=host, port=port,
@@ -593,7 +598,7 @@ class WOInfoController(CementBaseController):
             self.info_php()
 
         if pargs.mysql:
-            if WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
+            if WOMysql.mariadb_ping(self):
                 self.info_mysql()
             else:
                 Log.info(self, "MySQL is not installed")

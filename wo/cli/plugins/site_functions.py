@@ -904,7 +904,7 @@ def site_package_check(self, stype):
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
-        if not WOShellExec.cmd_exec(self, "/usr/bin/mysqladmin ping"):
+        if not WOMysql.mariadb_ping(self):
             apt_packages = apt_packages + WOVar.wo_mysql
 
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
