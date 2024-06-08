@@ -117,7 +117,7 @@ class WOVar():
     # WordOps stack installation variables
     # Nginx repo and packages
     if wo_distro == 'ubuntu':
-        wo_nginx_repo = "ppa:wordops/nginx-wo"
+        wo_nginx_repo = "ppa:virtubox/nginx"
 
     else:
         if wo_distro == 'debian':

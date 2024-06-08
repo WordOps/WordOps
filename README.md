@@ -71,6 +71,10 @@
 - Raspbian 10 (Buster)
 - Raspbian 11 (Bullseye)
 
+#### Not fully compatible yet
+
+- Ubuntu 24.04 LTS (Noble)
+
 ## Getting Started
 
 ```bash

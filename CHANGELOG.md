@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
-- Ubuntu 24.04 LTS support
+- Ubuntu 24.04 LTS compatibility (some required php packages are not available yet) so not officially supported by WordOps
 - New Nginx package with HTTP/3 QUIC support
 - `wo stack install/remove --brotli` to enable/disable brotli compression
 
@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - All APT repositories are properly signed with gpg keys
 - Netdata is installed from debian packages when available
 - Less logs in acme.sh operation
+- Migrate all repositories in /etc/apt/sources.list.d/wo-repo.list in indivual files like mariadb.list, redis.list, wordops.list
 
 #### Fixed
 
