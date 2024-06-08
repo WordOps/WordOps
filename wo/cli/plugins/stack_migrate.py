@@ -120,7 +120,7 @@ class WOStackMigrateController(CementBaseController):
                 pass
             if os.path.exists(f'/var/www/{site.sitename}/conf/nginx/ssl.conf'):
                 data = dict(ssl_live_path=WOVar.wo_ssl_live,
-                            domain=site.sitename)
+                            domain=site.sitename, quic=True)
                 WOTemplate.deploy(
                     self, f'/var/www/{site.sitename}/conf/nginx/ssl.conf',
                     'ssl.mustache', data, overwrite=True)
