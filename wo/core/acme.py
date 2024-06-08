@@ -141,7 +141,7 @@ class WOAcme:
                              .format(wo_domain_name)):
 
                 data = dict(ssl_live_path=WOVar.wo_ssl_live,
-                            domain=wo_domain_name)
+                            domain=wo_domain_name, quic=True)
                 WOTemplate.deploy(self,
                                   '/var/www/{0}/conf/nginx/ssl.conf'
                                   .format(wo_domain_name),
@@ -151,7 +151,7 @@ class WOAcme:
                                     '/etc/letsencrypt'):
                 Log.info(self, "Securing WordOps backend with current cert")
                 data = dict(ssl_live_path=WOVar.wo_ssl_live,
-                            domain=wo_domain_name)
+                            domain=wo_domain_name, quic=False)
                 WOTemplate.deploy(self,
                                   '/var/www/22222/conf/nginx/ssl.conf',
                                   'ssl.mustache', data, overwrite=False)

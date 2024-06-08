@@ -9,7 +9,8 @@ from wo.core.logging import Log
 from wo.core.mysql import WOMysql
 from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
-from wo.core.apt_repo import WORepo
+from wo.cli.plugins.sitedb import (getAllsites)
+from wo.core.template import WOTemplate
 
 
 class WOStackMigrateController(CementBaseController):
@@ -21,6 +22,9 @@ class WOStackMigrateController(CementBaseController):
         arguments = [
             (['--mariadb'],
                 dict(help="Migrate/Upgrade database to MariaDB",
+                     action='store_true')),
+            (['--nginx'],
+                dict(help="Migrate Nginx TLS configuration to HTTP/3 QUIC",
                      action='store_true')),
             (['--force'],
                 dict(help="Force Packages upgrade without any prompt",
@@ -34,11 +38,8 @@ class WOStackMigrateController(CementBaseController):
     @expose(hide=True)
     def migrate_mariadb(self, ci=False):
 
-        if WOMysql.mariadb_ping(self):
-            # Backup all database
-            WOMysql.backupAll(self, fulldump=True)
-        else:
-            Log.error(self, "Unable to connect to MariaDB")
+        # Backup all database
+        WOMysql.backupAll(self, fulldump=True)
 
         # Check current MariaDB version
         if (os.path.exists('/etc/apt/sources.list.d/wo-repo.list') and
@@ -100,9 +101,35 @@ class WOStackMigrateController(CementBaseController):
         post_pref(self, WOVar.wo_mysql, [])
 
     @expose(hide=True)
+    def migrate_nginx(self):
+
+        # Add Nginx repo
+        pre_pref(self, WOVar.wo_nginx)
+        # Install Nginx
+        Log.wait(self, "Updating apt-cache          ")
+        WOAptGet.update(self)
+        Log.valide(self, "Updating apt-cache          ")
+        Log.wait(self, "Upgrading Nginx          ")
+        if WOAptGet.install(self, WOVar.wo_nginx):
+            Log.valide(self, "Upgrading Nginx          ")
+        else:
+            Log.failed(self, "Upgrading Nginx          ")
+        allsites = getAllsites(self)
+        for site in allsites:
+            if not site:
+                pass
+            if os.path.exists(f'/var/www/{site.sitename}/conf/nginx/ssl.conf'):
+                data = dict(ssl_live_path=WOVar.wo_ssl_live,
+                            domain=site.sitename)
+                WOTemplate.deploy(
+                    self, f'/var/www/{site.sitename}/conf/nginx/ssl.conf',
+                    'ssl.mustache', data, overwrite=True)
+        post_pref(self, WOVar.wo_nginx, [])
+
+    @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if not pargs.mariadb:
+        if not pargs.mariadb and not pargs.nginx:
             self.app.args.print_help()
         if pargs.mariadb:
             if WOVar.wo_distro == 'raspbian':
@@ -128,3 +155,8 @@ class WOStackMigrateController(CementBaseController):
             else:
                 Log.error(self, "Your current MySQL is not alive or "
                           "you allready installed MariaDB")
+        if pargs.nginx:
+            if os.path.exists('/usr/sbin/nginx'):
+                self.migrate_nginx()
+            else:
+                Log.error(self, "Unable to connect to MariaDB")

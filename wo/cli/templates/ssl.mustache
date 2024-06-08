@@ -1,3 +1,4 @@
+{{#quic}}
 # display http version used in header (optional)
 more_set_headers "X-protocol : $server_protocol always";
 
@@ -14,6 +15,7 @@ listen [::]:443 quic;
 # listen on port 443 with HTTP/2
 listen 443 ssl;
 listen [::]:443 ssl;
+{{/quic}}
 ssl_certificate     {{ssl_live_path}}/{{domain}}/fullchain.pem;
 ssl_certificate_key     {{ssl_live_path}}/{{domain}}/key.pem;
 ssl_trusted_certificate {{ssl_live_path}}/{{domain}}/ca.pem;

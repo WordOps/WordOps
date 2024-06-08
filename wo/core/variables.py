@@ -178,7 +178,7 @@ class WOVar():
     if wo_distro == 'raspbian':
         mariadb_ver = '10.3'
     else:
-        mariadb_ver = '10.11'
+        mariadb_ver = '11.4'
         wo_mysql = wo_mysql + ["mariadb-backup"]
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
