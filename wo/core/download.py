@@ -21,18 +21,17 @@ class WODownload():
                 directory = os.path.dirname(filename)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
-                Log.info(self, "Downloading {0:20}".format(pkg_name), end=' ')
+                Log.wait(self, "Downloading {0:20}".format(pkg_name))
                 with open(filename, "wb") as out_file:
                     req = requests.get(url, timeout=(5, 30))
                     if req.encoding is None:
                         req.encoding = 'utf-8'
                     out_file.write(req.content)
-                Log.info(self, "{0}".format("[" + Log.ENDC + "Done" +
-                                            Log.OKBLUE + "]"))
+                Log.valide(self, "Downloading {0:20}".format(pkg_name))
             except requests.RequestException as e:
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 Log.error(self, "Unable to download file, {0}"
-                          .format(filename))
+                          .format(filename), exit=False)
                 return False
         return 0
 

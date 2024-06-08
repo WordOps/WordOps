@@ -154,7 +154,7 @@ class WOAcme:
                             domain=wo_domain_name, quic=False)
                 WOTemplate.deploy(self,
                                   '/var/www/22222/conf/nginx/ssl.conf',
-                                  'ssl.mustache', data, overwrite=False)
+                                  'ssl.mustache', data, overwrite=True)
 
             WOGit.add(self, ["/etc/letsencrypt"],
                       msg="Adding letsencrypt folder")
