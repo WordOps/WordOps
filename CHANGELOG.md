@@ -10,7 +10,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
--   Ubuntu 24.04 LTS compatibility (some required php packages are not available yet) so not officially supported by WordOps
 -   New Nginx package with HTTP/3 QUIC support
 -   `wo stack install/remove --brotli` to enable/disable brotli compression
 -   `wo stack migrate --nginx` to upgrade Nginx configuration with HTTP/3 QUIC
