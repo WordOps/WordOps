@@ -55,6 +55,9 @@ http {
 	proxy_set_header Early-Data $ssl_early_data;
 	ssl_early_data on;
 
+	# enable http/2
+	http2 on;
+
 	ssl_session_timeout 1d;
 	ssl_session_cache shared:SSL:50m;
 	ssl_session_tickets off;

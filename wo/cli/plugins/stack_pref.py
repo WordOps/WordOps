@@ -126,7 +126,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             data = dict(tls13=True, release=WOVar.wo_version)
             WOTemplate.deploy(self,
                               '/etc/nginx/nginx.conf',
-                              'nginx-core.mustache', data)
+                              'nginx-core.mustache', data, overwrite=True)
 
             if not os.path.isfile('{0}/gzip.conf.disabled'.format(ngxcnf)):
                 data = dict(release=WOVar.wo_version)
