@@ -149,6 +149,19 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                           encoding='utf-8', mode='a') as wo_nginx:
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
+            if not WOFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                    'HTTP_HOST'):
+                WOFileUtils.textappend(self, '/etc/nginx/fastcgi_params',
+                                       '# Fix for HTTP/3 QUIC HTTP_HOST\n'
+                                       'fastcgi_param \tHTTP_HOST \t$host;\n')
+            if not WOFileUtils.grep(self, '/etc/nginx/proxy_params',
+                                    'X-Forwarded-Host'):
+                WOFileUtils.textappend(self, '/etc/nginx/proxy_params',
+                                       'proxy_set_header \tX-Forwarded-Host \t$host;\n')
+            if not WOFileUtils.grep(self, '/etc/nginx/proxy_params',
+                                    'X-Forwarded-Port'):
+                WOFileUtils.textappend(self, '/etc/nginx/proxy_params',
+                                       'proxy_set_header \tX-Forwarded-Port \t$server_port;\n')
             try:
                 data = dict(php="9000", debug="9001",
                             php7="9070", debug7="9170",
