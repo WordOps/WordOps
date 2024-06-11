@@ -6,7 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
-### v3.21.0 - [Unreleased]
+### v3.22.0 - [Unreleased]
+
+### v3.21.1 - 2024-06-11
+
+#### Fixed
+
+-   `wo stack migrate --nginx` when using wildcard certificate
+
+### v3.21.0 - 2024-06-10
 
 #### Added
 
