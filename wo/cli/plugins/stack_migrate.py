@@ -127,7 +127,7 @@ class WOStackMigrateController(CementBaseController):
                         self, f'/var/www/{site.sitename}/conf/nginx/ssl.conf',
                         'ssl.mustache', data, overwrite=True)
                 else:
-                    (wo_domain_type, wo_root_domain) = WODomain.getlevel(
+                    (_, wo_root_domain) = WODomain.getlevel(
                         self, site.sitename)
                     if (site.sitename != wo_root_domain and
                             os.path.exists(f'/etc/letsencrypt/shared/{wo_root_domain}.conf')):
