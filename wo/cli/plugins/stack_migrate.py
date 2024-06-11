@@ -118,7 +118,8 @@ class WOStackMigrateController(CementBaseController):
         for site in allsites:
             if not site:
                 pass
-            if os.path.exists(f'/var/www/{site.sitename}/conf/nginx/ssl.conf'):
+            if (os.path.exists(f'/var/www/{site.sitename}/conf/nginx/ssl.conf') and
+                    not os.path.islink(f'/var/www/{site.sitename}/conf/nginx/ssl.conf')):
                 data = dict(ssl_live_path=WOVar.wo_ssl_live,
                             domain=site.sitename, quic=True)
                 WOTemplate.deploy(

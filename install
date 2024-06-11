@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 # wget -qO wo wops.cc && sudo -E bash wo
 # -------------------------------------------------------------------------
-# Version 3.21.0 - 2024-06-10
+# Version 3.21.1 - 2024-06-11
 # -------------------------------------------------------------------------
 
 # CONTENTS
@@ -932,9 +932,9 @@ else
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was successful!"
         wo_lib_echo "Changelog is available on https://github.com/WordOps/WordOps/releases/tag/$wo_version_new"
         echo
-        if [ "$wo_version_new" == "v3.21.0" ]; then
+        if "v3.21" in "$wo_version_new"; then
             wo_lib_echo "To upgrade Nginx package and configuration for HTTP/3 QUIC, use the following command"
-            wo_lib_echo "wo stack migrate --nginx"
+            wo_lib_echo_info "wo stack migrate --nginx"
         fi
         echo
         wo_lib_echo "To upgrade WordOps web stacks, you can use the command:"
