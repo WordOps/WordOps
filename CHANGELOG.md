@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.22.0 - [Unreleased]
 
+### v3.21.2 - 2024-06-11
+
+#### Added
+
+-   "$http3" variable in access_logs
+
+#### Fixed
+
+-   $host variable for fastcgi_params et proxy_params
+
 ### v3.21.1 - 2024-06-11
 
 #### Fixed

@@ -11,6 +11,7 @@ from wo.core.shellexec import WOShellExec
 from wo.core.variables import WOVar
 from wo.cli.plugins.sitedb import (getAllsites)
 from wo.core.template import WOTemplate
+from wo.core.domainvalidate import WODomain
 
 
 class WOStackMigrateController(CementBaseController):
@@ -118,13 +119,23 @@ class WOStackMigrateController(CementBaseController):
         for site in allsites:
             if not site:
                 pass
-            if (os.path.exists(f'/var/www/{site.sitename}/conf/nginx/ssl.conf') and
-                    not os.path.islink(f'/var/www/{site.sitename}/conf/nginx/ssl.conf')):
-                data = dict(ssl_live_path=WOVar.wo_ssl_live,
-                            domain=site.sitename, quic=True)
-                WOTemplate.deploy(
-                    self, f'/var/www/{site.sitename}/conf/nginx/ssl.conf',
-                    'ssl.mustache', data, overwrite=True)
+            if os.path.exists(f'/var/www/{site.sitename}/conf/nginx/ssl.conf'):
+                if not os.path.islink(f'/var/www/{site.sitename}/conf/nginx/ssl.conf'):
+                    data = dict(ssl_live_path=WOVar.wo_ssl_live,
+                                domain=site.sitename, quic=True)
+                    WOTemplate.deploy(
+                        self, f'/var/www/{site.sitename}/conf/nginx/ssl.conf',
+                        'ssl.mustache', data, overwrite=True)
+                else:
+                    (_, wo_root_domain) = WODomain.getlevel(
+                        self, site.sitename)
+                    if (site.sitename != wo_root_domain and
+                            os.path.exists(f'/etc/letsencrypt/shared/{wo_root_domain}.conf')):
+                        data = dict(ssl_live_path=WOVar.wo_ssl_live,
+                                    domain=wo_root_domain, quic=True)
+                        WOTemplate.deploy(
+                            self, f'/etc/letsencrypt/shared/{wo_root_domain}.conf',
+                            'ssl.mustache', data, overwrite=True)
         post_pref(self, WOVar.wo_nginx, [])
 
     @expose(hide=True)
