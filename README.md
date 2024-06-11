@@ -37,17 +37,17 @@
 
 ## Key Features
 
-- **Easy to install** : One step automated installer with migration from EasyEngine v3 support
-- **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
-- **Custom Nginx build** : Nginx 1.24.0 - TLS v1.3 Cloudflare HTTP/2 HPACK & Brotli support
-- **Up-to-date** : PHP 7.4, 8.0, 8.1, 8.2 & 8.3 - MariaDB 10.11 LTS & Redis 7.0
-- **Secured** : Hardened WordPress security with strict Nginx location directives
-- **Powerful** : Optimized Nginx configurations with multiple cache backends support
-- **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
-- **Modern** : Strong ciphers_suite, modern TLS protocols and HSTS support (Grade A+ on [ssllabs](https://www.ssllabs.com/ssltest/analyze.html?d=demo.wordops.eu&latest))
-- **Monitoring** : Live Nginx vhost traffic with ngx_vts_module and server monitoring with Netdata
-- **User Friendly** : WordOps dashboard with server status/monitoring and tools ([demo](https://demo.wordops.eu))
-- **Release cycle** : WordOps stable releases are published in June and December.
+-   **Easy to install** : One step automated installer with migration from EasyEngine v3 support
+-   **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
+-   **Custom Nginx build** : Nginx 1.26.1 - TLS v1.3 HTTP/3 QUIC & Brotli support
+-   **Up-to-date** : PHP 7.4, 8.0, 8.1, 8.2 & 8.3 - MariaDB 11.4 LTS & Redis 7.0
+-   **Secured** : Hardened WordPress security with strict Nginx location directives
+-   **Powerful** : Optimized Nginx configurations with multiple cache backends support
+-   **SSL** : Domain, Subdomain & Wildcard Let's Encrypt SSL certificates with DNS API support
+-   **Modern** : Strong ciphers_suite, modern TLS protocols and HSTS support (Grade A+ on [ssllabs](https://www.ssllabs.com/ssltest/analyze.html?d=demo.wordops.eu&latest))
+-   **Monitoring** : Live Nginx vhost traffic with ngx_vts_module and server monitoring with Netdata
+-   **User Friendly** : WordOps dashboard with server status/monitoring and tools ([demo](https://demo.wordops.eu))
+-   **Release cycle** : WordOps stable releases are published in June and December.
 
 ---
 
@@ -57,23 +57,23 @@
 
 #### Recommended
 
-- Ubuntu 22.04 LTS (Jammy)
-- Ubuntu 20.04 LTS (Focal)
+-   Ubuntu 22.04 LTS (Jammy)
+-   Ubuntu 20.04 LTS (Focal)
 
 #### Also compatible
 
-- Debian 10 (Buster)
-- Debian 11 (Bullseye)
-- Debian 12 (Bookworm)
+-   Debian 10 (Buster)
+-   Debian 11 (Bullseye)
+-   Debian 12 (Bookworm)
 
 #### For testing purpose only
 
-- Raspbian 10 (Buster)
-- Raspbian 11 (Bullseye)
+-   Raspbian 10 (Buster)
+-   Raspbian 11 (Bullseye)
 
 #### Not fully compatible yet
 
-- Ubuntu 24.04 LTS (Noble)
+-   Ubuntu 24.04 LTS (Noble)
 
 ## Getting Started
 
@@ -89,7 +89,7 @@ Detailed Getting Started guide with additional installation methods can be found
 ### Standard WordPress sites
 
 ```bash
-wo site create example.com --wp                # install wordpress with PHP 8.2 without any page caching
+wo site create example.com --wp                # install wordpress with [Current supported PHP release](https://endoflife.date/php) without any page caching
 wo site create example.com --wp  --php83       # install wordpress with PHP 8.3  without any page caching
 wo site create example.com --wpfc              # install wordpress + nginx fastcgi_cache
 wo site create example.com --wpredis           # install wordpress + nginx redis_cache
@@ -124,7 +124,7 @@ wo site create example.com --wpsubdomain --wpce     # install wpmu-subdomain + C
 
 ```bash
 wo site create example.com --html     # create example.com for static/html sites
-wo site create example.com --php      # create example.com with php support
+wo site create example.com --php      # create example.com with [Current supported PHP release](https://endoflife.date/php)
 wo site create example.com --php80      # create example.com with php 8.0 support
 wo site create example.com --php81      # create example.com with php 8.1 support
 wo site create example.com --php82      # create example.com with php 8.2 support
@@ -171,42 +171,42 @@ Otherwise, you can still contribute to the project by making a donation on [Ko-F
 
 ## Credits
 
-- Source : [EasyEngine](https://github.com/easyengine/easyengine)
+-   Source : [EasyEngine](https://github.com/easyengine/easyengine)
 
 Apps & Tools shipped with WordOps :
 
-- [Acme.sh](https://github.com/Neilpang/acme.sh)
-- [WP-CLI](https://github.com/wp-cli/wp-cli)
-- [Netdata](https://github.com/netdata/netdata)
-- [phpMyAdmin](https://www.phpmyadmin.net/)
-- [Composer](https://github.com/composer/composer)
-- [Adminer](https://www.adminer.org/)
-- [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
-- [opcacheGUI](https://github.com/amnuts/opcache-gui)
-- [eXtplorer](https://github.com/soerennb/extplorer)
-- [Webgrind](https://github.com/jokkedk/webgrind)
-- [MySQLTuner](https://github.com/major/MySQLTuner-perl)
-- [Fail2Ban](https://github.com/fail2ban/fail2ban)
-- [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
-- [cheat.sh](https://github.com/chubin/cheat.sh)
-- [ProFTPd](https://github.com/proftpd/proftpd)
-- [Nginx-ultimate-bad-bot-blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/)
-- [Nanorc](https://github.com/scopatz/nanorc)
+-   [Acme.sh](https://github.com/Neilpang/acme.sh)
+-   [WP-CLI](https://github.com/wp-cli/wp-cli)
+-   [Netdata](https://github.com/netdata/netdata)
+-   [phpMyAdmin](https://www.phpmyadmin.net/)
+-   [Composer](https://github.com/composer/composer)
+-   [Adminer](https://www.adminer.org/)
+-   [phpRedisAdmin](https://github.com/erikdubbelboer/phpRedisAdmin)
+-   [opcacheGUI](https://github.com/amnuts/opcache-gui)
+-   [eXtplorer](https://github.com/soerennb/extplorer)
+-   [Webgrind](https://github.com/jokkedk/webgrind)
+-   [MySQLTuner](https://github.com/major/MySQLTuner-perl)
+-   [Fail2Ban](https://github.com/fail2ban/fail2ban)
+-   [ClamAV](https://github.com/Cisco-Talos/clamav-devel)
+-   [cheat.sh](https://github.com/chubin/cheat.sh)
+-   [ProFTPd](https://github.com/proftpd/proftpd)
+-   [Nginx-ultimate-bad-bot-blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker/)
+-   [Nanorc](https://github.com/scopatz/nanorc)
 
 Third-party debian packages shipped with WordOps :
 
-- [Nginx-wo by WordOps](https://build.opensuse.org/package/show/home:virtubox:WordOps/nginx)
-- [PHP by Ondřej Surý](https://launchpad.net/~ondrej/+archive/ubuntu/php)
-- [Redis](https://redis.io/docs/getting-started/installation/install-redis-on-linux/)
+-   [Nginx-wo by WordOps](https://build.opensuse.org/package/show/home:virtubox:WordOps/nginx)
+-   [PHP by Ondřej Surý](https://launchpad.net/~ondrej/+archive/ubuntu/php)
+-   [Redis](https://redis.io/docs/getting-started/installation/install-redis-on-linux/)
 
 WordPress Cache Plugins supported by WordOps :
 
-- [Nginx-helper](https://github.com/rtCamp/nginx-helper)
-- [Cache-Enabler](https://github.com/keycdn/cache-enabler)
-- [Redis-object-cache](https://github.com/tillkruss/redis-cache)
-- [WP-Super-Cache](https://github.com/Automattic/wp-super-cache)
-- [WP-Rocket](https://github.com/wp-media/wp-rocket)
+-   [Nginx-helper](https://github.com/rtCamp/nginx-helper)
+-   [Cache-Enabler](https://github.com/keycdn/cache-enabler)
+-   [Redis-object-cache](https://github.com/tillkruss/redis-cache)
+-   [WP-Super-Cache](https://github.com/Automattic/wp-super-cache)
+-   [WP-Rocket](https://github.com/wp-media/wp-rocket)
 
 ## License
 
-- [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.net)
+-   [MIT](http://opensource.org/licenses/MIT) © [WordOps](https://wordops.net)
