@@ -258,7 +258,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         "$upstream_response_time "
                         "$srcache_fetch_status "
                         "[$time_local] '\n"
-                        "'$http_host \"$request\" $status"
+                        "'$host \"$request\" $status"
                         " $body_bytes_sent '\n"
                         "'\"$http_referer\" "
                         "\"$http_user_agent\"';\n")
@@ -897,7 +897,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                             "# Log format Settings\n"
                             "log_format rt_cache_redis '$remote_addr "
                             "$upstream_response_time $srcache_fetch_status "
-                            "[$time_local] '\n '$http_host \"$request\" "
+                            "[$time_local] '\n '$host \"$request\" "
                             "$status $body_bytes_sent '\n'\"$http_referer\" "
                             "\"$http_user_agent\"';\n")
             # set redis.conf parameter
