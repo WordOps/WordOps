@@ -157,11 +157,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             if not WOFileUtils.grep(self, '/etc/nginx/proxy_params',
                                     'X-Forwarded-Host'):
                 WOFileUtils.textappend(self, '/etc/nginx/proxy_params',
-                                       'proxy_set_header \tX-Forwarded-Host \t$host;\n')
+                                       'proxy_set_header X-Forwarded-Host $host;\n')
             if not WOFileUtils.grep(self, '/etc/nginx/proxy_params',
                                     'X-Forwarded-Port'):
                 WOFileUtils.textappend(self, '/etc/nginx/proxy_params',
-                                       'proxy_set_header \tX-Forwarded-Port \t$server_port;\n')
+                                       'proxy_set_header X-Forwarded-Port $server_port;\n')
             try:
                 data = dict(php="9000", debug="9001",
                             php7="9070", debug7="9170",
