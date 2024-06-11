@@ -932,7 +932,8 @@ else
         wo_lib_echo "WordOps (wo) upgrade to $wo_version_new was successful!"
         wo_lib_echo "Changelog is available on https://github.com/WordOps/WordOps/releases/tag/$wo_version_new"
         echo
-        if [[ "$wo_version_new" == *"v3.21"* ]]; then
+        version_to_check="v3.21"
+        if echo "$wo_version_new" | grep -q "$version_to_check"; then
             wo_lib_echo "To upgrade Nginx package and configuration for HTTP/3 QUIC, use the following command"
             wo_lib_echo_info "wo stack migrate --nginx"
         fi
