@@ -153,7 +153,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                     'HTTP_HOST'):
                 WOFileUtils.textappend(self, '/etc/nginx/fastcgi_params',
                                        '# Fix for HTTP/3 QUIC HTTP_HOST\n'
-                                       'fastcgi_param \tHTTP_HOST \t$host;\n')
+                                       'fastcgi_param\tHTTP_HOST\t$host;\n')
             if not WOFileUtils.grep(self, '/etc/nginx/proxy_params',
                                     'X-Forwarded-Host'):
                 WOFileUtils.textappend(self, '/etc/nginx/proxy_params',
