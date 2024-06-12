@@ -32,7 +32,7 @@ def pre_pref(self, apt_packages):
         if not (WOVar.wo_distro == 'raspbian'):
             Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = (
-                "Package: *\nPin: origin mariadb.mirrors.ovh.net"
+                "Package: *\nPin: origin  deb.mariadb.org"
                 "\nPin-Priority: 1000\n")
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
@@ -41,7 +41,7 @@ def pre_pref(self, apt_packages):
                 mariadb_ver = self.app.config.get(
                     'mariadb', 'release')
                 wo_mysql_repo_conf = ("deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] "
-                                      "http://mariadb.mirrors.ovh.net/MariaDB/repo/"
+                                      "https://deb.mariadb.org/"
                                       f"{mariadb_ver}/{WOVar.wo_distro} {WOVar.wo_platform_codename} main")
             else:
                 wo_mysql_repo_conf = WOVar.wo_mysql_repo
