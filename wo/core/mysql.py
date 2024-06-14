@@ -169,7 +169,6 @@ class WOMysql():
         elif os.path.exists('/usr/bin/mysqladmin'):
             mariadb_admin = "/usr/bin/mysqladmin"
         else:
-            Log.info(self, "MariaDB server isn't installed")
             return False
         if WOShellExec.cmd_exec(self, f"{mariadb_admin} ping"):
             return True

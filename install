@@ -811,9 +811,6 @@ wo_init() {
     ###
 
     if [ -z "$wo_travis" ]; then
-        if [ -f /etc/apt/preferences.d/MariaDB.pref ]; then
-            sed -i 's/sfo1.mirrors.digitalocean.com/mariadb.mirrors.ovh.net/' /etc/apt/preferences.d/MariaDB.pref >/dev/null 2>&1
-        fi
         if ! {
             apt-get update --allow-releaseinfo-change -qq >/dev/null 2>&1
         }; then
