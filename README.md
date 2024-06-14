@@ -57,6 +57,7 @@
 
 #### Recommended
 
+-   Ubuntu 24.04 LTS (Noble)
 -   Ubuntu 22.04 LTS (Jammy)
 -   Ubuntu 20.04 LTS (Focal)
 
@@ -70,10 +71,6 @@
 
 -   Raspbian 10 (Buster)
 -   Raspbian 11 (Bullseye)
-
-#### Not fully compatible yet
-
--   Ubuntu 24.04 LTS (Noble)
 
 ## Getting Started
 
