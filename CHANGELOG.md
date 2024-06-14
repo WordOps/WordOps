@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.22.0 - [Unreleased]
 
+### v3.21.3 - 2024-06-14
+
+#### Added
+
+-   Add Ubuntu 24.04 LTS support
+
+#### Changed
+
+-   Use MariaDB dynamic mirror by @VirtuBox in #673
+
+#### Fixed
+
+-   Fix mariadb repo migration by @VirtuBox in #668
+
 ### v3.21.2 - 2024-06-11
 
 #### Added
