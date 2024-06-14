@@ -130,7 +130,6 @@ class WOStackController(CementBaseController):
             if pargs.all:
                 pargs.web = True
                 pargs.admin = True
-                pargs.php73 = True
                 pargs.php74 = True
                 pargs.php80 = True
                 pargs.php81 = True
