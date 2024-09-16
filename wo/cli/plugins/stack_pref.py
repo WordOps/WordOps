@@ -41,7 +41,7 @@ def pre_pref(self, apt_packages):
                 mariadb_ver = self.app.config.get(
                     'mariadb', 'release')
                 wo_mysql_repo_conf = ("deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] "
-                                      "https://deb.mariadb.org/"
+                                      "http://deb.mariadb.org/"
                                       f"{mariadb_ver}/{WOVar.wo_distro} {WOVar.wo_platform_codename} main")
             else:
                 wo_mysql_repo_conf = WOVar.wo_mysql_repo
