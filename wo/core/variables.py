@@ -188,7 +188,7 @@ class WOVar():
 
     # APT repositories
     wo_mysql_repo = ("deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] "
-                     "https://deb.mariadb.org/"
+                     "http://deb.mariadb.org/"
                      f"{mariadb_ver}/{wo_distro} {wo_platform_codename} main")
     mariadb_repo_key = "https://mariadb.org/mariadb_release_signing_key.pgp"
     if wo_distro == 'ubuntu':
