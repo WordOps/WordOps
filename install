@@ -830,7 +830,12 @@ wo_init() {
         fi
     fi
     if [ "$wo_force_install" = "y" ]; then
-        [ ! -f "$HOME/.gitconfig" ] && { bash -c 'echo -e "[user]\n\tname = $USER\n\temail = root@$HOSTNAME.local" > $HOME/.gitconfig'; }
+        # Check if USER is empty and assign to a variable
+        USER_OR_WORDOPS=${USER:-WordOps}
+
+        [ ! -f "$HOME/.gitconfig" ] && {
+            bash -c "echo -e \"[user]\n\tname = $USER_OR_WORDOPS\n\temail = root@$HOSTNAME.local\" > $HOME/.gitconfig";
+        }
     fi
     if [ -f ./setup.py ]; then
         wo_version_new=$(grep "version='" setup.py | awk -F "'" '{print $2}' 2>&1)
