@@ -15,7 +15,7 @@ class WOVar():
     """Intialization of core variables"""
 
     # WordOps version
-    wo_version = "3.21.3"
+    wo_version = "3.22.0"
     # WordOps packages versions
     wo_adminer = "4.8.1"
     wo_phpmyadmin = "5.2.0"
@@ -149,6 +149,7 @@ class WOVar():
         'php81': '8.1',
         'php82': '8.2',
         'php83': '8.3',
+        'php84': '8.4',
     }
 
     def generate_php_modules(version_prefix, version_number):
@@ -169,6 +170,7 @@ class WOVar():
     wo_php81 = generate_php_modules('php81', '8.1')
     wo_php82 = generate_php_modules('php82', '8.2')
     wo_php83 = generate_php_modules('php83', '8.3')
+    wo_php84 = generate_php_modules('php84', '8.4')
 
     wo_php_extra = ["graphviz"]
 

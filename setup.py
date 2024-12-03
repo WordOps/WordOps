@@ -27,7 +27,7 @@ if os.geteuid() == 0:
         os.makedirs('/var/lib/wo/tmp/')
 
 setup(name='wordops',
-      version='3.21.3',
+      version='3.22.0',
       description='An essential toolset that eases server administration',
       long_description=LONG,
       long_description_content_type='text/markdown',

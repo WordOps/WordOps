@@ -135,6 +135,7 @@ class WOStackController(CementBaseController):
                 pargs.php81 = True
                 pargs.php82 = True
                 pargs.php83 = True
+                pargs.php84 = True
                 pargs.redis = True
                 pargs.proftpd = True
 
@@ -192,6 +193,7 @@ class WOStackController(CementBaseController):
                 'php81': WOVar.wo_php81,
                 'php82': WOVar.wo_php82,
                 'php83': WOVar.wo_php83,
+                'php84': WOVar.wo_php84,
             }
 
             for parg_version, version in WOVar.wo_php_versions.items():
@@ -477,7 +479,8 @@ class WOStackController(CementBaseController):
                         WOAptGet.is_installed(self, 'php8.0-fpm') or
                         WOAptGet.is_installed(self, 'php8.1-fpm') or
                         WOAptGet.is_installed(self, 'php8.2-fpm') or
-                        WOAptGet.is_installed(self, 'php8.3-fpm')):
+                        WOAptGet.is_installed(self, 'php8.3-fpm') or
+                        WOAptGet.is_installed(self, 'php8.4-fpm')):
                     pargs.php = True
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [[
@@ -577,6 +580,7 @@ class WOStackController(CementBaseController):
             pargs.php81 = True
             pargs.php82 = True
             pargs.php83 = True
+            pargs.php84 = True
             pargs.fail2ban = True
             pargs.proftpd = True
             pargs.utils = True
@@ -618,6 +622,7 @@ class WOStackController(CementBaseController):
             'php81': WOVar.wo_php81,
             'php82': WOVar.wo_php82,
             'php83': WOVar.wo_php83,
+            'php84': WOVar.wo_php84,
         }
 
         # Loop through all versions.
@@ -898,6 +903,7 @@ class WOStackController(CementBaseController):
             pargs.php81 = True
             pargs.php82 = True
             pargs.php83 = True
+            pargs.php84 = True
             pargs.fail2ban = True
             pargs.proftpd = True
             pargs.utils = True
@@ -939,6 +945,7 @@ class WOStackController(CementBaseController):
             'php81': WOVar.wo_php81,
             'php82': WOVar.wo_php82,
             'php83': WOVar.wo_php83,
+            'php84': WOVar.wo_php84,
         }
 
         for parg_version, version in WOVar.wo_php_versions.items():

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### v3.22.0 - [Unreleased]
 
+#### Added
+
+-   Add PHP 8.4 support
+
 ### v3.21.3 - 2024-06-14
 
 #### Added
