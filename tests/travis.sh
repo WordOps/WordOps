@@ -63,6 +63,7 @@ for site in $site_types; do
     else
         echo -e "        Creating $site              [${CRED}FAIL${CEND}]"
         echo -ne '\n'
+        nginx -t
         exit_script
 
     fi
