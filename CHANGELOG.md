@@ -10,7 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 #### Added
 
--   Add PHP 8.4 support
+-   Add PHP 8.4 support by @VirtuBox
+
+#### Changed
+
+-   Default PHP version bumped to 8.3 by @VirtuBox
+
+#### Fixed
+
+-   Fix html site creation by @VirtuBox in #703
 
 ### v3.21.3 - 2024-06-14
 

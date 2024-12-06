@@ -53,7 +53,7 @@ _wo_complete()
 
             "info")
                 COMPREPLY=( $(compgen \
-                              -W "--mysql --php --php74 --php80 --php81 --php82 --php83 --nginx" \
+                              -W "--mysql --php --php74 --php80 --php81 --php82 --php83 --php84 --nginx" \
                               -- $cur) )
                 ;;
 
@@ -74,12 +74,12 @@ _wo_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --security --nginx --php74 --php80 --php81 --php82 --php83 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --ufw --dashboard --proftpd --clamav --sendmail --ngxblocker --mysqlclient --mysqltuner --extplorer --nanorc --cheat --brotli --all --force" \
+                              -W "--web --admin --security --nginx --php74 --php80 --php81 --php82 --php83 --php84 --mysql --wpcli --phpmyadmin --adminer --utils --redis --phpredisadmin --composer --netdata --fail2ban --ufw --dashboard --proftpd --clamav --sendmail --ngxblocker --mysqlclient --mysqltuner --extplorer --nanorc --cheat --brotli --all --force" \
                               -- $cur) )
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --utils --nginx --php74 --php80 --php81 --php82 --php83   --mysql --all --netdata --composer --phpmyadmin --adminer --dashboard --mysqltuner --wpcli --force" \
+                              -W "--web --admin --utils --nginx --php74 --php80 --php81 --php82 --php83 --php84   --mysql --all --netdata --composer --phpmyadmin --adminer --dashboard --mysqltuner --wpcli --force" \
                               -- $cur) )
                 ;;
             "migrate")
@@ -89,7 +89,7 @@ _wo_complete()
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --php74 --php80 --php81 --php82 --php83 --mysql --redis --fail2ban --ufw --netdata -proftpd" \
+                              -W "--nginx --php --php74 --php80 --php81 --php82 --php83 --php84 --mysql --redis --fail2ban --ufw --netdata -proftpd" \
                               -- $cur) )
                 ;;
             "list")
@@ -159,13 +159,13 @@ _wo_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --php74 --php80 --php81 --php82 --php83  --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --alias --subsiteof --wpredis --wprocket --wpce -le --letsencrypt  --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon" \
+                                    -W "--user --pass --email --html --php --php74 --php80 --php81 --php82 --php83 --php84  --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --proxy= --alias --subsiteof --wpredis --wprocket --wpce -le --letsencrypt  --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --php74 --php80 --php81 --php82 --php83  --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --alias --subsiteof -le -le=off --letsencrypt --letsencrypt=off --letsencrypt=clean -le=wildcard -le=clean --dns --dns=dns_cf --dns=dns_dgon --ngxblocker --ngxblocker=off" \
+                                    -W "--password --php --php74 --php80 --php81 --php82 --php83 --php84  --mysql --wp --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --alias --subsiteof -le -le=off --letsencrypt --letsencrypt=off --letsencrypt=clean -le=wildcard -le=clean --dns --dns=dns_cf --dns=dns_dgon --ngxblocker --ngxblocker=off" \
                                  -- $cur) )
                 ;;
             "delete")
@@ -211,9 +211,9 @@ _wo_complete()
         "--wp")
             if [ "${COMP_WORDS[1]}" != "debug" ]; then
                 if [ "${COMP_WORDS[2]}" == "create" ]; then
-                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce --letsencrypt -le --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon --php74 --php80 --php81 --php82 --php83"
+                    retlist="--wp --wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce --letsencrypt -le --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon --php74 --php80 --php81 --php82 --php83 --php84"
                 elif [ "${COMP_WORDS[2]}" == "update" ]; then
-                    retlist="--wp --wpfc --wpsc --php74 --php80 --php81 --php82 --php83  --wpredis --wprocket --wpce -le --letsencrypt --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon"
+                    retlist="--wp --wpfc --wpsc --php74 --php80 --php81 --php82 --php83 --php84  --wpredis --wprocket --wpce -le --letsencrypt --letsencrypt=wildcard -le=wildcard --dns --dns=dns_cf --dns=dns_dgon"
                 else
                     retlist=""
                 fi
@@ -230,9 +230,9 @@ _wo_complete()
         "--wpsubdir" | "--wpsubdomain")
             if [ "${COMP_WORDS[1]}" != "debug" ]; then
                 if [ "${COMP_WORDS[2]}" == "create" ]; then
-                    retlist="--wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce  -le -le=wildcard --letsencrypt --letsencrypt=wildcard --php74 --php80 --php81 --php82 --php83 --dns --dns=dns_cf --dns=dns_dgon"
+                    retlist="--wpsc --wpfc --user --email --pass --wpredis --wprocket --wpce  -le -le=wildcard --letsencrypt --letsencrypt=wildcard --php74 --php80 --php81 --php82 --php83 --php84 --dns --dns=dns_cf --dns=dns_dgon"
                 elif [ "${COMP_WORDS[2]}" == "update" ]; then
-                    retlist="--wpfc --wpsc --php74 --php80 --php81 --php82 --php83 --wpredis --wprocket --wpce -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
+                    retlist="--wpfc --wpsc --php74 --php80 --php81 --php82 --php83 --php84 --wpredis --wprocket --wpce -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
                 else
                     retlist=""
                 fi
@@ -248,7 +248,7 @@ _wo_complete()
 
         "--wpredis" | "--wprocket" | "--wpce" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
             if [ "${COMP_WORDS[2]}" == "create" ]; then
-                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --php74 --php80 --php81 --php82 --php83 -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce --php74 --php80 --php81 --php82 --php83 --php84 -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
             else
                 retlist=""
             fi
@@ -261,9 +261,9 @@ _wo_complete()
 
         "--wpredis" | "--wprocket" | "--wpce" | "--wpfc" | "--wpsc")
             if [ "${COMP_WORDS[2]}" == "update" ]; then
-                retlist="--password --php74 --php80 --php81 --php82 --php83 --mysql --wp  --wpsubdir --wpsubdomain -le --letsencrypt --dns --dns=dns_cf --dns=dns_dgon"
+                retlist="--password --php74 --php80 --php81 --php82 --php83 --php84 --mysql --wp  --wpsubdir --wpsubdomain -le --letsencrypt --dns --dns=dns_cf --dns=dns_dgon"
             else
-                retlist=""| "--php82" | "--php83"
+                retlist=""| "--php82" | "--php83 --php84"
             fi
 
             ret="${retlist[@]/$prev}"
@@ -272,11 +272,11 @@ _wo_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--nginx" | "--php" | "--php74" | "--php80" | "--php81" | "--php82" | "--php83" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--ufw" | "--redis" | "--phpredisadmin" | "--netdata" | "--sendmail" | "--composer" | "--proftpd" | "--cheat" | "--nanorc" | "--clamav" | "--dashboard")
+        "--web" | "--admin" | "--nginx" | "--php" | "--php74" | "--php80" | "--php81" | "--php82" | "--php83" | "--php84" | "--mysql" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--fail2ban" | "--ufw" | "--redis" | "--phpredisadmin" | "--netdata" | "--sendmail" | "--composer" | "--proftpd" | "--cheat" | "--nanorc" | "--clamav" | "--dashboard")
             if [[ "${COMP_WORDS[2]}" == "install" || "${COMP_WORDS[2]}" == "purge" || "${COMP_WORDS[2]}" == "remove" ]]; then
-                retlist="--web --admin --security --nginx --php --php74 --php80 --php81 --php82 --php83 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --ufw --phpredisadmin --netdata --force"
+                retlist="--web --admin --security --nginx --php --php74 --php80 --php81 --php82 --php83 --php84 --mysql --wpcli --phpmyadmin --adminer --utils --redis --fail2ban --ufw --phpredisadmin --netdata --force"
             elif [[ "${COMP_WORDS[2]}" == "start" || "${COMP_WORDS[2]}" == "reload" || "${COMP_WORDS[2]}" == "restart" || "${COMP_WORDS[2]}" == "stop" ]]; then
-                    retlist="--nginx --php  --php74 --php80 --php81 --php82 --php83 --mysql --redis --netdata --fail2ban --ufw"
+                    retlist="--nginx --php  --php74 --php80 --php81 --php82 --php83 --php84 --mysql --redis --netdata --fail2ban --ufw"
             elif [[ "${COMP_WORDS[1]}" == "debug" ]]; then
                     retlist="--start --nginx --php --php73 --fpm --fpm7 --mysql -i --interactive -stop --import-slow-log --import-slow-log-interval= -"
                     if [[ $prev == '--mysql' ]]; then
@@ -363,7 +363,7 @@ _wo_complete()
         case "$mprev" in
             "--user" | "--email" | "--pass")
                 if [ "${COMP_WORDS[2]}" == "create" ]; then
-                    retlist="--user --pass --email --html --php --php74 --php80 --php81 --php82 --php83 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
+                    retlist="--user --pass --email --html --php --php74 --php80 --php81 --php82 --php83 --php84 --mysql --wp  --wpsubdir --wpsubdomain --wpfc --wpsc --wpredis --wprocket --wpce -le -le=wildcard --letsencrypt --letsencrypt=wildcard --dns --dns=dns_cf --dns=dns_dgon"
                 fi
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
