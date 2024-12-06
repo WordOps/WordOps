@@ -395,8 +395,8 @@ class WOSiteCreateController(CementBaseController):
             else:
                 if not php_version:
                     php_version = None
-                    addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
-                               php_version=php_version)
+                addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
+                           php_version=php_version)
 
             # Setup database for MySQL site
             if 'wo_db_name' in data.keys() and not data['wp']:
