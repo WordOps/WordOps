@@ -225,7 +225,7 @@ class WOSiteCreateController(CementBaseController):
             data['subsiteof_webroot'] = parent_site_info.site_path
 
         if (pargs.php74 or pargs.php80 or pargs.php81 or
-                pargs.php82 or pargs.php83):
+                pargs.php82 or pargs.php83 or pargs.php84):
             data = dict(
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=False,
@@ -393,6 +393,8 @@ class WOSiteCreateController(CementBaseController):
                          " http://{0}".format(wo_domain))
 
             else:
+                if not php_version:
+                    php_version = None
                 addNewSite(self, wo_domain, stype, cache, wo_site_webroot,
                            php_version=php_version)
 
