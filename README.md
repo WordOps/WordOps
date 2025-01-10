@@ -159,11 +159,19 @@ wo update
 If you feel there is a bug directly related to WordOps, or if you want to suggest new features for WordOps, feel free to open an issue.
 For any other questions about WordOps or if you need support, please use the [Community Forum](https://community.wordops.net/).
 
-# Contributing
+## Contributing
 
 If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
 There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.net).
 Otherwise, you can still contribute to the project by making a donation on [Ko-Fi](https://ko-fi.com/wordops).
+
+## Sponsors
+
+Thanks to our generous sponsors for supporting the development of WordOps:
+
+| [Liquid Web](https://www.liquidweb.com/)                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| <a href="https://www.liquidweb.com/" target="_blank"><img src="https://docs.wordops.net/images/liquid-web.png" alt="Liquid Web logo" width="200"/></a> |
 
 ## Credits
 
@@ -202,14 +210,6 @@ WordPress Cache Plugins supported by WordOps :
 -   [Redis-object-cache](https://github.com/tillkruss/redis-cache)
 -   [WP-Super-Cache](https://github.com/Automattic/wp-super-cache)
 -   [WP-Rocket](https://github.com/wp-media/wp-rocket)
-
-## Sponsors
-
-Thanks to our generous sponsors for supporting the development of WordOps:
-
-| [Liquid Web](https://www.liquidweb.com/)                                                                                                               |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <a href="https://www.liquidweb.com/" target="_blank"><img src="https://docs.wordops.net/images/liquid-web.png" alt="Liquid Web logo" width="200"/></a> |
 
 ## License
 
