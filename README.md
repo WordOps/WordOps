@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/WordOps/WordOps/actions" target="_blank"><img src="https://github.com/WordOps/WordOps/workflows/CI/badge.svg?branch=master" alt="CI"></a>
+<a href="https://github.com/WordOps/WordOps/actions" target="_blank"><img src="https://github.com/WordOps/WordOps/actions/workflows/main.yml/badge.svg?branch=master" alt="CI"></a>
 <img src="https://img.shields.io/github/license/wordops/wordops.svg?cacheSeconds=86400" alt="MIT">
 <img src="https://img.shields.io/github/last-commit/wordops/wordops.svg?cacheSeconds=86400" alt="Commits">
 <img alt="GitHub release" src="https://img.shields.io/github/release/WordOps/WordOps.svg">
@@ -39,7 +39,7 @@
 
 -   **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 -   **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
--   **Custom Nginx build** : Nginx 1.26.1 - TLS v1.3 HTTP/3 QUIC & Brotli support
+-   **Custom Nginx build** : Nginx 1.26.2 - TLS v1.3 HTTP/3 QUIC & Brotli support
 -   **Up-to-date** : PHP 7.4, 8.0, 8.1, 8.2, 8.3 & 8.4 - MariaDB 11.4 LTS & Redis 7.0
 -   **Secured** : Hardened WordPress security with strict Nginx location directives
 -   **Powerful** : Optimized Nginx configurations with multiple cache backends support
@@ -63,13 +63,11 @@
 
 #### Also compatible
 
--   Debian 10 (Buster)
 -   Debian 11 (Bullseye)
 -   Debian 12 (Bookworm)
 
 #### For testing purpose only
 
--   Raspbian 10 (Buster)
 -   Raspbian 11 (Bullseye)
 
 ## Getting Started
@@ -204,6 +202,15 @@ WordPress Cache Plugins supported by WordOps :
 -   [Redis-object-cache](https://github.com/tillkruss/redis-cache)
 -   [WP-Super-Cache](https://github.com/Automattic/wp-super-cache)
 -   [WP-Rocket](https://github.com/wp-media/wp-rocket)
+
+## Sponsors
+
+Thanks to our generous sponsors for supporting the development of WordOps:
+
+| Liquid Web                                                                                    |
+| --------------------------------------------------------------------------------------------- |
+| <img src="https://docs.wordops.net/images/liquid-web.png" alt="Liquid Web logo" width="200"/> |
+| [Liquid Web](https://www.liquidweb.com/)                                                      |
 
 ## License
 
