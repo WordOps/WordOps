@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/WordOps/WordOps/actions" target="_blank"><img src="https://github.com/WordOps/WordOps/workflows/CI/badge.svg?branch=master" alt="CI"></a>
+<a href="https://github.com/WordOps/WordOps/actions" target="_blank"><img src="https://github.com/WordOps/WordOps/actions/workflows/main.yml/badge.svg?branch=master" alt="CI"></a>
 <img src="https://img.shields.io/github/license/wordops/wordops.svg?cacheSeconds=86400" alt="MIT">
 <img src="https://img.shields.io/github/last-commit/wordops/wordops.svg?cacheSeconds=86400" alt="Commits">
 <img alt="GitHub release" src="https://img.shields.io/github/release/WordOps/WordOps.svg">
@@ -39,7 +39,7 @@
 
 -   **Easy to install** : One step automated installer with migration from EasyEngine v3 support
 -   **Fast deployment** : Fast and automated WordPress, Nginx, PHP, MySQL & Redis installation
--   **Custom Nginx build** : Nginx 1.26.1 - TLS v1.3 HTTP/3 QUIC & Brotli support
+-   **Custom Nginx build** : Nginx 1.26.2 - TLS v1.3 HTTP/3 QUIC & Brotli support
 -   **Up-to-date** : PHP 7.4, 8.0, 8.1, 8.2, 8.3 & 8.4 - MariaDB 11.4 LTS & Redis 7.0
 -   **Secured** : Hardened WordPress security with strict Nginx location directives
 -   **Powerful** : Optimized Nginx configurations with multiple cache backends support
@@ -63,13 +63,11 @@
 
 #### Also compatible
 
--   Debian 10 (Buster)
 -   Debian 11 (Bullseye)
 -   Debian 12 (Bookworm)
 
 #### For testing purpose only
 
--   Raspbian 10 (Buster)
 -   Raspbian 11 (Bullseye)
 
 ## Getting Started
@@ -161,11 +159,19 @@ wo update
 If you feel there is a bug directly related to WordOps, or if you want to suggest new features for WordOps, feel free to open an issue.
 For any other questions about WordOps or if you need support, please use the [Community Forum](https://community.wordops.net/).
 
-# Contributing
+## Contributing
 
 If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
 There is no need to be a developer or a system administrator to contribute to WordOps project. You can still contribute by helping us to improve [WordOps documentation](https://github.com/WordOps/docs.wordops.net).
 Otherwise, you can still contribute to the project by making a donation on [Ko-Fi](https://ko-fi.com/wordops).
+
+## Sponsors
+
+Thanks to our generous sponsors for supporting the development of WordOps:
+
+| [Liquid Web](https://www.liquidweb.com/)                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| <a href="https://www.liquidweb.com/" target="_blank"><img src="https://docs.wordops.net/images/liquid-web.png" alt="Liquid Web logo" width="200"/></a> |
 
 ## Credits
 
