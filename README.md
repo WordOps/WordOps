@@ -207,10 +207,9 @@ WordPress Cache Plugins supported by WordOps :
 
 Thanks to our generous sponsors for supporting the development of WordOps:
 
-| Liquid Web                                                                                                                                             |
+| [Liquid Web](https://www.liquidweb.com/)                                                                                                               |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | <a href="https://www.liquidweb.com/" target="_blank"><img src="https://docs.wordops.net/images/liquid-web.png" alt="Liquid Web logo" width="200"/></a> |
-| [Liquid Web](https://www.liquidweb.com/)                                                                                                               |
 
 ## License
 
