@@ -6,5 +6,5 @@ sh==2.2.2
 SQLAlchemy==1.4.54
 requests>=2.20.0
 distro==1.9.0
-argcomplete==3.5.3
+argcomplete==3.6.1
 colorlog==6.9.0
