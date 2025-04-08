@@ -514,7 +514,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             data = dict(pool='www-php{0}'.format(php_short),
                         listen='php{0}-fpm.sock'.format(php_short),
                         user='www-data',
-                        group='www-data', listenuser='root',
+                        group='www-data', listenuser='www-data',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self, '/etc/php/{0}/fpm/pool.d/www.conf'
                               .format(php_version[0]),
@@ -522,7 +522,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             data = dict(pool='www-two-php{0}'.format(php_short),
                         listen='php{0}-two-fpm.sock'.format(php_short),
                         user='www-data',
-                        group='www-data', listenuser='root',
+                        group='www-data', listenuser='www-data',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self,
                               '/etc/php/{0}/fpm/pool.d/www-two.conf'.format(
