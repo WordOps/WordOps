@@ -29,7 +29,7 @@ class WODownload():
                     out_file.write(req.content)
                 Log.valide(self, "Downloading {0:20}".format(pkg_name))
             except requests.RequestException as e:
-                Log.debug(self, "[{err}]".format(err=str(e.reason)))
+                Log.debug(self, f"[{type(e).__name__}] {str(e)}")
                 Log.error(self, "Unable to download file, {0}"
                           .format(filename), exit=False)
                 return False
