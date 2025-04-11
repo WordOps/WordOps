@@ -34,13 +34,6 @@ class WORepo():
                         repofile.write(repo_url)
                         repofile.write('\n')
                         repofile.close()
-                elif repo_url not in open(repo_file_path,
-                                          encoding='utf-8').read():
-                    with open(repo_file_path,
-                              encoding='utf-8', mode='w') as repofile:
-                        repofile.write(repo_url)
-                        repofile.write('\n')
-                        repofile.close()
                 return True
             except IOError as e:
                 Log.debug(self, "{0}".format(e))
