@@ -31,9 +31,14 @@ jobs:
         sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php -y > /dev/null 2>&1
         sudo rm -rf /etc/mysql /var/lib/mysql
         sudo apt-get purge --option=Dpkg::options::=--force-all --assume-yes graphviz* redis* php* mysql* nginx* > /dev/null 2>&1
-        sudo apt-get install -qq git ccze tree > /dev/null 2>&1
+        sudo apt-get install -qq git ccze tree apt-transport-https curl > /dev/null 2>&1
         sudo apt-get -qq autoremove --purge > /dev/null 2>&1
         sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > $HOME/.gitconfig'
+        sudo mkdir -p /etc/apt/keyrings
+        sudo curl -o /etc/apt/keyrings/mariadb-keyring.pgp 'https://mariadb.org/mariadb_release_signing_key.pgp'
+        ubuntu_version=$(lsb_release -cs)
+        echo "deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] http://mariadb.mirrors.ovh.net/MariaDB/repo/11.4/ubuntu $ubuntu_version main" | sudo tee /etc/apt/sources.list.d/mariadb.list
+        
     - name: Install WordOps
       run: sudo timeout 1800 bash install --travis
     - name: Run tests
