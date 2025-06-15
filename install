@@ -507,7 +507,8 @@ wo_install() {
     cd || exit 1
     if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
         source /opt/wo/bin/activate
-        /opt/wo/bin/pip install -U setuptools
+        /opt/wo/bin/pip uninstall -yq setuptools
+        /opt/wo/bin/pip install setuptools==80.0.1
         /opt/wo/bin/pip install -U pip wheel distro
         /opt/wo/bin/pip uninstall psutil -y
         /opt/wo/bin/pip uninstall SQLAlchemy -y
@@ -515,7 +516,8 @@ wo_install() {
         rm -rf /opt/wo
         python3 -m venv /opt/wo
         source /opt/wo/bin/activate
-        /opt/wo/bin/pip install -U setuptools
+        /opt/wo/bin/pip uninstall -yq setuptools
+        /opt/wo/bin/pip install setuptools==80.0.1
         /opt/wo/bin/pip install -U pip wheel
         /opt/wo/bin/pip install -U distro
         if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
@@ -573,7 +575,8 @@ wo_travis_install() {
     if [ -f ./setup.py ]; then
         if [ -d /opt/wo/lib/python3."$python_ver"/site-packages/apt ]; then
             source /opt/wo/bin/activate
-            /opt/wo/bin/pip install -U setuptool
+            /opt/wo/bin/pip uninstall -yq setuptools
+            /opt/wo/bin/pip install setuptools==80.0.1
             /opt/wo/bin/pip install -U pip wheel
             /opt/wo/bin/pip uninstall psutil -y
             /opt/wo/bin/pip uninstall SQLAlchemy -y
@@ -581,7 +584,8 @@ wo_travis_install() {
             rm -rf /opt/wo
             python3 -m venv /opt/wo
             source /opt/wo/bin/activate
-            /opt/wo/bin/pip install -U setuptools
+            /opt/wo/bin/pip uninstall -yq setuptools
+            /opt/wo/bin/pip install setuptools==80.0.1
             /opt/wo/bin/pip install -U pip wheel
             if [ "$wo_linux_distro" = "Debian" ] || [ "$wo_linux_distro" = "Raspbian" ]; then
                 if [ "$wo_distro_codename" = "stretch" ]; then
@@ -834,7 +838,7 @@ wo_init() {
         USER_OR_WORDOPS=${USER:-WordOps}
 
         [ ! -f "$HOME/.gitconfig" ] && {
-            bash -c "echo -e \"[user]\n\tname = $USER_OR_WORDOPS\n\temail = root@$HOSTNAME.local\" > $HOME/.gitconfig";
+            bash -c "echo -e \"[user]\n\tname = $USER_OR_WORDOPS\n\temail = root@$HOSTNAME.local\" > $HOME/.gitconfig"
         }
     fi
     if [ -f ./setup.py ]; then
