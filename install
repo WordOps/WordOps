@@ -206,6 +206,7 @@ wo_dir_init() {
 wo_install_dep() {
     local wo_linux_distro
     wo_linux_distro=$(lsb_release -is)
+    wo_python_venv=$(apt-cache policy python3.12-venv 2>&1 | grep -q Installed)
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
         # install dependencies
         add-apt-repository ppa:git-core/ppa -y
@@ -213,6 +214,10 @@ wo_install_dep() {
             build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
             python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
+        if $wo_python_venv; then
+            apt install -yy python3.12-venv >/dev/null 2>&1
+        fi
+
     else
         # install dependencies
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
