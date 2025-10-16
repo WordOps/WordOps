@@ -82,7 +82,7 @@ map $args $args_to_cache {
 
 # do not cache requests with query strings excepted analytics related queries
 map $is_args_no_cache$args_to_cache $query_no_cache {
-    defaut 1;
+    default 1;
     00 0;
     11 0;
 }
