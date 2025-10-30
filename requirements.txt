@@ -7,4 +7,4 @@ SQLAlchemy==1.4.54
 requests>=2.20.0
 distro==1.9.0
 argcomplete==3.6.2
-colorlog==6.9.0
+colorlog==6.10.1
