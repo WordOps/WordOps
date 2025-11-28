@@ -1,9 +1,9 @@
 {{#quic}}
 # display http version used in header (optional)
-more_set_headers "X-protocol : $server_protocol always";
+more_set_headers "X-Protocol: $server_protocol";
 
 # Advertise HTTP/3 QUIC support (required)
-more_set_headers 'Alt-Svc h3=":$server_port"; ma=86400';
+more_set_headers "Alt-Svc: h3=\":$server_port\"; ma=86400";
 
 # enable [QUIC address validation](https://datatracker.ietf.org/doc/html/rfc9000#name-address-validation)
 quic_retry on;
