@@ -126,12 +126,14 @@ class WOInfoController(CementBaseController):
             config.read('/etc/php/7.4/fpm/pool.d/www.conf')
         else:
             Log.error(self, 'php-fpm pool config not found')
+            return
         if config.has_section('www'):
             wconfig = config['www']
         elif config.has_section('www-php74'):
             wconfig = config['www-php74']
         else:
             Log.error(self, 'Unable to parse configuration')
+            return
         www_listen = wconfig['listen']
         www_ping_path = wconfig['ping.path']
         www_pm_status_path = wconfig['pm.status_path']
@@ -151,6 +153,9 @@ class WOInfoController(CementBaseController):
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
 
+        if not os.path.exists('/etc/php/7.4/fpm/pool.d/debug.conf'):
+            Log.error(self, 'php-fpm debug pool config not found')
+            return
         config.read('/etc/php/7.4/fpm/pool.d/debug.conf')
         debug_listen = config['debug']['listen']
         debug_ping_path = config['debug']['ping.path']
@@ -561,12 +566,14 @@ class WOInfoController(CementBaseController):
             config.read('/etc/php/8.4/fpm/pool.d/www.conf')
         else:
             Log.error(self, 'php-fpm pool config not found')
+            return
         if config.has_section('www'):
             wconfig = config['www']
         elif config.has_section('www-php84'):
             wconfig = config['www-php84']
         else:
             Log.error(self, 'Unable to parse configuration')
+            return
         www_listen = wconfig['listen']
         www_ping_path = wconfig['ping.path']
         www_pm_status_path = wconfig['pm.status_path']
@@ -586,6 +593,9 @@ class WOInfoController(CementBaseController):
             Log.debug(self, "{0}".format(e))
             www_xdebug = 'off'
 
+        if not os.path.exists('/etc/php/8.4/fpm/pool.d/debug.conf'):
+            Log.error(self, 'php-fpm debug pool config not found')
+            return
         config.read('/etc/php/8.4/fpm/pool.d/debug.conf')
         debug_listen = config['debug']['listen']
         debug_ping_path = config['debug']['ping.path']
