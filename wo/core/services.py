@@ -172,6 +172,7 @@ class WOService():
                                                     'php8.2-fpm',
                                                     'php8.3-fpm',
                                                     'php8.4-fpm',
+                                                    'php8.5-fpm',
                                                     ]:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
