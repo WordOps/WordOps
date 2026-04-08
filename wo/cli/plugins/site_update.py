@@ -269,7 +269,7 @@ class WOSiteUpdateController(CementBaseController):
 
         if (((stype == 'php' and
               oldsitetype not in ['html', 'proxy', 'php', 'php74', 'php80',
-                                  'php81', 'php82', 'php83', 'php84']) or
+                                  'php81', 'php82', 'php83', 'php84', 'php85']) or
              (stype == 'mysql' and oldsitetype not in [
                  'html', 'php', 'php74', 'php80', 'php81',
                  'php82', 'php83', 'php84', 'php85', 'proxy']) or

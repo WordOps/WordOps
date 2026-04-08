@@ -155,14 +155,21 @@ class WOVar():
 
     def generate_php_modules(version_prefix, version_number):
         wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
-                     "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
-                     "mysql", "opcache", "readline", "redis", "soap", "xdebug",
-                     "xml", "zip"]
+                    "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
+                    "mysql", "readline", "redis", "soap", "xdebug",
+                    "xml", "zip"]
+
+        # opcache is bundled in PHP 8.5+
+        if version_number != '8.5':
+            wo_module.append("opcache")
+
         php_modules = ["php{0}-{1}".format(version_number, module) for module in wo_module]
 
         if version_prefix == 'php74':
-            php_modules.extend(["php{0}-geoip".format(version_number),
-                                "php{0}-json".format(version_number)])
+            php_modules.extend([
+                "php{0}-geoip".format(version_number),
+                "php{0}-json".format(version_number)
+            ])
 
         return php_modules
 
