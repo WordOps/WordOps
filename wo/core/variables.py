@@ -150,18 +150,26 @@ class WOVar():
         'php82': '8.2',
         'php83': '8.3',
         'php84': '8.4',
+        'php85': '8.5',
     }
 
     def generate_php_modules(version_prefix, version_number):
         wo_module = ["bcmath", "cli", "common", "curl", "fpm", "gd", "igbinary",
-                     "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
-                     "mysql", "opcache", "readline", "redis", "soap", "xdebug",
-                     "xml", "zip"]
+                    "imagick", "imap", "intl", "mbstring", "memcached", "msgpack",
+                    "mysql", "readline", "redis", "soap", "xdebug",
+                    "xml", "zip"]
+
+        # opcache is bundled in PHP 8.5+
+        if version_number != '8.5':
+            wo_module.append("opcache")
+
         php_modules = ["php{0}-{1}".format(version_number, module) for module in wo_module]
 
         if version_prefix == 'php74':
-            php_modules.extend(["php{0}-geoip".format(version_number),
-                                "php{0}-json".format(version_number)])
+            php_modules.extend([
+                "php{0}-geoip".format(version_number),
+                "php{0}-json".format(version_number)
+            ])
 
         return php_modules
 
@@ -171,6 +179,7 @@ class WOVar():
     wo_php82 = generate_php_modules('php82', '8.2')
     wo_php83 = generate_php_modules('php83', '8.3')
     wo_php84 = generate_php_modules('php84', '8.4')
+    wo_php85 = generate_php_modules('php85', '8.5')
 
     wo_php_extra = ["graphviz"]
 

@@ -32,7 +32,7 @@ echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       stack install             '
 echo -e "${CGREEN}#############################################${CEND}"
 
-stack_list='nginx php php74 php80 php81 php82 php83 php84 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer redis phpredisadmin mysqltuner utils ufw cheat nanorc'
+stack_list='nginx php php74 php80 php81 php82 php83 php84 php85 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer redis phpredisadmin mysqltuner utils ufw cheat nanorc'
 
 for stack in $stack_list; do
     echo -ne "       Installing $stack               [..]\r"
@@ -52,7 +52,7 @@ done
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       Simple site create              '
 echo -e "${CGREEN}#############################################${CEND}"
-site_types='html php php74 php80 php81 php82 php83 php84 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
+site_types='html php php74 php80 php81 php82 php83 php84 php85 mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir ngxblocker'
 for site in $site_types; do
     echo -ne "       Creating $site               [..]\r"
     if {
@@ -117,7 +117,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php74              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql php81 php82 php83 php84 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+other_site_types='mysql php80 php81 php82 php83 php84 php85 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php74              [..]\r"
     if {
@@ -148,7 +148,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php80             '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql php81 php82 php84 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+other_site_types='mysql php74 php81 php82 php83 php84 php85 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php80              [..]\r"
     if {
@@ -171,7 +171,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php81              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql php82 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+other_site_types='mysql php74 php80 php82 php83 php84 php85 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php81              [..]\r"
     if {
@@ -192,7 +192,7 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php82              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+other_site_types='mysql php74 php80 php81 php83 php84 php85 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php82              [..]\r"
     if {
@@ -211,18 +211,60 @@ echo
 echo -e "${CGREEN}#############################################${CEND}"
 echo
 echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update --php83              '
+echo -e "${CGREEN}#############################################${CEND}"
+other_site_types='mysql php74 php80 php81 php82 php84 php85 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+for site in $other_site_types; do
+    echo -ne "       Updating site to $site php83              [..]\r"
+    if {
+        wo site update ${site}.net --php83
+    } >>/var/log/wo/test.log; then
+        echo -ne "       Updating site to $site php83               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating site to $site php83              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo site update --php84              '
 echo -e "${CGREEN}#############################################${CEND}"
-other_site_types='mysql wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+other_site_types='mysql php74 php80 php81 php82 php83 php85 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
 for site in $other_site_types; do
     echo -ne "       Updating site to $site php84              [..]\r"
     if {
         wo site update ${site}.net --php84
     } >>/var/log/wo/test.log; then
-        echo -ne "       Updating site to $site php82               [${CGREEN}OK${CEND}]\\r"
+        echo -ne "       Updating site to $site php84               [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
     else
-        echo -e "        Updating site to $site php82              [${CRED}FAIL${CEND}]"
+        echo -e "        Updating site to $site php84              [${CRED}FAIL${CEND}]"
+        echo -ne '\n'
+        exit_script
+
+    fi
+done
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo
+echo -e "${CGREEN}#############################################${CEND}"
+echo -e '       wo site update --php85              '
+echo -e "${CGREEN}#############################################${CEND}"
+other_site_types='mysql php74 php80 php81 php82 php83 php84 wp wpfc wpsc wpredis wpce wprocket wpsubdomain wpsubdir'
+for site in $other_site_types; do
+    echo -ne "       Updating site to $site php85              [..]\r"
+    if {
+        wo site update ${site}.net --php85
+    } >>/var/log/wo/test.log; then
+        echo -ne "       Updating site to $site php85               [${CGREEN}OK${CEND}]\\r"
+        echo -ne '\n'
+    else
+        echo -e "        Updating site to $site php85              [${CRED}FAIL${CEND}]"
         echo -ne '\n'
         exit_script
 
@@ -297,7 +339,7 @@ if [ -z "$1" ]; then
     echo -e "${CGREEN}#############################################${CEND}"
     echo -e '       wo stack upgrade              '
     echo -e "${CGREEN}#############################################${CEND}"
-    stack_upgrade='nginx php php74 php80 php81 php82 php84 mysql redis netdata dashboard phpmyadmin adminer fail2ban composer ngxblocker mysqltuner'
+    stack_upgrade='nginx php php74 php80 php81 php82 php84 php85 mysql redis netdata dashboard phpmyadmin adminer fail2ban composer ngxblocker mysqltuner'
     for stack in $stack_upgrade; do
         echo -ne "      Upgrading $stack               [..]\r"
         if {
@@ -427,7 +469,7 @@ cat /etc/apt/sources.list.d/redis.list
 echo -e "${CGREEN}#############################################${CEND}"
 echo -e '       wo stack purge              '
 echo -e "${CGREEN}#############################################${CEND}"
-stack_purge='nginx php php74 php80 php81 php82 php83 php84 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat nanorc'
+stack_purge='nginx php php74 php80 php81 php82 php83 php84 php85 mysql redis fail2ban clamav proftpd netdata phpmyadmin composer dashboard extplorer adminer redis ufw ngxblocker cheat nanorc'
 for stack in $stack_purge; do
     echo -ne "       purging $stack              [..]\r"
     if {
