@@ -12,19 +12,44 @@ location @empty_gif {
 }
 # Cache static files
 location ~* \.(ogg|ogv|svg|svgz|eot|otf|woff|woff2|ttf|m4a|mp4|ttf|rss|atom|jpe?g|gif|cur|heic|png|tiff|ico|webm|mp3|aac|tgz|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|swf|webp|json|webmanifest|cast)$ {
-    more_set_headers 'Access-Control-Allow-Origin : *';
-    more_set_headers  "Cache-Control : public, no-transform";
+    more_set_headers "Access-Control-Allow-Origin: *";
+    more_set_headers "Cache-Control: public, no-transform";
     access_log off;
     log_not_found off;
     expires max;
 }
-# Cache css & js files
-location ~* \.(?:css(\.map)?|js(\.map)?)$ {
-    more_set_headers 'Access-Control-Allow-Origin : *';
-    more_set_headers  "Cache-Control : public, no-transform";
+# Cache css files
+# Missing files return a 404 with Content-Type: text/css so browsers' strict
+# MIME checking doesn't block dynamically generated stylesheets (Divi Dynamic
+# Assets, WP Rocket critical CSS, Autoptimize, LiteSpeed Cache CCSS, etc.)
+# when the file is referenced from cached HTML before it has been written.
+location ~* \.css(\.map)?$ {
+    more_set_headers "Access-Control-Allow-Origin: *";
+    more_set_headers "Cache-Control: public, no-transform";
     access_log off;
     log_not_found off;
     expires 1y;
+    try_files $uri =404;
+    error_page 404 = @css_not_found;
+}
+location @css_not_found {
+    default_type text/css;
+    return 404 "/* not found */\n";
+}
+# Cache js files
+# Same rationale as the css block above: missing files stay application/javascript.
+location ~* \.js(\.map)?$ {
+    more_set_headers "Access-Control-Allow-Origin: *";
+    more_set_headers "Cache-Control: public, no-transform";
+    access_log off;
+    log_not_found off;
+    expires 1y;
+    try_files $uri =404;
+    error_page 404 = @js_not_found;
+}
+location @js_not_found {
+    default_type application/javascript;
+    return 404 "// not found\n";
 }
 # Security settings for better privacy
 # Deny hidden files

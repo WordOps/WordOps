@@ -22,7 +22,7 @@ server {
     }
     {{/alias}}
     {{#proxy}}
-    add_header X-Proxy-Cache $upstream_cache_status;
+    add_header X-Proxy-Cache "$upstream_cache_status";
     location / {
         proxy_pass http://{{host}}:{{port}};
         proxy_redirect      off;

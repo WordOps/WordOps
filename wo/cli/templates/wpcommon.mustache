@@ -54,13 +54,19 @@ location = /robots.txt {
 location @robots {
     return 200 "User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n";
 }
+## Prevent caching for dynamic REST API responses ##
+location ~ ^/wp-json/ {
+    more_set_headers "Cache-Control: no-cache, no-store, must-revalidate, max-age=0, private";
+    more_set_headers "Pragma: no-cache";
+    more_set_headers "Expires: 0";
+}
 # webp rewrite rules for jpg and png images
 # try to load alternative image.png.webp before image.png
 location /wp-content/uploads {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
-        more_set_headers 'Access-Control-Allow-Origin : *';
-        more_set_headers  "Cache-Control : public, no-transform";
+        more_set_headers "Access-Control-Allow-Origin: *";
+        more_set_headers "Cache-Control: public, no-transform";
         access_log off;
         log_not_found off;
         expires max;
@@ -75,8 +81,8 @@ location /wp-content/uploads {
 location /wp-content/plugins/ewww-image-optimizer/images {
     location ~ \.(png|jpe?g)$ {
         add_header Vary "Accept-Encoding";
-        more_set_headers 'Access-Control-Allow-Origin : *';
-        more_set_headers  "Cache-Control : public, no-transform";
+        more_set_headers "Access-Control-Allow-Origin: *";
+        more_set_headers "Cache-Control: public, no-transform";
         access_log off;
         log_not_found off;
         expires max;
@@ -91,7 +97,7 @@ location /wp-content/plugins/ewww-image-optimizer/images {
 location /wp-content/cache {
 # Cache css & js files
     location ~* \.(?:css(\.map)?|js(\.map)?|.html)$ {
-        more_set_headers 'Access-Control-Allow-Origin : *';
+        more_set_headers "Access-Control-Allow-Origin : *";
         access_log off;
         log_not_found off;
         expires 1y;

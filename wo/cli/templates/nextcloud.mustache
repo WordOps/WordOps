@@ -1,7 +1,7 @@
 # WordOps nextcloud configuration
-add_header X-Robots-Tag none;
-add_header X-Permitted-Cross-Domain-Policies none;
-add_header Referrer-Policy no-referrer;
+add_header X-Permitted-Cross-Domain-Policies "none";
+add_header Referrer-Policy "no-referrer";
+add_header X-Robots-Tag "none";
 location = /robots.txt {
     allow all;
     log_not_found off;
@@ -49,12 +49,12 @@ location ~ \.(?:css|js|woff2?|svg|gif|map)$ {
 # will add the domain to a hardcoded list that is shipped
 # in all major browsers and getting removed from this list
 # could take several months.
-    add_header X-Content-Type-Options nosniff;
+    add_header X-Content-Type-Options "nosniff";
     add_header X-XSS-Protection "1; mode=block";
-    add_header X-Robots-Tag none;
-    add_header X-Download-Options noopen;
-    add_header X-Permitted-Cross-Domain-Policies none;
-    add_header Referrer-Policy no-referrer;
+    add_header X-Download-Options "noopen";
+    add_header X-Permitted-Cross-Domain-Policies "none";
+    add_header Referrer-Policy "no-referrer";
+    add_header X-Robots-Tag "none";
 # Optional: Don't log access to assets
     access_log off;
 }

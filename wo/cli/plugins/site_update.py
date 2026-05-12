@@ -197,8 +197,9 @@ class WOSiteUpdateController(CementBaseController):
         if ((pargs.password or pargs.hsts or
              pargs.ngxblocker or pargs.letsencrypt == 'renew') and not (
             pargs.html or pargs.php or pargs.php74 or pargs.php80 or
-            pargs.php81 or pargs.php82 or
-            pargs.php83 or pargs.php84 or pargs.mysql or pargs.wp or pargs.wpfc or pargs.wpsc or
+            pargs.php81 or pargs.php82 or pargs.php83 or
+            pargs.php84 or pargs.php85 or
+            pargs.mysql or pargs.wp or pargs.wpfc or pargs.wpsc or
             pargs.wprocket or pargs.wpce or
                 pargs.wpsubdir or pargs.wpsubdomain)):
 
@@ -268,19 +269,19 @@ class WOSiteUpdateController(CementBaseController):
 
         if (((stype == 'php' and
               oldsitetype not in ['html', 'proxy', 'php', 'php74', 'php80',
-                                  'php81', 'php82', 'php83', 'php84']) or
+                                  'php81', 'php82', 'php83', 'php84', 'php85']) or
              (stype == 'mysql' and oldsitetype not in [
                  'html', 'php', 'php74', 'php80', 'php81',
-                 'php82', 'php83', 'php84', 'proxy']) or
+                 'php82', 'php83', 'php84', 'php85', 'proxy']) or
              (stype == 'wp' and oldsitetype not in [
                  'html', 'php', 'php74', 'php80', 'php81',
-                 'php82', 'php83', 'php84', 'mysql', 'proxy', 'wp']) or
+                 'php82', 'php83', 'php84', 'php85', 'mysql', 'proxy', 'wp']) or
              (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
              (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
              (stype == oldsitetype and cache == oldcachetype)) and
                 not (pargs.php74 or pargs.php80 or
                      pargs.php81 or pargs.php82 or
-                     pargs.php83 or pargs.php84 or pargs.alias)):
+                     pargs.php83 or pargs.php84 or pargs.php85 or pargs.alias)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -338,7 +339,7 @@ class WOSiteUpdateController(CementBaseController):
                 site_name=wo_domain, www_domain=wo_www_domain,
                 static=False, basic=True, wp=False, wpfc=False,
                 php74=False, php80=False, php81=False, php82=False, php83=False,
-                php84=False, wpsc=False, wpredis=False, wprocket=False, wpce=False,
+                php84=False, php85=False, wpsc=False, wpredis=False, wprocket=False, wpce=False,
                 multisite=False, wpsubdir=False, webroot=wo_site_webroot,
                 currsitetype=oldsitetype, currcachetype=oldcachetype)
 
@@ -362,11 +363,11 @@ class WOSiteUpdateController(CementBaseController):
                     data['wpsubdir'] = True
 
         if ((pargs.php74 or pargs.php80 or pargs.php81 or
-             pargs.php82 or pargs.php83 or pargs.php84) and
+             pargs.php82 or pargs.php83 or pargs.php84 or pargs.php85) and
                 (not data)):
             Log.debug(
                 self, "pargs php74, "
-                "or php80, or php81 or php82 or php83 or php84 enabled")
+                "or php80, or php81 or php82 or php83 or php84 or php85 enabled")
             data = dict(
                 site_name=wo_domain,
                 www_domain=wo_www_domain,
@@ -384,7 +385,7 @@ class WOSiteUpdateController(CementBaseController):
                   oldsitetype == 'php73' or oldsitetype == 'php74' or
                   oldsitetype == 'php80' or oldsitetype == 'php81' or
                   oldsitetype == 'php82' or oldsitetype == 'php83' or
-                  oldsitetype == 'php84'):
+                  oldsitetype == 'php84' or oldsitetype == 'php85'):
                 data['static'] = False
                 data['wp'] = False
                 data['multisite'] = False
@@ -436,7 +437,7 @@ class WOSiteUpdateController(CementBaseController):
 
             if (data and (not pargs.php74) and
                     (not pargs.php80) and (not pargs.php81) and (not pargs.php82)
-                    and (not pargs.php83) and (not pargs.php84)):
+                    and (not pargs.php83) and (not pargs.php84) and (not pargs.php85)):
                 data[pargs_version] = bool(old_version_var is True)
                 Log.debug(
                     self, f"data {pargs_version} = {data[pargs_version]}")
@@ -796,7 +797,8 @@ class WOSiteUpdateController(CementBaseController):
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'php72',
                                           'mysql', 'php73', 'php74', 'php80',
-                                          'php81', 'php82', 'php83', 'php84']:
+                                          'php81', 'php82', 'php83', 'php84',
+                                          'php85']:
             try:
                 wo_wp_creds = setupwordpress(self, data)
             except SiteError as e:

@@ -86,7 +86,8 @@ def pre_pref(self, apt_packages):
             ('php8.1-fpm' in apt_packages) or
             ('php8.2-fpm' in apt_packages) or
             ('php8.3-fpm' in apt_packages) or
-            ('php8.4-fpm' in apt_packages)):
+            ('php8.4-fpm' in apt_packages) or
+            ('php8.5-fpm' in apt_packages)):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
             Log.info(self, "Adding repository for PHP, please wait...")
@@ -514,7 +515,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             data = dict(pool='www-php{0}'.format(php_short),
                         listen='php{0}-fpm.sock'.format(php_short),
                         user='www-data',
-                        group='www-data', listenuser='root',
+                        group='www-data', listenuser='www-data',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self, '/etc/php/{0}/fpm/pool.d/www.conf'
                               .format(php_version[0]),
@@ -522,7 +523,7 @@ def post_pref(self, apt_packages, packages, upgrade=False):
             data = dict(pool='www-two-php{0}'.format(php_short),
                         listen='php{0}-two-fpm.sock'.format(php_short),
                         user='www-data',
-                        group='www-data', listenuser='root',
+                        group='www-data', listenuser='www-data',
                         listengroup='www-data', openbasedir=True)
             WOTemplate.deploy(self,
                               '/etc/php/{0}/fpm/pool.d/www-two.conf'.format(
