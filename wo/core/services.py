@@ -2,6 +2,7 @@
 import subprocess
 
 from wo.core.logging import Log
+from wo.core.variables import WOVar
 
 
 class WOService():
@@ -164,16 +165,8 @@ class WOService():
         try:
             is_exist = subprocess.getstatusoutput('command -v {0}'
                                                   .format(service_name))
-            if is_exist[0] == 0 or service_name in ['php7.2-fpm',
-                                                    'php7.3-fpm',
-                                                    'php7.4-fpm',
-                                                    'php8.0-fpm',
-                                                    'php8.1-fpm',
-                                                    'php8.2-fpm',
-                                                    'php8.3-fpm',
-                                                    'php8.4-fpm',
-                                                    'php8.5-fpm',
-                                                    ]:
+            php_fpm_services = [f'php{v}-fpm' for v in WOVar.wo_php_versions.values()]
+            if is_exist[0] == 0 or service_name in php_fpm_services:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
                 if retcode[0] == 0:

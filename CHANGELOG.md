@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
+### v3.22.2 - 2026-05-16
+
+#### Fixed
+
+-   Fix PHP update errors: replace hardcoded PHP version lists with dynamic `WOVar.wo_php_versions` loop in `site_update.py`, `site_functions.py`, `stack.py`, `stack_pref.py`, `stack_upgrade.py`
+-   Fix `stub_status.mustache`: remove EOL PHP 7.2/7.3 opcache upstreams; add PHP 8.1–8.5 opcache locations
+-   Fix `stack_pref.py`: `phpconf` detection now checks any installed modern PHP (8.1–8.5) instead of hardcoded `php7.2-fpm`
+-   Fix `debug.py`: remove EOL PHP 7.2/7.3 service reload/restart calls
+-   Fix `services.py`: replace hardcoded PHP FPM service name list with dynamic generation from `WOVar.wo_php_versions`
+-   Fix `stack_pref.py` and `stack_upgrade.py`: PHP repository trigger now uses dynamic package list instead of listing each version
+
 ### v3.22.1 - 2026-05-16
 
 #### Changed

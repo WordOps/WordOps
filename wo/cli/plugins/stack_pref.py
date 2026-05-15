@@ -79,15 +79,8 @@ def pre_pref(self, apt_packages):
                 WORepo.add(self, repo_url=WOVar.wo_nginx_repo, repo_name="wordops")
 
     # add php repository
-    if (('php7.3-fpm' in apt_packages) or
-            ('php7.2-fpm' in apt_packages) or
-            ('php7.4-fpm' in apt_packages) or
-            ('php8.0-fpm' in apt_packages) or
-            ('php8.1-fpm' in apt_packages) or
-            ('php8.2-fpm' in apt_packages) or
-            ('php8.3-fpm' in apt_packages) or
-            ('php8.4-fpm' in apt_packages) or
-            ('php8.5-fpm' in apt_packages)):
+    php_fpm_pkgs = [f"php{v}-fpm" for v in WOVar.wo_php_versions.values()]
+    if any(p in apt_packages for p in php_fpm_pkgs):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
             Log.info(self, "Adding repository for PHP, please wait...")

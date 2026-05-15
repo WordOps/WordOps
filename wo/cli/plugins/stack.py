@@ -476,15 +476,8 @@ class WOStackController(CementBaseController):
             if pargs.utils:
                 if not WOMysql.mariadb_ping(self):
                     pargs.mysql = True
-                if not (WOAptGet.is_installed(self, 'php7.2-fpm') or
-                        WOAptGet.is_installed(self, 'php7.3-fpm') or
-                        WOAptGet.is_installed(self, 'php7.4-fpm') or
-                        WOAptGet.is_installed(self, 'php8.0-fpm') or
-                        WOAptGet.is_installed(self, 'php8.1-fpm') or
-                        WOAptGet.is_installed(self, 'php8.2-fpm') or
-                        WOAptGet.is_installed(self, 'php8.3-fpm') or
-                        WOAptGet.is_installed(self, 'php8.4-fpm') or
-                        WOAptGet.is_installed(self, 'php8.5-fpm')):
+                if not any(WOAptGet.is_installed(self, f'php{v}-fpm')
+                               for v in WOVar.wo_php_versions.values()):
                     pargs.php = True
                 Log.debug(self, "Setting packages variable for utils")
                 packages = packages + [[
