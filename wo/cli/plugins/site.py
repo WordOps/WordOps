@@ -163,6 +163,11 @@ class WOSiteController(CementBaseController):
             else:
                 sslprovider = ''
                 sslexpiry = ''
+            # Check ngxblocker status
+            ngxblocker = "off"
+            if os.path.isfile('/var/www/{0}/conf/nginx/ngxblocker.conf'
+                              .format(wo_domain)):
+                ngxblocker = "on"
             data = dict(domain=wo_domain, domain_type=wo_domain_type,
                         webroot=wo_site_webroot,
                         accesslog=access_log, errorlog=error_log,
@@ -170,6 +175,7 @@ class WOSiteController(CementBaseController):
                         php_version=php_version,
                         dbpass=wo_db_pass,
                         ssl=ssl, sslprovider=sslprovider, sslexpiry=sslexpiry,
+                        ngxblocker=ngxblocker,
                         type=sitetype + " " + cachetype + " ({0})"
                         .format("enabled" if siteinfo.is_enabled else
                                 "disabled"))
