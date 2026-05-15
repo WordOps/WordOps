@@ -1,6 +1,9 @@
 from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
                         func)
-from sqlalchemy.ext.declarative import declarative_base
+try:
+    from sqlalchemy.orm import declarative_base
+except ImportError:
+    from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
 from wo.cli.plugins.models import SiteDB

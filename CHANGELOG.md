@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
+### v3.22.1 - 2026-05-16
+
+#### Changed
+
+-   Bump `python_requires` from `>=3.4` to `>=3.8` to reflect minimum supported Python
+-   Update `PyMySQL` from 1.1.2 to 1.1.3
+-   Update `psutil` from 7.0.0 to 7.2.2
+-   Update `requests` minimum version to >=2.34.0
+-   Update `pystache` to pinned version 0.6.8
+-   Update Adminer bundled version from 4.8.1 to 4.14.0
+-   Update phpMyAdmin bundled version from 5.2.0 to 5.2.2
+
+#### Fixed
+
+-   Fix `linux_distribution` import removed in Python 3.8+ (`distro` module now used directly)
+-   Fix deprecated `convert_unicode` argument in `create_engine()` (SQLAlchemy 1.4+)
+-   Fix deprecated `sqlalchemy.ext.declarative.declarative_base` import; now uses `sqlalchemy.orm.declarative_base` with fallback
+
 ### v3.22.0 - [Unreleased]
 
 #### Added
