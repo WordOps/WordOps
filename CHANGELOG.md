@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
+### v3.22.3 - 2026-05-16
+
+#### Fixed
+
+-   Fix issue #779: missing comma in `stack.py` causing `wo stack install --wpcli` to fail with a syntax error
+-   Fix issue #751: PHP-FPM `pm.max_children` and MariaDB `innodb_buffer_pool_size` are now computed dynamically based on available RAM to prevent OOM on low-memory servers (< 4GB)
+-   Fix issue #780: `wo info --nginx` now warns when the installed nginx version is affected by CVE-2026-42945 (nginx < 1.30.1) and directs user to upgrade via `wo stack upgrade --nginx`
+
 ### v3.22.2 - 2026-05-16
 
 #### Fixed

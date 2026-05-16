@@ -232,7 +232,7 @@ class WOStackController(CementBaseController):
             if pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
                 if not WOAptGet.is_exec(self, 'wp'):
-                    packages = packages + [[f"{WOVar.wpcli_url}"
+                    packages = packages + [[f"{WOVar.wpcli_url}",
                                             "/usr/local/bin/wp",
                                             "WP-CLI"]]
                 else:
