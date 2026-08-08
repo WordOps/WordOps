@@ -2,13 +2,19 @@
 # DO NOT MODIFY, ALL CHANGES WILL BE LOST AFTER AN WordOps (wo) UPDATE
 {{#phpconf}}
 upstream phpstatus {
-    server unix:/run/php/php72-fpm.sock;
+    server unix:/run/php/php81-fpm.sock;
 }
-upstream php73opcache {
-    server unix:/run/php/php73-fpm.sock;
+upstream php82opcache {
+    server unix:/run/php/php82-fpm.sock;
 }
-upstream php74opcache {
-    server unix:/run/php/php74-fpm.sock;
+upstream php83opcache {
+    server unix:/run/php/php83-fpm.sock;
+}
+upstream php84opcache {
+    server unix:/run/php/php84-fpm.sock;
+}
+upstream php85opcache {
+    server unix:/run/php/php85-fpm.sock;
 }
 {{/phpconf}}
 server {
@@ -36,24 +42,38 @@ server {
     location / {
         try_files $uri $uri/ /index.php$is_args$args;
     }
-    location /cache/opcache/php72.php {
+    location /cache/opcache/php81.php {
         try_files $uri =404;
         include fastcgi_params;
         fastcgi_pass phpstatus;
         access_log off;
         log_not_found off;
     }
-    location /cache/opcache/php73.php {
+    location /cache/opcache/php82.php {
         try_files $uri =404;
         include fastcgi_params;
-        fastcgi_pass php73opcache;
+        fastcgi_pass php82opcache;
         access_log off;
         log_not_found off;
     }
-    location /cache/opcache/php74.php {
+    location /cache/opcache/php83.php {
         try_files $uri =404;
         include fastcgi_params;
-        fastcgi_pass php74opcache;
+        fastcgi_pass php83opcache;
+        access_log off;
+        log_not_found off;
+    }
+    location /cache/opcache/php84.php {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php84opcache;
+        access_log off;
+        log_not_found off;
+    }
+    location /cache/opcache/php85.php {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass php85opcache;
         access_log off;
         log_not_found off;
     }

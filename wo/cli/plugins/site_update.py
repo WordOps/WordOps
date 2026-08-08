@@ -196,9 +196,8 @@ class WOSiteUpdateController(CementBaseController):
 
         if ((pargs.password or pargs.hsts or
              pargs.ngxblocker or pargs.letsencrypt == 'renew') and not (
-            pargs.html or pargs.php or pargs.php74 or pargs.php80 or
-            pargs.php81 or pargs.php82 or pargs.php83 or
-            pargs.php84 or pargs.php85 or
+            pargs.html or pargs.php or
+            any(getattr(pargs, v, False) for v in WOVar.wo_php_versions) or
             pargs.mysql or pargs.wp or pargs.wpfc or pargs.wpsc or
             pargs.wprocket or pargs.wpce or
                 pargs.wpsubdir or pargs.wpsubdomain)):
@@ -279,9 +278,7 @@ class WOSiteUpdateController(CementBaseController):
              (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
              (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
              (stype == oldsitetype and cache == oldcachetype)) and
-                not (pargs.php74 or pargs.php80 or
-                     pargs.php81 or pargs.php82 or
-                     pargs.php83 or pargs.php84 or pargs.php85 or pargs.alias)):
+                not (any(getattr(pargs, v, False) for v in WOVar.wo_php_versions) or pargs.alias)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -362,8 +359,7 @@ class WOSiteUpdateController(CementBaseController):
                 if stype == 'wpsubdir':
                     data['wpsubdir'] = True
 
-        if ((pargs.php74 or pargs.php80 or pargs.php81 or
-             pargs.php82 or pargs.php83 or pargs.php84 or pargs.php85) and
+        if (any(getattr(pargs, v, False) for v in WOVar.wo_php_versions) and
                 (not data)):
             Log.debug(
                 self, "pargs php74, "
@@ -435,9 +431,7 @@ class WOSiteUpdateController(CementBaseController):
                         self, f"PHP {version} is already enabled for given site")
                     setattr(pargs, pargs_version, False)
 
-            if (data and (not pargs.php74) and
-                    (not pargs.php80) and (not pargs.php81) and (not pargs.php82)
-                    and (not pargs.php83) and (not pargs.php84) and (not pargs.php85)):
+            if (data and all(not getattr(pargs, v, False) for v in WOVar.wo_php_versions)):
                 data[pargs_version] = bool(old_version_var is True)
                 Log.debug(
                     self, f"data {pargs_version} = {data[pargs_version]}")

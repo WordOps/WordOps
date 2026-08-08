@@ -276,15 +276,8 @@ class WOStackUpgradeController(CementBaseController):
         else:
             pre_stack(self)
             if apt_packages:
-                if not ("php7.2-fpm" in apt_packages or
-                        "php7.3-fpm" in apt_packages or
-                        "php7.4-fpm" in apt_packages or
-                        "php8.0-fpm" in apt_packages or
-                        "php8.1-fpm" in apt_packages or
-                        "php8.2-fpm" in apt_packages or
-                        "php8.3-fpm" in apt_packages or
-                        "php8.4-fpm" in apt_packages or
-                        "php8.5-fpm" in apt_packages or
+                php_fpm_pkgs = [f"php{v}-fpm" for v in WOVar.wo_php_versions.values()]
+                if not (any(p in apt_packages for p in php_fpm_pkgs) or
                         "redis-server" in apt_packages or
                         "nginx-custom" in apt_packages or
                         "mariadb-server" in apt_packages):

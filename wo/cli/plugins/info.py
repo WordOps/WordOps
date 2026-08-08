@@ -46,6 +46,18 @@ class WOInfoController(CementBaseController):
         version = os.popen("/usr/sbin/nginx -v 2>&1 | "
                            "awk -F '/' '{print $2}' | "
                            "awk -F ' ' '{print $1}' | tr '\n' ' '").read()
+        # CVE-2026-42945: nginx < 1.30.1 is vulnerable - warn if running old version
+        try:
+            import re as _re
+            ver_match = _re.search(r'(\d+\.\d+\.\d+)', version)
+            if ver_match:
+                ver_parts = tuple(int(x) for x in ver_match.group(1).split('.'))
+                if ver_parts < (1, 30, 1):
+                    Log.warn(self, "SECURITY: nginx {0} is affected by CVE-2026-42945. "
+                             "Upgrade to >= 1.30.1 with: wo stack upgrade --nginx"
+                             .format(ver_match.group(1)))
+        except Exception:
+            pass
         allow = os.popen("grep ^allow /etc/nginx/common/acl.conf | "
                          "cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' '").read()
         nc = NginxConfig()

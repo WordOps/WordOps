@@ -626,10 +626,7 @@ class WODebugController(CementBaseController):
 
         # Reload PHP
         if self.trigger_php:
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                WOService.reload_service(self, 'php7.2-fpm')
-            if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                WOService.reload_service(self, 'php7.3-fpm')
+            # PHP 7.2 and 7.3 are EOL and no longer managed by WordOps
         self.app.close(0)
 
     @expose(hide=True)
@@ -714,7 +711,7 @@ class WODebugController(CementBaseController):
             self.app.pargs.nginx = 'on'
             self.app.pargs.php = 'on'
             self.app.pargs.fpm = 'on'
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+            if any(WOAptGet.is_installed(self, f'php{v}-fpm') for v in WOVar.wo_php_versions.values()):
                 self.app.pargs.php73 = 'on'
                 self.app.pargs.fpm73 = 'on'
             self.app.pargs.mysql = 'on'
@@ -726,7 +723,7 @@ class WODebugController(CementBaseController):
             self.app.pargs.nginx = 'off'
             self.app.pargs.php = 'off'
             self.app.pargs.fpm = 'off'
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
+            if any(WOAptGet.is_installed(self, f'php{v}-fpm') for v in WOVar.wo_php_versions.values()):
                 self.app.pargs.php73 = 'off'
                 self.app.pargs.fpm73 = 'off'
             self.app.pargs.mysql = 'off'
@@ -772,10 +769,7 @@ class WODebugController(CementBaseController):
             WOService.reload_service(self, 'nginx')
         # Reload PHP
         if self.trigger_php:
-            if WOAptGet.is_installed(self, 'php7.2-fpm'):
-                WOService.restart_service(self, 'php7.2-fpm')
-            if WOAptGet.is_installed(self, 'php7.3-fpm'):
-                WOService.restart_service(self, 'php7.3-fpm')
+            # PHP 7.2 and 7.3 are EOL and no longer managed by WordOps
 
         if len(self.msg) > 0:
             if not self.app.pargs.interactive:

@@ -79,15 +79,8 @@ def pre_pref(self, apt_packages):
                 WORepo.add(self, repo_url=WOVar.wo_nginx_repo, repo_name="wordops")
 
     # add php repository
-    if (('php7.3-fpm' in apt_packages) or
-            ('php7.2-fpm' in apt_packages) or
-            ('php7.4-fpm' in apt_packages) or
-            ('php8.0-fpm' in apt_packages) or
-            ('php8.1-fpm' in apt_packages) or
-            ('php8.2-fpm' in apt_packages) or
-            ('php8.3-fpm' in apt_packages) or
-            ('php8.4-fpm' in apt_packages) or
-            ('php8.5-fpm' in apt_packages)):
+    php_fpm_pkgs = [f"php{v}-fpm" for v in WOVar.wo_php_versions.values()]
+    if any(p in apt_packages for p in php_fpm_pkgs):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
             Log.info(self, "Adding repository for PHP, please wait...")
@@ -512,11 +505,27 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                 self, '/etc/php/{0}/fpm/php-fpm.conf'.format(php_version[0]),
                 'php-fpm.mustache', data)
             php_short = php_version[0].replace(".", "")
+            # Issue #751: calculate RAM-aware PHP-FPM pm settings
+            _ram_mb = psutil.virtual_memory().total / (1024 * 1024)
+            if _ram_mb < 1024:      # < 1GB
+                _pm_max, _pm_start, _pm_min, _pm_spare = 5, 1, 1, 2
+            elif _ram_mb < 2048:    # 1-2GB
+                _pm_max, _pm_start, _pm_min, _pm_spare = 10, 2, 2, 4
+            elif _ram_mb < 4096:    # 2-4GB
+                _pm_max, _pm_start, _pm_min, _pm_spare = 20, 4, 4, 8
+            elif _ram_mb < 8192:    # 4-8GB
+                _pm_max, _pm_start, _pm_min, _pm_spare = 30, 5, 5, 10
+            else:                   # 8GB+
+                _pm_max, _pm_start, _pm_min, _pm_spare = 50, 10, 5, 15
             data = dict(pool='www-php{0}'.format(php_short),
                         listen='php{0}-fpm.sock'.format(php_short),
                         user='www-data',
                         group='www-data', listenuser='www-data',
-                        listengroup='www-data', openbasedir=True)
+                        listengroup='www-data', openbasedir=True,
+                        pm_max_children=_pm_max,
+                        pm_start_servers=_pm_start,
+                        pm_min_spare_servers=_pm_min,
+                        pm_max_spare_servers=_pm_spare)
             WOTemplate.deploy(self, '/etc/php/{0}/fpm/pool.d/www.conf'
                               .format(php_version[0]),
                               'php-pool.mustache', data)
@@ -524,7 +533,11 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                         listen='php{0}-two-fpm.sock'.format(php_short),
                         user='www-data',
                         group='www-data', listenuser='www-data',
-                        listengroup='www-data', openbasedir=True)
+                        listengroup='www-data', openbasedir=True,
+                        pm_max_children=_pm_max,
+                        pm_start_servers=_pm_start,
+                        pm_min_spare_servers=_pm_min,
+                        pm_max_spare_servers=_pm_spare)
             WOTemplate.deploy(self,
                               '/etc/php/{0}/fpm/pool.d/www-two.conf'.format(
                                   php_version[0]),
@@ -709,7 +722,13 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                          "/etc/mysql/my.cnf.default-pkg")
                 wo_ram = psutil.virtual_memory().total / (1024 * 1024)
                 # set InnoDB variable depending on the RAM available
-                wo_ram_innodb = int(wo_ram * 0.3)
+                # Issue #751: use conservative buffer sizes for low-RAM servers
+                if wo_ram < 1024:
+                    wo_ram_innodb = int(wo_ram * 0.15)   # 15% for < 1GB
+                elif wo_ram < 4096:
+                    wo_ram_innodb = int(wo_ram * 0.20)   # 20% for 1-4GB
+                else:
+                    wo_ram_innodb = int(wo_ram * 0.30)   # 30% for 4GB+
                 wo_ram_log_buffer = int(wo_ram_innodb * 0.25)
                 wo_ram_log_size = int(wo_ram_log_buffer * 0.5)
                 if (wo_ram < 2000):

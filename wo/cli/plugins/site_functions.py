@@ -872,17 +872,14 @@ def site_package_check(self, stype):
                     wo_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-        php_versions = ['php74', 'php80', 'php81', 'php82', 'php83', 'php84', 'php85']
+        php_versions = list(WOVar.wo_php_versions.keys())
 
-        selected_versions = [version for version in php_versions if getattr(pargs, version)]
+        selected_versions = [version for version in php_versions if getattr(pargs, version, False)]
         if len(selected_versions) > 1:
             Log.error(self, "Error: two different PHP versions cannot be "
                       "combined within the same WordOps site")
 
-    if ((not pargs.php74) and (not pargs.php80) and
-        (not pargs.php81) and (not pargs.php82) and
-        (not pargs.php83) and (not pargs.php84) and
-        (not pargs.php85) and
+    if (all(not getattr(pargs, v, False) for v in WOVar.wo_php_versions) and
         stype in ['php', 'mysql', 'wp', 'wpsubdir',
                   'wpsubdomain']):
         Log.debug(self, "Setting apt_packages variable for PHP")

@@ -6,6 +6,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
+### v3.22.3 - 2026-05-16
+
+#### Fixed
+
+-   Fix issue #779: missing comma in `stack.py` causing `wo stack install --wpcli` to fail with a syntax error
+-   Fix issue #751: PHP-FPM `pm.max_children` and MariaDB `innodb_buffer_pool_size` are now computed dynamically based on available RAM to prevent OOM on low-memory servers (< 4GB)
+-   Fix issue #780: `wo info --nginx` now warns when the installed nginx version is affected by CVE-2026-42945 (nginx < 1.30.1) and directs user to upgrade via `wo stack upgrade --nginx`
+
+### v3.22.2 - 2026-05-16
+
+#### Fixed
+
+-   Fix PHP update errors: replace hardcoded PHP version lists with dynamic `WOVar.wo_php_versions` loop in `site_update.py`, `site_functions.py`, `stack.py`, `stack_pref.py`, `stack_upgrade.py`
+-   Fix `stub_status.mustache`: remove EOL PHP 7.2/7.3 opcache upstreams; add PHP 8.1–8.5 opcache locations
+-   Fix `stack_pref.py`: `phpconf` detection now checks any installed modern PHP (8.1–8.5) instead of hardcoded `php7.2-fpm`
+-   Fix `debug.py`: remove EOL PHP 7.2/7.3 service reload/restart calls
+-   Fix `services.py`: replace hardcoded PHP FPM service name list with dynamic generation from `WOVar.wo_php_versions`
+-   Fix `stack_pref.py` and `stack_upgrade.py`: PHP repository trigger now uses dynamic package list instead of listing each version
+
+### v3.22.1 - 2026-05-16
+
+#### Changed
+
+-   Bump `python_requires` from `>=3.4` to `>=3.8` to reflect minimum supported Python
+-   Update `PyMySQL` from 1.1.2 to 1.1.3
+-   Update `psutil` from 7.0.0 to 7.2.2
+-   Update `requests` minimum version to >=2.34.0
+-   Update `pystache` to pinned version 0.6.8
+-   Update Adminer bundled version from 4.8.1 to 4.14.0
+-   Update phpMyAdmin bundled version from 5.2.0 to 5.2.2
+
+#### Fixed
+
+-   Fix `linux_distribution` import removed in Python 3.8+ (`distro` module now used directly)
+-   Fix deprecated `convert_unicode` argument in `create_engine()` (SQLAlchemy 1.4+)
+-   Fix deprecated `sqlalchemy.ext.declarative.declarative_base` import; now uses `sqlalchemy.orm.declarative_base` with fallback
+
 ### v3.22.0 - [Unreleased]
 
 #### Added
