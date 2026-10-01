@@ -234,6 +234,7 @@ class WOStackController(CementBaseController):
                 if not WOAptGet.is_exec(self, 'wp'):
                     packages = packages + [[f"{WOVar.wpcli_url}"
                                             "/usr/local/bin/wp",
+                                            "/usr/local/bin/wp",
                                             "WP-CLI"]]
                 else:
                     Log.debug(self, "WP-CLI is already installed")

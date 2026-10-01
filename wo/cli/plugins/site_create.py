@@ -475,7 +475,8 @@ class WOSiteCreateController(CementBaseController):
                                     webroot=data['webroot'],
                                     dbname=data['wo_db_name'],
                                     dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_mysql_grant_host'])
+                                    dbhost=data.get('wo_mysql_grant_host',
+                                                     'localhost'))
                     deleteSiteInfo(self, wo_domain)
                     Log.error(self, "Check the log for details: "
                               "`tail /var/log/wo/wordops.log` "
@@ -492,7 +493,8 @@ class WOSiteCreateController(CementBaseController):
                     doCleanupAction(self, domain=wo_domain,
                                     dbname=data['wo_db_name'],
                                     dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_mysql_grant_host'])
+                                    dbhost=data.get('wo_mysql_grant_host',
+                                                     'localhost'))
                 deleteSiteInfo(self, wo_domain)
                 Log.info(self, Log.FAIL + "service nginx reload failed."
                          " check issues with `nginx -t` command.")
@@ -518,7 +520,8 @@ class WOSiteCreateController(CementBaseController):
                     doCleanupAction(self, domain=wo_domain,
                                     dbname=data['wo_db_name'],
                                     dbuser=data['wo_db_user'],
-                                    dbhost=data['wo_mysql_grant_host'])
+                                    dbhost=data.get('wo_mysql_grant_host',
+                                                     'localhost'))
                 deleteSiteInfo(self, wo_domain)
                 Log.error(self, "Check the log for details: "
                           "`tail /var/log/wo/wordops.log` and "

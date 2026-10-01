@@ -117,6 +117,7 @@ _run() {
         if [ -n "$2" ]; then
             echo -e "${TPUT_FAIL}[KO]${TPUT_RESET}"
         fi
+        return 1
     else
         if [ -n "$2" ]; then
             echo -e "[${TPUT_OK}OK${TPUT_RESET}]"
@@ -208,12 +209,17 @@ wo_install_dep() {
     wo_linux_distro=$(lsb_release -is)
     wo_python_venv=$(apt-cache policy python3.12-venv 2>&1 | grep -q Installed)
     if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        # install dependencies
-        add-apt-repository ppa:git-core/ppa -y
+        # add-apt-repository is provided by software-properties-common and
+        # must be available before adding the Git PPA.
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
+            software-properties-common >/dev/null 2>&1 || return 1
+        add-apt-repository ppa:git-core/ppa -y || return 1
+
+        # install dependencies
+        apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
+            build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar pigz \
             gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
-            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
+            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1 || return 1
         if $wo_python_venv; then
             apt install -yy python3.12-venv >/dev/null 2>&1
         fi
@@ -223,7 +229,7 @@ wo_install_dep() {
         apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
             build-essential curl gzip dirmngr sudo python3-pip python3-apt python3-venv gcc python3-dev ca-certificates sqlite3 git tar \
             software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
-            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
+            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1 || return 1
         # add php repository gpg key
         curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
         dpkg -i /tmp/debsuryorg-archive-keyring.deb && rm -f /tmp/debsuryorg-archive-keyring.deb
@@ -918,7 +924,9 @@ else
         fi
 
     fi
-    _run wo_install_dep "Installing wo dependencies"
+    if ! _run wo_install_dep "Installing wo dependencies"; then
+        wo_lib_error "Unable to install WordOps dependencies" 1
+    fi
     _run wo_timesync
     # skip steps if travis
     if [ -z "$wo_travis" ]; then

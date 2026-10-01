@@ -24,6 +24,15 @@ from wo.core.download import WODownload
 from wo.core.checkfqdn import WOFqdn
 
 
+def _add_repository_or_exit(self, repository_name, **kwargs):
+    """Add a repository and stop before apt install if it cannot be added."""
+    if not WORepo.add(self, **kwargs):
+        Log.error(
+            self,
+            "Unable to add the {0} repository. Check repository prerequisites "
+            "and the WordOps log for details.".format(repository_name))
+
+
 def pre_pref(self, apt_packages):
     """Pre settings to do before installation packages"""
 
@@ -46,7 +55,9 @@ def pre_pref(self, apt_packages):
             else:
                 wo_mysql_repo_conf = WOVar.wo_mysql_repo
             # APT repositories
-            WORepo.add(self, repo_url=wo_mysql_repo_conf, repo_name="mariadb")
+            _add_repository_or_exit(
+                self, "MySQL", repo_url=wo_mysql_repo_conf,
+                repo_name="mariadb")
     if ("mariadb-server" in apt_packages and
             not os.path.exists('/etc/mysql/conf.d/my.cnf')):
         # generate random 24 characters root password
@@ -70,13 +81,16 @@ def pre_pref(self, apt_packages):
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.info(self, "Adding repository for NGINX, please wait...")
-            WORepo.add(self, ppa=WOVar.wo_nginx_repo)
+            _add_repository_or_exit(
+                self, "NGINX", ppa=WOVar.wo_nginx_repo)
             Log.debug(self, 'Adding ppa for Nginx')
         else:
             if not os.path.exists('/etc/apt/sources.list.d/wordops.list'):
                 Log.info(self, "Adding repository for NGINX, please wait...")
                 Log.debug(self, 'Adding repository for Nginx')
-                WORepo.add(self, repo_url=WOVar.wo_nginx_repo, repo_name="wordops")
+                _add_repository_or_exit(
+                    self, "NGINX", repo_url=WOVar.wo_nginx_repo,
+                    repo_name="wordops")
 
     # add php repository
     if (('php7.3-fpm' in apt_packages) or
@@ -91,7 +105,8 @@ def pre_pref(self, apt_packages):
         if (WOVar.wo_distro == 'ubuntu'):
             Log.debug(self, 'Adding ppa for PHP')
             Log.info(self, "Adding repository for PHP, please wait...")
-            WORepo.add(self, ppa=WOVar.wo_php_repo)
+            _add_repository_or_exit(
+                self, "PHP", ppa=WOVar.wo_php_repo)
         else:
             # Add repository for php
             if (WOVar.wo_platform_codename == 'buster'):
@@ -106,12 +121,16 @@ def pre_pref(self, apt_packages):
             if not os.path.exists('/etc/apt/sources.list.d/php.list'):
                 Log.debug(self, 'Adding repo_url of php for debian')
                 Log.info(self, "Adding repository for PHP, please wait...")
-                WORepo.add(self, repo_url=WOVar.wo_php_repo, repo_name="php")
+                _add_repository_or_exit(
+                    self, "PHP", repo_url=WOVar.wo_php_repo,
+                    repo_name="php")
 
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
         if not os.path.exists('/etc/apt/sources.list.d/redis.list'):
-            WORepo.add(self, repo_url=WOVar.wo_redis_repo, repo_name="redis")
+            _add_repository_or_exit(
+                self, "Redis", repo_url=WOVar.wo_redis_repo,
+                repo_name="redis")
 
 
 def post_pref(self, apt_packages, packages, upgrade=False):
@@ -207,6 +226,9 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                                   .format(ngxcom),
                                   'locations.mustache', data)
                 # traffic advice file
+                traffic_advice_dir = '/var/www/html/.well-known'
+                if not os.path.isdir(traffic_advice_dir):
+                    os.makedirs(traffic_advice_dir, exist_ok=True)
                 WOTemplate.deploy(self,
                                   '/var/www/html/'
                                   '.well-known/traffic-advice',
