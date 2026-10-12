@@ -14,6 +14,9 @@ location ~ \.php$ {
   fastcgi_cache_bypass $skip_cache;
   fastcgi_no_cache $skip_cache;
   fastcgi_cache WORDPRESS;
+  # cache files are removed by nginx-helper (purge all): do not keep their descriptors open,
+  # otherwise a deleted page keeps being served for up to open_file_cache_valid (60s)
+  open_file_cache off;
 }
 location ~ /purge(/.*) {
   fastcgi_cache_purge WORDPRESS "$scheme$request_method$host$1";

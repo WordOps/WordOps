@@ -111,3 +111,10 @@ map $http_upgrade $connection_upgrade {
     default upgrade;
     ''      close;
 }
+
+# cache key without analytics/ads parameters: /page/?utm_source=x&gclid=y uses the cache of /page/
+# URLs with any other parameter keep their full $request_uri (purge by URL keeps working)
+map $request_uri $wpfc_cache_uri {
+    default $request_uri;
+    "~^(?<wpfc_path>[^?]*)\?(?:(?:utm_[a-z0-9_]+|hsa_[a-z0-9_]+|gad_[a-z0-9_]+|gclid|gbraid|wbraid|dclid|fbclid|msclkid|srsltid|_ga|_gl|mc_cid|mc_eid)(?:=[^&]*)?(?:&|$))+$" $wpfc_path;
+}

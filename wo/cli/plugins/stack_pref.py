@@ -246,6 +246,8 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                               '{0}/fastcgi.conf'
                               .format(ngxcnf),
                               'fastcgi.mustache', data, overwrite=True)
+            # FastCGI cache on disk, /var/run/nginx-cache kept as a symlink
+            WOFileUtils.fastcgi_cache_dir(self)
 
             # add redis cache format if not already done
             if (os.path.isfile("/etc/nginx/nginx.conf") and

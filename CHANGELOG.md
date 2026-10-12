@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Releases
 
+### Unreleased
+
+#### Changed
+
+-   FastCGI cache stored on disk (`/var/cache/nginx-fastcgi`, 2G, 7 days) instead of a 256M tmpfs, `/var/run/nginx-cache` kept as a symlink
+-   FastCGI cache key ignores analytics/ads query strings (`utm_*`, `gclid`, `fbclid`...)
+-   FastCGI cache no longer stores 5xx/499 responses (`any 1h` removed)
+-   `open_file_cache off` for FastCGI cached responses, so pages removed by nginx-helper "purge all" are not served for up to 60s
+
 ### v3.22.0 - [Unreleased]
 
 #### Added

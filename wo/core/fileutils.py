@@ -386,3 +386,27 @@ class WOFileUtils():
                 return True
             else:
                 return False
+
+    def fastcgi_cache_dir(self, cache_dir='/var/cache/nginx-fastcgi',
+                          link='/var/run/nginx-cache'):
+        """Store the FastCGI cache on disk and keep /var/run/nginx-cache
+        as a symlink to it (default cache path of nginx-helper),
+        recreated at boot by systemd-tmpfiles."""
+        try:
+            if not os.path.isdir(cache_dir):
+                os.makedirs(cache_dir)
+            shutil.chown(cache_dir, 'www-data', 'root')
+            os.chmod(cache_dir, 0o750)
+            if os.path.isdir(link) and not os.path.islink(link):
+                # previous cache in tmpfs, rebuilt on the next requests
+                shutil.rmtree(link, ignore_errors=True)
+            if not os.path.islink(link):
+                os.symlink(cache_dir, link)
+            with open('/etc/tmpfiles.d/wo-nginx-cache.conf',
+                      encoding='utf-8', mode='w') as tmpfiles:
+                tmpfiles.write('# WordOps: FastCGI cache stored on disk\n'
+                               'L {0} - - - - {1}\n'.format(link, cache_dir))
+        except OSError as e:
+            Log.debug(self, "{0}".format(e))
+            Log.warn(self, "Unable to setup the FastCGI cache directory "
+                     "{0}".format(cache_dir))
