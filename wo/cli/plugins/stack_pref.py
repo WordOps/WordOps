@@ -104,16 +104,26 @@ def pre_pref(self, apt_packages):
                     encoding='utf-8') as php_pref_file:
                 php_pref_file.write(php_pref)
         if (WOVar.wo_distro == 'ubuntu' and
-                WOVar.wo_platform_codename == 'focal'):
-            php_repo_file = '/etc/apt/sources.list.d/ondrej-ubuntu-php-focal.list'
+                WOVar.wo_platform_codename != 'resolute'):
+            php_repo_base = (
+                '/etc/apt/sources.list.d/ondrej-ubuntu-php-'
+                f'{WOVar.wo_platform_codename}'
+            )
+            php_repo_exists = (
+                os.path.exists(f'{php_repo_base}.list') or
+                os.path.exists(f'{php_repo_base}.sources')
+            )
+            php_uses_ppa = True
         else:
-            php_repo_file = '/etc/apt/sources.list.d/php.list'
+            php_repo_exists = os.path.exists(
+                '/etc/apt/sources.list.d/php.list'
+            )
+            php_uses_ppa = False
 
-        if not os.path.exists(php_repo_file):
-            Log.debug(self, 'Adding repo_url of php')
+        if not php_repo_exists:
+            Log.debug(self, 'Adding PHP repository')
             Log.info(self, "Adding repository for PHP, please wait...")
-            if (WOVar.wo_distro == 'ubuntu' and
-                    WOVar.wo_platform_codename == 'focal'):
+            if php_uses_ppa:
                 WORepo.add(self, ppa=WOVar.wo_php_repo)
             else:
                 WORepo.add(self, repo_url=WOVar.wo_php_repo,
