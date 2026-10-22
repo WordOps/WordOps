@@ -66,17 +66,22 @@ def pre_pref(self, apt_packages):
         with os.fdopen(os.open(conf_path, os.O_WRONLY | os.O_CREAT, 0o600), 'w', encoding='utf-8') as configfile:
             config.write(configfile)
 
-    # add nginx repository
+    # Add Nginx repository.
     if set(WOVar.wo_nginx).issubset(set(apt_packages)):
-        if (WOVar.wo_distro == 'ubuntu'):
+        if (WOVar.wo_distro == 'ubuntu' and
+                WOVar.wo_platform_codename != 'resolute'):
             Log.info(self, "Adding repository for NGINX, please wait...")
             WORepo.add(self, ppa=WOVar.wo_nginx_repo)
-            Log.debug(self, 'Adding ppa for Nginx')
+            Log.debug(self, 'Adding PPA for Nginx')
         else:
             if not os.path.exists('/etc/apt/sources.list.d/wordops.list'):
                 Log.info(self, "Adding repository for NGINX, please wait...")
                 Log.debug(self, 'Adding repository for Nginx')
-                WORepo.add(self, repo_url=WOVar.wo_nginx_repo, repo_name="wordops")
+                WORepo.add(
+                    self,
+                    repo_url=WOVar.wo_nginx_repo,
+                    repo_name="wordops"
+                )
 
     # add php repository
     if (('php7.3-fpm' in apt_packages) or
@@ -88,25 +93,31 @@ def pre_pref(self, apt_packages):
             ('php8.3-fpm' in apt_packages) or
             ('php8.4-fpm' in apt_packages) or
             ('php8.5-fpm' in apt_packages)):
-        if (WOVar.wo_distro == 'ubuntu'):
-            Log.debug(self, 'Adding ppa for PHP')
-            Log.info(self, "Adding repository for PHP, please wait...")
-            WORepo.add(self, ppa=WOVar.wo_php_repo)
+        # Add repository for php
+        if (WOVar.wo_platform_codename == 'buster'):
+            php_pref = ("Package: *\nPin: origin "
+                        "packages.sury.org"
+                        "\nPin-Priority: 1000\n")
+            with open(
+                '/etc/apt/preferences.d/'
+                    'PHP.pref', mode='w',
+                    encoding='utf-8') as php_pref_file:
+                php_pref_file.write(php_pref)
+        if (WOVar.wo_distro == 'ubuntu' and
+                WOVar.wo_platform_codename == 'focal'):
+            php_repo_file = '/etc/apt/sources.list.d/ondrej-ubuntu-php-focal.list'
         else:
-            # Add repository for php
-            if (WOVar.wo_platform_codename == 'buster'):
-                php_pref = ("Package: *\nPin: origin "
-                            "packages.sury.org"
-                            "\nPin-Priority: 1000\n")
-                with open(
-                    '/etc/apt/preferences.d/'
-                        'PHP.pref', mode='w',
-                        encoding='utf-8') as php_pref_file:
-                    php_pref_file.write(php_pref)
-            if not os.path.exists('/etc/apt/sources.list.d/php.list'):
-                Log.debug(self, 'Adding repo_url of php for debian')
-                Log.info(self, "Adding repository for PHP, please wait...")
-                WORepo.add(self, repo_url=WOVar.wo_php_repo, repo_name="php")
+            php_repo_file = '/etc/apt/sources.list.d/php.list'
+
+        if not os.path.exists(php_repo_file):
+            Log.debug(self, 'Adding repo_url of php')
+            Log.info(self, "Adding repository for PHP, please wait...")
+            if (WOVar.wo_distro == 'ubuntu' and
+                    WOVar.wo_platform_codename == 'focal'):
+                WORepo.add(self, ppa=WOVar.wo_php_repo)
+            else:
+                WORepo.add(self, repo_url=WOVar.wo_php_repo,
+                           repo_name="php")
 
     # add redis repository
     if set(WOVar.wo_redis).issubset(set(apt_packages)):
@@ -679,11 +690,16 @@ def post_pref(self, apt_packages, packages, upgrade=False):
                     WOGit.add(self, ["/etc/mysql"],
                               msg="Adding MySQL into Git")
                 elif os.path.exists('/etc/mysql/conf.d/my.cnf'):
-                    if ((WOAptGet.is_installed(
-                        self,
-                        'mariadb-server-{0}'.format(WOVar.mariadb_ver))) and
-                            not (WOFileUtils.grepcheck(
-                                self, '/etc/mysql/conf.d/my.cnf', 'socket'))):
+                    mariadb_package = (
+                        'mariadb-server'
+                        if WOVar.wo_distro == 'ubuntu'
+                        and WOVar.wo_platform_codename == 'resolute'
+                        else 'mariadb-server-{0}'.format(WOVar.mariadb_ver)
+                    )
+
+                    if (WOAptGet.is_installed(self, mariadb_package) and
+                            not WOFileUtils.grepcheck(
+                                self, '/etc/mysql/conf.d/my.cnf', 'socket')):
                         try:
                             config = configparser.ConfigParser()
                             config.read('/etc/mysql/conf.d/my.cnf')
@@ -1339,8 +1355,8 @@ def pre_stack(self):
             if (WOVar.wo_platform_codename == 'focal' or
                 WOVar.wo_platform_codename == 'buster' or
                 WOVar.wo_platform_codename == 'jammy' or
-                    WOVar.wo_platform_codename == 'bullseye' or
-                    WOVar.wo_platform_codename == 'bookworm'):
+                    WOVar.wo_platform_codename == 'bookworm' or
+                    WOVar.wo_platform_codename == 'resolute'):
                 try:
                     WOShellExec.cmd_exec(
                         self, 'modprobe tcp_bbr')

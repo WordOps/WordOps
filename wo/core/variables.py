@@ -116,7 +116,13 @@ class WOVar():
 
     # WordOps stack installation variables
     # Nginx repo and packages
-    if wo_distro == 'ubuntu':
+    if wo_distro == 'ubuntu' and wo_platform_codename == 'resolute':
+        wo_nginx_repo = (
+            "deb [signed-by=/usr/share/keyrings/wordops-archive-keyring.gpg] "
+            "https://download.opensuse.org/repositories/"
+            "home:/virtubox:/WordOps/xUbuntu_26.04/ /"
+        )
+    elif wo_distro == 'ubuntu':
         wo_nginx_repo = "ppa:wordops/nginx-wo"
 
     else:
@@ -138,10 +144,8 @@ class WOVar():
         wo_nginx_repo = ("deb [signed-by=/usr/share/keyrings/wordops-archive-keyring.gpg] "
                          "http://download.opensuse.org"
                          f"/repositories/home:/virtubox:/WordOps/{wo_deb_repo}/ /")
-        wo_nginx_key = (f"https://download.opensuse.org/repositories/home:virtubox:WordOps/{wo_deb_repo}/Release.key")
 
     wo_nginx = ["nginx-custom", "nginx-wo"]
-    wo_nginx_key = 'FB898660'
 
     wo_php_versions = {
         'php74': '7.4',
@@ -189,8 +193,8 @@ class WOVar():
     if wo_distro == 'raspbian':
         mariadb_ver = '10.3'
     else:
-        mariadb_ver = '11.4'
-        wo_mysql = wo_mysql + ["mariadb-backup"]
+        mariadb_ver = '11.8'
+        wo_mysql.append("mariadb-backup")
 
     wo_mysql_client = ["mariadb-client", "python3-mysqldb"]
 
@@ -201,20 +205,24 @@ class WOVar():
     wo_mysql_repo = ("deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] "
                      "http://deb.mariadb.org/"
                      f"{mariadb_ver}/{wo_distro} {wo_platform_codename} main")
-    mariadb_repo_key = "https://mariadb.org/mariadb_release_signing_key.pgp"
-    if wo_distro == 'ubuntu':
-        wo_php_repo = "ppa:ondrej/php"
-        wo_goaccess_repo = ("ppa:alex-p/goaccess")
+    mariadb_repo_key = "https://supplychain.mariadb.com/mariadb-keyring-2025.gpg"
 
+    if wo_distro == 'ubuntu':
+        wo_goaccess_repo = "ppa:alex-p/goaccess"
+
+    if wo_distro == 'ubuntu' and wo_platform_codename != 'resolute':
+        wo_php_repo = "ppa:ondrej/php"
     else:
         wo_php_repo = (
             "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] "
-            f"https://packages.sury.org/php/ {wo_platform_codename} main")
-        wo_php_key = '95BD4743'
+            f"https://packages.sury.org/php/ {wo_platform_codename} main"
+        )
+
     wo_redis_key_url = "https://packages.redis.io/gpg"
     wo_redis_repo = (
         "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] "
-        f"https://packages.redis.io/deb {wo_platform_codename} main")
+        f"https://packages.redis.io/deb {wo_platform_codename} main"
+    )
 
     wo_redis = ['redis-server']
 
