@@ -7,6 +7,7 @@ on:
       - updating-configuration
       - master
       - ci
+      - feature/ubuntu-26.04-support
   pull_request:
     branches:
       - master
