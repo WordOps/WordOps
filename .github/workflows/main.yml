@@ -23,9 +23,10 @@ jobs:
     name: test WordOps
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04, ubuntu-26.04]
-    
+
     steps:
     - uses: actions/checkout@v4
     - name: Prepare VM
@@ -46,10 +47,19 @@ jobs:
           ubuntu_version=$(lsb_release -cs)
           echo "deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] http://mariadb.mirrors.ovh.net/MariaDB/repo/11.4/ubuntu $ubuntu_version main" | sudo tee /etc/apt/sources.list.d/mariadb.list
         fi
-        
+
     - name: Install WordOps
       run: sudo timeout 1800 bash install --travis
     - name: Run tests
       run: sudo timeout 1800 bash tests/travis.sh --actions
     - name: Display log
-      run: sudo cat /var/log/wo/test.log | ccze -A
+      if: failure()
+      run: |
+        echo "=== Test Log ==="
+        sudo tail -n 200 /var/log/wo/test.log 2>/dev/null || true
+
+        echo "=== WordOps Log ==="
+        sudo tail -n 200 /var/log/wo/wordops.log 2>/dev/null || true
+
+        echo "=== APT Log ==="
+        sudo tail -n 100 /var/log/apt/term.log 2>/dev/null || true
