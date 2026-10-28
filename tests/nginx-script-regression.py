@@ -32,7 +32,7 @@ def group_pids(group):
 
 
 def stop_instance(master):
-    # start_new_session trennt die eigene Probe von der bereits laufenden Instanz.
+    # start_new_session keeps cleanup separate from the installed Nginx service.
     for sig, seconds in [(signal.SIGQUIT, 5), (signal.SIGTERM, 2), (signal.SIGKILL, 2)]:
         master.poll()
         if not group_pids(master.pid):
@@ -128,7 +128,7 @@ http {{
             for name in ["output.log", "error.log", "access.log"]:
                 path = root / name
                 if path.exists():
-                    print(f"--- {name} ---\n{path.read_text(errors="replace")}", file=sys.stderr)
+                    print(f"--- {name} ---\n{path.read_text(errors='replace')}", file=sys.stderr)
             raise RuntimeError("; ".join(failures))
     print("Nginx script regression: HTTP 200, correct escaped key, 100 requests with one stable worker passed")
 
