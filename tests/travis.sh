@@ -41,6 +41,15 @@ for stack in $stack_list; do
     } >>/var/log/wo/test.log; then
         echo -ne "       Installing $stack                [${CGREEN}OK${CEND}]\\r"
         echo -ne '\n'
+        if [ "$stack" = nginx ]; then
+            if python3 "$(dirname "${BASH_SOURCE[0]}")/nginx-script-regression.py" >>/var/log/wo/test.log 2>&1; then
+                echo -e "       Nginx script regression          [${CGREEN}OK${CEND}]"
+            else
+                echo -e "       Nginx script regression          [${CRED}FAIL${CEND}]"
+                cat /var/log/wo/test.log
+                exit_script
+            fi
+        fi
     else
         echo -e "        Installing $stack              [${CRED}FAIL${CEND}]"
         echo -ne '\n'
