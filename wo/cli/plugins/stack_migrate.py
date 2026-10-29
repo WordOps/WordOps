@@ -1,7 +1,6 @@
 import os
 import re
 from cement.core.controller import CementBaseController, expose
-
 from wo.cli.plugins.stack_pref import post_pref, pre_pref
 from wo.core.aptget import WOAptGet
 from wo.core.fileutils import WOFileUtils
@@ -12,6 +11,7 @@ from wo.core.variables import WOVar
 from wo.cli.plugins.sitedb import (getAllsites)
 from wo.core.template import WOTemplate
 from wo.core.domainvalidate import WODomain
+from wo.core.php_repo_migration import MigrationError, migrate_php_stack
 
 
 class WOStackMigrateController(CementBaseController):
@@ -27,6 +27,9 @@ class WOStackMigrateController(CementBaseController):
             (['--nginx'],
                 dict(help="Migrate Nginx TLS configuration to HTTP/3 QUIC",
                      action='store_true')),
+            (['--php'],
+                dict(help="Migrate PHP repository and installed packages to Sury",
+                     action='store_true')),
             (['--force'],
                 dict(help="Force Packages upgrade without any prompt",
                      action='store_true')),
@@ -35,10 +38,8 @@ class WOStackMigrateController(CementBaseController):
                      "do not use it on your server",
                      action='store_true')),
         ]
-
     @expose(hide=True)
     def migrate_mariadb(self, ci=False):
-
         # Backup all database
         WOMysql.backupAll(self, fulldump=True)
 
@@ -53,7 +54,6 @@ class WOStackMigrateController(CementBaseController):
             wo_mysql_current_repo = WOFileUtils.grep(
                 self, '/etc/apt/sources.list.d/mariadb.list', 'mariadb')
             repo_path = '/etc/apt/sources.list.d/mariadb.list'
-
         if wo_mysql_current_repo:
             Log.debug(self, "Looking for MariaDB version")
             pattern = r"/(\d+\.\d+)/"
@@ -62,7 +62,6 @@ class WOStackMigrateController(CementBaseController):
             Log.debug(self, f"Current MariaDB version is {current_mysql_version}")
         else:
             Log.error(self, "MariaDB is not installed from repository yet")
-
         if self.app.config.has_section('mariadb'):
             mariadb_release = self.app.config.get(
                 'mariadb', 'release')
@@ -74,13 +73,10 @@ class WOStackMigrateController(CementBaseController):
             Log.info(self, "You already have the latest "
                      "MariaDB version available")
             return 0
-
         WOFileUtils.rm(self, repo_path)
         # Add MariaDB repo
         pre_pref(self, WOVar.wo_mysql)
-
         # Install MariaDB
-
         Log.wait(self, "Updating apt-cache          ")
         WOAptGet.update(self)
         Log.valide(self, "Updating apt-cache          ")
@@ -100,10 +96,8 @@ class WOStackMigrateController(CementBaseController):
         WOShellExec.cmd_exec(self, 'systemctl daemon-reload')
         WOShellExec.cmd_exec(self, 'systemctl enable mariadb')
         post_pref(self, WOVar.wo_mysql, [])
-
     @expose(hide=True)
     def migrate_nginx(self):
-
         # Add Nginx repo
         pre_pref(self, WOVar.wo_nginx)
         # Install Nginx
@@ -137,11 +131,33 @@ class WOStackMigrateController(CementBaseController):
                             self, f'/etc/letsencrypt/shared/{wo_root_domain}.conf',
                             'ssl.mustache', data, overwrite=True)
         post_pref(self, WOVar.wo_nginx, [])
+    @expose(hide=True)
+    def migrate_php(self):
+        if WOVar.wo_distro != 'ubuntu':
+            Log.error(self, "PHP migration is only available on Ubuntu")
+            return
+        if os.geteuid() != 0:
+            Log.error(self, "PHP migration requires root privileges")
+            return
+        try:
+            result = migrate_php_stack(WOVar.wo_platform_codename)
+        except MigrationError as exc:
+            Log.error(self, str(exc))
+            return
+        repository = result['repository']
+        packages = result['packages']
+        Log.info(self, "PHP repository: " + repository['status'])
+        if repository['backup']:
+            Log.info(self, "Repository backup: " + repository['backup'])
+        Log.info(self, "PHP packages: " + packages['status'] +
+                 " (" + str(packages['changed']) + " changed)")
+        if packages['backup']:
+            Log.info(self, "Package configuration backup: " + packages['backup'])
 
     @expose(hide=True)
     def default(self):
         pargs = self.app.pargs
-        if not pargs.mariadb and not pargs.nginx:
+        if not pargs.mariadb and not pargs.nginx and not pargs.php:
             self.app.args.print_help()
         if pargs.mariadb:
             if WOVar.wo_distro == 'raspbian':
@@ -149,9 +165,7 @@ class WOStackMigrateController(CementBaseController):
             if WOVar.wo_mysql_host != "localhost":
                 Log.error(
                     self, "Remote MySQL server in use, skipping local install")
-
             if WOMysql.mariadb_ping(self):
-
                 Log.info(self, "If your database size is big, "
                          "migration may take some time.")
                 Log.info(self, "During migration non nginx-cached parts of "
@@ -172,3 +186,12 @@ class WOStackMigrateController(CementBaseController):
                 self.migrate_nginx()
             else:
                 Log.error(self, "Unable to connect to MariaDB")
+        if pargs.php:
+            if not pargs.force:
+                start_upgrade = input(
+                    "Migrate PHP repository and synchronize installed packages? [y/N] "
+                )
+                if start_upgrade.lower() != 'y':
+                    Log.info(self, "PHP repository migration cancelled")
+                    return
+            self.migrate_php()

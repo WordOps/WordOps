@@ -168,9 +168,9 @@ wo_check_distro() {
             wo_lib_echo_fail "Feel free to open a pull-request if you want to add support for another Linux distributions"
             exit 100
         else
-            check_wo_linux_distro=$(lsb_release -sc | grep -E "buster|focal|jammy|bullseye|bookworm|noble|trixie")
+            check_wo_linux_distro=$(lsb_release -sc | grep -E "buster|focal|jammy|bullseye|bookworm|noble|resolute|trixie")
             if [ -z "$check_wo_linux_distro" ]; then
-                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 20.04/22.04/24.04 LTS, Debian 11.x/12.x/13.x and Raspbian 10x./11.x/12.x \n
+                wo_lib_echo_fail "WordOps (wo) only supports Ubuntu 20.04/22.04/24.04/26.04 LTS, Debian 11.x/12.x/13.x and Raspbian 10x./11.x/12.x \n
                 You can bypass this warning by adding the flag --force to the install command"
                 exit 100
             fi
@@ -205,33 +205,81 @@ wo_dir_init() {
 
 wo_install_dep() {
     local wo_linux_distro
+    local wo_distro_codename
+    local sury_keyring
+    local -a ubuntu_time_packages=()
+
     wo_linux_distro=$(lsb_release -is)
-    wo_python_venv=$(apt-cache policy python3.12-venv 2>&1 | grep -q Installed)
-    if [ "$wo_linux_distro" == "Ubuntu" ]; then
-        # install dependencies
-        add-apt-repository ppa:git-core/ppa -y
-        apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip python3-pip python3-apt python3-venv gcc python3-dev sqlite3 git tar software-properties-common pigz \
-            gnupg2 cron ccze rsync apt-transport-https tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
-            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
-        if $wo_python_venv; then
-            apt install -yy python3.12-venv >/dev/null 2>&1
+    wo_distro_codename=$(lsb_release -sc)
+
+    if [ "$wo_linux_distro" = "Ubuntu" ]; then
+        # Preserve the existing NTP dependency on older Ubuntu releases.
+        if [ "$wo_distro_codename" != "resolute" ]; then
+            ubuntu_time_packages=(ntp)
         fi
 
+        # Use Ubuntu's official Git package on Resolute.
+        if [ "$wo_distro_codename" != "resolute" ]; then
+            add-apt-repository ppa:git-core/ppa -y || return 1
+        fi
+
+        # Install Ubuntu dependencies.
+        if ! apt-get \
+            --option=Dpkg::options::=--force-confmiss \
+            --option=Dpkg::options::=--force-confold \
+            --assume-yes install \
+            build-essential curl gzip python3-pip python3-apt \
+            python3-venv gcc python3-dev sqlite3 git tar \
+            software-properties-common pigz gnupg2 cron ccze rsync \
+            apt-transport-https tree haveged ufw unattended-upgrades \
+            tzdata zstd idn "${ubuntu_time_packages[@]}" \
+            python3-distutils-extra libapt-pkg-dev bash-completion; then
+            echo "Failed to install Ubuntu dependencies" >&2
+            return 1
+        fi
     else
-        # install dependencies
-        apt-get --option=Dpkg::options::=--force-confmiss --option=Dpkg::options::=--force-confold --assume-yes install \
-            build-essential curl gzip dirmngr sudo python3-pip python3-apt python3-venv gcc python3-dev ca-certificates sqlite3 git tar \
-            software-properties-common pigz apt-transport-https gnupg2 cron ccze rsync tree haveged ufw unattended-upgrades tzdata ntp zstd idn \
-            python3-distutils-extra libapt-pkg-dev bash-completion >/dev/null 2>&1
-        # add php repository gpg key
-        curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
-        dpkg -i /tmp/debsuryorg-archive-keyring.deb && rm -f /tmp/debsuryorg-archive-keyring.deb
+        # Preserve existing Debian dependency handling.
+        apt-get \
+            --option=Dpkg::options::=--force-confmiss \
+            --option=Dpkg::options::=--force-confold \
+            --assume-yes install \
+            build-essential curl gzip dirmngr sudo python3-pip \
+            python3-apt python3-venv gcc python3-dev ca-certificates \
+            sqlite3 git tar software-properties-common pigz \
+            apt-transport-https gnupg2 cron ccze rsync tree haveged \
+            ufw unattended-upgrades tzdata ntp zstd idn \
+            python3-distutils-extra libapt-pkg-dev bash-completion \
+            >/dev/null 2>&1 || return 1
     fi
-    locale-gen en
-    # enable unattended upgades
+
+    # Install the Sury PHP repository keyring.
+    if { [ "$wo_linux_distro" = "Ubuntu" ] &&
+         [ "$wo_distro_codename" != "focal" ]; } ||
+       [ "$wo_linux_distro" = "Debian" ]; then
+
+        sury_keyring=$(mktemp /tmp/debsuryorg-archive-keyring.XXXXXX.deb) || return 1
+
+        if ! curl -fsSL --connect-timeout 10 --max-time 60 \
+            https://packages.sury.org/debsuryorg-archive-keyring.deb \
+            -o "$sury_keyring"; then
+            rm -f "$sury_keyring"
+            return 1
+        fi
+
+        if ! dpkg -i "$sury_keyring"; then
+            rm -f "$sury_keyring"
+            return 1
+        fi
+
+        rm -f "$sury_keyring"
+    fi
+
+    locale-gen en || return 1
+
+    # Enable unattended upgrades.
     if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
-        cp -f /usr/share/unattended-upgrades/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
+        cp -f /usr/share/unattended-upgrades/20auto-upgrades \
+            /etc/apt/apt.conf.d/20auto-upgrades || return 1
     fi
 }
 
@@ -240,6 +288,8 @@ wo_download_gpg_keys() {
     wo_distro_version=$(lsb_release -rs | grep -oE '[0-9]+')
     local wo_linux_distro
     wo_linux_distro=$(lsb_release -is)
+    local wo_distro_codename
+    wo_distro_codename=$(lsb_release -sc)
 
     # create directories
     mkdir -p /usr/share/keyrings /etc/apt/keyrings
@@ -248,11 +298,39 @@ wo_download_gpg_keys() {
     curl -fsSL https://packages.redis.io/gpg | gpg --dearmor | tee /usr/share/keyrings/redis-archive-keyring.gpg >/dev/null 2>&1
 
     # mariadb
-    curl -o /etc/apt/keyrings/mariadb-keyring.pgp 'https://mariadb.org/mariadb_release_signing_key.pgp'
+    curl -fsSL --connect-timeout 10 --max-time 60 \
+        'https://supplychain.mariadb.com/mariadb-keyring-2025.gpg' \
+        -o /etc/apt/keyrings/mariadb-keyring.pgp || return 1
 
-    # nginx
-    if [ "$wo_linux_distro" == "Debian" ]; then
-        curl -fsSL "https://raw.githubusercontent.com/WordOps/WordOps/refs/heads/master/repo.key" | gpg --dearmor | tee /usr/share/keyrings/wordops-archive-keyring.gpg >/dev/null 2>&1
+    chmod 644 /etc/apt/keyrings/mariadb-keyring.pgp
+
+    # Install the WordOps Nginx repository signing key.
+    if [ "$wo_linux_distro" = "Debian" ] || \
+    { [ "$wo_linux_distro" = "Ubuntu" ] && \
+        [ "$wo_distro_codename" = "resolute" ]; }; then
+
+        if [ "$wo_distro_codename" = "resolute" ]; then
+            wo_nginx_key_url="https://download.opensuse.org/repositories/home:virtubox:WordOps/xUbuntu_26.04/Release.key"
+        else
+            wo_nginx_key_url="https://raw.githubusercontent.com/WordOps/WordOps/refs/heads/master/repo.key"
+        fi
+
+        wo_nginx_key_tmp=$(mktemp) || return 1
+
+        if ! curl -fsSL --connect-timeout 10 --max-time 60 \
+            "$wo_nginx_key_url" -o "$wo_nginx_key_tmp"; then
+            rm -f "$wo_nginx_key_tmp"
+            return 1
+        fi
+
+        if ! gpg --batch --yes --dearmor \
+            -o /usr/share/keyrings/wordops-archive-keyring.gpg \
+            "$wo_nginx_key_tmp"; then
+            rm -f "$wo_nginx_key_tmp"
+            return 1
+        fi
+
+        rm -f "$wo_nginx_key_tmp"
     fi
     if [ "$wo_linux_distro" == "Raspbian" ]; then
         curl -fsSL "https://download.opensuse.org/repositories/home:virtubox:WordOps/Raspbian_$wo_distro_version/Release.key" | gpg --dearmor | tee /usr/share/keyrings/wordops-archive-keyring.gpg >/dev/null 2>&1
@@ -267,17 +345,22 @@ wo_update_repo() {
         if grep -q sury /etc/apt/sources.list.d/wo-repo.list; then
             echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $wo_linux_codename main" >/etc/apt/sources.list.d/php.list
         fi
-        # properly define mariadb repository
+        # Restore the existing MariaDB repository during WordOps updates.
         repo_file="/etc/apt/sources.list.d/wo-repo.list"
-        if grep -q mariadb /etc/apt/sources.list.d/wo-repo.list; then
+
+        if grep -q mariadb "$repo_file"; then
+
             repo_number=$(grep -c "mariadb" "$repo_file")
+
             if [ "$repo_number" -gt 1 ]; then
                 get_urls=$(grep "mariadb" "$repo_file" | awk '{print $3}')
                 mariadb_repo=$(echo "$get_urls" | sort -t '/' -k 6,6 -V | tail -n 1)
             else
-                mariadb_repo=$(grep mariadb /etc/apt/sources.list.d/wo-repo.list | awk '{print $3}')
+                mariadb_repo=$(grep mariadb "$repo_file" | awk '{print $3}')
             fi
-            echo "deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] $mariadb_repo $wo_linux_codename main" >/etc/apt/sources.list.d/mariadb.list
+
+            echo "deb [signed-by=/etc/apt/keyrings/mariadb-keyring.pgp] $mariadb_repo $wo_linux_codename main" \
+                > /etc/apt/sources.list.d/mariadb.list
         fi
         # properly define redis repository
         if grep -q redis /etc/apt/sources.list.d/wo-repo.list; then
@@ -519,7 +602,11 @@ wo_install() {
         /opt/wo/bin/pip uninstall SQLAlchemy -y
     else
         rm -rf /opt/wo
-        python3 -m venv /opt/wo
+        if [ "$wo_distro_codename" = "resolute" ]; then
+            python3 -m venv --system-site-packages /opt/wo
+        else
+            python3 -m venv /opt/wo
+        fi
         source /opt/wo/bin/activate
         /opt/wo/bin/pip uninstall -yq setuptools
         /opt/wo/bin/pip install setuptools==80.0.1
@@ -536,7 +623,10 @@ wo_install() {
                 /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
             fi
         else
-            if [ "$wo_distro_codename" = "focal" ]; then
+            if [ "$wo_distro_codename" = "resolute" ]; then
+                # Use Ubuntu's system-provided python3-apt.
+                :
+            elif [ "$wo_distro_codename" = "focal" ]; then
                 /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
             elif [ "$wo_distro_codename" = "bionic" ]; then
                 /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
@@ -587,7 +677,11 @@ wo_travis_install() {
             /opt/wo/bin/pip uninstall SQLAlchemy -y
         else
             rm -rf /opt/wo
-            python3 -m venv /opt/wo
+            if [ "$wo_distro_codename" = "resolute" ]; then
+                python3 -m venv --system-site-packages /opt/wo
+            else
+                python3 -m venv /opt/wo
+            fi
             source /opt/wo/bin/activate
             /opt/wo/bin/pip uninstall -yq setuptools
             /opt/wo/bin/pip install setuptools==80.0.1
@@ -603,7 +697,10 @@ wo_travis_install() {
                     /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.8.4.y#egg=python-apt
                 fi
             else
-                if [ "$wo_distro_codename" = "focal" ]; then
+                if [ "$wo_distro_codename" = "resolute" ]; then
+                    # Use Ubuntu's system-provided python3-apt.
+                    :
+                elif [ "$wo_distro_codename" = "focal" ]; then
                     /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@2.0.0#egg=python-apt
                 elif [ "$wo_distro_codename" = "bionic" ]; then
                     /opt/wo/bin/pip install git+https://salsa.debian.org/apt-team/python-apt.git@1.6.y#egg=python-apt
